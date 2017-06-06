@@ -183,7 +183,7 @@ rbsa.dat5 <- rbsa.dat4
 #############################################################################################
 
 ##  Set outpath directory
-outPath <- "C:/Users/Casey.Stevens/Documents/RBSA/RBSA Analysis/Clean RBSA Data"
+outPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
