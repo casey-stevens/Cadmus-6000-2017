@@ -25,10 +25,10 @@ library(data.table)
 #############################################################################################
 # Define File Path
 SPPath   <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Data for SCL"
-sourcePath <- "C:/Users/Casey.Stevens/Documents/RBSA/RBSA Analysis"
-stopifnot(file.exists(SPPath))
+cleanInPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
+stopifnot(all(file.exists(SPPath)))
 
-rbsa.dat     <- read.xlsx(xlsxFile = file.path(sourcePath, paste("clean.rbsa.data", rundate, ".xlsx")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(cleanInPath, paste("clean.rbsa.data", rundate, ".xlsx")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 room.dat <- read.xlsx(xlsxFile = file.path(SPPath, "ROOMS_2017.03.30.xlsx"))
