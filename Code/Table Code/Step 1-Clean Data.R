@@ -187,7 +187,7 @@ outPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Docu
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat4, paste(outPath, paste("clean.rbsa.data", rundate, ".xlsx"), sep="/"),
+write.xlsx(rbsa.dat5, paste(outPath, paste("clean.rbsa.data", rundate, ".xlsx"), sep="/"),
            append = T, row.names = F, showNA = F)
 
 
