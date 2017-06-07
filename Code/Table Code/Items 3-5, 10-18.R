@@ -407,15 +407,15 @@ item10.sum <- summarise(group_by(SF.item10.dat, BuildingType, Wall.Type)
                       ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
                       ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
                       ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
-                      ,r0.se       = sd(R0) / sqrt(sampleSizeNoNA)
+                      ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
                       ,r1.r10.percent  = sum(R1.R10)  / sampleSizeNoNA
-                      ,r1.r10.se           = sd(R1.R10) / sqrt(sampleSizeNoNA)
+                      ,r1.r10.se       = sd(R1.R10) / sqrt(sampleSizeNoNA)
                       ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
-                      ,r11.r16.se           = sd(R11.R16) / sqrt(sampleSizeNoNA)
+                      ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
                       ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
-                      ,r17.r22.se           = sd(R17.R22) / sqrt(sampleSizeNoNA)
+                      ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
                       ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
-                      ,rGT22.se           = sd(RGT22) / sqrt(sampleSizeNoNA)
+                      ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
 )
 
 SF.item10.dat$count <- 1
@@ -423,14 +423,23 @@ item10.sum.allLevels <- summarise(group_by(SF.item10.dat, BuildingType, Wall.Typ
                                   ,WallTypeCount = sum(count)
                                   ,TotalCount = sum(SF.item10.dat$count)
                                   ,AllInsulationLevelPercent = WallTypeCount / TotalCount
+                                  ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
                                   )
 
 #Check to make sure they add to 1
 sum(item10.sum.allLevels$AllInsulationLevelPercent)
 
 #join all insulation levels onto rvalue summary
-item10.final <- cbind.data.frame(item10.sum, "All Insulation Levels" = item10.sum.allLevels$AllInsulationLevelPercent)
+item10.final <- cbind.data.frame(item10.sum
+                                 , "All Insulation Levels Mean" = item10.sum.allLevels$AllInsulationLevelPercent
+                                 , "All Insulation Levels SE"   = item10.sum.allLevels$AllInsulationSE)
 
+
+
+
+#############################################################################################
+# Item 11: DISTRIBUTION OF WALL FRAMING TYPES BY VINTAGE (SF table 18)
+#############################################################################################
 
 
 
