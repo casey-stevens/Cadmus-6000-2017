@@ -98,6 +98,14 @@ rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$Ho
 rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
 unique(rbsa.dat$HomeYearBuilt_bins)
 
+# Convert home year built to specific bins (4 categories)
+rbsa.dat$HomeYearBuilt_bins4 <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
+rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX < 1981)] <- "Pre 1981"
+rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1981 & rbsa.dat$HomeYearBuiltXX < 1991)] <- "1981-1990"
+rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$HomeYearBuiltXX < 2001)] <- "1991-2000"
+rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
+unique(rbsa.dat$HomeYearBuilt_bins4)
+
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 rbsa.dat1 <- rbsa.dat
