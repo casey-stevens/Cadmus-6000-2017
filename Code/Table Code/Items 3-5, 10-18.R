@@ -213,7 +213,7 @@ item10.dat$CK_Cadmus_ID <- trimws(item10.dat$CK_Cadmus_ID)
 #subset to only wall information
 item10.dat1 <- item10.dat[which(item10.dat$Category == "Wall"),]
 
-#remove unneccesary wall types -- check with Rietz
+#remove unneccesary wall types
 item10.dat2 <- item10.dat1[which(!(item10.dat1$Wall.Type %in% c("Masonry","Masonry (Basement)","Log","Adiabatic"))),]
 
 #create "Alternative" category
@@ -381,9 +381,9 @@ item10.dat7 <- left_join(item10.dat6, rbsa.dat, by = "CK_Cadmus_ID")
 item10.dat7$rvalue.bins <- "Unknown"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval == 0)] <- "R0"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval > 0  & item10.dat7$aveRval < 11)]  <- "R1.R10"
-item10.dat7$rvalue.bins[which(item10.dat7$aveRval > 11 & item10.dat7$aveRval < 17)]  <- "R11.R16"
-item10.dat7$rvalue.bins[which(item10.dat7$aveRval > 17 & item10.dat7$aveRval < 23)]  <- "R17.R22"
-item10.dat7$rvalue.bins[which(item10.dat7$aveRval > 23)] <- "RGT22"
+item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 11 & item10.dat7$aveRval < 17)]  <- "R11.R16"
+item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 17 & item10.dat7$aveRval < 23)]  <- "R17.R22"
+item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 22)] <- "RGT22"
 unique(item10.dat7$rvalue.bins)
 
 ##cast data
@@ -440,6 +440,194 @@ item10.final <- cbind.data.frame(item10.sum
 #############################################################################################
 # Item 11: DISTRIBUTION OF WALL FRAMING TYPES BY VINTAGE (SF table 18)
 #############################################################################################
+## Note: For this table, you must run up to item10.dat3 for the cleaned data
+item11.dat <- left_join(item10.dat3, rbsa.dat, by = "CK_Cadmus_ID")
+
+#cast out by wall frame types
+item11.dat$count <- 1
+item11.dat1 <- dcast(setDT(item11.dat),
+                     formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ Wall.Type, sum,
+                     value.var = 'count')
+
+item11.dat2 <- summarise(group_by(item11.dat1, BuildingType, HomeYearBuilt_bins4)
+                         ,Count_2x4 = sum(`Framed 2x4`)
+                         ,SE_2x4      = sd(`Framed 2x4`) / sqrt(length(unique(CK_Cadmus_ID)))
+                         ,Count_2x6 = sum(`Framed 2x6`)
+                         ,SE_2x6      = sd(`Framed 2x6`) / sqrt(length(unique(CK_Cadmus_ID)))
+                         ,Count_ALT = sum(Alternative)
+                         ,SE_ALT      = sd(Alternative) / sqrt(length(unique(CK_Cadmus_ID)))
+                         )
+
+item11.dat3 <- summarise(group_by(item11.dat1, BuildingType)
+                         ,HomeYearBuilt_bins4 = "All Home Vintages"
+                         ,Count_2x4 = sum(`Framed 2x4`)
+                         ,SE_2x4      = sd(`Framed 2x4`) / sqrt(length(unique(CK_Cadmus_ID)))
+                         ,Count_2x6 = sum(`Framed 2x6`)
+                         ,SE_2x6      = sd(`Framed 2x6`) / sqrt(length(unique(CK_Cadmus_ID)))
+                         ,Count_ALT = sum(Alternative)
+                         ,SE_ALT      = sd(Alternative) / sqrt(length(unique(CK_Cadmus_ID)))
+)
+
+item11.dat4 <- rbind.data.frame(item11.dat2, item11.dat3, stringsAsFactors = F)
+item11.dat4$TotalCount <- item11.dat4$Count_2x4 + item11.dat4$Count_2x6 + item11.dat4$Count_ALT
+item11.dat4$Percent_2x4 <- item11.dat4$Count_2x4 / item11.dat4$TotalCount
+item11.dat4$Percent_2x6 <- item11.dat4$Count_2x6 / item11.dat4$TotalCount
+item11.dat4$Percent_ALT <- item11.dat4$Count_ALT / item11.dat4$TotalCount
+
+item11.final <- item11.dat4[which(colnames(item11.dat4) %in% c("BuildingType"
+                                                               ,"HomeYearBuilt_bins4"
+                                                               ,"Percent_2x4"
+                                                               ,"Percent_2x6"
+                                                               ,"Percent_ALT"
+                                                               ,"SE_2x4"
+                                                               ,"SE_2x6"
+                                                               ,"SE_ALT"
+                                                               ))]
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19)
+#############################################################################################
+## Note: For this table, you must run up to item10.dat5 for the cleaned data
+item12.dat <- item10.dat5
+
+#weight the u factor per home
+weightedU <- summarise(group_by(item12.dat, CK_Cadmus_ID)
+                       ,aveUval = sum(Wall.Area * as.numeric(as.character(ufactor))) / sum(Wall.Area)
+)
+
+#back-calculate the weight r values
+weightedU$aveRval <- 1 / as.numeric(as.character(weightedU$aveUval))
+weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
+
+wall.unique <- unique(item12.dat[which(colnames(item12.dat) %in% c("CK_Cadmus_ID","BuildingType"))])
+
+item12.dat1 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
+
+
+
+############################################################################################################
+## This is a process to determine which Rvalues are NA and which are zero.
+############################################################################################################
+#determine which rvalues were NA and which were 0
+item12.dat1$aveRval[which(item12.dat1$aveRval == 0)] <- NA
+
+#get indicators for ceilings that are not insulated and rvalues that are NA
+wall.ins.ind  <- item12.dat$CK_Cadmus_ID[which(item12.dat$`Wall.Cavity.Insulated?` == "No")]
+wall.r.NA.ind <- item12.dat1$CK_Cadmus_ID[which(is.na(item12.dat1$aveRval))]
+
+#which NA R values are in no insulation?
+no.insulation <- wall.r.NA.ind[which(wall.r.NA.ind %in% wall.ins.ind)]
+
+#replace no insulation in home ceiling with zero
+item12.dat1$aveRval[which(item12.dat1$CK_Cadmus_ID %in% no.insulation)] <- 0
+############################################################################################################
+## END Process
+############################################################################################################
+
+item12.dat2 <- left_join(item12.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+
+
+#Bin R values -- SF only
+item12.dat2$rvalue.bins <- "Unknown"
+item12.dat2$rvalue.bins[which(item12.dat2$aveRval == 0)] <- "R0"
+item12.dat2$rvalue.bins[which(item12.dat2$aveRval > 0  & item12.dat2$aveRval < 11)]  <- "R1.R10"
+item12.dat2$rvalue.bins[which(item12.dat2$aveRval >= 11 & item12.dat2$aveRval < 17)]  <- "R11.R16"
+item12.dat2$rvalue.bins[which(item12.dat2$aveRval >= 17 & item12.dat2$aveRval < 23)]  <- "R17.R22"
+item12.dat2$rvalue.bins[which(item12.dat2$aveRval >= 22)] <- "RGT22"
+unique(item12.dat2$rvalue.bins)
+
+
+item12.dat2$count <- 1
+item12.dat.cast <- dcast(setDT(item12.dat2),
+                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
+                         value.var = 'count')
+head(item12.dat.cast)
+
+
+## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
+SF.item12.dat <- subset(item12.dat.cast, item12.dat.cast$BuildingType == "Single Family")
+
+#summarize --SF only
+item12.sum <- summarise(group_by(SF.item12.dat, BuildingType, HomeYearBuilt_bins4)
+                        ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
+                        ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
+                        ,r0.percent      = sum(R0) / sampleSizeNoNA 
+                        ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
+                        ,r1.r10.percent  = sum(R1.R10)  / sampleSizeNoNA
+                        ,r1.r10.se       = sd(R1.R10) / sqrt(sampleSizeNoNA)
+                        ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
+                        ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
+                        ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
+                        ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
+                        ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
+                        ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
+)
+
+item12.sum1 <- summarise(group_by(SF.item12.dat, BuildingType)
+                         ,HomeYearBuilt_bins4 = "All Vintages"
+                        ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
+                        ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
+                        ,r0.percent      = sum(R0) / sampleSizeNoNA
+                        ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
+                        ,r1.r10.percent  = sum(R1.R10)  / sampleSizeNoNA
+                        ,r1.r10.se       = sd(R1.R10) / sqrt(sampleSizeNoNA)
+                        ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
+                        ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
+                        ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
+                        ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
+                        ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
+                        ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
+)
+
+
+#join all insulation levels onto rvalue summary
+item12.final <- rbind.data.frame(item12.sum, item12.sum1, stringsAsFactors = F)
+item12.final$check  <- item12.final$r0.percent + item12.final$r1.r10.percent + item12.final$r11.r16.percent + item12.final$r17.r22.percent + item12.final$rGT22.percent
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 13: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19)
+#############################################################################################
+## Note: For this table, you must run up to item12.dat2 for the cleaned data
+item13.dat <- item12.dat2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
