@@ -833,6 +833,272 @@ item16.final$check  <- item16.final$r0.percent + item16.final$r1.r10.percent + i
 
 
 
+#############################################################################################
+# Item 17: DISTRIBUTION OF MASONRY WALL INSULATION LEVELS BY HOME VINTAGE (SF table 24)
+#############################################################################################
+
+#Bring in R-value table
+rvals <- read.xlsx(xlsxFile = file.path(analysisInPath, "R value table.xlsx"), sheet = 1)
+rvals <- rvals[-23,-3]
+
+#subset envelope data to necessary columns
+item17.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               , "Category"
+                                                               , "Wall.Type"
+                                                               , "Wall.Area"
+                                                               , "Furred.Wall?"                                                                   
+                                                               , "Furred.Wall.Insulated?"                                                         
+                                                               , "Furred.Wall.Insulation.Type"                                                    
+                                                               , "Furred.Wall.Insulation.Thickness"                                               
+                                                               , "Furred.Wall.Insulation.Condition"))]
+length(unique(item17.dat$CK_Cadmus_ID))#547
+
+#trim white space from cadmus IDs
+item17.dat$CK_Cadmus_ID <- trimws(item17.dat$CK_Cadmus_ID)
+
+#subset to only wall information
+item17.dat1 <- item17.dat[which(item17.dat$Category == "Wall"),]
+
+#remove unneccesary wall types
+item17.dat2 <- item17.dat1[which(item17.dat1$Wall.Type %in% c("Masonry","Masonry (Basement)")),]
+length(unique(item17.dat2$CK_Cadmus_ID))#154
+unique(item17.dat2$Wall.Type)
+
+
+item17.dat3 <- item17.dat2
+
+###########################
+# Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
+###########################
+item17.dat3$Furred.Wall.Insulation.Thickness[which(item17.dat3$Furred.Wall.Insulation.Thickness == "Unknown")] <- "Unknown Unknown"
+item17.dat3$Furred.Wall.Insulation.Thickness[which(item17.dat3$Furred.Wall.Insulation.Thickness == "N/A")] <- "N/A N/A"
+item17.dat3$Furred.Wall.Insulation.Thickness[which(is.na(item17.dat3$Furred.Wall.Insulation.Thickness))] <- "N/A N/A"
+
+# add new ID variable for merging -- don't know if we need this
+item17.dat3$count <- 1
+item17.dat3$TMP_ID <- cumsum(item17.dat3$count)
+
+## r-values ##
+clean.insul1 <- unlist(strsplit(item17.dat3$Furred.Wall.Insulation.Thickness, " "))
+clean.insul2 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul <- cbind.data.frame("CK_Cadmus_ID" = item17.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = item17.dat3$TMP_ID
+                                   , clean.insul2)
+dim(clean.insul)
+
+###########################
+# End cleaning step
+###########################
+
+#make into dataframe
+item17.dat4 <- as.data.frame(left_join(item17.dat3, clean.insul, by = c("CK_Cadmus_ID", "TMP_ID"))
+                             , stringsAsFactors = F) 
+# warning here is OK
+
+###########################
+# Cleaning inches and rvalue information
+###########################
+# rename columns
+item17.dat4$inches1 <- as.numeric(as.character(item17.dat4$V1.x)) # warning here is OK
+item17.dat4$inches2 <- as.numeric(as.character(item17.dat4$V1.y)) # warning here is OK
+
+item17.dat4$rvalues1 <- item17.dat4$Furred.Wall.Insulation.Type.1
+item17.dat4$rvalues2 <- item17.dat4$Furred.Wall.Insulation.Type.2
+
+#check uniques
+unique(item17.dat4$rvalues1)
+unique(item17.dat4$rvalues2)
+
+#fix names that are not in R value table
+item17.dat4$rvalues1[which(item17.dat4$rvalues1 == "Fiberglass or mineral wool batts")] <- "Mineral wool batts"
+item17.dat4$rvalues1[which(item17.dat4$rvalues1 == "Unknown fiberglass")]               <- "Unknown"
+item17.dat4$rvalues2[which(item17.dat4$rvalues2 == "Extruded polystyrene (blue)")]      <- "Extruded polystyrene foam board"
+item17.dat4$rvalues2[which(item17.dat4$rvalues2 == "N/A")]                              <- NA
+###########################
+# End cleaning step
+###########################
+
+
+###########################
+# Replace R-value Names with Values from R value table
+###########################
+for (i in 1:length(rvals$Type.of.Insulation)){
+  item17.dat4$rvalues1[which(item17.dat4$rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item17.dat4$rvalues2[which(item17.dat4$rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+}
+###########################
+# End Replace Step
+###########################
+
+item17.dat5 <- item17.dat4
+
+###########################
+# Cleaning step (NA to zero)
+###########################
+#For now: convert NAs in rvalues and inches to zero for summarizing purposes (will revert back to NAs after)
+item17.dat5$rvalues1[which(is.na(item17.dat5$rvalues1))] <- 0
+item17.dat5$rvalues1[which(item17.dat5$rvalues1 == "None")] <- 0
+item17.dat5$rvalues2[which(is.na(item17.dat5$rvalues2))] <- 0
+
+#QC the clean bulb values
+unique(item17.dat5$rvalues1)
+unique(item17.dat5$rvalues2)
+
+item17.dat5$inches1[which(is.na(item17.dat5$inches1))] <- 0
+item17.dat5$inches2[which(is.na(item17.dat5$inches2))] <- 0
+
+#QC the clean bulb values -- There are NAs in each 
+unique(item17.dat5$inches1)
+unique(item17.dat5$inches2)
+###########################
+# End Cleaning step
+###########################
+
+
+# r values multiplied by inches
+item17.dat5$total.r.val <- (as.numeric(as.character(item17.dat5$rvalues1)) * item17.dat5$inches1) + (as.numeric(as.character(item17.dat5$rvalues2)) * item17.dat5$inches2)
+unique(item17.dat5$total.r.val)
+
+#caluclate u factors = inverse of Rvalue
+item17.dat5$ufactor <- 1 / as.numeric(as.character(item17.dat5$total.r.val))
+
+# replace inf with 0
+item17.dat5$ufactor[which(item17.dat5$ufactor == "Inf")] <- 0
+
+#make area numeric
+item17.dat5$ufactor <- as.numeric(as.character(item17.dat5$ufactor))
+item17.dat5$Wall.Area <- as.numeric(as.character(item17.dat5$Wall.Area))
+
+#weight the u factor per home
+weightedU <- summarise(group_by(item17.dat5, CK_Cadmus_ID, Wall.Type)
+                       ,aveUval = sum(Wall.Area * as.numeric(as.character(ufactor))) / sum(Wall.Area)
+)
+
+#back-calculate the weight r values
+weightedU$aveRval <- 1 / as.numeric(as.character(weightedU$aveUval))
+weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
+
+wall.unique <- unique(item17.dat5[which(colnames(item17.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
+
+item17.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
+
+
+
+############################################################################################################
+## This is a process to determine which Rvalues are NA and which are zero.
+############################################################################################################
+#determine which rvalues were NA and which were 0
+item17.dat6$aveRval[which(item17.dat6$aveRval == 0)] <- NA
+
+#get indicators for ceilings that are not insulated and rvalues that are NA
+wall.ins.ind  <- item17.dat5$CK_Cadmus_ID[which(item17.dat5$`Furred.Wall.Insulated?` == "No")]
+wall.r.NA.ind <- item17.dat6$CK_Cadmus_ID[which(is.na(item17.dat6$aveRval))]
+
+#which NA R values are in no insulation?
+no.insulation <- wall.r.NA.ind[which(wall.r.NA.ind %in% wall.ins.ind)]
+
+#replace no insulation in home ceiling with zero
+item17.dat6$aveRval[which(item17.dat6$CK_Cadmus_ID %in% no.insulation)] <- 0
+############################################################################################################
+## END Process
+############################################################################################################
+
+item17.dat7 <- left_join(item17.dat6, rbsa.dat, by = "CK_Cadmus_ID")
+
+
+#Bin R values -- SF only
+item17.dat7$rvalue.bins <- "Unknown"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval == 0)] <- "R0"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval > 0  & item17.dat7$aveRval < 11)]  <- "R1.R17"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 11 & item17.dat7$aveRval < 17)]  <- "R11.R16"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 17 & item17.dat7$aveRval < 23)]  <- "R17.R22"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 22)] <- "RGT22"
+unique(item17.dat7$rvalue.bins)
+
+##cast data
+item17.dat7$count <- 1
+item17.dat.cast <- dcast(setDT(item17.dat7),
+                         formula   = CK_Cadmus_ID + BuildingType +  Wall.Type ~ rvalue.bins, sum,
+                         value.var = 'count')
+
+for (i in 3:length(item17.dat.cast)){
+  item17.dat.cast[i][which(is.na(item17.dat.cast[i])),] <- 0
+}
+
+head(item17.dat.cast)
+
+
+## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
+SF.item17.dat <- subset(item17.dat.cast, item17.dat.cast$BuildingType == "Single Family")
+
+#summarize --SF only
+item17.sum <- summarise(group_by(SF.item17.dat, BuildingType, Wall.Type)
+                        ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
+                        ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
+                        ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
+                        ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
+                        ,r1.r17.percent  = sum(R1.R17)  / sampleSizeNoNA
+                        ,r1.r17.se       = sd(R1.R17) / sqrt(sampleSizeNoNA)
+                        ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
+                        ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
+                        ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
+                        ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
+                        ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
+                        ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
+)
+
+SF.item17.dat$count <- 1
+item17.sum.allLevels <- summarise(group_by(SF.item17.dat, BuildingType, Wall.Type)
+                                  ,WallTypeCount = sum(count)
+                                  ,TotalCount = sum(SF.item17.dat$count)
+                                  ,AllInsulationLevelPercent = WallTypeCount / TotalCount
+                                  ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
+)
+
+#Check to make sure they add to 1
+sum(item17.sum.allLevels$AllInsulationLevelPercent)
+
+#join all insulation levels onto rvalue summary
+item17.final <- cbind.data.frame(item17.sum
+                                 , "All Insulation Levels Mean" = item17.sum.allLevels$AllInsulationLevelPercent
+                                 , "All Insulation Levels SE"   = item17.sum.allLevels$AllInsulationSE)
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 18: DISTRIBUTION OF OBSERVED WALL SHEATHING INSULATION BY FRAMING TYPE (SF table 25)
+#############################################################################################
+
+# ENV_WALL_FRAMED_2X4_Ext_InsulationThickness1
+# ENV_WALL_FRAMED_2X6_Ext_InsulationThickness1
+# 
+
+
+# "Wall.Exterior.Insulated?"                                                       
+# "Wall.Exterior.Insulation.Type.1"                                                
+# "Wall.Exterior.Insulation.Thickness.1"                                           
+# "Wall.Exterior.Insulation.Condition.1"                                           
+# "Wall.Exterior.Insulation.Type.2"                                                
+# "Wall.Exterior.Insulation.Thickness.2"                                           
+# "Wall.Exterior.Insulation.Condition.2"                                           
+# "Wall.Exterior.Insulation.Type.3"                                                
+# "Wall.Exterior.Insulation.Thickness.3"                                           
+# "Wall.Exterior.Insulation.Condition.3" 
+
+
+
+
+
+
+
+
 
 
 
