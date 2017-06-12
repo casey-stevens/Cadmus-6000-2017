@@ -146,16 +146,16 @@ item9.dat0$count <- 1
 item9.dat0$Area <- as.numeric(as.character(item9.dat0$Area))
 
 #average within houses
-item9.sum <- summarise(group_by(item9.dat0, CK_Cadmus_ID, Clean.Type)
+item9.sum <- summarise(group_by(item9.dat0, CK_Cadmus_ID, BuildingType, Clean.Type)
           ,Site_Area = mean(Area)
           )
 #remove missing area information
 item9.dat1 <- item9.sum[which(!(is.na(item9.sum$Site_Area))),]
 
 #average across houses
-item9.sum1 <- summarise(group_by(item9.dat1, Clean.Type)
+item9.sum1 <- summarise(group_by(item9.dat1, BuildingType, Clean.Type)
                         ,Avg_Area = mean(Site_Area)
-                        ,EB_Area  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
+                        ,SE_Area  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
                         ,SampleSize = length(unique(CK_Cadmus_ID))
                         )
 item9.sum2 <- item9.sum1[which(item9.sum1$Clean.Type %in% c("Bathroom"
@@ -171,10 +171,10 @@ item9.sum2 <- item9.sum1[which(item9.sum1$Clean.Type %in% c("Bathroom"
                                                              ,"Master Bedroom"
                                                              ,"Office"
                                                              ,"Other")),]
-item9.sum3 <- summarise(group_by(item9.dat1)
+item9.sum3 <- summarise(group_by(item9.dat1, BuildingType)
                         ,Clean.Type = "All Room Types"
                         ,Avg_Area = mean(Site_Area)
-                        ,EB_Area  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
+                        ,SE_Area  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
                         ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 
