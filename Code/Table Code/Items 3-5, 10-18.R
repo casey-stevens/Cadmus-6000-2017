@@ -37,6 +37,10 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(SPPath, "Envelope_EquipConsol_201
 #############################################################################################
 # Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE 
 #############################################################################################
+# Bring in clean ground contact types
+GroundContactTypes <- read.xlsx(xlsxFile = file.path(analysisInPath, "Ground Contact Types.xlsx"), sheet = 1)
+GroundContactTypes <- GroundContactTypes[,-3]
+
 #subset to columns need in table
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
 env.dat1 <- env.dat[which(!(is.na(env.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType))),]
@@ -45,16 +49,87 @@ env.dat1 <- env.dat[which(!(is.na(env.dat$ENV_Construction_BLDG_STRUCTURE_Founda
 item3.dat <- unique(left_join(rbsa.dat, env.dat1, by = "CK_Cadmus_ID"))
 item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType <- trimws(item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType)
 
-## clean ground contact type info
-unique(item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType)
-item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType[which(item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType == "90% slab")] <- ">90% Slab"
-item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType[which(item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType == ">90% crawl")] <- ">90% Crawlspace"
-item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType[which(item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType == ">90% slab")] <- ">90% Slab"
+###########################
+# Clean Ground Contact types
+###########################
+item3.dat$GroundContact <- item3.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType
+for (i in 1:length(GroundContactTypes$Raw.data.categories)){
+  item3.dat$GroundContact[which(item3.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
+}
+###########################
+# End cleaning Step
+###########################
+unique(item3.dat$GroundContact)
+
+# Remove unwanted ground contact types
+item3.dat1 <- item3.dat[which(item3.dat$GroundContact != "Remove"),]
+item3.dat2 <- item3.dat1[which(item3.dat1$BuildingType == "Single Family"),]
 
 
+##Summarise by state and ground contact type
+item3.dat2$count <- 1
+item3.dat.3.1 <- summarise(group_by(item3.dat2, BuildingType, State, GroundContact)
+                        ,Count = sum(count)
+                        )
+item3.dat.3.2 <- summarise(group_by(item3.dat2, BuildingType, State)
+                           ,State_Count = sum(count)
+)
+
+item3.dat3 <- left_join(item3.dat.3.1, item3.dat.3.2, by = c("BuildingType", "State"))
+item3.dat3$Percent <- item3.dat3$Count / item3.dat3$State_Count
 
 
+##Summarise by state across ground contact type
+item3.dat.3.3 <- summarise(group_by(item3.dat2, BuildingType, State)
+                           ,GroundContact = "Total"
+                           ,Count = sum(count)
+)
+item3.dat.3.4 <- summarise(group_by(item3.dat2, BuildingType, State)
+                           ,GroundContact = "Total"
+                           ,State_Count = sum(count)
+)
 
+item3.dat4 <- left_join(item3.dat.3.3, item3.dat.3.4, by = c("BuildingType", "State", "GroundContact"))
+item3.dat4$Percent <- item3.dat4$Count / item3.dat4$State_Count
+
+#rbind state with and across ground contact types
+item3.dat5 <- rbind.data.frame(item3.dat3, item3.dat4, stringsAsFactors = F)
+
+
+###Sumamrise by ground contact type across states
+item3.dat.6.1 <- summarise(group_by(item3.dat2, BuildingType, GroundContact)
+                           ,State = "Region"
+                           ,Count = sum(count)
+)
+item3.dat.6.2 <- summarise(group_by(item3.dat2, BuildingType)
+                           ,State = "Region"
+                           ,State_Count = sum(count)
+)
+
+item3.dat6 <- left_join(item3.dat.6.1, item3.dat.6.2, by = c("BuildingType", "State"))
+item3.dat6$Percent <- item3.dat6$Count / item3.dat6$State_Count
+
+
+##Summarise across states and ground contact types
+item3.dat.6.3 <- summarise(group_by(item3.dat2, BuildingType)
+                           ,State = "Region"
+                           ,GroundContact = "Total"
+                           ,Count = sum(count)
+)
+item3.dat.6.4 <- summarise(group_by(item3.dat2, BuildingType)
+                           ,State = "Region"
+                           ,GroundContact = "Total"
+                           ,State_Count = sum(count)
+)
+
+item3.dat7 <- left_join(item3.dat.6.3, item3.dat.6.4, by = c("BuildingType", "State", "GroundContact"))
+item3.dat7$Percent <- item3.dat7$Count / item3.dat7$State_Count
+
+#rbind state with and across States
+item3.dat8 <- rbind.data.frame(item3.dat6, item3.dat7, stringsAsFactors = F)
+
+# Join tem3.dat5 with item3.dat8
+item3.final <- rbind.data.frame(item3.dat5, item3.dat8, stringsAsFactors = F)
 
 
 
@@ -868,7 +943,7 @@ item17.dat1 <- item17.dat[which(item17.dat$Category == "Wall"),]
 unique(item17.dat1$Wall.Type)
 
 #remove unneccesary wall types
-item17.dat2 <- item17.dat1[which(item17.dat1$Wall.Type %in% c("Masonry","Masonry (Basement)")),]
+item17.dat2 <- item17.dat1[which(item17.dat1$Wall.Type == "Masonry"),]
 length(unique(item17.dat2$CK_Cadmus_ID))#154
 unique(item17.dat2$Wall.Type)
 
@@ -1108,19 +1183,96 @@ item17.final <- rbind.data.frame(item17.withVintages.final, item17.allVintages.f
 # Item 18: DISTRIBUTION OF OBSERVED WALL SHEATHING INSULATION BY FRAMING TYPE (SF table 25)
 #############################################################################################
 
+#subset envelope data to necessary columns
+item18.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               , "Category"
+                                                               , "Wall.Type"
+                                                               , "Wall.Area"
+                                                               , "Wall.Framing.Size"
+                                                               , "Wall.Exterior.Insulated?"
+                                                               , "Wall.Exterior.Insulation.Type.1"
+                                                               , "Wall.Exterior.Insulation.Thickness.1"
+                                                               , "Wall.Exterior.Insulation.Condition.1"
+                                                               , "Wall.Exterior.Insulation.Type.2"
+                                                               , "Wall.Exterior.Insulation.Thickness.2"
+                                                               , "Wall.Exterior.Insulation.Condition.2"
+                                                               , "Wall.Exterior.Insulation.Type.3"
+                                                               , "Wall.Exterior.Insulation.Thickness.3"
+                                                               , "Wall.Exterior.Insulation.Condition.3"))]
+length(unique(item18.dat$CK_Cadmus_ID))#547
 
-# "Wall.Exterior.Insulated?"                                                       
-# "Wall.Exterior.Insulation.Type.1"                                                
-# "Wall.Exterior.Insulation.Thickness.1"                                           
-# "Wall.Exterior.Insulation.Condition.1"                                           
-# "Wall.Exterior.Insulation.Type.2"                                                
-# "Wall.Exterior.Insulation.Thickness.2"                                           
-# "Wall.Exterior.Insulation.Condition.2"                                           
-# "Wall.Exterior.Insulation.Type.3"                                                
-# "Wall.Exterior.Insulation.Thickness.3"                                           
-# "Wall.Exterior.Insulation.Condition.3" 
+#trim white space from cadmus IDs
+item18.dat$CK_Cadmus_ID <- trimws(item18.dat$CK_Cadmus_ID)
 
+#subset to only wall information
+item18.dat1 <- item18.dat[which(item18.dat$Category == "Wall"),]
 
+#remove unneccesary wall types
+item18.dat2 <- item18.dat1[which(!(item18.dat1$Wall.Type %in% c("Masonry","Masonry (Basement)","Log","Adiabatic"))),]
+
+#create "Alternative" category
+item18.dat2$Wall.Type[which(item18.dat2$Wall.Type %in% c("Knee Wall", "Framed Alternative Framed Wall", "Framed ", "Other"))] <- "Alternative"
+length(unique(item18.dat2$CK_Cadmus_ID))#473
+unique(item18.dat2$Wall.Type)
+
+#remove items have the datapoint was not asked for
+item18.dat3 <- item18.dat2[which(item18.dat2$Wall.Framing.Size != "-- Datapoint not asked for --"),]
+length(unique(item18.dat3$CK_Cadmus_ID))#469
+unique(item18.dat3$Wall.Framing.Size)
+
+###########################
+# Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
+###########################
+item18.dat3$Wall.Cavity.Insulation.Thickness.1[which(item18.dat3$Wall.Cavity.Insulation.Thickness.1 == "Unknown")] <- "Unknown Unknown"
+item18.dat3$Wall.Cavity.Insulation.Thickness.1[which(item18.dat3$Wall.Cavity.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
+item18.dat3$Wall.Cavity.Insulation.Thickness.1[which(is.na(item18.dat3$Wall.Cavity.Insulation.Thickness.1))] <- "N/A N/A"
+item18.dat3$Wall.Cavity.Insulation.Thickness.2[which(item18.dat3$Wall.Cavity.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
+item18.dat3$Wall.Cavity.Insulation.Thickness.2[which(item18.dat3$Wall.Cavity.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
+item18.dat3$Wall.Cavity.Insulation.Thickness.2[which(is.na(item18.dat3$Wall.Cavity.Insulation.Thickness.2))] <- "N/A N/A"
+
+# add new ID variable for merging -- don't know if we need this
+item18.dat3$count <- 1
+item18.dat3$TMP_ID <- cumsum(item18.dat3$count)
+
+## r-values ##
+clean.insul1 <- unlist(strsplit(item18.dat3$Wall.Cavity.Insulation.Thickness.1, " "))
+clean.insul2 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul1.1 <- cbind.data.frame("CK_Cadmus_ID" = item18.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = item18.dat3$TMP_ID
+                                   , clean.insul2)
+dim(clean.insul1.1)
+
+clean.insul2 <- unlist(strsplit(item18.dat3$Wall.Cavity.Insulation.Thickness.2, " "))
+clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = item18.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = item18.dat3$TMP_ID
+                                   , as.data.frame(matrix(clean.insul2, ncol = 2, byrow = T)
+                                                   , stringsAsFactors = F))
+dim(clean.insul2.1)
+
+clean.insul <- left_join(clean.insul1.1, clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
+
+###########################
+# End cleaning step
+###########################
+
+#make into dataframe
+item18.dat4 <- as.data.frame(left_join(item18.dat3, clean.insul, by = c("CK_Cadmus_ID", "TMP_ID"))
+                             , stringsAsFactors = F) 
+# warning here is OK
+
+###########################
+# Cleaning inches and rvalue information
+###########################
+# rename columns
+item18.dat4$inches1 <- as.numeric(as.character(item18.dat4$V1.x)) # warning here is OK
+item18.dat4$inches2 <- as.numeric(as.character(item18.dat4$V1.y)) # warning here is OK
+
+item18.dat4$rvalues1 <- item18.dat4$Wall.Cavity.Insulation.Type.1
+item18.dat4$rvalues2 <- item18.dat4$Wall.Cavity.Insulation.Type.2
+
+#check uniques
+unique(item18.dat4$rvalues1)
+unique(item18.dat4$rvalues2)
 
 
 
