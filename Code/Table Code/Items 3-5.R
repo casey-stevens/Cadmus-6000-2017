@@ -79,17 +79,13 @@ item3.dat3 <- left_join(item3.dat.3.1, item3.dat.3.2, by = c("BuildingType", "St
 item3.dat3$Percent <- item3.dat3$Count / item3.dat3$State_Count
 
 
-##Summarise by state across ground contact type
-item3.dat.3.3 <- summarise(group_by(item3.dat2, BuildingType, State)
+##Summarise by state across ground contact type - Totals by state
+item3.dat4 <- summarise(group_by(item3.dat2, BuildingType, State)
                            ,GroundContact = "Total"
                            ,Count = sum(count)
-)
-item3.dat.3.4 <- summarise(group_by(item3.dat2, BuildingType, State)
-                           ,GroundContact = "Total"
                            ,State_Count = sum(count)
 )
 
-item3.dat4 <- left_join(item3.dat.3.3, item3.dat.3.4, by = c("BuildingType", "State", "GroundContact"))
 item3.dat4$Percent <- item3.dat4$Count / item3.dat4$State_Count
 
 #rbind state with and across ground contact types
@@ -111,18 +107,13 @@ item3.dat6$Percent <- item3.dat6$Count / item3.dat6$State_Count
 
 
 ##Summarise across states and ground contact types
-item3.dat.6.3 <- summarise(group_by(item3.dat2, BuildingType)
+item3.dat7 <- summarise(group_by(item3.dat2, BuildingType)
                            ,State = "Region"
                            ,GroundContact = "Total"
                            ,Count = sum(count)
-)
-item3.dat.6.4 <- summarise(group_by(item3.dat2, BuildingType)
-                           ,State = "Region"
-                           ,GroundContact = "Total"
                            ,State_Count = sum(count)
 )
 
-item3.dat7 <- left_join(item3.dat.6.3, item3.dat.6.4, by = c("BuildingType", "State", "GroundContact"))
 item3.dat7$Percent <- item3.dat7$Count / item3.dat7$State_Count
 
 #rbind state with and across States
@@ -130,6 +121,7 @@ item3.dat8 <- rbind.data.frame(item3.dat6, item3.dat7, stringsAsFactors = F)
 
 # Join tem3.dat5 with item3.dat8
 item3.final <- rbind.data.frame(item3.dat5, item3.dat8, stringsAsFactors = F)
+item3.final$SE <- sqrt(item3.final$Percent * (1 - item3.final$Percent) / item3.final$State_Count)
 
 
 
