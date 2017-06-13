@@ -1193,19 +1193,24 @@ item18.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Wall.Exterior.Insulation.Type.1"
                                                                , "Wall.Exterior.Insulation.Thickness.1"
                                                                , "Wall.Exterior.Insulation.Condition.1"
-                                                               , "Wall.Exterior.Insulation.Type.2"
-                                                               , "Wall.Exterior.Insulation.Thickness.2"
-                                                               , "Wall.Exterior.Insulation.Condition.2"
-                                                               , "Wall.Exterior.Insulation.Type.3"
-                                                               , "Wall.Exterior.Insulation.Thickness.3"
-                                                               , "Wall.Exterior.Insulation.Condition.3"))]
+                                                               # , "Wall.Exterior.Insulation.Type.2"
+                                                               # , "Wall.Exterior.Insulation.Thickness.2"
+                                                               # , "Wall.Exterior.Insulation.Condition.2"
+                                                               # , "Wall.Exterior.Insulation.Type.3"
+                                                               # , "Wall.Exterior.Insulation.Thickness.3"
+                                                               # , "Wall.Exterior.Insulation.Condition.3"
+                                                               ))]
 length(unique(item18.dat$CK_Cadmus_ID))#547
+
 
 #trim white space from cadmus IDs
 item18.dat$CK_Cadmus_ID <- trimws(item18.dat$CK_Cadmus_ID)
 
+#merge with cleaned RBSA data
+item18.dat0 <- left_join(rbsa.dat, item18.dat, by = "CK_Cadmus_ID")
+
 #subset to only wall information
-item18.dat1 <- item18.dat[which(item18.dat$Category == "Wall"),]
+item18.dat1 <- item18.dat0[which(item18.dat0$Category == "Wall"),]
 
 #remove unneccesary wall types
 item18.dat2 <- item18.dat1[which(!(item18.dat1$Wall.Type %in% c("Masonry","Masonry (Basement)","Log","Adiabatic"))),]
@@ -1215,87 +1220,52 @@ item18.dat2$Wall.Type[which(item18.dat2$Wall.Type %in% c("Knee Wall", "Framed Al
 length(unique(item18.dat2$CK_Cadmus_ID))#473
 unique(item18.dat2$Wall.Type)
 
-#remove items have the datapoint was not asked for
-item18.dat3 <- item18.dat2[which(item18.dat2$Wall.Framing.Size != "-- Datapoint not asked for --"),]
+#remove items that have the datapoint was not asked for from wall exterior insulated
+item18.dat3 <- item18.dat2[which(item18.dat2$`Wall.Exterior.Insulated?` != "-- Datapoint not asked for --"),]
 length(unique(item18.dat3$CK_Cadmus_ID))#469
-unique(item18.dat3$Wall.Framing.Size)
+unique(item18.dat3$`Wall.Exterior.Insulated?`)
+
+
+#remove items that have the datapoint was not asked for from wall framing size
+item18.dat4 <- item18.dat3[which(item18.dat3$Wall.Framing.Size != "-- Datapoint not asked for --"),]
+
+item18.dat4$Wall.Exterior.Insulation.Thickness.1[which(item18.dat4$`Wall.Exterior.Insulated?` == "No")] <- "None"
+item18.dat4$Wall.Exterior.Insulation.Thickness.1[which(item18.dat4$`Wall.Exterior.Insulated?` == "Unknown")] <- "Unknown Insulation"
+
+
+item18.dat5 <- item18.dat4[which(item18.dat4$BuildingType == "Single Family"),]
 
 ###########################
-# Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
+# Summarise
 ###########################
-item18.dat3$Wall.Cavity.Insulation.Thickness.1[which(item18.dat3$Wall.Cavity.Insulation.Thickness.1 == "Unknown")] <- "Unknown Unknown"
-item18.dat3$Wall.Cavity.Insulation.Thickness.1[which(item18.dat3$Wall.Cavity.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-item18.dat3$Wall.Cavity.Insulation.Thickness.1[which(is.na(item18.dat3$Wall.Cavity.Insulation.Thickness.1))] <- "N/A N/A"
-item18.dat3$Wall.Cavity.Insulation.Thickness.2[which(item18.dat3$Wall.Cavity.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
-item18.dat3$Wall.Cavity.Insulation.Thickness.2[which(item18.dat3$Wall.Cavity.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
-item18.dat3$Wall.Cavity.Insulation.Thickness.2[which(is.na(item18.dat3$Wall.Cavity.Insulation.Thickness.2))] <- "N/A N/A"
+item18.dat5$count <- 1
+item18.frameType <- summarise(group_by(item18.dat5, BuildingType, Wall.Framing.Size, Wall.Exterior.Insulation.Thickness.1)
+                          , Count = sum(count))
+item18.allFrameTypes <- summarise(group_by(item18.dat5, BuildingType, Wall.Exterior.Insulation.Thickness.1)
+                                , Wall.Framing.Size = "All Framing Types"
+                            , Count = sum(count))
 
-# add new ID variable for merging -- don't know if we need this
-item18.dat3$count <- 1
-item18.dat3$TMP_ID <- cumsum(item18.dat3$count)
-
-## r-values ##
-clean.insul1 <- unlist(strsplit(item18.dat3$Wall.Cavity.Insulation.Thickness.1, " "))
-clean.insul2 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
-clean.insul1.1 <- cbind.data.frame("CK_Cadmus_ID" = item18.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = item18.dat3$TMP_ID
-                                   , clean.insul2)
-dim(clean.insul1.1)
-
-clean.insul2 <- unlist(strsplit(item18.dat3$Wall.Cavity.Insulation.Thickness.2, " "))
-clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = item18.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = item18.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul2, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul2.1)
-
-clean.insul <- left_join(clean.insul1.1, clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
-
-###########################
-# End cleaning step
-###########################
-
-#make into dataframe
-item18.dat4 <- as.data.frame(left_join(item18.dat3, clean.insul, by = c("CK_Cadmus_ID", "TMP_ID"))
-                             , stringsAsFactors = F) 
-# warning here is OK
-
-###########################
-# Cleaning inches and rvalue information
-###########################
-# rename columns
-item18.dat4$inches1 <- as.numeric(as.character(item18.dat4$V1.x)) # warning here is OK
-item18.dat4$inches2 <- as.numeric(as.character(item18.dat4$V1.y)) # warning here is OK
-
-item18.dat4$rvalues1 <- item18.dat4$Wall.Cavity.Insulation.Type.1
-item18.dat4$rvalues2 <- item18.dat4$Wall.Cavity.Insulation.Type.2
-
-#check uniques
-unique(item18.dat4$rvalues1)
-unique(item18.dat4$rvalues2)
+item18.tmp <- rbind.data.frame(item18.frameType, item18.allFrameTypes, stringsAsFactors = F)
 
 
+item18.frameTypeCount <- summarise(group_by(item18.dat5, BuildingType, Wall.Framing.Size)
+                               ,TotalCount = sum(count))
+item18.totalCount <- summarise(group_by(item18.dat5, BuildingType)
+                               ,Wall.Framing.Size = "All Framing Types"
+                               ,TotalCount = sum(count))
+
+item18.tmp1 <- rbind.data.frame(item18.frameTypeCount, item18.totalCount, stringsAsFactors = F)
 
 
+item18.final <- left_join(item18.tmp, item18.tmp1, by = c("Wall.Framing.Size", "BuildingType"))
+item18.final$Percent <- item18.final$Count / item18.final$TotalCount
+item18.final$SE      <- sqrt(item18.final$Percent * (1 - item18.final$Percent) / item18.final$TotalCount)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+detach(package:reshape2)
+library(data.table)
+item18.table <- dcast(setDT(item18.final)
+                      , formula = BuildingType + Wall.Framing.Size ~ Wall.Exterior.Insulation.Thickness.1
+                      , value.var = c("Percent", "SE"))
 
 
 
