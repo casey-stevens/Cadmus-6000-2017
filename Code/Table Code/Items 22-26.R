@@ -498,16 +498,13 @@ item23.MH.dat6$aveRval[which(item23.MH.dat6$CK_Cadmus_ID %in% no.insulation)] <-
 item23.MH.dat7 <- left_join(item23.MH.dat6, rbsa.dat, by = c("CK_Cadmus_ID", "BuildingType"))
 
 
-#Bin R values -- SF only
+#Bin R values -- MH only
 item23.MH.dat7$rvalue.bins <- "Unknown"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval == 0)] <- "R0"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval > 0  & item23.MH.dat7$aveRval < 4)]  <- "R1.R3"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 4 & item23.MH.dat7$aveRval < 11)]  <- "R4.R10"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 11 & item23.MH.dat7$aveRval < 16)]  <- "R11.R15"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 16 & item23.MH.dat7$aveRval < 23)]  <- "R16.R22"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 23 & item23.MH.dat7$aveRval < 28)]  <- "R23.R27"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 28 & item23.MH.dat7$aveRval < 38)]  <- "R28.R37"
-item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 38)] <- "RGT38"
+item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval > 0  & item23.MH.dat7$aveRval < 9)]  <- "R0.R8"
+item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 9 & item23.MH.dat7$aveRval < 15)]  <- "R9.R14"
+item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 15 & item23.MH.dat7$aveRval < 22)]  <- "R15.R21"
+item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 22 & item23.MH.dat7$aveRval < 31)]  <- "R22.R30"
+item23.MH.dat7$rvalue.bins[which(item23.MH.dat7$aveRval >= 31 & item23.MH.dat7$aveRval < 41)]  <- "R31.R40"
 unique(item23.MH.dat7$rvalue.bins)
 
 ##cast data
@@ -525,22 +522,16 @@ head(item23.MH.dat.cast)
 item23.MH.sum <- summarise(group_by(item23.MH.dat.cast, BuildingType, HomeYearBuilt_bins4)
                            ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
                            ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                           ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
-                           ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
-                           ,r1.r3.percent  = 0#sum(R1.R3)  / sampleSizeNoNA
-                           ,r1.r3.se       = 0#sd(R1.R3) / sqrt(sampleSizeNoNA)
-                           ,r4.r10.percent  = sum(R4.R10)  / sampleSizeNoNA
-                           ,r4.r10.se       = sd(R4.R10) / sqrt(sampleSizeNoNA)
-                           ,r11.r15.percent = sum(R11.R15) / sampleSizeNoNA
-                           ,r11.r15.se      = sd(R11.R15) / sqrt(sampleSizeNoNA)
-                           ,r16.r22.percent = sum(R16.R22) / sampleSizeNoNA
-                           ,r16.r22.se      = sd(R16.R22) / sqrt(sampleSizeNoNA)
-                           ,r23.r27.percent = sum(R23.R27) / sampleSizeNoNA
-                           ,r23.r27.se      = sd(R23.R27) / sqrt(sampleSizeNoNA)
-                           ,r28.r37.percent = sum(R28.R37) / sampleSizeNoNA
-                           ,r28.r37.se      = sd(R28.R37) / sqrt(sampleSizeNoNA)
-                           ,rGT38.percent   = sum(RGT38) / sampleSizeNoNA
-                           ,rGT38.se        = sd(RGT38) / sqrt(sampleSizeNoNA)
+                           ,r0.r8.percent  = 0#sum(R0.R8)  / sampleSizeNoNA
+                           ,r0.r8.se       = 0#sd(R0.R8) / sqrt(sampleSizeNoNA)
+                           ,r9.r14.percent  = sum(R9.R14)  / sampleSizeNoNA
+                           ,r9.r14.se       = sd(R9.R14) / sqrt(sampleSizeNoNA)
+                           ,r15.r21.percent = sum(R15.R21) / sampleSizeNoNA
+                           ,r15.r21.se      = sd(R15.R21) / sqrt(sampleSizeNoNA)
+                           ,r22.r30.percent = sum(R22.R30) / sampleSizeNoNA
+                           ,r22.r30.se      = sd(R22.R30) / sqrt(sampleSizeNoNA)
+                           ,r31.r40.percent = sum(R31.R40) / sampleSizeNoNA
+                           ,r31.r40.se      = sd(R31.R40) / sqrt(sampleSizeNoNA)
 )
 
 item23.MH.dat.cast$count <- 1
@@ -548,22 +539,16 @@ item23.MH.sum.allVintages <- summarise(group_by(item23.MH.dat.cast, BuildingType
                                        ,HomeYearBuilt_bins4 = "All Vintages"
                                        ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
                                        ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                                       ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
-                                       ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
-                                       ,r1.r3.percent  = 0#sum(R1.R3)  / sampleSizeNoNA
-                                       ,r1.r3.se       = 0#sd(R1.R3) / sqrt(sampleSizeNoNA)
-                                       ,r4.r10.percent  = sum(R4.R10)  / sampleSizeNoNA
-                                       ,r4.r10.se       = sd(R4.R10) / sqrt(sampleSizeNoNA)
-                                       ,r11.r15.percent = sum(R11.R15) / sampleSizeNoNA
-                                       ,r11.r15.se      = sd(R11.R15) / sqrt(sampleSizeNoNA)
-                                       ,r16.r22.percent = sum(R16.R22) / sampleSizeNoNA
-                                       ,r16.r22.se      = sd(R16.R22) / sqrt(sampleSizeNoNA)
-                                       ,r23.r27.percent = sum(R23.R27) / sampleSizeNoNA
-                                       ,r23.r27.se      = sd(R23.R27) / sqrt(sampleSizeNoNA)
-                                       ,r28.r37.percent = sum(R28.R37) / sampleSizeNoNA
-                                       ,r28.r37.se      = sd(R28.R37) / sqrt(sampleSizeNoNA)
-                                       ,rGT38.percent   = sum(RGT38) / sampleSizeNoNA
-                                       ,rGT38.se        = sd(RGT38) / sqrt(sampleSizeNoNA)
+                                       ,r0.r8.percent  = 0#sum(R0.R8)  / sampleSizeNoNA
+                                       ,r0.r8.se       = 0#sd(R0.R8) / sqrt(sampleSizeNoNA)
+                                       ,r9.r14.percent  = sum(R9.R14)  / sampleSizeNoNA
+                                       ,r9.r14.se       = sd(R9.R14) / sqrt(sampleSizeNoNA)
+                                       ,r15.r21.percent = sum(R15.R21) / sampleSizeNoNA
+                                       ,r15.r21.se      = sd(R15.R21) / sqrt(sampleSizeNoNA)
+                                       ,r22.r30.percent = sum(R22.R30) / sampleSizeNoNA
+                                       ,r22.r30.se      = sd(R22.R30) / sqrt(sampleSizeNoNA)
+                                       ,r31.r40.percent = sum(R31.R40) / sampleSizeNoNA
+                                       ,r31.r40.se      = sd(R31.R40) / sqrt(sampleSizeNoNA)
 )
 
 #join all insulation levels onto rvalue summary
@@ -572,6 +557,98 @@ item23.MH.final <- rbind.data.frame(item23.MH.sum, item23.MH.sum.allVintages
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 24: PERCENTAGE OF CRAWLSPACES WITH INSULATED WALLS BY STATE (SF table 31)
+#############################################################################################
+item24.dat <- envelope.dat[grep("CK_Cadmus_ID|Crawlspace", colnames(envelope.dat))]
+
+item24.dat1 <- left_join(rbsa.dat, item24.dat, by = "CK_Cadmus_ID")
+length(unique(item24.dat1$CK_Cadmus_ID)) #565
+
+item24.dat2 <- item24.dat1[which(item24.dat1$`Crawlspace.Walls.Insulated?` %in% c("Yes", "No")),]
+length(unique(item24.dat2$CK_Cadmus_ID)) #183
+
+item24.dat2$count <- 1
+item24.dat2$crawl.ins.ind <- 0
+item24.dat2$crawl.ins.ind[which(item24.dat2$`Crawlspace.Walls.Insulated?` == "Yes")] <- 1
+
+item24.final <- summarise(group_by(item24.dat2, BuildingType, State)
+                          ,InsulatedCount = sum(crawl.ins.ind)
+                          ,SampleSize     = sum(count)
+                          ,Percent        = InsulatedCount / SampleSize
+                          ,SE             = sqrt(Percent * (1 - Percent) / SampleSize)
+                          )
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 25: PERCENTAGE OF HOMES WITH ATTICS BY STATE (SF table 32)
+#############################################################################################
+# ENV_CEILING_ATTIC_CeilingInsulated_Y_N
+item25.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "ENV_CEILING_ATTIC_CeilingInsulated_Y_N"))]
+
+item25.dat0 <- left_join(rbsa.dat, item25.dat, by = "CK_Cadmus_ID")
+
+item25.dat1 <- item25.dat0[which(item25.dat0$BuildingType == "Single Family"),]
+
+item25.dat2 <- item25.dat1[which(!(is.na(item25.dat1$ENV_CEILING_ATTIC_CeilingInsulated_Y_N))),]
+item25.dat2$count <- 1
+item25.dat2$insul.ind <- 0
+item25.dat2$insul.ind[which(item25.dat2$ENV_CEILING_ATTIC_CeilingInsulated_Y_N == "Yes")] <- 1
+
+item25.cnt <- summarise(group_by(item25.dat2, BuildingType, State)
+                       , InsulatedCount = length(unique(CK_Cadmus_ID))
+                         )
+
+item25.SS <- summarise(group_by(item25.dat1, BuildingType, State)
+                       , SampleSize = length(unique(CK_Cadmus_ID))
+)
+
+item25.final <- left_join(item25.cnt, item25.SS, by = c("BuildingType", "State"))
+item25.final$Percent <- item25.final$InsulatedCount / item25.final$SampleSize
+item25.final$SE      <- sqrt(item25.final$Percent * (1 - item25.final$Percent) / item25.final$SampleSize)
+
+
+#############################################################################################
+# Item 26: DISTRIBUTION OF ATTIC INSULATION LEVELS (SF table 33)
+#############################################################################################
+# "ENV_CEILING_ATTIC_CeilingCavityDepth"                                           
+# "ENV_CEILING_ATTIC_CeilingInsulated_Y_N"                                         
+# "ENV_CEILING_ATTIC_FramingSize"                                                  
+# "ENV_CEILING_ATTIC_FramingSpacing"                                               
+# "ENV_CEILING_ATTIC_InsulationCondition1"                                         
+# "ENV_CEILING_ATTIC_InsulationCondition2"                                         
+# "ENV_CEILING_ATTIC_InsulationCondition3"                                         
+# "ENV_CEILING_ATTIC_InsulationThickness1"                                         
+# "ENV_CEILING_ATTIC_InsulationThickness2"                                         
+# "ENV_CEILING_ATTIC_InsulationThickness3"                                         
+# "ENV_CEILING_ATTIC_InsulationType1"                                              
+# "ENV_CEILING_ATTIC_InsulationType2"                                              
+# "ENV_CEILING_ATTIC_InsulationType3"                                              
+# "ENV_CEILING_ATTIC_Notes"               
 
 
 
