@@ -28,7 +28,7 @@ SPPath   <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Doc
 cleanInPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
 stopifnot(all(file.exists(SPPath)))
 
-rbsa.dat <- read.xlsx(xlsxFile = file.path(cleanInPath, paste("clean.rbsa.data", rundate, ".xlsx")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(cleanInPath, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
 #############################################################################################
 # Item 1
@@ -80,33 +80,31 @@ item2.dat <- rbsa.dat
 item2.dat$count <- 1
 
 #Get state information
-item2.state.tab0 <- summarise(group_by(item2.dat, State)
-                        ,HT_State_Count = sum(count)
+item2.state.tab0 <- summarise(group_by(item2.dat, BuildingType, State)
                         ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 
-item2.state.tab1 <- summarise(group_by(item2.dat, HomeYearBuilt_bins, State)
+item2.state.tab1 <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins, State)
                         ,HomeType_Count = sum(count)
 )
-item2.state.full <- left_join(item2.state.tab1, item2.state.tab0, by = "State")
+item2.state.full <- left_join(item2.state.tab1, item2.state.tab0, by = c("BuildingType","State"))
 
 #get region information
-item2.region.tab0 <- summarise(group_by(item2.dat)
+item2.region.tab0 <- summarise(group_by(item2.dat, BuildingType)
                                  ,State = "Region"
-                                 ,HT_State_Count = sum(count)
                             ,SampleSize = length(unique(CK_Cadmus_ID))
 )
-item2.region.tab1 <- summarise(group_by(item2.dat, HomeYearBuilt_bins)
+item2.region.tab1 <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins)
                                  ,State = "Region"
                                  ,HomeType_Count = sum(count)
 )
-item2.region.full <- left_join(item2.region.tab1, item2.region.tab0, by = "State")
+item2.region.full <- left_join(item2.region.tab1, item2.region.tab0, by = c("BuildingType","State"))
 
 #rbind state and region information
 item2.tab.full <- rbind.data.frame(item2.state.full, item2.region.full, stringsAsFactors = F)
 
-item2.tab.full$Percent <- item2.tab.full$HomeType_Count / item2.tab.full$HT_State_Count
-item2.tab.full$EB      <- 1.645 * sqrt((item2.tab.full$Percent * (1 - item2.tab.full$Percent)) / length(unique(item2.dat$CK_Cadmus_ID)))
+item2.tab.full$Percent <- item2.tab.full$HomeType_Count / item2.tab.full$SampleSize
+item2.tab.full$EB      <- 1.645 * sqrt((item2.tab.full$Percent * (1 - item2.tab.full$Percent)) / item2.tab.full$SampleSize)
 
 
 
@@ -122,32 +120,30 @@ item6.dat1 <- item6.dat[which(item6.dat$BuildingType == "Single Family"),] ##onl
 item6.dat1$count <- 1
 
 #Get state information
-item6.state.tab0 <- summarise(group_by(item6.dat1, State)
-                           ,BH_State_Count = sum(count)
+item6.state.tab0 <- summarise(group_by(item6.dat1, BuildingType, State)
                            ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 
-item6.state.tab1 <- summarise(group_by(item6.dat1, BuildingHeight, State)
-                           ,Height_Count = sum(count)
+item6.state.tab1 <- summarise(group_by(item6.dat1, BuildingType, State, BuildingHeight)
+                           ,Count = sum(count)
 )
-item6.state.full <- left_join(item6.state.tab1, item6.state.tab0, by = "State")
+item6.state.full <- left_join(item6.state.tab1, item6.state.tab0, by = c("BuildingType","State"))
 
 #get region information
-item6.region.tab0 <- summarise(group_by(item6.dat1)
+item6.region.tab0 <- summarise(group_by(item6.dat1, BuildingType)
                             ,State = "Region"
-                            ,BH_State_Count = sum(count)
                             ,SampleSize = length(unique(CK_Cadmus_ID))
 )
-item6.region.tab1 <- summarise(group_by(item6.dat1, BuildingHeight)
+item6.region.tab1 <- summarise(group_by(item6.dat1, BuildingType, BuildingHeight)
                             ,State = "Region"
-                            ,Height_Count = sum(count)
+                            ,Count = sum(count)
 )
-item6.region.full <- left_join(item6.region.tab1, item6.region.tab0, by = "State")
+item6.region.full <- left_join(item6.region.tab1, item6.region.tab0, by = c("BuildingType","State"))
 
 #rbind state and region information
 item6.tab.full <- rbind.data.frame(item6.state.full, item6.region.full, stringsAsFactors = F)
 
-item6.tab.full$Percent <- item6.tab.full$Height_Count / item6.tab.full$BH_State_Count
-item6.tab.full$EB      <- 1.645 * sqrt((item6.tab.full$Percent * (1 - item6.tab.full$Percent)) / length(unique(item6.dat1$CK_Cadmus_ID)))
+item6.tab.full$Percent <- item6.tab.full$Height_Count / item6.tab.full$SampleSize
+item6.tab.full$EB      <- 1.645 * sqrt((item6.tab.full$Percent * (1 - item6.tab.full$Percent)) / item6.tab.full$SampleSize)
 
   
