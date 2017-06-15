@@ -169,8 +169,10 @@ rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 
 rbsa.dat2$HomeYearBuiltXX[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 1948
 rbsa.dat2$HomeYearBuilt[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Existing"
 rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1951"
+rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1981"
 rbsa.dat2$HomeYearBuiltXX[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- 1946
 rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1951"
+rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1981"
 rbsa.dat2$HomeYearBuiltXX[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1957
 rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]   <- "1951-1960"
 rbsa.dat2$BuildingHeight[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- 1.5
@@ -192,10 +194,11 @@ rbsa.dat5 <- rbsa.dat4
 
 ##  Set outpath directory
 outPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
+stopifnot(file.exists(outPath))
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat5, paste(outPath, paste("clean.rbsa.data", rundate, ".xlsx"), sep="/"),
+write.xlsx(rbsa.dat5, paste(outPath, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
 
