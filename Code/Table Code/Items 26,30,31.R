@@ -25,7 +25,7 @@ library(data.table)
 # Import Data
 #############################################################################################
 # Define File Path
-SPPath   <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Data for SCL"
+SPPath   <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Data for PSE"
 cleanInPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
 analysisInPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents"
 stopifnot(all(file.exists(SPPath, cleanInPath, analysisInPath)))
@@ -33,7 +33,7 @@ stopifnot(all(file.exists(SPPath, cleanInPath, analysisInPath)))
 rbsa.dat <- read.xlsx(xlsxFile = file.path(cleanInPath, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
-envelope.dat <- read.xlsx(xlsxFile = file.path(SPPath, "Envelope_EquipConsol_2017.04.25.xlsx"))
+envelope.dat <- read.xlsx(xlsxFile = file.path(SPPath, "Envelope_EquipConsol_2017.06.16.xlsx"))
 
 
 
@@ -444,4 +444,23 @@ item30.final <- item30.dat.cast2[,-cols.remove]
 
 
 
+
+
+
+
+
+
+############################################################################################################
+## Item 31
+############################################################################################################
+item31.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               , "Category"
+                                                               , "Ceiling.Type"
+                                                               , "Ceiling.Sub-Type"
+                                                               , "Ceiling.Area"
+                                                               , "Ceiling.Insulated?"
+                                                               , "Ceiling.Insulation.Type.1"
+                                                               , "Ceiling.Insulation.Thickness.1"))]
+item31.dat1 <- item31.dat[which(item31.dat$Ceiling.Type == "Roof Deck"),]
+length(unique(item31.dat1$CK_Cadmus_ID)) #only 18
 
