@@ -20,16 +20,39 @@ library(openxlsx)
 library(stringr)
 library(data.table)
 
+################################################################################
+# SET FILEPATHS for folders and file names of:
+# - raw input data
+# - clean input data
+# - output data
+################################################################################
+rootpath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
+analysisFolder <- rootpath
+filepathRawData <- file.path(analysisFolder,"Data for PSE")
+filepathCleanData <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
+filepathCleaningDocs <- file.path(analysisFolder, "Analysis Documents")
+outputFolder <- file.path(analysisFolder, "Results")
+
+stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
+
+# Call file names
+appliances.export      <- "Appliances_EquipConsol_2017.06.16.xlsx"
+envelope.export        <- "Envelope_EquipConsol_2017.06.16.xlsx"
+lighting.export        <- "Lighting_EquipConsol_2017.06.16.xlsx"
+mechanical.export      <- "Mechanical_EquipConsol_2017.06.16.xlsx"
+rooms.export           <- "ROOMS_2017.06.16.xlsx"
+sites.interview.export <- "SITES INTERVIEW_2017.06.16.xlsx"
+sites.export           <- "SITES_2017.06.16.xlsx"
+water.export           <- "Water_EquipConsol_2017.06.16.xlsx"
+windows.export         <- "Windows_EquipConsol_2017.06.16.xlsx"
+
+
 #############################################################################################
 # Import and Subset Data
 #############################################################################################
 
-# Define File Path
-SPPath   <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Data for SCL"
-stopifnot(file.exists(SPPath))
-
 # Import site data (Items 1, 2, 3-maybe)
-site.dat <- read.xlsx(xlsxFile = file.path(SPPath, "SITES_2017.03.30.xlsx"))
+site.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat1 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                                , "BuildingTypeXX"  = site.dat$SITE_GENL_INFO_BuildingType
                                , "HomeYearBuiltXX" = site.dat$SITES_General_GENL_INFO_HomeYearBuilt
@@ -192,13 +215,9 @@ rbsa.dat5 <- rbsa.dat4
 # Write out cleaned building type information
 #############################################################################################
 
-##  Set outpath directory
-outPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
-stopifnot(file.exists(outPath))
-
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat5, paste(outPath, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
 

@@ -8,27 +8,11 @@
 
 ##  Clear variables
 rm(list=ls())
-rundate <-  format(Sys.time(), "%d%b%y")
-options(scipen=999)
 
-##  Include packages
-library(plyr)
-library(dplyr)
-library(lubridate)
-library(tidyr)
-library(openxlsx)
-library(stringr)
-library(data.table)
+# Read in clean RBSA data
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
-#############################################################################################
-# Import Data
-#############################################################################################
-# Define File Path
-SPPath   <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Data for PSE"
-cleanInPath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/Analysis Documents/Clean Data"
-stopifnot(all(file.exists(SPPath)))
 
-rbsa.dat <- read.xlsx(xlsxFile = file.path(cleanInPath, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
 #############################################################################################
 # Item 1
@@ -143,7 +127,7 @@ item6.region.full <- left_join(item6.region.tab1, item6.region.tab0, by = c("Bui
 #rbind state and region information
 item6.tab.full <- rbind.data.frame(item6.state.full, item6.region.full, stringsAsFactors = F)
 
-item6.tab.full$Percent <- item6.tab.full$Height_Count / item6.tab.full$SampleSize
+item6.tab.full$Percent <- item6.tab.full$Count / item6.tab.full$SampleSize
 item6.tab.full$EB      <- 1.645 * sqrt((item6.tab.full$Percent * (1 - item6.tab.full$Percent)) / item6.tab.full$SampleSize)
 
   
