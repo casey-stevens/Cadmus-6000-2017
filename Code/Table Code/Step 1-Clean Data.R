@@ -60,7 +60,7 @@ site.dat1 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                                , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
                                , stringsAsFactors  = F)
 head(site.dat1)
-site.dat1$CK_Cadmus_ID <- trimws(site.dat1$CK_Cadmus_ID)
+site.dat1$CK_Cadmus_ID <- trimws(toupper(site.dat1$CK_Cadmus_ID))
 length(unique(site.dat1$CK_Cadmus_ID)) #601
 
 
@@ -68,24 +68,23 @@ length(unique(site.dat1$CK_Cadmus_ID)) #601
 # Clean Data
 #############################################################################################
 
-### Deal with lowercase / missing / unknown states
-
-#make all states toupper
-site.dat1$State <- toupper(site.dat1$State)
+### Deal with missing / unknown states
 
 #replace all missing states with actual
 state.na.ind <- site.dat1$CK_Cadmus_ID[which(is.na(site.dat1$State))]
 missing.state <- site.dat1[which(site.dat1$CK_Cadmus_ID %in% state.na.ind),] ## note all are washington
 site.dat1$State[which(is.na(site.dat1$State))] <- "WA"
+#fix Wa to WA
+site.dat1$State[which(site.dat1$State == "Wa")] <- "WA"
 
 #replace all unknown states with actual
-state.unk.ind <- site.dat1$CK_Cadmus_ID[which(site.dat1$State == "UNKNOWN")]
+state.unk.ind <- unique(site.dat1$CK_Cadmus_ID[which(site.dat1$State == "Unknown")])
 site.dat1$State[which(site.dat1$CK_Cadmus_ID == "MM0016N20")] <- "MT"
 site.dat1$State[which(site.dat1$CK_Cadmus_ID == "WM1463PM")]  <- "WA"
 
 unique(site.dat1$State)
 
-length(unique(site.dat1$CK_Cadmus_ID)) #566
+length(unique(site.dat1$CK_Cadmus_ID)) #601
 
 #############################################################################################
 # Clean building type and home year built info
@@ -129,7 +128,7 @@ rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$H
 rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
 unique(rbsa.dat$HomeYearBuilt_bins4)
 
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 rbsa.dat1 <- rbsa.dat
 
@@ -148,7 +147,7 @@ rbsa.dat1$SampleInd[grep("wm"     ,rbsa.dat1$SampleInd)] <- "CORE"
 rbsa.dat1$SampleInd[grep("wh"     ,rbsa.dat1$SampleInd)] <- "CORE"
 unique(rbsa.dat1$SampleInd)
 
-length(unique(rbsa.dat1$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat1$CK_Cadmus_ID)) #601
 
 ## clean building height info
 rbsa.sub <- rbsa.dat1[which(!(is.na(rbsa.dat1$BuildingHeight))),]
