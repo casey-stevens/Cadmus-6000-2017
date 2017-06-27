@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list=ls())
+# rm(list=ls())
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -26,7 +26,7 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 
 #############################################################################################
 #############################################################################################
-# PREP FOR ITEMS 26, 30
+# PREP FOR ITEMS 26, 30, 31
 #############################################################################################
 #############################################################################################
 #Bring in R-value table
@@ -47,7 +47,7 @@ ceiling.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 # , "Ceiling.Insulation.Type.3"                                                  
                                                                 # , "Ceiling.Insulation.Thickness.3"
 ))]
-length(unique(ceiling.dat$CK_Cadmus_ID))#547
+length(unique(ceiling.dat$CK_Cadmus_ID))#584 - missing 15 sites
 
 #trim white space from cadmus IDs
 ceiling.dat$CK_Cadmus_ID <- trimws(ceiling.dat$CK_Cadmus_ID)
@@ -55,14 +55,15 @@ ceiling.dat$CK_Cadmus_ID <- trimws(ceiling.dat$CK_Cadmus_ID)
 #subset to only wall information
 ceiling.dat1 <- ceiling.dat[which(ceiling.dat$Category == "Ceiling"),]
 
-#
+#merge analysis data with cleaned RBSA data
 ceiling.dat2 <- left_join(rbsa.dat, ceiling.dat1, by = "CK_Cadmus_ID")
 
+#subset to only single family sites
 ceiling.dat2.5 <- ceiling.dat2[which(ceiling.dat2$BuildingType == "Single Family"),]
 
-#remove items have the datapoint was not asked for
+#remove items have the "-- datapoint not asked for --"
 ceiling.dat3 <- ceiling.dat2.5[which(ceiling.dat2.5$`Ceiling.Insulated?` %in% c("Yes", "No")),]
-length(unique(ceiling.dat3$CK_Cadmus_ID))#280
+length(unique(ceiling.dat3$CK_Cadmus_ID))#254
 unique(ceiling.dat3$`Ceiling.Insulated?`)
 
 
@@ -76,6 +77,7 @@ ceiling.dat3$Ceiling.Insulation.Thickness.1[which(ceiling.dat3$Ceiling.Insulatio
 ceiling.dat3$Ceiling.Insulation.Thickness.2[which(ceiling.dat3$Ceiling.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 ceiling.dat3$Ceiling.Insulation.Thickness.2[which(ceiling.dat3$Ceiling.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
 ceiling.dat3$Ceiling.Insulation.Thickness.2[which(is.na(ceiling.dat3$Ceiling.Insulation.Thickness.2))] <- "N/A N/A"
+ceiling.dat3$Ceiling.Insulation.Thickness.2[which(ceiling.dat3$Ceiling.Insulation.Thickness.2 == "-- Datapoint not asked for --")] <- "N/A N/A"
 
 # add new ID variable for merging -- don't know if we need this
 ceiling.dat3$count <- 1
@@ -83,10 +85,10 @@ ceiling.dat3$TMP_ID <- cumsum(ceiling.dat3$count)
 
 ## r-values ##
 clean.insul1 <- unlist(strsplit(ceiling.dat3$Ceiling.Insulation.Thickness.1, " "))
-clean.insul2 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
 clean.insul1.1 <- cbind.data.frame("CK_Cadmus_ID" = ceiling.dat3$CK_Cadmus_ID
                                    , "TMP_ID" = ceiling.dat3$TMP_ID
-                                   , clean.insul2)
+                                   , as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T)
+                                                   , stringsAsFactors = F))
 dim(clean.insul1.1)
 
 clean.insul2 <- unlist(strsplit(ceiling.dat3$Ceiling.Insulation.Thickness.2, " "))
@@ -144,6 +146,7 @@ for (i in 1:length(rvals$Type.of.Insulation)){
 ###########################
 
 ceiling.dat5 <- ceiling.dat4
+length(unique(ceiling.dat5$CK_Cadmus_ID)) #254 -- check with line 66
 
 ###########################
 # Cleaning step (NA to zero)
@@ -194,7 +197,7 @@ weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
 Ceiling.unique <- unique(ceiling.dat5[which(colnames(ceiling.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
 
 ceiling.dat6 <- left_join(weightedU, Ceiling.unique, by = "CK_Cadmus_ID")
-
+length(unique(ceiling.dat6$CK_Cadmus_ID)) #254 - check with line 66
 
 
 ############################################################################################################
@@ -217,6 +220,8 @@ ceiling.dat6$aveRval[which(ceiling.dat6$CK_Cadmus_ID %in% no.insulation)] <- 0
 ############################################################################################################
 
 ceiling.dat7 <- left_join(ceiling.dat6, rbsa.dat, by = c("CK_Cadmus_ID", "BuildingType"))
+length(unique(ceiling.dat7$CK_Cadmus_ID)) #254 - check with line 66
+
 #############################################################################################
 #############################################################################################
 # END PREP
@@ -444,4 +449,6 @@ item31.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Ceiling.Insulation.Thickness.1"))]
 item31.dat1 <- item31.dat[which(item31.dat$Ceiling.Type == "Roof Deck"),]
 length(unique(item31.dat1$CK_Cadmus_ID)) #only 18
+
+item31.dat1$`Ceiling.Insulated?`[which(is.na(item31.dat1$`Ceiling.Insulated?`))] <- "No"
 

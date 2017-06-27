@@ -61,7 +61,7 @@ site.dat1 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                                , stringsAsFactors  = F)
 head(site.dat1)
 site.dat1$CK_Cadmus_ID <- trimws(site.dat1$CK_Cadmus_ID)
-length(unique(site.dat1$CK_Cadmus_ID)) #565
+length(unique(site.dat1$CK_Cadmus_ID)) #601
 
 
 #############################################################################################
@@ -162,7 +162,7 @@ rbsa.dat2 <- left_join(rbsa.dat1, rbsa.sub1, by = "CK_Cadmus_ID")
 #############################################################################################
 
 rbsa.dat3 <- rbsa.dat2[which(!(is.na(rbsa.dat2$BuildingType))),]
-length(unique(rbsa.dat3$CK_Cadmus_ID)) #557 -- missing 8
+length(unique(rbsa.dat3$CK_Cadmus_ID)) #596 -- missing 5
 #check to see which site IDs are lost
 missing.ind <- unique(rbsa.dat2$CK_Cadmus_ID[which(!(rbsa.dat2$CK_Cadmus_ID %in% rbsa.dat3$CK_Cadmus_ID))])
 rbsa.dat2[which(rbsa.dat2$CK_Cadmus_ID %in% missing.ind),]
@@ -172,9 +172,9 @@ rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL2263 OS SCL")]   <- "M
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SG0048 OS SCL")]   <- "Single Family"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- "Single Family"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "WM1463PM")]        <- "Multifamily - High Rise"
-rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "PNM22969 OS PSE")] <- "Multifamily - High Rise"
-rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "KM24876 OS PSE")]  <- "Multifamily - High Rise"
-rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "KM23468 OS PSE")]  <- "Multifamily - High Rise"
+# rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "PNM22969 OS PSE")] <- "Multifamily - High Rise"
+# rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "KM24876 OS PSE")]  <- "Multifamily - High Rise"
+# rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "KM23468 OS PSE")]  <- "Multifamily - High Rise"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "MS3085")]          <- "Single Family"
 
 # update building type (specific)
@@ -182,9 +182,9 @@ rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SL2263 OS SCL")]   <- 
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SG0048 OS SCL")]   <- "Single Family Detached"
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- "Single Family Detached"
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "WM1463PM")]        <- "Apartment Building (More than 6 floors)"
-rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "PNM22969 OS PSE")] <- "Apartment Building (More than 6 floors)"
-rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "KM24876 OS PSE")]  <- "Apartment Building (More than 6 floors)"
-rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "KM23468 OS PSE")]  <- "Apartment Building (More than 6 floors)"
+# rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "PNM22969 OS PSE")] <- "Apartment Building (More than 6 floors)"
+# rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "KM24876 OS PSE")]  <- "Apartment Building (More than 6 floors)"
+# rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "KM23468 OS PSE")]  <- "Apartment Building (More than 6 floors)"
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "MS3085")]          <- "Single Family Detached"
 
 ##Clean up duplicating information
@@ -201,7 +201,7 @@ rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]  
 rbsa.dat2$BuildingHeight[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- 1.5
 
 rbsa.dat4 <- unique(rbsa.dat2[which(!(is.na(rbsa.dat2$BuildingType))),])
-length(unique(rbsa.dat4$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat4$CK_Cadmus_ID)) #601
 
 ############check to see which IDs are duplicated in##########################
 # dup.ind <- which(duplicated(rbsa.dat4$CK_Cadmus_ID))
@@ -209,7 +209,7 @@ length(unique(rbsa.dat4$CK_Cadmus_ID)) #565
 # rbsa.tmp <- rbsa.dat4[which(rbsa.dat4$CK_Cadmus_ID %in% cadmus.id.ind),]
 
 rbsa.dat5 <- rbsa.dat4
-
+length(unique(rbsa.dat5$CK_Cadmus_ID)) #601
 
 #############################################################################################
 # Write out cleaned building type information
