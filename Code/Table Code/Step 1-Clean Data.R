@@ -101,6 +101,12 @@ rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Single Wide" | rbsa.dat$Bu
 rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Townhome or Rowhome" | rbsa.dat$BuildingType == "Duplex, Triplex, or Fourplex" | rbsa.dat$BuildingType == "Single Family Detached")] <- "Single Family"
 unique(rbsa.dat$BuildingType)
 
+# Fix problem home year builts
+rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 1948
+rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "WS3209")]          <- 1946
+rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1957
+
+
 # Convert home year built to New / Existing
 rbsa.dat$HomeYearBuilt <- rbsa.dat$HomeYearBuiltXX
 rbsa.dat$HomeYearBuilt[which(as.numeric(as.character(rbsa.dat$HomeYearBuilt)) < 2012)] <- "Existing"
@@ -128,7 +134,8 @@ rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$H
 rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
 unique(rbsa.dat$HomeYearBuilt_bins4)
 
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+
+
 
 rbsa.dat1 <- rbsa.dat
 
@@ -188,15 +195,12 @@ rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "MS3085")]          <- 
 
 ##Clean up duplicating information
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Single Family Detached"
-rbsa.dat2$HomeYearBuiltXX[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 1948
-rbsa.dat2$HomeYearBuilt[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Existing"
-rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1951"
-rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1981"
-rbsa.dat2$HomeYearBuiltXX[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- 1946
-rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1951"
-rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1981"
-rbsa.dat2$HomeYearBuiltXX[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1957
-rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]   <- "1951-1960"
+# rbsa.dat2$HomeYearBuilt[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Existing"
+# rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1951"
+# rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1981"
+# rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1951"
+# rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1981"
+# rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]   <- "1951-1960"
 rbsa.dat2$BuildingHeight[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- 1.5
 
 rbsa.dat4 <- unique(rbsa.dat2[which(!(is.na(rbsa.dat2$BuildingType))),])
