@@ -35,16 +35,18 @@ outputFolder <- file.path(analysisFolder, "Analysis Documents", "Preliminary Tab
 
 stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
 
+input.date <- "2017.06.16"
+
 # Call file names
-appliances.export      <- "Appliances_EquipConsol_2017.06.16.xlsx"
-envelope.export        <- "Envelope_EquipConsol_2017.06.16.xlsx"
-lighting.export        <- "Lighting_EquipConsol_2017.06.16.xlsx"
-mechanical.export      <- "Mechanical_EquipConsol_2017.06.16.xlsx"
-rooms.export           <- "ROOMS_2017.06.16.xlsx"
-sites.interview.export <- "SITES INTERVIEW_2017.06.16.xlsx"
-sites.export           <- "SITES_2017.06.16.xlsx"
-water.export           <- "Water_EquipConsol_2017.06.16.xlsx"
-windows.export         <- "Windows_EquipConsol_2017.06.16.xlsx"
+appliances.export      <- paste("Appliances_EquipConsol_", input.date, ".xlsx", sep = "")
+envelope.export        <- paste("Envelope_EquipConsol_"  , input.date, ".xlsx", sep = "")
+lighting.export        <- paste("Lighting_EquipConsol_"  , input.date, ".xlsx", sep = "")
+mechanical.export      <- paste("Mechanical_EquipConsol_", input.date, ".xlsx", sep = "")
+rooms.export           <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
+sites.interview.export <- paste("SITES INTERVIEW_"       , input.date, ".xlsx", sep = "")
+sites.export           <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
+water.export           <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
+windows.export         <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
 
 
 #############################################################################################
