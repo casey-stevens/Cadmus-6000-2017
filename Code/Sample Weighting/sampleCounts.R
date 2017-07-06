@@ -9,52 +9,92 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list=ls())
-rundate <-  format(Sys.time(), "%d%b%y")
-options(scipen=999)
-
-##  Include packages
-library(plyr)
-library(dplyr)
-library(lubridate)
-library(tidyr)
-library(openxlsx)
-library(stringr)
-library(data.table)
+# rm(list=ls())
+# rundate <-  format(Sys.time(), "%d%b%y")
+# options(scipen=999)
+# 
+# ##  Include packages
+# library(plyr)
+# library(dplyr)
+# library(lubridate)
+# library(tidyr)
+# library(openxlsx)
+# library(stringr)
+# library(data.table)
 
 ################################################################################
-# SET FILEPATHS for folders and file names of:
+# Use FILEPATHS from Step 1 for folders and file names of:
 # - METER data
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-rootpath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
-analysisFolder <- rootpath
-meterDataPath  <- file.path(analysisFolder,"Data for PSE")
-weightDataPath <- file.path(analysisFolder,"Weighting Files")     ##  Also output folder
-
-stopifnot(all(file.exists(rootpath, analysisFolder, meterDataPath, weightDataPath)))
 
 # Call file names
 meter.export  <- "METERS_2017.06.16.xlsx"
-popZIP.export <- "ZIP_Code_Utility_Mapping.xlsx"
-
+popZIP.datMap <- "ZIP_Code_Utility_Mapping.xlsx"
+bldg.export   <- "SITES_2017.06.16.xlsx"
 
 #############################################################################################
 # Import and Subset Data
 #############################################################################################
 
-# Import site data (Items 1, 2, 3-maybe)
-site.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1)
-names(site.dat)
-site.dat1 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
-                        , "PK_Site_ID"      = site.dat$PK_SiteID
-                        , "ZIPCode"         = site.dat$SITE_ZIP
-                        , stringsAsFactors  = F)
-head(site.dat1)
-site.dat1$CK_Cadmus_ID <- trimws(toupper(site.dat1$CK_Cadmus_ID))
-site.dat1$PK_Site_ID   <- trimws(toupper(site.dat1$PK_Site_ID))
-site.dat1$ZIPCode      <- substr(site.dat1$ZIPCode, 1, 5)  ## Remove ZIP-Ext
-length(unique(site.dat1$CK_Cadmus_ID)) #601
+# Import clean RBSA data
+cleanRBSA.dat <- read.xlsx(paste(filepathCleanData
+                                 , paste("clean.rbsa.data", rundate, ".xlsx", sep = "")
+                                 , sep="/")
+)
+names(cleanRBSA.dat)
+cleanRBSA.dat1 <- data.frame("CK_Cadmus_ID"     = cleanRBSA.dat$CK_Cadmus_ID
+                             , "BuildingType"   = cleanRBSA.dat$BuildingType
+                             , stringsAsFactors = F)
+cleanRBSA.dat1$CK_Cadmus_ID   <- trimws(toupper(cleanRBSA.dat1$CK_Cadmus_ID))
+length(unique(cleanRBSA.dat1$CK_Cadmus_ID))  ## 601 unique ID's
+
+
+# Import ID and ZIP data
+id_zip.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1)
+names(id_zip.dat)
+id_zip.dat1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
+                          , "ZIPCode"        = id_zip.dat$SITE_ZIP
+                          , stringsAsFactors = F)
+id_zip.dat1$CK_Cadmus_ID <- trimws(toupper(id_zip.dat1$CK_Cadmus_ID))
+id_zip.dat1$ZIPCode      <- as.numeric(substr(id_zip.dat1$ZIPCode, 1, 5))  ## Remove ZIP-Ext
+length(unique(id_zip.dat1$CK_Cadmus_ID))  ## 567 unique respondent ID's
+
+# Indicate invalid ZIP codes
+id_zip.dat1$invalidZIP <- rep(0, nrow(id_zip.dat1))
+id_zip.dat1$invalidZIP[which(id_zip.dat1$ZIPCode < 10000)] <- 1
+id_zip.dat1$invalidZIP[which(is.na(id_zip.dat1$ZIPCode))] <- 1
+
+
+# Import ZIP code mapping
+zipMap.dat <- read.xlsx(xlsxFile = file.path(filepathWeightingDocs, popZIP.datMap), sheet=1)
+head(zipMap.dat)
+zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$zip
+                          , "State"          = zipMap.dat$state
+                          , "Region"         = zipMap.dat$region
+                          , "Utility"        = zipMap.dat$name
+                          , "BPA_vs_IOU"     = zipMap.dat$`BPA.non-IOU?`
+                          , stringsAsFactors = F)
+zipMap.dat1$Utility <- trimws(toupper(zipMap.dat1$Utility))
+zipMap.dat1$Utility <- gsub('[[:punct:]]+', '', zipMap.dat1$Utility)
+zipMap.dat1$ZIPCode <- as.numeric(zipMap.dat1$ZIPCode)  
+
+
+
+#############################################################################################
+# Merge data and count sample sizes
+#############################################################################################
+
+# Join ZIP codes to building type data
+samp.dat.0 <- left_join(cleanRBSA.dat1, id_zip.dat1, by="CK_Cadmus_ID")
+# Join ZIP mapping to previous step
+samp.dat.1 <- left_join(samp.dat.0, zipMap.dat1, by="ZIPCode")
+samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
+head(samp.dat.1)
+
+sampCounts <- summarise(group_by(samp.dat.1
+                                 , BuildingType, State, Region, Utility, BPA_vs_IOU)
+                        , n = sum(tally))
 
 
