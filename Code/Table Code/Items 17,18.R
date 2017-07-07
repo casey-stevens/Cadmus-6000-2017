@@ -194,10 +194,10 @@ unique(item17.dat7$BuildingType)
 #Bin R values -- SF only
 item17.dat7$rvalue.bins <- "Unknown"
 item17.dat7$rvalue.bins[which(item17.dat7$aveRval == 0)] <- "R0"
-item17.dat7$rvalue.bins[which(item17.dat7$aveRval > 0  & item17.dat7$aveRval < 11)]  <- "R1.R17"
-item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 11 & item17.dat7$aveRval < 17)]  <- "R11.R16"
-item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 17 & item17.dat7$aveRval < 23)]  <- "R17.R22"
-item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 22)] <- "RGT22"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval > 0  & item17.dat7$aveRval < 10)]  <- "R1.R9"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 10 & item17.dat7$aveRval < 15)]  <- "R10.R14"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 15 & item17.dat7$aveRval < 21)]  <- "R15.R20"
+item17.dat7$rvalue.bins[which(item17.dat7$aveRval >= 21)] <- "RGT21"
 unique(item17.dat7$rvalue.bins)
 
 ##cast data
