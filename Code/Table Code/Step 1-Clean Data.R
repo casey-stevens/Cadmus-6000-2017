@@ -31,6 +31,7 @@ analysisFolder <- rootpath
 filepathRawData <- file.path(analysisFolder,"Data for PSE")
 filepathCleanData <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
 filepathCleaningDocs <- file.path(analysisFolder, "Analysis Documents")
+filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
 outputFolder <- file.path(analysisFolder, "Analysis Documents", "Preliminary Tables")
 
 stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
