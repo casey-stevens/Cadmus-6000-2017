@@ -246,7 +246,6 @@ item109.table <- item109.final[which(item109.final$BuildingType %in% c("Single F
 #subset to columns needed for analysis
 item110.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"Type"
-                                                                    ,"TV.Screen.Type"
                                                                     ,"Clean.Room"))]
 item110.dat$count <- 1
 
@@ -254,14 +253,40 @@ item110.dat0 <- item110.dat[which(item110.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 item110.dat1 <- left_join(item110.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
+#subset to only television
 item110.dat2 <- item110.dat1[which(item110.dat1$Type == "Television"),]
+#remove any missing room types
+item110.dat3 <- item110.dat2[which(!(is.na(item110.dat2$Clean.Room))),]
 
-#clean screen type
-unique(item110.dat2$TV.Screen.Type)
-item110.dat2$TV.Screen.Type <- as.numeric(as.character(item110.dat2$TV.Screen.Type))
-item110.dat3 <- item110.dat2[which(!(is.na(item110.dat2$TV.Screen.Type))),]
+#summarise by clean room
+item110.sum1 <- summarise(group_by(item110.dat3, BuildingType, Clean.Room)
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
+                          ,Count = sum(count))
+#summarise across clean room
+item110.sum2 <- summarise(group_by(item110.dat3, BuildingType)
+                          ,Clean.Room = "All Room Types"
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
+                          ,Count = sum(count))
 
-#clean age
-unique(item110.dat3$Age)
-item110.dat3$Age <- as.numeric(as.character(item110.dat3$Age))
-item110.dat4 <- item110.dat3[which(!(is.na(item110.dat3$Age))),]
+item110.tot.count <- item110.sum2[which(colnames(item110.sum2) %in% c("BuildingType","Count"))]
+
+#rbind
+item110.merge1 <- rbind.data.frame(item110.sum1, item110.sum2, stringsAsFactors = F)
+#leftjoin
+item110.final <- left_join(item110.merge1, item110.tot.count, by = "BuildingType")
+colnames(item110.final) <- c("BuildingType"
+                             ,"Room.Type"
+                             ,"SampleSize"
+                             ,"Count"
+                             ,"Total.Count")
+item110.final$Percent <- item110.final$Count / item110.final$Total.Count
+item110.final$SE <- sqrt(item110.final$Percent * (1 - item110.final$Percent) / item110.final$SampleSize)
+
+
+item110.table <- data.frame("BuildingType" = item110.final$BuildingType
+                            ,"Room.Type" = item110.final$Room.Type
+                            ,"Percent" = item110.final$Percent
+                            ,"SE" = item110.final$SE
+                            ,"SampleSize" = item110.final$SampleSize
+                            ,stringsAsFactors = F)
+item110.table1 <- item110.table[which(item110.table$BuildingType %in% c("Single Family", "Manufactured")),]
