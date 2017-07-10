@@ -166,20 +166,25 @@ item117.dat2 <- item117.dat1[which(item117.dat1$Type %in% c("Laptop", "Desktop")
 
 #total computers by site
 item117.dat3 <- summarise(group_by(item117.dat2, CK_Cadmus_ID, BuildingType, State)
-                          ,Site.Count = sum(count))
+                          ,Computer.Count = sum(count))
+
+#join on with RBSA data (again)
+item117.merge1 <- left_join(rbsa.dat, item117.dat3, by = c("CK_Cadmus_ID","BuildingType", "State"))
+#change computer count NA to zero
+item117.merge1$Computer.Count[which(is.na(item117.merge1$Computer.Count))] <- 0
 
 ##average by state
-item117.state <- summarise(group_by(item117.dat3, BuildingType, State)
+item117.state <- summarise(group_by(item117.merge1, BuildingType, State)
                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Site.Count)
-                           ,SE = sd(Site.Count) / sqrt(SampleSize))
+                           ,Mean = mean(Computer.Count)
+                           ,SE = sd(Computer.Count) / sqrt(SampleSize))
 
 #average across states
-item117.region <- summarise(group_by(item117.dat3, BuildingType)
+item117.region <- summarise(group_by(item117.merge1, BuildingType)
                             ,State = "Region"
                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean = mean(Site.Count)
-                            ,SE = sd(Site.Count) / sqrt(SampleSize))
+                            ,Mean = mean(Computer.Count)
+                            ,SE = sd(Computer.Count) / sqrt(SampleSize))
 
 item117.final <- rbind.data.frame(item117.state, item117.region, stringsAsFactors = F)
 
@@ -211,7 +216,6 @@ item117.table1 <- item117.table[which(item117.table$BuildingType %in% c("Single 
 item118.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"Type"
                                                                     ,""))]
-item118.dat$count <- 1
 
 #remove any repeat header rows from exporting
 item118.dat0 <- item118.dat[which(item118.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -224,31 +228,40 @@ unique(item118.dat1$Type)
 
 item118.dat2 <- item118.dat1[which(item118.dat1$Type %in% c("Desktop", "Laptop")),]
 
-#summarise by states
-#total sample size info
-item118.state1 <- summarise(group_by(item118.dat1, BuildingType, State)
-                            ,SampleSize = length(unique(CK_Cadmus_ID)))
-#total sample size info
-item118.state2 <- summarise(group_by(item118.dat2, BuildingType, State)
-                            ,Comp.Count = length(unique(CK_Cadmus_ID)))
+#total computers by site
+item118.dat3 <- summarise(group_by(item118.dat2, CK_Cadmus_ID, BuildingType, State)
+                          ,Computer.Sites = sum(unique(count)))
 
-item118.state <- left_join(item118.state1, item118.state2, by = c("BuildingType", "State"))
+#join on with RBSA data (again)
+item118.merge1 <- left_join(rbsa.dat, item118.dat3, by = c("CK_Cadmus_ID","BuildingType", "State"))
+#change computer count NA to zero
+item118.merge1$Computer.Sites[which(is.na(item118.merge1$Computer.Sites))] <- 0
+item118.merge1$count <- 1
+
+
+
+
+
+#summarise by states
+item118.state <- summarise(group_by(item118.merge1, BuildingType, State)
+                           ,SampleSize = length(unique(CK_Cadmus_ID))
+                           ,Comp.Count = sum(Computer.Sites)
+                           ,Site.Count = sum(count)
+                           ,Percent = Comp.Count / Site.Count
+                           ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
 
 #summarise across states
-#total sample size info
-item118.region1 <- summarise(group_by(item118.dat1, BuildingType)
-                             ,State = "Region"
-                             ,SampleSize = length(unique(CK_Cadmus_ID)))
-#total sample size info
-item118.region2 <- summarise(group_by(item118.dat2, BuildingType)
-                             ,State = "Region"
-                             ,Comp.Count = length(unique(CK_Cadmus_ID)))
-item118.region <- left_join(item118.region1, item118.region2, by = c("BuildingType", "State"))
+item118.region <- summarise(group_by(item118.merge1, BuildingType)
+                            ,State = "Region"
+                            ,SampleSize = length(unique(CK_Cadmus_ID))
+                            ,Comp.Count = sum(Computer.Sites)
+                            ,Site.Count = sum(count)
+                            ,Percent = Comp.Count / Site.Count
+                            ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
+
 
 # row bind state and region info
 item118.final <- rbind.data.frame(item118.state, item118.region, stringsAsFactors = F)
-item118.final$Percent <- item118.final$Comp.Count / item118.final$SampleSize
-item118.final$SE <- sqrt(item118.final$Percent * (1 - item118.final$Percent) / item118.final$SampleSize)
 
 item118.table <- data.frame("BuildingType" = item118.final$BuildingType
                             ,"State" = item118.final$State
@@ -292,20 +305,27 @@ item119.dat2 <- item119.dat1[which(item119.dat1$Type %in% c("Audio Equipment")),
 
 #total computers by site
 item119.dat3 <- summarise(group_by(item119.dat2, CK_Cadmus_ID, BuildingType, State)
-                          ,Site.Count = sum(count))
+                          ,Audio.Count = sum(count))
+
+#join on with RBSA data (again)
+item119.merge1 <- left_join(rbsa.dat, item119.dat3, by = c("CK_Cadmus_ID","BuildingType", "State"))
+#change computer count NA to zero
+item119.merge1$Audio.Count[which(is.na(item119.merge1$Audio.Count))] <- 0
+item119.merge1$count <- 1
+
 
 ##average by state
-item119.state <- summarise(group_by(item119.dat3, BuildingType, State)
+item119.state <- summarise(group_by(item119.merge1, BuildingType, State)
                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Site.Count)
-                           ,SE = sd(Site.Count) / sqrt(SampleSize))
+                           ,Mean = mean(Audio.Count)
+                           ,SE = sd(Audio.Count) / sqrt(SampleSize))
 
 #average across states
-item119.region <- summarise(group_by(item119.dat3, BuildingType)
+item119.region <- summarise(group_by(item119.merge1, BuildingType)
                             ,State = "Region"
                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean = mean(Site.Count)
-                            ,SE = sd(Site.Count) / sqrt(SampleSize))
+                            ,Mean = mean(Audio.Count)
+                            ,SE = sd(Audio.Count) / sqrt(SampleSize))
 
 item119.final <- rbind.data.frame(item119.state, item119.region, stringsAsFactors = F)
 
@@ -350,22 +370,28 @@ unique(item120.dat1$Type)
 item120.dat2 <- item120.dat1[which(item120.dat1$Contains.Suboofer %in% c("Yes")),]
 unique(item120.dat2$Contains.Suboofer)
 
-#total subwoofers by site
+#total computers by site
 item120.dat3 <- summarise(group_by(item120.dat2, CK_Cadmus_ID, BuildingType, State)
-                          ,Site.Count = sum(count))
+                          ,Subwoof.Count = sum(count))
+
+#join on with RBSA data (again)
+item120.merge1 <- left_join(rbsa.dat, item120.dat3, by = c("CK_Cadmus_ID","BuildingType", "State"))
+#change computer count NA to zero
+item120.merge1$Subwoof.Count[which(is.na(item120.merge1$Subwoof.Count))] <- 0
+item120.merge1$count <- 1
 
 ##average by state
-item120.state <- summarise(group_by(item120.dat3, BuildingType, State)
+item120.state <- summarise(group_by(item120.merge1, BuildingType, State)
                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Site.Count)
-                           ,SE = sd(Site.Count) / sqrt(SampleSize))
+                           ,Mean = mean(Subwoof.Count)
+                           ,SE = sd(Subwoof.Count) / sqrt(SampleSize))
 
 #average across states
-item120.region <- summarise(group_by(item120.dat3, BuildingType)
+item120.region <- summarise(group_by(item120.merge1, BuildingType)
                             ,State = "Region"
                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean = mean(Site.Count)
-                            ,SE = sd(Site.Count) / sqrt(SampleSize))
+                            ,Mean = mean(Subwoof.Count)
+                            ,SE = sd(Subwoof.Count) / sqrt(SampleSize))
 
 item120.final <- rbind.data.frame(item120.state, item120.region, stringsAsFactors = F)
 
