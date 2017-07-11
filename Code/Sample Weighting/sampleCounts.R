@@ -79,7 +79,9 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$zip
 zipMap.dat1$Utility <- trimws(toupper(zipMap.dat1$Utility))
 zipMap.dat1$Utility <- gsub('[[:punct:]]+', '', zipMap.dat1$Utility)
 zipMap.dat1$ZIPCode <- as.numeric(zipMap.dat1$ZIPCode)  
-
+names(zipMap.dat)   <- c("ZIP", "City", "County", "State", "Region", "FERC_ID", "Utility"
+                         , "Fraction", "BPA_vs_IOU", "SF.N", "MF.N", "MH.N", "SF.N.adj"
+                         , "MF.N.adj", "MH.N.adj")
 
 
 #############################################################################################
@@ -93,8 +95,24 @@ samp.dat.1 <- left_join(samp.dat.0, zipMap.dat1, by="ZIPCode")
 samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
 head(samp.dat.1)
 
+# Summarize sample counts
 sampCounts <- summarise(group_by(samp.dat.1
                                  , BuildingType, State, Region, Utility, BPA_vs_IOU)
                         , n = sum(tally))
 
+# Subset to desired strata
+sampCounts$Strata <- rep(NA, nrow(sampCounts))
 
+
+#############################################################################################
+# Count population sizes
+#############################################################################################
+
+# Join ZIP codes to building type data
+names(zipMap.dat)
+pop.dat.0 <- summarise(group_by(zipMap.dat, State, Region, Utility, BPA_vs_IOU)
+                       , SF.pop = round(sum(SF.N.adj), 0)
+                       , MH.pop = round(sum(MH.N.adj), 0)
+                       , MF.pop = round(sum(MF.N.adj), 0)
+                       )
+names(zipMap.dat)
