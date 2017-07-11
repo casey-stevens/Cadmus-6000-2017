@@ -40,7 +40,8 @@ item132.dat1 <- left_join(item132.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 unique(item132.dat1$Thermostat_Setpoint)
 
-item132.dat2 <- item132.dat1[which(!(is.na(item132.dat1$Thermostat_Setpoint))),]
+item132.dat2.0 <- item132.dat1[which(!(is.na(item132.dat1$Thermostat_Setpoint))),]
+item132.dat2 <- item132.dat2.0[which(item132.dat2.0$Thermostat_Setpoint != 0),]
 
 #summarise by state
 item132.state <- summarise(group_by(item132.dat2, BuildingType, State)
@@ -78,12 +79,12 @@ item132.table1 <- item132.table[which(item132.table$BuildingType %in% c("Single 
 
 
 #############################################################################################
-#Item 133:  (SF table , MH table )
+#Item 133: PERCENTAGE OF HOMES REPORTING A COOLING THERMOSTAT SETUP BY STATE (SF table 140, MH table 115)
 #############################################################################################
 #subset to columns needed for analysis
 item133.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,""
-                                                                                     ,""))])
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouCoolYourHomeWhatTemperatureDoYouTryToMaintain"
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForCooling"))])
 colnames(item133.dat) <- c("CK_Cadmus_ID", "Thermostat_Setpoint", "Nighttime_Cooling")
 item133.dat$count <- 1
 
@@ -93,20 +94,22 @@ item133.dat0 <- item133.dat[which(item133.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 #merge together analysis data with cleaned RBSA data
 item133.dat1 <- left_join(item133.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
-item133.dat2 <- item133.dat1[which(!(is.na(item133.dat1$Thermostat_Setpoint))),]
+item133.dat2.0 <- item133.dat1[which(!(is.na(item133.dat1$Thermostat_Setpoint))),]
+item133.dat2 <- item133.dat2.0[which(item133.dat2.0$Thermostat_Setpoint != 0),]
 unique(item133.dat2$Thermostat_Setpoint)
-unique(item133.dat2$Nighttime_Heating)
+unique(item133.dat2$Nighttime_Cooling)
 
-item133.dat3 <- item133.dat2[which(!(is.na(item133.dat2$Nighttime_Heating))),]
+item133.dat3.0 <- item133.dat2[which(!(is.na(item133.dat2$Nighttime_Cooling))),]
+item133.dat3 <- item133.dat3.0[which(item133.dat3.0$Nighttime_Cooling != 0),]
 
-item133.dat3$Heating.Setback <- 0
-item133.dat3$Heating.Setback[which(item133.dat3$Nighttime_Heating < item133.dat3$Thermostat_Setpoint)] <- 1
+item133.dat3$Cooling.Setup <- 0
+item133.dat3$Cooling.Setup[which(item133.dat3$Nighttime_Cooling > item133.dat3$Thermostat_Setpoint)] <- 1
 
 
 #summarise by states
 item133.state <- summarise(group_by(item133.dat3, BuildingType, State)
                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(Heating.Setback)
+                           ,Count = sum(Cooling.Setup)
                            ,Total.Count = sum(count)
                            ,Percent = Count / Total.Count
                            ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
@@ -115,7 +118,7 @@ item133.state <- summarise(group_by(item133.dat3, BuildingType, State)
 item133.region <- summarise(group_by(item133.dat3, BuildingType)
                             ,State = "Region"
                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Count = sum(Heating.Setback)
+                            ,Count = sum(Cooling.Setup)
                             ,Total.Count = sum(count)
                             ,Percent = Count / Total.Count
                             ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
@@ -160,37 +163,3 @@ item134.dat0 <- item134.dat[which(item134.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
 item134.dat1 <- left_join(item134.dat0, rbsa.dat, by = "CK_Cadmus_ID")
-
-item134.dat2 <- item134.dat1[which(!(is.na(item134.dat1$Thermostat_Setpoint))),]
-unique(item134.dat2$Thermostat_Setpoint)
-unique(item134.dat2$Nighttime_Heating)
-
-item134.dat3 <- item134.dat2[which(!(is.na(item134.dat2$Nighttime_Heating))),]
-
-item134.dat3$Heating.Setback <- item134.dat3$Thermostat_Setpoint - item134.dat3$Nighttime_Heating
-
-#summarise by states
-item134.state <- summarise(group_by(item134.dat3, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Heating.Setback)
-                           ,SE = sd(Heating.Setback) / sqrt(SampleSize))
-
-#summarise across states
-item134.region <- summarise(group_by(item134.dat3, BuildingType)
-                            ,State = "Region"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean = mean(Heating.Setback)
-                            ,SE = sd(Heating.Setback) / sqrt(SampleSize))
-
-#combine state and region information
-item134.final <- rbind.data.frame(item134.state, item134.region, stringsAsFactors = F)
-
-#put columns in correct order
-item134.table <- data.frame("BuildingType" = item134.final$BuildingType
-                            ,"State" = item134.final$State
-                            ,"Mean" = item134.final$Mean
-                            ,"SE" = item134.final$SE
-                            ,"SampleSize" = item134.final$SampleSize)
-
-#subset to only relevant buildingtypes
-item134.table1 <- item134.table[which(item134.table$BuildingType %in% c("Single Family", "Manufactured")),]
