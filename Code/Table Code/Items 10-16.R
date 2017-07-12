@@ -6,9 +6,6 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
@@ -263,10 +260,20 @@ item10.sum.allLevels <- summarise(group_by(item10.SF.dat, BuildingType, Wall.Typ
 sum(item10.sum.allLevels$AllInsulationLevelPercent)
 
 #join all insulation levels onto rvalue summary
-item10.final <- cbind.data.frame(item10.sum
-                                 , "All Insulation Levels Mean" = item10.sum.allLevels$AllInsulationLevelPercent
-                                 , "All Insulation Levels SE"   = item10.sum.allLevels$AllInsulationSE)
-
+item10.final <- data.frame("BuildingType" = item10.sum$BuildingType
+                            ,"Wall.Type" = item10.sum$Wall.Type
+                            ,"Percent.R0" = item10.sum$r0.percent
+                            ,"SE.R0" = item10.sum$r0.se
+                            ,"Percent.R1.R10" = item10.sum$r1.r10.percent
+                            ,"SE.R1.R10" = item10.sum$r1.r10.se
+                            ,"Percent.R11.R16" = item10.sum$r11.r16.percent
+                            ,"SE.R11.R16" = item10.sum$r11.r16.se
+                            ,"Percent.R17.R22" = item10.sum$r17.r22.percent
+                            ,"SE.R17.R22" = item10.sum$r17.r22.se
+                            ,"Percent.RGT22" = item10.sum$rGT22.percent
+                            ,"SE.RGT22" = item10.sum$rGT22.se
+                            ,"Percent_All Insulation Levels" = item10.sum.allLevels$AllInsulationLevelPercent
+                            ,"SE_All Insulation Levels"   = item10.sum.allLevels$AllInsulationSE)
 
 
 
