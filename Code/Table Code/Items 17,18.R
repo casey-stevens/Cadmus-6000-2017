@@ -6,16 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
-
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 
 
@@ -25,7 +22,7 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
-rvals <- rvals[-23,-3]
+rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 #subset envelope data to necessary columns
 item17.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
@@ -38,9 +35,6 @@ item17.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Furred.Wall.Insulation.Thickness"                                               
                                                                , "Furred.Wall.Insulation.Condition"))]
 length(unique(item17.dat$CK_Cadmus_ID))#547
-
-#trim white space from cadmus IDs
-item17.dat$CK_Cadmus_ID <- trimws(item17.dat$CK_Cadmus_ID)
 
 #change Masonry (basement) to just Masonry
 item17.dat[which(item17.dat$Wall.Type == "Masonry (Basement)"),] <- "Masonry"
@@ -212,76 +206,78 @@ head(item17.dat.cast)
 ## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
 item17.SF.dat <- subset(item17.dat.cast, item17.dat.cast$BuildingType == "Single Family")
 
-#summarize --SF only
-item17.sum <- summarise(group_by(item17.SF.dat, BuildingType, HomeYearBuilt_bins4)
+#summarize by housing vintage
+item17.sum1 <- summarise(group_by(item17.SF.dat, BuildingType, HomeYearBuilt_bins4)
                         ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
                         ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
                         ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
                         ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
-                        ,r1.r17.percent  = sum(R1.R17)  / sampleSizeNoNA
-                        ,r1.r17.se       = sd(R1.R17) / sqrt(sampleSizeNoNA)
-                        ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
-                        ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
-                        ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
-                        ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
-                        ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
-                        ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
+                        ,r1.r9.percent  = sum(R1.R9)  / sampleSizeNoNA
+                        ,r1.r9.se       = sd(R1.R9) / sqrt(sampleSizeNoNA)
+                        ,r10.r14.percent = sum(R10.R14) / sampleSizeNoNA
+                        ,r10.r14.se      = sd(R10.R14) / sqrt(sampleSizeNoNA)
+                        ,r15.r20.percent = sum(R15.R20) / sampleSizeNoNA
+                        ,r15.r20.se      = sd(R15.R20) / sqrt(sampleSizeNoNA)
+                        ,rGT21.percent   = sum(RGT21) / sampleSizeNoNA
+                        ,rGT21.se        = sd(RGT21) / sqrt(sampleSizeNoNA)
 )
+#summarize across housing vintage
+item17.sum2 <- summarise(group_by(item17.SF.dat, BuildingType)
+                        ,HomeYearBuilt_bins4 = "All Vintages"
+                        ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
+                        ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
+                        ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
+                        ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
+                        ,r1.r9.percent  = sum(R1.R9)  / sampleSizeNoNA
+                        ,r1.r9.se       = sd(R1.R9) / sqrt(sampleSizeNoNA)
+                        ,r10.r14.percent = sum(R10.R14) / sampleSizeNoNA
+                        ,r10.r14.se      = sd(R10.R14) / sqrt(sampleSizeNoNA)
+                        ,r15.r20.percent = sum(R15.R20) / sampleSizeNoNA
+                        ,r15.r20.se      = sd(R15.R20) / sqrt(sampleSizeNoNA)
+                        ,rGT21.percent   = sum(RGT21) / sampleSizeNoNA
+                        ,rGT21.se        = sd(RGT21) / sqrt(sampleSizeNoNA)
+)
+item17.merge1 <- rbind.data.frame(item17.sum1, item17.sum2, stringsAsFactors = F)
+
+
+
 
 item17.SF.dat$count <- 1
-item17.sum.allLevels <- summarise(group_by(item17.SF.dat, BuildingType, HomeYearBuilt_bins4)
+# by housing vintage
+item17.sum.allLevels1 <- summarise(group_by(item17.SF.dat, BuildingType, HomeYearBuilt_bins4)
                                   ,WallTypeCount = sum(count)
                                   ,TotalCount = sum(item17.SF.dat$count)
                                   ,AllInsulationLevelPercent = WallTypeCount / TotalCount
                                   ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
 )
-
-#Check to make sure they add to 1
-sum(item17.sum.allLevels$AllInsulationLevelPercent)
-
-#join all insulation levels onto rvalue summary
-item17.withVintages.final <- cbind.data.frame(item17.sum
-                                              , "All Insulation Levels Mean" = item17.sum.allLevels$AllInsulationLevelPercent
-                                              , "All Insulation Levels SE"   = item17.sum.allLevels$AllInsulationSE)
-
-####across vintages
-#summarize --SF only
-item17.sum.allVintages <- summarise(group_by(item17.SF.dat, BuildingType)
-                                    ,HomeYearBuilt_bins4 = "All Vintages"
-                                    ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                                    ,sampleSizeNoNA  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                                    ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
-                                    ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
-                                    ,r1.r17.percent  = sum(R1.R17)  / sampleSizeNoNA
-                                    ,r1.r17.se       = sd(R1.R17) / sqrt(sampleSizeNoNA)
-                                    ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
-                                    ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
-                                    ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
-                                    ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
-                                    ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
-                                    ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
+# across housing vintage
+item17.sum.allLevels2 <- summarise(group_by(item17.SF.dat, BuildingType)
+                                   ,HomeYearBuilt_bins4 = "All Vintages"
+                                   ,WallTypeCount = sum(count)
+                                   ,TotalCount = sum(item17.SF.dat$count)
+                                   ,AllInsulationLevelPercent = WallTypeCount / TotalCount
+                                   ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
 )
 
-item17.sum.allLevelsVintages <- summarise(group_by(item17.SF.dat, BuildingType)
-                                          ,HomeYearBuilt_bins4 = "All Vintages"
-                                          ,WallTypeCount = sum(count)
-                                          ,TotalCount = sum(item17.SF.dat$count)
-                                          ,AllInsulationLevelPercent = WallTypeCount / TotalCount
-                                          ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
-)
 
-#Check to make sure they add to 1
-sum(item17.sum.allLevelsVintages$AllInsulationLevelPercent)
+item17.sum.allLevels <- rbind.data.frame(item17.sum.allLevels1, item17.sum.allLevels2, stringsAsFactors = F)
 
 #join all insulation levels onto rvalue summary
-item17.allVintages.final <- cbind.data.frame(item17.sum.allVintages
-                                             , "All Insulation Levels Mean" = item17.sum.allLevelsVintages$AllInsulationLevelPercent
-                                             , "All Insulation Levels SE"   = item17.sum.allLevelsVintages$AllInsulationSE)
-
-item17.final <- rbind.data.frame(item17.withVintages.final, item17.allVintages.final, stringsAsFactors = F)
-
-
-
+item17.final <- data.frame("BuildingType" = item17.merge1$BuildingType
+                           ,"Housing.Vintage" = item17.merge1$HomeYearBuilt_bins4
+                           ,"Percent.R0" = item17.merge1$r0.percent
+                           ,"SE.R0" = item17.merge1$r0.se
+                           ,"Percent.R1.R9" = item17.merge1$r1.r9.percent
+                           ,"SE.R1.R9" = item17.merge1$r1.r9.se
+                           ,"Percent.R10.R14" = item17.merge1$r10.r14.percent
+                           ,"SE.R10.R14" = item17.merge1$r10.r14.se
+                           ,"Percent.R15.R20" = item17.merge1$r15.r20.percent
+                           ,"SE.R15.R20" = item17.merge1$r15.r20.se
+                           ,"Percent.RGT21" = item17.merge1$rGT21.percent
+                           ,"SE.RGT21" = item17.merge1$rGT21.se
+                           ,"Percent_All Insulation Levels" = item17.sum.allLevels$AllInsulationLevelPercent
+                           ,"SE_All Insulation Levels"   = item17.sum.allLevels$AllInsulationSE
+                           ,"SampleSize" = item17.merge1$sampleSizeNoNA)
 
 
 

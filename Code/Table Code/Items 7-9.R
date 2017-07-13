@@ -6,15 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
 room.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+room.dat$CK_Cadmus_ID <- trimws(toupper(room.dat$CK_Cadmus_ID))
 
 
 ##############################################################################################################################
@@ -42,7 +40,6 @@ item7.state.dat <- summarise(group_by(item7.dat2, CK_Cadmus_ID, BuildingType, St
 item7.state.dat <- summarise(group_by(item7.state.dat, BuildingType, State)
                         ,Avg = mean(Home_Count)
                         ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                        ,EB  = SE * 1.645
                         ,SampleSize = length(unique(CK_Cadmus_ID))
                         )
 
@@ -57,7 +54,6 @@ item7.region.dat <- summarise(group_by(item7.region.dat, BuildingType)
                               ,State = "Region"
                               ,Avg = mean(Home_Count)
                               ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,EB  = SE * 1.645
                               ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 
@@ -92,7 +88,6 @@ item8.state.dat <- summarise(group_by(item8.dat2, CK_Cadmus_ID, BuildingType, St
 item8.state.dat <- summarise(group_by(item8.state.dat, BuildingType, State)
                              ,Avg = mean(Home_Count)
                              ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                             ,EB  = SE * 1.645
                              ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 
@@ -107,7 +102,6 @@ item8.region.dat <- summarise(group_by(item8.region.dat, BuildingType)
                               ,State = "Region"
                               ,Avg = mean(Home_Count)
                               ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,EB  = SE * 1.645
                               ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 
@@ -137,8 +131,8 @@ item9.dat1 <- item9.sum[which(!(is.na(item9.sum$Site_Area))),]
 
 #average across houses
 item9.sum1 <- summarise(group_by(item9.dat1, BuildingType, Clean.Type)
-                        ,Avg_Area = mean(Site_Area)
-                        ,SE_Area  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
+                        ,Mean = mean(Site_Area)
+                        ,SE  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
                         ,SampleSize = length(unique(CK_Cadmus_ID))
                         )
 item9.sum2 <- item9.sum1[which(item9.sum1$Clean.Type %in% c("Bathroom"
@@ -156,8 +150,8 @@ item9.sum2 <- item9.sum1[which(item9.sum1$Clean.Type %in% c("Bathroom"
                                                              ,"Other")),]
 item9.sum3 <- summarise(group_by(item9.dat1, BuildingType)
                         ,Clean.Type = "All Room Types"
-                        ,Avg_Area = mean(Site_Area)
-                        ,SE_Area  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
+                        ,Mean = mean(Site_Area)
+                        ,SE  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
                         ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 

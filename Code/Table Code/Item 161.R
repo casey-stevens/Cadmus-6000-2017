@@ -23,7 +23,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 
 #############################################################################################
-# Item 161: DISTRIBUTION OF FRAME WALL INSULATION LEVELS, ELECTRICALLY HEATED HOMES (SF table B-5)
+# Item 161: DISTRIBUTION OF FRAME WALL INSULATION LEVELS, ELECTRICALLY HEATED HOMES (SF table B-6)
 #############################################################################################
 #############################################################################################
 #
