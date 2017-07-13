@@ -6,16 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
-
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 
 
@@ -65,7 +62,11 @@ item19.final$Percent <- item19.final$BSMTCount / item19.final$SampleSize
 item19.final$SE <- sqrt(item19.final$Percent * (1 - item19.final$Percent) / item19.final$SampleSize)
 
 
-
+item19.table <- data.frame("BuildingType" = item19.final$BuildingType
+                           ,"State" = item19.final$State
+                           ,"Percent" = item19.final$Percent
+                           ,"SE" = item19.final$SE
+                           ,"SampleSize" = item19.final$SampleSize)
 
 
 
@@ -104,6 +105,11 @@ item20.sum2 <- summarise(group_by(item20.dat3, BuildingType)
 ## rbind state and region sample sizes
 item20.final <- rbind.data.frame(item20.sum1, item20.sum2, stringsAsFactors = F)
 
+item20.table <- data.frame("BuildingType" = item20.final$BuildingType
+                           ,"State" = item20.final$State
+                           ,"Percent" = item20.final$Percent
+                           ,"SE" = item20.final$SE
+                           ,"SampleSize" = item20.final$SampleSize)
 
 
 #############################################################################################

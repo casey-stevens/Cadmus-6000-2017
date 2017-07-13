@@ -6,16 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-# rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
-
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 
 
@@ -31,7 +28,7 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 #############################################################################################
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
-rvals <- rvals[-23,-3]
+rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 #subset envelope data to necessary columns
 ceiling.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
@@ -48,9 +45,6 @@ ceiling.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 # , "Ceiling.Insulation.Thickness.3"
 ))]
 length(unique(ceiling.dat$CK_Cadmus_ID))#584 - missing 15 sites
-
-#trim white space from cadmus IDs
-ceiling.dat$CK_Cadmus_ID <- trimws(ceiling.dat$CK_Cadmus_ID)
 
 #subset to only wall information
 ceiling.dat1 <- ceiling.dat[which(ceiling.dat$Category == "Ceiling"),]
@@ -331,10 +325,18 @@ item26.dat.cast2 <- data.frame(item26.dat.cast2, stringsAsFactors = F)
 
 cols.remove <- which(colnames(item26.dat.cast2) %in% c("SD","TotalCount"))
 item26.final <- item26.dat.cast2[,-cols.remove]
+item26.total.row <- data.frame("BuildingType" = "Manufactured"
+                               ,"rValueBins" = "Total"
+                               ,"Percent" = sum(item26.final$Percent)
+                               ,"SE" = "NA"
+                               ,"SampleSize" = sum(item26.final$SampleSize))
+item26.table <- rbind.data.frame(item26.final, item26.total.row, stringsAsFactors = F)
 
-
-
-
+item26.table1 <- data.frame("BuildingType" = item26.table$BuildingType
+                            ,"rValueBins" = item26.table$rValueBins
+                            ,"Percent" = item26.table$Percent
+                            ,"SE" = item26.table$SE
+                            ,"SampleSize" = item26.table$SampleSize)
 
 
 
@@ -427,6 +429,18 @@ item30.dat.cast2 <- data.frame(item30.dat.cast2, stringsAsFactors = F)
 cols.remove <- which(colnames(item30.dat.cast2) %in% c("SD","TotalCount"))
 item30.final <- item30.dat.cast2[,-cols.remove]
 
+item30.total.row <- data.frame("BuildingType" = "Manufactured"
+                               ,"rValueBins" = "Total"
+                               ,"Percent" = sum(item30.final$Percent)
+                               ,"SE" = "NA"
+                               ,"SampleSize" = sum(item30.final$SampleSize))
+item30.table <- rbind.data.frame(item30.final, item30.total.row, stringsAsFactors = F)
+
+item30.table1 <- data.frame("BuildingType" = item30.table$BuildingType
+                            ,"rValueBins" = item30.table$rValueBins
+                            ,"Percent" = item30.table$Percent
+                            ,"SE" = item30.table$SE
+                            ,"SampleSize" = item30.table$SampleSize)
 
 
 

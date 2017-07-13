@@ -6,16 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
-
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 
 
@@ -40,7 +37,7 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
-rvals <- rvals[-23,-3]
+rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 #subset envelope data to necessary columns
 item23.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
@@ -55,17 +52,23 @@ item23.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Floor.Insulation.Thickness.2"
                                                                # , "Floor.Insulation.Type.3"                                                  
                                                                # , "Floor.Insulation.Thickness.3"
+                                                               , "Slab.Insulated?"
+                                                               , "Slab.Insulation.Type.1"
+                                                               , "Slab.Insulation.Thickness.1"
+                                                               , "Slab.Insulation.Type.2"                                                  
+                                                               , "Slab.Insulation.Thickness.2"
+                                                               # , "Slab.Insulation.Type.3"                                                  
+                                                               # , "Slab.Insulation.Thickness.3"
                                                                ))]
-length(unique(item23.dat$CK_Cadmus_ID))#547
 
-#trim white space from cadmus IDs
-item23.dat$CK_Cadmus_ID <- trimws(item23.dat$CK_Cadmus_ID)
+## Note that we don't have any usable observations for slab insulation -- excluding from analysis 
+# to make my life easier
+length(unique(item23.dat$CK_Cadmus_ID))#584
 
 #subset to only wall information
 item23.dat1 <- item23.dat[which(item23.dat$Category == "Floor"),]
 
-#remove unneccesary wall types
-# item23.dat2 <- item23.dat1[which(!(item23.dat1$Floor.Type %in% c("Masonry","Masonry (Basement)","Log","Adiabatic"))),]
+#remove unneccesary floor types
 item23.dat2 <- left_join(rbsa.dat, item23.dat1, by = "CK_Cadmus_ID")
 
 item23.SF.dat2.5 <- item23.dat2[which(item23.dat2$BuildingType == "Single Family"),]
@@ -78,18 +81,21 @@ item23.SF.dat2.5 <- item23.dat2[which(item23.dat2$BuildingType == "Single Family
 #remove items have the datapoint was not asked for
 item23.SF.dat3 <- item23.SF.dat2.5[which(item23.SF.dat2.5$`Floor.Insulated?` %in% c("Yes", "No")),]
 length(unique(item23.SF.dat3$CK_Cadmus_ID))#280
-unique(item23.SF.dat2$`Floor.Insulated?`)
+unique(item23.SF.dat3$`Floor.Insulated?`)
 
 
 ###########################
 # Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
 ###########################
+unique(item23.SF.dat3$Floor.Insulation.Thickness.1)
 item23.SF.dat3$Floor.Insulation.Thickness.1[which(item23.SF.dat3$Floor.Insulation.Thickness.1 == "Unknown")] <- "Unknown Unknown"
 item23.SF.dat3$Floor.Insulation.Thickness.1[which(item23.SF.dat3$Floor.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
+item23.SF.dat3$Floor.Insulation.Thickness.1[which(item23.SF.dat3$Floor.Insulation.Thickness.1 == "-- Datapoint not asked for --")] <- "N/A N/A"
 item23.SF.dat3$Floor.Insulation.Thickness.1[which(is.na(item23.SF.dat3$Floor.Insulation.Thickness.1))] <- "N/A N/A"
 item23.SF.dat3$Floor.Insulation.Thickness.2[which(item23.SF.dat3$Floor.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 item23.SF.dat3$Floor.Insulation.Thickness.2[which(item23.SF.dat3$Floor.Insulation.Thickness.2 == "200024390821")] <- "Unknown Unknown"
 item23.SF.dat3$Floor.Insulation.Thickness.2[which(item23.SF.dat3$Floor.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
+item23.SF.dat3$Floor.Insulation.Thickness.2[which(item23.SF.dat3$Floor.Insulation.Thickness.2 == "-- Datapoint not asked for --")] <- "N/A N/A"
 item23.SF.dat3$Floor.Insulation.Thickness.2[which(is.na(item23.SF.dat3$Floor.Insulation.Thickness.2))] <- "N/A N/A"
 
 # add new ID variable for merging -- don't know if we need this
@@ -305,6 +311,27 @@ item23.SF.sum.allVintages <- summarise(group_by(item23.SF.dat.cast, BuildingType
 #join all insulation levels onto rvalue summary
 item23.SF.final <- rbind.data.frame(item23.SF.sum, item23.SF.sum.allVintages
                                  , stringsAsFactors = F)
+
+item23.SF.table <- data.frame("BuildingType" = item23.SF.final$BuildingType
+                              ,"Housing.Vintage" = item23.SF.final$HomeYearBuilt_bins4
+                              ,"Percent_R0" = item23.SF.final$r0.percent
+                              ,"SE_R0" = item23.SF.final$r0.se
+                              ,"Percent_R1_R3" = item23.SF.final$r1.r3.percent
+                              ,"SE_R1_R3" = item23.SF.final$r1.r3.se
+                              ,"Percent_R4_R10" = item23.SF.final$r4.r10.percent
+                              ,"SE_R4_R10" = item23.SF.final$r4.r10.se
+                              ,"Percent_R11_R15" = item23.SF.final$r11.r15.percent
+                              ,"SE_R11_R15" = item23.SF.final$r11.r15.se
+                              ,"Percent_R16_R22" = item23.SF.final$r16.r22.percent
+                              ,"SE_R16_R22" = item23.SF.final$r16.r22.se
+                              ,"Percent_R23_R27" = item23.SF.final$r23.r27.percent
+                              ,"SE_R23_R27" = item23.SF.final$r23.r27.se
+                              ,"Percent_R28_R37" = item23.SF.final$r28.r37.percent
+                              ,"SE_R28_R37" = item23.SF.final$r28.r37.se
+                              ,"Percent_RGT38" = item23.SF.final$rGT38.percent
+                              ,"SE_RGT38" = item23.SF.final$rGT38.se
+                              ,"SampleSize" = item23.SF.final$sampleSizeNoNA)
+item23.SF.table1 <- item23.SF.table[which(!(is.na(item23.SF.table$Housing.Vintage))),]
 
 
 
@@ -539,6 +566,20 @@ item23.MH.final <- rbind.data.frame(item23.MH.sum, item23.MH.sum.allVintages
                                     , stringsAsFactors = F)
 
 
+item23.MH.table <- data.frame("BuildingType" = item23.MH.final$BuildingType
+                              ,"Housing.Vintage" = item23.MH.final$HomeYearBuilt_bins4
+                              ,"Percent_R0_R8" = item23.MH.final$r0.r8.percent
+                              ,"SE_R0_R8" = item23.MH.final$r0.r8.se
+                              ,"Percent_R9_R14" = item23.MH.final$r9.r14.percent
+                              ,"SE_R9_R14" = item23.MH.final$r9.r14.se
+                              ,"Percent_R15_R21" = item23.MH.final$r15.r21.percent
+                              ,"SE_R15_R21" = item23.MH.final$r15.r21.percent
+                              ,"Percent_R22_R30" = item23.MH.final$r22.r30.percent
+                              ,"SE_R22_R30" = item23.MH.final$r22.r30.se
+                              ,"Percent_R31_R40" = item23.MH.final$r31.r40.percent
+                              ,"SE_R31_R40" = item23.MH.final$r31.r40.se
+                              ,"SampleSize" = item23.MH.final$sampleSizeNoNA)
+item23.MH.table1 <- item23.MH.table[which(!(is.na(item23.MH.table$Housing.Vintage))),]
 
 
 
