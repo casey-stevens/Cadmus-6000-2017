@@ -74,14 +74,13 @@ item90.final <- item90.totalCount[which(colnames(item90.totalCount) != "Remove")
 item90.final$Percent <- item90.final$Count / item90.final$TotalCount
 item90.final$SE      <- sqrt(item90.final$Percent * (1 - item90.final$Percent) / item90.final$SampleSize)
 
-item90.final1 <- item90.final[which(colnames(item90.final) %in% c("BuildingType"
-                                                                  ,"Remove"
-                                                                  ,"Equipment Vintage"
-                                                                  ,"SampleSize"
-                                                                  ,"Percent"
-                                                                  ,"SE"))]
+item90.table <- data.frame("BuildingType" = item90.final$BuildingType
+                           ,"Equipment.Vintage" = item90.final$`Equipment Vintage`
+                           ,"Percent" = item90.final$Percent
+                           ,"SE" = item90.final$SE
+                           ,"SampleSize" = item90.final$SampleSize)
 
-item90.table <- item90.final1[which(item90.final1$BuildingType %in% c("Single Family", "Manufactured")),]
+item90.table1 <- item90.table[which(item90.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -147,14 +146,13 @@ item92.final <- item92.totalCount[which(colnames(item92.totalCount) != "Remove")
 item92.final$Percent <- item92.final$Count / item92.final$TotalCount
 item92.final$SE      <- sqrt(item92.final$Percent * (1 - item92.final$Percent) / item92.final$SampleSize)
 
-item92.final1 <- item92.final[which(colnames(item92.final) %in% c("BuildingType"
-                                                                  ,"Remove"
-                                                                  ,"Equipment Vintage"
-                                                                  ,"SampleSize"
-                                                                  ,"Percent"
-                                                                  ,"SE"))]
+item92.table <- data.frame("BuildingType" = item92.final$BuildingType
+                           ,"Equipment.Vintage" = item92.final$`Equipment Vintage`
+                           ,"Percent" = item92.final$Percent
+                           ,"SE" = item92.final$SE
+                           ,"SampleSize" = item92.final$SampleSize)
 
-item92.table <- item92.final1[which(item92.final1$BuildingType %in% c("Single Family", "Manufactured")),]
+item92.table1 <- item92.table[which(item92.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 

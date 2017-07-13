@@ -64,8 +64,17 @@ item71.region <- summarise(group_by(item71.totLamps, BuildingType)
                           ,SE         = sd(SiteLamps) / sqrt(SampleSize))
 item71.final <- rbind.data.frame(item71.state, item71.region, stringsAsFactors = F)
 
-item71.table <- item71.final[which(item71.final$BuildingType %in% c("Single Family","Manufactured")),]
-View(item71.table)
+
+
+item71.table <- data.frame("BuildingType" = item71.final$BuildingType
+                           ,"State" = item71.final$State
+                           ,"Mean" = item71.final$Mean
+                           ,"SE" = item71.final$SE
+                           ,"SampleSize" = item71.final$SampleSize)
+
+
+item71.table1 <- item71.table[which(item71.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item71.table1)
 
 
 
@@ -120,8 +129,16 @@ item72.region <- summarise(group_by(item72.totLamps, BuildingType)
                            ,SE         = sd(SiteLamps) / sqrt(SampleSize))
 item72.final <- rbind.data.frame(item72.state, item72.region, stringsAsFactors = F)
 
-item72.table <- item72.final[which(item72.final$BuildingType %in% c("Single Family","Manufactured")),]
-View(item72.table)
+item72.table <- data.frame("BuildingType" = item72.final$BuildingType
+                           ,"State" = item72.final$State
+                           ,"Mean" = item72.final$Mean
+                           ,"SE" = item72.final$SE
+                           ,"SampleSize" = item72.final$SampleSize)
+
+
+item72.table1 <- item72.table[which(item72.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item72.table1)
+
 
 
 
@@ -175,10 +192,15 @@ item73.region <- summarise(group_by(item73.totLamps, BuildingType)
                            ,SE         = sd(SiteLamps) / sqrt(SampleSize))
 item73.final <- rbind.data.frame(item73.state, item73.region, stringsAsFactors = F)
 
-item73.table <- item73.final[which(item73.final$BuildingType %in% c("Single Family","Manufactured")),]
-View(item73.table)
+item73.table <- data.frame("BuildingType" = item73.final$BuildingType
+                           ,"State" = item73.final$State
+                           ,"Mean" = item73.final$Mean
+                           ,"SE" = item73.final$SE
+                           ,"SampleSize" = item73.final$SampleSize)
 
 
+item73.table1 <- item73.table[which(item73.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item73.table1)
 
 
 
@@ -235,10 +257,15 @@ item74.region <- summarise(group_by(item74.totLamps, BuildingType)
                            ,SE         = sd(SiteLamps) / sqrt(SampleSize))
 item74.final <- rbind.data.frame(item74.state, item74.region, stringsAsFactors = F)
 
-item74.table <- item74.final[which(item74.final$BuildingType %in% c("Single Family","Manufactured")),]
-View(item74.table)
+item74.table <- data.frame("BuildingType" = item74.final$BuildingType
+                           ,"State" = item74.final$State
+                           ,"Mean" = item74.final$Mean
+                           ,"SE" = item74.final$SE
+                           ,"SampleSize" = item74.final$SampleSize)
 
 
+item74.table1 <- item74.table[which(item74.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item74.table1)
 
 
 
@@ -296,9 +323,15 @@ item75.region <- summarise(group_by(item75.totLamps, BuildingType)
                            ,SE         = sd(SiteLamps) / sqrt(SampleSize))
 item75.final <- rbind.data.frame(item75.state, item75.region, stringsAsFactors = F)
 
-item75.table <- item75.final[which(item75.final$BuildingType %in% c("Single Family","Manufactured")),]
-View(item75.table)
+item75.table <- data.frame("BuildingType" = item75.final$BuildingType
+                           ,"State" = item75.final$State
+                           ,"Mean" = item75.final$Mean
+                           ,"SE" = item75.final$SE
+                           ,"SampleSize" = item75.final$SampleSize)
 
+
+item75.table1 <- item75.table[which(item75.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item75.table1)
 
 
 
@@ -354,5 +387,12 @@ item76.region <- summarise(group_by(item76.totLamps, BuildingType)
                            ,SE         = sd(SiteLamps) / sqrt(SampleSize))
 item76.final <- rbind.data.frame(item76.state, item76.region, stringsAsFactors = F)
 
-item76.table <- item76.final[which(item76.final$BuildingType %in% c("Single Family","Manufactured")),]
-View(item76.table)
+item76.table <- data.frame("BuildingType" = item76.final$BuildingType
+                           ,"State" = item76.final$State
+                           ,"Mean" = item76.final$Mean
+                           ,"SE" = item76.final$SE
+                           ,"SampleSize" = item76.final$SampleSize)
+
+
+item76.table1 <- item76.table[which(item76.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item76.table1)

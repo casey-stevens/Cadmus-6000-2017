@@ -61,8 +61,15 @@ item66.region <- summarise(group_by(item66.lamps, BuildingType)
 item66.final <- rbind.data.frame(item66.state, item66.region, stringsAsFactors = F)
 
 
+#table format
+item66.table <- data.frame("BuildingType" = item66.final$BuildingType
+                           ,"State" = item66.final$State
+                           ,"Mean" = item66.final$Mean
+                           ,"SE" = item66.final$SE
+                           ,"SampleSize" = item66.final$SampleSize)
+
 #subset to only relevant building types
-item66.final1 <- item66.final[which(item66.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item66.table1 <- item66.table[which(item66.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 # ##write out to correct tab
@@ -125,5 +132,14 @@ item67.region <- summarise(group_by(item67.fixtures, BuildingType)
 item67.final <- rbind.data.frame(item67.state, item67.region, stringsAsFactors = F)
 
 
+
+#table format
+item67.table <- data.frame("BuildingType" = item67.final$BuildingType
+                           ,"State" = item67.final$State
+                           ,"Mean" = item67.final$Mean
+                           ,"SE" = item67.final$SE
+                           ,"SampleSize" = item67.final$SampleSize)
+
 #subset to only relevant building types
-item67.final1 <- item67.final[which(item67.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item67.table1 <- item67.table[which(item67.table$BuildingType %in% c("Single Family", "Manufactured")),]
+

@@ -6,16 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-# ##  Clear variables
-# rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
-
+windows.doors.dat$CK_Cadmus_ID <- trimws(toupper(windows.doors.dat$CK_Cadmus_ID))
 
 
 
@@ -36,7 +33,7 @@ item32.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cad
                                                                          ,"Frame./.Body.Type"
                                                                          ,"Glazing.Type"))]
 item32.dat1 <- left_join(rbsa.dat, item32.dat, by = "CK_Cadmus_ID")
-length(unique(item32.dat1$CK_Cadmus_ID)) #565 yay!
+length(unique(item32.dat1$CK_Cadmus_ID)) #601 yay!
 
 #subset to only doors
 item32.dat2 <- item32.dat1[which(item32.dat1$Type == "Door"),]
@@ -81,12 +78,11 @@ item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Famil
 
 ##################################### Table Format #####################################
 
-item32.table <- item32.final.SF[which(colnames(item32.final.SF) %in% c("BuildingType"
-                                                                       ,"Framing.Categories"
-                                                                       ,"Percent"
-                                                                       ,"SE"
-                                                                       ,"SampleSize"))]
-
+item32.table <- data.frame("BuildingType" = item32.final.SF$BuildingType
+                           ,"Framing.Categories" = item32.final.SF$Framing.Categories
+                           ,"Percent" = item32.final.SF$Percent
+                           ,"SE" = item32.final.SF$SE
+                           ,"SampleSize" = item32.final.SF$SampleSize)
 
 
 
@@ -185,9 +181,20 @@ item33.final.SF <- item33.final[which(item33.final$BuildingType == "Single Famil
 detach(package:reshape2)
 library(data.table)
 item33.table <- dcast(setDT(item33.final.SF)
-                      , formula = BuildingType + Framing.Categories + SampleSize ~ State
-                      , value.var = c("Percent", "SE"))
+                      , formula = BuildingType + Framing.Categories ~ State
+                      , value.var = c("Percent", "SE", "SampleSize"))
 
+item33.table2 <- data.frame("BuildingType" = item33.table$BuildingType
+                            ,"Framing.Categories" = item33.table$Framing.Categories
+                            ,"Percent_MT" = item33.table$Percent_MT
+                            ,"SE_MT" = item33.table$SE_MT
+                            ,"Percent_WA" = item33.table$Percent_WA
+                            ,"SE_WA" = item33.table$SE_WA
+                            ,"Percent_Region" = item33.table$Percent_Region
+                            ,"SE_Region" = item33.table$SE_Region
+                            ,"SampleSize" = item33.table$SampleSize_Region)
+
+item33.table3 <- item33.final[which(item33.final$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -231,9 +238,8 @@ item34.final$SE      <- sqrt(item34.final$Percent * (1 - item34.final$Percent) /
 
 ##################################### Table Format #####################################
 
-item34.table <- item34.final[which(colnames(item34.final) %in% c("BuildingType"
-                                                                       ,"State"
-                                                                       ,"Percent"
-                                                                       ,"SE"
-                                                                       ,"SampleSize"))]
-###NOTE: the sample size is the total number of sites, not the number of sites with storm windows only
+item34.table <- data.frame("BuildingType" = item34.final$BuildingType
+                           ,"State" = item34.final$State
+                           ,"Percent" = item34.final$Percent
+                           ,"SE" = item34.final$SE
+                           ,"SampleSize" = item34.final$SampleSize)

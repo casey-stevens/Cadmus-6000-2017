@@ -165,19 +165,19 @@ item69.final1 <- item69.final[which(colnames(item69.final) %in% c("BuildingType"
                                                                   ,"SE_WA"
                                                                   ,"SE_Region"
                                                                   ,"SampleSize_Region"))]
-item69.table <- data.frame("Building Type" = item69.final1$BuildingType
-                           ,"Lamp Category" = item69.final1$Lamp.Category
-                           ,"Montana Percent" = item69.final1$Percent_MT
-                           ,"Montana SE" = item69.final1$SE_MT
-                           ,"Oregon Percent" = item69.final1$Percent_OR
-                           ,"Oregon SE" = item69.final1$SE_OR
-                           ,"Washington Percent" = item69.final1$Percent_WA
-                           ,"Washington SE" = item69.final1$SE_WA
-                           ,"Region Percent" = item69.final1$Percent_Region
-                           ,"Region SE" = item69.final1$SE_Region
-                           ,"Sample Size" = item69.final1$SampleSize_Region)
+item69.table <- data.frame("BuildingType" = item69.final1$BuildingType
+                           ,"Lamp.Category" = item69.final1$Lamp.Category
+                           ,"Percent_MT" = item69.final1$Percent_MT
+                           ,"SE_MT" = item69.final1$SE_MT
+                           ,"Percent_OR" = item69.final1$Percent_OR
+                           ,"SE_OR" = item69.final1$SE_OR
+                           ,"Percent_WA" = item69.final1$Percent_WA
+                           ,"SE_WA" = item69.final1$SE_WA
+                           ,"Percent_Region" = item69.final1$Percent_Region
+                           ,"SE_Region" = item69.final1$SE_Region
+                           ,"SampleSize" = item69.final1$SampleSize_Region)
 
-
+item69.table1 <- item69.table[which(item69.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -288,7 +288,7 @@ item70.final1 <- item70.final[which(colnames(item70.final) %in% c("BuildingType"
                                                                   ,"Percent_Unknown"
                                                                   ,"Percent_Total"
                                                                   ,"SampleSize_Total"))]
-item70.table <- data.frame("Building Type"                 = item70.final1$BuildingType
+item70.table <- data.frame("BuildingType"                 = item70.final1$BuildingType
                            ,"Clean.Room"                   = item70.final1$Clean.Room
                            ,"CFL Percent"                  = item70.final1$Percent_Compact.Fluorescent
                            ,"Halogen Percent"              = item70.final1$Percent_Halogen
@@ -298,6 +298,7 @@ item70.table <- data.frame("Building Type"                 = item70.final1$Build
                            ,"Linear.Fluorescent Percent"   = item70.final1$Percent_Linear.Fluorescent
                            ,"Other Percent"                = item70.final1$Percent_Other
                            ,"Unknown Percent"              = item70.final1$Percent_Unknown
-                           ,"Total Percent"                = item70.final1$Percent_Total
+                           # ,"Total Percent"                = item70.final1$Percent_Total
                            ,"Sample.Size"                  = item70.final1$SampleSize_Total)
+item70.table1 <- item70.table[which(item70.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
