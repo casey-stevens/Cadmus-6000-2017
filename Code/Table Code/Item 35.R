@@ -6,9 +6,6 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-# rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
@@ -16,16 +13,23 @@ length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 #Read in data for analysis
 # Windows
 windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
+windows.doors.dat$CK_Cadmus_ID <- trimws(toupper(windows.doors.dat$CK_Cadmus_ID))
+
+#select columns for windows
 windows.dat1 <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Type"
                                                                ,"Frame./.Body.Type"
                                                                ,"Glazing.Type"
                                                                ,"Area"))]
+#subset to only windows
 windows.dat2 <- windows.dat1[which(windows.dat1$Type == "Window"),]
+#rename columns
 colnames(windows.dat2) <- c("CK_Cadmus_ID", "Window_Type", "Window_Area", "Frame_Body_Type", "Glazing_Type")
 
-#Envelope for SF
+#read in Envelope data for SF table
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
+
 # add indicator of whether a site has a basement or not
 envelope.dat$BasementInd <- "No"
 basement.tmp <- envelope.dat$CK_Cadmus_ID[which(envelope.dat$Floor.Type == "Basement")]
@@ -35,16 +39,11 @@ colnames(envelope.dat1) <- c("CK_Cadmus_ID", "Floor_Area" ,"Floor_Type", "Baseme
 
 #Rooms for MH and MF
 rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
+
 rooms.dat1 <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID","CK_SiteID","Clean.Type","Area"))]
 rooms.dat2 <- rooms.dat1[-grep("BLDG",rooms.dat1$CK_SiteID),]
 colnames(rooms.dat2) <- c("CK_Cadmus_ID", "Site_ID", "Room_Type", "Room_Area")
-
-
-#clean cadmus IDs
-windows.dat2$CK_Cadmus_ID  <- trimws(toupper(windows.dat2$CK_Cadmus_ID))
-envelope.dat1$CK_Cadmus_ID <- trimws(toupper(envelope.dat1$CK_Cadmus_ID))
-rooms.dat2$CK_Cadmus_ID    <- trimws(toupper(rooms.dat2$CK_Cadmus_ID))
-
 
 
 
@@ -81,7 +80,7 @@ item35.windows1 <- item35.windows[which(item35.windows$Window_Area > 0),]
 
 
 item35.windows2 <- summarise(group_by(item35.windows1, CK_Cadmus_ID, BuildingType)
-                             ,WindowAreaAve = mean(Window_Area))
+                             ,WindowArea = sum(Window_Area))
 
 
 
@@ -116,19 +115,34 @@ item35.dat.sf <- left_join(item35.windows2, floor.sum, by = c("CK_Cadmus_ID", "B
 item35.dat.sf1 <- item35.dat.sf[which(item35.dat.sf$BuildingType == "Single Family"),]
 
 #calculate the window to floor ratio
-item35.dat.sf1$WindowToFloorArea <- item35.dat.sf1$WindowAreaAve / item35.dat.sf1$FloorArea_Site
+item35.dat.sf1$WindowToFloorArea <- item35.dat.sf1$WindowArea / item35.dat.sf1$FloorArea_Site
 
 #remove missing ratio information (missing floor area info)
 item35.dat.sf2 <- item35.dat.sf1[which(!(is.na(item35.dat.sf1$WindowToFloorArea))),]
 
-#summarise across sites
-item35.sf.final <- summarise(group_by(item35.dat.sf2, BuildingType, BasementInd)
+#summarise across sites by whether the home has a basement or not
+item35.sf.sum1 <- summarise(group_by(item35.dat.sf2, BuildingType, BasementInd)
                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,AveWindowToFloorArea = mean(WindowToFloorArea)
-                          ,SE                   = sd(WindowToFloorArea) / sqrt(SampleSize))
+                          ,Mean       = mean(WindowToFloorArea)
+                          ,SE         = sd(WindowToFloorArea) / sqrt(SampleSize))
+
+#summarise across sites across whether the home has a basement or not
+item35.sf.sum2 <- summarise(group_by(item35.dat.sf2, BuildingType)
+                             ,BasementInd = "All Homes"
+                             ,SampleSize = length(unique(CK_Cadmus_ID))
+                             ,Mean       = mean(WindowToFloorArea)
+                             ,SE         = sd(WindowToFloorArea) / sqrt(SampleSize))
+
+item35.sf.final <- rbind.data.frame(item35.sf.sum1, item35.sf.sum2, stringsAsFactors = F)
 
 
+item35.sf.final$Basement <- c("Homes without Basements", "Homes with Basements", "All Homes")
 
+item35.sf.table <- data.frame("BuildingType" = item35.sf.final$BuildingType
+                              ,"Basement" = item35.sf.final$Basement
+                              ,"Mean" = item35.sf.final$Mean
+                              ,"SE" = item35.sf.final$SE
+                              ,"SampleSize" = item35.sf.final$SampleSize)
 
 
 #############################################################################################

@@ -6,16 +6,13 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
-
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 
 
@@ -44,7 +41,11 @@ item24.final <- summarise(group_by(item24.dat2, BuildingType, State)
 )
 
 
-
+item24.table <- data.frame("BuildingType" = item24.final$BuildingType
+                           ,"State" = item24.final$State
+                           ,"Percent" = item24.final$Percent
+                           ,"SE" = item24.final$SE
+                           ,"SampleSize" = item24.final$SampleSize)
 
 
 
@@ -78,6 +79,11 @@ item25.final <- left_join(item25.cnt, item25.SS, by = c("BuildingType", "State")
 item25.final$Percent <- item25.final$InsulatedCount / item25.final$SampleSize
 item25.final$SE      <- sqrt(item25.final$Percent * (1 - item25.final$Percent) / item25.final$SampleSize)
 
+item25.table <- data.frame("BuildingType" = item25.final$BuildingType
+                           ,"State" = item25.final$State
+                           ,"Percent" = item25.final$Percent
+                           ,"SE" = item25.final$SE
+                           ,"SampleSize" = item25.final$SampleSize)
 
 
 
@@ -108,6 +114,11 @@ item28.final <- left_join(item28.cnt, item28.SS, by = c("BuildingType", "State")
 item28.final$Percent <- item28.final$InsulatedCount / item28.final$SampleSize
 item28.final$SE      <- sqrt(item28.final$Percent * (1 - item28.final$Percent) / item28.final$SampleSize)
 
+item28.table <- data.frame("BuildingType" = item28.final$BuildingType
+                           ,"State" = item28.final$State
+                           ,"Percent" = item28.final$Percent
+                           ,"SE" = item28.final$SE
+                           ,"SampleSize" = item28.final$SampleSize)
 
 
 
@@ -137,3 +148,10 @@ item29.SS <- summarise(group_by(item29.dat00, BuildingType, State)
 item29.final <- left_join(item29.cnt, item29.SS, by = c("BuildingType", "State"))
 item29.final$Percent <- item29.final$InsulatedCount / item29.final$SampleSize
 item29.final$SE      <- sqrt(item29.final$Percent * (1 - item29.final$Percent) / item29.final$SampleSize)
+
+
+item29.table <- data.frame("BuildingType" = item29.final$BuildingType
+                           ,"State" = item29.final$State
+                           ,"Percent" = item29.final$Percent
+                           ,"SE" = item29.final$SE
+                           ,"SampleSize" = item29.final$SampleSize)

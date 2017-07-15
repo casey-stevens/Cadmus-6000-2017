@@ -22,7 +22,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 #read in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
-rvals <- rvals[-24,-3]
+rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 
 

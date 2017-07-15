@@ -88,19 +88,27 @@ item96.final$Percent <- item96.final$Count / item96.final$Total.Count
 item96.final$SE <- sqrt(item96.final$Percent * (1 - item96.final$Percent) / item96.final$SampleSize)
 
 library(data.table)
-item96.table <- dcast(setDT(item96.final)
+item96.cast <- dcast(setDT(item96.final)
                       ,formula = BuildingType + DHW.Fuel ~ State
                       , value.var = c("Percent", "SE", "SampleSize"))
 
-item96.table <- data.frame(item96.table)
-item96.table0 <- item96.table[which(!(colnames(item96.table) %in% c("SampleSize_MT"
-                                                                  ,"SampleSize_WA"
-                                                                  ,"SampleSize_OR")))]
+#subset to only the columns needed for the final RBSA table
+item96.table <- data.frame("BuildingType" = item96.cast$BuildingType
+                           ,"DHW.Fuel" = item96.cast$DHW.Fuel
+                           ,"Percent_OR" = item96.cast$Percent_OR
+                           ,"SE_OR" = item96.cast$SE_OR
+                           ,"Percent_MT" = item96.cast$Percent_MT
+                           ,"SE_MT" = item96.cast$SE_MT
+                           ,"Percent_WA" = item96.cast$Percent_WA
+                           ,"SE_WA" = item96.cast$SE_WA
+                           ,"Percent_Region" = item96.cast$Percent_Region
+                           ,"SE_Region" = item96.cast$SE_Region
+                           ,"SampleSize" = item96.cast$SampleSize_Region)
 
-item96.table1 <- item96.table0[which(item96.table0$BuildingType %in% c("Single Family","Manufactured")),]
 
 
-
+#subset to only the relevant building types for this item
+item96.table1 <- item96.table[which(item96.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -141,18 +149,18 @@ colnames(item97.totCount) <- c("BuildingType", "Total.Count")
 item97.merge1 <- rbind.data.frame(item97.sum1, item97.sum2, stringsAsFactors = F)
 
 #merge on total counts
-item97.merge2 <- left_join(item97.merge1, item97.totCount, by = "BuildingType")
+item97.final <- left_join(item97.merge1, item97.totCount, by = "BuildingType")
 
 #calculate percents and SEs
-item97.merge2$Percent <- item97.merge2$Count / item97.merge2$Total.Count
-item97.merge2$SE <- sqrt(item97.merge2$Percent * (1 - item97.merge2$Percent) / item97.merge2$SampleSize)
+item97.final$Percent <- item97.final$Count / item97.final$Total.Count
+item97.final$SE <- sqrt(item97.final$Percent * (1 - item97.final$Percent) / item97.final$SampleSize)
 
-item97.final <- item97.merge2[which(colnames(item97.merge2) %in% c("BuildingType"
-                                                                   ,"Generic"
-                                                                   ,"Percent"
-                                                                   ,"SE"
-                                                                   ,"SampleSize"))]
-item97.table <- item97.final[which(item97.final$BuildingType %in% c("Single Family")),]
+item97.table <- data.frame("BuildingType" = item97.final$BuildingType
+                           ,"Water.Heaters" = item97.final$Generic
+                           ,"Percent" = item97.final$Percent
+                           ,"SE" = item97.final$SE
+                           ,"SampleSize" = item97.final$SampleSize)
+item97.SF.table <- item97.table[which(item97.table$BuildingType %in% c("Single Family")),]
 
 
 
@@ -223,14 +231,25 @@ item98.final$Percent <- item98.final$Count / item98.final$Total.Count
 item98.final$SE <- sqrt(item98.final$Percent * (1 - item98.final$Percent) / item98.final$SampleSize)
 
 library(data.table)
-item98.table <- dcast(setDT(item98.final)
+item98.cast <- dcast(setDT(item98.final)
                       ,formula = BuildingType + DHW.Location ~ State
                       ,value.var = c("Percent", "SE", "SampleSize"))
 
-item98.table <- data.frame(item98.table)
-item98.table0 <- item98.table[which(!(colnames(item98.table) %in% c("SampleSize_MT"
-                                                                    ,"SampleSize_WA"
-                                                                    ,"SampleSize_OR")))]
+#subset to only the columns needed for the final RBSA table
+item98.table <- data.frame("BuildingType" = item98.cast$BuildingType
+                           ,"DHW.Location" = item98.cast$DHW.Location
+                           ,"Percent_OR" = item98.cast$Percent_OR
+                           ,"SE_OR" = item98.cast$SE_OR
+                           ,"Percent_MT" = item98.cast$Percent_MT
+                           ,"SE_MT" = item98.cast$SE_MT
+                           ,"Percent_WA" = item98.cast$Percent_WA
+                           ,"SE_WA" = item98.cast$SE_WA
+                           ,"Percent_Region" = item98.cast$Percent_Region
+                           ,"SE_Region" = item98.cast$SE_Region
+                           ,"SampleSize" = item98.cast$SampleSize_Region)
 
-item98.table1 <- item98.table0[which(item98.table0$BuildingType %in% c("Single Family","Manufactured")),]
+
+
+#subset to only the relevant building types for this item
+item98.table1 <- item98.table[which(item98.table$BuildingType %in% c("Single Family", "Manufactured")),]
 

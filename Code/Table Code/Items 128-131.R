@@ -71,7 +71,8 @@ item129.dat1 <- left_join(item129.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 unique(item129.dat1$Thermostat_Setpoint)
 
-item129.dat2 <- item129.dat1[which(!(is.na(item129.dat1$Thermostat_Setpoint))),]
+item129.dat2.0 <- item129.dat1[which(!(is.na(item129.dat1$Thermostat_Setpoint))),]
+item129.dat2 <- item129.dat2.0[which(item129.dat2.0$Thermostat_Setpoint != 0),]
 
 #summarise by state
 item129.state <- summarise(group_by(item129.dat2, BuildingType, State)
@@ -115,7 +116,7 @@ item129.table1 <- item129.table[which(item129.table$BuildingType %in% c("Single 
 item130.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouHeatYourHomeWhatTemperatureDoYouTryToMaintain"
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForHeating"))])
-colnames(item130.dat) <- c("CK_Cadmus_ID", "Thermostat_Setpoint", "Nighttime_Heating")
+colnames(item130.dat) <- c("CK_Cadmus_ID", "Nighttime_Heating", "Thermostat_Setpoint")
 item130.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -124,11 +125,13 @@ item130.dat0 <- item130.dat[which(item130.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 #merge together analysis data with cleaned RBSA data
 item130.dat1 <- left_join(item130.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
-item130.dat2 <- item130.dat1[which(!(is.na(item130.dat1$Thermostat_Setpoint))),]
+item130.dat2.0 <- item130.dat1[which(!(is.na(item130.dat1$Thermostat_Setpoint))),]
+item130.dat2 <- item130.dat2.0[which(item130.dat2.0$Thermostat_Setpoint != 0),]
 unique(item130.dat2$Thermostat_Setpoint)
 unique(item130.dat2$Nighttime_Heating)
 
-item130.dat3 <- item130.dat2[which(!(is.na(item130.dat2$Nighttime_Heating))),]
+item130.dat3.0 <- item130.dat2[which(!(is.na(item130.dat2$Nighttime_Heating))),]
+item130.dat3 <- item130.dat3.0[which(item130.dat3.0$Nighttime_Heating != 0),]
 
 item130.dat3$Heating.Setback <- 0
 item130.dat3$Heating.Setback[which(item130.dat3$Nighttime_Heating < item130.dat3$Thermostat_Setpoint)] <- 1
@@ -183,7 +186,7 @@ item130.table1 <- item130.table[which(item130.table$BuildingType %in% c("Single 
 item131.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouHeatYourHomeWhatTemperatureDoYouTryToMaintain"
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForHeating"))])
-colnames(item131.dat) <- c("CK_Cadmus_ID", "Thermostat_Setpoint", "Nighttime_Heating")
+colnames(item131.dat) <- c("CK_Cadmus_ID", "Nighttime_Heating", "Thermostat_Setpoint")
 item131.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -192,11 +195,13 @@ item131.dat0 <- item131.dat[which(item131.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 #merge together analysis data with cleaned RBSA data
 item131.dat1 <- left_join(item131.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
-item131.dat2 <- item131.dat1[which(!(is.na(item131.dat1$Thermostat_Setpoint))),]
+item131.dat2.0 <- item131.dat1[which(!(is.na(item131.dat1$Thermostat_Setpoint))),]
+item131.dat2 <- item131.dat2.0[which(item131.dat2.0$Thermostat_Setpoint != 0),]
 unique(item131.dat2$Thermostat_Setpoint)
 unique(item131.dat2$Nighttime_Heating)
 
-item131.dat3 <- item131.dat2[which(!(is.na(item131.dat2$Nighttime_Heating))),]
+item131.dat3.0 <- item131.dat2[which(!(is.na(item131.dat2$Nighttime_Heating))),]
+item131.dat3 <- item131.dat3.0[which(item131.dat3.0$Nighttime_Heating != 0),]
 
 item131.dat3$Heating.Setback <- item131.dat3$Thermostat_Setpoint - item131.dat3$Nighttime_Heating
 

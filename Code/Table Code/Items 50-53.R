@@ -70,37 +70,18 @@ item50.dat3$`Heating.Efficiency.-.High` <- as.numeric(as.character(item50.dat3$`
 #Join cleaned item 50 mechanical information with cleaned RBSA site information
 item50.dat4 <- left_join(item50.dat3, rbsa.dat, by = "CK_Cadmus_ID")
 
-#Calculate appropriate sample size information:
-#Sample sizes by building type, state, and equipment vintage
-SampleSize1 <- summarise(group_by(item50.dat4, BuildingType, EquipVintage_bins, State)
-                        ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type and equipment vintage for the region (i.e. across states)
-SampleSize2 <- summarise(group_by(item50.dat4, BuildingType, EquipVintage_bins)
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type and state for all vintages (i.e. across equipment vintages)
-SampleSize3 <- summarise(group_by(item50.dat4, BuildingType, State)
-                         ,EquipVintage_bins = "All Vintages"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type for the region and all vintages (i.e. across states and equipment vintages)
-SampleSize4 <- summarise(group_by(item50.dat4, BuildingType)
-                         ,EquipVintage_bins = "All Vintages"
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#row bind all sample sizes together for a merge later
-SampleSizes <- rbind.data.frame(SampleSize1, SampleSize2, SampleSize3, SampleSize4, stringsAsFactors = F)
-
-
 #Calculate state and region level average heating efficiency and standard deviation by equipment vintage bins
 #average heating efficiency and SD by building type, equipment vintage, and state
 item50.sum <- summarise(group_by(item50.dat4, BuildingType, EquipVintage_bins, State)
-                        ,AFUEaverage = mean(`Heating.Efficiency.-.High`)
-                        ,SD = sd(`Heating.Efficiency.-.High`))
+                        ,SampleSize = length(unique(CK_Cadmus_ID))
+                        ,Mean = mean(`Heating.Efficiency.-.High`)
+                        ,SE = sd(`Heating.Efficiency.-.High`) / sqrt(SampleSize))
 #average heating efficiency and SD by building type, equipment vintage for the region (i.e. across states)
 item50.sum1 <- summarise(group_by(item50.dat4, BuildingType, EquipVintage_bins)
                          ,State = "Region"
-                        ,AFUEaverage = mean(`Heating.Efficiency.-.High`)
-                        ,SD = sd(`Heating.Efficiency.-.High`))
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,Mean = mean(`Heating.Efficiency.-.High`)
+                         ,SE = sd(`Heating.Efficiency.-.High`) / sqrt(SampleSize))
 #row bind average heating efficiency and SD information by building type and equipment vintage for state and region
 item50.merge1 <- rbind.data.frame(item50.sum, item50.sum1, stringsAsFactors = F)
 
@@ -108,39 +89,43 @@ item50.merge1 <- rbind.data.frame(item50.sum, item50.sum1, stringsAsFactors = F)
 #average heating efficiency and SD by building type and state for all vintages
 item50.sum2 <- summarise(group_by(item50.dat4, BuildingType, State)
                          ,EquipVintage_bins = "All Vintages"
-                        ,AFUEaverage = mean(`Heating.Efficiency.-.High`)
-                        ,SD = sd(`Heating.Efficiency.-.High`))
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,Mean = mean(`Heating.Efficiency.-.High`)
+                         ,SE = sd(`Heating.Efficiency.-.High`) / sqrt(SampleSize))
 #average heating efficiency and SD by building type for the region and for all vintages (i.e. across states)
 item50.sum3 <- summarise(group_by(item50.dat4, BuildingType)
                          ,State = "Region"
                          ,EquipVintage_bins = "All Vintages"
-                         ,AFUEaverage = mean(`Heating.Efficiency.-.High`)
-                         ,SD = sd(`Heating.Efficiency.-.High`))
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,Mean = mean(`Heating.Efficiency.-.High`)
+                         ,SE = sd(`Heating.Efficiency.-.High`) / sqrt(SampleSize))
 #row bind average heating efficiency and SD information by building type for state and region for all vintages 
 item50.merge2 <- rbind.data.frame(item50.sum2, item50.sum3, stringsAsFactors = F)
 
 #row bind heating efficiency and SD info by building by and across vintages, and by and across states
-item50.merge.final <- rbind.data.frame(item50.merge1, item50.merge2, stringsAsFactors = F) 
+item50.final <- rbind.data.frame(item50.merge1, item50.merge2, stringsAsFactors = F) 
 
-#join sample sizes onto heating efficiency and SD information
-item50.final <- left_join(item50.merge.final, SampleSizes, by = c("BuildingType","State","EquipVintage_bins"))
-#calculate SE = SD / sqrt(SampleSize)
-item50.final$SE <- item50.final$SD / sqrt(item50.final$SampleSize)
-
-#subset to only the columns needed for the final RBSA table
-item50.final1 <- item50.final[which(colnames(item50.final) %in% c("BuildingType"
-                                                                  ,"EquipVintage_bins"
-                                                                  ,"State"
-                                                                  ,"AFUEaverage"
-                                                                  ,"SampleSize"
-                                                                  ,"SE"))]
 #need this library for casting data
 library(data.table)
 
 #cast data into correct table format
-item50.table <- dcast(setDT(item50.final1)
+item50.cast <- dcast(setDT(item50.final)
                        , formula = BuildingType + EquipVintage_bins ~ State
-                       , value.var = c("AFUEaverage", "SE", "SampleSize"))
+                       , value.var = c("Mean", "SE", "SampleSize"))
+
+
+#subset to only the columns needed for the final RBSA table
+item50.table <- data.frame("BuildingType" = item50.cast$BuildingType
+                           ,"Equipment.Vintage" = item50.cast$EquipVintage_bins
+                           ,"Mean_MT" = item50.cast$Mean_MT
+                           ,"SE_MT" = item50.cast$SE_MT
+                           ,"Mean_WA" = item50.cast$Mean_WA
+                           ,"SE_WA" = item50.cast$SE_WA
+                           ,"Mean_Region" = item50.cast$Mean_Region
+                           ,"SE_Region" = item50.cast$SE_Region
+                           ,"SampleSize" = item50.cast$SampleSize_Region)
+
+
 
 #subset to only the relevant building types for this item
 item50.table1 <- item50.table[which(item50.table$BuildingType %in% c("Single Family", "Manufactured")),]
@@ -188,47 +173,15 @@ unique(item51.dat4$Efficiency_bins)
 #add count
 item51.dat4$count <- 1
 
-#Calculate appropriate sample size information:
-#Sample sizes by building type, state, and Heating efficiency bins
-SampleSize1 <- summarise(group_by(item51.dat4, BuildingType, Efficiency_bins, State)
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type and efficiency for the region (i.e. across states)
-SampleSize2 <- summarise(group_by(item51.dat4, BuildingType, Efficiency_bins)
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type and state for all efficiencies (i.e. across efficiency bins)
-SampleSize3 <- summarise(group_by(item51.dat4, BuildingType, State)
-                         ,Efficiency_bins = "All Efficiencies"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type for the region and all efficiencies (i.e. across states and efficiency bins)
-SampleSize4 <- summarise(group_by(item51.dat4, BuildingType)
-                         ,Efficiency_bins = "All Efficiencies"
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#row bind all sample sizes together for a merge later
-SampleSizes <- rbind.data.frame(SampleSize1, SampleSize2, SampleSize3, SampleSize4, stringsAsFactors = F)
-
-#Calculate total counts:
-# by building type and state for all efficiencies (i.e. across efficiency bins)
-TotalCount1 <- summarise(group_by(item51.dat4, BuildingType, State)
-                         ,TotalCount = sum(count))
-# by building types for the region and for all efficiencies (i.e. across states and efficiency bins)
-TotalCount2 <- summarise(group_by(item51.dat4, BuildingType)
-                         ,State = "Region"
-                         ,TotalCount = sum(count))
-#row bind total counts together for a merge later -- NOTE: this could be done in the same step with sample sizes
-# however, I thought it would make it very clear to have everything explicitly named
-TotalCount <- rbind.data.frame(TotalCount1, TotalCount2, stringsAsFactors = F)
-
-
-
 #Calculate state and region level counts by efficiency bins
 #efficiency count by building type, efficiency bins, and state
 item51.sum <- summarise(group_by(item51.dat4, BuildingType, Efficiency_bins, State)
+                        ,SampleSize = length(unique(CK_Cadmus_ID))
                         ,Count = sum(count))
 #efficiency count by building type and efficiency bins for the region (i.e.across states)
 item51.sum1 <- summarise(group_by(item51.dat4, BuildingType, Efficiency_bins)
                          ,State = "Region"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 #row bind efficiency counts by building type and efficiency bins for state and region
 item51.merge1 <- rbind.data.frame(item51.sum, item51.sum1, stringsAsFactors = F)
@@ -237,46 +190,55 @@ item51.merge1 <- rbind.data.frame(item51.sum, item51.sum1, stringsAsFactors = F)
 #efficiency count by building type and state for all efficiencies
 item51.sum2 <- summarise(group_by(item51.dat4, BuildingType, State)
                          ,Efficiency_bins = "All Efficiencies"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 #efficiency count by building type for the region and for all efficiencies
 item51.sum3 <- summarise(group_by(item51.dat4, BuildingType)
                          ,State = "Region"
                          ,Efficiency_bins = "All Efficiencies"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 #row bind efficiency counts by building type across efficiency bins for state and region
 item51.merge2 <- rbind.data.frame(item51.sum2, item51.sum3, stringsAsFactors = F)
 
+item51.total.counts <- item51.merge2[which(colnames(item51.merge2) %in% c("BuildingType", "State", "Count"))]
+colnames(item51.total.counts) <- c("BuildingType", "State", "TotalCount")
+
 #row bins efficiency counts by building types by and across efficiency bins for state and region
 item51.merge.final <- rbind.data.frame(item51.merge1, item51.merge2, stringsAsFactors = F) 
 
-#merge sample sizes onto final efficiency counts
-item51.final <- left_join(item51.merge.final, SampleSizes, by = c("BuildingType","State","Efficiency_bins"))
-#merge total counts onto final efficiency counts + sample sizes
-item51.final1 <- left_join(item51.final, TotalCount, by = c("BuildingType","State"))
+# $merge on total counts
+item51.final <- left_join(item51.merge.final, item51.total.counts, by = c("BuildingType","State"))
 
 #calculate the percent of heating efficiency counts in each bin
-item51.final1$Percent <- item51.final1$Count / item51.final1$TotalCount
+item51.final$Percent <- item51.final$Count / item51.final$TotalCount
 #calcualte the standard error around a proportion (percent)
-item51.final1$SE <- sqrt(item51.final1$Percent * (1 - item51.final1$Percent) / item51.final1$SampleSize)
+item51.final$SE <- sqrt(item51.final$Percent * (1 - item51.final$Percent) / item51.final$SampleSize)
 
 
-#subset to only the columns needed for the final RBSA table
-item51.final2 <- item51.final1[which(colnames(item51.final1) %in% c("BuildingType"
-                                                                  ,"Efficiency_bins"
-                                                                  ,"State"
-                                                                  ,"Percent"
-                                                                  ,"SE"
-                                                                  ,"SampleSize"))]
 #Need this library for casting
 library(data.table)
 
 #cast data into correct table format
-item51.table <- dcast(setDT(item51.final1)
+item51.cast <- dcast(setDT(item51.final)
                       , formula = BuildingType + Efficiency_bins ~ State
                       , value.var = c("Percent", "SE", "SampleSize"))
 
+#subset to only the columns needed for the final RBSA table
+item51.table <- data.frame("BuildingType" = item51.cast$BuildingType
+                           ,"Efficiency" = item51.cast$Efficiency_bins
+                           ,"Percent_MT" = item51.cast$Percent_MT
+                           ,"SE_MT" = item51.cast$SE_MT
+                           ,"Percent_WA" = item51.cast$Percent_WA
+                           ,"SE_WA" = item51.cast$SE_WA
+                           ,"Percent_Region" = item51.cast$Percent_Region
+                           ,"SE_Region" = item51.cast$SE_Region
+                           ,"SampleSize" = item51.cast$SampleSize_Region)
+
+
+
 #subset to only the relevant building types for this item
-item51.table1 <- item51.table[which(item51.table$BuildingType == "Single Family"),]
+item51.table1 <- item51.table[which(item51.table$BuildingType %in% c("Single Family")),]
 
 
 
@@ -309,7 +271,7 @@ item52.dat4 <- left_join(item52.dat3, rbsa.dat, by = "CK_Cadmus_ID")
 item52.sum <- summarise(group_by(item52.dat4, BuildingType, EquipVintage_bins)
                         ,SampleSize = length(unique(CK_Cadmus_ID))
                         ,Mean = mean(HSPF)
-                        ,SD = sd(HSPF))
+                        ,SE = sd(HSPF) / sqrt(SampleSize))
 
 #Calculate state and region level counts across equipment bins
 #HSPF means and SDs by building type  for all vintages
@@ -317,21 +279,19 @@ item52.sum1 <- summarise(group_by(item52.dat4, BuildingType)
                          ,EquipVintage_bins = "All Vintages"
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Mean = mean(HSPF)
-                         ,SD = sd(HSPF))
+                         ,SE = sd(HSPF) / sqrt(SampleSize))
 #row bind HSPF means and SDs by building type across equipment bins for state and region
 item52.final <- rbind.data.frame(item52.sum, item52.sum1, stringsAsFactors = F)
 
-#calcuate SE = SD/sqrt(samplesize)
-item52.final$SE <- item52.final$SD / sqrt(item52.final$SampleSize)
+#subset to only relevant building types for this item
+item52.table <- item52.final[which(item52.final$BuildingType %in% c("Single Family", "Manufactured")),]
 
 #subset to only the columns needed for the final RBSA table
-item52.final1 <- item52.final[which(colnames(item52.final) %in% c("BuildingType"
-                                                                  ,"EquipVintage_bins"
-                                                                  ,"Mean"
-                                                                  ,"SampleSize"
-                                                                  ,"SE"))]
-#subset to only relevant building types for this item
-item52.table <- item52.final1[which(item52.final1$BuildingType %in% c("Single Family", "Manufactured")),]
+item52.table1 <- data.frame("BuildingType" = item52.table$BuildingType
+                            ,"EquipVintage_bins" = item52.table$EquipVintage_bins
+                            ,"Mean" = item52.table$Mean
+                            ,"SE" = item52.table$SE
+                            ,"SampleSize" = item52.table$SampleSize)
 
 
 
@@ -367,46 +327,15 @@ unique(item53.dat3$HSPF_bins)
 item53.dat3$count <- 1
 
 
-#Calculate appropriate sample size information:
-#Sample sizes by building type, state, and HSPF bins
-SampleSize1 <- summarise(group_by(item53.dat3, BuildingType, HSPF_bins, State)
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type and HSPF for the region (i.e. across states)
-SampleSize2 <- summarise(group_by(item53.dat3, BuildingType, HSPF_bins)
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type and state for all HSPFs (i.e. across HSPF bins)
-SampleSize3 <- summarise(group_by(item53.dat3, BuildingType, State)
-                         ,HSPF_bins = "All HSPF Values"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#sample sizes by building type for the region and all HSPFs (i.e. across states and HSPF bins)
-SampleSize4 <- summarise(group_by(item53.dat3, BuildingType)
-                         ,HSPF_bins = "All HSPF Values"
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#row bind all sample sizes together for a merge later
-SampleSizes <- rbind.data.frame(SampleSize1, SampleSize2, SampleSize3, SampleSize4, stringsAsFactors = F)
-
-
-#Calculate total count information:
-#Total counts by building type and state across HSPF bins
-TotalCount1 <- summarise(group_by(item53.dat3, BuildingType, State)
-                         ,TotalCount = sum(count))
-#Total counts by building type for the region across HSPF bins
-TotalCount2 <- summarise(group_by(item53.dat3, BuildingType)
-                         ,State = "Region"
-                         ,TotalCount = sum(count))
-#row bind all total counts together for a merge later
-TotalCount <- rbind.data.frame(TotalCount1, TotalCount2, stringsAsFactors = F)
-
-
 #Calculate state and region level HSPF counts by HSPF bins:
 #HSPF counts by building type, equipment vintage, and state
 item53.sum <- summarise(group_by(item53.dat3, BuildingType, HSPF_bins, State)
+                        ,SampleSize = length(unique(CK_Cadmus_ID))
                         ,Count = sum(count))
 #HSPF counts by building type, equipment vintage for the region
 item53.sum1 <- summarise(group_by(item53.dat3, BuildingType, HSPF_bins)
                          ,State = "Region"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 #row bind HSPF counts by buildign type and equip vintage for states and the region
 item53.merge1 <- rbind.data.frame(item53.sum, item53.sum1, stringsAsFactors = F)
@@ -415,41 +344,53 @@ item53.merge1 <- rbind.data.frame(item53.sum, item53.sum1, stringsAsFactors = F)
 #HSPF counts by building type and state for all HSPF values
 item53.sum2 <- summarise(group_by(item53.dat3, BuildingType, State)
                          ,HSPF_bins = "All HSPF Values"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 #HSPF counts by building type for all HSPF values for the region
 item53.sum3 <- summarise(group_by(item53.dat3, BuildingType)
                          ,State = "Region"
                          ,HSPF_bins = "All HSPF Values"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 #row bind HSPF counts by building types across equip vintages, for states and the region
 item53.merge2 <- rbind.data.frame(item53.sum2, item53.sum3, stringsAsFactors = F)
 
+#get total counts
+item53.total.counts <- item53.merge2[which(colnames(item53.merge2) %in% c("BuildingType", "State", "Count"))]
+colnames(item53.total.counts) <- c("BuildingType", "State", "TotalCount")
+
+
 #row bind HSPF counts by building types, by and across equip vintages for state and region
 item53.merge.final <- rbind.data.frame(item53.merge1, item53.merge2, stringsAsFactors = F) 
 
-#join sample size information onto final HSPF count information
-item53.final <- left_join(item53.merge.final, SampleSizes, by = c("BuildingType","State","HSPF_bins"))
 #join total count information onto final HSPF count and sample size information
-item53.final1 <- left_join(item53.final, TotalCount, by = c("BuildingType","State"))
+item53.final <- left_join(item53.merge.final, item53.total.counts, by = c("BuildingType","State"))
 
 #calculate percent as the bin count divided by total count across bins
-item53.final1$Percent <- item53.final1$Count / item53.final1$TotalCount
+item53.final$Percent <- item53.final$Count / item53.final$TotalCount
 # calculate SE for proportion (percent)
-item53.final1$SE <- sqrt(item53.final1$Percent * (1 - item53.final1$Percent) / item53.final1$SampleSize)
+item53.final$SE <- sqrt(item53.final$Percent * (1 - item53.final$Percent) / item53.final$SampleSize)
+
+#Need this library for casting
+library(data.table)
+
+#cast data into correct table format
+item53.cast <- dcast(setDT(item53.final)
+                     , formula = BuildingType + HSPF_bins ~ State
+                     , value.var = c("Percent", "SE", "SampleSize"))
 
 #subset to only the columns needed for the final RBSA table
-item53.final2 <- item53.final1[which(colnames(item53.final1) %in% c("BuildingType"
-                                                                    ,"HSPF_bins"
-                                                                    ,"State"
-                                                                    ,"Percent"
-                                                                    ,"SE"
-                                                                    ,"SampleSize"))]
-library(data.table)
-#cast data into correct table format
-item53.table <- dcast(setDT(item53.final1)
-                      , formula = BuildingType + HSPF_bins ~ State
-                      , value.var = c("Percent", "SE", "SampleSize"))
+item53.table <- data.frame("BuildingType" = item53.cast$BuildingType
+                           ,"HSPF" = item53.cast$HSPF_bins
+                           # ,"Percent_MT" = item53.cast$Percent_MT
+                           # ,"SE_MT" = item53.cast$SE_MT
+                           ,"Percent_WA" = item53.cast$Percent_WA
+                           ,"SE_WA" = item53.cast$SE_WA
+                           ,"Percent_Region" = item53.cast$Percent_Region
+                           ,"SE_Region" = item53.cast$SE_Region
+                           ,"SampleSize" = item53.cast$SampleSize_Region)
 
-#subset to building types relevant to this item
-item53.table1 <- item53.table[which(item53.table$BuildingType %in% c("Manufactured","Single Family")),]
 
+
+#subset to only the relevant building types for this item
+item53.table1 <- item53.table[which(item53.table$BuildingType %in% c("Single Family")),]

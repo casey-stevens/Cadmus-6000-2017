@@ -13,10 +13,21 @@
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
-#Read in data for analysis
+#Read in data for analysis -- Item 77
 lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
+
+#Read in data for analysis -- Item 78
+envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+#clean cadmus IDs
+envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
+
+
+#Read in data for analysis -- Item 79
+rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+#clean cadmus IDs
+rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 
 
 #############################################################################################
@@ -101,11 +112,11 @@ item77.final1$Storage[which(is.na(item77.final1$Storage))] <- 0
 item77.final1$Percent <- item77.final1$Storage / item77.final1$Total
 item77.final1$SE      <- sqrt(item77.final1$Percent * (1 - item77.final1$Percent) / item77.final1$SampleSize)
 #subset to only wanted columns
-item77.table <- item77.final1[which(colnames(item77.final1) %in% c("BuildingType"
-                                                                  ,"State"
-                                                                  ,"SampleSize"
-                                                                  ,"Percent"
-                                                                  ,"SE"))]
+item77.table <- data.frame("BuildingType" = item77.final1$BuildingType
+                           ,"State" = item77.final1$State
+                           ,"Percent" = item77.final1$Percent
+                           ,"SE" = item77.final1$SE
+                           ,"SampleSize" = item77.final1$SampleSize)
 #subset to only relevant building types
 item77.table1 <- item77.table[which(item77.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
@@ -118,9 +129,7 @@ item77.table1 <- item77.table[which(item77.table$BuildingType %in% c("Single Fam
 #############################################################################################
 #Item 78: PERCENTAGE OF ALL CFLS THAT ARE STORED (SF table 84, MH table 63)
 #############################################################################################
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
-#clean cadmus IDs
-envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
+
 item78.envelope <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID","ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
 colnames(item78.envelope) <- c("CK_Cadmus_ID","Area")
 
@@ -166,16 +175,30 @@ item78.sum$LPD <- item78.sum$Wattage / item78.sum$SQFT
 item78.dat6 <- item78.sum[which(!(is.na(item78.sum$LPD))),]
 
 item78.state <- summarise(group_by(item78.dat6, BuildingType, State)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Mean = mean(LPD)
-                         ,SE   = sd(LPD) / sqrt(length(unique(CK_Cadmus_ID))))
+                         ,SE   = sd(LPD) / sqrt(SampleSize))
 item78.region <- summarise(group_by(item78.dat6, BuildingType)
                           ,State = "Region"
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
                           ,Mean = mean(LPD)
-                          ,SE   = sd(LPD) / sqrt(length(unique(CK_Cadmus_ID))))
+                          ,SE   = sd(LPD) / sqrt(SampleSize))
 
 item78.final <- rbind.data.frame(item78.state, item78.region, stringsAsFactors = F)
+
+
+
+
+
+#table format
+item78.table <- data.frame("BuildingType" = item78.final$BuildingType
+                           ,"State" = item78.final$State
+                           ,"Mean" = item78.final$Mean
+                           ,"SE" = item78.final$SE
+                           ,"SampleSize" = item78.final$SampleSize)
+
 #subset to only relevant building types
-item78.table <- item78.final[which(item78.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item78.table1 <- item78.table[which(item78.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -194,9 +217,6 @@ item78.table <- item78.final[which(item78.final$BuildingType %in% c("Single Fami
 #############################################################################################
 #Item 79: PERCENTAGE OF ALL CFLS THAT ARE STORED (SF table 84, MH table 63)
 #############################################################################################
-rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
-#clean cadmus IDs
-rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 item79.rooms <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID","Clean.Type","Area"))]
 colnames(item79.rooms) <- c("CK_Cadmus_ID","Clean.Room","Area")
 
@@ -234,13 +254,25 @@ item79.sum$LPD <- item79.sum$Wattage / item79.sum$SQFT
 item79.dat6 <- item79.sum[which(!(is.na(item79.sum$SQFT))),]
 
 item79.room <- summarise(group_by(item79.dat6, BuildingType, Clean.Room)
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
                           ,Mean = mean(LPD)
-                          ,SE   = sd(LPD) / sqrt(length(unique(CK_Cadmus_ID))))
+                          ,SE   = sd(LPD) / sqrt(SampleSize))
 item79.allRooms <- summarise(group_by(item79.dat6, BuildingType)
                            ,Clean.Room = "All Room Types"
+                           ,SampleSize = length(unique(CK_Cadmus_ID))
                            ,Mean = mean(LPD)
-                           ,SE   = sd(LPD) / sqrt(length(unique(CK_Cadmus_ID))))
+                           ,SE   = sd(LPD) / sqrt(SampleSize))
 
 item79.final <- rbind.data.frame(item79.room, item79.allRooms, stringsAsFactors = F)
+
+
+
+#table format
+item79.table <- data.frame("BuildingType" = item79.final$BuildingType
+                           ,"Clean.Room" = item79.final$Clean.Room
+                           ,"Mean" = item79.final$Mean
+                           ,"SE" = item79.final$SE
+                           ,"SampleSize" = item79.final$SampleSize)
+
 #subset to only relevant building types
-item79.table <- item79.final[which(item79.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item79.table1 <- item79.table[which(item79.table$BuildingType %in% c("Single Family", "Manufactured")),]

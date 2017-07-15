@@ -56,13 +56,12 @@ item47.final <- left_join(item47.merge1, item47.tmp3, by = "BuildingType")
 item47.final$Percent <- item47.final$FuelCount / item47.final$TotalCount
 item47.final$SE      <- sqrt(item47.final$Percent * (1 - item47.final$Percent) / item47.final$SampleSizes)
 
-###########Make into table
-item47.table <- item47.final[which(colnames(item47.final) %in% c("BuildingType"
-                                                                 ,"Heating.Fuel"
-                                                                 ,"Percent"
-                                                                 ,"SE"
-                                                                 ,"SampleSizes"))]
-
+item47.table <- data.frame("BuildingType" = item47.final$BuildingType
+                           ,"Heating.Fuel" = item47.final$Heating.Fuel
+                           ,"Percent" = item47.final$Percent
+                           ,"SE" = item47.final$SE
+                           ,"SampleSize" = item47.final$SampleSizes)
+item47.table1 <- item47.table[which(item47.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -99,12 +98,12 @@ item48.final <- left_join(item48.merge1, item48.tmp3, by = "BuildingType")
 item48.final$Percent <- item48.final$FuelCount / item48.final$TotalCount
 item48.final$SE      <- sqrt(item48.final$Percent * (1 - item48.final$Percent) / item48.final$SampleSizes)
 
-###########Make into table
-item48.table <- item48.final[which(colnames(item48.final) %in% c("BuildingType"
-                                                                 ,"Heating.Fuel"
-                                                                 ,"Percent"
-                                                                 ,"SE"
-                                                                 ,"SampleSizes"))]
+item48.table <- data.frame("BuildingType" = item48.final$BuildingType
+                           ,"Heating.Fuel" = item48.final$Heating.Fuel
+                           ,"Percent" = item48.final$Percent
+                           ,"SE" = item48.final$SE
+                           ,"SampleSize" = item48.final$SampleSizes)
+item48.table1 <- item48.table[which(item48.table$BuildingType %in% c("Single Family")),]
 
 
 
@@ -143,9 +142,9 @@ item49.final <- left_join(item49.merge1, item49.tmp3, by = "BuildingType")
 item49.final$Percent <- item49.final$FuelCount / item49.final$TotalCount
 item49.final$SE      <- sqrt(item49.final$Percent * (1 - item49.final$Percent) / item49.final$SampleSizes)
 
-###########Make into table
-item49.table <- item49.final[which(colnames(item49.final) %in% c("BuildingType"
-                                                                 ,"Heating.Fuel"
-                                                                 ,"Percent"
-                                                                 ,"SE"
-                                                                 ,"SampleSizes"))]
+item49.table <- data.frame("BuildingType" = item49.final$BuildingType
+                           ,"Heating.Fuel" = item49.final$Heating.Fuel
+                           ,"Percent" = item49.final$Percent
+                           ,"SE" = item49.final$SE
+                           ,"SampleSize" = item49.final$SampleSizes)
+item49.table1 <- item49.table[which(item49.table$BuildingType %in% c("Single Family", "Manufactured")),]

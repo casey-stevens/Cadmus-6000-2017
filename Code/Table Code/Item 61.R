@@ -22,7 +22,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 #read in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
-rvals <- rvals[-24,-3]
+rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 
 
@@ -275,57 +275,35 @@ unique(item61.dat9$rvalue.bins)
 
 ##cast data
 item61.dat9$count <- 1
-item61.dat9.cast <- dcast(setDT(item61.dat9),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item61.dat9.cast)
-
-#summarize --SF
-item61.sum <- summarise(group_by(item61.dat9.cast, BuildingType)
-                        ,TotalCount       = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                        ,None.Count       = sum(None)
-                        ,None.sd            = sd(None)
-                        ,R1.R4.Count   = sum(R1.R4)
-                        ,R1.R4.sd        = sd(R1.R4)
-                        ,R5.R7.Count  = sum(R5.R7)
-                        ,R5.R7.sd       = sd(R5.R7)
-                        ,R8.R10.Count  = sum(R8.R10)
-                        ,R8.R10.sd       = sd(R8.R10)
-                        ,RGT10.Count    = sum(RGT10)
-                        ,RGT10.sd         = sd(RGT10)
-)
+item61.dat10 <- item61.dat9[which(item61.dat9$rvalue.bins != "Unknown"),]
 
 
-library(reshape2)
-item61.dat10 <- melt(item61.sum, id.vars = c("BuildingType", "TotalCount"))
-detach(package:reshape2)
+# summarise across rvalue bins
+item61.sum1 <- summarise(group_by(item61.dat10, BuildingType, rvalue.bins)
+                        ,SampleSize = length(unique(CK_Cadmus_ID))
+                        ,Count = sum(count))
+# summarise by rvalue bins
+item61.sum2 <- summarise(group_by(item61.dat10, BuildingType)
+                        ,rvalue.bins = "Total"
+                        ,SampleSize = length(unique(CK_Cadmus_ID))
+                        ,Count = sum(count))
+item61.tot.counts <- item61.sum2[which(colnames(item61.sum2) %in% c("BuildingType", "Count"))]
+colnames(item61.tot.counts) <- c("BuildingType", "TotalCount")
 
-item61.dat10$Ind <- "SampleSize"
-item61.dat10$Ind[grep("sd", item61.dat10$variable)] <- "SD"
+item61.merge <- rbind.data.frame(item61.sum1, item61.sum2, stringsAsFactors = F)
 
-item61.dat10$rValueBins <- "Blank"
-item61.dat10$rValueBins[grep("None" , item61.dat10$variable)] <- "None"
-item61.dat10$rValueBins[grep("R1." , item61.dat10$variable)] <- "R1-R4"
-item61.dat10$rValueBins[grep("R5.", item61.dat10$variable)] <- "R5-R7"
-item61.dat10$rValueBins[grep("R8.", item61.dat10$variable)] <- "R8-R10"
-item61.dat10$rValueBins[grep("RGT10.", item61.dat10$variable)] <- "R10+"
+item61.final <- left_join(item61.merge, item61.tot.counts, by = "BuildingType")
 
-colnames(item61.dat10)
-
-library(data.table)
-#now cast by IND
-item61.dat.cast2 <- dcast(setDT(item61.dat10),
-                          formula   = BuildingType + TotalCount + rValueBins ~ Ind, sum,
-                          value.var = 'value')
-head(item61.dat.cast2)
-
-item61.dat.cast2$Percent <- item61.dat.cast2$SampleSize / item61.dat.cast2$TotalCount
-item61.dat.cast2$SE <- item61.dat.cast2$SD / sqrt(item61.dat.cast2$SampleSize)
-
-item61.dat.cast2 <- data.frame(item61.dat.cast2, stringsAsFactors = F)
-
-cols.remove <- which(colnames(item61.dat.cast2) %in% c("SD","TotalCount"))
-item61.final <- item61.dat.cast2[,-cols.remove]
+item61.final$Percent <- item61.final$Count / item61.final$TotalCount
+item61.final$SE <- sqrt(item61.final$Percent * (1 - item61.final$Percent) / item61.final$SampleSize)
 
 
-item61.final1 <- item61.final[which(item61.final$BuildingType == "Single Family"),]
+
+
+item61.table <- data.frame("BuildingType" = item61.final$BuildingType
+                           ,"R.Values" = item61.final$rvalue.bins
+                           ,"Percent" = item61.final$Percent
+                           ,"SE" = item61.final$SE
+                           ,"SampleSize" = item61.final$SampleSize)
+item61.table1 <- item61.table[which(item61.table$BuildingType %in% c("Single Family")),]
+

@@ -75,18 +75,15 @@ item86.final <- item86.totalCount[which(colnames(item86.totalCount) != "Remove")
 item86.final$Percent <- item86.final$Count / item86.final$TotalCount
 item86.final$SE      <- sqrt(item86.final$Percent * (1 - item86.final$Percent) / item86.final$SampleSize)
 
-item86.final1 <- item86.final[which(colnames(item86.final) %in% c("BuildingType"
-                                                                  ,"Remove"
-                                                                  ,"Equipment Vintage"
-                                                                  ,"SampleSize"
-                                                                  ,"Percent"
-                                                                  ,"SE"))]
-
-item86.table <- item86.final1[which(item86.final1$BuildingType %in% c("Single Family", "Manufactured")),]
+item86.table <- data.frame("BuildingType" = item86.final$BuildingType
+                           ,"Equipment.Vintage" = item86.final$`Equipment Vintage`
+                           ,"Percent" = item86.final$Percent
+                           ,"SE" = item86.final$SE
+                           ,"SampleSize" = item86.final$SampleSize)
 
 
-
-
+item86.table1 <- item86.table[which(item86.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item86.table1)
 
 
 
@@ -157,44 +154,30 @@ colnames(item87.join) <- c("BuildingType"
                            ,"Remove"
                            ,"Total.Count")
 item87.join1 <- item87.join[which(colnames(item87.join) != "Remove")]
+item87.join1$Percent <- item87.join1$Count / item87.join1$Total.Count
+item87.join1$SE <- sqrt(item87.join1$Percent * (1 - item87.join1$Percent) / item87.join1$SampleSize)
 
 
 library(data.table)
 item87.cast <- dcast(setDT(item87.join1),
                      formula   = BuildingType + Washer.Type ~ State, sum,
-                     value.var = c("SampleSize","Count","Total.Count"))
+                     value.var = c("Percent","SE", "SampleSize"))
 
-item87.cast <- data.frame(item87.cast)
+#subset to only the columns needed for the final RBSA table
+item87.table <- data.frame("BuildingType" = item87.cast$BuildingType
+                           ,"Washer.Type" = item87.cast$Washer.Type
+                           ,"Percent_MT" = item87.cast$Percent_MT
+                           ,"SE_MT" = item87.cast$SE_MT
+                           ,"Percent_WA" = item87.cast$Percent_WA
+                           ,"SE_WA" = item87.cast$SE_WA
+                           ,"Percent_Region" = item87.cast$Percent_Region
+                           ,"SE_Region" = item87.cast$SE_Region
+                           ,"SampleSize" = item87.cast$SampleSize_Region)
 
-item87.cast1 <- item87.cast[which(!(colnames(item87.cast) %in% c("SampleSize_MT"
-                                                                 ,"SampleSize_OR"
-                                                                 ,"SampleSize_WA")))]
 
-#calculate percents and SE(Percents)
-item87.cast1$Percent_MT     <- item87.cast1$Count_MT / item87.cast1$Total.Count_MT
-item87.cast1$SE_MT          <- sqrt(item87.cast1$Percent_MT * (1 - item87.cast1$Percent_MT) / item87.cast1$SampleSize_Region)
-item87.cast1$Percent_OR     <- item87.cast1$Count_OR / item87.cast1$Total.Count_OR
-item87.cast1$SE_OR          <- sqrt(item87.cast1$Percent_OR * (1 - item87.cast1$Percent_OR) / item87.cast1$SampleSize_Region)
-item87.cast1$Percent_WA     <- item87.cast1$Count_WA / item87.cast1$Total.Count_WA
-item87.cast1$SE_WA          <- sqrt(item87.cast1$Percent_WA * (1 - item87.cast1$Percent_WA) / item87.cast1$SampleSize_Region)
-item87.cast1$Percent_Region <- item87.cast1$Count_Region / item87.cast1$Total.Count_Region
-item87.cast1$SE_Region          <- sqrt(item87.cast1$Percent_Region * (1 - item87.cast1$Percent_Region) / item87.cast1$SampleSize_Region)
 
-#subset to only columns wanted in final table
-item87.final <- item87.cast1[which(colnames(item87.cast1) %in% c("BuildingType"
-                                                                 ,"Washer.Type"
-                                                                 ,"Percent_MT"
-                                                                 ,"SE_MT"
-                                                                 ,"Percent_OR"
-                                                                 ,"SE_OR"
-                                                                 ,"Percent_WA"
-                                                                 ,"SE_WA"
-                                                                 ,"Percent_Region"
-                                                                 ,"SE_Region"
-                                                                 ,"SampleSize_Region"))]
-
-#subset to only building types wanted for this item
-item87.table <- item87.final[which(item87.final$BuildingType %in% c("Single Family")),]
+#subset to only the relevant building types for this item
+item87.table1 <- item87.table[which(item87.table$BuildingType %in% c("Single Family")),]
 
 
 
@@ -282,10 +265,23 @@ item88.cast <- dcast(setDT(item88.join1),
                      formula   = BuildingType + Washer.Type + SampleSize ~ EquipVintage_bins, sum,
                      value.var = c("Percent","SE"))
 
-item88.cast <- data.frame(item88.cast)
+item88.table <- data.frame("BuildingType" = item88.cast$BuildingType
+                          ,"Washer.Type" = item88.cast$Washer.Type
+                          ,"Percent_Pre1990" = item88.cast$`Percent_Pre 1990`
+                          ,"SE_Pre1990" = item88.cast$`SE_Pre 1990`
+                          ,"Percent_1990_1994" = item88.cast$`Percent_1990-1994`
+                          ,"SE_1990_1994" = item88.cast$`SE_1990-1994`
+                          ,"Percent_1995_1999" = item88.cast$`Percent_1995-1999`
+                          ,"SE_1995_1999" = item88.cast$`SE_1995-1999`
+                          ,"Percent_2000_2004" = item88.cast$`Percent_2000-2004`
+                          ,"SE_2000_2004" = item88.cast$`SE_2000-2004`
+                          ,"Percent_2005_2009" = item88.cast$`Percent_2005-2009`
+                          ,"SE_2005_2009" = item88.cast$`SE_2005-2009`
+                          ,"Percent_Post_2009" = item88.cast$`Percent_Post 2009`
+                          ,"SE_Post_2009" = item88.cast$`SE_Post 2009`
+                          ,"SampleSize" = item88.cast$SampleSize)
 
 #subset to only building types wanted for this item
-item88.table <- item88.cast[which(item88.cast$BuildingType %in% c("Single Family", "Manufactured")),]
-
+item88.table1 <- item88.table[which(item88.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 

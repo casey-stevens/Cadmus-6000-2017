@@ -77,11 +77,11 @@ item59.final$Percent <- item59.final$DuctCount / item59.final$SampleSize
 item59.final$SE <- sqrt(item59.final$Percent * (1 - item59.final$Percent) / item59.final$SampleSize)
 
 #subset to only columns needed for table
-item59.table <- item59.final[which(colnames(item59.final) %in% c("BuildingType"
-                                                                 ,"State"
-                                                                 ,"Percent"
-                                                                 ,"SE"
-                                                                 ,"SampleSize"))]
+item59.table <- data.frame("BuildingType" = item59.final$BuildingType
+                           ,"State" = item59.final$State
+                           ,"Percent" = item59.final$Percent
+                           ,"SE" = item59.final$SE
+                           ,"SampleSize" = item59.final$SampleSize) 
 #subset to only building types needed for table
 item59.table.final <- item59.table[which(item59.table$BuildingType %in% c("Single Family")),]
 
@@ -136,9 +136,11 @@ item60.dat4 <- item60.dat3[which(item60.dat3$BuildingType %in% c("Single Family"
 # Across Unconditioned Bins
 item60.state1 <- summarise(group_by(item60.dat4, BuildingType, State)
                            ,UnconditionedBins = "Total"
+                           ,SampleSize = length(unique(CK_Cadmus_ID))
                            ,Count = sum(count)) 
 # By Unconditioned Bins
 item60.state2 <- summarise(group_by(item60.dat4, BuildingType, State, UnconditionedBins)
+                           ,SampleSize = length(unique(CK_Cadmus_ID))
                            ,Count = sum(count))
 item60.state <- rbind.data.frame(item60.state1, item60.state2, stringsAsFactors = F)
 
@@ -147,10 +149,12 @@ item60.state <- rbind.data.frame(item60.state1, item60.state2, stringsAsFactors 
 item60.region1 <- summarise(group_by(item60.dat4, BuildingType)
                            ,UnconditionedBins = "Total"
                            ,State = "Region"
+                           ,SampleSize = length(unique(CK_Cadmus_ID))
                            ,Count = sum(count)) 
 # By Unconditioned Bins
 item60.region2 <- summarise(group_by(item60.dat4, BuildingType, UnconditionedBins)
                            ,State = "Region"
+                           ,SampleSize = length(unique(CK_Cadmus_ID))
                            ,Count = sum(count))
 item60.region <- rbind.data.frame(item60.region1, item60.region2, stringsAsFactors = F)
 
@@ -167,27 +171,25 @@ colnames(item60.final) <- c("BuildingType"
                             ,"State"
                             ,"Percentage of Ducts in Unconditioned Space"
                             ,"SampleSize"
+                            ,"Count"
                             ,"Remove"
-                            ,"Total Count")
-#Subset to only columns for calculating percent and SE
-item60.final1 <- item60.final[which(colnames(item60.final) %in% c("BuildingType"
-                                                                  ,"State"
-                                                                  ,"Percentage of Ducts in Unconditioned Space"
-                                                                  ,"SampleSize"
-                                                                  ,"Total Count"))]
-
+                            ,"Remove"
+                            ,"TotalCount")
 #calculate percent
-item60.final1$Percent <- item60.final1$SampleSize / item60.final1$`Total Count`
-item60.final1$SE <- sqrt(item60.final1$Percent * (1 - item60.final1$Percent) / item60.final1$`Total Count`)
+item60.final$Percent <- item60.final$SampleSize / item60.final$TotalCount
+item60.final$SE <- sqrt(item60.final$Percent * (1 - item60.final$Percent) / item60.final$SampleSize)
 
-
-#Subset to only columns for table
-item60.table <- item60.final1[which(colnames(item60.final1) %in% c("BuildingType"
-                                                                 ,"State"
-                                                                 ,"Percentage of Ducts in Unconditioned Space"
-                                                                 ,"Percent"
-                                                                 ,"SE"
-                                                                 ,"SampleSize"))]
-item60.table2 <- dcast(setDT(item60.table)
+item60.cast <- dcast(setDT(item60.final)
                       , formula = BuildingType + `Percentage of Ducts in Unconditioned Space` ~ State
                       , value.var = c("Percent", "SE", "SampleSize"))
+
+#Subset to only columns for table
+item60.table <- data.frame("BuildingType" = item60.cast$BuildingType
+                           ,"Percentage of Ducts in Unconditioned Space" = item60.cast$`Percentage of Ducts in Unconditioned Space`
+                           ,"Percent_MT" = item60.cast$Percent_MT
+                           ,"SE_MT" = item60.cast$SE_MT
+                           ,"Percent_WA" = item60.cast$Percent_WA
+                           ,"SE_WA" = item60.cast$SE_WA
+                           ,"Percent_Region" = item60.cast$Percent_Region
+                           ,"SE_Region" = item60.cast$SE_Region
+                           ,"SampleSize" = item60.cast$SampleSize_Region)

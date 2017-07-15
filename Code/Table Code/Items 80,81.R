@@ -44,14 +44,28 @@ item80.dat1$TotalQty <- item80.dat1$Large.Unusual.Load.Quantity * item80.dat1$co
 item80.sum <- summarise(group_by(item80.dat1, CK_Cadmus_ID, BuildingType, Type)
                         ,SiteCount = sum(TotalQty))
 
-item80.final <- summarise(group_by(item80.sum, BuildingType, Type)
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
+#get sample sizes within building type categories
+item80.sampleSize <- summarise(group_by(item80.sum, BuildingType)
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item80.merge <- left_join(item80.sum, item80.sampleSize, by = "BuildingType")
+
+#summarise by type
+item80.final <- summarise(group_by(item80.merge, BuildingType, Type)
+                        ,SampleSize = unique(SampleSize)
                         ,Mean = sum(SiteCount) / SampleSize
                         ,SE   = sd(SiteCount) / sqrt(SampleSize))
 
-item80.final1 <- item80.final[which(item80.final$BuildingType %in% c("Single Family", "Manufactured")),]
+
+item80.table <- data.frame("BuildingType" = item80.final$BuildingType
+                           ,"Type" = item80.final$Type
+                           ,"Mean" = item80.final$Mean
+                           ,"SE" = item80.final$SE
+                           ,"SampleSize" = item80.final$SampleSize)
 
 
+item80.table1 <- item80.table[which(item80.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item80.table1)
 
 
 
@@ -119,11 +133,12 @@ item81.final <- item81.totalCount[which(colnames(item81.totalCount) != "Remove")
 item81.final$Percent <- item81.final$Count / item81.final$TotalCount
 item81.final$SE      <- sqrt(item81.final$Percent * (1 - item81.final$Percent) / item81.final$SampleSize)
 
-item81.final1 <- item81.final[which(colnames(item81.final) %in% c("BuildingType"
-                                                                  ,"Remove"
-                                                                  ,"Equipment Vintage"
-                                                                  ,"SampleSize"
-                                                                  ,"Percent"
-                                                                  ,"SE"))]
+item81.table <- data.frame("BuildingType" = item81.final$BuildingType
+                           ,"Equipment.Vintage" = item81.final$`Equipment Vintage`
+                           ,"Percent" = item81.final$Percent
+                           ,"SE" = item81.final$SE
+                           ,"SampleSize" = item81.final$SampleSize)
 
-item81.table <- item81.final1
+
+item81.table1 <- item81.table[which(item81.table$BuildingType %in% c("Single Family","Manufactured")),]
+View(item81.table1)

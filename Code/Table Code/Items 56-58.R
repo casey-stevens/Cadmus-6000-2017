@@ -6,9 +6,6 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-##  Clear variables
-# rm(list=ls())
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
@@ -79,7 +76,7 @@ item56.dat4 <- left_join(item56.dat3, rbsa.dat, by = "CK_Cadmus_ID")
 item56.sum <- summarise(group_by(item56.dat4, BuildingType, EquipVintage_bins)
                         ,SampleSize = length(unique(CK_Cadmus_ID))
                         ,Mean = mean(SEER)
-                        ,SD = sd(SEER))
+                        ,SE = sd(SEER) / sqrt(SampleSize))
 
 #Calculate region level counts across equipment bins
 #SEER means and SDs by building type for region and all vintages
@@ -87,26 +84,19 @@ item56.sum1 <- summarise(group_by(item56.dat4, BuildingType)
                          ,EquipVintage_bins = "All Vintages"
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Mean = mean(SEER)
-                         ,SD = sd(SEER))
+                         ,SE = sd(SEER) / sqrt(SampleSize))
 
 #row bins SEER means and SDs by building types by and across equipment bins for  and region
 item56.final <- rbind.data.frame(item56.sum, item56.sum1, stringsAsFactors = F) 
 
-#calcuate SE = SD/sqrt(samplesize)
-item56.final$SE <- item56.final$SD / sqrt(item56.final$SampleSize)
-
-#subset to only the columns needed for the final RBSA table
-item56.final1 <- item56.final[which(colnames(item56.final) %in% c("BuildingType"
-                                                                  ,"EquipVintage_bins"
-                                                                  ,"Mean"
-                                                                  ,"SampleSize"
-                                                                  ,"SE"))]
-#subset to only relevant building types for this item
-item56.table <- item56.final1[which(item56.final1$BuildingType %in% c("Single Family")),]
+item56.table <- data.frame("BuildingType" = item56.final$BuildingType
+                           ,"Equipment.Vintage" = item56.final$EquipVintage_bins
+                           ,"Mean" = item56.final$Mean
+                           ,"SE" = item56.final$SE
+                           ,"SampleSize" = item56.final$SampleSize)
 
 
-
-
+item56.table1 <- item56.table[which(item56.table$BuildingType %in% c("Single Family")),]
 
 
 
@@ -144,7 +134,7 @@ item57.dat4 <- left_join(item57.dat3, rbsa.dat, by = "CK_Cadmus_ID")
 item57.sum <- summarise(group_by(item57.dat4, BuildingType, EquipVintage_bins)
                         ,SampleSize = length(unique(CK_Cadmus_ID))
                         ,Mean = mean(SEER)
-                        ,SD = sd(SEER))
+                        ,SE = sd(SEER) / sqrt(SampleSize))
 
 #Calculate region level counts across equipment bins
 #SEER means and SDs by building type for region and all vintages
@@ -152,22 +142,19 @@ item57.sum1 <- summarise(group_by(item57.dat4, BuildingType)
                          ,EquipVintage_bins = "All Vintages"
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Mean = mean(SEER)
-                         ,SD = sd(SEER))
+                         ,SE = sd(SEER) / sqrt(SampleSize))
 
 #row bins SEER means and SDs by building types by and across equipment bins for  and region
 item57.final <- rbind.data.frame(item57.sum, item57.sum1, stringsAsFactors = F) 
 
-#calcuate SE = SD/sqrt(samplesize)
-item57.final$SE <- item57.final$SD / sqrt(item57.final$SampleSize)
+item57.table <- data.frame("BuildingType" = item57.final$BuildingType
+                           ,"Equipment.Vintage" = item57.final$EquipVintage_bins
+                           ,"Mean" = item57.final$Mean
+                           ,"SE" = item57.final$SE
+                           ,"SampleSize" = item57.final$SampleSize)
 
-#subset to only the columns needed for the final RBSA table
-item57.final1 <- item57.final[which(colnames(item57.final) %in% c("BuildingType"
-                                                                  ,"EquipVintage_bins"
-                                                                  ,"Mean"
-                                                                  ,"SampleSize"
-                                                                  ,"SE"))]
-#subset to only relevant building types for this item
-item57.table <- item57.final1[which(item57.final1$BuildingType %in% c("Single Family", "Manufactured")),]
+
+item57.table1 <- item57.table[which(item57.table$BuildingType %in% c("Single Family")),]
 
 
 
