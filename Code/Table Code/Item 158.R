@@ -111,8 +111,14 @@ item158.region <- summarise(group_by(item158.merge2, BuildingType)
 #row bind state information together
 item158.final <- rbind.data.frame(item158.state, item158.region, stringsAsFactors = F)
 
+item158.table <- data.frame("BuildingType" = item158.final$BuildingType
+                            ,"State" = item158.final$State
+                            ,"Mean" = item158.final$Mean
+                            ,"SE" = item158.final$SE
+                            ,"SampleSize" = item158.final$SampleSize)
 
-item158.table <- item158.final[which(item158.final$BuildingType %in% c("Single Family")),]
+
+item158.table1 <- item158.table[which(item158.table$BuildingType %in% c("Single Family")),]
 
 
 

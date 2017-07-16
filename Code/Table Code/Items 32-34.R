@@ -132,55 +132,46 @@ item33.dat2$count <- 1
 #####################################Analysis - needs cleaning & work ###################################33
 # summarise by state and framing categories
 item33.tmp1 <- summarise(group_by(item33.dat2, BuildingType, State, Framing.Categories)
-          , Count = sum(count))
+                         , SampleSize = length(unique(CK_Cadmus_ID))
+                         , Count = sum(count))
 # summarise by state across framing categories
 item33.tmp2 <- summarise(group_by(item33.dat2, BuildingType, State)
                          , Framing.Categories = "All Window Types"
+                         , SampleSize = length(unique(CK_Cadmus_ID))
                          , Count = sum(count))
 #summarise by framing categories across states
 item33.tmp3 <- summarise(group_by(item33.dat2, BuildingType, Framing.Categories)
-                           , State = "Region"
-                           , Count = sum(count))
+                         , State = "Region"
+                         , SampleSize = length(unique(CK_Cadmus_ID))
+                         , Count = sum(count))
 item33.tmp4 <- summarise(group_by(item33.dat2, BuildingType)
                          , State = "Region"
                          , Framing.Categories = "All Window Types"
+                         , SampleSize = length(unique(CK_Cadmus_ID))
                          , Count = sum(count))
 
-item33.tmp.tot1 <- rbind.data.frame(item33.tmp1, item33.tmp2, item33.tmp3, item33.tmp4, stringsAsFactors = F)
+item33.merge1 <- rbind.data.frame(item33.tmp1, item33.tmp2, item33.tmp3, item33.tmp4, stringsAsFactors = F)
 
 #obtain total counts
-# summarise by state across framing categories
-item33.tmp5 <- summarise(group_by(item33.dat2, BuildingType, State)
-                         , TotalCount = sum(count))
-#summarise across state and framing categories
-item33.tmp6 <- summarise(group_by(item33.dat2, BuildingType)
-                         , State = "Region"
-                         , TotalCount = sum(count)
-                         )
-
-item33.tmp.tot2 <- rbind.data.frame(item33.tmp5, item33.tmp6, stringsAsFactors = F)
-item33.merge <- left_join(item33.tmp.tot1, item33.tmp.tot2, by = c("BuildingType","State"))
-
-#get sample size infromation
-item33.tmp7 <- summarise(group_by(item33.dat2, BuildingType, Framing.Categories)
-                         , SampleSize = length(unique(CK_Cadmus_ID)))
-item33.tmp8 <- summarise(group_by(item33.dat2, BuildingType) 
-                         , Framing.Categories = "All Window Types"
-                         , SampleSize = length(unique(CK_Cadmus_ID)))
-item33.tmp.tot3 <- rbind.data.frame(item33.tmp7, item33.tmp8, stringsAsFactors = F)
-
-
-item33.final <- left_join(item33.merge, item33.tmp.tot3, by = c("BuildingType", "Framing.Categories"))
+item33.tot.counts <- rbind.data.frame(item33.tmp2, item33.tmp4, stringsAsFactors = F)
+  
+item33.final <- left_join(item33.merge1, item33.tot.counts, by = c("BuildingType","State"))
+colnames(item33.final) <- c("BuildingType"
+                             ,"State"
+                             ,"Framing.Categories"
+                             ,"SampleSize"
+                             ,"Count"
+                             ,"Remove"
+                             ,"Remove"
+                             ,"TotalCount")
 
 item33.final$Percent <- item33.final$Count / item33.final$TotalCount
 item33.final$SE      <- sqrt(item33.final$Percent * (1 - item33.final$Percent) / item33.final$SampleSize)
 
-##Subset to only single family
-item33.final.SF <- item33.final[which(item33.final$BuildingType == "Single Family"),]
 ##################################### Table Format ###################################33
 detach(package:reshape2)
 library(data.table)
-item33.table <- dcast(setDT(item33.final.SF)
+item33.table <- dcast(setDT(item33.final)
                       , formula = BuildingType + Framing.Categories ~ State
                       , value.var = c("Percent", "SE", "SampleSize"))
 
@@ -194,7 +185,7 @@ item33.table2 <- data.frame("BuildingType" = item33.table$BuildingType
                             ,"SE_Region" = item33.table$SE_Region
                             ,"SampleSize" = item33.table$SampleSize_Region)
 
-item33.table3 <- item33.final[which(item33.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item33.table3 <- item33.table2[which(item33.table2$BuildingType %in% c("Single Family")),]
 
 
 

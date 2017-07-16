@@ -8,24 +8,72 @@
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+#clean cadmus IDs
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
+#Read in data for analysis
+mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+#clean cadmus IDs
+mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
+
+
+
+#############################################################################################
+#
+#For Mechanical information
+#
+#############################################################################################
+#subset to columns needed for analysis
+item164.dat.1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                      ,"Generic"
+                                                                      ,"Primary.Heating.System"
+                                                                      ,"Heating.Fuel"
+                                                                      ,""
+                                                                      ,""))]
+
+#remove any repeat header rows from exporting
+item164.dat.11 <- item164.dat.1[which(item164.dat.1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+#Keep only Yes and No in primary heating system indicator
+item164.dat.12 <- item164.dat.11[which(item164.dat.11$Primary.Heating.System == "Yes"),]
+length(unique(item164.dat.12$CK_Cadmus_ID)) #576 out of 601
+#check uniques
+unique(item164.dat.12$Primary.Heating.System)
+item164.dat.12$count <- 1
+
+item164.dat.13 <- unique(item164.dat.12[which(item164.dat.12$Heating.Fuel == "Electric"),])
+
+item164.sum1 <- summarise(group_by(item164.dat.13, CK_Cadmus_ID, Heating.Fuel)
+                          ,Count = sum(count))
+item164.sum1$Count <- 1
+which(duplicated(item164.sum1$CK_Cadmus_ID)) #none are duplicated!
+unique(item164.sum1$Heating.Fuel)
+
+item164.mechanical <- item164.sum1
 
 
 
 
 
 
-
+#############################################################################################
+# Similar to Item 26
+#############################################################################################
+#
+#For Envelope information
+#
+#############################################################################################
 #############################################################################################
 #############################################################################################
 # PREP FOR ITEMS 26, 30, 31
 #############################################################################################
 #############################################################################################
+
+
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
 rvals <- rvals[-nrow(rvals),-ncol(rvals)]
@@ -52,12 +100,15 @@ ceiling.dat1 <- ceiling.dat[which(ceiling.dat$Category == "Ceiling"),]
 #merge analysis data with cleaned RBSA data
 ceiling.dat2 <- left_join(rbsa.dat, ceiling.dat1, by = "CK_Cadmus_ID")
 
-#subset to only single family sites
-ceiling.dat2.5 <- ceiling.dat2[which(ceiling.dat2$BuildingType == "Single Family"),]
+ceiling.SF.dat1 <- ceiling.dat2[which(ceiling.dat2$BuildingType == "Single Family"),]
+
+ceiling.SF.dat2 <- left_join(ceiling.SF.dat1, item164.mechanical, by = c("CK_Cadmus_ID"))
+
+ceiling.elec <- ceiling.SF.dat2[which(ceiling.SF.dat2$Heating.Fuel == "Electric"),]
 
 #remove items have the "-- datapoint not asked for --"
-ceiling.dat3 <- ceiling.dat2.5[which(ceiling.dat2.5$`Ceiling.Insulated?` %in% c("Yes", "No")),]
-length(unique(ceiling.dat3$CK_Cadmus_ID))#254
+ceiling.dat3 <- ceiling.elec[which(ceiling.elec$`Ceiling.Insulated?` %in% c("Yes", "No")),]
+length(unique(ceiling.dat3$CK_Cadmus_ID))#89
 unique(ceiling.dat3$`Ceiling.Insulated?`)
 
 
@@ -214,7 +265,7 @@ ceiling.dat6$aveRval[which(ceiling.dat6$CK_Cadmus_ID %in% no.insulation)] <- 0
 ############################################################################################################
 
 ceiling.dat7 <- left_join(ceiling.dat6, rbsa.dat, by = c("CK_Cadmus_ID", "BuildingType"))
-length(unique(ceiling.dat7$CK_Cadmus_ID)) #254 - check with line 66
+length(unique(ceiling.dat7$CK_Cadmus_ID)) #89 - check with line 66
 
 #############################################################################################
 #############################################################################################
@@ -228,147 +279,113 @@ length(unique(ceiling.dat7$CK_Cadmus_ID)) #254 - check with line 66
 
 
 
+#############################################################################################
+# Item 164: DISTRIBUTION OF ATTIC INSULATION, ELECTRICALLY HEATED HOMES (SF table B-9)
+#############################################################################################
 
-
-
-
-
-
-
-
-
-
-
-
-
-############################################################################################################
-## Item 26
-############################################################################################################
-item26.dat <- ceiling.dat7[which(ceiling.dat7$Ceiling.Type == "Attic"),]
+item164.dat <- ceiling.dat7[which(ceiling.dat7$Ceiling.Type == "Attic"),]
 
 
 #Bin R values -- SF only
-item26.dat$rvalue.bins <- "Unknown"
-item26.dat$rvalue.bins[which(item26.dat$aveRval == 0)] <- "R0"
-item26.dat$rvalue.bins[which(item26.dat$aveRval > 0  & item26.dat$aveRval < 11)]  <- "R1.R10"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 11 & item26.dat$aveRval < 16)]  <- "R11.R15"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 16 & item26.dat$aveRval < 21)]  <- "R16.R20"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 21 & item26.dat$aveRval < 26)]  <- "R21.R25"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 26 & item26.dat$aveRval < 31)]  <- "R26.R30"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 31 & item26.dat$aveRval < 41)]  <- "R31.R40"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 41 & item26.dat$aveRval < 51)]  <- "R41.R50"
-item26.dat$rvalue.bins[which(item26.dat$aveRval >= 51)] <- "RGT50"
-unique(item26.dat$rvalue.bins)
+item164.dat$rvalue.bins <- "Unknown"
+item164.dat$rvalue.bins[which(item164.dat$aveRval == 0)] <- "R0"
+item164.dat$rvalue.bins[which(item164.dat$aveRval > 0  & item164.dat$aveRval < 11)]  <- "R1.R10"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 11 & item164.dat$aveRval < 16)]  <- "R11.R15"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 16 & item164.dat$aveRval < 21)]  <- "R16.R20"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 21 & item164.dat$aveRval < 26)]  <- "R21.R25"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 26 & item164.dat$aveRval < 31)]  <- "R26.R30"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 31 & item164.dat$aveRval < 41)]  <- "R31.R40"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 41 & item164.dat$aveRval < 51)]  <- "R41.R50"
+item164.dat$rvalue.bins[which(item164.dat$aveRval >= 51)] <- "RGT50"
+unique(item164.dat$rvalue.bins)
 
-item26.dat0 <- item26.dat[which(item26.dat$rvalue.bins != "Unknown"),]
-item26.dat0$count <- 1
+item164.dat0 <- item164.dat[which(item164.dat$rvalue.bins != "Unknown"),]
+item164.dat0$count <- 1
 
 #summarise by rvalue bins
-item26.sum1 <- summarise(group_by(item26.dat0, BuildingType, rvalue.bins)
+item164.sum1 <- summarise(group_by(item164.dat0, BuildingType, rvalue.bins)
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 
-item26.sum2 <- summarise(group_by(item26.dat0, BuildingType)
+item164.sum2 <- summarise(group_by(item164.dat0, BuildingType)
                          ,rvalue.bins = "Total"
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 
-item26.merge <- rbind.data.frame(item26.sum1,item26.sum2, stringsAsFactors = F)
+item164.merge <- rbind.data.frame(item164.sum1,item164.sum2, stringsAsFactors = F)
 
-item26.tot.count <- item26.sum2[which(colnames(item26.sum2) %in% c("BuildingType"
+item164.tot.count <- item164.sum2[which(colnames(item164.sum2) %in% c("BuildingType"
                                                                    ,"Count"))]
-colnames(item26.tot.count) <- c("BuildingType","Total.Count")
+colnames(item164.tot.count) <- c("BuildingType","Total.Count")
 
-item26.final <- left_join(item26.merge, item26.tot.count, by = "BuildingType")
+item164.final <- left_join(item164.merge, item164.tot.count, by = "BuildingType")
 
-item26.final$Percent <- item26.final$Count / item26.final$Total.Count
-item26.final$SE <- sqrt(item26.final$Percent * (1 - item26.final$Percent) / item26.final$SampleSize)
-
-
-item26.table <- data.frame("BuildingType" = item26.final$BuildingType
-                            ,"R Values" = item26.final$rvalue.bins
-                            ,"Percent" = item26.final$Percent
-                            ,"SE" = item26.final$SE
-                            ,"SampleSize" = item26.final$SampleSize)
+item164.final$Percent <- item164.final$Count / item164.final$Total.Count
+item164.final$SE <- sqrt(item164.final$Percent * (1 - item164.final$Percent) / item164.final$SampleSize)
 
 
+item164.table <- data.frame("BuildingType" = item164.final$BuildingType
+                           ,"R Values" = item164.final$rvalue.bins
+                           ,"Percent" = item164.final$Percent
+                           ,"SE" = item164.final$SE
+                           ,"SampleSize" = item164.final$SampleSize)
 
 
 
 
 
-############################################################################################################
-## Item 30
-############################################################################################################
-item30.dat <- ceiling.dat7[which(ceiling.dat7$Ceiling.Type == "Sloped / Vaulted (no attic)"),]
+
+
+
+
+#############################################################################################
+# Item 165: DISTRIBUTION OF VAULT CEILING INSULATION LEVEL, ELECTRICALLY HEATED HOMES (SF table B-10)
+#############################################################################################
+item165.dat <- ceiling.dat7[which(ceiling.dat7$Ceiling.Type == "Sloped / Vaulted (no attic)"),]
 
 
 #Bin R values -- SF only
-item30.dat$rvalue.bins <- "Unknown"
-item30.dat$rvalue.bins[which(item30.dat$aveRval == 0)] <- "R0"
-item30.dat$rvalue.bins[which(item30.dat$aveRval > 0  & item30.dat$aveRval < 11)]  <- "R1.R10"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 11 & item30.dat$aveRval < 16)]  <- "R11.R15"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 16 & item30.dat$aveRval < 21)]  <- "R16.R20"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 21 & item30.dat$aveRval < 26)]  <- "R21.R25"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 26 & item30.dat$aveRval < 31)]  <- "R26.R30"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 31 & item30.dat$aveRval < 41)]  <- "R31.R40"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 41 & item30.dat$aveRval < 51)]  <- "R41.R50"
-item30.dat$rvalue.bins[which(item30.dat$aveRval >= 51)] <- "RGT50"
-unique(item30.dat$rvalue.bins)
+item165.dat$rvalue.bins <- "Unknown"
+item165.dat$rvalue.bins[which(item165.dat$aveRval == 0)] <- "R0"
+item165.dat$rvalue.bins[which(item165.dat$aveRval > 0  & item165.dat$aveRval < 11)]  <- "R1.R10"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 11 & item165.dat$aveRval < 16)]  <- "R11.R15"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 16 & item165.dat$aveRval < 21)]  <- "R16.R20"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 21 & item165.dat$aveRval < 26)]  <- "R21.R25"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 26 & item165.dat$aveRval < 31)]  <- "R26.R30"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 31 & item165.dat$aveRval < 41)]  <- "R31.R40"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 41 & item165.dat$aveRval < 51)]  <- "R41.R50"
+item165.dat$rvalue.bins[which(item165.dat$aveRval >= 51)] <- "RGT50"
+unique(item165.dat$rvalue.bins)
 
-item30.dat0 <- item30.dat[which(item30.dat$rvalue.bins != "Unknown"),]
-item30.dat0$count <- 1
+item165.dat0 <- item165.dat[which(item165.dat$rvalue.bins != "Unknown"),]
+item165.dat0$count <- 1
 
 #summarise by rvalue bins
-item30.sum1 <- summarise(group_by(item30.dat0, BuildingType, rvalue.bins)
+item165.sum1 <- summarise(group_by(item165.dat0, BuildingType, rvalue.bins)
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 
-item30.sum2 <- summarise(group_by(item30.dat0, BuildingType)
+item165.sum2 <- summarise(group_by(item165.dat0, BuildingType)
                          ,rvalue.bins = "Total"
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Count = sum(count))
 
-item30.merge <- rbind.data.frame(item30.sum1,item30.sum2, stringsAsFactors = F)
+item165.merge <- rbind.data.frame(item165.sum1,item165.sum2, stringsAsFactors = F)
 
-item30.tot.count <- item30.sum2[which(colnames(item30.sum2) %in% c("BuildingType"
+item165.tot.count <- item165.sum2[which(colnames(item165.sum2) %in% c("BuildingType"
                                                                    ,"Count"))]
-colnames(item30.tot.count) <- c("BuildingType","Total.Count")
+colnames(item165.tot.count) <- c("BuildingType","Total.Count")
 
-item30.final <- left_join(item30.merge, item30.tot.count, by = "BuildingType")
+item165.final <- left_join(item165.merge, item165.tot.count, by = "BuildingType")
 
-item30.final$Percent <- item30.final$Count / item30.final$Total.Count
-item30.final$SE <- sqrt(item30.final$Percent * (1 - item30.final$Percent) / item30.final$SampleSize)
-
-
-item30.table <- data.frame("BuildingType" = item30.final$BuildingType
-                           ,"R Values" = item30.final$rvalue.bins
-                           ,"Percent" = item30.final$Percent
-                           ,"SE" = item30.final$SE
-                           ,"SampleSize" = item30.final$SampleSize)
+item165.final$Percent <- item165.final$Count / item165.final$Total.Count
+item165.final$SE <- sqrt(item165.final$Percent * (1 - item165.final$Percent) / item165.final$SampleSize)
 
 
+item165.table <- data.frame("BuildingType" = item165.final$BuildingType
+                           ,"R Values" = item165.final$rvalue.bins
+                           ,"Percent" = item165.final$Percent
+                           ,"SE" = item165.final$SE
+                           ,"SampleSize" = item165.final$SampleSize)
 
-
-
-
-
-
-
-
-############################################################################################################
-## Item 31
-############################################################################################################
-item31.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                               , "Category"
-                                                               , "Ceiling.Type"
-                                                               , "Ceiling.Sub-Type"
-                                                               , "Ceiling.Area"
-                                                               , "Ceiling.Insulated?"
-                                                               , "Ceiling.Insulation.Type.1"
-                                                               , "Ceiling.Insulation.Thickness.1"))]
-item31.dat1 <- item31.dat[which(item31.dat$Ceiling.Type == "Roof Deck"),]
-length(unique(item31.dat1$CK_Cadmus_ID)) #only 18
-
-item31.dat1$`Ceiling.Insulated?`[which(is.na(item31.dat1$`Ceiling.Insulated?`))] <- "No"
 

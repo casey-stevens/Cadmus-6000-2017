@@ -112,3 +112,8 @@ item161.final <- rbind.data.frame(item161.tmp1, item161.tmp2, stringsAsFactors =
 item161.final$Percent <- item161.final$BSMTCount / item161.final$SampleSize
 item161.final$SE <- sqrt(item161.final$Percent * (1 - item161.final$Percent) / item161.final$SampleSize)
 
+item161.table <- data.frame("BuildingType" = item161.final$BuildingType
+                           ,"State" = item161.final$State
+                           ,"Percent" = item161.final$Percent
+                           ,"SE" = item161.final$SE
+                           ,"SampleSize" = item161.final$SampleSize)
