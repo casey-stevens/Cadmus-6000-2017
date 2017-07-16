@@ -177,7 +177,7 @@ item87.table <- data.frame("BuildingType" = item87.cast$BuildingType
 
 
 #subset to only the relevant building types for this item
-item87.table1 <- item87.table[which(item87.table$BuildingType %in% c("Single Family")),]
+item87.table1 <- item87.table[which(item87.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 

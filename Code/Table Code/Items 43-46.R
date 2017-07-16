@@ -84,7 +84,7 @@ item43.table <- data.frame("BuildingType" = item43.final$BuildingType
                            ,"Percent" = item43.final$Percent
                            ,"SE" = item43.final$SE
                            ,"SampleSize" = item43.final$SampleSize)
-item43.SF.table <- item43.table[which(item43.table$BuildingType %in% c("Single Family")),]
+item43.table1 <- item43.table[which(item43.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -178,7 +178,7 @@ item44.table <- data.frame("BuildingType" = item44.cast$BuildingType
                             ,"SampleSize" = item44.cast$SampleSize_Region)
 
 
-item44.table1 <- item44.table[which(item44.table$BuildingType %in% c("Single Family")),]
+item44.table1 <- item44.table[which(item44.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 item44.table2 <- item44.table1[which(!(is.na(item44.table1$Heating.Fuel))),]
 
@@ -242,7 +242,7 @@ item45.table <- data.frame("BuildingType" = item45.final$BuildingType
                            ,"Percent" = item45.final$Percent
                            ,"SE" = item45.final$SE
                            ,"SampleSize" = item45.final$SampleSize)
-item45.SF.table <- item45.table[which(item45.table$BuildingType %in% c("Single Family")),]
+item45.table1 <- item45.table[which(item45.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 

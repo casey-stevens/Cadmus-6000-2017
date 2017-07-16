@@ -290,7 +290,7 @@ item137.table1 <- data.frame("BuildingType" = item137.table$BuildingType
                              ,"SE_Region" = item137.table$SE_Region
                              ,"SampleSize" = item137.table$SampleSize_Region)
 
-item137.table.final <- item137.table1[which(item137.table1$BuildingType %in% c("Single Family")),]
+item137.table.final <- item137.table1[which(item137.table1$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -388,6 +388,6 @@ item138.table1 <- data.frame("BuildingType" = item138.table$BuildingType
                              ,"SE_Region" = item138.table$SE_Region
                              ,"SampleSize" = item138.table$SampleSize_Region)
 
-item138.table.final <- item138.table1[which(item138.table1$BuildingType %in% c("Single Family")),]
+item138.table.final <- item138.table1[which(item138.table1$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
