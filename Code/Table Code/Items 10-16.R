@@ -33,15 +33,20 @@ item10.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Wall.Cavity.Insulated?"
                                                                , "Wall.Cavity.Insulation.Type.1"
                                                                , "Wall.Cavity.Insulation.Thickness.1"
+                                                               , "Wall.Cavity.Insulation.Condition.1"
                                                                , "Wall.Cavity.Insulation.Type.2"                                                  
                                                                , "Wall.Cavity.Insulation.Thickness.2"
+                                                               , "Wall.Cavity.Insulation.Type.3"                                                  
+                                                               , "Wall.Cavity.Insulation.Thickness.3"
                                                                , "Wall.Exterior.Insulated?"
                                                                , "Wall.Exterior.Insulation.Type.1"
                                                                , "Wall.Exterior.Insulation.Thickness.1"
                                                                , "Wall.Exterior.Insulation.Type.2"                                                  
-                                                               , "Wall.Exterior.Insulation.Thickness.2"))]
+                                                               , "Wall.Exterior.Insulation.Thickness.2"
+                                                               , "Wall.Exterior.Insulation.Type.3"                                                  
+                                                               , "Wall.Exterior.Insulation.Thickness.3"))]
 item10.dat0 <- item10.dat[which(item10.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No")),]
-item10.dat1 <- item10.dat0[which(item10.dat0$`Wall.Exterior.Insulated?` %in% c("Yes", "No")),]
+item10.dat1 <- item10.dat0[which(item10.dat0$`Wall.Exterior.Insulated?` %in% c("Yes", "No")),] ###treat anything not Yes as No
 item10.dat1.1 <- item10.dat1[which(item10.dat1$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
 item10.dat1.2 <- item10.dat1.1[-which(item10.dat1.1$Wall.Exterior.Insulation.Thickness.1 == "Unknown"),]
 
@@ -65,9 +70,9 @@ length(unique(item10.dat2$CK_Cadmus_ID))#473
 unique(item10.dat2$Wall.Type)
 
 #remove items have the datapoint was not asked for
-item10.dat3 <- item10.dat2[which(item10.dat2$Wall.Framing.Size != "-- Datapoint not asked for --"),]
-length(unique(item10.dat3$CK_Cadmus_ID))#368
-unique(item10.dat3$Wall.Framing.Size)
+item10.dat3 <- item10.dat2#[which(item10.dat2$Wall.Framing.Size != "-- Datapoint not asked for --"),]
+# length(unique(item10.dat3$CK_Cadmus_ID))#368
+# unique(item10.dat3$Wall.Framing.Size)
 
 ###########################
 # Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
@@ -195,17 +200,14 @@ unique(item10.dat4$rvalues1)
 unique(item10.dat4$rvalues2) #only NA values here
 unique(item10.dat4$rvalues3)
 
-#identify which rows that do not contain NAs for any rvalues
-Non_NA_ind <- which(!(is.na(item10.dat5$rvalues2)))
-
-
-
-
 
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
+
+#identify which rows that do not contain NAs for any rvalues
+Non_NA_ind <- which(!(is.na(item10.dat5$rvalues2)))
 
 #create total.r.value column
 item10.dat5$total.r.val <- NA

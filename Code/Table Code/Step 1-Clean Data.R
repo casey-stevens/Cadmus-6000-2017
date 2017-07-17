@@ -6,6 +6,14 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+
+#############################################################################################
+#
+# Need to run this before any other scripts can be ran
+#
+#############################################################################################
+
+
 ##  Clear variables
 rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
@@ -49,6 +57,18 @@ sites.export           <- paste("SITES_"                 , input.date, ".xlsx", 
 water.export           <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
 windows.export         <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
 
+#############################################################################################
+#
+# Need to run this before any other scripts can be ran
+#
+#############################################################################################
+
+
+
+
+
+
+
 
 #############################################################################################
 # Import and Subset Data
@@ -68,7 +88,7 @@ length(unique(site.dat1$CK_Cadmus_ID)) #601
 
 
 #############################################################################################
-# Clean Data
+# Clean States
 #############################################################################################
 
 ### Deal with missing / unknown states
@@ -105,6 +125,7 @@ rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Townhome or Rowhome" | rbs
 unique(rbsa.dat$BuildingType)
 
 # Fix problem home year builts
+rbsa.dat$HomeYearBuiltXX[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
 rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 1948
 rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "WS3209")]          <- 1946
 rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1957

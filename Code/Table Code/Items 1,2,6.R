@@ -24,19 +24,21 @@ item1.state.tab0 <- summarise(group_by(item1.dat, BuildingType, State)
                               ,BuildingTypeXX = "Total"
                            ,Count = sum(count)
                            ,SampleSize = length(unique(CK_Cadmus_ID)))
-
+#by home types
 item1.state.tab1 <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX, State)
                            ,Count = sum(count)
                            ,SampleSize = length(unique(CK_Cadmus_ID)))
 item1.state.full <- rbind.data.frame(item1.state.tab1, item1.state.tab0, stringsAsFactors = F)
 
 #get region information
+#across home types
 item1.region.tab0 <- summarise(group_by(item1.dat, BuildingType)
                                ,BuildingTypeXX = "Total"
                             ,State = "Region"
                             ,Count = sum(count)
                             ,SampleSize = length(unique(CK_Cadmus_ID))
 )
+#by home types
 item1.region.tab1 <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
                             ,State = "Region"
                             ,Count = sum(count)
@@ -44,12 +46,14 @@ item1.region.tab1 <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
 )
 item1.region.full <- rbind.data.frame(item1.region.tab1, item1.region.tab0, stringsAsFactors = F)
 
-item1.total <- rbind.data.frame(item1.state.tab0, item1.region.tab0, stringsAsFactors = F)
-item1.total1 <- item1.total[which(colnames(item1.total) %in% c("BuildingType", "State", "Count"))]
-
 #rbind state and region information
 item1.tab.full <- rbind.data.frame(item1.state.full, item1.region.full, stringsAsFactors = F)
 
+#calculate total counts
+item1.total <- rbind.data.frame(item1.state.tab0, item1.region.tab0, stringsAsFactors = F)
+item1.total1 <- item1.total[which(colnames(item1.total) %in% c("BuildingType", "State", "Count"))]
+
+# merge on total counts
 item1.tab.full1 <- left_join(item1.tab.full, item1.total1, by = c("BuildingType", "State"))
 colnames(item1.tab.full1) <- c("BuildingType", "Home.Type", "State", "Count", "SampleSize", "Total.Count")
 
