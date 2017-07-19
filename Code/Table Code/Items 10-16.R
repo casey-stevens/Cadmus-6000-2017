@@ -22,7 +22,7 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
-rvals <- rvals[-24,-3]
+rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 #subset envelope data to necessary columns
 item10.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
@@ -36,20 +36,26 @@ item10.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Wall.Cavity.Insulation.Condition.1"
                                                                , "Wall.Cavity.Insulation.Type.2"                                                  
                                                                , "Wall.Cavity.Insulation.Thickness.2"
+                                                               , "Wall.Cavity.Insulation.Condition.2"
                                                                , "Wall.Cavity.Insulation.Type.3"                                                  
                                                                , "Wall.Cavity.Insulation.Thickness.3"
+                                                               , "Wall.Cavity.Insulation.Condition.3"
                                                                , "Wall.Exterior.Insulated?"
                                                                , "Wall.Exterior.Insulation.Type.1"
                                                                , "Wall.Exterior.Insulation.Thickness.1"
+                                                               , "Wall.Exterior.Insulation.Condition.1"
                                                                , "Wall.Exterior.Insulation.Type.2"                                                  
                                                                , "Wall.Exterior.Insulation.Thickness.2"
+                                                               , "Wall.Exterior.Insulation.Condition.2"
                                                                , "Wall.Exterior.Insulation.Type.3"                                                  
-                                                               , "Wall.Exterior.Insulation.Thickness.3"))]
+                                                               , "Wall.Exterior.Insulation.Thickness.3"
+                                                               , "Wall.Exterior.Insulation.Condition.3"))]
 item10.dat0 <- item10.dat[which(item10.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No")),]
-item10.dat1 <- item10.dat0[which(item10.dat0$`Wall.Exterior.Insulated?` %in% c("Yes", "No")),] ###treat anything not Yes as No
-item10.dat1.1 <- item10.dat1[which(item10.dat1$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
+item10.dat0$`Wall.Exterior.Insulated?`[which(item10.dat0$`Wall.Exterior.Insulated?` != "Yes")] <- "No" ###treat anything not Yes as No
+item10.dat1.1 <- item10.dat0[which(item10.dat0$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
 item10.dat1.2 <- item10.dat1.1[-which(item10.dat1.1$Wall.Exterior.Insulation.Thickness.1 == "Unknown"),]
 
+#review types
 unique(item10.dat1.2$Wall.Cavity.Insulation.Type.1)
 unique(item10.dat1.2$Wall.Cavity.Insulation.Type.2)
 unique(item10.dat1.2$Wall.Cavity.Insulation.Type.3) #nothing in this column
@@ -57,9 +63,29 @@ unique(item10.dat1.2$Wall.Exterior.Insulation.Type.1)
 unique(item10.dat1.2$Wall.Exterior.Insulation.Type.2) #nothing in this column
 unique(item10.dat1.2$Wall.Exterior.Insulation.Type.3) #nothing in this column
 
+#review insulation thicknesses
 unique(item10.dat1.2$Wall.Cavity.Insulation.Thickness.1)
 unique(item10.dat1.2$Wall.Cavity.Insulation.Thickness.2)
+unique(item10.dat1.2$Wall.Cavity.Insulation.Thickness.3)
 unique(item10.dat1.2$Wall.Exterior.Insulation.Thickness.1)
+unique(item10.dat1.2$Wall.Exterior.Insulation.Thickness.2)
+unique(item10.dat1.2$Wall.Exterior.Insulation.Thickness.3)
+
+#review conditions
+unique(item10.dat1.2$Wall.Cavity.Insulation.Condition.1)
+unique(item10.dat1.2$Wall.Cavity.Insulation.Condition.2)
+unique(item10.dat1.2$Wall.Cavity.Insulation.Condition.3)
+unique(item10.dat1.2$Wall.Exterior.Insulation.Condition.1)
+unique(item10.dat1.2$Wall.Exterior.Insulation.Condition.2)
+unique(item10.dat1.2$Wall.Exterior.Insulation.Condition.3)
+
+#Clean Condition unknown values
+item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
 
 #remove unneccesary wall types
 item10.dat2 <- item10.dat1.2[which(!(item10.dat1.2$Wall.Type %in% c("Masonry","Masonry (Basement)","Log","Adiabatic"))),]
@@ -69,30 +95,40 @@ item10.dat2$Wall.Type[which(item10.dat2$Wall.Type %in% c("Knee Wall", "Framed Al
 length(unique(item10.dat2$CK_Cadmus_ID))#473
 unique(item10.dat2$Wall.Type)
 
-#remove items have the datapoint was not asked for
-item10.dat3 <- item10.dat2#[which(item10.dat2$Wall.Framing.Size != "-- Datapoint not asked for --"),]
-# length(unique(item10.dat3$CK_Cadmus_ID))#368
-# unique(item10.dat3$Wall.Framing.Size)
+#assign new dataset
+item10.dat3 <- item10.dat2
 
 ###########################
 # Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
 ###########################
+
+for(i in 1:ncol(item10.dat3)){
+  item10.dat3[,i] <- ifelse(item10.dat3[,i] == "-- Datapoint not asked for --", NA, item10.dat3[,i])
+}
+
 #cleaning for wall.cavity
 item10.dat3$Wall.Cavity.Insulation.Thickness.1[which(item10.dat3$Wall.Cavity.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-item10.dat3$Wall.Cavity.Insulation.Thickness.1[which(item10.dat3$Wall.Cavity.Insulation.Thickness.1 == "-- Datapoint not asked for --")] <- "N/A N/A"
 item10.dat3$Wall.Cavity.Insulation.Thickness.1[which(is.na(item10.dat3$Wall.Cavity.Insulation.Thickness.1))] <- "N/A N/A"
 item10.dat3$Wall.Cavity.Insulation.Thickness.2[which(item10.dat3$Wall.Cavity.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 item10.dat3$Wall.Cavity.Insulation.Thickness.2[which(item10.dat3$Wall.Cavity.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
-item10.dat3$Wall.Cavity.Insulation.Thickness.2[which(item10.dat3$Wall.Cavity.Insulation.Thickness.2 == "-- Datapoint not asked for --")] <- "N/A N/A"
 item10.dat3$Wall.Cavity.Insulation.Thickness.2[which(is.na(item10.dat3$Wall.Cavity.Insulation.Thickness.2))] <- "N/A N/A"
+item10.dat3$Wall.Cavity.Insulation.Thickness.3[which(item10.dat3$Wall.Cavity.Insulation.Thickness.3 == "Unknown")] <- "Unknown Unknown"
+item10.dat3$Wall.Cavity.Insulation.Thickness.3[which(item10.dat3$Wall.Cavity.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
+item10.dat3$Wall.Cavity.Insulation.Thickness.3[which(is.na(item10.dat3$Wall.Cavity.Insulation.Thickness.3))] <- "N/A N/A"
 unique(item10.dat3$Wall.Cavity.Insulation.Thickness.1)
 unique(item10.dat3$Wall.Cavity.Insulation.Thickness.2)
+unique(item10.dat3$Wall.Cavity.Insulation.Thickness.3)
 
 #cleaning for wall exterior
 item10.dat3$Wall.Exterior.Insulation.Thickness.1[which(item10.dat3$Wall.Exterior.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-item10.dat3$Wall.Exterior.Insulation.Thickness.1[which(item10.dat3$Wall.Exterior.Insulation.Thickness.1 == "-- Datapoint not asked for --")] <- "N/A N/A"
 item10.dat3$Wall.Exterior.Insulation.Thickness.1[which(is.na(item10.dat3$Wall.Exterior.Insulation.Thickness.1))] <- "N/A N/A"
+item10.dat3$Wall.Exterior.Insulation.Thickness.2[which(item10.dat3$Wall.Exterior.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
+item10.dat3$Wall.Exterior.Insulation.Thickness.2[which(is.na(item10.dat3$Wall.Exterior.Insulation.Thickness.2))] <- "N/A N/A"
+item10.dat3$Wall.Exterior.Insulation.Thickness.3[which(item10.dat3$Wall.Exterior.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
+item10.dat3$Wall.Exterior.Insulation.Thickness.3[which(is.na(item10.dat3$Wall.Exterior.Insulation.Thickness.3))] <- "N/A N/A"
 unique(item10.dat3$Wall.Exterior.Insulation.Thickness.1)
+unique(item10.dat3$Wall.Exterior.Insulation.Thickness.2)
+unique(item10.dat3$Wall.Exterior.Insulation.Thickness.3)
 
 # add new ID variable for merging -- don't know if we need this
 item10.dat3$count <- 1
@@ -113,56 +149,101 @@ clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = item10.dat3$CK_Cadmus_ID
                                                    , stringsAsFactors = F))
 dim(clean.insul2.1)
 
-clean.insul3 <- unlist(strsplit(item10.dat3$Wall.Exterior.Insulation.Thickness.1, " "))
-clean.insul3 <- as.data.frame(matrix(clean.insul3, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul3 <- unlist(strsplit(item10.dat3$Wall.Cavity.Insulation.Thickness.3, " "))
 clean.insul3.1 <- cbind.data.frame("CK_Cadmus_ID" = item10.dat3$CK_Cadmus_ID
                                    , "TMP_ID" = item10.dat3$TMP_ID
-                                   , clean.insul3)
+                                   , as.data.frame(matrix(clean.insul3, ncol = 2, byrow = T)
+                                                   , stringsAsFactors = F))
 dim(clean.insul3.1)
 
-clean.insul4 <- unlist(strsplit(item10.dat3$Wall.Cavity.Insulation.Thickness.2, " "))
-clean.insul4.1 <- cbind.data.frame("CK_Cadmus_ID" = item10.dat3$CK_Cadmus_ID
+clean.insul1.0 <- unlist(strsplit(item10.dat3$Wall.Exterior.Insulation.Thickness.1, " "))
+clean.insul1.00 <- as.data.frame(matrix(clean.insul1.0, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul1.2 <- cbind.data.frame("CK_Cadmus_ID" = item10.dat3$CK_Cadmus_ID
                                    , "TMP_ID" = item10.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul4, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul4.1)
+                                   , clean.insul1.00)
+dim(clean.insul1.2)
+
+clean.insul2.0 <- unlist(strsplit(item10.dat3$Wall.Exterior.Insulation.Thickness.2, " "))
+clean.insul2.00 <- as.data.frame(matrix(clean.insul2.0, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul2.2 <- cbind.data.frame("CK_Cadmus_ID" = item10.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = item10.dat3$TMP_ID
+                                   , clean.insul2.00)
+dim(clean.insul2.2)
+
+clean.insul3.0 <- unlist(strsplit(item10.dat3$Wall.Exterior.Insulation.Thickness.3, " "))
+clean.insul3.00 <- as.data.frame(matrix(clean.insul3.0, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul3.2 <- cbind.data.frame("CK_Cadmus_ID" = item10.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = item10.dat3$TMP_ID
+                                   , clean.insul3.00)
+dim(clean.insul3.2)
 
 clean.insul.join1 <- left_join(clean.insul1.1,    clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
 clean.insul.join2 <- left_join(clean.insul.join1, clean.insul3.1, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join3 <- left_join(clean.insul.join2, clean.insul4.1, by = c("CK_Cadmus_ID", "TMP_ID"))
+clean.insul.join3 <- left_join(clean.insul.join2, clean.insul1.2, by = c("CK_Cadmus_ID", "TMP_ID"))
+clean.insul.join4 <- left_join(clean.insul.join3, clean.insul2.2, by = c("CK_Cadmus_ID", "TMP_ID"))
+clean.insul.join5 <- left_join(clean.insul.join4, clean.insul3.2, by = c("CK_Cadmus_ID", "TMP_ID"))
+
+colnames(clean.insul.join5) <- c("CK_Cadmus_ID"
+                                 ,"TMP_ID"
+                                 ,"cavity.inches1"
+                                 ,"Remove.1"
+                                 ,"cavity.inches2"
+                                 ,"Remove.2"
+                                 ,"cavity.inches3"
+                                 ,"Remove.3"
+                                 ,"exterior.inches1"
+                                 ,"Remove.1"
+                                 ,"exterior.inches2"
+                                 ,"Remove.2"
+                                 ,"exterior.inches3"
+                                 ,"Remove.3")
+
+clean.thickness.data <- clean.insul.join5[-grep("Remove", colnames(clean.insul.join5))]
 
 ###########################
 # End cleaning step
 ###########################
 
 #make into dataframe
-item10.dat4 <- as.data.frame(left_join(item10.dat3, clean.insul.join3, by = c("CK_Cadmus_ID", "TMP_ID"))
+item10.dat4 <- as.data.frame(left_join(item10.dat3, clean.thickness.data, by = c("CK_Cadmus_ID", "TMP_ID"))
                              , stringsAsFactors = F) 
 # warning here is OK
 
 ###########################
 # Cleaning inches and rvalue information
 ###########################
-# rename columns
-item10.dat4$inches1 <- as.numeric(as.character(item10.dat4$V1.x)) # warning here is OK
-item10.dat4$inches2 <- as.numeric(as.character(item10.dat4$V1.y)) # warning here is OK
-item10.dat4$inches3 <- as.numeric(as.character(item10.dat4$V1.x.x)) # warning here is OK
+# make numeric
+item10.dat4$cavity.inches1   <- as.numeric(as.character(item10.dat4$cavity.inches1)) # warning here is OK
+item10.dat4$cavity.inches2   <- as.numeric(as.character(item10.dat4$cavity.inches2)) # warning here is OK
+item10.dat4$cavity.inches3   <- as.numeric(as.character(item10.dat4$cavity.inches3)) # warning here is OK
+item10.dat4$exterior.inches1 <- as.numeric(as.character(item10.dat4$exterior.inches1)) # warning here is OK
+item10.dat4$exterior.inches2 <- as.numeric(as.character(item10.dat4$exterior.inches2)) # warning here is OK
+item10.dat4$exterior.inches3 <- as.numeric(as.character(item10.dat4$exterior.inches3)) # warning here is OK
 
-item10.dat4$rvalues1 <- item10.dat4$Wall.Cavity.Insulation.Type.1
-item10.dat4$rvalues2 <- item10.dat4$Wall.Cavity.Insulation.Type.2
-item10.dat4$rvalues3 <- item10.dat4$Wall.Exterior.Insulation.Type.1
+#replace any inches that are NA with zeros
+for(i in 28:33){
+  item10.dat4[,i] <- ifelse(is.na(item10.dat4[,i]), 0, item10.dat4[,i])
+}
+
+#update column names
+item10.dat4$cavity.rvalues1 <- item10.dat4$Wall.Cavity.Insulation.Type.1
+item10.dat4$cavity.rvalues2 <- item10.dat4$Wall.Cavity.Insulation.Type.2
+item10.dat4$cavity.rvalues3 <- item10.dat4$Wall.Cavity.Insulation.Type.3
+item10.dat4$exterior.rvalues1 <- item10.dat4$Wall.Exterior.Insulation.Type.1
+item10.dat4$exterior.rvalues2 <- item10.dat4$Wall.Exterior.Insulation.Type.2
+item10.dat4$exterior.rvalues3 <- item10.dat4$Wall.Exterior.Insulation.Type.3
 
 #fix names that are not in R value table
-item10.dat4$rvalues1[which(item10.dat4$rvalues1 == "Fiberglass or mineral wool batts")] <- "Mineral wool batts"
-item10.dat4$rvalues1[which(item10.dat4$rvalues1 == "Unknown fiberglass")]               <- "Unknown"
-item10.dat4$rvalues1[which(item10.dat4$rvalues1 == "-- Datapoint not asked for --")]    <- NA
-item10.dat4$rvalues1[which(item10.dat4$rvalues1 == "None")]                             <- NA
-item10.dat4$rvalues2[which(item10.dat4$rvalues2 == "Extruded polystyrene (blue)")]      <- "Extruded polystyrene foam board"
-item10.dat4$rvalues2[which(item10.dat4$rvalues2 == "N/A")]                              <- NA
-item10.dat4$rvalues2[which(item10.dat4$rvalues2 == "-- Datapoint not asked for --")]    <- NA
-item10.dat4$rvalues3[which(item10.dat4$rvalues3 == "-- Datapoint not asked for --")]    <- NA
-item10.dat4$rvalues3[which(item10.dat4$rvalues3 == "Extruded polystyrene foam board (pink or blue)")] <- "Extruded polystyrene foam board"
-item10.dat4$rvalues3[which(item10.dat4$rvalues3 == "Expanded polystyrene foam board (white)")] <- "Expanded polystyrene foam board"
+item10.dat4$cavity.rvalues1[which(item10.dat4$cavity.rvalues1 == "Fiberglass or mineral wool batts")] <- "Mineral wool batts"
+item10.dat4$cavity.rvalues1[which(item10.dat4$cavity.rvalues1 == "Unknown fiberglass")]               <- "Unknown"
+item10.dat4$cavity.rvalues1[which(item10.dat4$cavity.rvalues1 == "-- Datapoint not asked for --")]    <- NA
+item10.dat4$cavity.rvalues1[which(item10.dat4$cavity.rvalues1 == "None")]                             <- NA
+item10.dat4$cavity.rvalues2[which(item10.dat4$cavity.rvalues2 == "Extruded polystyrene (blue)")]      <- "Extruded polystyrene foam board"
+item10.dat4$cavity.rvalues2[which(item10.dat4$cavity.rvalues2 == "N/A")]                              <- NA
+item10.dat4$cavity.rvalues2[which(item10.dat4$cavity.rvalues2 == "-- Datapoint not asked for --")]    <- NA
+item10.dat4$exterior.rvalues1[which(item10.dat4$exterior.rvalues1 == "-- Datapoint not asked for --")]    <- NA
+item10.dat4$exterior.rvalues1[which(item10.dat4$exterior.rvalues1 == "Extruded polystyrene foam board (pink or blue)")] <- "Extruded polystyrene foam board"
+item10.dat4$exterior.rvalues1[which(item10.dat4$exterior.rvalues1 == "Expanded polystyrene foam board (white)")] <- "Expanded polystyrene foam board"
 
 ###########################
 # End cleaning step
@@ -173,32 +254,52 @@ item10.dat4$rvalues3[which(item10.dat4$rvalues3 == "Expanded polystyrene foam bo
 # Replace R-value Names with Values from R value table
 ###########################
 for (i in 1:length(rvals$Type.of.Insulation)){
-  item10.dat4$rvalues1[which(item10.dat4$rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
-  item10.dat4$rvalues2[which(item10.dat4$rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
-  item10.dat4$rvalues3[which(item10.dat4$rvalues3 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item10.dat4$cavity.rvalues1[which(item10.dat4$cavity.rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item10.dat4$cavity.rvalues2[which(item10.dat4$cavity.rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item10.dat4$cavity.rvalues3[which(item10.dat4$cavity.rvalues3 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item10.dat4$exterior.rvalues1[which(item10.dat4$exterior.rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item10.dat4$exterior.rvalues2[which(item10.dat4$exterior.rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  item10.dat4$exterior.rvalues3[which(item10.dat4$exterior.rvalues3 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
 }
 
 ###########################
 # End Replace Step
 ###########################
 
-item10.dat4$rvalues1[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
-item10.dat4$rvalues2[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
-item10.dat4$rvalues3[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
-item10.dat4$inches1[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
-item10.dat4$inches2[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
-item10.dat4$inches3[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+item10.dat4$cavity.rvalues1[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
+item10.dat4$cavity.rvalues2[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
+item10.dat4$cavity.rvalues3[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
+item10.dat4$exterior.rvalues1[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+item10.dat4$exterior.rvalues2[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+item10.dat4$exterior.rvalues3[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+item10.dat4$cavity.inches1[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
+item10.dat4$cavity.inches2[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
+item10.dat4$cavity.inches3[which(item10.dat4$`Wall.Cavity.Insulated?` == "No")] <- 0
+item10.dat4$exterior.inches1[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+item10.dat4$exterior.inches2[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+item10.dat4$exterior.inches3[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
+
+#replace any inches that are NA with zeros
+for(i in 28:33){
+  item10.dat4[,i] <- ifelse(is.na(item10.dat4[,i]), 0, item10.dat4[,i])
+}
+
+
+#replace any rvalues that are NA with zeros
+for(i in 28:39){
+  item10.dat4[,i] <- as.numeric(as.character(item10.dat4[,i]))
+}
 
 item10.dat5 <- item10.dat4
-item10.dat5$rvalues1 <- as.numeric(as.character(item10.dat5$rvalues1))
-item10.dat5$rvalues2 <- as.numeric(as.character(item10.dat5$rvalues2))
-item10.dat5$rvalues3 <- as.numeric(as.character(item10.dat5$rvalues3))
+item10.dat5$cavity.rvalues1 <- as.numeric(as.character(item10.dat5$cavity.rvalues1))
+item10.dat5$cavity.rvalues2 <- as.numeric(as.character(item10.dat5$cavity.rvalues2))
+item10.dat5$exterior.rvalues1 <- as.numeric(as.character(item10.dat5$exterior.rvalues1))
 
 
 #check uniques
-unique(item10.dat4$rvalues1)
-unique(item10.dat4$rvalues2) #only NA values here
-unique(item10.dat4$rvalues3)
+unique(item10.dat4$cavity.rvalues1)
+unique(item10.dat4$cavity.rvalues2) #only NA values here
+unique(item10.dat4$exterior.rvalues1)
 
 
 
@@ -206,27 +307,13 @@ unique(item10.dat4$rvalues3)
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
 
-#identify which rows that do not contain NAs for any rvalues
-Non_NA_ind <- which(!(is.na(item10.dat5$rvalues2)))
-
 #create total.r.value column
 item10.dat5$total.r.val <- NA
 
-
-#calculate the weighted r value where wall cavity insulation type is not NA
-for (i in Non_NA_ind){
-  item10.dat5$total.r.val[i] <- (item10.dat5$rvalues1[i] * item10.dat5$inches1[i]) +  
-    (item10.dat5$rvalues2[i] * item10.dat5$inches2[i]) + 
-    (item10.dat5$rvalues3[i] * item10.dat5$inches3[i])
-}
-
-
-#calculate the weighted r value where wall cavity insulation type is NA
-item10.dat5$total.r.val[which(is.na(item10.dat5$total.r.val))] <- 
-  (item10.dat5$rvalues1[which(is.na(item10.dat5$total.r.val))] *
-     item10.dat5$inches1[which(is.na(item10.dat5$total.r.val))]) +  
-  (item10.dat5$rvalues3[which(is.na(item10.dat5$total.r.val))] * 
-     item10.dat5$inches3[which(is.na(item10.dat5$total.r.val))])
+#calculate the weighted r value
+  item10.dat5$total.r.val <- (item10.dat5$cavity.rvalues1 * item10.dat5$cavity.inches1) +  
+    (item10.dat5$cavity.rvalues2 * item10.dat5$cavity.inches2) + 
+    (item10.dat5$exterior.rvalues1 * item10.dat5$exterior.inches3)
 
 #check -- NOTE -- NONE SHOULD BE NA
 unique(item10.dat5$total.r.val)

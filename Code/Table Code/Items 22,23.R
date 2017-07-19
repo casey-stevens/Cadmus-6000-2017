@@ -19,8 +19,13 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 #############################################################################################
 # Item 22: PERCENTAGE OF HOMES WITH FLOOR AREA OVER CRAWLSPACE BY STATE (SF table 29)
 #############################################################################################
+#subset envelope data to necessary columns
+item22.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               , "ENV_Construction_BLDG_STRUCTURE_FoundationType"
+                                                               , "Foundation"
+                                                               , ""))]
 
-
+item22.dat1 <- item22.dat[grep("crawl|Crawl", item22.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType),]
 
 
 

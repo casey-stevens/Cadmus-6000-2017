@@ -8,7 +8,7 @@
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-
+rbsa.dat$Weight <- 1
 
 
 #############################################################################################
@@ -22,28 +22,26 @@ item1.dat$count <- 1
 #across home types
 item1.state.tab0 <- summarise(group_by(item1.dat, BuildingType, State)
                               ,BuildingTypeXX = "Total"
-                           ,Count = sum(count)
-                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+                              ,Count = sum(Weight)
+                              ,SampleSize = length(unique(CK_Cadmus_ID)))
 #by home types
 item1.state.tab1 <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX, State)
-                           ,Count = sum(count)
-                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+                              ,Count = sum(Weight)
+                              ,SampleSize = length(unique(CK_Cadmus_ID)))
 item1.state.full <- rbind.data.frame(item1.state.tab1, item1.state.tab0, stringsAsFactors = F)
 
 #get region information
 #across home types
 item1.region.tab0 <- summarise(group_by(item1.dat, BuildingType)
                                ,BuildingTypeXX = "Total"
-                            ,State = "Region"
-                            ,Count = sum(count)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-)
+                               ,State = "Region"
+                               ,Count = sum(Weight)
+                               ,SampleSize = length(unique(CK_Cadmus_ID)))
 #by home types
 item1.region.tab1 <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
-                            ,State = "Region"
-                            ,Count = sum(count)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-)
+                               ,State = "Region"
+                               ,Count = sum(Weight)
+                               ,SampleSize = length(unique(CK_Cadmus_ID)))
 item1.region.full <- rbind.data.frame(item1.region.tab1, item1.region.tab0, stringsAsFactors = F)
 
 #rbind state and region information
