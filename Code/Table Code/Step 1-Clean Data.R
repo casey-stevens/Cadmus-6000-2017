@@ -47,15 +47,18 @@ stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCle
 input.date <- "2017.06.16"
 
 # Call file names
-appliances.export      <- paste("Appliances_EquipConsol_", input.date, ".xlsx", sep = "")
-envelope.export        <- paste("Envelope_EquipConsol_"  , input.date, ".xlsx", sep = "")
-lighting.export        <- paste("Lighting_EquipConsol_"  , input.date, ".xlsx", sep = "")
-mechanical.export      <- paste("Mechanical_EquipConsol_", input.date, ".xlsx", sep = "")
-rooms.export           <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
-sites.interview.export <- paste("SITES INTERVIEW_"       , input.date, ".xlsx", sep = "")
-sites.export           <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
-water.export           <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
-windows.export         <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
+
+appliances.export          <- paste("Appliances_EquipConsol_", input.date, ".xlsx", sep = "")
+buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
+buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
+envelope.export            <- paste("Envelope_EquipConsol_"  , input.date, ".xlsx", sep = "")
+lighting.export            <- paste("Lighting_EquipConsol_"  , input.date, ".xlsx", sep = "")
+mechanical.export          <- paste("Mechanical_EquipConsol_", input.date, ".xlsx", sep = "")
+rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
+sites.interview.export     <- paste("SITES INTERVIEW_"       , input.date, ".xlsx", sep = "")
+sites.export               <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
+water.export               <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
+windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
 
 #############################################################################################
 #
@@ -158,6 +161,15 @@ rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$H
 rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
 unique(rbsa.dat$HomeYearBuilt_bins4)
 
+# Convert home year built to specific bins for multifamily
+rbsa.dat$HomeYearBuilt_MF <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
+rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX < 1955)] <- "Pre 1955"
+rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1955 & rbsa.dat$HomeYearBuiltXX < 1971)] <- "1955-1970"
+rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1971 & rbsa.dat$HomeYearBuiltXX < 1981)] <- "1971-1980"
+rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1981 & rbsa.dat$HomeYearBuiltXX < 1991)] <- "1981-1990"
+rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$HomeYearBuiltXX < 2001)] <- "1991-2000"
+rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
+unique(rbsa.dat$HomeYearBuilt_MF)
 
 
 
@@ -202,9 +214,6 @@ rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL2263 OS SCL")]   <- "M
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SG0048 OS SCL")]   <- "Single Family"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- "Single Family"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "WM1463PM")]        <- "Multifamily - High Rise"
-# rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "PNM22969 OS PSE")] <- "Multifamily - High Rise"
-# rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "KM24876 OS PSE")]  <- "Multifamily - High Rise"
-# rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "KM23468 OS PSE")]  <- "Multifamily - High Rise"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "MS3085")]          <- "Single Family"
 
 # update building type (specific)
@@ -212,19 +221,10 @@ rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SL2263 OS SCL")]   <- 
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SG0048 OS SCL")]   <- "Single Family Detached"
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- "Single Family Detached"
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "WM1463PM")]        <- "Apartment Building (More than 6 floors)"
-# rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "PNM22969 OS PSE")] <- "Apartment Building (More than 6 floors)"
-# rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "KM24876 OS PSE")]  <- "Apartment Building (More than 6 floors)"
-# rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "KM23468 OS PSE")]  <- "Apartment Building (More than 6 floors)"
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "MS3085")]          <- "Single Family Detached"
 
 ##Clean up duplicating information
 rbsa.dat2$BuildingTypeXX[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Single Family Detached"
-# rbsa.dat2$HomeYearBuilt[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Existing"
-# rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1951"
-# rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Pre 1981"
-# rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1951"
-# rbsa.dat2$HomeYearBuilt_bins4[which(rbsa.dat2$CK_Cadmus_ID == "WS3209")]   <- "Pre 1981"
-# rbsa.dat2$HomeYearBuilt_bins[which(rbsa.dat2$CK_Cadmus_ID == "SG0808 OS SCL")]   <- "1951-1960"
 rbsa.dat2$BuildingHeight[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- 1.5
 
 rbsa.dat4 <- unique(rbsa.dat2[which(!(is.na(rbsa.dat2$BuildingType))),])
