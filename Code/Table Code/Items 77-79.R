@@ -127,7 +127,7 @@ item77.table1 <- item77.table[which(item77.table$BuildingType %in% c("Single Fam
 
 
 #############################################################################################
-#Item 78: PERCENTAGE OF ALL CFLS THAT ARE STORED (SF table 84, MH table 63)
+#Item 78: AVERAGE LIGHTING POWER DENSITY (LPD) BY STATE (SF table 85, MH table 66)
 #############################################################################################
 
 item78.envelope <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID","ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
@@ -138,7 +138,7 @@ unique(item78.area$Area)
 item78.area$Area <- as.numeric(as.character(item78.area$Area))
 
 item78.area1 <- summarise(group_by(item78.area, CK_Cadmus_ID)
-                          ,SiteArea = mean(Area))
+                          ,SiteArea = sum(Area))
 
 #subset to columns needed for analysis
 item78.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
@@ -157,36 +157,40 @@ item78.dat1 <- left_join(item78.merge, rbsa.dat, by = "CK_Cadmus_ID")
 
 item78.dat2 <- item78.dat1[-grep("BLDG", item78.dat1$CK_SiteID),]
 
-item78.dat3 <- item78.dat2[which(!(item78.dat2$Clean.Room %in% c("Basement","Storage"))),]
+item78.dat3 <- item78.dat2[which(!(item78.dat2$Clean.Room %in% c("Storage"))),]
 
 item78.dat4 <- item78.dat3[-grep("-|Unknown|unknown", item78.dat3$Clean.Wattage),]
-item78.dat5 <- item78.dat4[which(!(is.na(item78.dat4$Clean.Wattage))),]
-item78.dat5$Clean.Wattage <- as.numeric(as.character(item78.dat5$Clean.Wattage))
-item78.dat5$SiteArea      <- as.numeric(as.character(item78.dat5$SiteArea))
-unique(item78.dat5$Clean.Wattage)
-str(item78.dat5)
 
-item78.sum <- summarise(group_by(item78.dat5, CK_Cadmus_ID, BuildingType, State)
-                        ,Wattage = sum(Clean.Wattage)
-                        ,SQFT    = unique(SiteArea))
+item78.dat4$Total.Wattage <- as.numeric(as.character(item78.dat4$Fixture.Qty)) * 
+  as.numeric(as.character(item78.dat4$LIGHTING_BulbsPerFixture)) * 
+  as.numeric(as.character(item78.dat4$Clean.Wattage))
 
-item78.sum$LPD <- item78.sum$Wattage / item78.sum$SQFT
+item78.dat5 <- item78.dat4[which(!(is.na(item78.dat4$Total.Wattage))),]
 
-item78.dat6 <- item78.sum[which(!(is.na(item78.sum$LPD))),]
 
-item78.state <- summarise(group_by(item78.dat6, BuildingType, State)
+item78.dat6 <- summarise(group_by(item78.dat5, CK_Cadmus_ID, BuildingType, State)
+                         ,Total.Wattage = sum(Total.Wattage))
+
+#merge on area information
+item78.dat7 <- left_join(item78.dat6, item78.area1, by = c("CK_Cadmus_ID"))
+
+item78.dat7$LPD <- item78.dat7$Total.Wattage / item78.dat7$SiteArea
+
+item78.dat8 <- item78.dat7[which(!(is.na(item78.dat7$LPD))),]
+
+#summarise by state
+item78.state <- summarise(group_by(item78.dat8, BuildingType, State)
                          ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Mean = mean(LPD)
                          ,SE   = sd(LPD) / sqrt(SampleSize))
-item78.region <- summarise(group_by(item78.dat6, BuildingType)
-                          ,State = "Region"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean = mean(LPD)
-                          ,SE   = sd(LPD) / sqrt(SampleSize))
+#summarise across states
+item78.region <- summarise(group_by(item78.dat8, BuildingType)
+                             ,State = "Region"
+                             ,SampleSize = length(unique(CK_Cadmus_ID))
+                             ,Mean = mean(LPD)
+                             ,SE   = sd(LPD) / sqrt(SampleSize))
 
 item78.final <- rbind.data.frame(item78.state, item78.region, stringsAsFactors = F)
-
-
 
 
 
@@ -215,7 +219,7 @@ item78.table1 <- item78.table[which(item78.table$BuildingType %in% c("Single Fam
 
 
 #############################################################################################
-#Item 79: PERCENTAGE OF ALL CFLS THAT ARE STORED (SF table 84, MH table 63)
+#Item 79: AVERAGE LIGHTING POWER DENSITY (LPD) BY ROOM TYPE (SF table 86, MH table 64)
 #############################################################################################
 item79.rooms <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID","Clean.Type","Area"))]
 colnames(item79.rooms) <- c("CK_Cadmus_ID","Clean.Room","Area")
@@ -228,41 +232,34 @@ item79.area1 <- summarise(group_by(item79.area, CK_Cadmus_ID, Clean.Room)
                           ,SiteArea = sum(Area))
 
 #subset to columns needed for analysis
-item79.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
-                                                               ,"Clean.Room"
-                                                               ,"Clean.Wattage"))]
-item79.dat$count <- 1
+item79.dat <- item78.dat5
+item79.dat$Total.Wattage <- as.numeric(as.character(item79.dat$Fixture.Qty)) * 
+  as.numeric(as.character(item79.dat$LIGHTING_BulbsPerFixture)) * 
+  as.numeric(as.character(item79.dat$Clean.Wattage))
+
+item79.dat0 <- summarise(group_by(item79.dat, CK_Cadmus_ID, BuildingType, State, Clean.Room)
+                         ,Total.Wattage = sum(Total.Wattage))
 
 #merge on area information
-item79.merge <- left_join(item79.dat, item79.area1, by = c("CK_Cadmus_ID", "Clean.Room"))
+item79.dat1 <- left_join(item79.dat0, item79.area1, by = c("CK_Cadmus_ID", "Clean.Room"))
 
-item79.dat1 <- left_join(item79.merge, rbsa.dat, by = "CK_Cadmus_ID")
+item79.dat1$LPD <- item79.dat1$Total.Wattage / item79.dat1$SiteArea
 
-item79.dat2 <- item79.dat1[-grep("-|Unknown|unknown", item79.dat1$Clean.Wattage),]
-item79.dat3 <- item79.dat2[which(!(is.na(item79.dat2$Clean.Wattage))),]
-item79.dat3$Clean.Wattage <- as.numeric(as.character(item79.dat3$Clean.Wattage))
-item79.dat3$SiteArea      <- as.numeric(as.character(item79.dat3$SiteArea))
-unique(item79.dat3$Clean.Wattage)
-str(item79.dat3)
+item79.dat2 <- item79.dat1[which(!(is.na(item79.dat1$LPD))),]
 
-item79.sum <- summarise(group_by(item79.dat3, CK_Cadmus_ID, BuildingType, Clean.Room)
-                        ,Wattage = sum(Clean.Wattage)
-                        ,SQFT    = sum(unique(SiteArea)))
-
-item79.sum$LPD <- item79.sum$Wattage / item79.sum$SQFT
-
-item79.dat6 <- item79.sum[which(!(is.na(item79.sum$SQFT))),]
-
-item79.room <- summarise(group_by(item79.dat6, BuildingType, Clean.Room)
+#summarise by room type
+item79.room <- summarise(group_by(item79.dat2, BuildingType, Clean.Room)
                           ,SampleSize = length(unique(CK_Cadmus_ID))
                           ,Mean = mean(LPD)
                           ,SE   = sd(LPD) / sqrt(SampleSize))
-item79.allRooms <- summarise(group_by(item79.dat6, BuildingType)
+#summarise across room types
+item79.allRooms <- summarise(group_by(item79.dat2, BuildingType)
                            ,Clean.Room = "All Room Types"
                            ,SampleSize = length(unique(CK_Cadmus_ID))
                            ,Mean = mean(LPD)
                            ,SE   = sd(LPD) / sqrt(SampleSize))
 
+#merge together both summaries
 item79.final <- rbind.data.frame(item79.room, item79.allRooms, stringsAsFactors = F)
 
 
