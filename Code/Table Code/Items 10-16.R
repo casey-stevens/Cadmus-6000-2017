@@ -52,7 +52,8 @@ item10.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Wall.Exterior.Insulation.Condition.3"))]
 item10.dat0 <- item10.dat[which(item10.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No")),]
 item10.dat0$`Wall.Exterior.Insulated?`[which(item10.dat0$`Wall.Exterior.Insulated?` != "Yes")] <- "No" ###treat anything not Yes as No
-item10.dat1.1 <- item10.dat0[which(item10.dat0$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
+item10.dat1.0 <- item10.dat0[which(!(is.na(item10.dat0$Wall.Area))),]
+item10.dat1.1 <- item10.dat1.0[which(item10.dat1.0$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
 item10.dat1.2 <- item10.dat1.1[-which(item10.dat1.1$Wall.Exterior.Insulation.Thickness.1 == "Unknown"),]
 
 #review types
@@ -279,27 +280,27 @@ item10.dat4$exterior.inches1[which(item10.dat4$`Wall.Exterior.Insulated?` == "No
 item10.dat4$exterior.inches2[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
 item10.dat4$exterior.inches3[which(item10.dat4$`Wall.Exterior.Insulated?` == "No")] <- 0
 
-#replace any inches that are NA with zeros
-for(i in 28:33){
+#replace any inches and rvalues that are NA with zeros
+for(i in 28:39){
   item10.dat4[,i] <- ifelse(is.na(item10.dat4[,i]), 0, item10.dat4[,i])
 }
 
 
-#replace any rvalues that are NA with zeros
+#make all inches and rvalue columns numeric
 for(i in 28:39){
   item10.dat4[,i] <- as.numeric(as.character(item10.dat4[,i]))
 }
 
 item10.dat5 <- item10.dat4
-item10.dat5$cavity.rvalues1 <- as.numeric(as.character(item10.dat5$cavity.rvalues1))
-item10.dat5$cavity.rvalues2 <- as.numeric(as.character(item10.dat5$cavity.rvalues2))
-item10.dat5$exterior.rvalues1 <- as.numeric(as.character(item10.dat5$exterior.rvalues1))
 
 
-#check uniques
+#check uniques -- None should be NA
 unique(item10.dat4$cavity.rvalues1)
-unique(item10.dat4$cavity.rvalues2) #only NA values here
+unique(item10.dat4$cavity.rvalues2)
+unique(item10.dat4$cavity.rvalues3)
 unique(item10.dat4$exterior.rvalues1)
+unique(item10.dat4$exterior.rvalues2)
+unique(item10.dat4$exterior.rvalues3)
 
 
 
@@ -311,7 +312,7 @@ unique(item10.dat4$exterior.rvalues1)
 item10.dat5$total.r.val <- NA
 
 #calculate the weighted r value
-  item10.dat5$total.r.val <- (item10.dat5$cavity.rvalues1 * item10.dat5$cavity.inches1) +  
+item10.dat5$total.r.val <- (item10.dat5$cavity.rvalues1 * item10.dat5$cavity.inches1) +  
     (item10.dat5$cavity.rvalues2 * item10.dat5$cavity.inches2) + 
     (item10.dat5$exterior.rvalues1 * item10.dat5$exterior.inches3)
 
@@ -320,6 +321,7 @@ unique(item10.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
 item10.dat5$uvalue <- 1 / item10.dat5$total.r.val
+unique(item10.dat5$uvalue)
 
 # replace inf with 0
 item10.dat5$uvalue[which(item10.dat5$uvalue == "Inf")] <- 0
@@ -330,11 +332,12 @@ item10.dat5$Wall.Area <- as.numeric(as.character(item10.dat5$Wall.Area))
 
 #weight the u factor per home -- where weights are the wall area within home
 weightedU <- summarise(group_by(item10.dat5, CK_Cadmus_ID, Wall.Type)
-                       ,aveUval = sum(Wall.Area * as.numeric(as.character(uvalue))) / sum(Wall.Area)
+                       ,aveUval = sum(Wall.Area * uvalue) / sum(Wall.Area)
 )
 
 #back-calculate the weight r values
 weightedU$aveRval <- 1 / as.numeric(as.character(weightedU$aveUval))
+unique(weightedU$aveRval)
 weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
 
 wall.unique <- unique(item10.dat5[which(colnames(item10.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
@@ -344,13 +347,11 @@ item10.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
 #merge weighted u values onto cleaned RBSA data
 item10.dat7 <- left_join(item10.dat6, rbsa.dat, by = "CK_Cadmus_ID")
 
-item10.dat8 <- item10.dat7[which(!(is.na(item10.dat7$aveUval))),]
-
 
 #Bin R values -- SF only
 item10.dat7$rvalue.bins <- "Unknown"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval == 0)] <- "R0"
-item10.dat7$rvalue.bins[which(item10.dat7$aveRval > 0  & item10.dat7$aveRval < 11)]  <- "R1.R10"
+item10.dat7$rvalue.bins[which(item10.dat7$aveRval >  0  & item10.dat7$aveRval < 11)]  <- "R1.R10"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 11 & item10.dat7$aveRval < 17)]  <- "R11.R16"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 17 & item10.dat7$aveRval < 23)]  <- "R17.R22"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 22)] <- "RGT22"
@@ -363,7 +364,7 @@ item10.dat8 <- item10.dat7[which(item10.dat7$rvalue.bins != "Unknown"),]
 #summarise by wall frame types
 #summarise by r value bins
 item10.sum1 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type, rvalue.bins)
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,SampleSize = ""
                          ,Count = sum(count))
 #summarise across r value bins
 item10.sum2 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type)
@@ -376,7 +377,7 @@ item10.sum2 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type)
 #summarise by r value bins
 item10.sum3 <- summarise(group_by(item10.dat8, BuildingType, rvalue.bins)
                          , Wall.Type = "All Frame Types"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,SampleSize = ""
                          ,Count = sum(count))
 #summarise across r value bins
 item10.sum4 <- summarise(group_by(item10.dat8, BuildingType)
@@ -391,22 +392,27 @@ item10.tot.counts <- rbind.data.frame(item10.sum2, item10.sum4, stringsAsFactors
 item10.tot.counts <- item10.tot.counts[which(colnames(item10.tot.counts) %in% c("BuildingType"
                                                                                 , "Wall.Type"
                                                                                 , "Count"))]
+item10.sampleSizes <- item10.merge[which(item10.merge$SampleSize != ""),which(colnames(item10.merge) %in% c("BuildingType"
+                                                                                                            ,"SampleSize"
+                                                                                                            ,"Wall.Type"))]
 
 item10.merge1 <- left_join(item10.merge, item10.tot.counts, by = c("BuildingType", "Wall.Type"))
-colnames(item10.merge1) <- c("BuildingType", "Wall.Type", "rvalue.bins", "SampleSize", "Count", "TotalCount")
+item10.merge2 <- left_join(item10.merge1, item10.sampleSizes, by = c("BuildingType", "Wall.Type"))
+colnames(item10.merge2) <- c("BuildingType", "Wall.Type", "rvalue.bins", "Remove", "Count", "TotalCount", "SampleSize")
 
 building.type <- rbind.data.frame("Manufactured"
                                   , "Multifamily - High Rise"
                                   , "Multifamily - Low Rise"
                                   , "Single Family"
                                   , stringsAsFactors = F)
-i=1
+
 for(i in 1:4){
-  item10.merge1$TotalCount[which(item10.merge1$BuildingType == building.type[i,] & item10.merge1$rvalue.bins == "All Insulation Levels")] <-
-    item10.merge1$TotalCount[which(item10.merge1$BuildingType == building.type[i,] & item10.merge1$rvalue.bins == "All Insulation Levels" & item10.merge1$Wall.Type == "All Frame Types")]
+  item10.merge2$TotalCount[which(item10.merge2$BuildingType == building.type[i,] & item10.merge2$rvalue.bins == "All Insulation Levels")] <-
+    item10.merge2$TotalCount[which(item10.merge2$BuildingType == building.type[i,] & item10.merge2$rvalue.bins == "All Insulation Levels" & item10.merge2$Wall.Type == "All Frame Types")]
 }
 
-item10.final <- item10.merge1
+item10.final <- item10.merge2
+item10.final$SampleSize <- as.numeric(as.character(item10.final$SampleSize))
 
 item10.final$Percent <- item10.final$Count / item10.final$TotalCount
 item10.final$SE <- sqrt(item10.final$Percent * (1 - item10.final$Percent) / item10.final$SampleSize)
@@ -436,102 +442,6 @@ item10.table1 <- data.frame("BuildingType" = item10.table$BuildingType
 item10.table2 <- item10.table1[which(item10.table1$BuildingType == "Single Family"),]
 
 
-######################################################################################################
-# Previously built code
-# produces slightly different estimates
-# can't validate this is correct
-######################################################################################################
-# ##cast data
-# item10.dat7$count <- 1
-# item10.dat.cast <- dcast(setDT(item10.dat7),
-#                          formula   = CK_Cadmus_ID + BuildingType +  Wall.Type ~ rvalue.bins, sum,
-#                          value.var = 'count')
-# 
-# for (i in 3:length(item10.dat.cast)){
-#   item10.dat.cast[i][which(is.na(item10.dat.cast[i])),] <- 0
-# }
-# 
-# head(item10.dat.cast)
-# 
-# 
-# ## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
-# item10.SF.dat <- subset(item10.dat.cast, item10.dat.cast$BuildingType == "Single Family")
-# 
-# #summarize by frame type
-# item10.sum1 <- summarise(group_by(item10.SF.dat, BuildingType, Wall.Type)
-#                         ,sampleSize      = length(unique(CK_Cadmus_ID))
-#                         ,sampleSizeNoNA  = length(unique(CK_Cadmus_ID)) - sum(`Unknown`)
-#                         ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
-#                         ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
-#                         ,r1.r10.percent  = sum(R1.R10)  / sampleSizeNoNA
-#                         ,r1.r10.se       = sd(R1.R10) / sqrt(sampleSizeNoNA)
-#                         ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
-#                         ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
-#                         ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
-#                         ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
-#                         ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
-#                         ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA)
-# )
-# # sum across frame types
-# item10.sum2 <- summarise(group_by(item10.SF.dat, BuildingType)
-#                          ,Wall.Type = "All Frame Types"
-#                          ,sampleSize      = length(unique(CK_Cadmus_ID))
-#                          ,sampleSizeNoNA  = length(unique(CK_Cadmus_ID)) - sum(`Unknown`)
-#                          ,r0.percent      = sum(R0) / sampleSizeNoNA ## note for two houses, there were two ceilings recorded for two sites where one ceiling was not insulated, and one was insulated. Look into automating this.
-#                          ,r0.se           = sd(R0) / sqrt(sampleSizeNoNA)
-#                          ,r1.r10.percent  = sum(R1.R10)  / sampleSizeNoNA
-#                          ,r1.r10.se       = sd(R1.R10) / sqrt(sampleSizeNoNA)
-#                          ,r11.r16.percent = sum(R11.R16) / sampleSizeNoNA
-#                          ,r11.r16.se      = sd(R11.R16) / sqrt(sampleSizeNoNA)
-#                          ,r17.r22.percent = sum(R17.R22) / sampleSizeNoNA
-#                          ,r17.r22.se      = sd(R17.R22) / sqrt(sampleSizeNoNA)
-#                          ,rGT22.percent   = sum(RGT22) / sampleSizeNoNA
-#                          ,rGT22.se        = sd(RGT22) / sqrt(sampleSizeNoNA))
-# 
-# item10.frame.types <- rbind.data.frame(item10.sum1, item10.sum2, stringsAsFactors = F)
-# 
-# 
-# item10.SF.dat$count <- 1
-# #across R levels, by frame type
-# item10.sum.allLevels1 <- summarise(group_by(item10.SF.dat, BuildingType, Wall.Type)
-#                                   ,sampleSizeNoNA  = length(unique(CK_Cadmus_ID)) - sum(`Unknown`)
-#                                   ,WallTypeCount = sum(count)
-#                                   ,TotalCount = sum(item10.SF.dat$count)
-#                                   ,AllInsulationLevelPercent = WallTypeCount / TotalCount
-#                                   ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
-# )
-# #across R levels, across frame types
-# item10.sum.allLevels2 <- summarise(group_by(item10.SF.dat, BuildingType)
-#                                    ,Wall.Type = "All Frame Types"
-#                                   ,sampleSizeNoNA  = length(unique(CK_Cadmus_ID)) - sum(`Unknown`)
-#                                   ,WallTypeCount = sum(count)
-#                                   ,TotalCount = sum(item10.SF.dat$count)
-#                                   ,AllInsulationLevelPercent = WallTypeCount / TotalCount
-#                                   ,AllInsulationSE = sqrt((AllInsulationLevelPercent * (1 - AllInsulationLevelPercent)) / WallTypeCount)
-# )
-# item10.sum.allLevels <- rbind.data.frame(item10.sum.allLevels1, item10.sum.allLevels2, stringsAsFactors = F)
-# 
-# #Check to make sure they add to 2
-# sum(item10.sum.allLevels$AllInsulationLevelPercent)
-# 
-# #join all insulation levels onto rvalue summary
-# item10.final.XXX <- data.frame("BuildingType" = item10.frame.types$BuildingType
-#                             ,"Wall.Type" = item10.frame.types$Wall.Type
-#                             ,"Percent.R0" = item10.frame.types$r0.percent
-#                             ,"SE.R0" = item10.frame.types$r0.se
-#                             ,"Percent.R1.R10" = item10.frame.types$r1.r10.percent
-#                             ,"SE.R1.R10" = item10.frame.types$r1.r10.se
-#                             ,"Percent.R11.R16" = item10.frame.types$r11.r16.percent
-#                             ,"SE.R11.R16" = item10.frame.types$r11.r16.se
-#                             ,"Percent.R17.R22" = item10.frame.types$r17.r22.percent
-#                             ,"SE.R17.R22" = item10.frame.types$r17.r22.se
-#                             ,"Percent.RGT22" = item10.frame.types$rGT22.percent
-#                             ,"SE.RGT22" = item10.frame.types$rGT22.se
-#                             ,"Percent_All Insulation Levels" = item10.sum.allLevels$AllInsulationLevelPercent
-#                             ,"SE_All Insulation Levels"   = item10.sum.allLevels$AllInsulationSE
-#                             ,"SampleSize" = item10.sum.allLevels$sampleSizeNoNA)
-# 
-# 
 
 
 
@@ -615,75 +525,71 @@ item11.table2 <- item11.table1[which(item11.table1$BuildingType %in% c("Single F
 
 
 #############################################################################################
-# Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19)
+# Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19, MH table 16)
 #############################################################################################
-## Note: For this table, you must run up to item10.dat5 for the cleaned data
+## Note: For this table, you must run up to item10.dat7 for the cleaned data
 item12.dat <- item10.dat8
+
+item12.dat1 <- item12.dat[which(!(is.na(item12.dat$HomeYearBuilt_bins4))),]
 
 ############################################################################################################
 ## For single family
 ############################################################################################################
+#summarise by vintage bins
+#summarise by r value bins
+item12.sum1 <- summarise(group_by(item12.dat1, BuildingType, HomeYearBuilt_bins4, rvalue.bins)
+                         ,Count = sum(count))
+#summarise across r value bins
+item12.sum2 <- summarise(group_by(item12.dat1, BuildingType, HomeYearBuilt_bins4)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item12.merge1 <- left_join(item12.sum1, item12.sum2, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
-item12.dat$count <- 1
-item12.SF.dat.cast <- dcast(setDT(item12.dat),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item12.SF.dat.cast)
+#summarise across wall frame types
+#summarise by r value bins
+item12.sum3 <- summarise(group_by(item12.dat1, BuildingType, rvalue.bins)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,Count = sum(count))
+#summarise across r value bins
+item12.sum4 <- summarise(group_by(item12.dat1, BuildingType)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item12.merge2 <- left_join(item12.sum3, item12.sum4, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 
-## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
-item12.SF.dat <- subset(item12.SF.dat.cast, item12.SF.dat.cast$BuildingType == "Single Family")
+item12.final <- rbind.data.frame(item12.merge1, item12.merge2, stringsAsFactors = F)
 
-#summarize --SF only
-item12.SF.sum <- summarise(group_by(item12.SF.dat, BuildingType, HomeYearBuilt_bins4)
-                        ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                        ,r0.percent      = sum(R0) / SampleSize 
-                        ,r0.se           = sd(R0) / sqrt(SampleSize)
-                        ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                        ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                        ,r11.r16.percent = sum(R11.R16) / SampleSize
-                        ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                        ,r17.r22.percent = sum(R17.R22) / SampleSize
-                        ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                        ,rGT22.percent   = sum(RGT22) / SampleSize
-                        ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
+#calculate percent and SE
+item12.final$Percent <- item12.final$Count / item12.final$TotalCount
+item12.final$SE <- sqrt(item12.final$Percent * (1 - item12.final$Percent) / item12.final$SampleSize)
 
-item12.SF.sum1 <- summarise(group_by(item12.SF.dat, BuildingType)
-                         ,HomeYearBuilt_bins4 = "All Vintages"
-                         ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                         ,r0.percent      = sum(R0) / SampleSize
-                         ,r0.se           = sd(R0) / sqrt(SampleSize)
-                         ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                         ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                         ,r11.r16.percent = sum(R11.R16) / SampleSize
-                         ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                         ,r17.r22.percent = sum(R17.R22) / SampleSize
-                         ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                         ,rGT22.percent   = sum(RGT22) / SampleSize
-                         ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
+##cast data
+item12.cast <- dcast(setDT(item12.final),
+                        formula   = BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins,
+                        value.var = c("Percent", "SE", "SampleSize"))
+SampleSize <- rbind.data.frame(item12.sum2, item12.sum4, stringsAsFactors = F)
 
+item12.table <- left_join(item12.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 #join all insulation levels onto rvalue summary
-item12.SF.final <- rbind.data.frame(item12.SF.sum, item12.SF.sum1, stringsAsFactors = F)
-item12.SF.final$check  <- item12.SF.final$r0.percent + item12.SF.final$r1.r10.percent + item12.SF.final$r11.r16.percent + item12.SF.final$r17.r22.percent + item12.SF.final$rGT22.percent
+item12.table.SF <- data.frame("BuildingType" = item12.table$BuildingType
+                            ,"Housing.Vintage" = item12.table$HomeYearBuilt_bins4
+                            ,"Percent.R0" = item12.table$Percent_R0
+                            ,"SE.R0" = item12.table$SE_R0
+                            ,"Percent.R1.R10" = item12.table$Percent_R1.R10
+                            ,"SE.R1.R10" = item12.table$SE_R1.R10
+                            ,"Percent.R11.R16" = item12.table$Percent_R11.R16
+                            ,"SE.R11.R16" = item12.table$SE_R11.R16
+                            ,"Percent.R17.R22" = item12.table$Percent_R17.R22
+                            ,"SE.R17.R22" = item12.table$SE_R17.R22
+                            ,"Percent.RGT22" = item12.table$Percent_RGT22
+                            ,"SE.RGT22" = item12.table$SE_RGT22
+                            ,"SampleSize" = item12.table$SampleSize)
 
-
-item12.SF.table <- data.frame("BuildingType" = item12.SF.final$BuildingType
-                              ,"Housing.Vintage" = item12.SF.final$HomeYearBuilt_bins4
-                              ,"Percent_R0" = item12.SF.final$r0.percent
-                              ,"SE_R0" = item12.SF.final$r0.se
-                              ,"Percent_R1_R10" = item12.SF.final$r1.r10.percent
-                              ,"SE_R1_R10" = item12.SF.final$r1.r10.se
-                              ,"Percent_R11_R16" = item12.SF.final$r11.r16.percent
-                              ,"SE_R11_R16" = item12.SF.final$r11.r16.se
-                              ,"Percent_R17_R22" = item12.SF.final$r17.r22.percent
-                              ,"SE_R17_R22" = item12.SF.final$r17.r22.se
-                              ,"Percent_RGT22" = item12.SF.final$rGT22.percent
-                              ,"SE_RGT22" = item12.SF.final$rGT22.se
-                              ,"SampleSize" = item12.SF.final$SampleSize)
-item12.SF.table1 <- item12.SF.table[which(!(is.na(item12.SF.table$Housing.Vintage))),]
+item12.table.SF1 <- item12.table.SF[which(item12.table.SF$BuildingType == "Single Family"),]
 
 ############################################################################################################
 ## For manufactured homes
@@ -692,78 +598,72 @@ item12.SF.table1 <- item12.SF.table[which(!(is.na(item12.SF.table$Housing.Vintag
 item12.MH.dat <- item10.dat6
 
 #merge weighted u values onto cleaned RBSA data
-item12.MH.dat2 <- left_join(item12.MH.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item12.MH.dat0 <- left_join(item12.MH.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item12.MH.dat1 <- item12.MH.dat0[which(!(is.na(item12.MH.dat0$HomeYearBuiltXX))),]
 
 
 # Bin R values -- SF only
-item12.MH.dat2$rvalue.bins <- "Unknown"
-item12.MH.dat2$rvalue.bins[which(item12.MH.dat2$aveRval >= 0  & item12.MH.dat2$aveRval < 9)]  <- "R0.R8"
-item12.MH.dat2$rvalue.bins[which(item12.MH.dat2$aveRval >= 9 & item12.MH.dat2$aveRval < 15)]  <- "R9.R14"
-item12.MH.dat2$rvalue.bins[which(item12.MH.dat2$aveRval >= 15 & item12.MH.dat2$aveRval < 22)]  <- "R15.R21"
-item12.MH.dat2$rvalue.bins[which(item12.MH.dat2$aveRval >= 22 & item12.MH.dat2$aveRval < 31)]  <- "R22.R30"
-unique(item12.MH.dat2$rvalue.bins)
+item12.MH.dat1$rvalue.bins <- "Unknown"
+item12.MH.dat1$rvalue.bins[which(item12.MH.dat1$aveRval >= 0  & item12.MH.dat1$aveRval <  9)]  <- "R0.R8"
+item12.MH.dat1$rvalue.bins[which(item12.MH.dat1$aveRval >= 9  & item12.MH.dat1$aveRval < 15)]  <- "R9.R14"
+item12.MH.dat1$rvalue.bins[which(item12.MH.dat1$aveRval >= 15 & item12.MH.dat1$aveRval < 22)]  <- "R15.R21"
+item12.MH.dat1$rvalue.bins[which(item12.MH.dat1$aveRval >= 22 & item12.MH.dat1$aveRval < 31)]  <- "R22.R30"
+unique(item12.MH.dat1$rvalue.bins)
+
+item12.MH.dat1$count <- 1
+#summarise by vintage bins
+#summarise by r value bins
+item12.MH.sum1 <- summarise(group_by(item12.MH.dat1, BuildingType, HomeYearBuilt_bins4, rvalue.bins)
+                         ,Count = sum(count))
+#summarise across r value bins
+item12.MH.sum2 <- summarise(group_by(item12.MH.dat1, BuildingType, HomeYearBuilt_bins4)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item12.MH.merge1 <- left_join(item12.MH.sum1, item12.MH.sum2, by = c("BuildingType", "HomeYearBuilt_bins4"))
+
+#summarise across wall frame types
+#summarise by r value bins
+item12.MH.sum3 <- summarise(group_by(item12.MH.dat1, BuildingType, rvalue.bins)
+                         ,HomeYearBuilt_bins4 = "All Vintages"
+                         ,Count = sum(count))
+#summarise across r value bins
+item12.MH.sum4 <- summarise(group_by(item12.MH.dat1, BuildingType)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item12.MH.merge2 <- left_join(item12.MH.sum3, item12.MH.sum4, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 
-item12.MH.dat2$count <- 1
-item12.MH.dat.cast <- dcast(setDT(item12.MH.dat2),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item12.MH.dat.cast)
+item12.MH.final <- rbind.data.frame(item12.MH.merge1, item12.MH.merge2, stringsAsFactors = F)
 
+item12.MH.final$Percent <- item12.MH.final$Count / item12.MH.final$TotalCount
+item12.MH.final$SE <- sqrt(item12.MH.final$Percent * (1 - item12.MH.final$Percent) / item12.MH.final$SampleSize)
 
-## Manufactured Homes
-item12.MH.dat <- subset(item12.MH.dat.cast, item12.MH.dat.cast$BuildingType == "Manufactured")
+##cast data
+item12.MH.cast <- dcast(setDT(item12.MH.final),
+                      formula   = BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins,
+                      value.var = c("Percent", "SE", "SampleSize"))
+SampleSize <- rbind.data.frame(item12.sum2, item12.sum4, stringsAsFactors = F)
 
-#summarize
-item12.MH.sum <- summarise(group_by(item12.MH.dat, BuildingType, HomeYearBuilt_bins4)
-                           ,sampleSize  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                           ,r1.r8.percent  = sum(R0.R8)  / sampleSize
-                           ,r1.r8.se       = sd(R0.R8) / sqrt(sampleSize)
-                           ,r9.r14.percent = sum(R9.R14) / sampleSize
-                           ,r9.r14.se      = sd(R9.R14) / sqrt(sampleSize)
-                           ,r15.r21.percent = sum(R15.R21) / sampleSize
-                           ,r15.r21.se      = sd(R15.R21) / sqrt(sampleSize)
-                           ,r22.r30.percent = sum(R22.R30) / sampleSize
-                           ,r22.r30.se      = sd(R22.R30) / sqrt(sampleSize)
-)
-
-item12.MH.sum1 <- summarise(group_by(item12.MH.dat, BuildingType)
-                            ,HomeYearBuilt_bins4 = "All Vintages"
-                            ,sampleSize  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                            ,r1.r8.percent  = sum(R0.R8)  / sampleSize
-                            ,r1.r8.se       = sd(R0.R8) / sqrt(sampleSize)
-                            ,r9.r14.percent = sum(R9.R14) / sampleSize
-                            ,r9.r14.se      = sd(R9.R14) / sqrt(sampleSize)
-                            ,r15.r21.percent = sum(R15.R21) / sampleSize
-                            ,r15.r21.se      = sd(R15.R21) / sqrt(sampleSize)
-                            ,r22.r30.percent = sum(R22.R30) / sampleSize
-                            ,r22.r30.se      = sd(R22.R30) / sqrt(sampleSize)
-)
-
+item12.MH.table <- left_join(item12.MH.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 #join all insulation levels onto rvalue summary
-item12.MH.final <- rbind.data.frame(item12.MH.sum, item12.MH.sum1, stringsAsFactors = F)
-check  <- item12.MH.final$r1.r8.percent +
-  item12.MH.final$r9.r14.percent +
-  item12.MH.final$r15.r21.percent +
-  item12.MH.final$r22.r30.percent
+item12.MH.table1 <- data.frame("BuildingType"    = item12.MH.table$BuildingType
+                              ,"Housing.Vintage" = item12.MH.table$HomeYearBuilt_bins4
+                              ,"Percent.R0.R8"   = item12.MH.table$Percent_R0.R8
+                              ,"SE.R0.R8"        = item12.MH.table$SE_R0.R8
+                              ,"Percent.R9.R14"  = item12.MH.table$Percent_R9.R14
+                              ,"SE.R9.R14"       = item12.MH.table$SE_R9.R14
+                              ,"Percent.R15.R21" = item12.MH.table$Percent_R15.R21
+                              ,"SE.R15.R21"      = item12.MH.table$SE_R15.R21
+                              ,"Percent.R22.R30" = item12.MH.table$Percent_R22.R30
+                              ,"SE.R22.R30"      = item12.MH.table$SE_R22.R30
+                              ,"SampleSize"      = item12.MH.table$SampleSize)
 
-
-
-item12.MH.table <- data.frame("BuildingType" = item12.MH.final$BuildingType
-                              ,"Housing.Vintage" = item12.MH.final$HomeYearBuilt_bins4
-                              ,"Percent_R0_R8" = item12.MH.final$r1.r8.percent
-                              ,"SE_R0_R8" = item12.MH.final$r1.r8.se
-                              ,"Percent_R9_R14" = item12.MH.final$r9.r14.percent
-                              ,"SE_R9_R14" = item12.MH.final$r9.r14.se
-                              ,"Percent_R15_R21" = item12.MH.final$r15.r21.percent
-                              ,"SE_R15_R21" = item12.MH.final$r15.r21.se
-                              ,"Percent_R22_R30" = item12.MH.final$r22.r30.percent
-                              ,"SE_R22_R30" = item12.MH.final$r22.r30.se
-                              ,"SampleSize" = item12.MH.final$sampleSize)
-item12.MH.table1 <- item12.MH.table[which(!(is.na(item12.MH.table$Housing.Vintage))),]
-
-
+item12.MH.table2 <- item12.MH.table1[which(item12.MH.table1$BuildingType == "Manufactured"),]
+View(item12.MH.table2)
 
 
 
@@ -773,71 +673,64 @@ item12.MH.table1 <- item12.MH.table[which(!(is.na(item12.MH.table$Housing.Vintag
 #############################################################################################
 # Item 13: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE, IDAHO  (SF table 20)
 #############################################################################################
-## Note: For this table, you must run up to item12.SF.dat2 for the cleaned data
-item13.dat <- item12.dat[which(item12.dat$State == "ID"),]
+## Note: For this table, you must run up to item12.dat1 for the cleaned data
+item13.dat <- item12.dat1[which(item12.dat1$State == "ID"),]
+
+#summarise by vintage bins
+#summarise by r value bins
+item13.sum1 <- summarise(group_by(item13.dat, BuildingType, HomeYearBuilt_bins4, rvalue.bins)
+                         ,Count = sum(count))
+#summarise across r value bins
+item13.sum2 <- summarise(group_by(item13.dat, BuildingType, HomeYearBuilt_bins4)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item13.merge1 <- left_join(item13.sum1, item13.sum2, by = c("BuildingType", "HomeYearBuilt_bins4"))
+
+#summarise across wall frame types
+#summarise by r value bins
+item13.sum3 <- summarise(group_by(item13.dat, BuildingType, rvalue.bins)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,Count = sum(count))
+#summarise across r value bins
+item13.sum4 <- summarise(group_by(item13.dat, BuildingType)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item13.merge2 <- left_join(item13.sum3, item13.sum4, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 
-item13.dat.cast <- dcast(setDT(item13.dat),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item13.dat.cast)
+item13.final <- rbind.data.frame(item13.merge1, item13.merge2, stringsAsFactors = F)
 
+#calculate percent and SE
+item13.final$Percent <- item13.final$Count / item13.final$TotalCount
+item13.final$SE <- sqrt(item13.final$Percent * (1 - item13.final$Percent) / item13.final$SampleSize)
 
-## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
-item13.SF.dat <- subset(item13.dat.cast, item13.dat.cast$BuildingType == "Single Family")
+##cast data
+item13.cast <- dcast(setDT(item13.final),
+                     formula   = BuildingType + HomeYearBuilt_bins4 ~ rvalue.bins,
+                     value.var = c("Percent", "SE", "SampleSize"))
+SampleSize <- rbind.data.frame(item13.sum2, item13.sum4, stringsAsFactors = F)
 
-#summarize --SF only
-item13.sum <- summarise(group_by(item13.SF.dat, BuildingType, HomeYearBuilt_bins4)
-                        ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                        ,SampleSize  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                        ,r0.percent      = sum(R0) / SampleSize 
-                        ,r0.se           = sd(R0) / sqrt(SampleSize)
-                        ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                        ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                        ,r11.r16.percent = sum(R11.R16) / SampleSize
-                        ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                        ,r17.r22.percent = sum(R17.R22) / SampleSize
-                        ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                        ,rGT22.percent   = sum(RGT22) / SampleSize
-                        ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
-item13.sum1 <- summarise(group_by(item13.SF.dat, BuildingType)
-                         ,HomeYearBuilt_bins4 = "All Vintages"
-                         ,sampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                         ,SampleSize  = sum(length(unique(CK_Cadmus_ID))) - sum(`Unknown`)
-                         ,r0.percent      = sum(R0) / SampleSize
-                         ,r0.se           = sd(R0) / sqrt(SampleSize)
-                         ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                         ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                         ,r11.r16.percent = sum(R11.R16) / SampleSize
-                         ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                         ,r17.r22.percent = sum(R17.R22) / SampleSize
-                         ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                         ,rGT22.percent   = sum(RGT22) / SampleSize
-                         ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
+item13.table <- left_join(item13.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 #join all insulation levels onto rvalue summary
-item13.final <- rbind.data.frame(item13.sum, item13.sum1, stringsAsFactors = F)
-item13.final$check  <- item13.final$r0.percent + item13.final$r1.r10.percent + item13.final$r11.r16.percent + item13.final$r17.r22.percent + item13.final$rGT22.percent
+item13.table.SF <- data.frame("BuildingType" = item13.table$BuildingType
+                              ,"Housing.Vintage" = item13.table$HomeYearBuilt_bins4
+                              ,"Percent.R0" = item13.table$Percent_R0
+                              ,"SE.R0" = item13.table$SE_R0
+                              ,"Percent.R1.R10" = item13.table$Percent_R1.R10
+                              ,"SE.R1.R10" = item13.table$SE_R1.R10
+                              ,"Percent.R11.R16" = item13.table$Percent_R11.R16
+                              ,"SE.R11.R16" = item13.table$SE_R11.R16
+                              ,"Percent.R17.R22" = item13.table$Percent_R17.R22
+                              ,"SE.R17.R22" = item13.table$SE_R17.R22
+                              ,"Percent.RGT22" = item13.table$Percent_RGT22
+                              ,"SE.RGT22" = item13.table$SE_RGT22
+                              ,"SampleSize" = item13.table$SampleSize)
 
-
-item13.table <- data.frame("BuildingType" = item13.final$BuildingType
-                              ,"Housing.Vintage" = item13.final$HomeYearBuilt_bins4
-                              ,"Percent_R0" = item13.final$r0.percent
-                              ,"SE_R0" = item13.final$r0.se
-                              ,"Percent_R1_R10" = item13.final$r1.r10.percent
-                              ,"SE_R1_R10" = item13.final$r1.r10.se
-                              ,"Percent_R11_R16" = item13.final$r11.r16.percent
-                              ,"SE_R11_R16" = item13.final$r11.r16.se
-                              ,"Percent_R17_R22" = item13.final$r17.r22.percent
-                              ,"SE_R17_R22" = item13.final$r17.r22.se
-                              ,"Percent_RGT22" = item13.final$rGT22.percent
-                              ,"SE_RGT22" = item13.final$rGT22.se
-                              ,"SampleSize" = item13.final$SampleSize)
-item13.table1 <- item13.table[which(!(is.na(item13.table$Housing.Vintage))),]
+item13.table.SF1 <- item13.table.SF[which(item13.table.SF$BuildingType == "Single Family"),]
 
 
 
@@ -851,70 +744,64 @@ item13.table1 <- item13.table[which(!(is.na(item13.table$Housing.Vintage))),]
 #############################################################################################
 # Item 14: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE, MONTANA  (SF table 21)
 #############################################################################################
-## Note: For this table, you must run up to item12.dat2 for the cleaned data
-item14.dat <- item12.dat[which(item12.dat$State == "MT"),]
+## Note: For this table, you must run up to item12.dat1 for the cleaned data
+item14.dat <- item12.dat1[which(item12.dat1$State == "MT"),]
+
+#summarise by vintage bins
+#summarise by r value bins
+item14.sum1 <- summarise(group_by(item14.dat, BuildingType, HomeYearBuilt_bins4, rvalue.bins)
+                         ,Count = sum(count))
+#summarise across r value bins
+item14.sum2 <- summarise(group_by(item14.dat, BuildingType, HomeYearBuilt_bins4)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item14.merge1 <- left_join(item14.sum1, item14.sum2, by = c("BuildingType", "HomeYearBuilt_bins4"))
+
+#summarise across wall frame types
+#summarise by r value bins
+item14.sum3 <- summarise(group_by(item14.dat, BuildingType, rvalue.bins)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,Count = sum(count))
+#summarise across r value bins
+item14.sum4 <- summarise(group_by(item14.dat, BuildingType)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item14.merge2 <- left_join(item14.sum3, item14.sum4, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 
-item14.dat.cast <- dcast(setDT(item14.dat),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item14.dat.cast)
+item14.final <- rbind.data.frame(item14.merge1, item14.merge2, stringsAsFactors = F)
 
+#calculate percent and SE
+item14.final$Percent <- item14.final$Count / item14.final$TotalCount
+item14.final$SE <- sqrt(item14.final$Percent * (1 - item14.final$Percent) / item14.final$SampleSize)
 
-## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
-item14.SF.dat <- subset(item14.dat.cast, item14.dat.cast$BuildingType == "Single Family")
+##cast data
+item14.cast <- dcast(setDT(item14.final),
+                     formula   = BuildingType + HomeYearBuilt_bins4 ~ rvalue.bins,
+                     value.var = c("Percent", "SE", "SampleSize"))
+SampleSize <- rbind.data.frame(item14.sum2, item14.sum4, stringsAsFactors = F)
 
-#summarize --SF only
-item14.sum <- summarise(group_by(item14.SF.dat, BuildingType, HomeYearBuilt_bins4)
-                        ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                        # ,r0.percent      = sum(R0) / SampleSize
-                        # ,r0.se           = sd(R0) / sqrt(SampleSize)
-                        ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                        ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                        ,r11.r16.percent = sum(R11.R16) / SampleSize
-                        ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                        ,r17.r22.percent = sum(R17.R22) / SampleSize
-                        ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                        ,rGT22.percent   = sum(RGT22) / SampleSize
-                        ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
-item14.sum1 <- summarise(group_by(item14.SF.dat, BuildingType)
-                         ,HomeYearBuilt_bins4 = "All Vintages"
-                         ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                         # ,r0.percent      = sum(R0) / SampleSize
-                         # ,r0.se           = sd(R0) / sqrt(SampleSize)
-                         ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                         ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                         ,r11.r16.percent = sum(R11.R16) / SampleSize
-                         ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                         ,r17.r22.percent = sum(R17.R22) / SampleSize
-                         ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                         ,rGT22.percent   = sum(RGT22) / SampleSize
-                         ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
+item14.table <- left_join(item14.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 #join all insulation levels onto rvalue summary
-item14.final <- rbind.data.frame(item14.sum, item14.sum1, stringsAsFactors = F)
-# item14.final$check  <- item14.final$r0.percent + item14.final$r1.r10.percent + item14.final$r11.r16.percent + item14.final$r17.r22.percent + item14.final$rGT22.percent
+item14.table1 <- data.frame("BuildingType" = item14.table$BuildingType
+                              ,"Housing.Vintage" = item14.table$HomeYearBuilt_bins4
+                              ,"Percent.R0" = 0#item14.table$Percent_R0
+                              ,"SE.R0" = 0#item14.table$SE_R0
+                              ,"Percent.R1.R10" = item14.table$Percent_R1.R10
+                              ,"SE.R1.R10" = item14.table$SE_R1.R10
+                              ,"Percent.R11.R16" = item14.table$Percent_R11.R16
+                              ,"SE.R11.R16" = item14.table$SE_R11.R16
+                              ,"Percent.R17.R22" = item14.table$Percent_R17.R22
+                              ,"SE.R17.R22" = item14.table$SE_R17.R22
+                              ,"Percent.RGT22" = item14.table$Percent_RGT22
+                              ,"SE.RGT22" = item14.table$SE_RGT22
+                              ,"SampleSize" = item14.table$SampleSize)
 
-
-
-item14.table <- data.frame("BuildingType" = item14.final$BuildingType
-                           ,"Housing.Vintage" = item14.final$HomeYearBuilt_bins4
-                           # ,"Percent_R0" = item14.final$r0.percent
-                           # ,"SE_R0" = item14.final$r0.se
-                           ,"Percent_R1_R10" = item14.final$r1.r10.percent
-                           ,"SE_R1_R10" = item14.final$r1.r10.se
-                           ,"Percent_R11_R16" = item14.final$r11.r16.percent
-                           ,"SE_R11_R16" = item14.final$r11.r16.se
-                           ,"Percent_R17_R22" = item14.final$r17.r22.percent
-                           ,"SE_R17_R22" = item14.final$r17.r22.se
-                           ,"Percent_RGT22" = item14.final$rGT22.percent
-                           ,"SE_RGT22" = item14.final$rGT22.se
-                           ,"SampleSize" = item14.final$SampleSize)
-item14.table1 <- item14.table[which(!(is.na(item14.table$Housing.Vintage))),]
+item14.table.SF1 <- item14.table1[which(item14.table1$BuildingType == "Single Family"),]
 
 
 
@@ -925,69 +812,64 @@ item14.table1 <- item14.table[which(!(is.na(item14.table$Housing.Vintage))),]
 #############################################################################################
 # Item 15: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE, OREGON  (SF table 22)
 #############################################################################################
-## Note: For this table, you must run up to item12.dat2 for the cleaned data
-item15.dat <- item12.dat[which(item12.dat$State == "OR"),]
+## Note: For this table, you must run up to item12.dat1 for the cleaned data
+item15.dat <- item12.dat1[which(item12.dat1$State == "OR"),]
+
+#summarise by vintage bins
+#summarise by r value bins
+item15.sum1 <- summarise(group_by(item15.dat, BuildingType, HomeYearBuilt_bins4, rvalue.bins)
+                         ,Count = sum(count))
+#summarise across r value bins
+item15.sum2 <- summarise(group_by(item15.dat, BuildingType, HomeYearBuilt_bins4)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item15.merge1 <- left_join(item15.sum1, item15.sum2, by = c("BuildingType", "HomeYearBuilt_bins4"))
+
+#summarise across wall frame types
+#summarise by r value bins
+item15.sum3 <- summarise(group_by(item15.dat, BuildingType, rvalue.bins)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,Count = sum(count))
+#summarise across r value bins
+item15.sum4 <- summarise(group_by(item15.dat, BuildingType)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item15.merge2 <- left_join(item15.sum3, item15.sum4, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 
-item15.dat.cast <- dcast(setDT(item15.dat),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item15.dat.cast)
+item15.final <- rbind.data.frame(item15.merge1, item15.merge2, stringsAsFactors = F)
 
+#calculate percent and SE
+item15.final$Percent <- item15.final$Count / item15.final$TotalCount
+item15.final$SE <- sqrt(item15.final$Percent * (1 - item15.final$Percent) / item15.final$SampleSize)
 
-## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
-item15.SF.dat <- subset(item15.dat.cast, item15.dat.cast$BuildingType == "Single Family")
+##cast data
+item15.cast <- dcast(setDT(item15.final),
+                     formula   = BuildingType + HomeYearBuilt_bins4 ~ rvalue.bins,
+                     value.var = c("Percent", "SE", "SampleSize"))
+SampleSize <- rbind.data.frame(item15.sum2, item15.sum4, stringsAsFactors = F)
 
-#summarize --SF only
-item15.sum <- summarise(group_by(item15.SF.dat, BuildingType, HomeYearBuilt_bins4)
-                        ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                        ,r0.percent      = sum(R0) / SampleSize 
-                        ,r0.se           = sd(R0) / sqrt(SampleSize)
-                        ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                        ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                        ,r11.r16.percent = sum(R11.R16) / SampleSize
-                        ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                        ,r17.r22.percent = sum(R17.R22) / SampleSize
-                        ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                        ,rGT22.percent   = sum(RGT22) / SampleSize
-                        ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
-item15.sum1 <- summarise(group_by(item15.SF.dat, BuildingType)
-                         ,HomeYearBuilt_bins4 = "All Vintages"
-                         ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                         ,r0.percent      = sum(R0) / SampleSize
-                         ,r0.se           = sd(R0) / sqrt(SampleSize)
-                         ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                         ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                         ,r11.r16.percent = sum(R11.R16) / SampleSize
-                         ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                         ,r17.r22.percent = sum(R17.R22) / SampleSize
-                         ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                         ,rGT22.percent   = sum(RGT22) / SampleSize
-                         ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
+item15.table <- left_join(item15.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 #join all insulation levels onto rvalue summary
-item15.final <- rbind.data.frame(item15.sum, item15.sum1, stringsAsFactors = F)
-item15.final$check  <- item15.final$r0.percent + item15.final$r1.r10.percent + item15.final$r11.r16.percent + item15.final$r17.r22.percent + item15.final$rGT22.percent
+item15.table1 <- data.frame("BuildingType" = item15.table$BuildingType
+                            ,"Housing.Vintage" = item15.table$HomeYearBuilt_bins4
+                            ,"Percent.R0" = item15.table$Percent_R0
+                            ,"SE.R0" = item15.table$SE_R0
+                            ,"Percent.R1.R10" = item15.table$Percent_R1.R10
+                            ,"SE.R1.R10" = item15.table$SE_R1.R10
+                            ,"Percent.R11.R16" = item15.table$Percent_R11.R16
+                            ,"SE.R11.R16" = item15.table$SE_R11.R16
+                            ,"Percent.R17.R22" = item15.table$Percent_R17.R22
+                            ,"SE.R17.R22" = item15.table$SE_R17.R22
+                            ,"Percent.RGT22" = item15.table$Percent_RGT22
+                            ,"SE.RGT22" = item15.table$SE_RGT22
+                            ,"SampleSize" = item15.table$SampleSize)
 
-
-item15.table <- data.frame("BuildingType" = item15.final$BuildingType
-                           ,"Housing.Vintage" = item15.final$HomeYearBuilt_bins4
-                           ,"Percent_R0" = item15.final$r0.percent
-                           ,"SE_R0" = item15.final$r0.se
-                           ,"Percent_R1_R10" = item15.final$r1.r10.percent
-                           ,"SE_R1_R10" = item15.final$r1.r10.se
-                           ,"Percent_R11_R16" = item15.final$r11.r16.percent
-                           ,"SE_R11_R16" = item15.final$r11.r16.se
-                           ,"Percent_R17_R22" = item15.final$r17.r22.percent
-                           ,"SE_R17_R22" = item15.final$r17.r22.se
-                           ,"Percent_RGT22" = item15.final$rGT22.percent
-                           ,"SE_RGT22" = item15.final$rGT22.se
-                           ,"SampleSize" = item15.final$SampleSize)
-item15.table1 <- item15.table[which(!(is.na(item15.table$Housing.Vintage))),]
+item15.table2 <- item15.table1[which(item15.table1$BuildingType == "Single Family"),]
 
 
 
@@ -1000,69 +882,64 @@ item15.table1 <- item15.table[which(!(is.na(item15.table$Housing.Vintage))),]
 #############################################################################################
 # Item 16: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE, WASHINGTON  (SF table 23)
 #############################################################################################
-## Note: For this table, you must run up to item12.dat2 for the cleaned data
-item16.dat <- item12.dat[which(item12.dat$State == "WA"),]
+# Note: For this table, you must run up to item12.dat1 for the cleaned data
+item16.dat <- item12.dat1[which(item12.dat1$State == "WA"),]
+
+#summarise by vintage bins
+#summarise by r value bins
+item16.sum1 <- summarise(group_by(item16.dat, BuildingType, HomeYearBuilt_bins4, rvalue.bins)
+                         ,Count = sum(count))
+#summarise across r value bins
+item16.sum2 <- summarise(group_by(item16.dat, BuildingType, HomeYearBuilt_bins4)
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item16.merge1 <- left_join(item16.sum1, item16.sum2, by = c("BuildingType", "HomeYearBuilt_bins4"))
+
+#summarise across wall frame types
+#summarise by r value bins
+item16.sum3 <- summarise(group_by(item16.dat, BuildingType, rvalue.bins)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,Count = sum(count))
+#summarise across r value bins
+item16.sum4 <- summarise(group_by(item16.dat, BuildingType)
+                         , HomeYearBuilt_bins4 = "All Vintages"
+                         ,SampleSize = length(unique(CK_Cadmus_ID))
+                         ,TotalCount = sum(count))
+#merge
+item16.merge2 <- left_join(item16.sum3, item16.sum4, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 
-item16.dat.cast <- dcast(setDT(item16.dat),
-                         formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ rvalue.bins, sum,
-                         value.var = 'count')
-head(item16.dat.cast)
+item16.final <- rbind.data.frame(item16.merge1, item16.merge2, stringsAsFactors = F)
 
+#calculate percent and SE
+item16.final$Percent <- item16.final$Count / item16.final$TotalCount
+item16.final$SE <- sqrt(item16.final$Percent * (1 - item16.final$Percent) / item16.final$SampleSize)
 
-## Single Family ## ## Note that there are only 2 MF-Low and 1 MF-High sites, not providing info
-item16.SF.dat <- subset(item16.dat.cast, item16.dat.cast$BuildingType == "Single Family")
+##cast data
+item16.cast <- dcast(setDT(item16.final),
+                     formula   = BuildingType + HomeYearBuilt_bins4 ~ rvalue.bins,
+                     value.var = c("Percent", "SE", "SampleSize"))
+SampleSize <- rbind.data.frame(item16.sum2, item16.sum4, stringsAsFactors = F)
 
-#summarize --SF only
-item16.sum <- summarise(group_by(item16.SF.dat, BuildingType, HomeYearBuilt_bins4)
-                        ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                        ,r0.percent      = sum(R0) / SampleSize 
-                        ,r0.se           = sd(R0) / sqrt(SampleSize)
-                        ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                        ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                        ,r11.r16.percent = sum(R11.R16) / SampleSize
-                        ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                        ,r17.r22.percent = sum(R17.R22) / SampleSize
-                        ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                        ,rGT22.percent   = sum(RGT22) / SampleSize
-                        ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
-item16.sum1 <- summarise(group_by(item16.SF.dat, BuildingType)
-                         ,HomeYearBuilt_bins4 = "All Vintages"
-                         ,SampleSize      = sum(length(unique(CK_Cadmus_ID)))
-                         ,r0.percent      = sum(R0) / SampleSize
-                         ,r0.se           = sd(R0) / sqrt(SampleSize)
-                         ,r1.r10.percent  = sum(R1.R10)  / SampleSize
-                         ,r1.r10.se       = sd(R1.R10) / sqrt(SampleSize)
-                         ,r11.r16.percent = sum(R11.R16) / SampleSize
-                         ,r11.r16.se      = sd(R11.R16) / sqrt(SampleSize)
-                         ,r17.r22.percent = sum(R17.R22) / SampleSize
-                         ,r17.r22.se      = sd(R17.R22) / sqrt(SampleSize)
-                         ,rGT22.percent   = sum(RGT22) / SampleSize
-                         ,rGT22.se        = sd(RGT22) / sqrt(SampleSize)
-)
-
+item16.table <- left_join(item16.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins4"))
 
 #join all insulation levels onto rvalue summary
-item16.final <- rbind.data.frame(item16.sum, item16.sum1, stringsAsFactors = F)
-item16.final$check  <- item16.final$r0.percent + item16.final$r1.r10.percent + item16.final$r11.r16.percent + item16.final$r17.r22.percent + item16.final$rGT22.percent
+item16.table1 <- data.frame("BuildingType" = item16.table$BuildingType
+                            ,"Housing.Vintage" = item16.table$HomeYearBuilt_bins4
+                            ,"Percent.R0" = item16.table$Percent_R0
+                            ,"SE.R0" = item16.table$SE_R0
+                            ,"Percent.R1.R10" = item16.table$Percent_R1.R10
+                            ,"SE.R1.R10" = item16.table$SE_R1.R10
+                            ,"Percent.R11.R16" = item16.table$Percent_R11.R16
+                            ,"SE.R11.R16" = item16.table$SE_R11.R16
+                            ,"Percent.R17.R22" = item16.table$Percent_R17.R22
+                            ,"SE.R17.R22" = item16.table$SE_R17.R22
+                            ,"Percent.RGT22" = item16.table$Percent_RGT22
+                            ,"SE.RGT22" = item16.table$SE_RGT22
+                            ,"SampleSize" = item16.table$SampleSize)
 
-
-item16.table <- data.frame("BuildingType" = item16.final$BuildingType
-                           ,"Housing.Vintage" = item16.final$HomeYearBuilt_bins4
-                           ,"Percent_R0" = item16.final$r0.percent
-                           ,"SE_R0" = item16.final$r0.se
-                           ,"Percent_R1_R10" = item16.final$r1.r10.percent
-                           ,"SE_R1_R10" = item16.final$r1.r10.se
-                           ,"Percent_R11_R16" = item16.final$r11.r16.percent
-                           ,"SE_R11_R16" = item16.final$r11.r16.se
-                           ,"Percent_R17_R22" = item16.final$r17.r22.percent
-                           ,"SE_R17_R22" = item16.final$r17.r22.se
-                           ,"Percent_RGT22" = item16.final$rGT22.percent
-                           ,"SE_RGT22" = item16.final$rGT22.se
-                           ,"SampleSize" = item16.final$SampleSize)
-item16.table1 <- item16.table[which(!(is.na(item16.table$Housing.Vintage))),]
+item16.table2 <- item16.table1[which(item16.table1$BuildingType == "Single Family"),]
 
 
 
