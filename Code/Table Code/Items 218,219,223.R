@@ -72,52 +72,34 @@ item219.summaryCombined$SE <- sqrt(item219.summaryCombined$Percent * (1 - item21
 
 item219.summaryCombinedFinal <- subset(item219.summaryCombined,select = -TotalWithCommonArea)
 
+
 #############################################################################################
-# Item 221: Floor Area by Category (MF table 13)
+# Item 223: Floor Area by Category (MF table 15)
 #############################################################################################
-item221.dat <- unique(buildings.dat.clean[which(colnames(buildings.dat.clean) %in% 
-                                                  c('CK_Cadmus_ID',
-                                                    'SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround',
-                                                    'SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea',
-                                                    'SITES_MFB_cfg_MFB_CONFIG_TotalResidentialFloorArea',
-                                                    'SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages',
-                                                    'SITES_MFB_cfg_MFB_NONRESIDENTIAL_AreaOfCommercialSpaceInBuilding_SqFt',
-                                                    'SITES_MFB_cfg_MFB_NONRESIDENTIAL_Grocery_SqFt',
-                                                    'SITES_MFB_cfg_MFB_NONRESIDENTIAL_Office_SqFt',
-                                                    'SITES_MFB_cfg_MFB_NONRESIDENTIAL_Other_SqFt',
-                                                    'SITES_MFB_cfg_MFB_NONRESIDENTIAL_Retail_SqFt',
-                                                    'SITES_MFB_cfg_MFB_NONRESIDENTIAL_Vacant_SqFt'))])
+item223.dat <- unique(buildings.dat.clean[which(colnames(buildings.dat.clean) %in% c("CK_Cadmus_ID",
+                                                                                     "SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround",
+                                                                                     "SITES_MFB_cfg_MFB_NONRESIDENTIAL_AreaOfCommercialSpaceInBuilding_SqFt",
+                                                                                     "SITES_MFB_cfg_MFB_NONRESIDENTIAL_Grocery_SqFt",
+                                                                                     "SITES_MFB_cfg_MFB_NONRESIDENTIAL_Office_SqFt",
+                                                                                     "SITES_MFB_cfg_MFB_NONRESIDENTIAL_Other_SqFt",
+                                                                                     "SITES_MFB_cfg_MFB_NONRESIDENTIAL_Retail_SqFt",
+                                                                                     "SITES_MFB_cfg_MFB_NONRESIDENTIAL_Vacant_SqFt"))])
+item223.dat0 <- item223.dat[which(item223.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item221.dat0 <- item221.dat[which(item221.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item223.dat1 <- left_join(item223.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
-#merge together analysis data with cleaned RBSA data
-item221.dat1 <- left_join(item221.dat0, rbsa.dat, by = "CK_Cadmus_ID")
-
-#Create values for Common Area sq. ft., NonRes Sq Ft, and Res SqFt
-item221.dat1$CommonAreaSqFt <- item221.dat1$SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea
-item221.dat1$ResidentialSqFt <- item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalResidentialFloorArea
-item221.dat1$CommercialSqFt <- item221.dat1$SITES_MFB_cfg_MFB_NONRESIDENTIAL_AreaOfCommercialSpaceInBuilding_SqFt
-item221.dat1$TotalArea      <- item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages
-
-item221.dat1$CommonAreaSqFt[which(is.na(item221.dat1$CommonAreaSqFt))] <- 0
-item221.dat1$ResidentialSqFt[which(is.na(item221.dat1$ResidentialSqFt))] <- 0
-item221.dat1$CommercialSqFt[which(is.na(item221.dat1$CommercialSqFt))] <- 0
-
-
-
-#Clean Building Size
-item221.dat1$BuildingSize <- ifelse(item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround > 0 &
-                                      item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround <= 3,
+item223.dat1$BuildingSize <- ifelse(item223.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround > 0 &
+                                      item223.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround <= 3,
                                     'Low-Rise (1-3)',
-                                    ifelse(item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround > 3 &
-                                             item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround <= 6,
+                                    ifelse(item223.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround > 3 &
+                                             item223.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround <= 6,
                                            'Mid-Rise (4-6)',
-                                           ifelse(item221.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround > 6,
+                                           ifelse(item223.dat1$SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround > 6,
                                                   'High-Rise (7+)','Error')))
-
-
-item219.summary1 <-summarise(group_by(item219.dat1, BuildingSize)
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                             ,TotCommonAreaSqFt = sum(CommonAreaSqFt),
-                             ,ResidentialSqFt 
-                             )
+item223.dat1$NonResFlag <- ifelse(item223.dat1$)
+  
+  
+  
+  
+  
+  
