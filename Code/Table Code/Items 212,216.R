@@ -143,18 +143,8 @@ item216.merge <- left_join(item216.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 
 item216.dat2 <- item216.merge[grep("Multifamily", item216.merge$BuildingType),]
 
-# summarise by building types
-item216.sum1 <- summarise(group_by(item216.dat2, BuildingTypeXX)
-                         ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
-                         ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
-                         ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
-                         ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / length(unique(CK_Cadmus_ID)))
-                         ,Percent_Nonres = sum(Total.Nonres.Floor.Area) / sum(Total.Floor.Area)
-                         ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-
 # summarise across building types
-item216.sum2 <- summarise(group_by(item216.dat2)
+item216.sum1 <- summarise(group_by(item216.dat1)
                           ,BuildingTypeXX = "All Sizes"
                           ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
                           ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
@@ -164,6 +154,19 @@ item216.sum2 <- summarise(group_by(item216.dat2)
                           ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 
-item216.final <- rbind.data.frame(item216.sum1, item216.sum2, stringsAsFactors = F)
+item216.dat2 <- data.frame(item216.dat1, "SampleSize" = item216.sum1$SampleSize, stringsAsFactors = F)
+
+# summarise by building types
+item216.sum2 <- summarise(group_by(item216.dat2, BuildingTypeXX)
+                          ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
+                          ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / unique(SampleSize))
+                          ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
+                          ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / unique(SampleSize))
+                          ,Percent_Nonres = sum(Total.Nonres.Floor.Area) / sum(Total.Floor.Area)
+                          ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / unique(SampleSize))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+item216.final <- rbind.data.frame(item216.sum2, item216.sum1, stringsAsFactors = F)
 
 
