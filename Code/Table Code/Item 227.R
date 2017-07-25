@@ -68,7 +68,14 @@ item227.age <- summarise(item227.dat3
 
 item227.table <- data.table(item227.age)
 
-item227.melt <- reshape(item227.table, varying = 4:9, sep = "_", direction = 'long')
-item123.melt$Age.Category <- c(rep("0 to 18", 12)
-                               ,rep("19 to 64", 12)
-                               ,rep("Older than 65", 12))
+item227.melt <- reshape(item227.table, varying = 1:12, sep = "_", direction = 'long')
+item227.melt$Age.Category <- c(rep("0 to 18", 1)
+                               ,rep("19 to 64", 1)
+                               ,rep("Older than 65", 1)
+                               ,rep("All Categories", 1))
+item227.final <- data.frame("Age Category" = item227.melt$Age.Category
+                            ,"Mean" = item227.melt$Mean
+                            ,"SE" = item227.melt$SE
+                            ,"SampleSize" = item227.melt$SampleSize
+                            ,stringsAsFactors = F)
+
