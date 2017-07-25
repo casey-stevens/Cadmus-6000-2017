@@ -49,20 +49,34 @@ for (i in 2:ncol(item223.dat)){
   item223.dat[,i] <- as.numeric(as.character(item223.dat[,i]))
 }
 
+item223.dat$CommercialAreaFlag <- ifelse(item223.dat$Nonres.Grocery.SQFT + 
+                                           item223.dat$Nonres.Office.SQFT +
+                                           item223.dat$Nonres.Other.SQFT +
+                                           item223.dat$Nonres.Retail.SQFT +
+                                           item223.dat$Nonres.Vacant.SQFT +
+                                           item223.dat$Commercial.Area > 0,1,0)
+
+item223.dat1 <- left_join(item223.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item223.dat2 <- item223.dat1[grep("Multifamily", item223.dat1$BuildingType),]
 
 
+item223.summary1 <-summarise(group_by(item223.dat2, BuildingTypeXX)
+                             ,SampleSize = length(unique(CK_Cadmus_ID))
+                             ,TotalWithCommercArea = sum(CommercialAreaFlag))
+
+item223.summary2  <- summarise(group_by(item223.dat2)
+                               ,BuildingTypeXX = "All Sizes"
+                               ,SampleSize = length(unique(CK_Cadmus_ID))
+                               ,TotalWithCommercArea = sum(CommercialAreaFlag)) 
 
 
+item223.final <- rbind.data.frame(item223.summary1,item223.summary2)
 
+item223.final$Percent <- item223.final$TotalWithCommercArea / item223.final$SampleSize
+item223.final$SE <- sqrt(item223.final$Percent * (1 - item223.final$Percent) / item223.final$SampleSize)
 
-
-
-
-
-
-
-
-
+item223.sub <- item223.final[,which(!(colnames(item223.final) %in% c("TotalWithCommercArea","SampleSize")))]
+item223.table <- data.frame(item223.sub,"SampleSize" = item223.final$SampleSize,stringsAsFactors = F)
 
 #############################################################################################
 # Item 224: DISTRIBUTION OF NON-RESIDENTIAL FLOOR AREA (IN BUILDINGS WITH NON-RESIDENTIAL) BY USE TYPE AND BUILDING SIZE (MF table 16)
