@@ -50,7 +50,6 @@ item227.dat1$Age_19_64 <- item227.dat1$Age_19_45 + item227.dat1$Age_46_64
 item227.dat1$AllCategories <- item227.dat1$Age_0_18 + item227.dat1$Age_19_64 + item227.dat1$Age_65_Older
 #Subset to Multifamily
 item227.dat2 <- item227.dat1[grep("Multifamily", item227.dat1$BuildingType),]
-item227.dat3 <- item227.dat2[which(item227.dat2$AllCategories != 0),]
 
 item227.age <- summarise(item227.dat3
                            ,SampleSize_0 = length(unique(CK_Cadmus_ID)[which(Age_0_18 >0)])
