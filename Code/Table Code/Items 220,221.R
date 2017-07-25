@@ -36,9 +36,10 @@ rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 
 #subset to columns needed for analysis
 rooms.dat1 <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
+                                                         ,"CK_SiteID"
                                                          ,"Clean.Type"
                                                          ,"Area"))]
-colnames(rooms.dat1) <- c("CK_Cadmus_ID","Clean.Room","Area")
+colnames(rooms.dat1) <- c("CK_Cadmus_ID","CK_SiteID","Clean.Room","Area")
 
 #remove any repeat header rows from exporting
 rooms.dat2 <- rooms.dat1[which(rooms.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -46,14 +47,16 @@ rooms.dat2 <- rooms.dat1[which(rooms.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 rooms.dat3 <- rooms.dat2[which(!(rooms.dat2$Area %in% c("0", "Unknown", NA, "-- Datapoint not asked for --"))),]
 rooms.dat3$Area <- as.numeric(as.character(rooms.dat3$Area))
 
-rooms.dat4 <- summarise(group_by(rooms.dat3, CK_Cadmus_ID, Clean.Room)
+rooms.dat4 <- rooms.dat3[grep("BLDG", rooms.dat3$CK_SiteID),]
+
+rooms.dat5 <- summarise(group_by(rooms.dat4, CK_Cadmus_ID, Clean.Room)
                         ,SiteArea = sum(Area))
 
 
 
 
 #merge together analysis data with cleaned RBSA data
-rooms.dat5 <- left_join(rooms.dat4, rbsa.dat, by = "CK_Cadmus_ID")
+rooms.dat6 <- left_join(rooms.dat5, rbsa.dat, by = "CK_Cadmus_ID")
 
 
 
@@ -62,18 +65,17 @@ rooms.dat5 <- left_join(rooms.dat4, rbsa.dat, by = "CK_Cadmus_ID")
 # Item 220: AVERAGE COMMON AREA ROOM TYPE FLOOR AREA (SQ.FT.) BY BUILDING SIZE (MF table 12)
 #############################################################################################
 item220.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
-                                                                     ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
-                                                                     ,""))]
+                                                                  ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
+                                                                  ,""))]
 colnames(item220.dat) <- c("CK_Cadmus_ID", "CommonFloorArea")
 
 # join on rooms and rbsa cleaned data:
-item220.dat1 <- left_join(rooms.dat5, item220.dat, by = c("CK_Cadmus_ID"))
+item220.dat1 <- left_join(rooms.dat6, item220.dat, by = c("CK_Cadmus_ID"))
 item220.dat1$CommonFloorArea[which(is.na(item220.dat1$CommonFloorArea))] <- 0
 
 #make numeric
 item220.dat1$CommonFloorArea <- as.numeric(as.character(item220.dat1$CommonFloorArea))
 item220.dat1$SiteArea <- as.numeric(as.character(item220.dat1$SiteArea))
-
 
 #calculate total area
 item220.dat1$Total.Area <- item220.dat1$SiteArea + item220.dat1$CommonFloorArea
@@ -151,7 +153,7 @@ item221.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotalResidentialFloorArea"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages"
-                                                                  ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_AreaOfCommercialSpaceInBuilding_SqFt"
+                                                                  # ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_AreaOfCommercialSpaceInBuilding_SqFt"
                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Grocery_SqFt"
                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Office_SqFt"
                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Other_SqFt"
@@ -163,7 +165,7 @@ colnames(item221.dat) <- c("CK_Cadmus_ID"
                            ,"Common.Area"
                            ,"Total.Residential.Floor.Area"
                            ,"Total.Residential.Commercial.Floor.Area"
-                           ,"Total.Commercial.Area"
+                           # ,"Total.Commercial.Area"
                            ,"Nonres.Grocery.SQFT"
                            ,"Nonres.Office.SQFT"
                            ,"Nonres.Other.SQFT"
@@ -176,6 +178,13 @@ for (i in 2:ncol(item221.dat)){
   item221.dat[,i] <- as.numeric(as.character(item221.dat[,i]))
 }
 
+#calculate total nonres floor area
+item221.dat$Total.Commercial.Area <- item221.dat$Nonres.Office.SQFT +
+  item221.dat$Nonres.Grocery.SQFT +
+  item221.dat$Nonres.Other.SQFT +
+  item221.dat$Nonres.Retail.SQFT +
+  item221.dat$Nonres.Vacant.SQFT
+
 #calcualte combined total floor area across common area, res, and nonres
 item221.dat$Total.Floor.Area <- item221.dat$Total.Commercial.Area +
   item221.dat$Total.Residential.Floor.Area +
@@ -186,8 +195,17 @@ item221.merge <- left_join(item221.dat, rbsa.dat, by = "CK_Cadmus_ID")
 
 item221.dat1 <- item221.merge[grep("Multifamily", item221.merge$BuildingType),]
 
+# summarise by building types
+item221.sum1 <- summarise(group_by(item221.dat1, BuildingTypeXX)
+                          ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
+                          ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
+                          ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
+                          ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / length(unique(CK_Cadmus_ID)))
+                          ,Percent_Nonres = sum(Total.Commercial.Area) / sum(Total.Floor.Area)
+                          ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
 # summarise across building types
-item221.sum1 <- summarise(group_by(item221.dat1)
+item221.sum2 <- summarise(group_by(item221.dat1)
                           ,BuildingTypeXX = "All Sizes"
                           ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
                           ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
@@ -197,17 +215,5 @@ item221.sum1 <- summarise(group_by(item221.dat1)
                           ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 
-item221.dat2 <- data.frame(item221.dat1, "SampleSize" = item221.sum1$SampleSize, stringsAsFactors = F)
 
-# summarise by building types
-item221.sum2 <- summarise(group_by(item221.dat2, BuildingTypeXX)
-                          ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
-                          ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / unique(SampleSize))
-                          ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
-                          ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / unique(SampleSize))
-                          ,Percent_Nonres = sum(Total.Commercial.Area) / sum(Total.Floor.Area)
-                          ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / unique(SampleSize))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-
-item221.final <- rbind.data.frame(item221.sum2, item221.sum1, stringsAsFactors = F)
+item221.final <- rbind.data.frame(item221.sum1, item221.sum2, stringsAsFactors = F)

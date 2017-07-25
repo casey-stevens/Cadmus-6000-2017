@@ -30,74 +30,68 @@ buildings.interview.dat$CK_Cadmus_ID <- trimws(toupper(buildings.interview.dat$C
 
 
 #############################################################################################
-# Item 224: DISTRIBUTION OF NON-RESIDENTIAL FLOOR AREA (IN BUILDINGS WITH NON-RESIDENTIAL) BY USE TYPE AND BUILDING SIZE (MF table 16)
+# Item 225: DISTRIBUTION OF OWNERSHIP TYPE BY BUILDING SIZE (MF table 17)
 #############################################################################################
-item224.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
-                                                                  ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Grocery_SqFt"
-                                                                  ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Office_SqFt"
-                                                                  ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Other_SqFt"
-                                                                  ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Retail_SqFt"
-                                                                  ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Vacant_SqFt"
-                                                                  ,""))]
+item225.dat <- buildings.interview.dat[which(colnames(buildings.interview.dat) %in% c("CK_Cadmus_ID"
+                                                                  ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership"))]
 
-colnames(item224.dat) <- c("CK_Cadmus_ID"
-                           ,"Grocery"
-                           ,"Office"
-                           ,"Other"
-                           ,"Retail"
-                           ,"Vacant")
+colnames(item225.dat) <- c("CK_Cadmus_ID", "Ownership")
 
-item224.dat[is.na(item224.dat)] <- 0
+item225.dat0 <- item225.dat[which(!(is.na(item225.dat$Ownership))),]
+item225.dat1 <- item225.dat0[which(item225.dat0$Ownership != "Unknown"),]
 
-for (i in 2:ncol(item224.dat)){
-  item224.dat[,i] <- as.numeric(as.character(item224.dat[,i]))
-}
 
-item224.dat$Total.Area <- item224.dat$Grocery + item224.dat$Office + item224.dat$Other + item224.dat$Retail + item224.dat$Vacant
+item225.dat2 <- left_join(item225.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+item225.dat2$count <- 1
 
-item224.melt <- melt(item224.dat, id = c("CK_Cadmus_ID","Total.Area"))
-colnames(item224.melt) <- c("CK_Cadmus_ID", "Total.Area", "Nonres.Type", "Area")
-
-item224.merge <- left_join(item224.melt, rbsa.dat, by = "CK_Cadmus_ID")
 
 #subset to only MF sites
-item224.dat1 <- item224.merge[which(item224.merge$BuildingTypeXX %in% c("Apartment Building (3 or fewer floors)"
+item225.dat3 <- item225.dat2[which(item225.dat2$BuildingTypeXX %in% c("Apartment Building (3 or fewer floors)"
                                                                         ,"Apartment Building (4 to 6 floors)"
                                                                         ,"Apartment Building (More than 6 floors)")),]
 
-#remove any zeros 
-item224.dat2 <- item224.dat1[which(item224.dat1$Total.Area != 0),]
-item224.dat2$count <- 0
-item224.dat2$count[which(item224.dat2$Area > 0)] <- 1
 
 #summarise by nonresidential type, across housing sizes
-item224.sum1 <- summarise(group_by(item224.dat2, Nonres.Type)
+item225.sum1 <- summarise(group_by(item225.dat3, Ownership)
                           ,BuildingTypeXX = "All Sizes"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Percent = sum(Area) / sum(Total.Area)
-                          ,SE = (Percent * (1 - Percent) / sqrt(SampleSize))
-                          ,SampleSize = sum(count))
+                          ,Count = sum(count))
 
 #summarise by nonresidential type and housing sizes
-item224.sum2 <- summarise(group_by(item224.dat2, BuildingTypeXX, Nonres.Type)
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Percent = sum(Area) / sum(Total.Area)
-                          ,SE = (Percent * (1 - Percent) / sqrt(SampleSize)))
+item225.sum2 <- summarise(group_by(item225.dat3, BuildingTypeXX, Ownership)
+                          ,Count = sum(count))
+
+
 
 #row bind
-item224.final <- rbind.data.frame(item224.sum1, item224.sum2, stringsAsFactors = F)
+item225.merge1 <- rbind.data.frame(item225.sum1, item225.sum2, stringsAsFactors = F)
 
-item224.cast <- dcast(setDT(item224.final)
-                      ,formula = Nonres.Type ~ BuildingTypeXX
-                      ,value.var = c("Percent","SE"))
+item225.sampleSizes <- summarise(group_by(item225.dat3, Ownership)
+                                ,SampleSize = length(unique(CK_Cadmus_ID)))
 
-item224.table <- data.frame("Nonresidential_Use_Type" = item224.cast$Nonres.Type
-                            ,"Low_Rise_1.3_Percent" = item224.cast$`Percent_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_SE" = item224.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Percent" = item224.cast$`Percent_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE" = item224.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Percent" = item224.cast$`Percent_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE" = item224.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Percent" = item224.cast$`Percent_All Sizes`
-                            ,"All_Sizes_SE" = item224.cast$`SE_All Sizes`
-                            ,"SampleSize" = item224.sum1$SampleSize)
+
+item225.merge2 <- left_join(item225.merge1, item225.sampleSizes, by = "Ownership")
+
+
+#get total counts
+item225.total.counts <- summarise(group_by(item225.merge2, BuildingTypeXX)
+                                  ,Total.Count = sum(Count))
+
+
+item225.final <- left_join(item225.merge2, item225.total.counts, by = "BuildingTypeXX")
+item225.final$Percent <- item225.final$Count / item225.final$Total.Count
+item225.final$SE <- sqrt(item225.final$Percent * (1 - item225.final$Percent) / item225.final$SampleSize)
+
+item225.cast <- dcast(setDT(item225.final)
+                      ,formula = Ownership ~ BuildingTypeXX
+                      ,value.var = c("Percent","SE", "SampleSize"))
+
+item225.table <- data.frame("Ownership" = item225.cast$Ownership
+                            ,"Low_Rise_1.3_Percent" = item225.cast$`Percent_Apartment Building (3 or fewer floors)`
+                            ,"Low_Rise_SE" = item225.cast$`SE_Apartment Building (3 or fewer floors)`
+                            # ,"Mid_Rise_4.6_Percent" = item225.cast$`Percent_Apartment Building (4 to 6 floors)`
+                            # ,"Mid_Rise_SE" = item225.cast$`SE_Apartment Building (4 to 6 floors)`
+                            # ,"High_Rise_7Plus_Percent" = item225.cast$`Percent_Apartment Building (More than 6 floors)`
+                            # ,"High_Rise_SE" = item225.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_Percent" = item225.cast$`Percent_All Sizes`
+                            ,"All_Sizes_SE" = item225.cast$`SE_All Sizes`
+                            ,"SampleSize" = item225.cast$`SampleSize_All Sizes`)
