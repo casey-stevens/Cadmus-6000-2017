@@ -110,16 +110,15 @@ item224.dat2$count[which(item224.dat2$Area > 0)] <- 1
 #summarise by nonresidential type, across housing sizes
 item224.sum1 <- summarise(group_by(item224.dat2, Nonres.Type)
                          ,BuildingTypeXX = "All Sizes"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Percent = sum(Area) / sum(Total.Area)
-                         ,SE = (Percent * (1 - Percent) / sqrt(SampleSize))
-                         ,SampleSize = sum(count))
+                         ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                         ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 #summarise by nonresidential type and housing sizes
 item224.sum2 <- summarise(group_by(item224.dat2, BuildingTypeXX, Nonres.Type)
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
                          ,Percent = sum(Area) / sum(Total.Area)
-                         ,SE = (Percent * (1 - Percent) / sqrt(SampleSize)))
+                         ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                         ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 #row bind
 item224.final <- rbind.data.frame(item224.sum1, item224.sum2, stringsAsFactors = F)
