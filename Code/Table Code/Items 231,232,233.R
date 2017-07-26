@@ -32,7 +32,7 @@ windows.dat1 <- windows.dat[which(colnames(windows.dat) %in% c("CK_Cadmus_ID"
 windows.dat2  <- left_join(rbsa.dat, windows.dat1, by = "CK_Cadmus_ID")
 length(unique(item232.windows1$CK_Cadmus_ID)) 
 #Subset to MF
-windows.dat3 <- windows.dat2[grep("Multifamily", item232.windows1$BuildingType),]
+windows.dat3 <- windows.dat2[grep("Multifamily", windows.dat2$BuildingType),]
 
 ##########################################
 # Calculate average window size per building
@@ -64,7 +64,7 @@ envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                "ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest"))]
 envelope.dat2 <- left_join(rbsa.dat, envelope.dat1, by = "CK_Cadmus_ID")
 length(unique(item232.env1$CK_Cadmus_ID)) #601
-envelope.dat3 <- envelope.dat2[grep("Multifamily", item232.env1$BuildingType),]
+envelope.dat3 <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType),]
 envelope.dat3$NumWindows <- 
   as.numeric(as.character(envelope.dat3$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorth)) +
   as.numeric(as.character(envelope.dat3$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNortheast)) +
@@ -159,3 +159,29 @@ item233.final <- data.frame("BuildingSize" = item233.sum$BuildingTypeXX,
                             "Mean" = item233.sum$Mean,
                             "SE" = item233.sum$SE,
                             "SampleSize" = item233.sum$SampleSize,stringsAsFactors = F)
+
+#############################################################################################
+#Item 231: Table 23
+#############################################################################################
+##########################################
+# Clean up window data
+##########################################
+windows231.dat <- windows.dat[which(colnames(windows.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Area",
+                                                               "Frame./.Body.Type",
+                                                               "Glazing.Type"))]
+windows231.dat2  <- left_join(rbsa.dat, windows231.dat, by = "CK_Cadmus_ID")
+length(unique(windows231.dat2$CK_Cadmus_ID)) 
+#Subset to MF
+windows231.dat3 <- windows.dat2[grep("Multifamily", windows231.dat2$BuildingType),]
+
+##########################################
+# Calculate average window size per building
+##########################################
+# make numeric
+windows231.dat3$Window_Area <- as.numeric(as.character(windows231.dat3$Area))
+# remove zeros (don't make sense)
+windows231.dat4 <- windows231.dat3[which(windows231.dat3$Window_Area > 0),]
+
+windows231.dat5 <- summarise(group_by(windows.dat4, CK_Cadmus_ID, BuildingTypeXX)
+                          ,AvgWindowArea = mean(Window_Area))
