@@ -130,10 +130,10 @@ item220.cast <- dcast(setDT(item220.merge2)
 item220.table <- data.frame("Room_Type" = item220.cast$Clean.Room
                             ,"Low_Rise_1.3_Mean" = item220.cast$`Mean_Apartment Building (3 or fewer floors)`
                             ,"Low_Rise_SE" = item220.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Mean" = item220.cast$`Mean_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE" = item220.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Mean" = item220.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE" = item220.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"Mid_Rise_4.6_Mean" = NA#item220.cast$`Mean_Apartment Building (4 to 6 floors)`
+                            ,"Mid_Rise_SE" = NA#item220.cast$`SE_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_7Plus_Mean" = NA#item220.cast$`Mean_Apartment Building (More than 6 floors)`
+                            ,"High_Rise_SE" = NA#item220.cast$`SE_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_Mean" = item220.cast$`Mean_All Sizes`
                             ,"All_Sizes_SE" = item220.cast$`SE_All Sizes`
                             ,"SampleSize" = item220.cast$`SampleSize_All Sizes`)

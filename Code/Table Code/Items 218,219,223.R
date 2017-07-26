@@ -32,19 +32,95 @@ rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 #############################################################################################
 # Item 218: AVERAGE CONDITIONED UNIT FLOOR AREA (SQ.FT.) BY VINTAGE AND UNIT TYPE (MF table 10)
 #############################################################################################
-item218.buildings <- buildings.dat[which(colnames(buildings.dat))]
+item218.dat <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
+                                                          ,"Area"
+                                                          ,"Clean.Type"
+                                                          ,"Description"))]
+
+item218.dat1 <- item218.dat[which(item218.dat$Clean.Type == "Bedroom"),]
+item218.dat1$count <- 1
+item218.dat1$Clean.Type[grep("Studio|studio",item218.dat1$Description)] <- "Studio"
+
+item218.sum <- summarise(group_by(item218.dat1, CK_Cadmus_ID, Clean.Type)
+                          ,Count = sum(count))
+
+
+item218.sum$Unit.Type <- item218.sum$Clean.Type
+item218.sum$Unit.Type[which(item218.sum$Count == 1 & item218.sum$Clean.Type == "Bedroom")]  <- "One Bedroom"
+item218.sum$Unit.Type[which(item218.sum$Count == 2 & item218.sum$Clean.Type == "Bedroom")]  <- "Two Bedroom"
+item218.sum$Unit.Type[which(item218.sum$Count >= 3 & item218.sum$Clean.Type == "Bedroom")]  <- "Three or More Bedrooms"
+unique(item218.sum$Unit.Type)
+
+item218.sum1 <- item218.sum[which(colnames(item218.sum) %in% c("CK_Cadmus_ID", "Unit.Type"))]
+
+item218.dat2 <- left_join(item218.sum1, item218.dat, by = "CK_Cadmus_ID")
+
+item218.dat3 <- left_join(item218.dat2, rbsa.dat, by = "CK_Cadmus_ID")
+item218.dat3 <- item218.dat3[which(!(is.na(item218.dat3$HomeYearBuilt_MF))),]
+#subset to only MF sites
+item218.dat3 <- item218.dat3[which(item218.dat3$BuildingTypeXX %in% c("Apartment Building (3 or fewer floors)"
+                                                                      ,"Apartment Building (4 to 6 floors)"
+                                                                      ,"Apartment Building (More than 6 floors)")),]
+
+
+item218.dat4 <- item218.dat3[which(!(item218.dat3$Area %in% c("-- Datapoint not asked for --", "NA", NA))),]
+item218.dat4$Area <- as.numeric(as.character(item218.dat4$Area))
+
+#summarise up to the site level
+item218.SITE <- summarise(group_by(item218.dat4, CK_Cadmus_ID, HomeYearBuilt_MF, Unit.Type)
+                               ,SiteArea = sum(Area))
+
+#summarise by vintage
+#by unit type
+item218.summarise1 <- summarise(group_by(item218.SITE, HomeYearBuilt_MF, Unit.Type)
+                                ,Mean = mean(SiteArea)
+                                ,SE = sd(SiteArea) / sqrt(length(unique(CK_Cadmus_ID)))
+                                ,SampleSize = length(unique(CK_Cadmus_ID)))
+#across unit type
+item218.summarise2 <- summarise(group_by(item218.SITE, HomeYearBuilt_MF)
+                                ,Unit.Type = "All Types"
+                                ,Mean = mean(SiteArea)
+                                ,SE = sd(SiteArea) / sqrt(length(unique(CK_Cadmus_ID)))
+                                ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+#summarise across vintage
+#by unit type
+item218.summarise3 <- summarise(group_by(item218.SITE, Unit.Type)
+                                ,HomeYearBuilt_MF = "All Vintages"
+                                ,Mean = mean(SiteArea)
+                                ,SE = sd(SiteArea) / sqrt(length(unique(CK_Cadmus_ID)))
+                                ,SampleSize = length(unique(CK_Cadmus_ID)))
+#across unit type
+item218.summarise4 <- summarise(group_by(item218.SITE)
+                                ,Unit.Type = "All Types"
+                                ,HomeYearBuilt_MF = "All Vintages"
+                                ,Mean = mean(SiteArea)
+                                ,SE = sd(SiteArea) / sqrt(length(unique(CK_Cadmus_ID)))
+                                ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+item218.final <- rbind.data.frame(item218.summarise1, item218.summarise2, item218.summarise3, item218.summarise4, stringsAsFactors = F)
+
+library(data.table)
+item218.cast <- dcast(setDT(item218.final)
+                      ,formula = HomeYearBuilt_MF ~ Unit.Type
+                      ,value.var = c("Mean", "SE", "SampleSize"))
 
 
 
-
-
-
-
-
-
-
-
-
+item218.table <- data.frame("Housing.Vintage" = item218.cast$HomeYearBuilt_MF
+                            ,"Studio.Mean" = item218.cast$Mean_Studio
+                            ,"Studio.SE" = item218.cast$SE_Studio
+                            ,"One.Bedroom.Mean" = item218.cast$`Mean_One Bedroom`
+                            ,"One.Bedroom.SE" = item218.cast$`SE_One Bedroom`
+                            ,"Two.Bedroom.Mean" = item218.cast$`Mean_Two Bedroom`
+                            ,"Two.Bedroom.SE" = item218.cast$`SE_Two Bedroom`
+                            ,"Three.or.More.Bedroom.Mean" = item218.cast$`Mean_Three or More Bedrooms`
+                            ,"Three.or.More.Bedroom.SE" = item218.cast$`SE_Three or More Bedrooms`
+                            ,"All.Types.Mean" = item218.cast$`Mean_All Types`
+                            ,"All.Types.SE" = item218.cast$`SE_All Types`
+                            ,"Sample.Size" = item218.cast$`SampleSize_All Types`)
 
 
 
