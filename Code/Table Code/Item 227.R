@@ -29,13 +29,14 @@ item227.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,"INTRVW_CUST_RES_DemographicsDemo_HowManyOfThePeopleWhoLiveHereAreAged_65Older"
                                                                                      ,""))])
 colnames(item227.dat) <- c("CK_Cadmus_ID"
-                           ,"Age_Less_Than_1"
                            ,"Age_1_5"
-                           ,"Age_6_10"
                            ,"Age_11_18"
                            ,"Age_19_45"
                            ,"Age_46_64"
-                           ,"Age_65_Older")
+                           ,"Age_6_10"
+                           ,"Age_65_Older"
+                           ,"Age_Less_Than_1"
+                           )
 
 item227.dat$count <- 1
 

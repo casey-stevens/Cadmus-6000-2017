@@ -34,8 +34,8 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat$BasementInd <- "No"
 basement.tmp <- envelope.dat$CK_Cadmus_ID[which(envelope.dat$Floor.Type == "Basement")]
 envelope.dat$BasementInd[which(envelope.dat$CK_Cadmus_ID %in% basement.tmp)] <- "Yes"
-envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID","Floor.Type", "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt", "BasementInd"))]
-colnames(envelope.dat1) <- c("CK_Cadmus_ID", "Floor_Area" ,"Floor_Type", "BasementInd")
+envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID","Floor.Type", "Floor.Area", "BasementInd"))]
+colnames(envelope.dat1) <- c("CK_Cadmus_ID","Floor_Type", "Floor_Area" , "BasementInd")
 
 #Rooms for MH and MF
 rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
@@ -76,7 +76,8 @@ length(unique(item35.rooms$CK_Cadmus_ID)) #601
 item35.windows$Window_Area <- as.numeric(as.character(item35.windows$Window_Area))
 
 # remove zeros (don't make sense)
-item35.windows1 <- item35.windows[which(item35.windows$Window_Area > 0),]
+item35.windows0 <- item35.windows[which(!(is.na(item35.windows$Window_Area))),]
+item35.windows1 <- item35.windows0[which(item35.windows0$Window_Area > 0),]
 
 
 item35.windows2 <- summarise(group_by(item35.windows1, CK_Cadmus_ID, BuildingType)

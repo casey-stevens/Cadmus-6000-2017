@@ -36,7 +36,9 @@ item179.dat0 <- item179.dat[which(item179.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item179.dat1 <- left_join(item179.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 unique(item179.dat1$Replacement_Windows)
 
-item179.dat2 <- item179.dat1[which(!(is.na(item179.dat1$Replacement_Windows))),]
+item179.dat1$Replacement_Windows[which(is.na(item179.dat1$Replacement_Windows))] <- "No"
+
+item179.dat2 <- item179.dat1
 
 item179.dat2$Replaced_Window_ind <- item179.dat2$Replacement_Windows
 item179.dat2$Replaced_Window_ind[which(item179.dat2$Replacement_Windows == "Yes")] <- 1

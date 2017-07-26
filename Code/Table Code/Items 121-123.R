@@ -111,13 +111,13 @@ item123.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,"INTRVW_CUST_RES_DemographicsDemo_HowManyOfThePeopleWhoLiveHereAreAged_65Older"
                                                                                      ,""))])
 colnames(item123.dat) <- c("CK_Cadmus_ID"
-                           ,"Age_Less_Than_1"
                            ,"Age_1_5"
-                           ,"Age_6_10"
                            ,"Age_11_18"
                            ,"Age_19_45"
                            ,"Age_46_64"
-                           ,"Age_65_Older")
+                           ,"Age_6_10"
+                           ,"Age_65_Older"
+                           ,"Age_Less_Than_1")
 item123.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -125,7 +125,7 @@ item123.dat0 <- item123.dat[which(item123.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
 item123.dat1 <- left_join(item123.dat0, rbsa.dat, by = "CK_Cadmus_ID")
-
+str(item123.dat1)
 item123.dat1$Age_0_18 <- item123.dat1$Age_Less_Than_1 + item123.dat1$Age_1_5 + item123.dat1$Age_6_10 + item123.dat1$Age_11_18
 item123.dat1$Age_19_64 <- item123.dat1$Age_19_45 + item123.dat1$Age_46_64
 

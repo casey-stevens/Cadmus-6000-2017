@@ -67,6 +67,8 @@ item1.table <- dcast(setDT(item1.tab.full1)
 
 item1.table1 <- data.frame("BuildingType" = item1.table$BuildingType
                              ,"Home.Type" = item1.table$Home.Type
+                             ,"Percent_ID" = ""
+                             ,"SE_ID" = ""
                              ,"Percent_MT" = item1.table$Percent_MT
                              ,"SE_MT" = item1.table$SE_MT
                              ,"Percent_OR" = item1.table$Percent_OR
@@ -77,8 +79,20 @@ item1.table1 <- data.frame("BuildingType" = item1.table$BuildingType
                              ,"SE_Region" = item1.table$SE_Region
                              ,"SampleSize" = item1.table$SampleSize_Region)
 
-item1.table.final <- item1.table1[which(item1.table1$BuildingType %in% c("Single Family", "Manufactured")),]
+item1.table.SF <- item1.table1[which(item1.table1$BuildingType %in% c("Single Family")),-1]
+item1.table.MH <- item1.table1[which(item1.table1$BuildingType %in% c("Manufactured")),-1]
 
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook.SF, sheet = "Table 8", x = item1.table.SF, startRow = 20)
+writeData(workbook.MH, sheet = "Table 7", x = item1.table.MH, startRow = 20)
+
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
@@ -129,12 +143,14 @@ item2.final$SE      <- sqrt((item2.final$Percent * (1 - item2.final$Percent)) / 
 
 #############################################################################################
 library(data.table)
-item2.table <- dcast(setDT(item2.tab.full1)
+item2.table <- dcast(setDT(item2.final)
                      ,formula = BuildingType + Housing.Vintage ~ State
                      ,value.var = c("Percent", "SE", "SampleSize"))
 
 item2.table1 <- data.frame("BuildingType" = item2.table$BuildingType
                            ,"Housing.Vintage" = item2.table$Housing.Vintage
+                           ,"Percent_ID" = NA
+                           ,"SE_ID" = NA
                            ,"Percent_MT" = item2.table$Percent_MT
                            ,"SE_MT" = item2.table$SE_MT
                            ,"Percent_OR" = item2.table$Percent_OR
@@ -147,6 +163,22 @@ item2.table1 <- data.frame("BuildingType" = item2.table$BuildingType
 
 item2.table2 <- item2.table1[which(item2.table1$BuildingType %in% c("Single Family", "Manufactured")),]
 item2.table.final <- item2.table2[which(!(is.na(item2.table2$Housing.Vintage))),]
+
+item2.table.SF <- item2.table.final[which(item2.table.final$BuildingType == "Single Family"),-1]
+item2.table.MH <- item2.table.final[which(item2.table.final$BuildingType == "Manufactured"),]
+
+
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook.SF, sheet = "Table 9", x = item2.table.SF, startRow = 20)
+writeData(workbook.MH, sheet = "Table 8", x = item2.table.MH, startRow = 20)
+
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
@@ -204,6 +236,8 @@ item6.table <- dcast(setDT(item6.tab.full1)
 
 item6.table1 <- data.frame("BuildingType" = item6.table$BuildingType
                            ,"BuildingHeight" = item6.table$BuildingHeight
+                           ,"Percent_ID" = NA
+                           ,"SE_ID" = NA
                            ,"Percent_MT" = item6.table$Percent_MT
                            ,"SE_MT" = item6.table$SE_MT
                            ,"Percent_OR" = item6.table$Percent_OR
@@ -215,3 +249,16 @@ item6.table1 <- data.frame("BuildingType" = item6.table$BuildingType
                            ,"SampleSize" = item6.table$SampleSize_Region)
 
 item6.table.final <- item6.table1[which(item6.table1$BuildingType %in% c("Single Family")),]
+
+item6.table.SF <- item6.table.final[which(item6.table.final$BuildingType == "Single Family"),-1]
+
+
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+workbook <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook, sheet = "Table 13", x = item6.table.SF, startRow = 20)
+
+saveWorkbook(workbook, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+
