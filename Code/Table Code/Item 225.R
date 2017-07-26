@@ -88,10 +88,22 @@ item225.cast <- dcast(setDT(item225.final)
 item225.table <- data.frame("Ownership" = item225.cast$Ownership
                             ,"Low_Rise_1.3_Percent" = item225.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low_Rise_SE" = item225.cast$`SE_Apartment Building (3 or fewer floors)`
-                            # ,"Mid_Rise_4.6_Percent" = item225.cast$`Percent_Apartment Building (4 to 6 floors)`
-                            # ,"Mid_Rise_SE" = item225.cast$`SE_Apartment Building (4 to 6 floors)`
-                            # ,"High_Rise_7Plus_Percent" = item225.cast$`Percent_Apartment Building (More than 6 floors)`
-                            # ,"High_Rise_SE" = item225.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"Mid_Rise_4.6_Percent" = NA#item225.cast$`Percent_Apartment Building (4 to 6 floors)`
+                            ,"Mid_Rise_SE" = NA#item225.cast$`SE_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_7Plus_Percent" = NA#item225.cast$`Percent_Apartment Building (More than 6 floors)`
+                            ,"High_Rise_SE" = NA#item225.cast$`SE_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_Percent" = item225.cast$`Percent_All Sizes`
                             ,"All_Sizes_SE" = item225.cast$`SE_All Sizes`
                             ,"SampleSize" = item225.cast$`SampleSize_All Sizes`)
+
+item225.table.MF <- item225.table
+
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+workbook.MF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MF - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook.MF, sheet = "Table 17", x = item225.table.MF, startRow = 20)
+
+saveWorkbook(workbook.MF, file = paste(outputFolder, "Tables in Excel - MF - COPY.xlsx", sep="/"), overwrite = T)
+

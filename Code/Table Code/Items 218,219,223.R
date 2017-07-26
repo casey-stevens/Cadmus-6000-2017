@@ -22,9 +22,35 @@ length(unique(buildings.dat$CK_Cadmus_ID)) #196/201 unique
 buildings.dat.clean <- buildings.dat[-which(duplicated(buildings.dat$CK_Cadmus_ID)),]
 
 
+#Read in data for analysis
+rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+#clean cadmus IDs
+rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
+
+
+
 #############################################################################################
 # Item 218: AVERAGE CONDITIONED UNIT FLOOR AREA (SQ.FT.) BY VINTAGE AND UNIT TYPE (MF table 10)
 #############################################################################################
+item218.buildings <- buildings.dat[which(colnames(buildings.dat))]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #############################################################################################
 # Item 219: PERCENTAGE BUILDINGS WITH CONDITIONED COMMON AREA BY BUILDING SIZE (MF table 11)
