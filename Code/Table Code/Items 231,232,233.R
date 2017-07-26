@@ -46,8 +46,20 @@ envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   "ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouth",
                                                                   "ENV_Fenestration_WINDOWS_NumOfWindowsFacingSoutheast",
                                                                   "ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouthwest",
- 
-                                                                                                                                   "ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest"))]
+                                                                  "ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest"))]
+
+envelope.dat1$TotalWindows <- 
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast)) + 
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorth)) +
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorthwest)) +
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNortheast)) +
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouth)) +
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSoutheast)) +
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouthwest)) +
+  as.numeric(as.character(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest))
+
+
+  
 #############################################################################################
 #Item 232: Table 24
 #############################################################################################
@@ -71,7 +83,7 @@ item232.windows2 <- item232.windows1[which(item232.windows1$Window_Area > 0),]
 
 
 item232.windows3 <- summarise(group_by(item232.windows2, CK_Cadmus_ID, BuildingTypeXX)
-                             ,WindowArea = sum(Window_Area))
+                             ,AvgWindowArea = mean(Window_Area))
 
 ##########################################
 # For WALL Area Average
@@ -82,14 +94,16 @@ item232.env2 <- item232.env1[which(item232.env1$Wall.Area > 0),]
 
 
 item232.env3 <- summarise(group_by(item232.env2, CK_Cadmus_ID, BuildingTypeXX)
-                              ,WallArea = sum(Wall.Area))
+                              ,WallArea = sum(Wall.Area)
+                              ,NumWindows = sum(TotalWindows,na.rm = T)
+                          )
 
 ##########################################
 # Merge Window and Floor Area
 ##########################################
 
 item232.dat <- left_join(item232.windows3, item232.env3, by = c("CK_Cadmus_ID", "BuildingTypeXX"))
-
+item232.dat$WindowArea <- item232.dat$AvgWindowArea * item232.dat$NumWindows
 #calculate the window to wall ratio
 item232.dat$WindowToWallArea <- item232.dat$WindowArea / item232.dat$WallArea
 
