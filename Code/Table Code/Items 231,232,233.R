@@ -209,6 +209,7 @@ windows231.dat4 <- windows231.dat3[which(windows231.dat3$Window_Area > 0
 windows231.dat5 <- summarise(group_by(windows231.dat4, CK_Cadmus_ID, HomeYearBuilt_MF,FramingCategory)
                              ,Window_Area = sum(Window_Area))
 windows231.dat5 <- data.frame(windows231.dat5,stringsAsFactors = F)
+
 windows231.AreaByFrameVintage <- summarise(group_by(windows231.dat5, HomeYearBuilt_MF,FramingCategory)
                                       ,WindowAreaFrameType = sum(Window_Area))
 
