@@ -178,7 +178,7 @@ windows231.dat3$Glazing[grep("Triple", windows231.dat3$Glazing)] <- "Triple Glaz
 windows231.dat3$Glazing[which(!(windows231.dat3$Glazing %in% c("Single Glazed", "Double Glazed", "Triple Glazed")))] <- "Unknown"
 
 windows231.dat3$FramingCategory <- paste(windows231.dat3$FrameType,windows231.dat3$Glazing)
-if 
+
 ##########################################
 # Calculate average window size per building
 ##########################################
