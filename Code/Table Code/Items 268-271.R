@@ -136,3 +136,209 @@ item268.table <- data.frame("Housing.Vintage" = item268.cast$HomeYearBuilt_MF
                             ,"None" = item268.cast$Percent_None
                             ,"None.SE" = item268.cast$SE_None
                             ,"SampleSize" = item268.cast$SampleSize)
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 269: DISTRIBUTION OF COMMON AREA CLOTHES WASHER TYPE BY WASHER VINTAGE (MF Table 61)
+#############################################################################################
+#subset to columns needed for analysis
+item269.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                    ,"CK_SiteID"
+                                                                    ,"Age"
+                                                                    ,"Type"
+                                                                    ,"Washer.Type"
+                                                                    ,"Iteration"
+                                                                    ,""
+                                                                    ,""))]
+item269.dat$count <- 1
+
+#join clean rbsa data onto appliances analysis data
+item269.dat0 <- left_join(item269.dat, rbsa.dat, by = "CK_Cadmus_ID")
+
+#remove missing vintage info
+item269.dat1 <- item269.dat0[which(!(is.na(item269.dat0$HomeYearBuilt_MF))),]
+
+#subset to only MF
+item269.dat2 <- item269.dat1[grep("Multifamily", item269.dat1$BuildingType),]
+
+#subset to only washers
+item269.dat3 <- item269.dat2[which(item269.dat2$Type %in% c("Washer")),]
+
+#subset to only common area washers
+item269.dat4 <- item269.dat3[grep("BLDG", item269.dat3$Iteration),]
+
+#subset to only common area washers that have observed age info
+item269.dat5 <- item269.dat4#[which(item269.dat4$Age > 0),]
+
+#####################
+# At this point, code will be needed to bin ages into categories according to previous table
+#####################
+
+
+#add counter
+item269.dat5$count <- 1
+
+#summarise by washer type
+#by measure age
+item269.sum1 <- summarise(group_by(item269.dat5, Washer.Type, Age)
+                          ,Count = sum(count))
+#across measure age
+item269.sum2 <- summarise(group_by(item269.dat5, Washer.Type)
+                          ,Age = "All Vintages"
+                          ,Count = sum(count))
+#summarise across washer type
+#by measure age
+item269.sum3 <- summarise(group_by(item269.dat5, Age)
+                          ,Washer.Type = "All Types"
+                          ,Count = sum(count))
+#across measure age
+item269.sum4 <- summarise(group_by(item269.dat5)
+                          ,Washer.Type = "All Types"
+                          ,Age = "All Vintages"
+                          ,Count = sum(count))
+
+item269.merge1 <- rbind.data.frame(item269.sum1,item269.sum2,item269.sum3,item269.sum4, stringsAsFactors = F)
+
+#Sample Sizes and total counts
+item269.tmp1 <- summarise(group_by(item269.dat5, Washer.Type)
+                          ,Total.Count = sum(count)
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item269.tmp2 <- summarise(group_by(item269.dat5)
+                          ,Washer.Type = "All Types"
+                          ,Total.Count = sum(count)
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item269.merge2 <- rbind.data.frame(item269.tmp1, item269.tmp2, stringsAsFactors = F)
+
+#merge on sample sizes
+item269.final <- left_join(item269.merge1, item269.merge2, by = "Washer.Type")
+item269.final$Total.Count[which(item269.final$Age == "All Vintages")] <- item269.final$Total.Count[which(item269.final$Age == "All Vintages" & item269.final$Washer.Type == "All Types")]
+
+#calculate percent and SE
+item269.final$Percent <- item269.final$Count / item269.final$Total.Count
+item269.final$SE <- sqrt(item269.final$Percent * (1 - item269.final$Percent) / item269.final$SampleSize)
+
+item269.cast <- dcast(setDT(item269.final)
+                      ,formula = Washer.Type + SampleSize ~ Age
+                      ,value.var = c("Percent", "SE"))
+
+item269.table <- data.frame("Clothes.Washer.Type" = item269.cast$Washer.Type
+                            ,"Pre.1980" = NA#item269.cast$
+                            ,"Pre.1980.SE" = NA#item269.cast$
+                            ,"1980.1989" = NA#item269.cast$
+                            ,"1980.1989.SE" = NA#item269.cast$
+                            ,"1990.1994" = NA#item269.cast$
+                            ,"1990.1994.SE" = NA#item269.cast$
+                            ,"1995.1999" = NA#item269.cast$
+                            ,"1995.1999.SE" = NA#item269.cast$
+                            ,"2000.2004" = NA#item269.cast$
+                            ,"2000.2004.SE" = NA#item269.cast$
+                            ,"2005.2009" = NA#item269.cast$
+                            ,"2005.2009.SE" = NA#item269.cast$
+                            ,"Post.2010" = NA#item269.cast$
+                            ,"Post.2010.SE" = NA#item269.cast$
+                            ,"All.Vintages" = item269.cast$`Percent_All Vintages`
+                            ,"All.Vintages.SE" = item269.cast$`SE_All Vintages`
+                            ,"SampleSize" = item269.cast$SampleSize)
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 270: (MF Table 62)
+#############################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 271: DISTRIBUTION OF COMMON AREA CLOTHES DRYER BY DRYER VINTAGE (MF Table 63)
+#############################################################################################
+#subset to columns needed for analysis
+item271.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                    ,"CK_SiteID"
+                                                                    ,"Age"
+                                                                    ,"Type"
+                                                                    ,"Iteration"
+                                                                    ,""
+                                                                    ,""))]
+item271.dat$count <- 1
+
+#join clean rbsa data onto appliances analysis data
+item271.dat0 <- left_join(item271.dat, rbsa.dat, by = "CK_Cadmus_ID")
+
+#remove missing vintage info
+item271.dat1 <- item271.dat0[which(!(is.na(item271.dat0$HomeYearBuilt_MF))),]
+
+#subset to only MF
+item271.dat2 <- item271.dat1[grep("Multifamily", item271.dat1$BuildingType),]
+
+#subset to only Dryers
+item271.dat3 <- item271.dat2[which(item271.dat2$Type %in% c("Dryer")),]
+
+#subset to only common area Dryers
+item271.dat4 <- item271.dat3[grep("BLDG", item271.dat3$Iteration),]
+
+#subset to only common area Dryers that have observed age info
+item271.dat5 <- item271.dat4#[which(item271.dat4$Age > 0),]
+
+#####################
+# At this point, code will be needed to bin ages into categories according to previous table
+#####################
+
+
+#add counter
+item271.dat5$count <- 1
+
+#summarise by AGE
+item271.sum1 <- summarise(group_by(item271.dat5, Age)
+                          ,Count = sum(count)
+                          ,Num.SampleSize = length(unique(CK_Cadmus_ID)))
+#across AGE
+item271.sum2 <- summarise(group_by(item271.dat5)
+                          ,Age = "All Vintages"
+                          ,Count = sum(count)
+                          ,Num.SampleSize = length(unique(CK_Cadmus_ID)))
+
+item271.merge1 <- rbind.data.frame(item271.sum1,item271.sum2, stringsAsFactors = F)
+
+item271.samplesize <- summarise(group_by(item271.dat5)
+                                ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item271.final <- data.frame(item271.merge1, item271.samplesize, stringsAsFactors = F)
+
+item271.final$Total.Count <- item271.sum2$Count
+item271.final$Percent <- item271.final$Count / item271.final$Total.Count
+item271.final$SE <- sqrt(item271.final$Percent * (1 - item271.final$Percent) / item271.final$SampleSize)
+
+
+item271.table <- data.frame("Dryer.Vintage" = item271.final$Age
+                            ,"Percent" = item271.final$Percent
+                            ,"SE" = item271.final$SE
+                            ,"SampleSize" = item271.final$Num.SampleSize)
