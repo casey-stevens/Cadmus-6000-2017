@@ -228,6 +228,9 @@ item262.table <- data.frame("Common.Area.Room.Type" = item262.cast$Clean.Room
 #Item 263: DISTRIBUTION OF COMMON AREA LIGHTING POWER (WATTS) BY CONTROL TYPE (MF Table 55)
 #############################################################################################
 item263.dat <- item260.dat5
+item263.dat$Switch.Type[grep("On/off", item263.dat$Switch.Type)] <- "Manual Switch"
+item263.dat$Switch.Type[grep("Other", item263.dat$Switch.Type)] <- "Other"
+
 
 
 #summarise up to the site level
