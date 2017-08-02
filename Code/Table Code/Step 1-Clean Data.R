@@ -59,6 +59,7 @@ sites.interview.export     <- paste("SITES INTERVIEW_"       , input.date, ".xls
 sites.export               <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
 water.export               <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
 windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
+survey.export              <- "NOT FOR PSE_RBSA_Survey_Data.xlsx"
 
 #############################################################################################
 #

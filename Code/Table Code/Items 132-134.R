@@ -18,6 +18,11 @@ sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.int
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
+#Read in data for analysis
+survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Combined")
+#clean cadmus IDs
+survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
+
 
 
 #############################################################################################
@@ -152,14 +157,30 @@ item133.table1 <- item133.table[which(item133.table$BuildingType %in% c("Single 
 #Item 134: PERCENTAGE OF HOUSEHOLDS REPORTING GAS SERVICE BY STATE (SF table 141, MH table 116)
 #############################################################################################
 #subset to columns needed for analysis
-item134.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,""
-                                                                                     ,""))])
-colnames(item134.dat) <- c("CK_Cadmus_ID", "", "")
-item134.dat$count <- 1
-
-#remove any repeat header rows from exporting
-item134.dat0 <- item134.dat[which(item134.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item134.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+                                                            ,"Does.your.home.use.natural.gas?"
+                                                            ,""))]
+colnames(item134.dat) <- c("Natural.Gas.Use", "CK_Cadmus_ID")
 
 #merge together analysis data with cleaned RBSA data
-item134.dat1 <- left_join(item134.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item134.dat1 <- left_join(rbsa.dat, item134.dat, by = "CK_Cadmus_ID")
+item134.dat1$count <- 1
+item134.dat1$Gas.Count <- 0
+item134.dat1$Gas.Count[which(item134.dat1$Natural.Gas.Use == "Yes")] <- 1
+
+unique(item134.dat1$Natural.Gas.Use)
+
+item134.dat2 <- item134.dat1[which(!(item134.dat1$Natural.Gas.Use %in% c(NA, "Don't know"))),]
+
+item34.state <- summarise(group_by(item134.dat2, BuildingType, State)
+                          ,Percent = sum(Gas.Count) / sum(count)
+                          ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID))) 
+item34.region <- summarise(group_by(item134.dat2, BuildingType)
+                           ,State = "Region"
+                          ,Percent = sum(Gas.Count) / sum(count)
+                          ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID))) 
+item34.final <- rbind.data.frame(item34.state, item34.region, stringsAsFactors = F)
+
+item34.table <- item34.final[which(item34.final$BuildingType %in% c("Single Family", "Manufactured")),]

@@ -18,25 +18,86 @@ sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.int
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
+#Read in data for analysis
+survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Combined")
+#clean cadmus IDs
+survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
+
 
 
 #############################################################################################
 #Item 128: DISTRIBUTION OF HOMES WITH GAS FUEL ASSISTANCE BY PERCENTAGE OF ASSISTANCE AND STATE (SF table 135, MH table 110)
 #############################################################################################
 #subset to columns needed for analysis
-item128.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,"INTRVW_CUST_RES_DemographicsDemo_DoesAnotherEntityPayPartOfYourGasBill_WhatShare"
-                                                                                     ,""))])
-colnames(item128.dat) <- c("CK_Cadmus_ID", "Gas_Fuel_Assistance")
-item128.dat$count <- 1
-
-#remove any repeat header rows from exporting
-item128.dat0 <- item128.dat[which(item128.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item128.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+                                                            ,"Does.your.household.receive.financial.assistance.to.pay.a.portion.or.all.of.your.gas.bill?"
+                                                            ,"For.what.share.does.your.household.receive.assistance?"))]
+colnames(item128.dat) <- c("Remove", "Financial.Assistance", "Percent.Assistance", "CK_Cadmus_ID")
+item128.dat0 <- item128.dat[which(colnames(item128.dat) != "Remove")]
 
 #merge together analysis data with cleaned RBSA data
-item128.dat1 <- left_join(item128.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item128.dat1 <- left_join(rbsa.dat, item128.dat0, by = "CK_Cadmus_ID")
+item128.dat1$count <- 1
 
-unique(item128.dat1$Gas_Fuel_Assistance)
+unique(item128.dat1$Financial.Assistance)
+
+item128.dat2 <- item128.dat1[which(!(is.na(item128.dat1$Financial.Assistance))),]
+
+item128.dat2$Percent.Assistance[which(is.na(item128.dat2$Percent.Assistance))] <- "No Utility Bill Assistance"
+
+#summarise by state
+# by percent assistance
+item128.state1 <- summarise(group_by(item128.dat2, BuildingType, State, Percent.Assistance)
+                            ,Count = sum(count)
+                            ,SampleSize = length(unique(CK_Cadmus_ID)))
+# across percent assistance
+item128.state2 <- summarise(group_by(item128.dat2, BuildingType, State)
+                            ,Percent.Assistance = "Total"
+                            ,Count = sum(count)
+                            ,SampleSize = length(unique(CK_Cadmus_ID)))
+#summarise by region
+# by percent assistance
+item128.region1 <- summarise(group_by(item128.dat2, BuildingType, Percent.Assistance)
+                             , State = "Region"
+                             ,Count = sum(count)
+                             ,SampleSize = length(unique(CK_Cadmus_ID)))
+# across percent assistance
+item128.region2 <- summarise(group_by(item128.dat2, BuildingType)
+                             ,State = "Region"
+                             ,Percent.Assistance = "Total"
+                             ,Count = sum(count)
+                             ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item128.merge <- rbind.data.frame(item128.state1, item128.state2, item128.region1, item128.region2, stringsAsFactors = F)
+
+item128.tot.count <- rbind.data.frame(item128.state2, item128.region2, stringsAsFactors = F)
+item128.tot.count <- item128.tot.count[which(colnames(item128.tot.count) %in% c("BuildingType","State", "Count", "SampleSize"))]
+colnames(item128.tot.count) <- c("BuildingType","State", "Total.Count", "Denom.SampleSize")
+
+item128.final <- left_join(item128.merge, item128.tot.count, by = c("BuildingType","State"))
+item128.final$Percent <- item128.final$Count / item128.final$Total.Count
+item128.final$SE <- sqrt(item128.final$Percent * (1 - item128.final$Percent) / item128.final$Denom.SampleSize)
+
+item128.cast <- dcast(setDT(item128.final)
+                      ,formula = BuildingType + Percent.Assistance ~ State
+                      ,value.var = c("Percent", "SE", "SampleSize"))
+
+
+item128.table <- data.frame("BuildingType" = item128.cast$BuildingType
+                            ,"Percent.Assistance" = item128.cast$Percent.Assistance
+                            ,"Percent_ID" = NA#item128.cast$Percent_ID
+                            ,"SE_ID" = NA#item128.cast$SE_ID
+                            ,"Percent_MT" = item128.cast$Percent_MT
+                            ,"SE_MT" = item128.cast$SE_MT
+                            ,"Percent_OR" = NA#item128.cast$Percent_OR
+                            ,"SE_OR" = NA#item128.cast$SE_OR
+                            ,"Percent_WA" = item128.cast$Percent_WA
+                            ,"SE_WA" = item128.cast$SE_WA
+                            ,"Percent_Region" = item128.cast$Percent_Region
+                            ,"SE_Region" = item128.cast$SE_Region
+                            ,"SampleSize" = item128.cast$SampleSize_Region)
+
+item128.table1 <- item128.table[which(item128.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 

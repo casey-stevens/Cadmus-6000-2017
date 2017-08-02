@@ -366,9 +366,39 @@ item31.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Ceiling.Area"
                                                                , "Ceiling.Insulated?"
                                                                , "Ceiling.Insulation.Type.1"
-                                                               , "Ceiling.Insulation.Thickness.1"))]
+                                                               , "Ceiling.Insulation.Thickness.1"
+                                                               , "Ceiling.Insulation.Condition.1"                                                 
+                                                               , "Ceiling.Insulation.Type.2"                                                      
+                                                               , "Ceiling.Insulation.Thickness.2"                                                 
+                                                               , "Ceiling.Insulation.Condition.2"                                                 
+                                                               , "Ceiling.Insulation.Type.3"                                                      
+                                                               , "Ceiling.Insulation.Thickness.3"))]
 item31.dat1 <- item31.dat[which(item31.dat$Ceiling.Type == "Roof Deck"),]
 length(unique(item31.dat1$CK_Cadmus_ID)) #only 18
 
 item31.dat1$`Ceiling.Insulated?`[which(is.na(item31.dat1$`Ceiling.Insulated?`))] <- "No"
+item31.dat1$count <- 1
 
+item31.dat2 <- item31.dat1[which(item31.dat1$`Ceiling.Insulated?` == "Yes"),]
+
+item31.sum1 <- summarise(group_by(item31.dat2, Ceiling.Insulation.Thickness.1)
+                         ,Count = sum(count)
+                         ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item31.sum2 <- summarise(group_by(item31.dat2)
+                         ,Ceiling.Insulation.Thickness.1 = "Total"
+                         ,Count = sum(count)
+                         ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item31.final <- rbind.data.frame(item31.sum1, item31.sum2, stringsAsFactors = F)
+
+item31.final$Total.Count <- item31.sum2$Count
+item31.final$Denom.SampleSize <- item31.sum2$SampleSize
+
+item31.final$Percent <- item31.final$Count / item31.final$Total.Count
+item31.final$SE <- sqrt(item31.final$Percent * (1 - item31.final$Percent) / item31.final$Denom.SampleSize)
+
+item31.table <- data.frame("Insulation.Level" = item31.final$Ceiling.Insulation.Thickness.1
+                           ,"Percent" = item31.final$Percent
+                           ,"SE" = item31.final$SE
+                           ,"SampleSize" = item31.final$SampleSize)

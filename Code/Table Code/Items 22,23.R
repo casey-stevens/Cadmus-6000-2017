@@ -21,11 +21,34 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 #############################################################################################
 #subset envelope data to necessary columns
 item22.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                               , "ENV_Construction_BLDG_STRUCTURE_FoundationType"
                                                                , "Foundation"
                                                                , ""))]
 
-item22.dat1 <- item22.dat[grep("crawl|Crawl", item22.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType),]
+item22.dat1 <- unique(item22.dat[grep("crawl|Crawl", item22.dat$Foundation),])
+
+item22.dat2 <- left_join(rbsa.dat, item22.dat1, by = "CK_Cadmus_ID")
+
+item22.dat2$count <- 1
+item22.dat2$FloorOverCrawl <- 0
+item22.dat2$FloorOverCrawl[which(item22.dat2$Foundation == "Crawlspace")] <- 1
+
+#SUBSET TO ONLY SINGLE FAMILY
+item22.dat3 <- item22.dat2[which(item22.dat2$BuildingType == "Single Family"),]
+
+item22.state <- summarise(group_by(item22.dat3, State)
+                          ,Percent = sum(FloorOverCrawl) / sum(count)
+                          ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item22.region <- summarise(group_by(item22.dat3)
+                           ,State = "Region"
+                           ,Percent = sum(FloorOverCrawl) / sum(count)
+                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item22.final <- rbind.data.frame(item22.state, item22.region, stringsAsFactors = F)
+
+
 
 
 
