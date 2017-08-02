@@ -18,6 +18,11 @@ sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.int
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
+#Read in data for analysis
+survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Combined")
+#clean cadmus IDs
+survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
+
 
 
 
@@ -92,53 +97,37 @@ item139.table1 <- item139.table[which(item139.table$BuildingType %in% c("Single 
 #Item 140: PERCENTAGE OF HOUSEHOLDS REPORTING RECENT USE OF UTILITY CONSERVATION PROGRAMS BY STATE (SF table 147, MH table 122)
 #############################################################################################
 #subset to columns needed for analysis
-item140.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,"INTRVW_CUST_RES_ConservationEffortsParticipate_Utility_Conservation_Program_LastTwoYears_Y_N"
-                                                                                     ,""))])
+item140.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+                                                            ,"Did.you.receive.a.rebate.or.incentive.from.your.utility.for.making.any.energy-efficiency.improvements.or.installing.energy-efficiency.equipment.in.the.last.two.years?"
+                                                            ,""))]
 
-colnames(item140.dat) <- c("CK_Cadmus_ID", "Reporting")
-#remove any repeat header rows from exporting
-item140.dat0 <- item140.dat[which(item140.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+colnames(item140.dat) <- c("Reporting", "CK_Cadmus_ID")
 
-item140.dat0.5 <- item140.dat0[which(!(is.na(item140.dat0$Reporting))),]
-item140.dat1   <- item140.dat0.5[which(item140.dat0.5$Reporting != "Unknown"),]
+item140.dat1   <- item140.dat[which(!(item140.dat$Reporting %in% c(NA, "Don't know", "Prefer not to say"))),]
+unique(item140.dat1$Reporting)
 
-
-item140.dat2 <- left_join(item140.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+item140.dat2 <- left_join(rbsa.dat, item140.dat1, by = "CK_Cadmus_ID")
+item140.dat2$Reporting.Count <- 0
+item140.dat2$Reporting.Count[which(item140.dat2$Reporting == "Yes")] <- 1
 item140.dat2$count <- 1
 
 #summarise by state
-#by reporting
-item140.state1 <- summarise(group_by(item140.dat2, BuildingType, State, Reporting)
-                            ,Count = sum(count))
-#obtain sample sizes and total counts
-item140.state2 <- summarise(group_by(item140.dat2, BuildingType, State)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Total.Count = sum(count))
-
-item140.state <- left_join(item140.state1, item140.state2, by = c("BuildingType", "State"))
-
+item140.state <- summarise(group_by(item140.dat2, BuildingType, State)
+                           ,Percent = sum(Reporting.Count) / sum(count)
+                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 #summarise across states
 #by reporting
-item140.region1 <- summarise(group_by(item140.dat2, BuildingType, Reporting)
-                             ,State = "Region"
-                             ,Count = sum(count))
-#obtain sample sizes and total counts
-item140.region2 <- summarise(group_by(item140.dat2, BuildingType)
-                             ,State = "Region"
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                             ,Total.Count = sum(count))
-
-item140.region <- left_join(item140.region1, item140.region2, by = c("BuildingType", "State"))
+item140.region <- summarise(group_by(item140.dat2, BuildingType)
+                            ,State = "Region"
+                            ,Percent = sum(Reporting.Count) / sum(count)
+                            ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                            ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
-item140.merge <- rbind.data.frame(item140.state, item140.region, stringsAsFactors = F)
+item140.final <- rbind.data.frame(item140.state, item140.region, stringsAsFactors = F)
 
-
-item140.final <- item140.merge[which(item140.merge$Reporting == "Yes"),]
-item140.final$Percent <- item140.final$Count / item140.final$Total.Count
-item140.final$SE <- sqrt(item140.final$Percent * (1 - item140.final$Percent) / item140.final$SampleSize)
 
 #put columns in correct order
 item140.table <- data.frame("BuildingType" = item140.final$BuildingType
@@ -171,59 +160,40 @@ item141.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,"INTRVW_CUST_RES_ConservationEffortsConversation_DidYouReceiveATaxCreditForThisWork_Y_N"
                                                                                      ,""))])
 
-colnames(item141.dat) <- c("CK_Cadmus_ID", "Reporting")
+colnames(item141.dat) <- c("CK_Cadmus_ID", "Reporting.tax")
 #remove any repeat header rows from exporting
 item141.dat0 <- item141.dat[which(item141.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item141.dat0.5 <- item141.dat0[which(!(is.na(item141.dat0$Reporting))),]
-item141.dat1   <- item141.dat0.5[which(item141.dat0.5$Reporting != "Unknown"),]
+item141.dat1   <- item141.dat0[which(item141.dat0$Reporting.tax %in% c("Yes", "No")),]
 
-
-item141.dat2 <- left_join(item141.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+item141.dat2 <- left_join(rbsa.dat, item141.dat1, by = "CK_Cadmus_ID")
 item141.dat2$count <- 1
+item141.dat2$Reporting.tax.count <- 0
+item141.dat2$Reporting.tax.count[which(item141.dat2$Reporting.tax == "Yes")] <- 1
+
 
 #summarise by state
-#by reporting
-item141.state1 <- summarise(group_by(item141.dat2, BuildingType, State, Reporting)
-                            ,Count = sum(count))
-#obtain sample sizes and total counts
-item141.state2 <- summarise(group_by(item141.dat2, BuildingType, State)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Total.Count = sum(count))
-
-item141.state <- left_join(item141.state1, item141.state2, by = c("BuildingType", "State"))
+#by Reporting.tax
+item141.state <- summarise(group_by(item141.dat2, BuildingType, State)
+                           ,Percent = sum(Reporting.tax.count) / sum(count)
+                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 #summarise across states
-#by reporting
-item141.region1 <- summarise(group_by(item141.dat2, BuildingType, Reporting)
-                             ,State = "Region"
-                             ,Count = sum(count))
-#obtain sample sizes and total counts
-item141.region2 <- summarise(group_by(item141.dat2, BuildingType)
-                             ,State = "Region"
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                             ,Total.Count = sum(count))
-
-item141.region <- left_join(item141.region1, item141.region2, by = c("BuildingType", "State"))
+#by Reporting.tax
+item141.region <- summarise(group_by(item141.dat2, BuildingType)
+                            ,State = "Region"
+                            ,Percent = sum(Reporting.tax.count) / sum(count)
+                            ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                            ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
-item141.merge <- rbind.data.frame(item141.state, item141.region, stringsAsFactors = F)
+item141.final <- rbind.data.frame(item141.state, item141.region, stringsAsFactors = F)
 
-
-item141.final <- item141.merge[which(item141.merge$Reporting == "Yes"),]
-item141.final$Percent <- item141.final$Count / item141.final$Total.Count
-item141.final$SE <- sqrt(item141.final$Percent * (1 - item141.final$Percent) / item141.final$SampleSize)
-
-#put columns in correct order
-item141.table <- data.frame("BuildingType" = item141.final$BuildingType
-                            ,"State" = item141.final$State
-                            ,"Percent" = item141.final$Percent
-                            ,"SE" = item141.final$SE
-                            ,"SampleSize" = item141.final$SampleSize)
 
 #subset to only relevant buildingtypes
-item141.table1 <- item141.table[which(item141.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item141.table <- item141.final[which(item141.final$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
@@ -240,62 +210,35 @@ item141.table1 <- item141.table[which(item141.table$BuildingType %in% c("Single 
 #############################################################################################
 #Item 142: PERCENTAGE OF HOUSEHOLDS REPORTING USE OF BOTH UTILITY AND TAX CREDIT CONSERVATION PROGRAMS (SF table 149, MH table 124)
 #############################################################################################
-#subset to columns needed for analysis
-item142.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,"INTRVW_CUST_RES_ConservationEffortsConversation_DidYouReceiveATaxCreditForThisWork_Y_N"
-                                                                                     ,"INTRVW_CUST_RES_ConservationEffortsParticipate_Utility_Conservation_Program_LastTwoYears_Y_N"))])
+item141.tmp <- item141.dat2[which(colnames(item141.dat2) %in% c("CK_Cadmus_ID"
+                                                                ,"Reporting.tax"
+                                                                ,"Reporting.tax.count"))]
+item142.dat <- left_join(item140.dat2, item141.tmp, by = "CK_Cadmus_ID")
 
-colnames(item142.dat) <- c("CK_Cadmus_ID", "Reporting.Utility", "Reporting.Tax.Credit")
-#remove any repeat header rows from exporting
-item142.dat0 <- item142.dat[which(item142.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item142.dat$Total.Reporting.Count <- 0
+item142.dat$Total.Reporting.Count[which(item142.dat$Reporting.Count == 1 & item142.dat$Reporting.tax.count == 1)] <- 1
 
-# item142.dat0.5 <- item142.dat0[which(!(is.na(item142.dat0$Reporting))),]
-# item142.dat1   <- item142.dat0.5[which(item142.dat0.5$Reporting != "Unknown"),]
-
-
-item142.dat2 <- left_join(item142.dat1, rbsa.dat, by = "CK_Cadmus_ID")
-item142.dat2$count <- 1
+unique(item142.dat$Total.Reporting.Count)
 
 #summarise by state
-#by reporting
-item142.state1 <- summarise(group_by(item142.dat2, BuildingType, State, Reporting)
-                            ,Count = sum(count))
-#obtain sample sizes and total counts
-item142.state2 <- summarise(group_by(item142.dat2, BuildingType, State)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Total.Count = sum(count))
-
-item142.state <- left_join(item142.state1, item142.state2, by = c("BuildingType", "State"))
+#by Reporting.tax
+item142.state <- summarise(group_by(item142.dat, BuildingType, State)
+                           ,Percent = sum(Total.Reporting.Count) / sum(count)
+                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 #summarise across states
-#by reporting
-item142.region1 <- summarise(group_by(item142.dat2, BuildingType, Reporting)
-                             ,State = "Region"
-                             ,Count = sum(count))
-#obtain sample sizes and total counts
-item142.region2 <- summarise(group_by(item142.dat2, BuildingType)
-                             ,State = "Region"
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                             ,Total.Count = sum(count))
-
-item142.region <- left_join(item142.region1, item142.region2, by = c("BuildingType", "State"))
+#by Reporting.tax
+item142.region <- summarise(group_by(item142.dat, BuildingType)
+                            ,State = "Region"
+                            ,Percent = sum(Total.Reporting.Count) / sum(count)
+                            ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                            ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
-item142.merge <- rbind.data.frame(item142.state, item142.region, stringsAsFactors = F)
+item142.final <- rbind.data.frame(item142.state, item142.region, stringsAsFactors = F)
 
-
-item142.final <- item142.merge[which(item142.merge$Reporting == "Yes"),]
-item142.final$Percent <- item142.final$Count / item142.final$Total.Count
-item142.final$SE <- sqrt(item142.final$Percent * (1 - item142.final$Percent) / item142.final$SampleSize)
-
-#put columns in correct order
-item142.table <- data.frame("BuildingType" = item142.final$BuildingType
-                            ,"State" = item142.final$State
-                            ,"Percent" = item142.final$Percent
-                            ,"SE" = item142.final$SE
-                            ,"SampleSize" = item142.final$SampleSize)
 
 #subset to only relevant buildingtypes
-item142.table1 <- item142.table[which(item142.table$BuildingType %in% c("Single Family", "Manufactured")),]
-
+item142.table <- item142.final[which(item142.final$BuildingType %in% c("Single Family", "Manufactured")),]
