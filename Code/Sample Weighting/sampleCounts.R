@@ -240,6 +240,7 @@ samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <-
 ##                                      ##
 ##########################################
 
+
 utilFix <- samp.dat.4[,which(names(samp.dat.4) %in% c("CK_Cadmus_ID"
                                                       , "ZIPCode"
                                                       , "Utility.x"
@@ -260,8 +261,9 @@ samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="WH1221")]           <- "CITY
 ##  Based on which sample round
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SG0048 OS SCL")]    <- "SEATTLE CITY LIGHT"
 
-##  Still needs fix
-# samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SE2257 OS SCL")]    <- "SCL -OR- PSE"
+##  Fix missing state/region
+samp.dat.4$State[which(samp.dat.4$CK_Cadmus_ID =="MM0574")]  <- "MT"
+samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="MM0574")] <- "W"
 
 
 ##  Fix BPA vs IOU
@@ -274,7 +276,7 @@ samp.dat.4$BPA_vs_IOU[which(samp.dat.4$Utility == "MISSOULA ELECTRIC COOP")] <- 
 
 ##  Remove old utility columns and duplicate rows
 samp.dat.5 <- unique(samp.dat.4[,-which(names(samp.dat.4) %in% c("Utility.x", "Utility.y"))])
-which(duplicated(samp.dat.5$CK_Cadmus_ID))
+which(duplicated(samp.dat.5$CK_Cadmus_ID)) ## All duplicates removed
 
 ##  Last fixes
 ##  Still needs fix
@@ -306,8 +308,8 @@ unique(sampCounts.0$Utility)
       sampCounts.0$BPA_vs_IOU[grep("PUGET SOUND",     sampCounts.0$Utility)]    == "IOU"
 
 # Assign strata
-sampCounts.0$Strata[which(sampCounts.0$BPA_vs_IOU == "BPA")]       <- "BPA"
-sampCounts.0$Strata[which(sampCounts.0$BPA_vs_IOU == "IOU")]       <- "Non-BPA"
+sampCounts.0$Strata[which(sampCounts.0$BPA_vs_IOU == "BPA")]          <- "BPA"
+sampCounts.0$Strata[which(sampCounts.0$BPA_vs_IOU == "IOU")]          <- "Non-BPA/PSE"
 sampCounts.0$Strata[grep("SNOHOMISH",          sampCounts.0$Utility)] <- "SnoPUD"
 sampCounts.0$Strata[grep("PUGET SOUND",        sampCounts.0$Utility)] <- "PSE"
 sampCounts.0$Strata[grep("SEATTLE CITY LIGHT", sampCounts.0$Utility)] <- "SCL"
@@ -340,7 +342,7 @@ popCounts.0$Strata <- rep("MISSING", nrow(popCounts.0))
 
 # Assign strata
 popCounts.0$Strata[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
-popCounts.0$Strata[which(popCounts.0$BPA_vs_IOU == "IOU")]    <- "Non-BPA"
+popCounts.0$Strata[which(popCounts.0$BPA_vs_IOU == "IOU")]    <- "Non-BPA/PSE"
 popCounts.0$Strata[grep("SNOHOMISH",    popCounts.0$Utility)] <- "SnoPUD"
 popCounts.0$Strata[grep("PUGET SOUND",  popCounts.0$Utility)] <- "PSE"
 popCounts.0$Strata[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL"
