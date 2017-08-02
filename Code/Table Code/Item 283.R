@@ -36,8 +36,8 @@ colnames(item283.dat)
 colnames(item283.dat) <- c("CK_Cadmus_ID"
                            ,"CK_SiteID"
                            ,"Cooling.Setpoint"
-                           ,"Cooling.Setup"
-                           ,"Heating.Setback"
+                           ,"Cooling.at.Night"
+                           ,"Heating.at.Night"
                            ,"Heating.Setpoint")
 
 #subset to only buidling level information
@@ -61,3 +61,72 @@ item283.sum1 <- summarise(item283.dat3
                           ,Mean = mean(Heating.Setpoint)
                           ,SE = sd(Heating.Setpoint) / sqrt(length(unique(CK_Cadmus_ID)))
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+############################
+# For Percent Heating Setback
+############################
+item283.dat4 <- item283.dat2[which(!(item283.dat2$Heating.Setpoint %in% c(NA, 0))),]
+item283.dat5 <- item283.dat4[which(!(item283.dat4$Heating.at.Night %in% c(NA, 0))),]
+item283.dat5$Heating.Setback.Ind <- 0
+item283.dat5$Heating.Setback.Ind[which(item283.dat5$Heating.at.Night < item283.dat5$Heating.Setpoint)] <- 1
+item283.dat5$count <- 1
+
+#please note: Mean here is actually a percent, named Mean for combining purposes
+item283.sum2 <- summarise(item283.dat5
+                          ,Category = "Percent.Heating.Setback"
+                          ,Mean = sum(Heating.Setback.Ind) / sum(count)
+                          ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+############################
+# For Average Heating Setback
+############################
+item283.dat6 <- item283.dat5
+item283.dat6$Heating.Setback <- item283.dat6$Heating.Setpoint - item283.dat6$Heating.at.Night
+
+item283.sum3 <- summarise(item283.dat6
+                          ,Category = "Average.Heating.Setback"
+                          ,Mean = mean(Heating.Setback)
+                          ,SE = sd(Heating.Setback) / sqrt(length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+############################
+# For Cooling Setpoint
+############################
+item283.dat7 <- item283.dat2[which(!(item283.dat2$Cooling.Setpoint %in% c(NA, 0))),]
+
+item283.sum4 <- summarise(item283.dat7
+                          ,Category = "Cooling.Setpoint"
+                          ,Mean = mean(Cooling.Setpoint)
+                          ,SE = sd(Cooling.Setpoint) / sqrt(length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+############################
+# For Percent Cooling Setup
+############################
+item283.dat8 <- item283.dat7
+item283.dat9 <- item283.dat8[which(!(item283.dat8$Cooling.at.Night %in% c(NA, 0))),]
+item283.dat9$Cooling.Setup.Ind <- 0
+item283.dat9$Cooling.Setup.Ind[which(item283.dat9$Cooling.at.Night > item283.dat9$Cooling.Setpoint)] <- 1
+item283.dat9$count <- 1
+
+#please note: Mean here is actually a percent, named Mean for combining purposes
+item283.sum5 <- summarise(item283.dat9
+                          ,Category = "Percent.Cooling.Setup"
+                          ,Mean = sum(Cooling.Setup.Ind) / sum(count)
+                          ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+
+############################
+# Combine
+############################
+item283.final <- rbind.data.frame(item283.sum1
+                                  ,item283.sum2
+                                  ,item283.sum3
+                                  ,item283.sum4
+                                  ,item283.sum5
+                                  ,stringsAsFactors = F)
