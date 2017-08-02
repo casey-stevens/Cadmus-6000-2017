@@ -60,9 +60,11 @@ names(id_zip.dat)
 id_zip.dat1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
                           , "ZIPCode"        = id_zip.dat$SITE_ZIP
                           , "Utility"        = id_zip.dat$Utility
+                          , "MeterType"      = id_zip.dat$Type
                           , stringsAsFactors = F)
 id_zip.dat1$CK_Cadmus_ID <- trimws(toupper(id_zip.dat1$CK_Cadmus_ID))
-id_zip.dat1$Utility <- trimws(toupper(id_zip.dat1$Utility))
+id_zip.dat1$Utility      <- trimws(toupper(id_zip.dat1$Utility))
+id_zip.dat1$MeterType    <- trimws(toupper(id_zip.dat1$MeterType))
 id_zip.dat1$ZIPCode      <- as.numeric(substr(id_zip.dat1$ZIPCode, 1, 5))  ## Remove ZIP-Ext
 length(unique(id_zip.dat1$CK_Cadmus_ID))  ## 567 unique respondent ID's
 
@@ -71,6 +73,12 @@ id_zip.dat1$invalidZIP <- rep(0, nrow(id_zip.dat1))
 id_zip.dat1$invalidZIP[which(id_zip.dat1$ZIPCode < 10000)] <- 1
 id_zip.dat1$invalidZIP[which(is.na(id_zip.dat1$ZIPCode))] <- 1
 
+# Subset to electric meters only
+id_zip.dat2 <- id_zip.dat1[which(id_zip.dat1$MeterType == "ELECTRIC"),]
+
+      ##  QA/QC: Any lost customers?
+      length(unique(id_zip.dat1$CK_Cadmus_ID)) == length(unique(id_zip.dat2$CK_Cadmus_ID))
+      ##  0 lost customers
 
 # Import ZIP code mapping
 zipMap.dat <- read.xlsx(xlsxFile = file.path(filepathWeightingDocs, popZIP.datMap), sheet=1)
@@ -93,7 +101,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
 
       ##  QA/QC: Check names of utilities for mismatches
       sort(unique(zipMap.dat1$Utility), decreasing=F)
-      sort(unique(id_zip.dat1$Utility), decreasing=F)
+      sort(unique(id_zip.dat2$Utility), decreasing=F)
       
       ##  Fix mismatches
       zipMap.dat1$Utility[which(zipMap.dat1$Utility == "PUD NO 1 OF SKAMANIA CO")] <-
@@ -133,7 +141,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
       # id_zip.dat1$Utility[chkZip]
       
       ##  QA/QC: How many missing?
-      length(id_zip.dat1$Utility[which(id_zip.dat1$Utility == "-- DID NOT ENTER! --")])  ## 62 not entered
+      length(id_zip.dat2$Utility[which(id_zip.dat2$Utility == "-- DID NOT ENTER! --")])  ## 0 not entered
       
       
 #############################################################################################
@@ -141,16 +149,16 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
 #############################################################################################
 
 # Join ZIP codes to building type data
-samp.dat.0       <- left_join(cleanRBSA.dat1, id_zip.dat1, by="CK_Cadmus_ID")
+samp.dat.0       <- left_join(cleanRBSA.dat1, id_zip.dat2, by="CK_Cadmus_ID")
 # Join ZIP mapping to previous step
 samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by="ZIPCode")
 samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
 head(samp.dat.1)  ##  959 rows
 
 ##  Replace missing utility from sample data with utility from zip code mapping
-missingInd <- which(samp.dat.1$Utility.x == "-- DID NOT ENTER! --")
+# missingInd <- which(samp.dat.1$Utility.x == "-- DID NOT ENTER! --")
 samp.dat.2 <- samp.dat.1
-samp.dat.2$Utility.x[missingInd] <- samp.dat.2$Utility.y[missingInd]
+# samp.dat.2$Utility.x[missingInd] <- samp.dat.2$Utility.y[missingInd]
 
 # Remove full row duplicates
 dupRows    <- which(duplicated(samp.dat.2))  
@@ -219,7 +227,7 @@ for(cntr in 1:length(dupCustIDs)) {
 
 ##  Subset to ID and Utility column and merge back into sample data
 names(dupUtil.0)
-dupUtil.1  <- unique(dupUtil.0[,c(1,11)])
+dupUtil.1  <- unique(dupUtil.0[,c(1,12)])
 samp.dat.4 <- left_join(samp.dat.3, dupUtil.1, by="CK_Cadmus_ID")
 
 ##  For non-duplicates, use cust data
@@ -253,7 +261,7 @@ samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="WH1221")]           <- "CITY
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SG0048 OS SCL")]    <- "SEATTLE CITY LIGHT"
 
 ##  Still needs fix
-samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SE2257 OS SCL")]    <- "SCL -OR- PSE"
+# samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SE2257 OS SCL")]    <- "SCL -OR- PSE"
 
 
 ##  Fix BPA vs IOU
@@ -270,14 +278,14 @@ which(duplicated(samp.dat.5$CK_Cadmus_ID))
 
 ##  Last fixes
 ##  Still needs fix
-samp.dat.5$Utility[which(samp.dat.5$CK_Cadmus_ID == "MS3162 OS")]    <- "MISSOULA ELECTRIC COOP -OR- NORTHWESTERN ENERGY"
-samp.dat.5$BPA_vs_IOU[which(samp.dat.5$CK_Cadmus_ID == "MS3162 OS")] <- NA
+# samp.dat.5$Utility[which(samp.dat.5$CK_Cadmus_ID == "MS3162 OS")]    <- "MISSOULA ELECTRIC COOP -OR- NORTHWESTERN ENERGY"
+# samp.dat.5$BPA_vs_IOU[which(samp.dat.5$CK_Cadmus_ID == "MS3162 OS")] <- NA
 ##  Remove invalid ZIP and leave correct record
-samp.dat.5 <- samp.dat.5[-which(samp.dat.5$CK_Cadmus_ID == "SG0200 OS SCL" &
-                                is.na(samp.dat.5$State)),] ##
+# samp.dat.5 <- samp.dat.5[-which(samp.dat.5$CK_Cadmus_ID == "SG0200 OS SCL" &
+                                # is.na(samp.dat.5$State)),] ##
 
 # Summarize sample counts
-sampCounts.0 <- summarise(group_by(samp.dat.6
+sampCounts.0 <- summarise(group_by(samp.dat.5
                                  , BuildingType, State, Region, Utility, BPA_vs_IOU)
                         , n = sum(tally))
 
