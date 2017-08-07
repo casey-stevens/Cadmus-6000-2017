@@ -71,18 +71,38 @@ item162.mechanical <- item162.sum1
 #
 #############################################################################################
 item162.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                                ,"ENV_Construction_BLDG_STRUCTURE_FoundationType"
+                                                                ,"Foundation"
                                                                 ,""))]
 
 item162.dat0 <- left_join(item162.dat, item162.mechanical, by = "CK_Cadmus_ID")
 
 
-item162.dat0.1 <- left_join(rbsa.dat, item162.dat0, by = "CK_Cadmus_ID")
-item162.dat1 <- item162.dat0.1[which(item162.dat0.1$Heating.Fuel == "Electric"),]
-length(unique(item162.dat1$CK_Cadmus_ID))#326
+item162.dat1 <- unique(item162.dat0[grep("crawl|Crawl", item162.dat0$Foundation),])
 
-#subset to only single family homes
-item162.dat2 <- item162.dat1[which(item162.dat1$BuildingType == "Single Family"),]
+item162.dat2 <- left_join(rbsa.dat, item162.dat1, by = "CK_Cadmus_ID")
+
+item162.dat2$count <- 1
+item162.dat2$FloorOverCrawl <- 0
+item162.dat2$FloorOverCrawl[which(item162.dat2$Foundation == "Crawlspace")] <- 1
+
+#SUBSET TO ONLY SINGLE FAMILY
+item162.dat3 <- item162.dat2[which(item162.dat2$BuildingType == "Single Family"),]
+
+#subset to only electrically heated homes
+item162.dat4 <- item162.dat3[which(item162.dat3$Heating.Fuel == "Electric"),]
+
+item162.state <- summarise(group_by(item162.dat4, State)
+                          ,Percent = sum(FloorOverCrawl) / sum(count)
+                          ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item162.region <- summarise(group_by(item162.dat4)
+                           ,State = "Region"
+                           ,Percent = sum(FloorOverCrawl) / sum(count)
+                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
+                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+
+item162.final <- rbind.data.frame(item162.state, item162.region, stringsAsFactors = F)
 
 
 

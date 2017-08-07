@@ -206,25 +206,26 @@ item269.sum4 <- summarise(group_by(item269.dat5)
                           ,Age = "All Vintages"
                           ,Count = sum(count))
 
-item269.merge1 <- rbind.data.frame(item269.sum1,item269.sum2,item269.sum3,item269.sum4, stringsAsFactors = F)
+item269.final <- rbind.data.frame(item269.sum1,item269.sum2,item269.sum3,item269.sum4, stringsAsFactors = F)
 
-#Sample Sizes and total counts
+#Sample Sizes
 item269.tmp1 <- summarise(group_by(item269.dat5, Washer.Type)
-                          ,Total.Count = sum(count)
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 item269.tmp2 <- summarise(group_by(item269.dat5)
                           ,Washer.Type = "All Types"
-                          ,Total.Count = sum(count)
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 item269.merge2 <- rbind.data.frame(item269.tmp1, item269.tmp2, stringsAsFactors = F)
 
 #merge on sample sizes
 item269.final <- left_join(item269.merge1, item269.merge2, by = "Washer.Type")
-item269.final$Total.Count[which(item269.final$Age == "All Vintages")] <- item269.final$Total.Count[which(item269.final$Age == "All Vintages" & item269.final$Washer.Type == "All Types")]
+
+#calculate total count for entire table (denominator of percent)
+item269.final$Total.Count <- item269.final$Count[which(item269.final$Washer.Type == "All Types" & item269.final$Washer.Age == "All Vintages")]
 
 #calculate percent and SE
 item269.final$Percent <- item269.final$Count / item269.final$Total.Count
 item269.final$SE <- sqrt(item269.final$Percent * (1 - item269.final$Percent) / item269.final$SampleSize)
+
 
 item269.cast <- dcast(setDT(item269.final)
                       ,formula = Washer.Type + SampleSize ~ Age
@@ -262,8 +263,16 @@ item269.table <- data.frame("Clothes.Washer.Type" = item269.cast$Washer.Type
 
 
 #############################################################################################
-#Item 270: (MF Table 62)
+#Item 270: AVERAGE NUMBER OF CLOTHES WASHER LOADS PER WEEK BY LAUNDRY TYPE (MF Table 62)
 #############################################################################################
+
+
+
+
+
+
+
+
 
 
 
