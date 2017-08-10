@@ -25,7 +25,8 @@ GroundContactTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "Grou
 GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) != "Notes")]
 
 #subset to columns need in table
-env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
+env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                            , "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
 env.dat1 <- env.dat[which(!(is.na(env.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType))),]
 
 #merge table columns to generic columns
@@ -121,7 +122,8 @@ item3.table.final <- item3.table1[which(item3.table1$BuildingType %in% c("Single
 # Item 4: AVERAGE CONDITIONED FLOOR AREA BY STATE
 #############################################################################################
 
-item4.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+item4.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                              , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
 
 #merge
 item4.dat1 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
