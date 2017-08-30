@@ -41,7 +41,7 @@ bldg.export   <- "SITES_2017.06.16.xlsx"
 
 # Import clean RBSA data
 cleanRBSA.dat <- read.xlsx(paste(filepathCleanData
-                                 , paste("clean.rbsa.data", rundate, ".xlsx", sep = "")
+                                 , paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")
                                  , sep="/")
 )
 names(cleanRBSA.dat)
@@ -413,6 +413,14 @@ allCounts.1$N.h <- as.numeric(allCounts.1$N.h)
 ######Some are still missing???
 
 # Compute expansion weights
-allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
+# allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
 
+
+
+
+
+
+##  Exportt clean data merged with weights
+write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 

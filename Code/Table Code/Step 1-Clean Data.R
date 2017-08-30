@@ -245,7 +245,7 @@ length(unique(rbsa.dat5$CK_Cadmus_ID)) #601
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
 
