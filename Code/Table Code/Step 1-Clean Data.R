@@ -121,9 +121,9 @@ rbsa.dat <- site.dat1
 
 # Convert building types to what we want
 rbsa.dat$BuildingType <- rbsa.dat$BuildingTypeXX
-rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Apartment Building (3 or fewer floors)")] <- "Multifamily - Low Rise"
-rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Apartment Building (4 to 6 floors)")] <- "Multifamily - High Rise"
-rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Apartment Building (More than 6 floors)")] <- "Multifamily - High Rise"
+rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Apartment Building (3 or fewer floors)")] <- "Multifamily"
+rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Apartment Building (4 to 6 floors)")] <- "Multifamily"
+rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Apartment Building (More than 6 floors)")] <- "Multifamily"
 rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Single Wide" | rbsa.dat$BuildingType == "Double Wide"| rbsa.dat$BuildingType == "Triple Wide")] <- "Manufactured"
 rbsa.dat$BuildingType[which(rbsa.dat$BuildingType == "Townhome or Rowhome" | rbsa.dat$BuildingType == "Duplex, Triplex, or Fourplex" | rbsa.dat$BuildingType == "Single Family Detached")] <- "Single Family"
 unique(rbsa.dat$BuildingType)
@@ -211,10 +211,10 @@ missing.ind <- unique(rbsa.dat2$CK_Cadmus_ID[which(!(rbsa.dat2$CK_Cadmus_ID %in%
 rbsa.dat2[which(rbsa.dat2$CK_Cadmus_ID %in% missing.ind),]
 
 #update building type (generic)
-rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL2263 OS SCL")]   <- "Multifamily - Low Rise"
+rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL2263 OS SCL")]   <- "Multifamily" #- Low Rise
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SG0048 OS SCL")]   <- "Single Family"
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "SL1953 OS SCL")]   <- "Single Family"
-rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "WM1463PM")]        <- "Multifamily - High Rise"
+rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "WM1463PM")]        <- "Multifamily" #- High Rise
 rbsa.dat2$BuildingType[which(rbsa.dat2$CK_Cadmus_ID == "MS3085")]          <- "Single Family"
 
 # update building type (specific)
