@@ -21,11 +21,7 @@
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
-                                           ,paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
-rbsa.dat$n_h <- 1
-rbsa.dat$N_h <- 1
-rbsa.dat$count <- 1
-
+                                           ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
@@ -39,12 +35,12 @@ item1.dat$count <- 1
 ########################
 #summarise by home type
 item1.state <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX, State)
-                              ,Count = sum((N_h / n_h) * count)
+                              ,Count = sum((N.h / n.h) * count)
                               ,SampleSize = "")
 #summarise across home types (total level)
 item1.state.tot <- summarise(group_by(item1.dat, BuildingType, State)
                               ,BuildingTypeXX = "Total"
-                              ,Count = sum(N_h / n_h * count)
+                              ,Count = sum(N.h / n.h * count)
                               ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be used for SE Calcs
 item1.state.full <- rbind.data.frame(item1.state, item1.state.tot, stringsAsFactors = F)
 
@@ -54,13 +50,13 @@ item1.state.full <- rbind.data.frame(item1.state, item1.state.tot, stringsAsFact
 #by home types
 item1.region <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
                                ,State = "Region"
-                               ,Count = sum(N_h / n_h * count)
+                               ,Count = sum(N.h / n.h * count)
                                ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table
 #summarise across home types
 item1.region.tot <- summarise(group_by(item1.dat, BuildingType)
                                ,BuildingTypeXX = "Total"
                                ,State = "Region"
-                               ,Count = sum(N_h / n_h * count)
+                               ,Count = sum(N.h / n.h * count)
                                ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table AND used for SE Calcs
 item1.region.full <- rbind.data.frame(item1.region, item1.region.tot, stringsAsFactors = F)
 

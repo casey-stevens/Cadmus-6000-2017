@@ -7,21 +7,6 @@
 ##  Description:      Code to import and count pop and sample sizes for each 
 ##                    post-strata region
 #############################################################################################
-
-# #  Clear variables
-# rm(list=ls())
-# rundate <-  format(Sys.time(), "%d%b%y")
-# options(scipen=999)
-# 
-# ##  Include packages
-# library(plyr)
-# library(dplyr)
-# library(lubridate)
-# library(tidyr)
-# library(openxlsx)
-# library(stringr)
-# library(data.table)
-
 ################################################################################
 # Use FILEPATHS from Step 1 for folders and file names of:
 # - METER data
@@ -87,13 +72,16 @@ id_zip.dat1$invalidZIP[which(id_zip.dat1$ZIPCode < 10000)] <- 1
 id_zip.dat1$invalidZIP[which(is.na(id_zip.dat1$ZIPCode))] <- 1
 
 # Subset to electric meters only
-# id_zip.dat2.0 <- id_zip.dat1[which(id_zip.dat1$MeterType != "THERMOSTAT"),]
-id_zip.dat2.1 <- id_zip.dat1[with(id_zip.dat1, order(MeterType, decreasing = F)),]
+id_zip.dat2.0 <- id_zip.dat1[which(id_zip.dat1$MeterType != "THERMOSTAT"),]
+id_zip.dat2.1 <- id_zip.dat2.0[with(id_zip.dat2.0, order(MeterType, decreasing = F)),]
+which(duplicated(id_zip.dat2.1$CK_Cadmus_ID))
 id_zip.dat2   <- id_zip.dat2.1[which(!(duplicated(id_zip.dat2.1$CK_Cadmus_ID))),]
 
       ##  QA/QC: Any lost customers?
       length(unique(id_zip.dat1$CK_Cadmus_ID)) == length(unique(id_zip.dat2$CK_Cadmus_ID))
-      ##  0 lost customers
+      
+      length(unique(id_zip.dat1$CK_Cadmus_ID)) - length(unique(id_zip.dat2$CK_Cadmus_ID))
+      ##  35 lost customers
 
       
       
@@ -336,10 +324,30 @@ which(duplicated(samp.dat.5$CK_Cadmus_ID)) ## All duplicates removed
 ############   NEED TO FIX   #############
 samp.dat.4[which(samp.dat.4$CK_Cadmus_ID == "BPS26690 OS BPA"),]
 
+## remove missing information FOR NOW -- this will be corrected in the final data
+
+samp.dat.6 <- samp.dat.5[which(!(is.na(samp.dat.5$State))),]
+# Subset and define strata
+# Initialize the vector for strata names
+samp.dat.6$Strata <- rep("MISSING", nrow(samp.dat.6))
+unique(samp.dat.6$Utility)
+
+##  QA/QC: Make sure oversample utilities are in expected BPA territory
+samp.dat.6$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.6$Utility)] == "BPA"
+samp.dat.6$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.6$Utility)]    == "BPA"
+samp.dat.6$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.6$Utility)]    == "IOU"
+
+# Assign strata
+samp.dat.6$Strata[which(samp.dat.6$BPA_vs_IOU == "BPA")]          <- "BPA"
+samp.dat.6$Strata[which(samp.dat.6$BPA_vs_IOU == "IOU")]          <- "Non-BPA/PSE"
+samp.dat.6$Strata[grep("SNOHOMISH",          samp.dat.6$Utility)] <- "SnoPUD"
+samp.dat.6$Strata[grep("PUGET SOUND",        samp.dat.6$Utility)] <- "PSE"
+samp.dat.6$Strata[grep("SEATTLE CITY LIGHT", samp.dat.6$Utility)] <- "SCL"
+
 
 
 # Summarize sample counts
-sampCounts.0 <- summarise(group_by(samp.dat.5
+sampCounts.0 <- summarise(group_by(samp.dat.6
                                    , BuildingType, State, Region, Utility, BPA_vs_IOU)
                           , n = sum(tally))
 
@@ -369,7 +377,6 @@ sampCounts.0$Strata[grep("SEATTLE CITY LIGHT", sampCounts.0$Utility)] <- "SCL"
 sampCounts.1 <- summarise(group_by(sampCounts.0, 
                                    BuildingType, State, Region, Strata)
                           , n.h = sum(n))
-      
       
 #############################################################################################
 # Count population sizes
@@ -437,18 +444,24 @@ allCounts.1 <- allCounts.0[,-which(names(allCounts.0) %in% c("N_SF.h", "N_MH.h",
 allCounts.1$n.h <- as.numeric(allCounts.1$n.h)
 allCounts.1$N.h <- as.numeric(allCounts.1$N.h)
 
-
-######Some are still missing???
-
 # Compute expansion weights
-# allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
+allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
+
+allCounts.final <- allCounts.1[which(!(is.na(allCounts.1$State))),]
 
 
 
+samp.dat.7 <- left_join(samp.dat.6, allCounts.final, by = c("BuildingType"
+                                                         ,"State"
+                                                         ,"Region"
+                                                         ,"Strata"))
 
+samp.dat.8 <- samp.dat.7[which(!(is.na(samp.dat.7$N.h))),]
+
+samp.dat.final <- left_join(samp.dat.8, cleanRBSA.dat)
 
 
 ##  Export clean data merged with weights
-write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
