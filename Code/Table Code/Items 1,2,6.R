@@ -6,16 +6,14 @@
 ##  Billing Code(s):  6596.0000.0002.1002.0000
 #############################################################################################
 #############################################################################################
-# For tables 1, 2, 6 - this code will summarize information to match the previous RBSA table
+# For items 1, 2, 6 - this code will summarize information to match the previous RBSA table
 #   Step 1: Obtain the count distribution of home type within each state
 #     as well as total information before a cast
 #   Step 2: Obtain the count distribution of home types across states (i.e. within region)
 #     as well as total information before a cast
 #   Step 3: Part a: Extract Sample Sizes for standard error calculations and join them onto 
 #             State and region information
-#           Part b: Sample size shown in the table needs to be the sample sizes for the 
-#             Region level information in each category but the sample size for the SE 
-#             calculation needs to be Home Type Total count within each state/region
+#           Part b: Note which sample sizes are to be used in the final tables
 #   Step 4: Calculate estimates and standard errors 
 #   Step 5: Put data into correct format for creating tables
 #   Step 6: Subset tables by building type and export to respective workbooks
@@ -24,9 +22,9 @@
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
                                            ,paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
-rbsa.dat$Weight <- 1
-
-
+rbsa.dat$n_h <- 1
+rbsa.dat$N_h <- 1
+rbsa.dat$count <- 1
 
 
 #############################################################################################
@@ -41,12 +39,12 @@ item1.dat$count <- 1
 ########################
 #summarise by home type
 item1.state <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX, State)
-                              ,Count = sum(Weight)
+                              ,Count = sum((N_h / n_h) * count)
                               ,SampleSize = "")
 #summarise across home types (total level)
 item1.state.tot <- summarise(group_by(item1.dat, BuildingType, State)
                               ,BuildingTypeXX = "Total"
-                              ,Count = sum(Weight)
+                              ,Count = sum(N_h / n_h * count)
                               ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be used for SE Calcs
 item1.state.full <- rbind.data.frame(item1.state, item1.state.tot, stringsAsFactors = F)
 
@@ -56,13 +54,13 @@ item1.state.full <- rbind.data.frame(item1.state, item1.state.tot, stringsAsFact
 #by home types
 item1.region <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
                                ,State = "Region"
-                               ,Count = sum(Weight)
+                               ,Count = sum(N_h / n_h * count)
                                ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table
 #summarise across home types
 item1.region.tot <- summarise(group_by(item1.dat, BuildingType)
                                ,BuildingTypeXX = "Total"
                                ,State = "Region"
-                               ,Count = sum(Weight)
+                               ,Count = sum(N_h / n_h * count)
                                ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table AND used for SE Calcs
 item1.region.full <- rbind.data.frame(item1.region, item1.region.tot, stringsAsFactors = F)
 
@@ -73,7 +71,7 @@ item1.full <- rbind.data.frame(item1.state.full, item1.region.full, stringsAsFac
 
 
 ##################################################
-# Step 3 (part b): Sample Sizes for SEs
+# Step 3 (part a): Sample Sizes for SEs
 ##################################################
 # Extract sample sizes for standard error calculations from the Total Row information for states and region
 #   and subset to only columns needed
@@ -89,7 +87,7 @@ colnames(item1.full1) <- c("BuildingType"
                            , "Home.Type"
                            , "State"
                            , "Count"
-                           , "Remove.SampleSize" # -- This sample size is only used for the report table
+                           , "Remove.SampleSize" # Step 3 (part b) -- This sample size is only used for the report table
                            , "Total.Count"
                            , "SampleSize")
 
@@ -105,17 +103,13 @@ item1.full1$SE      <- sqrt((item1.full1$Percent * (1 - item1.full1$Percent)) / 
 
 
 
-## Step 3 (part b): Fix sample size for Region as they should appear in the report tables 
-#     Note: this needs to be done after the SEs have been calcualted
-item1.full1$SampleSize[which(item1.full1$State == "Region")] <- item1.full1$Remove.SampleSize[which(item1.full1$State == "Region")]
-
 ##################################################
 # Step 5: Cast data and create table
 ##################################################
 library(data.table)
 item1.table <- dcast(setDT(item1.full1)
                      ,formula = BuildingType + Home.Type ~ State
-                     ,value.var = c("Percent", "SE", "SampleSize"))
+                     ,value.var = c("Percent", "SE", "Remove.SampleSize"))
 
 item1.table1 <- data.frame("BuildingType"      = item1.table$BuildingType
                              ,"Home.Type"      = item1.table$Home.Type
@@ -129,7 +123,7 @@ item1.table1 <- data.frame("BuildingType"      = item1.table$BuildingType
                              ,"SE_WA"          = item1.table$SE_WA
                              ,"Percent_Region" = item1.table$Percent_Region
                              ,"SE_Region"      = item1.table$SE_Region
-                             ,"SampleSize"     = item1.table$SampleSize_Region)
+                             ,"SampleSize"     = item1.table$Remove.SampleSize_Region)
 
 
 ##################################################
@@ -205,18 +199,27 @@ item2.region.full <- rbind.data.frame(item2.region, item2.region.tot, stringsAsF
 
 
 ##################################################
-# Step 3 (part b): Sample Sizes for SEs
+# Step 3 (part a): Sample Sizes for SEs
 ##################################################
 # Extract sample sizes for standard error calculations from the Total Row information for states and region
 #   and subset to only columns needed
 item2.total <- rbind.data.frame(item2.state.tot, item2.region.tot, stringsAsFactors = F)
-item2.total1 <- item2.total[which(colnames(item2.total) %in% c("BuildingType", "State", "Count", "SampleSize"))]
+item2.total1 <- item2.total[which(colnames(item2.total) %in% c("BuildingType"
+                                                               , "State"
+                                                               , "Count"
+                                                               , "SampleSize"))]
 
 #rbind state and region information
 item2.full <- rbind.data.frame(item2.state.full, item2.region.full, stringsAsFactors = F)
 
 item2.full1 <- left_join(item2.full, item2.total1, by = c("BuildingType", "State"))
-colnames(item2.full1) <- c("BuildingType", "Housing.Vintage", "State", "Count", "Remove.SampleSize", "Total.Count", "SampleSize")
+colnames(item2.full1) <- c("BuildingType"
+                           , "Housing.Vintage"
+                           , "State"
+                           , "Count"
+                           , "Remove.SampleSize" # Step 3 (part b) -- This sample size is only used for the report table
+                           , "Total.Count"
+                           , "SampleSize")
 
 
 
@@ -229,11 +232,6 @@ colnames(item2.full1) <- c("BuildingType", "Housing.Vintage", "State", "Count", 
 item2.full1$Percent <- item2.full1$Count / item2.full1$Total.Count
 # the denominator of this SE is the sample size of the denominator in the percent
 item2.full1$SE      <- sqrt((item2.full1$Percent * (1 - item2.full1$Percent)) / item2.full1$SampleSize)
-
-
-## Step 3 (part b): Fix sample size for Region as they should appear in the report tables 
-#     Note: this needs to be done after the SEs have been calcualted
-item2.full1$SampleSize[which(item2.full1$State == "Region")] <- item2.full1$Remove.SampleSize[which(item2.full1$State == "Region")]
 
 
 
@@ -257,7 +255,7 @@ item2.table1 <- data.frame("BuildingType"     = item2.table$BuildingType
                            ,"SE_WA"           = item2.table$SE_WA
                            ,"Percent_Region"  = item2.table$Percent_Region
                            ,"SE_Region"       = item2.table$SE_Region
-                           ,"SampleSize"      = item2.table$SampleSize_Region)
+                           ,"SampleSize"      = item2.table$Remove.SampleSize_Region)
 
 item2.table2 <- item2.table1[which(item2.table1$BuildingType %in% c("Single Family", "Manufactured")),]
 item2.table.final <- item2.table2[which(!(is.na(item2.table2$Housing.Vintage))),]
@@ -270,7 +268,7 @@ item2.table.final <- item2.table2[which(!(is.na(item2.table2$Housing.Vintage))),
 # and export to correct workbook
 ##################################################
 item2.table.SF <- item2.table.final[which(item2.table.final$BuildingType == "Single Family"),-1]
-item2.table.MH <- item2.table.final[which(item2.table.final$BuildingType == "Manufactured"),]
+item2.table.MH <- item2.table.final[which(item2.table.final$BuildingType == "Manufactured"),-1]
 
 
 library(openxlsx)
@@ -343,7 +341,7 @@ item6.region.full <- rbind.data.frame(item6.region, item6.region.tot, stringsAsF
 
 
 ##################################################
-# Step 3 (part b): Sample Sizes for SEs
+# Step 3 (part a): Sample Sizes for SEs
 ##################################################
 item6.total <- rbind.data.frame(item6.state.tot, item6.region.tot, stringsAsFactors = F)
 item6.total1 <- item6.total[which(colnames(item6.total) %in% c("BuildingType"
@@ -359,7 +357,7 @@ colnames(item6.full1) <- c("BuildingType"
                            , "BuildingHeight"
                            , "State"
                            , "Count"
-                           , "Remove.SampleSize"
+                           , "Remove.SampleSize" # Step 3 (part b) -- This sample size is only used for the report table
                            , "Total.Count"
                            , "SampleSize")
 
@@ -373,11 +371,6 @@ item6.full1$Percent <- item6.full1$Count / item6.full1$Total.Count
 item6.full1$SE      <- sqrt((item6.full1$Percent * (1 - item6.full1$Percent)) / item6.full1$SampleSize)
 
 
-## Step 3 (part b): Fix sample size for Region as they should appear in the report tables 
-#     Note: this needs to be done after the SEs have been calcualted
-item6.full1$SampleSize[which(item6.full1$State == "Region")] <- item6.full1$Remove.SampleSize[which(item6.full1$State == "Region")]
-
-
 
 ##################################################
 # Step 5: Cast data and create table
@@ -389,8 +382,8 @@ item6.table <- dcast(setDT(item6.full1)
 
 item6.table1 <- data.frame("BuildingType"    = item6.table$BuildingType
                            ,"BuildingHeight" = item6.table$BuildingHeight
-                           ,"Percent_ID"     = NA
-                           ,"SE_ID"          = NA
+                           ,"Percent_ID"     = NA #missing for now, only partial data, placeholder until we get full data
+                           ,"SE_ID"          = NA #missing for now, only partial data, placeholder until we get full data
                            ,"Percent_MT"     = item6.table$Percent_MT
                            ,"SE_MT"          = item6.table$SE_MT
                            ,"Percent_OR"     = item6.table$Percent_OR
@@ -399,7 +392,7 @@ item6.table1 <- data.frame("BuildingType"    = item6.table$BuildingType
                            ,"SE_WA"          = item6.table$SE_WA
                            ,"Percent_Region" = item6.table$Percent_Region
                            ,"SE_Region"      = item6.table$SE_Region
-                           ,"SampleSize"     = item6.table$SampleSize_Region)
+                           ,"SampleSize"     = item6.table$Remove.SampleSize_Region)
 
 item6.table.final <- item6.table1[which(item6.table1$BuildingType %in% c("Single Family")),]
 

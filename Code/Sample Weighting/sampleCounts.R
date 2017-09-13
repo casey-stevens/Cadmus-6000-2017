@@ -59,10 +59,10 @@ unique(cleanRBSA.dat1$BuildingType)
 
 # Import ID and ZIP data
 id_zip.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1)
-names(id_zip.dat)
+length(unique(id_zip.dat$CK_Cadmus_ID))
 
 zipFromSites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, bldg.export), sheet=1)
-zipCodes <- zipFromSites.dat[which(colnames(zipFromSites.dat) %in% c("CK_Cadmus_ID","SITE_ZIP"))]
+zipCodes <- unique(zipFromSites.dat[which(colnames(zipFromSites.dat) %in% c("CK_Cadmus_ID","SITE_ZIP"))])
 
 # subset to necessary columns
 id_zip.dat0.1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
@@ -70,7 +70,9 @@ id_zip.dat0.1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
                           , "Utility"        = id_zip.dat$Utility
                           , "MeterType"      = id_zip.dat$Type
                           , stringsAsFactors = F)
-id_zip.dat1 <- unique(left_join(id_zip.dat0.1,zipCodes, by="CK_Cadmus_ID"))
+id_zip.dat1 <- unique(left_join(zipCodes, id_zip.dat0.1, by = "CK_Cadmus_ID"))
+length(unique(id_zip.dat1$CK_Cadmus_ID))
+colnames(id_zip.dat1) <- c("CK_Cadmus_ID", "ZIPCode","Utility","MeterType")
 
 # clean and count Cadmus IDs, clean utility and meter type
 id_zip.dat1$CK_Cadmus_ID <- trimws(toupper(id_zip.dat1$CK_Cadmus_ID))
@@ -85,7 +87,9 @@ id_zip.dat1$invalidZIP[which(id_zip.dat1$ZIPCode < 10000)] <- 1
 id_zip.dat1$invalidZIP[which(is.na(id_zip.dat1$ZIPCode))] <- 1
 
 # Subset to electric meters only
-id_zip.dat2 <- id_zip.dat1[which(id_zip.dat1$MeterType == "ELECTRIC"),]
+# id_zip.dat2.0 <- id_zip.dat1[which(id_zip.dat1$MeterType != "THERMOSTAT"),]
+id_zip.dat2.1 <- id_zip.dat1[with(id_zip.dat1, order(MeterType, decreasing = F)),]
+id_zip.dat2   <- id_zip.dat2.1[which(!(duplicated(id_zip.dat2.1$CK_Cadmus_ID))),]
 
       ##  QA/QC: Any lost customers?
       length(unique(id_zip.dat1$CK_Cadmus_ID)) == length(unique(id_zip.dat2$CK_Cadmus_ID))
@@ -172,6 +176,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
 # Join ZIP codes to cleaned building type data
 samp.dat.0       <- left_join(cleanRBSA.dat1, id_zip.dat2, by="CK_Cadmus_ID")
 # Join ZIP mapping to previous step
+colnames(samp.dat.0) <- c("CK_Cadmus_ID", "BuildingType", "ZIPCode" ,    "Utility"   ,   "MeterType" ,   "invalidZIP")
 samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by="ZIPCode")
 samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
 head(samp.dat.1)  
@@ -218,31 +223,31 @@ samp.dat.2 <- samp.dat.1
 # samp.dat.2$Utility.Customer.Data[missingInd] <- samp.dat.2$Utility.ZIP.map[missingInd]
 
 # Remove full row duplicates
-dupRows    <- which(duplicated(samp.dat.2))  
-samp.dat.3 <- samp.dat.2[-dupRows,]   ##  862 rows
-
-##  Cust ID's with duplicates
+dupRows    <- which(duplicated(samp.dat.2))  #NONE
+samp.dat.3 <- samp.dat.2#[-dupRows,]   ##  862 rows
+# 
+# ##  Cust ID's with duplicates
 dupCustIDs <- unique(samp.dat.3$CK_Cadmus_ID[which(duplicated(samp.dat.3$CK_Cadmus_ID))])
 dupUtil.0  <- samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% dupCustIDs),]
-
-
-# Initialize counter and output vector
+# 
+# 
+# # Initialize counter and output vector
 cntr              <- 1
 dupUtil.0$Utility <- rep("MISSING", nrow(dupUtil.0))
-
-##  Create "Not In" operator   
-"%notin%" <- Negate("%in%")   
-
-
-##  For loops to assign utility as per above logic
-##  STEP 2
+# 
+# ##  Create "Not In" operator   
+"%notin%" <- Negate("%in%")
+# 
+# 
+# ##  For loops to assign utility as per above logic
+# ##  STEP 2
 for(cntr in 1:length(dupCustIDs)) {
   if("TRUE" %in% duplicated(dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
     if("TRUE" %in% duplicated(dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
         dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- "MANUAL FIX"
-    } 
+    }
     else {
-      dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- 
+      dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <-
         dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])]
     }
   }
@@ -253,21 +258,21 @@ for(cntr in 1:length(dupCustIDs)) {
   if("TRUE" %notin% duplicated(dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
     if("TRUE" %notin% duplicated(dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
       dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- "MANUAL FIX"
-    } 
+    }
     else {
-      dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- 
+      dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <-
         dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])]
     }
   }
 }
-
-##  Subset to ID and Utility column and merge back into sample data
+# 
+# ##  Subset to ID and Utility column and merge back into sample data
 names(dupUtil.0)
-dupUtil.1  <- unique(dupUtil.0[which(colnames(dupUtil.0) %in% c("CK_Cadmus_ID", "Utility"))]) 
+dupUtil.1  <- unique(dupUtil.0[which(colnames(dupUtil.0) %in% c("CK_Cadmus_ID", "Utility"))])
 samp.dat.4 <- left_join(samp.dat.3, dupUtil.1, by="CK_Cadmus_ID")
-
-##  For non-duplicates, use cust data
-samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <- 
+# 
+# ##  For non-duplicates, use cust data
+samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <-
   samp.dat.4$Utility.Customer.Data[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)]
 
 ##########################################
@@ -275,7 +280,7 @@ samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <-
 ##  MANUAL FIXES FOR MISSING UTILITIES  ##
 ##                                      ##
 ##########################################
-
+# samp.dat.4 <- samp.dat.3
 
 utilFix <- samp.dat.4[,which(names(samp.dat.4) %in% c("CK_Cadmus_ID"
                                                       , "ZIPCode"
@@ -326,6 +331,12 @@ samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="SL0418 OS SCL")] <- "PS"
 ##  Remove old utility columns and duplicate rows
 samp.dat.5 <- unique(samp.dat.4[,-which(names(samp.dat.4) %in% c("Utility.Customer.Data", "Utility.ZIP.map"))])
 which(duplicated(samp.dat.5$CK_Cadmus_ID)) ## All duplicates removed
+
+
+############   NEED TO FIX   #############
+samp.dat.4[which(samp.dat.4$CK_Cadmus_ID == "BPS26690 OS BPA"),]
+
+
 
 # Summarize sample counts
 sampCounts.0 <- summarise(group_by(samp.dat.5
@@ -437,7 +448,7 @@ allCounts.1$N.h <- as.numeric(allCounts.1$N.h)
 
 
 
-##  Exportt clean data merged with weights
+##  Export clean data merged with weights
 write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 

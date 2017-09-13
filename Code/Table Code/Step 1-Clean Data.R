@@ -85,11 +85,13 @@ site.dat1 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                                , "HomeYearBuiltXX" = site.dat$SITES_General_GENL_INFO_HomeYearBuilt
                                , "State"           = site.dat$SITE_ST
                                , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
+                               , "ZIP"             = site.dat$SITE_ZIP
                                , stringsAsFactors  = F)
 head(site.dat1)
 site.dat1$CK_Cadmus_ID <- trimws(toupper(site.dat1$CK_Cadmus_ID))
 length(unique(site.dat1$CK_Cadmus_ID)) #601
 
+length(which(is.na(site.dat1$ZIP)))
 
 #############################################################################################
 # Clean States
@@ -236,8 +238,10 @@ length(unique(rbsa.dat4$CK_Cadmus_ID)) #601
 # cadmus.id.ind <- rbsa.dat4$CK_Cadmus_ID[dup.ind]
 # rbsa.tmp <- rbsa.dat4[which(rbsa.dat4$CK_Cadmus_ID %in% cadmus.id.ind),]
 
-rbsa.dat5 <- rbsa.dat4
+rbsa.dat5 <- unique(rbsa.dat4)
 length(unique(rbsa.dat5$CK_Cadmus_ID)) #601
+
+length(which(is.na(rbsa.dat5$ZIP)))
 
 #############################################################################################
 # Write out cleaned building type information
