@@ -24,7 +24,7 @@
 #############################################################################################
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 rbsa.dat$n_h <- 600
@@ -217,8 +217,10 @@ colnames(item4.dat) <- c("CK_Cadmus_ID"
                          , "BldgLevel_Area_SqFt")
 
 #merge
-item4.dat1 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
-length(unique(item4.dat1$CK_Cadmus_ID)) #601
+item4.dat0 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
+length(unique(item4.dat0$CK_Cadmus_ID)) #601
+
+item4.dat1 <- item4.dat0[which(item4.dat0$BuildingType != "Multifamily"),]
 
 #make conditioned area as.numeric
 item4.dat1$ConditionedArea <- as.numeric(as.character(item4.dat1$BldgLevel_Area_SqFt))
@@ -232,7 +234,7 @@ length(unique(item4.dat2$CK_Cadmus_ID)) #543
 #summarise by state
 
 #summarise up to customer
-item4.state.dat <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, n_h, N_h)
+item4.state.dat <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Strata, n_h, N_h)
                       ,siteAreaConditioned = sum(ConditionedArea)
 )
 
@@ -247,6 +249,8 @@ item4.state.dat0 <- summarise(group_by(item4.state.dat, BuildingType, State, Str
                               ,n   = length(unique(CK_Cadmus_ID))
 )
 
+item4.state.dat0$strataSD[which(item4.state.dat0$strataSD == "NaN")] <- 0
+
 #summarise to population
 item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
                         ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
@@ -255,21 +259,40 @@ item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
                         # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
                         #                                  N_h^2 * 
                         #                                  strataSD^2 / n_h))
-                        ,SampleSize         = length(unique(CK_Cadmus_ID))
+                        ,SampleSize         = sum(unique(n))
                         )
 
 #summarise by region
-item4.region.dat <- summarise(group_by(item4.dat2, BuildingType, CK_Cadmus_ID)
-                              ,State = "Region"
+
+#summarise up to customer
+item4.region.dat <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, Strata, n_h, N_h)
                              ,siteAreaConditioned = sum(ConditionedArea)
 )
 
-item4.region.dat1 <- summarise(group_by(item4.region.dat, BuildingType)
-                               ,State = "Region"
-                              ,AveAreaConditioned = mean(siteAreaConditioned)
-                              ,SEAreaConditioned  = sd(siteAreaConditioned) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,SampleSize         = length(unique(CK_Cadmus_ID))
-                              )
+#summarise up to strata
+item4.region.dat0 <- summarise(group_by(item4.region.dat, BuildingType, Strata)
+                              ,n_h = unique(n_h)
+                              ,N_h = unique(N_h)
+                              ,fpc = (1 - n_h / N_h)
+                              ,w_h = n_h / N_h
+                              ,strataArea = mean(siteAreaConditioned)
+                              ,strataSD   = sd(siteAreaConditioned)
+                              ,n   = length(unique(CK_Cadmus_ID))
+)
+
+item4.region.dat0$strataSD[which(item4.region.dat0$strataSD == "NaN")] <- 0
+
+#summarise to population
+item4.region.dat1 <- summarise(group_by(item4.region.dat0, BuildingType)
+                              ,State = "Region"
+                              ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+                              ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
+                                                           sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+                              # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+                              #                                  N_h^2 * 
+                              #                                  strataSD^2 / n_h))
+                              ,SampleSize         = sum(unique(n)))
+
 
 item4.final <- rbind.data.frame(item4.state.dat1, item4.region.dat1, stringsAsFactors = F) 
 
