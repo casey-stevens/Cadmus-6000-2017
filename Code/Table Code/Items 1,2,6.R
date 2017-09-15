@@ -50,13 +50,13 @@ item1.state.full <- rbind.data.frame(item1.state, item1.state.tot, stringsAsFact
 #by home types
 item1.region <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
                                ,State = "Region"
-                               ,Count = sum(N.h / n.h * count)
+                               ,w.percent = sum(N.h * (count / n.h) ) / sum( unique(N.h) )
                                ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table
 #summarise across home types
 item1.region.tot <- summarise(group_by(item1.dat, BuildingType)
                                ,BuildingTypeXX = "Total"
                                ,State = "Region"
-                               ,Count = sum(N.h / n.h * count)
+                               ,w.percent = sum(N.h * (count / n.h) ) / sum( unique(N.h) )
                                ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table AND used for SE Calcs
 item1.region.full <- rbind.data.frame(item1.region, item1.region.tot, stringsAsFactors = F)
 
@@ -97,6 +97,7 @@ item1.full1$Percent <- item1.full1$Count / item1.full1$Total.Count
 # the denominator of this SE is the sample size of the denominator in the percent
 item1.full1$SE      <- sqrt((item1.full1$Percent * (1 - item1.full1$Percent)) / item1.full1$SampleSize)
 
+      ##  This standard error is fine for the proportions within
 
 
 ##################################################
