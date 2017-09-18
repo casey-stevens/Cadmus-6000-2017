@@ -344,11 +344,10 @@ samp.dat.6$Strata[grep("SNOHOMISH",          samp.dat.6$Utility)] <- "SnoPUD"
 samp.dat.6$Strata[grep("PUGET SOUND",        samp.dat.6$Utility)] <- "PSE"
 samp.dat.6$Strata[grep("SEATTLE CITY LIGHT", samp.dat.6$Utility)] <- "SCL"
 
-
+samp.dat.6 <- data.frame(samp.dat.6, stringsAsFactors = F)
 
 # Summarize sample counts
-sampCounts.0 <- summarise(group_by(samp.dat.6
-                                   , BuildingType, State, Region, Utility, BPA_vs_IOU)
+sampCounts.0 <- summarise(group_by(samp.dat.6,BuildingType, State, Region, Utility, BPA_vs_IOU)
                           , n = sum(tally))
 
 
@@ -414,6 +413,29 @@ popCounts.1 <- summarise(group_by(popCounts.0,
 
 
 
+
+
+
+
+popMelt <- melt(popCounts.1, id.vars = c("State", "Region", "Strata"))
+popMelt$BuildingType <- NA
+popMelt$BuildingType[grep("SF", popMelt$variable)] <- "Single Family"
+popMelt$BuildingType[grep("MF", popMelt$variable)] <- "Multifamily"
+popMelt$BuildingType[grep("MH", popMelt$variable)] <- "Manufactured"
+
+
+total.counts <- full_join(popMelt, sampCounts.1, by = c("BuildingType"
+                                                        ,"State"
+                                                        ,"Region"
+                                                        ,"Strata"))
+total.counts$n.h[which(is.na(total.counts$n.h))] <- 0
+colnames(total.counts)[which(colnames(total.counts) == "value")] <- "N.h"
+
+final.counts <- total.counts[which(!(colnames(total.counts) %in% c("variable")))]
+
+
+
+
 #############################################################################################
 # Combine sample and population counts
 #############################################################################################
@@ -449,9 +471,15 @@ allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
 
 allCounts.final <- allCounts.1[which(!(is.na(allCounts.1$State))),]
 
+allCounts.final1 <- allCounts.final[which(!(is.na(allCounts.final$N.h))),]
+allCounts.final1$Final.Strata <- paste(allCounts.final1$State
+                                       ,allCounts.final1$Region
+                                       ,allCounts.final1$Strata)
 
 
-samp.dat.7 <- left_join(samp.dat.6, allCounts.final, by = c("BuildingType"
+
+
+samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
                                                          ,"State"
                                                          ,"Region"
                                                          ,"Strata"))
@@ -465,3 +493,6 @@ samp.dat.final <- left_join(samp.dat.8, cleanRBSA.dat)
 write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
+##  Export 
+write.xlsx(final.counts, paste(filepathCleanData, paste("weights.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
