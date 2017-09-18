@@ -218,7 +218,7 @@ colnames(item4.dat) <- c("CK_Cadmus_ID"
 
 #merge
 item4.dat0 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
-length(unique(item4.dat0$CK_Cadmus_ID)) #601
+length(unique(item4.dat0$CK_Cadmus_ID)) #559
 
 item4.dat1 <- item4.dat0[which(item4.dat0$BuildingType != "Multifamily"),]
 
@@ -227,7 +227,7 @@ item4.dat1$ConditionedArea <- as.numeric(as.character(item4.dat1$BldgLevel_Area_
 
 #remove NAs
 item4.dat2 <- item4.dat1[which(!(is.na(item4.dat1$ConditionedArea))),]
-length(unique(item4.dat2$CK_Cadmus_ID)) #543
+length(unique(item4.dat2$CK_Cadmus_ID)) #355
 
 
 
@@ -253,10 +253,10 @@ item4.state.dat0$strataSD[which(item4.state.dat0$strataSD == "NaN")] <- 0
 
 #summarise to population
 item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
-                        ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
-                        ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                                     sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
-                        # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+                        ,Mean = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+                        ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
+                                      sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+                        # ,SE  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
                         #                                  N_h^2 * 
                         #                                  strataSD^2 / n_h))
                         ,SampleSize         = sum(unique(n))
@@ -285,10 +285,10 @@ item4.region.dat0$strataSD[which(item4.region.dat0$strataSD == "NaN")] <- 0
 #summarise to population
 item4.region.dat1 <- summarise(group_by(item4.region.dat0, BuildingType)
                               ,State = "Region"
-                              ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
-                              ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                                           sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
-                              # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+                              ,Mean = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+                              ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
+                                            sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+                              # ,SE  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
                               #                                  N_h^2 * 
                               #                                  strataSD^2 / n_h))
                               ,SampleSize         = sum(unique(n)))
