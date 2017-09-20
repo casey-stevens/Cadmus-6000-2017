@@ -218,7 +218,7 @@ colnames(item4.dat) <- c("CK_Cadmus_ID"
 
 #merge
 item4.dat0 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
-length(unique(item4.dat0$CK_Cadmus_ID)) #601
+length(unique(item4.dat0$CK_Cadmus_ID)) #559
 
 item4.dat1 <- item4.dat0[which(item4.dat0$BuildingType != "Multifamily"),]
 
@@ -227,7 +227,7 @@ item4.dat1$ConditionedArea <- as.numeric(as.character(item4.dat1$BldgLevel_Area_
 
 #remove NAs
 item4.dat2 <- item4.dat1[which(!(is.na(item4.dat1$ConditionedArea))),]
-length(unique(item4.dat2$CK_Cadmus_ID)) #543
+length(unique(item4.dat2$CK_Cadmus_ID)) #355
 
 
 
@@ -253,6 +253,7 @@ item4.state.dat0$strataSD[which(item4.state.dat0$strataSD == "NaN")] <- 0
 
 #summarise to population
 item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
+<<<<<<< HEAD
                         ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
 #######   Shouldn't the n_h/N-h be reversed here? In Lohr (p. 103), the estimate for 
 #######   y_bar_strat = sum_h(sum_j(( w_hj * y_hj)) / sum_h(sum_j( w_hj ))
@@ -262,6 +263,12 @@ item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
                                                      sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
 #######   I think we need to discuss this as well, where is this from?
                         # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+=======
+                        ,Mean = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+                        ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
+                                      sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+                        # ,SE  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+>>>>>>> 7305909384fdc53721934e4a63f052ce54378608
                         #                                  N_h^2 * 
                         #                                  strataSD^2 / n_h))
                         ,SampleSize         = sum(unique(n))
@@ -290,11 +297,18 @@ item4.region.dat0$strataSD[which(item4.region.dat0$strataSD == "NaN")] <- 0
 #summarise to population
 item4.region.dat1 <- summarise(group_by(item4.region.dat0, BuildingType)
                               ,State = "Region"
+<<<<<<< HEAD
                               ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
                               ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
                                                            sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
 #########   Same comments as above
                               # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+=======
+                              ,Mean = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+                              ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
+                                            sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+                              # ,SE  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
+>>>>>>> 7305909384fdc53721934e4a63f052ce54378608
                               #                                  N_h^2 * 
                               #                                  strataSD^2 / n_h))
                               ,SampleSize         = sum(unique(n)))
