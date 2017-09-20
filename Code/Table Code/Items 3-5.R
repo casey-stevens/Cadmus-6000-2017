@@ -27,9 +27,6 @@
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
-rbsa.dat$n_h <- 600
-rbsa.dat$N_h <- 6000
-
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -231,90 +228,43 @@ length(unique(item4.dat2$CK_Cadmus_ID)) #355
 
 
 
-#summarise by state
-
 #summarise up to customer
-item4.state.dat <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Strata, n_h, N_h)
+item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Region, Strata, n.h, N.h)
                       ,siteAreaConditioned = sum(ConditionedArea)
 )
 
 #summarise up to strata
-item4.state.dat0 <- summarise(group_by(item4.state.dat, BuildingType, State, Strata)
-                              ,n_h = unique(n_h)
-                              ,N_h = unique(N_h)
+item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Strata)
+                              ,n_h = unique(n.h)
+                              ,N_h = unique(N.h)
                               ,fpc = (1 - n_h / N_h)
                               ,w_h = n_h / N_h
-                              ,strataArea = mean(siteAreaConditioned)
+                              ,strataArea = sum(siteAreaConditioned) / n_h
                               ,strataSD   = sd(siteAreaConditioned)
                               ,n   = length(unique(CK_Cadmus_ID))
 )
 
-item4.state.dat0$strataSD[which(item4.state.dat0$strataSD == "NaN")] <- 0
+item4.state.dat0$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 
-#summarise to population
-item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
-<<<<<<< HEAD
-                        ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
-#######   Shouldn't the n_h/N-h be reversed here? In Lohr (p. 103), the estimate for 
-#######   y_bar_strat = sum_h(sum_j(( w_hj * y_hj)) / sum_h(sum_j( w_hj ))
-#######   which we can re-write as: y_bar_strat = sum_h( N_h * y_bar_h) / sum_h(sum_j( w_hj))
-#######   where w_hj = N_h / n_h
-                        ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                                     sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
-#######   I think we need to discuss this as well, where is this from?
-                        # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
-=======
-                        ,Mean = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+#summarise to state
+item4.state <- summarise(group_by(item4.strata, BuildingType, State)
+                        ,Mean = sum(N_h * strataArea) / sum(N_h)
                         ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                      sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
-                        # ,SE  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
->>>>>>> 7305909384fdc53721934e4a63f052ce54378608
-                        #                                  N_h^2 * 
-                        #                                  strataSD^2 / n_h))
+                                      sum(N_h^2 * strataSD^2 / n_h))
                         ,SampleSize         = sum(unique(n))
                         )
 
-#summarise by region
 
-#summarise up to customer
-item4.region.dat <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, Strata, n_h, N_h)
-                             ,siteAreaConditioned = sum(ConditionedArea)
-)
-
-#summarise up to strata
-item4.region.dat0 <- summarise(group_by(item4.region.dat, BuildingType, Strata)
-                              ,n_h = unique(n_h)
-                              ,N_h = unique(N_h)
-                              ,fpc = (1 - n_h / N_h)
-                              ,w_h = n_h / N_h
-                              ,strataArea = mean(siteAreaConditioned)
-                              ,strataSD   = sd(siteAreaConditioned)
-                              ,n   = length(unique(CK_Cadmus_ID))
-)
-
-item4.region.dat0$strataSD[which(item4.region.dat0$strataSD == "NaN")] <- 0
-
-#summarise to population
-item4.region.dat1 <- summarise(group_by(item4.region.dat0, BuildingType)
+#summarise to region
+item4.region <- summarise(group_by(item4.strata, BuildingType)
                               ,State = "Region"
-<<<<<<< HEAD
-                              ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
-                              ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                                           sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
-#########   Same comments as above
-                              # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
-=======
-                              ,Mean = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+                              ,Mean = sum(N_h * strataArea) / sum(N_h)
                               ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                            sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
-                              # ,SE  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
->>>>>>> 7305909384fdc53721934e4a63f052ce54378608
-                              #                                  N_h^2 * 
-                              #                                  strataSD^2 / n_h))
+                                            sum(N_h^2 * strataSD^2 / n_h))
                               ,SampleSize         = sum(unique(n)))
 
 
-item4.final <- rbind.data.frame(item4.state.dat1, item4.region.dat1, stringsAsFactors = F) 
+item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
 
 
 
@@ -327,10 +277,9 @@ item4.final <- rbind.data.frame(item4.state.dat1, item4.region.dat1, stringsAsFa
 
 
 
-#############################################################################################
+##########################################################################
 # Item 5: AVERAGE CONDITIONED FLOOR AREA BY STATE AND VINTAGE
-##########################################################################item4.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt"))]
-
+##########################################################################
 item5.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt"))]
 
 #merge
