@@ -254,8 +254,13 @@ item4.state.dat0$strataSD[which(item4.state.dat0$strataSD == "NaN")] <- 0
 #summarise to population
 item4.state.dat1 <- summarise(group_by(item4.state.dat0, BuildingType, State)
                         ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
+#######   Shouldn't the n_h/N-h be reversed here? In Lohr (p. 103), the estimate for 
+#######   y_bar_strat = sum_h(sum_j(( w_hj * y_hj)) / sum_h(sum_j( w_hj ))
+#######   which we can re-write as: y_bar_strat = sum_h( N_h * y_bar_h) / sum_h(sum_j( w_hj))
+#######   where w_hj = N_h / n_h
                         ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
                                                      sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+#######   I think we need to discuss this as well, where is this from?
                         # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
                         #                                  N_h^2 * 
                         #                                  strataSD^2 / n_h))
@@ -288,6 +293,7 @@ item4.region.dat1 <- summarise(group_by(item4.region.dat0, BuildingType)
                               ,AveAreaConditioned = sum(n_h / N_h * strataArea) / sum(n_h / N_h)
                               ,SEAreaConditioned  = sqrt((1 / sum(unique(N_h)))^2 * 
                                                            sum(N_h * ( N_h - n_h ) * strataSD^2 / n_h))
+#########   Same comments as above
                               # ,SEAreaConditioned  = sum(1 / (n_h / N_h)) * sqrt(sum((1 - n_h / N_h) * 
                               #                                  N_h^2 * 
                               #                                  strataSD^2 / n_h))
