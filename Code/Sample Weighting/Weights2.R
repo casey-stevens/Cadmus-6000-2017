@@ -202,33 +202,30 @@ colnames(samp.dat.1) <- c("CK_Cadmus_ID"
 ##                                                                                    ##
 ########################################################################################
 
-
-
-
-##  Replace missing utility from sample data with utility from zip code mapping
-# missingInd <- which(samp.dat.1$Utility.Customer.Data == "-- DID NOT ENTER! --")
+#  Replace missing utility from sample data with utility from zip code mapping
+missingInd <- which(samp.dat.1$Utility.Customer.Data == "-- DID NOT ENTER! --")
 samp.dat.2 <- samp.dat.1
 # samp.dat.2$Utility.Customer.Data[missingInd] <- samp.dat.2$Utility.ZIP.map[missingInd]
 
 # Remove full row duplicates
 dupRows    <- which(duplicated(samp.dat.2))  #NONE
 samp.dat.3 <- samp.dat.2#[-dupRows,]   ##  862 rows
-# 
-# ##  Cust ID's with duplicates
+
+##  Cust ID's with duplicates
 dupCustIDs <- unique(samp.dat.3$CK_Cadmus_ID[which(duplicated(samp.dat.3$CK_Cadmus_ID))])
 dupUtil.0  <- samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% dupCustIDs),]
-# 
-# 
-# # Initialize counter and output vector
+
+
+# Initialize counter and output vector
 cntr              <- 1
 dupUtil.0$Utility <- rep("MISSING", nrow(dupUtil.0))
-# 
-# ##  Create "Not In" operator   
+
+##  Create "Not In" operator
 "%notin%" <- Negate("%in%")
-# 
-# 
-# ##  For loops to assign utility as per above logic
-# ##  STEP 2
+
+
+##  For loops to assign utility as per above logic
+##  STEP 2
 for(cntr in 1:length(dupCustIDs)) {
   if("TRUE" %in% duplicated(dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
     if("TRUE" %in% duplicated(dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
@@ -253,13 +250,13 @@ for(cntr in 1:length(dupCustIDs)) {
     }
   }
 }
-# 
-# ##  Subset to ID and Utility column and merge back into sample data
+
+##  Subset to ID and Utility column and merge back into sample data
 names(dupUtil.0)
 dupUtil.1  <- unique(dupUtil.0[which(colnames(dupUtil.0) %in% c("CK_Cadmus_ID", "Utility"))])
 samp.dat.4 <- left_join(samp.dat.3, dupUtil.1, by="CK_Cadmus_ID")
-# 
-# ##  For non-duplicates, use cust data
+
+##  For non-duplicates, use cust data
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <-
   samp.dat.4$Utility.Customer.Data[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)]
 
@@ -268,7 +265,6 @@ samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <-
 ##  MANUAL FIXES FOR MISSING UTILITIES  ##
 ##                                      ##
 ##########################################
-# samp.dat.4 <- samp.dat.3
 
 utilFix <- samp.dat.4[,which(names(samp.dat.4) %in% c("CK_Cadmus_ID"
                                                       , "ZIPCode"
@@ -320,22 +316,23 @@ samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="SL0418 OS SCL")] <- "PS"
 samp.dat.5 <- unique(samp.dat.4[,-which(names(samp.dat.4) %in% c("Utility.Customer.Data", "Utility.ZIP.map"))])
 which(duplicated(samp.dat.5$CK_Cadmus_ID)) ## All duplicates removed
 
-
-############   NEED TO FIX   #############
-samp.dat.4[which(samp.dat.4$CK_Cadmus_ID == "BPS26690 OS BPA"),]
-
+##
 ## remove missing information FOR NOW -- this will be corrected in the final data
-
+##    NOTE: State, Region, BPA/IOU ind, Utility, MeterType all have missing info
+##          But they are all captured when you remove missing state info
+##
 samp.dat.6 <- samp.dat.5[which(!(is.na(samp.dat.5$State))),]
+
+
 # Subset and define strata
 # Initialize the vector for strata names
 samp.dat.6$Strata <- rep("MISSING", nrow(samp.dat.6))
 unique(samp.dat.6$Utility)
 
 ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-samp.dat.6$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.6$Utility)] == "BPA"
-samp.dat.6$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.6$Utility)]    == "BPA"
-samp.dat.6$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.6$Utility)]    == "IOU"
+stopifnot(all(samp.dat.6$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.6$Utility)] == "BPA"))
+stopifnot(all(samp.dat.6$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.6$Utility)]    == "BPA"))
+stopifnot(all(samp.dat.6$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.6$Utility)]    == "IOU"))
 
 # Assign strata
 samp.dat.6$Strata[which(samp.dat.6$BPA_vs_IOU == "BPA")]          <- "BPA"
@@ -361,9 +358,9 @@ sampCounts.0$Strata <- rep("MISSING", nrow(sampCounts.0))
 unique(sampCounts.0$Utility)
 
       ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-      sampCounts.0$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", sampCounts.0$Utility)] == "BPA"
-      sampCounts.0$BPA_vs_IOU[grep("SNOHOMISH",       sampCounts.0$Utility)]    == "BPA"
-      sampCounts.0$BPA_vs_IOU[grep("PUGET SOUND",     sampCounts.0$Utility)]    == "IOU"
+      stopifnot(all(sampCounts.0$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", sampCounts.0$Utility)] == "BPA"))
+      stopifnot(all(sampCounts.0$BPA_vs_IOU[grep("SNOHOMISH",       sampCounts.0$Utility)]    == "BPA"))
+      stopifnot(all(sampCounts.0$BPA_vs_IOU[grep("PUGET SOUND",     sampCounts.0$Utility)]    == "IOU"))
 
 # Assign strata
 sampCounts.0$Strata[which(sampCounts.0$BPA_vs_IOU == "BPA")]          <- "BPA"
@@ -393,9 +390,9 @@ popCounts.0 <- summarise(group_by(zipMap.dat, State, Region, Utility, BPA_vs_IOU
 popCounts.0$Strata <- rep("MISSING", nrow(popCounts.0))
 
       ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-      popCounts.0$BPA_vs_IOU[grep("SEATTLE CITY", popCounts.0$Utility)] == "BPA"
-      popCounts.0$BPA_vs_IOU[grep("SNOHOMISH",    popCounts.0$Utility)] == "BPA"
-      popCounts.0$BPA_vs_IOU[grep("PUGET SOUND",  popCounts.0$Utility)] == "IOU"
+      stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SEATTLE CITY", popCounts.0$Utility)] == "BPA"))
+      stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SNOHOMISH",    popCounts.0$Utility)] == "BPA"))
+      stopifnot(all(popCounts.0$BPA_vs_IOU[grep("PUGET SOUND",  popCounts.0$Utility)] == "IOU"))
 
 # Assign strata
 popCounts.0$Strata[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
@@ -412,17 +409,18 @@ popCounts.1 <- summarise(group_by(popCounts.0,
                          , N_MF.h = sum(MF.pop))
 
 
-
-
-
-
-
 popMelt <- melt(popCounts.1, id.vars = c("State", "Region", "Strata"))
 popMelt$BuildingType <- NA
 popMelt$BuildingType[grep("SF", popMelt$variable)] <- "Single Family"
 popMelt$BuildingType[grep("MF", popMelt$variable)] <- "Multifamily"
 popMelt$BuildingType[grep("MH", popMelt$variable)] <- "Manufactured"
 
+
+
+
+#############################################################################################
+# Combine population and sample sizes by Strata
+#############################################################################################
 
 total.counts <- full_join(popMelt, sampCounts.1, by = c("BuildingType"
                                                         ,"State"
@@ -431,13 +429,14 @@ total.counts <- full_join(popMelt, sampCounts.1, by = c("BuildingType"
 total.counts$n.h[which(is.na(total.counts$n.h))] <- 0
 colnames(total.counts)[which(colnames(total.counts) == "value")] <- "N.h"
 
+#Note: This will be written out
 final.counts <- total.counts[which(!(colnames(total.counts) %in% c("variable")))]
 
 
 
 
 #############################################################################################
-# Combine sample and population counts
+# Combine sample and population counts for each customer
 #############################################################################################
 
 # Join pop to samp by state/region/strata
@@ -486,7 +485,7 @@ samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
 
 samp.dat.8 <- samp.dat.7[which(!(is.na(samp.dat.7$N.h))),]
 
-samp.dat.final <- left_join(samp.dat.8, cleanRBSA.dat)
+samp.dat.final <- left_join(samp.dat.8, cleanRBSA.dat, by = c("CK_Cadmus_ID", "BuildingType", "State"))
 
 
 ##  Export clean data merged with weights
