@@ -7,16 +7,10 @@
 #############################################################################################
 #############################################################################################
 # For items 1, 2, 6 - this code will summarize information to match the previous RBSA table
-#   Step 1: Obtain the count distribution of home type within each state
-#     as well as total information before a cast
-#   Step 2: Obtain the count distribution of home types across states (i.e. within region)
-#     as well as total information before a cast
-#   Step 3: Part a: Extract Sample Sizes for standard error calculations and join them onto 
-#             State and region information
-#           Part b: Note which sample sizes are to be used in the final tables
-#   Step 4: Calculate estimates and standard errors 
-#   Step 5: Put data into correct format for creating tables
-#   Step 6: Subset tables by building type and export to respective workbooks
+#   Step 1: State level analysis
+#   Step 2: Region level analysis
+#   Step 3: Put data into correct format for creating tables, Subset tables by building type 
+#           and export to respective workbooks
 #############################################################################################
 
 # Read in clean RBSA data
@@ -98,55 +92,31 @@ item1.region.final <- item1.region.full[which(is.na(item1.region.full$BuildingTy
 item1.region.final <- item1.region.full[which(item1.region.full$n != 0),]
 
 
-#rbind state and region information
+############################################################
+# Step 3: Combine data, Cast data, create, and export tables
+############################################################
+#combine state and region information
 item1.full <- rbind.data.frame(item1.state.final, item1.region.final, stringsAsFactors = F)
-
-
-# ##################################################
-# # Step 3 (part a): Sample Sizes for SEs
-# ##################################################
-# # Extract sample sizes for standard error calculations from the Total Row information for states and region
-# #   and subset to only columns needed
-# item1.total <- rbind.data.frame(item1.state.tot, item1.region.tot, stringsAsFactors = F)
-# item1.total1 <- item1.total[which(colnames(item1.total) %in% c("BuildingType"
-#                                                                , "State"
-#                                                                , "Count"
-#                                                                , "SampleSize"))]
-# 
-# # merge SE sample sizes onto rest of data
-# item1.full1 <- left_join(item1.full, item1.total1, by = c("BuildingType", "State"))
 colnames(item1.full) <- c("BuildingType"
                           , "State"
                           , "Home.Type"
                           , "Percent"
                           , "SE"
                           , "Count" 
-                          , "SampleSize"# Step 3 (part b) -- This sample size is only used for the report table
+                          , "SampleSize"
                           , "PopSize")
 
 
-# ##################################################
-# # Step 4: Calculate Percent distribution and SEs
-# ##################################################
-# # calculate Percent distribution
-# item1.full1$Percent <- item1.full1$Count / item1.full1$Total.Count
-# # the denominator of this SE is the sample size of the denominator in the percent
-# item1.full1$SE      <- sqrt((item1.full1$Percent * (1 - item1.full1$Percent)) / item1.full1$SampleSize)
-
-
-##################################################
-# Step 5: Cast data and create table
-##################################################
+#cast data into correct format
 library(data.table)
 item1.table <- dcast(setDT(item1.full)
                      ,formula = BuildingType + Home.Type ~ State
                      ,value.var = c("Percent", "SE", "SampleSize"))
 
-#########   CASEY - CHECK THIS ASSIGNMENT, THERE MIGHT BE SOMETHING MISSING
-item1.table1 <- data.frame("BuildingType"      = item1.table$BuildingType
+item1.table1 <- data.frame("BuildingType"    = item1.table$BuildingType
                            ,"Home.Type"      = item1.table$Home.Type
-                           ,"Percent_ID"     = "" #missing for now, only partial data, placeholder until we get full data
-                           ,"SE_ID"          = "" #missing for now, only partial data, placeholder until we get full data
+                           ,"Percent_ID"     = "" #item1.table$Percent_ID  -- missing for now, only partial data, placeholder until we get full data
+                           ,"SE_ID"          = "" #item1.table$SE_ID  -- missing for now, only partial data, placeholder until we get full data
                            ,"Percent_MT"     = item1.table$Percent_MT
                            ,"SE_MT"          = item1.table$SE_MT
                            ,"Percent_OR"     = "" #item1.table$Percent_OR  -- missing for now, only partial data, placeholder until we get full data
@@ -156,11 +126,7 @@ item1.table1 <- data.frame("BuildingType"      = item1.table$BuildingType
                            ,"SE_Region"      = item1.table$SE_Region
                            ,"SampleSize"     = item1.table$SampleSize_Region)
 
-
-##################################################
-# Step 6: Split table by building type
-# and export to correct workbook
-##################################################
+### Split into respective tables
 item1.table.SF <- item1.table1[which(item1.table1$BuildingType %in% c("Single Family")),-1]
 item1.table.MH <- item1.table1[which(item1.table1$BuildingType %in% c("Manufactured")),-1]
 

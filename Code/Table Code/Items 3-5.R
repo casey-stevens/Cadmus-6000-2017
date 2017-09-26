@@ -9,18 +9,12 @@
 # For items 3-5 - this code will summarize information to match the previous RBSA table
 #   Step 1: Subset to columns for analysis, normalize/clean, and 
 #     subset to correct building types needed for analysis
-#   Step 2: Obtain the count distribution of home type within each state
-#     as well as total information before a cast
-#   Step 3: Obtain the count distribution of home types across states (i.e. within region)
-#     as well as total information before a cast
-#   Step 4: Part a: Extract Sample Sizes for standard error calculations and join them onto 
-#             State and region information
-#           Part b: Sample size shown in the table needs to be the sample sizes for the 
-#             Region level information in each category but the sample size for the SE 
-#             calculation needs to be Home Type Total count within each state/region
-#   Step 5: Calculate estimates and standard errors 
-#   Step 6: Put data into correct format for creating tables
-#   Step 7: Subset tables by building type and export to respective workbooks
+#   Step 1.1 (FOR MEANS ONLY): Summarise data up to unique customer level
+#   Step 1.2 (FOR MEANS ONLY): Summarise customer data up to strata level
+#   Step 2: State level analysis
+#   Step 3: Region level analysis 
+#   Step 4: combine full data into one, put data into correct format for creating tables,
+#           subset tables by building type and export to respective workbooks
 #############################################################################################
 
 # Read in clean RBSA data
@@ -227,13 +221,17 @@ item4.dat2 <- item4.dat1[which(!(is.na(item4.dat1$ConditionedArea))),]
 length(unique(item4.dat2$CK_Cadmus_ID)) #355
 
 
-
-#summarise up to customer
+######################################################
+# Step 1.1: Summarise data up to unique customer level
+######################################################
 item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Region, Strata, n.h, N.h)
                       ,siteAreaConditioned = sum(ConditionedArea)
 )
 
-#summarise up to strata
+######################################################
+# Step 1.2: Using customer level data,
+#   Summarise data up to strata level
+######################################################
 item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Strata)
                               ,n_h = unique(n.h)
                               ,N_h = unique(N.h)
@@ -246,7 +244,10 @@ item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, 
 
 item4.state.dat0$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 
-#summarise to state
+######################################################
+# Step 2: Using strata level data,
+#   Perform state level analysis
+######################################################
 item4.state <- summarise(group_by(item4.strata, BuildingType, State)
                         ,Mean = sum(N_h * strataArea) / sum(N_h)
                         ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
@@ -255,7 +256,10 @@ item4.state <- summarise(group_by(item4.strata, BuildingType, State)
                         )
 
 
-#summarise to region
+######################################################
+# Step 3: Using strata level data,
+#   Perform region level analysis
+######################################################
 item4.region <- summarise(group_by(item4.strata, BuildingType)
                               ,State = "Region"
                               ,Mean = sum(N_h * strataArea) / sum(N_h)
@@ -264,10 +268,28 @@ item4.region <- summarise(group_by(item4.strata, BuildingType)
                               ,SampleSize         = sum(unique(n)))
 
 
+######################################################
+# Step 4: Combine results into correct table format,
+#   Split table by building type
+#   and export tables to respective workbooks
+######################################################
 item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
 
 
+item4.table.SF <- item4.table1[which(item4.table1$BuildingType %in% c("Single Family")),-1]
+item4.table.MH <- item4.table1[which(item4.table1$BuildingType %in% c("Manufactured")),-1]
 
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook.SF, sheet = "Table 11", x = item4.table.SF, startRow = 20)
+writeData(workbook.MH, sheet = "Table 10", x = item4.table.MH, startRow = 20)
+
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
