@@ -12,6 +12,14 @@
 #   Step 3: Put data into correct format for creating tables, Subset tables by building type 
 #           and export to respective workbooks
 #############################################################################################
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+#source
+SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
+source(file.path(SourcePath, "SourceCode.R"))
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
@@ -48,7 +56,7 @@ item1.state.weighted <- summarise(group_by(item1.state1, BuildingType, State, Bu
                                   ,n         = sum(unique(n.h))
                                   ,N         = sum(unique(N.h)))
 
-item1.state1[item1.state1==0] <- NA
+item1.state1[item1.state1 == 0] <- NA
 #summarise across home types (total level)
 item1.state.tot <- summarise(group_by(item1.state.weighted, BuildingType, State)
                              ,BuildingTypeXX = "Total"
@@ -75,7 +83,7 @@ item1.region.weighted <- summarise(group_by(item1.state1, BuildingType, Building
                                    ,n         = sum(unique(n.h))
                                    ,N         = sum(unique(N.h)))
 
-item1.state1[item1.state1==0] <- NA
+item1.state1[item1.state1 == 0] <- NA
 #summarise across home types (total level)
 item1.region.tot <- summarise(group_by(item1.region.weighted, BuildingType)
                               ,State = "Region"
@@ -120,7 +128,8 @@ item1.table1 <- data.frame("BuildingType"    = item1.table$BuildingType
                            ,"Percent_MT"     = item1.table$Percent_MT
                            ,"SE_MT"          = item1.table$SE_MT
                            ,"Percent_OR"     = "" #item1.table$Percent_OR  -- missing for now, only partial data, placeholder until we get full data
-                           ,"SE_OR"          = "" #item1.table$SE_OR  -- missing for now, only partial data, placeholder until we get full data                             ,"Percent_WA"     = item1.table$Percent_WA
+                           ,"SE_OR"          = "" #item1.table$SE_OR  -- missing for now, only partial data, placeholder until we get full data 
+                           ,"Percent_WA"     = item1.table$Percent_WA
                            ,"SE_WA"          = item1.table$SE_WA
                            ,"Percent_Region" = item1.table$Percent_Region
                            ,"SE_Region"      = item1.table$SE_Region

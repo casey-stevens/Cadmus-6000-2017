@@ -13,6 +13,14 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+#source
+SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
+source(file.path(SourcePath, "SourceCode.R"))
 
 # Call file names
 popZIP.datMap <- "ZIP_Code_Utility_Mapping.xlsx"
@@ -30,41 +38,33 @@ cleanRBSA.dat <- read.xlsx(paste(filepathCleanData
                                  , sep="/")
 )
 names(cleanRBSA.dat)
-# subset to necessary columns
-cleanRBSA.dat1 <- data.frame("CK_Cadmus_ID"     = cleanRBSA.dat$CK_Cadmus_ID
-                             , "BuildingType"   = cleanRBSA.dat$BuildingType
-                             , stringsAsFactors = F)
+
+cleanRBSA.dat1 <- data.frame(cleanRBSA.dat, stringsAsFactors = F)
+
 # clean and count Cadmus IDs
 cleanRBSA.dat1$CK_Cadmus_ID   <- trimws(toupper(cleanRBSA.dat1$CK_Cadmus_ID))
 length(unique(cleanRBSA.dat1$CK_Cadmus_ID))  ## 601 unique ID's
-# standardize MF to a single category
-cleanRBSA.dat1$BuildingType[grep("Multifamily", cleanRBSA.dat1$BuildingType)] <- "Multifamily"
-unique(cleanRBSA.dat1$BuildingType)
-
 
 # Import ID and ZIP data
 id_zip.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1)
-length(unique(id_zip.dat$CK_Cadmus_ID))
-
-zipFromSites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, bldg.export), sheet=1)
-zipCodes <- unique(zipFromSites.dat[which(colnames(zipFromSites.dat) %in% c("CK_Cadmus_ID","SITE_ZIP"))])
+length(unique(id_zip.dat$CK_Cadmus_ID)) #568
 
 # subset to necessary columns
-id_zip.dat0.1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
-                          # , "ZIPCode"        = id_zip.dat$SITE_ZIP
-                          , "Utility"        = id_zip.dat$Utility
-                          , "MeterType"      = id_zip.dat$Type
-                          , stringsAsFactors = F)
-id_zip.dat1 <- unique(left_join(zipCodes, id_zip.dat0.1, by = "CK_Cadmus_ID"))
+id_zip.dat0.1 <- unique(data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
+                            , "Utility"        = id_zip.dat$Utility
+                            , "MeterType"      = id_zip.dat$Type
+                            , stringsAsFactors = F))
+
+id_zip.dat1 <- left_join(cleanRBSA.dat1, id_zip.dat0.1, by = "CK_Cadmus_ID")
 length(unique(id_zip.dat1$CK_Cadmus_ID))
-colnames(id_zip.dat1) <- c("CK_Cadmus_ID", "ZIPCode","Utility","MeterType")
+colnames(id_zip.dat1)[which(colnames(id_zip.dat1) == "ZIP")] <- "ZIPCode"
 
 # clean and count Cadmus IDs, clean utility and meter type
 id_zip.dat1$CK_Cadmus_ID <- trimws(toupper(id_zip.dat1$CK_Cadmus_ID))
 id_zip.dat1$Utility      <- trimws(toupper(id_zip.dat1$Utility))
 id_zip.dat1$MeterType    <- trimws(toupper(id_zip.dat1$MeterType))
 id_zip.dat1$ZIPCode      <- as.numeric(substr(id_zip.dat1$ZIPCode, 1, 5))  ## Remove ZIP-Ext
-length(unique(id_zip.dat1$CK_Cadmus_ID))  ## 567 unique respondent ID's
+length(unique(id_zip.dat1$CK_Cadmus_ID))  ## 601 unique respondent ID's
 
 # Indicate invalid ZIP codes
 id_zip.dat1$invalidZIP <- rep(0, nrow(id_zip.dat1))
@@ -119,6 +119,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
       ##  QA/QC: Check names of utilities for mismatches
       sort(unique(zipMap.dat1$Utility), decreasing=F)
       sort(unique(id_zip.dat2$Utility), decreasing=F)
+      #export these lists for Rietz to convert to the correct names
       
 ##  Andrew: were these reviewed with Rietz or Steve?, are there any others that could have been missed?
       ##  Fix mismatches
@@ -156,15 +157,27 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
       ##  QA/QC: How many missing?
       length(id_zip.dat2$Utility[which(id_zip.dat2$Utility == "-- DID NOT ENTER! --")])  ## 0 not entered
       
+     
       
+      
+      
+      
+      
+#############################################################################################
+# 
+# Jen reviewed up to here
+# 
+#############################################################################################
+      
+      
+       
 #############################################################################################
 # Merge data and assign electric utility
 #############################################################################################
 
 # Join ZIP codes to cleaned building type data
-samp.dat.0       <- left_join(cleanRBSA.dat1, id_zip.dat2, by="CK_Cadmus_ID")
+samp.dat.0       <- id_zip.dat2
 # Join ZIP mapping to previous step
-colnames(samp.dat.0) <- c("CK_Cadmus_ID", "BuildingType", "ZIPCode" ,    "Utility"   ,   "MeterType" ,   "invalidZIP")
 samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by="ZIPCode")
 samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
 head(samp.dat.1)  
@@ -486,7 +499,7 @@ samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
 samp.dat.8 <- samp.dat.7[which(!(is.na(samp.dat.7$N.h))),]
 
 samp.dat.final <- left_join(samp.dat.8, cleanRBSA.dat, by = c("CK_Cadmus_ID", "BuildingType", "State"))
-
+unique(samp.dat.final$BuildingTypeXX)
 
 ##  Export clean data merged with weights
 write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
