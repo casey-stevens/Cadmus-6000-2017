@@ -19,6 +19,13 @@ appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.exp
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
 
+
+#Read in data for analysis
+mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+#clean cadmus IDs
+mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
+
+
 #############################################################################################
 #Item 80: AVERAGE NUMBER OF APPLIANCES PER HOME BY TYPE (SF table 87, MH table 68)
 #############################################################################################
@@ -65,17 +72,37 @@ item80.table <- data.frame("BuildingType" = item80.final$BuildingType
 
 
 item80.table1 <- item80.table[which(item80.table$BuildingType %in% c("Single Family","Manufactured")),]
-View(item80.table1)
 
 
 
 
+item80.table.final <- item80.table1[which(item80.table1$Type %in% c("Dishwasher"
+                                                                    ,"Dryer"
+                                                                    ,"Washer"
+                                                                    ,"Freezer"
+                                                                    ,"Refrigerator")),]
+View(item80.table.final)
+########## For Water Heater ##########
 
+item80.mech <- mechanical.dat[grep("Water Heat", mechanical.dat$Generic),]
+item80.mech$WaterHeaterCount <- 1
+item80.mech1 <- left_join(rbsa.dat, item80.mech, by = "CK_Cadmus_ID")
+item80.mech2 <- unique(item80.mech1[-grep("Multifamily", item80.mech1$BuildingType),])
+which(duplicated(item80.mech2$CK_Cadmus_ID))
 
+item80.mech2$WaterHeaterCount[which(is.na(item80.mech2$WaterHeaterCount))] <- 0
+item80.mech2$count <- 1
 
+#summarise by home
+item80.site <- summarise(group_by(item80.mech2, CK_Cadmus_ID, BuildingType)
+                         ,WaterHeaterCount = sum(WaterHeaterCount))
+unique(item80.site$WaterHeaterCount)
 
-
-
+#summarise by Building Type
+item80.mech.sum <- summarise(group_by(item80.site, BuildingType)
+                             ,Mean = mean(WaterHeaterCount)
+                             ,SE = sd(WaterHeaterCount) / sqrt(length(unique(CK_Cadmus_ID)))
+                             ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 #############################################################################################

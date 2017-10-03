@@ -1,0 +1,58 @@
+#############################################################################################
+##  Title:            RBSA Analysis - Source File Paths                     
+##  Author:           Casey Stevens, Cadmus Group               
+##  Created:          02/27/2017
+##  Updated:                                             
+##  Billing Code(s):  
+#############################################################################################
+
+
+
+
+##  Include packages
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(openxlsx)
+library(stringr)
+library(data.table)
+
+################################################################################
+# SET FILEPATHS for folders and file names of:
+# - raw input data
+# - clean input data
+# - output data
+################################################################################
+rootpath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
+analysisFolder <- rootpath
+filepathRawData <- file.path(analysisFolder,"Data for PSE")
+filepathCleanData <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
+filepathCleaningDocs <- file.path(analysisFolder, "Analysis Documents")
+filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
+outputFolder <- file.path(analysisFolder, "Tables from Previous RBSA Report")
+
+stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
+
+input.date <- "2017.06.16"
+
+# Call file names
+
+appliances.export          <- paste("Appliances_EquipConsol_", input.date, ".xlsx", sep = "")
+buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
+buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
+envelope.export            <- paste("Envelope_EquipConsol_"  , input.date, ".xlsx", sep = "")
+lighting.export            <- paste("Lighting_EquipConsol_"  , input.date, ".xlsx", sep = "")
+mechanical.export          <- paste("Mechanical_EquipConsol_", input.date, ".xlsx", sep = "")
+rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
+sites.interview.export     <- paste("SITES INTERVIEW_"       , input.date, ".xlsx", sep = "")
+sites.export               <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
+water.export               <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
+windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
+survey.export              <- "NOT FOR PSE_RBSA_Survey_Data.xlsx"
+
+#############################################################################################
+#
+# Need to run this before any other scripts can be ran
+#
+#############################################################################################
