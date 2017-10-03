@@ -161,6 +161,11 @@ item4.region.dat1 <- summarise(group_by(item4.region.dat, BuildingType)
 item4.final <- rbind.data.frame(item4.state.dat1, item4.region.dat1, stringsAsFactors = F) 
 
 
+item4.final.SF <- item4.final[which(item4.final$BuildingType == 'Single Family'),
+                              -which(colnames(item4.final) == 'BuildingType')]
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
+writeData(workbook.SF, sheet = "Table 11", x = item4.final.SF, startRow = 20)
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
