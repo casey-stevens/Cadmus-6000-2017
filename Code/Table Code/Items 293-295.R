@@ -19,6 +19,10 @@ appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.exp
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
 
+#Read in data for analysis
+mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+#clean cadmus IDs
+mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 
 
@@ -77,6 +81,27 @@ item293.table1 <- item293.table[which(item293.table$Type %in% c("Washer"
                                                                 ,"Refrigerator")),]
 
 
+########## For Water Heater ##########
+
+item293.mech <- mechanical.dat[grep("Water Heat", mechanical.dat$Generic),]
+item293.mech$WaterHeaterCount <- 1
+item293.mech1 <- left_join(rbsa.dat, item293.mech, by = "CK_Cadmus_ID")
+item293.mech2 <- unique(item293.mech1[grep("Multifamily", item293.mech1$BuildingType),])
+which(duplicated(item293.mech2$CK_Cadmus_ID))
+
+item293.mech2$WaterHeaterCount[which(is.na(item293.mech2$WaterHeaterCount))] <- 0
+item293.mech2$count <- 1
+
+#summarise by home
+item293.site <- summarise(group_by(item293.mech2, CK_Cadmus_ID)
+                         ,WaterHeaterCount = sum(WaterHeaterCount))
+unique(item293.site$WaterHeaterCount)
+
+#summarise by Building Type
+item293.mech.sum <- summarise(item293.site
+                             ,Mean = mean(WaterHeaterCount)
+                             ,SE = sd(WaterHeaterCount) / sqrt(length(unique(CK_Cadmus_ID)))
+                             ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 

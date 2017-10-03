@@ -95,21 +95,21 @@ item296.sum4 <- summarise(group_by(item296.dat5)
                           ,Washer.Age = "All Vintages"
                           ,Count = sum(count))
 
-item296.merge1 <- rbind.data.frame(item296.sum1,item296.sum2,item296.sum3,item296.sum4, stringsAsFactors = F)
+item296.final <- rbind.data.frame(item296.sum1,item296.sum2,item296.sum3,item296.sum4, stringsAsFactors = F)
 
-#Sample Sizes and total counts
+#Sample Sizes
 item296.tmp1 <- summarise(group_by(item296.dat5, Washer.Type)
-                          ,Total.Count = sum(count)
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 item296.tmp2 <- summarise(group_by(item296.dat5)
                           ,Washer.Type = "All Types"
-                          ,Total.Count = sum(count)
                           ,SampleSize = length(unique(CK_Cadmus_ID)))
 item296.merge2 <- rbind.data.frame(item296.tmp1, item296.tmp2, stringsAsFactors = F)
 
 #merge on sample sizes
 item296.final <- left_join(item296.merge1, item296.merge2, by = "Washer.Type")
-item296.final$Total.Count[which(item296.final$Washer.Age == "All Vintages")] <- item296.final$Total.Count[which(item296.final$Washer.Age == "All Vintages" & item296.final$Washer.Type == "All Types")]
+
+#calculate total count for entire table (denominator of percent)
+item296.final$Total.Count <- item296.final$Count[which(item296.final$Washer.Type == "All Types" & item296.final$Washer.Age == "All Vintages")]
 
 #calculate percent and SE
 item296.final$Percent <- item296.final$Count / item296.final$Total.Count

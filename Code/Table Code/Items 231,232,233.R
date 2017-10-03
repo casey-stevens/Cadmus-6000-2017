@@ -17,11 +17,11 @@ windows.doors.dat$CK_Cadmus_ID <- trimws(toupper(windows.doors.dat$CK_Cadmus_ID)
 windows.dat <- windows.doors.dat[which(windows.doors.dat$Type == "Window"),]
 #select columns for windows
 windows.dat1 <- windows.dat[which(colnames(windows.dat) %in% c("CK_Cadmus_ID"
-                                                                           ,"Type"
-                                                                           ,"Frame./.Body.Type"
-                                                                           ,"Glazing.Type"
-                                                                           ,"Area"
-                                                                           ,"Quantity"))]
+                                                               ,"Type"
+                                                               ,"Quantity"
+                                                               ,"Frame./.Body.Type"
+                                                               ,"Glazing.Type"
+                                                               ,"Area"))]
 windows.dat2  <- left_join(rbsa.dat, windows.dat1, by = "CK_Cadmus_ID")
 length(unique(windows.dat2$CK_Cadmus_ID)) 
 #Subset to MF
@@ -32,7 +32,7 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"Wall.Area"
-                                                                  ,"Floor.Area"
+                                                                  ,"Floor.Area" #was "Floor.Area"
                                                                   ,"Type"
                                                                   ,"Area"
                                                                   ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast"
@@ -57,113 +57,17 @@ envelope.dat3$NumWindows <-
   as.numeric(as.character(envelope.dat3$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSoutheast))+
   as.numeric(as.character(envelope.dat3$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouthwest))+
   as.numeric(as.character(envelope.dat3$ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest))
-  
-#############################################################################################
-#Item 232: Table 24
-#############################################################################################
-
-##########################################
-# Calculate average window size within unit, weighted average by number of windows and area
-##########################################
-# make numeric
-item232.windows <- windows.dat3
-item232.windows$Window_Area <- as.numeric(as.character(item232.windows$Area))*as.numeric(as.character(item232.windows$Quantity))
-# remove zeros (don't make sense)
-item232.windows1 <- item232.windows[which(item232.windows$Window_Area > 0),]
-item232.windows2 <- summarise(group_by(item232.windows1, CK_Cadmus_ID, BuildingTypeXX)
-                              ,Avg_Window_Area = sum(Window_Area)/sum(as.numeric(as.character(Quantity))))
 
 
-##########################################
-# Calculate total number of windows and wall area per building
-##########################################
-item232.wall <- summarise(group_by(envelope.dat3, CK_Cadmus_ID, BuildingTypeXX)
-                          ,WallArea   = sum(Wall.Area,na.rm = T)
-                          ,NumWindows = sum(NumWindows, na.rm = T))
 
 
-##########################################
-# Merge Window and Wall Area
-##########################################
-item232.dat <- left_join(item232.windows2, item232.wall, by = c("CK_Cadmus_ID", "BuildingTypeXX"))
-#Remove any items where walla area and window are are not greater than zero.
 
-item232.dat1 <- item232.dat[which(item232.dat$WallArea > 0 & 
-                                    item232.dat$Avg_Window_Area > 0),]
 
-item232.dat1$Window_Area <- item232.dat1$Avg_Window_Area * item232.dat1$NumWindows
-#calculate the window to wall ratio
-item232.dat1$WindowToWallArea <- item232.dat1$Window_Area / item232.dat1$WallArea
 
-##########################################
-# Summary
-##########################################
 
-item232.sum1 <- summarise(group_by(item232.dat1, BuildingTypeXX)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean       = mean(WindowToWallArea)
-                            ,SE         = sd(WindowToWallArea) / sqrt(SampleSize))
 
-item232.sum2 <- summarise(group_by(item232.dat1)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean       = mean(WindowToWallArea)
-                          ,SE         = sd(WindowToWallArea) / sqrt(SampleSize))
 
-item232.sum <- rbind.data.frame(item232.sum1,
-                                item232.sum2,
-                                stringsAsFactors = F)
-item232.final <- data.frame("BuildingSize" = item232.sum$BuildingTypeXX,
-                            "Mean" = item232.sum$Mean,
-                            "SE" = item232.sum$SE,
-                            "SampleSize" = item232.sum$SampleSize,stringsAsFactors = F)
-#############################################################################################
-#Item 233: Table 25
-#############################################################################################
-##########################################
-# Merge Window and Floor Area
-##########################################
-item233.windows <- item232.windows2
 
-item233.floor0 <- unique(envelope.dat3[,c("CK_Cadmus_ID","NumWindows","Floor.Area","BuildingTypeXX" )])
-item233.floor <- summarise(group_by(item233.floor0, CK_Cadmus_ID, BuildingTypeXX)
-                          ,FloorArea  = sum(Floor.Area, na.rm = T)
-                          ,NumWindows = sum(NumWindows, na.rm = T))
-
-item233.dat <- left_join(item233.windows, item233.floor, by = c("CK_Cadmus_ID", "BuildingTypeXX"))
-
-#Remove any items where walla area and window are are not greater than zero.
-
-item233.dat1 <- item233.dat[which(item233.dat$FloorArea > 0 & 
-                                    item233.dat$Avg_Window_Area > 0),]
-
-item233.dat1$Window_Area <- item233.dat1$Avg_Window_Area * item233.dat1$NumWindows
-
-#calculate the window to wall ratio
-item233.dat1$WindowToFloorArea <- item233.dat1$Window_Area / item233.dat1$FloorArea
-
-##########################################
-# Summary
-##########################################
-
-item233.sum1 <- summarise(group_by(item233.dat1, BuildingTypeXX)
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean       = mean(WindowToFloorArea)
-                          ,SE         = sd(WindowToFloorArea) / sqrt(SampleSize))
-
-item233.sum2 <- summarise(group_by(item233.dat1)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean       = mean(WindowToFloorArea)
-                          ,SE         = sd(WindowToFloorArea) / sqrt(SampleSize))
-
-item233.sum <- rbind.data.frame(item233.sum1,
-                                item233.sum2,
-                                stringsAsFactors = F)
-item233.final <- data.frame("BuildingSize" = item233.sum$BuildingTypeXX,
-                            "Mean" = item233.sum$Mean,
-                            "SE" = item233.sum$SE,
-                            "SampleSize" = item233.sum$SampleSize,stringsAsFactors = F)
 
 #############################################################################################
 #Item 231: Table 23
@@ -172,13 +76,14 @@ item233.final <- data.frame("BuildingSize" = item233.sum$BuildingTypeXX,
 # Clean up window data
 ##########################################
 windows231.dat <- windows.dat[which(colnames(windows.dat) %in% c("CK_Cadmus_ID"
-                                                               ,"Area","Quantity",
-                                                               "Frame./.Body.Type",
-                                                               "Glazing.Type"))]
+                                                               ,"Area"
+                                                               ,"Quantity"
+                                                               ,"Frame./.Body.Type"
+                                                               ,"Glazing.Type"))]
 windows231.dat2  <- left_join(rbsa.dat, windows231.dat, by = "CK_Cadmus_ID")
-length(unique(windows231.dat2$CK_Cadmus_ID)) 
+(unique(windows231.dat2$Quantity)) 
 #Subset to MF
-windows231.dat3 <- windows.dat2[grep("Multifamily", windows231.dat2$BuildingType),]
+windows231.dat3 <- windows231.dat2[grep("Multifamily", windows231.dat2$BuildingType),]
 
 windows231.dat3$FrameType <- windows231.dat3$`Frame./.Body.Type`
 windows231.dat3$FrameType[grep("Wood|Vinyl|Fiberglass", windows231.dat3$FrameType)] <- "Wood/Vinyl/Fiberglass"
@@ -199,8 +104,8 @@ windows231.dat3$FramingCategory <- paste(windows231.dat3$FrameType,windows231.da
 # Calculate average window size by cadmus ID and Type
 ##########################################
 # make numeric
-windows231.dat3$Window_Area <- as.numeric(as.character(windows231.dat3$Area))*
-  as.numeric(as.character(windows231.dat3$Quantity))
+windows231.dat3$Window_Area <- as.numeric(as.character(windows231.dat3$Area)) * as.numeric(as.character(windows231.dat3$Quantity))
+
 # remove zeros (don't make sense)
 windows231.dat4 <- windows231.dat3[which(windows231.dat3$Window_Area > 0 
                                          & !is.na(windows231.dat3$HomeYearBuilt_MF) 
@@ -261,3 +166,149 @@ windows231.final <- data.frame( "Vintage" = windows231.table$HomeYearBuilt_MF
                             ,"Wood/Vinyl/Fiberglass Quad" = windows231.table$`Percent_Wood/Vinyl/Fiberglass Quad Glazed`
                             ,"Wood/Vinyl/Fiberglass Quad SE" = windows231.table$`SE_Wood/Vinyl/Fiberglass Quad Glazed`
                             ,"SampleSize" = windows231.table$SampleSize)
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 232: Table 24
+#############################################################################################
+
+##########################################
+# Calculate average window size within unit, weighted average by number of windows and area
+##########################################
+# make numeric
+item232.windows <- windows.dat3
+item232.windows$Window_Area <- as.numeric(as.character(item232.windows$Area)) * as.numeric(as.character(item232.windows$Quantity))
+# remove zeros (don't make sense)
+item232.windows1 <- item232.windows[which(item232.windows$Window_Area > 0),]
+item232.windows2 <- summarise(group_by(item232.windows1, CK_Cadmus_ID, BuildingTypeXX)
+                              ,Avg_Window_Area = sum(Window_Area)/sum(as.numeric(as.character(Quantity))))
+
+
+##########################################
+# Calculate total number of windows and wall area per building
+##########################################
+item232.wall <- summarise(group_by(envelope.dat3, CK_Cadmus_ID, BuildingTypeXX)
+                          ,WallArea   = sum(Wall.Area,na.rm = T)
+                          ,NumWindows = sum(NumWindows, na.rm = T))
+
+
+##########################################
+# Merge Window and Wall Area
+##########################################
+item232.dat <- left_join(item232.windows2, item232.wall, by = c("CK_Cadmus_ID", "BuildingTypeXX"))
+#Remove any items where walla area and window are are not greater than zero.
+
+item232.dat1 <- item232.dat[which(item232.dat$WallArea > 0 & 
+                                    item232.dat$Avg_Window_Area > 0),]
+
+item232.dat1$Window_Area <- item232.dat1$Avg_Window_Area * item232.dat1$NumWindows
+#calculate the window to wall ratio
+item232.dat1$WindowToWallArea <- item232.dat1$Window_Area / item232.dat1$WallArea
+
+##########################################
+# Summary
+##########################################
+
+item232.sum1 <- summarise(group_by(item232.dat1, BuildingTypeXX)
+                            ,SampleSize = length(unique(CK_Cadmus_ID))
+                            ,Mean       = mean(WindowToWallArea)
+                            ,SE         = sd(WindowToWallArea) / sqrt(SampleSize))
+
+item232.sum2 <- summarise(group_by(item232.dat1)
+                          ,BuildingTypeXX = "All Sizes"
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
+                          ,Mean       = mean(WindowToWallArea)
+                          ,SE         = sd(WindowToWallArea) / sqrt(SampleSize))
+
+item232.sum <- rbind.data.frame(item232.sum1,
+                                item232.sum2,
+                                stringsAsFactors = F)
+item232.final <- data.frame("BuildingSize" = item232.sum$BuildingTypeXX,
+                            "Mean" = item232.sum$Mean,
+                            "SE" = item232.sum$SE,
+                            "SampleSize" = item232.sum$SampleSize,stringsAsFactors = F)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 233: Table 25
+#############################################################################################
+##########################################
+# Merge Window and Floor Area
+##########################################
+item233.windows <- item232.windows2
+
+item233.floor0 <- unique(envelope.dat3[,c("CK_Cadmus_ID","NumWindows","Floor.Area","BuildingTypeXX" )])
+item233.floor0$Floor.Area <- as.numeric(as.character(item233.floor0$Floor.Area))
+
+# item233.floor00 <- item233.floor0[which(!(is.na(item233.floor0$Floor.Area))),]
+
+item233.floor <- summarise(group_by(item233.floor0, CK_Cadmus_ID, BuildingTypeXX)
+                          ,FloorArea  = sum(Floor.Area, na.rm = T)
+                          ,NumWindows = sum(NumWindows, na.rm = T))
+
+item233.dat <- left_join(item233.windows, item233.floor, by = c("CK_Cadmus_ID", "BuildingTypeXX"))
+
+#Remove any items where walla area and window are are not greater than zero.
+
+item233.dat1 <- item233.dat[which(item233.dat$FloorArea > 0 & 
+                                    item233.dat$Avg_Window_Area > 0),]
+
+item233.dat1$Window_Area <- item233.dat1$Avg_Window_Area * item233.dat1$NumWindows
+
+#calculate the window to wall ratio
+item233.dat1$WindowToFloorArea <- item233.dat1$Window_Area / item233.dat1$FloorArea
+
+##########################################
+# Summary
+##########################################
+
+item233.sum1 <- summarise(group_by(item233.dat1, BuildingTypeXX)
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
+                          ,Mean       = mean(WindowToFloorArea)
+                          ,SE         = sd(WindowToFloorArea) / sqrt(SampleSize))
+
+item233.sum2 <- summarise(group_by(item233.dat1)
+                          ,BuildingTypeXX = "All Sizes"
+                          ,SampleSize = length(unique(CK_Cadmus_ID))
+                          ,Mean       = mean(WindowToFloorArea)
+                          ,SE         = sd(WindowToFloorArea) / sqrt(SampleSize))
+
+item233.sum <- rbind.data.frame(item233.sum1,
+                                item233.sum2,
+                                stringsAsFactors = F)
+item233.final <- data.frame("BuildingSize" = item233.sum$BuildingTypeXX,
+                            "Mean" = item233.sum$Mean,
+                            "SE" = item233.sum$SE,
+                            "SampleSize" = item233.sum$SampleSize,stringsAsFactors = F)

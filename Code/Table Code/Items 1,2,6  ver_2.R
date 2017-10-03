@@ -7,21 +7,26 @@
 #############################################################################################
 #############################################################################################
 # For items 1, 2, 6 - this code will summarize information to match the previous RBSA table
-#   Step 1: Obtain the count distribution of home type within each state
-#     as well as total information before a cast
-#   Step 2: Obtain the count distribution of home types across states (i.e. within region)
-#     as well as total information before a cast
-#   Step 3: Part a: Extract Sample Sizes for standard error calculations and join them onto 
-#             State and region information
-#           Part b: Note which sample sizes are to be used in the final tables
-#   Step 4: Calculate estimates and standard errors 
-#   Step 5: Put data into correct format for creating tables
-#   Step 6: Subset tables by building type and export to respective workbooks
+#   Step 1: State level analysis
+#   Step 2: Region level analysis
+#   Step 3: Put data into correct format for creating tables, Subset tables by building type 
+#           and export to respective workbooks
 #############################################################################################
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+#source
+SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
+source(file.path(SourcePath, "SourceCode.R"))
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
                                            ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+
+weights.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
+                                              ,paste("weights.data", rundate, ".xlsx", sep = "")))
 
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
@@ -33,100 +38,104 @@ item1.dat$count <- 1
 ########################
 # Step 1: State
 ########################
+
+item1.state <- summarise(group_by(item1.dat, BuildingType, State, Region, Strata, BuildingTypeXX)
+                         ,count = sum(count)
+                         ,p.h   = count / unique(n.h)
+)
+# join unweighted proportions onto pop and sample counts from weights data
+item1.state1 <- left_join(weights.dat, item1.state,  by = c("BuildingType", "State", "Region", "Strata"))
+
+item1.state1[is.na(item1.state1)] <- 0
+
 #summarise by home type
-item1.state <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX, State)
-                              ,Count = sum((N.h / n.h) * count)
-                              ,SampleSize = "")
+item1.state.weighted <- summarise(group_by(item1.state1, BuildingType, State, BuildingTypeXX)
+                                  ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h / sum(unique(N.h)))^2 * (w.percent * (1 - w.percent) / (n.h - 1))))
+                                  ,count     = sum(count)
+                                  ,n         = sum(unique(n.h))
+                                  ,N         = sum(unique(N.h)))
+
+item1.state1[item1.state1 == 0] <- NA
 #summarise across home types (total level)
-item1.state.tot <- summarise(group_by(item1.dat, BuildingType, State)
-                              ,BuildingTypeXX = "Total"
-                              ,Count = sum(N.h / n.h * count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be used for SE Calcs
-item1.state.full <- rbind.data.frame(item1.state, item1.state.tot, stringsAsFactors = F)
+item1.state.tot <- summarise(group_by(item1.state.weighted, BuildingType, State)
+                             ,BuildingTypeXX = "Total"
+                             ,w.percent = 1
+                             ,w.SE      = NA
+                             ,count     = sum(count, na.rm = T)
+                             ,n         = sum(unique(n), na.rm = T)
+                             ,N         = sum(unique(N), na.rm = T)) 
+item1.state.full <- rbind.data.frame(item1.state.weighted, item1.state.tot, stringsAsFactors = F)
+item1.state.final <- item1.state.full[which(is.na(item1.state.full$BuildingTypeXX)),]
+item1.state.final <- item1.state.full[which(item1.state.full$n != 0),]
 
 ########################
 # Step 2: Region (across states)
 ########################
-#by home types
-item1.region <- summarise(group_by(item1.dat, BuildingType, BuildingTypeXX)
-                               ,State = "Region"
-                               ,w.percent = sum(N.h * (count / n.h) ) / sum( unique(N.h) )
-                               ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table
-#summarise across home types
-item1.region.tot <- summarise(group_by(item1.dat, BuildingType)
-                               ,BuildingTypeXX = "Total"
-                               ,State = "Region"
-                               ,w.percent = sum(N.h * (count / n.h) ) / sum( unique(N.h) )
-                               ,SampleSize = length(unique(CK_Cadmus_ID))) #this n will be reported in table AND used for SE Calcs
-item1.region.full <- rbind.data.frame(item1.region, item1.region.tot, stringsAsFactors = F)
+item1.state1[is.na(item1.state1)] <- 0
+
+#summarise by home type
+item1.region.weighted <- summarise(group_by(item1.state1, BuildingType, BuildingTypeXX)
+                                   ,State = "Region"
+                                   ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h / sum(unique(N.h)))^2 * (w.percent * (1 - w.percent) / (n.h - 1))))
+                                   ,count     = sum(count)
+                                   ,n         = sum(unique(n.h))
+                                   ,N         = sum(unique(N.h)))
+
+item1.state1[item1.state1 == 0] <- NA
+#summarise across home types (total level)
+item1.region.tot <- summarise(group_by(item1.region.weighted, BuildingType)
+                              ,State = "Region"
+                              ,BuildingTypeXX = "Total"
+                              ,w.percent = 1
+                              ,w.SE      = NA
+                              ,count     = sum(count, na.rm = T)
+                              ,n         = sum(unique(n), na.rm = T)
+                              ,N         = sum(unique(N), na.rm = T))
 
 
-
-#rbind state and region information
-item1.full <- rbind.data.frame(item1.state.full, item1.region.full, stringsAsFactors = F)
-
-
-##################################################
-# Step 3 (part a): Sample Sizes for SEs
-##################################################
-# Extract sample sizes for standard error calculations from the Total Row information for states and region
-#   and subset to only columns needed
-item1.total <- rbind.data.frame(item1.state.tot, item1.region.tot, stringsAsFactors = F)
-item1.total1 <- item1.total[which(colnames(item1.total) %in% c("BuildingType"
-                                                               , "State"
-                                                               , "Count"
-                                                               , "SampleSize"))]
-
-# merge SE sample sizes onto rest of data
-item1.full1 <- left_join(item1.full, item1.total1, by = c("BuildingType", "State"))
-colnames(item1.full1) <- c("BuildingType"
-                           , "Home.Type"
-                           , "State"
-                           , "Count"
-                           , "Remove.SampleSize" # Step 3 (part b) -- This sample size is only used for the report table
-                           , "Total.Count"
-                           , "SampleSize")
+item1.region.full <- rbind.data.frame(item1.region.weighted, item1.region.tot, stringsAsFactors = F)
+item1.region.final <- item1.region.full[which(is.na(item1.region.full$BuildingTypeXX)),]
+item1.region.final <- item1.region.full[which(item1.region.full$n != 0),]
 
 
+############################################################
+# Step 3: Combine data, Cast data, create, and export tables
+############################################################
+#combine state and region information
+item1.full <- rbind.data.frame(item1.state.final, item1.region.final, stringsAsFactors = F)
+colnames(item1.full) <- c("BuildingType"
+                          , "State"
+                          , "Home.Type"
+                          , "Percent"
+                          , "SE"
+                          , "Count" 
+                          , "SampleSize"
+                          , "PopSize")
 
-##################################################
-# Step 4: Calculate Percent distribution and SEs
-##################################################
-# calculate Percent distribution
-item1.full1$Percent <- item1.full1$Count / item1.full1$Total.Count
-# the denominator of this SE is the sample size of the denominator in the percent
-item1.full1$SE      <- sqrt((item1.full1$Percent * (1 - item1.full1$Percent)) / item1.full1$SampleSize)
 
-      ##  This standard error is fine for the proportions within
-
-
-##################################################
-# Step 5: Cast data and create table
-##################################################
+#cast data into correct format
 library(data.table)
-item1.table <- dcast(setDT(item1.full1)
+item1.table <- dcast(setDT(item1.full)
                      ,formula = BuildingType + Home.Type ~ State
-                     ,value.var = c("Percent", "SE", "Remove.SampleSize"))
+                     ,value.var = c("Percent", "SE", "SampleSize"))
 
-item1.table1 <- data.frame("BuildingType"      = item1.table$BuildingType
-                             ,"Home.Type"      = item1.table$Home.Type
-                             ,"Percent_ID"     = "" #missing for now, only partial data, placeholder until we get full data
-                             ,"SE_ID"          = "" #missing for now, only partial data, placeholder until we get full data
-                             ,"Percent_MT"     = item1.table$Percent_MT
-                             ,"SE_MT"          = item1.table$SE_MT
-                             ,"Percent_OR"     = item1.table$Percent_OR
-                             ,"SE_OR"          = item1.table$SE_OR
-                             ,"Percent_WA"     = item1.table$Percent_WA
-                             ,"SE_WA"          = item1.table$SE_WA
-                             ,"Percent_Region" = item1.table$Percent_Region
-                             ,"SE_Region"      = item1.table$SE_Region
-                             ,"SampleSize"     = item1.table$Remove.SampleSize_Region)
+item1.table1 <- data.frame("BuildingType"    = item1.table$BuildingType
+                           ,"Home.Type"      = item1.table$Home.Type
+                           ,"Percent_ID"     = "" #item1.table$Percent_ID  -- missing for now, only partial data, placeholder until we get full data
+                           ,"SE_ID"          = "" #item1.table$SE_ID  -- missing for now, only partial data, placeholder until we get full data
+                           ,"Percent_MT"     = item1.table$Percent_MT
+                           ,"SE_MT"          = item1.table$SE_MT
+                           ,"Percent_OR"     = "" #item1.table$Percent_OR  -- missing for now, only partial data, placeholder until we get full data
+                           ,"SE_OR"          = "" #item1.table$SE_OR  -- missing for now, only partial data, placeholder until we get full data 
+                           ,"Percent_WA"     = item1.table$Percent_WA
+                           ,"SE_WA"          = item1.table$SE_WA
+                           ,"Percent_Region" = item1.table$Percent_Region
+                           ,"SE_Region"      = item1.table$SE_Region
+                           ,"SampleSize"     = item1.table$SampleSize_Region)
 
-
-##################################################
-# Step 6: Split table by building type
-# and export to correct workbook
-##################################################
+### Split into respective tables
 item1.table.SF <- item1.table1[which(item1.table1$BuildingType %in% c("Single Family")),-1]
 item1.table.MH <- item1.table1[which(item1.table1$BuildingType %in% c("Manufactured")),-1]
 

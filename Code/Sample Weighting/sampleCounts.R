@@ -8,7 +8,7 @@
 ##                    post-strata region
 #############################################################################################
 
-##  Clear variables
+# #  Clear variables
 # rm(list=ls())
 # rundate <-  format(Sys.time(), "%d%b%y")
 # options(scipen=999)
@@ -30,23 +30,26 @@
 ################################################################################
 
 # Call file names
-meter.export  <- "METERS_2017.06.16.xlsx"
 popZIP.datMap <- "ZIP_Code_Utility_Mapping.xlsx"
+
+meter.export  <- "METERS_2017.06.16.xlsx"
 bldg.export   <- "SITES_2017.06.16.xlsx"
 
 #############################################################################################
-# Import and Subset Data
+# Import, Subset, CLean Data
 #############################################################################################
 
 # Import clean RBSA data
 cleanRBSA.dat <- read.xlsx(paste(filepathCleanData
-                                 , paste("clean.rbsa.data", rundate, ".xlsx", sep = "")
+                                 , paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")
                                  , sep="/")
 )
 names(cleanRBSA.dat)
+# subset to necessary columns
 cleanRBSA.dat1 <- data.frame("CK_Cadmus_ID"     = cleanRBSA.dat$CK_Cadmus_ID
                              , "BuildingType"   = cleanRBSA.dat$BuildingType
                              , stringsAsFactors = F)
+# clean and count Cadmus IDs
 cleanRBSA.dat1$CK_Cadmus_ID   <- trimws(toupper(cleanRBSA.dat1$CK_Cadmus_ID))
 length(unique(cleanRBSA.dat1$CK_Cadmus_ID))  ## 601 unique ID's
 
@@ -54,19 +57,30 @@ length(unique(cleanRBSA.dat1$CK_Cadmus_ID))  ## 601 unique ID's
 cleanRBSA.dat1$BuildingType[grep("Multifamily", cleanRBSA.dat1$BuildingType)] <- "Multifamily"
 unique(cleanRBSA.dat1$BuildingType)
 
-# Import ID and ZIP data
+
+# Import ID, meter type, and utility data
 id_zip.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1)
 names(id_zip.dat)
-id_zip.dat1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
-                          , "ZIPCode"        = id_zip.dat$SITE_ZIP
+
+# Get ZIP codes from SITES data
+zipFromSites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, bldg.export), sheet=1)
+zipCodes <- zipFromSites.dat[which(colnames(zipFromSites.dat) %in% c("CK_Cadmus_ID","SITE_ZIP"))]
+names(zipCodes) <- c("CK_Cadmus_ID", "ZIPCode")
+
+# subset METER data to necessary columns
+id_zip.dat0.1 <- data.frame("CK_Cadmus_ID"     = id_zip.dat$CK_Cadmus_ID
+                          # , "ZIPCode"        = id_zip.dat$SITE_ZIP
                           , "Utility"        = id_zip.dat$Utility
                           , "MeterType"      = id_zip.dat$Type
                           , stringsAsFactors = F)
+id_zip.dat1 <- unique(left_join(zipCodes, id_zip.dat0.1, by="CK_Cadmus_ID"))
+
+# clean and count Cadmus IDs, clean utility and meter type
 id_zip.dat1$CK_Cadmus_ID <- trimws(toupper(id_zip.dat1$CK_Cadmus_ID))
 id_zip.dat1$Utility      <- trimws(toupper(id_zip.dat1$Utility))
 id_zip.dat1$MeterType    <- trimws(toupper(id_zip.dat1$MeterType))
 id_zip.dat1$ZIPCode      <- as.numeric(substr(id_zip.dat1$ZIPCode, 1, 5))  ## Remove ZIP-Ext
-length(unique(id_zip.dat1$CK_Cadmus_ID))  ## 567 unique respondent ID's
+length(unique(id_zip.dat1$CK_Cadmus_ID))  ## 601 unique respondent ID's
 
 # Indicate invalid ZIP codes
 id_zip.dat1$invalidZIP <- rep(0, nrow(id_zip.dat1))
@@ -78,16 +92,30 @@ id_zip.dat2 <- id_zip.dat1[which(id_zip.dat1$MeterType == "ELECTRIC"),]
 
       ##  QA/QC: Any lost customers?
       length(unique(id_zip.dat1$CK_Cadmus_ID)) == length(unique(id_zip.dat2$CK_Cadmus_ID))
-      ##  0 lost customers
+      ##  35 lost customers
 
+      id_zip.dat1$CK_Cadmus_ID[which(id_zip.dat1$CK_Cadmus_ID %notin% id_zip.dat2$CK_Cadmus_ID)]
+      
 # Import ZIP code mapping
 zipMap.dat <- read.xlsx(xlsxFile = file.path(filepathWeightingDocs, popZIP.datMap), sheet=1)
-names(zipMap.dat)   <- c("ZIPCode", "City", "County", "State", "Region", "FERC_ID", "Utility"
-                         , "Fraction", "BPA_vs_IOU", "SF.N", "MF.N", "MH.N", "SF.N.adj"
-                         , "MF.N.adj", "MH.N.adj")
+names(zipMap.dat)   <- c("ZIPCode"
+                         , "City"
+                         , "County"
+                         , "State"
+                         , "Region"
+                         , "FERC_ID"
+                         , "Utility"
+                         , "Fraction"
+                         , "BPA_vs_IOU"
+                         , "SF.N"
+                         , "MF.N"
+                         , "MH.N"
+                         , "SF.N.adj"
+                         , "MF.N.adj"
+                         , "MH.N.adj")
 head(zipMap.dat)
 
-# Clean up data
+# Clean up data: clean utility, remove any punctuation from utility, make zip codes numeric
 zipMap.dat$Utility <- trimws(toupper(zipMap.dat$Utility))
 zipMap.dat$Utility <- gsub('[[:punct:]]+', '', zipMap.dat$Utility)
 zipMap.dat$ZIPCode <- as.numeric(zipMap.dat$ZIPCode)  
@@ -103,6 +131,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
       sort(unique(zipMap.dat1$Utility), decreasing=F)
       sort(unique(id_zip.dat2$Utility), decreasing=F)
       
+##  Andrew: were these reviewed with Rietz or Steve?, are there any others that could have been missed?
       ##  Fix mismatches
       zipMap.dat1$Utility[which(zipMap.dat1$Utility == "PUD NO 1 OF SKAMANIA CO")] <-
         "PUD #1 SKAMANIA COUNTY"
@@ -116,7 +145,8 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
         "GLACIER ELECTRIC COOP"
       zipMap.dat1$Utility[which(zipMap.dat1$Utility == "LAKEVIEW LIGHT  POWER")] <-
         "LAKEVIEW POWER & LIGHT"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "")] <-
+## Double check this is right --  Mission Valley Power     
+      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "USBIAMISSION VALLEY POWER")] <-
         "MISSION VALLEY POWER"
       zipMap.dat1$Utility[which(zipMap.dat1$Utility == "MISSOULA ELECTRIC COOP INC")] <-
         "MISSOULA ELECTRIC COOP"
@@ -132,13 +162,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
         "SNOHOMISH PUD"
       zipMap.dat1$Utility[which(zipMap.dat1$Utility == "USBIAMISSION VALLEY POWER")] <-
         "MISSION VALLEY POWER"
-      
 
-      # id_zip.dat1$ZIPCode[which(id_zip.dat1$Utility == "NORTHWEST NATURAL")] #Not in id_zip
-      # which(id_zip.dat1$ZIPCode[which(id_zip.dat1$Utility == "NORTHWESTERN ENERGY")] %in%
-      #       zipMap.dat1$ZIPCode[which(zipMap.dat1$Utility == "NORTHWESTERN CORPORATION")])
-      # chkZip <- c(id_zip.dat1$ZIPCode[which(id_zip.dat1$Utility == "NORTHWESTERN ENERGY")])[c(10,11,13,14)]
-      # id_zip.dat1$Utility[chkZip]
       
       ##  QA/QC: How many missing?
       length(id_zip.dat2$Utility[which(id_zip.dat2$Utility == "-- DID NOT ENTER! --")])  ## 0 not entered
@@ -148,32 +172,31 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
 # Merge data and assign electric utility
 #############################################################################################
 
-# Join ZIP codes to building type data
+# Join ZIP codes to cleaned building type data
 samp.dat.0       <- left_join(cleanRBSA.dat1, id_zip.dat2, by="CK_Cadmus_ID")
 # Join ZIP mapping to previous step
 samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by="ZIPCode")
 samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
-head(samp.dat.1)  ##  959 rows
+head(samp.dat.1)  
+nrow(samp.dat.1)##  959 rows (old) - 9/12 671 rows
 
-##  Replace missing utility from sample data with utility from zip code mapping
-# missingInd <- which(samp.dat.1$Utility.x == "-- DID NOT ENTER! --")
-samp.dat.2 <- samp.dat.1
-# samp.dat.2$Utility.x[missingInd] <- samp.dat.2$Utility.y[missingInd]
-
-# Remove full row duplicates
-dupRows    <- which(duplicated(samp.dat.2))  
-samp.dat.3 <- samp.dat.2[-dupRows,]   ##  862 rows
-
-##  Cust ID's with duplicates
-dupCustIDs <- unique(samp.dat.3$CK_Cadmus_ID[which(duplicated(samp.dat.3$CK_Cadmus_ID))])
-dupUtil.0  <- samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% dupCustIDs),]
-
+colnames(samp.dat.1) <- c("CK_Cadmus_ID"
+                          ,"BuildingType"
+                          ,"ZIPCode"
+                          ,"Utility.Customer.Data"
+                          ,"MeterType"
+                          ,"invalidZIP"
+                          ,"State"
+                          ,"Region"
+                          ,"Utility.ZIP.map"
+                          ,"BPA_vs_IOU"
+                          ,"tally")
 
 ########################################################################################
 ##                                                                                    ##
 ##  STEP 1:
 ##  IF    Cust data utility is "-- DID NOT ENTER! --"
-##        ->  Replace with ZIP map utility (Completed above)
+##        ->  Replace with ZIP map utility
 ##                                                                                    ##
 ##  STEP 2:
 ##  IF    ZIP map utility has duplicates
@@ -184,10 +207,26 @@ dupUtil.0  <- samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% dupCustIDs),]
 ##  STEP 3:
 ##  IF    ZIP map has no duplicates
 ##        IF    Cust data has no duplicates
-##              ->  Tag for manual fix
+##              ->  Tag for manual fix 
 ##        ELSE  Use cust data utility
 ##                                                                                    ##
 ########################################################################################
+
+
+
+
+##  Replace missing utility from sample data with utility from zip code mapping
+# missingInd <- which(samp.dat.1$Utility.Customer.Data == "-- DID NOT ENTER! --")
+samp.dat.2 <- samp.dat.1
+# samp.dat.2$Utility.Customer.Data[missingInd] <- samp.dat.2$Utility.ZIP.map[missingInd]
+
+# Remove full row duplicates
+dupRows    <- which(duplicated(samp.dat.2))  
+samp.dat.3 <- samp.dat.2[-dupRows,]   ##  862 rows
+
+##  Cust ID's with duplicates
+dupCustIDs <- unique(samp.dat.3$CK_Cadmus_ID[which(duplicated(samp.dat.3$CK_Cadmus_ID))])
+dupUtil.0  <- samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% dupCustIDs),]
 
 
 # Initialize counter and output vector
@@ -201,38 +240,38 @@ dupUtil.0$Utility <- rep("MISSING", nrow(dupUtil.0))
 ##  For loops to assign utility as per above logic
 ##  STEP 2
 for(cntr in 1:length(dupCustIDs)) {
-  if("TRUE" %in% duplicated(dupUtil.0$Utility.y[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
-    if("TRUE" %in% duplicated(dupUtil.0$Utility.x[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
+  if("TRUE" %in% duplicated(dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
+    if("TRUE" %in% duplicated(dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
         dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- "MANUAL FIX"
     } 
     else {
       dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- 
-        dupUtil.0$Utility.y[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])]
+        dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])]
     }
   }
 }
 
 ##  STEP 3
 for(cntr in 1:length(dupCustIDs)) {
-  if("TRUE" %notin% duplicated(dupUtil.0$Utility.y[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
-    if("TRUE" %notin% duplicated(dupUtil.0$Utility.x[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
+  if("TRUE" %notin% duplicated(dupUtil.0$Utility.ZIP.map[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
+    if("TRUE" %notin% duplicated(dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])])) {
       dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- "MANUAL FIX"
     } 
     else {
       dupUtil.0$Utility[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])] <- 
-        dupUtil.0$Utility.x[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])]
+        dupUtil.0$Utility.Customer.Data[which(dupUtil.0$CK_Cadmus_ID == dupCustIDs[cntr])]
     }
   }
 }
 
 ##  Subset to ID and Utility column and merge back into sample data
 names(dupUtil.0)
-dupUtil.1  <- unique(dupUtil.0[,c(1,12)])
+dupUtil.1  <- unique(dupUtil.0[which(colnames(dupUtil.0) %in% c("CK_Cadmus_ID", "Utility"))]) 
 samp.dat.4 <- left_join(samp.dat.3, dupUtil.1, by="CK_Cadmus_ID")
 
 ##  For non-duplicates, use cust data
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <- 
-  samp.dat.4$Utility.x[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)]
+  samp.dat.4$Utility.Customer.Data[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)]
 
 ##########################################
 ##                                      ##
@@ -243,16 +282,18 @@ samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID %notin% dupCustIDs)] <-
 
 utilFix <- samp.dat.4[,which(names(samp.dat.4) %in% c("CK_Cadmus_ID"
                                                       , "ZIPCode"
-                                                      , "Utility.x"
-                                                      , "Utility.y"))]
+                                                      , "Utility.Customer.Data"
+                                                      , "Utility.ZIP.map"))]
 
-##  Based on inspection
+
+##  Based on Review of data frame 
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="BPS25495 OS BPA")]  <- "CITY OF TACOMA"
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="WH3590")]           <- "PUGET SOUND ENERGY"
 
 ## Based on others in ZIP
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SG0200 OS SCL")]    <- "SEATTLE CITY LIGHT"
 samp.dat.4$ZIPCode[which(samp.dat.4$CK_Cadmus_ID =="SG0200 OS SCL")]    <- 98118
+samp.dat.4$invalidZIP[which(samp.dat.4$CK_Cadmus_ID =="SG0200 OS SCL")]    <- 0
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SL2122 OS SCL")]    <- "SEATTLE CITY LIGHT"
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SE2163 OS SCL")]    <- "SEATTLE CITY LIGHT"
 samp.dat.4$Utility[which(samp.dat.4$CK_Cadmus_ID =="SL1673 OS SCL")]    <- "SEATTLE CITY LIGHT"
@@ -274,23 +315,26 @@ samp.dat.4$BPA_vs_IOU[which(samp.dat.4$Utility == "NORTHWESTERN ENERGY")]    <- 
 samp.dat.4$BPA_vs_IOU[which(samp.dat.4$Utility == "MISSION VALLEY POWER")]   <- "BPA"
 samp.dat.4$BPA_vs_IOU[which(samp.dat.4$Utility == "MISSOULA ELECTRIC COOP")] <- "BPA"
 
-##  Remove old utility columns and duplicate rows
-samp.dat.5 <- unique(samp.dat.4[,-which(names(samp.dat.4) %in% c("Utility.x", "Utility.y"))])
-which(duplicated(samp.dat.5$CK_Cadmus_ID)) ## All duplicates removed
 
-##  Last fixes
-##  Still needs fix
-# samp.dat.5$Utility[which(samp.dat.5$CK_Cadmus_ID == "MS3162 OS")]    <- "MISSOULA ELECTRIC COOP -OR- NORTHWESTERN ENERGY"
-# samp.dat.5$BPA_vs_IOU[which(samp.dat.5$CK_Cadmus_ID == "MS3162 OS")] <- NA
-##  Remove invalid ZIP and leave correct record
-# samp.dat.5 <- samp.dat.5[-which(samp.dat.5$CK_Cadmus_ID == "SG0200 OS SCL" &
-                                # is.na(samp.dat.5$State)),] ##
+##  UPDATES 9/11-12/2017
+samp.dat.4$State[which(samp.dat.4$CK_Cadmus_ID  =="SG0200 OS SCL")] <- "WA"
+samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="SG0200 OS SCL")] <- "PS"
+samp.dat.4$State[which(samp.dat.4$CK_Cadmus_ID  =="SE2257 OS SCL")] <- "WA"
+samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="SE2257 OS SCL")] <- "PS"
+samp.dat.4$State[which(samp.dat.4$CK_Cadmus_ID  =="SG0200 OS SCL")] <- "WA"
+samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="SG0200 OS SCL")] <- "PS"
+samp.dat.4$State[which(samp.dat.4$CK_Cadmus_ID  =="SL0418 OS SCL")] <- "WA"
+samp.dat.4$Region[which(samp.dat.4$CK_Cadmus_ID =="SL0418 OS SCL")] <- "PS"
+
+
+##  Remove old utility columns and duplicate rows
+samp.dat.5 <- unique(samp.dat.4[,-which(names(samp.dat.4) %in% c("Utility.Customer.Data", "Utility.ZIP.map"))])
+which(duplicated(samp.dat.5$CK_Cadmus_ID)) ## All duplicates removed
 
 # Summarize sample counts
 sampCounts.0 <- summarise(group_by(samp.dat.5
-                                 , BuildingType, State, Region, Utility, BPA_vs_IOU)
-                        , n = sum(tally))
-
+                                   , BuildingType, State, Region, Utility, BPA_vs_IOU)
+                          , n = sum(tally))
 
 
 #############################################################################################
@@ -378,15 +422,26 @@ allCounts.0$N.h[which(allCounts.0$BuildingType == "Manufactured")] <-
   allCounts.0$N_MH.h[which(allCounts.0$BuildingType == "Manufactured")]
 
 # Multifamily Homes
-allCounts.0$N.h[which(allCounts.0$BuildingType == "Multifamily")] <- 
-  allCounts.0$N_MF.h[which(allCounts.0$BuildingType == "Multifamily")]
+allCounts.0$N.h[grep("Multifamily",allCounts.0$BuildingType)] <- 
+  allCounts.0$N_MF.h[grep("Multifamily",allCounts.0$BuildingType)]
 
 # Remove unnecessary columns
 allCounts.1 <- allCounts.0[,-which(names(allCounts.0) %in% c("N_SF.h", "N_MH.h", "N_MF.h"))]
 allCounts.1$n.h <- as.numeric(allCounts.1$n.h)
 allCounts.1$N.h <- as.numeric(allCounts.1$N.h)
 
-# Compute expansion weights
-allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
 
+######Some are still missing???
+
+# Compute expansion weights
+# allCounts.1$w.h <- round(allCounts.1$N.h/allCounts.1$n.h, 2)
+
+
+
+
+
+
+##  Exportt clean data merged with weights
+write.xlsx(rbsa.dat5, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 
