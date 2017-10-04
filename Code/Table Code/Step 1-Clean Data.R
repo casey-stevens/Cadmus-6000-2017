@@ -52,8 +52,8 @@ length(unique(site.dat1$CK_Cadmus_ID)) #601
 
 #replace all missing states with actual
 state.na.ind <- site.dat1$CK_Cadmus_ID[which(is.na(site.dat1$State))]
-state.sub <- site.dat1[which(!(site.dat1$CK_Cadmus_ID %in% state.na.ind)),]
-state.sub1 <- unique(state.sub[which(colnames(state.sub) %in% c("CK_Cadmus_ID", "State"))])
+state.sub    <- site.dat1[which(!(site.dat1$CK_Cadmus_ID %in% state.na.ind)),]
+state.sub1   <- unique(state.sub[which(colnames(state.sub) %in% c("CK_Cadmus_ID", "State"))])
 
 site.dat2 <- site.dat1[which(colnames(site.dat1) != "State")]
 site.dat3 <- left_join(site.dat2, state.sub1, by = "CK_Cadmus_ID")
