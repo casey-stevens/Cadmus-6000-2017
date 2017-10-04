@@ -7,7 +7,7 @@
 #############################################################################################
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
@@ -72,9 +72,27 @@ item32.final <- left_join(item32.merge, item32.tmp3, by = "BuildingType")
 item32.final$Percent <- item32.final$Count / item32.final$TotalCount
 item32.final$SE      <- sqrt(item32.final$Percent * (1 - item32.final$Percent) / item32.final$SampleSize)
 
+item32.table <- data.frame("BuildingType" = item32.final$BuildingType
+                           ,"Framing.Categories" = item32.final$Framing.Categories
+                           ,"Percent" = item32.final$Percent
+                           ,"SE" = item32.final$SE
+                           ,"SampleSize" = item32.final$SampleSize)
 
 ###Subset to only single family
-item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family"),]
+item32.final.SF <- item32.table[which(item32.table$BuildingType == 'Single Family'),
+                                -which(colnames(item32.table) == 'BuildingType')]
+
+###Package xlsx working only now for some reason here is a template
+workbook.SF <- xlsx::loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
+tableSheets <- xlsx::getSheets(workbook.SF)
+tableSheet  <- tableSheets$`Table 39`
+addDataFrame(x = item32.final.SF,
+             sheet = tableSheet,
+             startRow = 20)
+
+xlsx::saveWorkbook(wb = workbook.SF,
+                   file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", 
+                                sep = "/"))
 
 ##################################### Table Format #####################################
 
