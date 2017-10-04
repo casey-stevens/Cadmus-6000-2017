@@ -18,6 +18,8 @@ library(openxlsx)
 library(stringr)
 library(data.table)
 
+source('LOCAL.R')
+
 ################################################################################
 # SET FILEPATHS for folders and file names of:
 # - raw input data

@@ -7,7 +7,7 @@
 #############################################################################################
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 
 #Read in data for analysis
@@ -68,6 +68,12 @@ item19.table <- data.frame("BuildingType" = item19.final$BuildingType
                            ,"SE" = item19.final$SE
                            ,"SampleSize" = item19.final$SampleSize)
 
+item19.table.SF <- item19.table[which(item19.table$BuildingType == 'Single Family'),
+                                -which(colnames(item19.table) == 'BuildingType')]
+
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
+writeData(workbook.SF, sheet = "Table 26", x = item19.table.SF, startRow = 20)
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
