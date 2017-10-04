@@ -156,3 +156,10 @@ item9.sum3 <- summarise(group_by(item9.dat1, BuildingType)
 )
 
 item9.final <- rbind.data.frame(item9.sum2, item9.sum3, stringsAsFactors = F)
+
+item9.final.SF <- item9.final[which(item9.final$BuildingType == 'Single Family'),
+                              -which(colnames(item9.final) == 'BuildingType')]
+
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
+writeData(workbook.SF, sheet = "Table 16", x = item9.final.SF, startRow = 20)
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
