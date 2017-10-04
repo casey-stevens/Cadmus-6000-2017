@@ -73,8 +73,7 @@ item19.table.SF <- item19.table[which(item19.table$BuildingType == 'Single Famil
 
 workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
 writeData(workbook.SF, sheet = "Table 26", x = item19.table.SF, startRow = 20)
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY test.xlsx", sep="/"))
 
 
 #############################################################################################
