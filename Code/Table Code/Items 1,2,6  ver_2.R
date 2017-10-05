@@ -18,7 +18,8 @@ rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
 #source
-SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
+if("Casey.Stevens" %in% dir(file.path("C:","Users"))) SourcePath <- file.path("C:", "Users", "Casey.Stevens", "Documents", "Git", "Cadmus-6000-2017", "Cadmus-6000-2017", "Code", "Table Code")
+# if("Andres.Roma"   %in% dir(file.path("C:","Users"))) SourcePath <- file.path("C:", "Users", "Andres.Roma"  , "Documents", "Git", "Cadmus-6000-2017", "Cadmus-6000-2017", "Code", "Table Code")
 
 
 file.exists(file.path(SourcePath, "SourceCode.R"))
