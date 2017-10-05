@@ -233,13 +233,13 @@ item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, Sta
 #   Summarise data up to strata level
 ######################################################
 item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Territory)
-                              ,n_h = unique(n.h)
-                              ,N_h = unique(N.h)
-                              ,fpc = (1 - n_h / N_h)
-                              ,w_h = n_h / N_h
+                              ,n_h        = unique(n.h)
+                              ,N_h        = unique(N.h)
+                              ,fpc        = (1 - n_h / N_h)
+                              ,w_h        = n_h / N_h
                               ,strataArea = sum(siteAreaConditioned) / n_h
                               ,strataSD   = sd(siteAreaConditioned)
-                              ,n   = length(unique(CK_Cadmus_ID))
+                              ,n          = length(unique(CK_Cadmus_ID))
 )
 
 item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
@@ -249,10 +249,9 @@ item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 #   Perform state level analysis
 ######################################################
 item4.state <- summarise(group_by(item4.strata, BuildingType, State)
-                        ,Mean = sum(N_h * strataArea) / sum(N_h)
-                        ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                      sum(N_h^2 * strataSD^2 / n_h))
-                        ,SampleSize         = sum(unique(n))
+                        ,Mean       = sum(N_h * strataArea) / sum(N_h)
+                        ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                        ,SampleSize = sum(unique(n))
                         )
 
 
@@ -261,11 +260,10 @@ item4.state <- summarise(group_by(item4.strata, BuildingType, State)
 #   Perform region level analysis
 ######################################################
 item4.region <- summarise(group_by(item4.strata, BuildingType)
-                              ,State = "Region"
-                              ,Mean = sum(N_h * strataArea) / sum(N_h)
-                              ,SE  = sqrt((1 / sum(unique(N_h)))^2 * 
-                                            sum(N_h^2 * strataSD^2 / n_h))
-                              ,SampleSize         = sum(unique(n)))
+                              ,State      = "Region"
+                              ,Mean       = sum(N_h * strataArea) / sum(N_h)
+                              ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                              ,SampleSize = sum(unique(n)))
 
 
 ######################################################
