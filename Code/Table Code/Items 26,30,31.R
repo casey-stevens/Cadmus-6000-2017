@@ -5,6 +5,14 @@
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+# Source
+source("Code/Table Code/SourceCode.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -44,6 +52,7 @@ ceiling.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 , "Ceiling.Insulation.Type.3"
                                                                 , "Ceiling.Insulation.Thickness.3"))]
 length(unique(ceiling.dat$CK_Cadmus_ID))#584 - missing 15 sites
+unique(ceiling.dat$Ceiling.Type)
 
 ceiling.dat0 <- ceiling.dat[which(ceiling.dat$`Ceiling.Insulated?` %in% c("Yes", "No")),]
 ceiling.dat1.0 <- ceiling.dat0[which(!(is.na(ceiling.dat0$Ceiling.Area))),]
@@ -58,7 +67,7 @@ ceiling.dat2 <- left_join(rbsa.dat, ceiling.dat1, by = "CK_Cadmus_ID")
 #subset to only single family sites
 ceiling.dat2.5 <- ceiling.dat2[which(ceiling.dat2$BuildingType == "Single Family"),]
 
-length(unique(ceiling.dat2.5$CK_Cadmus_ID))#254
+length(unique(ceiling.dat2.5$CK_Cadmus_ID))#349
 unique(ceiling.dat2.5$`Ceiling.Insulated?`)
 
 ceiling.dat3 <- ceiling.dat2.5
@@ -159,7 +168,7 @@ for (i in 1:length(rvals$Type.of.Insulation)){
 ###########################
 
 ceiling.dat5 <- ceiling.dat4
-length(unique(ceiling.dat5$CK_Cadmus_ID)) #254 -- check with line 66
+length(unique(ceiling.dat5$CK_Cadmus_ID)) #349 -- check with line 66
 
 ###########################
 # Cleaning step (NA to zero)
@@ -173,13 +182,13 @@ ceiling.dat5$inches2[which(ceiling.dat5$`Ceiling.Insulated?` == "No")] <- 0
 ceiling.dat5$inches3[which(ceiling.dat5$`Ceiling.Insulated?` == "No")] <- 0
 
 #replace any inches and rvalues that are NA with zeros
-for(i in 30:35){
+for(i in 49:54){
   ceiling.dat5[,i] <- ifelse(is.na(ceiling.dat5[,i]), 0, ceiling.dat5[,i])
 }
 
 
 #make all inches and rvalue columns numeric
-for(i in 30:35){
+for(i in 49:54){
   ceiling.dat5[,i] <- as.numeric(as.character(ceiling.dat5[,i]))
 }
 
@@ -189,6 +198,7 @@ unique(ceiling.dat6$rvalues1)
 unique(ceiling.dat6$rvalues2)
 unique(ceiling.dat6$rvalues3)
 
+length(unique(ceiling.dat6$CK_Cadmus_ID)) # 238 without missing ceiling insulation info
 ###########################
 # End Cleaning step
 ###########################
@@ -220,10 +230,10 @@ weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
 Ceiling.unique <- unique(ceiling.dat6[which(colnames(ceiling.dat6) %in% c("CK_Cadmus_ID","BuildingType"))])
 
 ceiling.dat7 <- left_join(weightedU, Ceiling.unique, by = "CK_Cadmus_ID")
-length(unique(ceiling.dat7$CK_Cadmus_ID))
+length(unique(ceiling.dat7$CK_Cadmus_ID)) #238
 
 ceiling.dat8 <- left_join(ceiling.dat7, rbsa.dat, by = c("CK_Cadmus_ID", "BuildingType"))
-length(unique(ceiling.dat8$CK_Cadmus_ID))
+length(unique(ceiling.dat8$CK_Cadmus_ID)) #238
 
 #############################################################################################
 #############################################################################################

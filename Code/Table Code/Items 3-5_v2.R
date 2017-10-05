@@ -16,6 +16,14 @@
 #   Step 4: combine full data into one, put data into correct format for creating tables,
 #           subset tables by building type and export to respective workbooks
 #############################################################################################
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+# Source
+source("Code/Table Code/SourceCode.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
