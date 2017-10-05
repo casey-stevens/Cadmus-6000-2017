@@ -484,6 +484,8 @@ samp.dat.7 <- left_join(samp.dat.5, final.counts, by = c("BuildingType"
 samp.dat.final <- left_join(samp.dat.7, cleanRBSA.dat, by = c("CK_Cadmus_ID", "BuildingType", "State"))
 unique(samp.dat.final$BuildingTypeXX)
 
+############    ADD FAKE KWH USAGE ONTO SAMP.DAT.FINAL ######################
+
 ##  Export clean data merged with weights
 write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
