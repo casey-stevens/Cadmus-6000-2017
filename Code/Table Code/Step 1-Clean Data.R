@@ -188,17 +188,19 @@ rbsa.dat4 <- left_join(rbsa.dat3, rbsa.sub3, by = "CK_Cadmus_ID")
   zip.sub[which(zip.sub$CK_Cadmus_ID %in% zip.dup.ind),] #export this to let Rietz give correct info
 
   #identify which accounts have NA for ZIP
-  missing.zip <- zip.sub$CK_Cadmus_ID[which(is.na(zip.sub$ZIP))]
+  missing.zip <- zip.sub$CK_Cadmus_ID[which(is.na(zip.sub$ZIP) | zip.sub$ZIP == "Unknown")]
   missing.zip #export this to let Rietz give correct info
   
   #for site ID WS3209, discrepancy occurs in ZIP
-  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "WS3209")]   <- 98030
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "WS3209")]           <- 98030
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "KM23438 OS PSE")]   <- 98188
   
 
 #############################################################################################
 # Fix missing building type information
 #############################################################################################
 rbsa.dat5 <- rbsa.dat4
+length(unique(rbsa.dat5$CK_Cadmus_ID)) #601
 
   rbsa.check2 <- rbsa.dat5[which(!(is.na(rbsa.dat5$BuildingType))),]
   length(unique(rbsa.check2$CK_Cadmus_ID)) #596 -- missing 5
@@ -230,17 +232,24 @@ rbsa.dat5$BuildingTypeXX[which(rbsa.dat5$CK_Cadmus_ID == "MS3085")]          <- 
 #   then there are duplicated IDs because of discrepancies in the data
 #############################################################################################
 rbsa.dat6 <- unique(rbsa.dat5[which(!(is.na(rbsa.dat5$BuildingType))),])
+length(unique(rbsa.dat6$CK_Cadmus_ID)) #601
   
   #QAQC - are the number of unique IDs equal to the number of rows in the dataset?
   stopifnot(length(unique(rbsa.dat6$CK_Cadmus_ID)) == nrow(rbsa.dat6))
   
     #if not, identify where the duplicates are occurring
     dup.ind1 <- unique(rbsa.dat6$CK_Cadmus_ID[which(duplicated(rbsa.dat6$CK_Cadmus_ID))])
-    IND2 <- rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% dup.ind1),]
-    rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% IND2),]
+    rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% dup.ind1),]
     
     #For Site ID SE0872, the disrepancy occurs in home type
     rbsa.dat6$BuildingTypeXX[which(rbsa.dat6$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Single Family Detached"
+    
+    #fix zip codes (export site ids to Rietz, have him fill them in)
+    rbsa.dat6$ZIP[which(rbsa.dat6$CK_Cadmus_ID == "BPM21777 OS BPA")]   <- 98103
+    rbsa.dat6$ZIP[which(rbsa.dat6$CK_Cadmus_ID == "BPM24677 OS BPA")]   <- 98125
+    rbsa.dat6$ZIP[which(rbsa.dat6$CK_Cadmus_ID == "PSM26922 CORE")]     <- 98108
+    rbsa.dat6$ZIP[which(rbsa.dat6$CK_Cadmus_ID == "SG0200 OS SCL")]     <- 98118 
+    rbsa.dat6$ZIP[which(rbsa.dat6$CK_Cadmus_ID == "PNM22969 OS PSE")]   <- 98439 
 
 
 rbsa.dat7 <- unique(rbsa.dat6[which(!(duplicated(rbsa.dat6$CK_Cadmus_ID))),])
