@@ -209,7 +209,7 @@ colnames(item4.dat) <- c("CK_Cadmus_ID"
 
 #merge
 item4.dat0 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
-length(unique(item4.dat0$CK_Cadmus_ID)) #559
+length(unique(item4.dat0$CK_Cadmus_ID)) #601
 
 item4.dat1 <- item4.dat0[which(item4.dat0$BuildingType != "Multifamily"),]
 
@@ -218,13 +218,13 @@ item4.dat1$ConditionedArea <- as.numeric(as.character(item4.dat1$BldgLevel_Area_
 
 #remove NAs
 item4.dat2 <- item4.dat1[which(!(is.na(item4.dat1$ConditionedArea))),]
-length(unique(item4.dat2$CK_Cadmus_ID)) #355
+length(unique(item4.dat2$CK_Cadmus_ID)) #374
 
 
 ######################################################
 # Step 1.1: Summarise data up to unique customer level
 ######################################################
-item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Region, Strata, n.h, N.h)
+item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Region, Territory, n.h, N.h)
                       ,siteAreaConditioned = sum(ConditionedArea)
 )
 
@@ -232,7 +232,7 @@ item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, Sta
 # Step 1.2: Using customer level data,
 #   Summarise data up to strata level
 ######################################################
-item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Strata)
+item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Territory)
                               ,n_h = unique(n.h)
                               ,N_h = unique(N.h)
                               ,fpc = (1 - n_h / N_h)
@@ -242,7 +242,7 @@ item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, 
                               ,n   = length(unique(CK_Cadmus_ID))
 )
 
-item4.state.dat0$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
+item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 
 ######################################################
 # Step 2: Using strata level data,
@@ -275,17 +275,18 @@ item4.region <- summarise(group_by(item4.strata, BuildingType)
 ######################################################
 item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
 
+### Andres added: issues with exporting - check to see this got resolved
+# item4.final.SF <- item4.final[which(item4.final$BuildingType == 'Single Family'),
+#                               -which(colnames(item4.final) == 'BuildingType')]
+# 
+# 
+# workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
+# writeData(workbook.SF, sheet = "Table 11", x = item4.final.SF, startRow = 20)
+# saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
 
-<<<<<<< HEAD
-item4.final.SF <- item4.final[which(item4.final$BuildingType == 'Single Family'),
-                              -which(colnames(item4.final) == 'BuildingType')]
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
-writeData(workbook.SF, sheet = "Table 11", x = item4.final.SF, startRow = 20)
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-=======
-item4.table.SF <- item4.table1[which(item4.table1$BuildingType %in% c("Single Family")),-1]
-item4.table.MH <- item4.table1[which(item4.table1$BuildingType %in% c("Manufactured")),-1]
->>>>>>> e384bf576462bf9d7c38096a4fc42fb902103613
+item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
+item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
+
 
 library(openxlsx)
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
