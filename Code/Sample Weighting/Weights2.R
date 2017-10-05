@@ -25,6 +25,7 @@ options(scipen=999)
 #source
 SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
 source(file.path(SourcePath, "SourceCode.R"))
+source("Code/Table Code/SourceCode.R")
 
 # Call file names
 popZIP.datMap <- "ZIP_Code_Utility_Mapping.xlsx"
@@ -485,6 +486,9 @@ samp.dat.final <- left_join(samp.dat.7, cleanRBSA.dat, by = c("CK_Cadmus_ID", "B
 unique(samp.dat.final$BuildingTypeXX)
 
 ############    ADD FAKE KWH USAGE ONTO SAMP.DAT.FINAL ######################
+samp.dat.final$kWh_usage_fake <- ceiling(runif(n = nrow(samp.dat.final),
+                                               min = 3000, 
+                                               max = 30000))
 
 ##  Export clean data merged with weights
 write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
