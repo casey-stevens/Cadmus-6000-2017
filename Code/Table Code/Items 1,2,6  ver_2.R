@@ -40,71 +40,70 @@ item1.dat$count <- 1
 # Step 1: State
 ########################
 
+#sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
 item1.state1 <- summarise(group_by(item1.dat, BuildingType, State, Region, Territory)
                          ,N.h   = unique(N.h)
                          ,n.h   = unique(n.h)
 )
+# obtain count and proportion by strata and home type
 item1.state2 <- summarise(group_by(item1.dat, BuildingType, State, Region, Territory, BuildingTypeXX)
                          ,count = sum(count)
                          ,p.h   = count / unique(n.h)
 )
-item1.state <- left_join(item1.state2, item1.state1, by = c("BuildingType", "State", "Region", "Territory"))
+
+item1.state <- left_join(item1.state2 , item1.state1, by = c("BuildingType", "State", "Region", "Territory"))
+
+#obtain the total population size for the building type by state combination observed in the sample
+weights.state <- summarise(group_by(item1.state, BuildingType, State)
+                         ,State.N.h = sum(unique(N.h))
+                         ,State.n.h = sum(unique(n.h)))
+
+item1.state.join <- left_join(item1.state, weights.sum, by = c("BuildingType","State"))
 
 
 #summarise by home type
-item1.state.weighted1 <- summarise(group_by(item1.dat, BuildingType, State)
-                          ,N   = sum(unique(N.h))
-                          ,n   = sum(count)
-)
-item1.state.weighted2 <- summarise(group_by(item1.state, BuildingType, State, BuildingTypeXX)
-                                  ,w.percent = sum(N.h * (count / n.h)) / sum(unique(N.h))
-                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (w.percent * (1 - w.percent)))) / sum(unique(N.h))
-                                  ,count     = sum(count))
-
-# Checking calculations from item1.state for Manufactured Homes in WA for housing type "Double Wide"
-# ((12253 * (7/9)) + (50236 *(15/22)) + 2102 + (16956 *(3/6)) + 431) / (12253 + 50236 + 2102 + 16965 + 431)
-
-item1.state.weighted <- left_join(item1.state.weighted2, item1.state.weighted1, by = c("BuildingType", "State"))
-
+item1.state.weighted <- summarise(group_by(item1.state.join, BuildingType, State, BuildingTypeXX)
+                                  ,w.percent = sum(N.h * p.h) / unique(State.N.h)
+                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(State.N.h)
+                                  ,count     = sum(count)
+                                  ,N         = unique(State.N.h)
+                                  ,n         = unique(State.n.h))
 
 
 #summarise across home types (total level)
 item1.state.tot <- summarise(group_by(item1.state.weighted, BuildingType, State)
                              ,BuildingTypeXX = "Total"
-                             ,w.percent = sum(w.percent)
-                             ,w.SE      = NA
-                             ,count     = sum(count, na.rm = T)
-                             ,n         = sum(unique(n), na.rm = T)
-                             ,N         = sum(unique(N), na.rm = T)) 
+                             ,w.percent      = sum(w.percent)
+                             ,w.SE           = NA
+                             ,count          = sum(count, na.rm = T)
+                             ,n              = sum(unique(n), na.rm = T)
+                             ,N              = sum(unique(N), na.rm = T)
+                             ) 
 
 
-  #This summary produces a total percent by state of greater than 100% in all states
-  # Is this okay because of weighting, or is this an error?
-  # I calculated the weighted percent by hand and the calculation appears correct
-item1.state.full <- rbind.data.frame(item1.state.weighted, item1.state.tot, stringsAsFactors = F)
-item1.state.final <- item1.state.full[which(is.na(item1.state.full$BuildingTypeXX)),]
+item1.state.full  <- rbind.data.frame(item1.state.weighted, item1.state.tot, stringsAsFactors = F)
+# item1.state.final <- item1.state.full[which(!is.na(item1.state.full$BuildingTypeXX)),]
 item1.state.final <- item1.state.full[which(item1.state.full$n != 0),]
 
 #################################
 # Step 2: Region (across states)
 #################################
+#obtain the total population size for the building type by state combination observed in the sample
+weights.region <- summarise(group_by(item1.state, BuildingType)
+                           ,Region.N.h = sum(unique(N.h))
+                           ,Region.n.h = sum(unique(n.h)))
+
+item1.region.join <- left_join(item1.state, weights.region, by = c("BuildingType"))
 
 #summarise by home type
-item1.region.weighted1 <- summarise(group_by(item1.dat, BuildingType)
-                                    ,State = "Region"
-                                    ,N   = sum(unique(N.h))
-                                    ,n   = sum(count)
-)
-item1.region.weighted2 <- summarise(group_by(item1.state, BuildingType, BuildingTypeXX)
-                                    ,State = "Region"
-                                    ,w.percent = sum(N.h * (count / n.h)) / sum(unique(N.h))
-                                    ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (w.percent * (1 - w.percent)))) / sum(unique(N.h))
-                                    ,count     = sum(count))
-
-# Checking calculations from item1.state for Manufactured Homes in WA for housing type "Double Wide"
-# ((12253 * (7/9)) + (50236 *(15/22)) + 2102 + (16956 *(3/6)) + 431) / (12253 + 50236 + 2102 + 16965 + 431)
-
-item1.region.weighted <- left_join(item1.region.weighted2, item1.region.weighted1, by = c("BuildingType", "State"))
+item1.region.weighted <- summarise(group_by(item1.region.join, BuildingType, BuildingTypeXX)
+                                  ,State     = "Region"
+                                  ,w.percent = sum(N.h * p.h) / unique(Region.N.h)
+                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(Region.N.h)
+                                  ,count     = sum(count)
+                                  ,N         = unique(Region.N.h)
+                                  ,n         = unique(Region.n.h)
+                                  )
 
 
 
@@ -120,7 +119,7 @@ item1.region.tot <- summarise(group_by(item1.region.weighted, BuildingType)
 
 
 item1.region.full <- rbind.data.frame(item1.region.weighted, item1.region.tot, stringsAsFactors = F)
-item1.region.final <- item1.region.full[which(is.na(item1.region.full$BuildingTypeXX)),]
+# item1.region.final <- item1.region.full[which(!is.na(item1.region.full$BuildingTypeXX)),]
 item1.region.final <- item1.region.full[which(item1.region.full$n != 0),]
 
 
