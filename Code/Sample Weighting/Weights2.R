@@ -490,6 +490,24 @@ samp.dat.final$kWh_usage_fake <- ceiling(runif(n = nrow(samp.dat.final),
                                                min = 3000, 
                                                max = 30000))
 
+samp.dat.final$Heating_kWh_fake <- samp.dat.final$kWh_usage_fake * .55
+samp.dat.final$Heating_kWh_fake[which(samp.dat.final$Heating_kWh_fake < 4000)] <- 0
+samp.dat.final$Cooling_kWh_fake <- samp.dat.final$kWh_usage_fake * .35
+samp.dat.final$Cooling_kWh_fake[which(samp.dat.final$Cooling_kWh_fake < 2000)] <- 0
+
+samp.dat.final$Heating_kWh_fake[which(samp.dat.final$kWh_usage_fake -
+                                        samp.dat.final$Heating_kWh_fake - 
+                                        samp.dat.final$Cooling_kWh_fake < 0)] <- 0
+
+
+samp.dat.final$therm_usage_fake <- ceiling(runif(n = nrow(samp.dat.final),
+                                               min = 200, 
+                                               max = 3000))
+
+samp.dat.final$Heating_therm_fake <- samp.dat.final$therm_usage_fake * .75
+samp.dat.final$Heating_therm_fake[which(samp.dat.final$Heating_therm_fake < 300)] <- 0
+
+
 ##  Export clean data merged with weights
 write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
