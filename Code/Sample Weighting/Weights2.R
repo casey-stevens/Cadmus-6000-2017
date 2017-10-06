@@ -490,12 +490,21 @@ samp.dat.final$kWh_usage_fake <- ceiling(runif(n = nrow(samp.dat.final),
                                                min = 3000, 
                                                max = 30000))
 
-samp.dat.final$Heating_kWh_fake <- samp.dat.final$kWh_usage_fake * .55
-samp.dat.final$Heating_kWh_fake[which(samp.dat.final$Heating_kWh_fake < 4000)] <- 0
-samp.dat.final$Cooling_kWh_fake <- samp.dat.final$kWh_usage_fake * .35
-samp.dat.final$Cooling_kWh_fake[which(samp.dat.final$Cooling_kWh_fake < 2000)] <- 0
+samp.dat.final$kWh_NAC_fake <- samp.dat.final$kWh_usage_fake * runif(n = nrow(samp.dat.final),
+                                                                     min = .8,
+                                                                     max = .95)
 
-samp.dat.final$Heating_kWh_fake[which(samp.dat.final$kWh_usage_fake -
+samp.dat.final$Heating_kWh_fake <- samp.dat.final$kWh_NAC_fake * runif(n = nrow(samp.dat.final),
+                                                                         min = .05,
+                                                                         max = .8)
+
+samp.dat.final$Heating_kWh_fake[which(samp.dat.final$Heating_kWh_fake < 3000)] <- 0
+samp.dat.final$Cooling_kWh_fake <- samp.dat.final$kWh_NAC_fake * runif(n = nrow(samp.dat.final),
+                                                                         min = .05,
+                                                                         max = .5)
+samp.dat.final$Cooling_kWh_fake[which(samp.dat.final$Cooling_kWh_fake < 1500)] <- 0
+
+samp.dat.final$Heating_kWh_fake[which(samp.dat.final$kWh_NAC_fake -
                                         samp.dat.final$Heating_kWh_fake - 
                                         samp.dat.final$Cooling_kWh_fake < 0)] <- 0
 
@@ -503,8 +512,13 @@ samp.dat.final$Heating_kWh_fake[which(samp.dat.final$kWh_usage_fake -
 samp.dat.final$therm_usage_fake <- ceiling(runif(n = nrow(samp.dat.final),
                                                min = 200, 
                                                max = 3000))
+samp.dat.final$therm_NAC_fake <- samp.dat.final$therm_usage_fake * runif(n = nrow(samp.dat.final),
+                                                                     min = .8,
+                                                                     max = .95)
 
-samp.dat.final$Heating_therm_fake <- samp.dat.final$therm_usage_fake * .75
+samp.dat.final$Heating_therm_fake <- samp.dat.final$therm_NAC_fake * runif(n = nrow(samp.dat.final),
+                                                                             min = .1,
+                                                                             max = .9)
 samp.dat.final$Heating_therm_fake[which(samp.dat.final$Heating_therm_fake < 300)] <- 0
 
 
