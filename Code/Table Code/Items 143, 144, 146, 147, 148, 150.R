@@ -214,7 +214,7 @@ saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COP
 
 
 #############################################################################################
-# Item 147: AVERAGE ANNUAL KWH PER HOME BY STATE - TABLE 150 
+# Item 147: AVERAGE ANNUAL KWH PER HOME BY STATE - SF TABLE 154, MH TABLE 129
 #############################################################################################
 
 item147.customer <- rbsa.dat
@@ -277,7 +277,7 @@ saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COP
 saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 #############################################################################################
-# Item 148: AVERAGE WEATHER NORMALIZED KWH PER HOME BY STATE  - SF TABLE 151, MH TABLE 126
+# Item 148: AVERAGE WEATHER NORMALIZED GAS USE PER HOME BY STATE  - SF TABLE 155, MH TABLE 130
 #############################################################################################
 
 item148.customer <- rbsa.dat
@@ -340,7 +340,7 @@ saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COP
 saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 #############################################################################################
-# Item 150: AVERAGE ESTIMATED ANNUAL ELECTRIC SPACE HEAT PER HOME BY STATE   - SF TABLE 153, MH TABLE 128
+# Item 150: AVERAGE ESTIMATED ANNUAL GAS SPACE HEAT PER HOME BY STATE   - SF TABLE 157, MH TABLE 132
 #############################################################################################
 
 item150.customer <- rbsa.dat
