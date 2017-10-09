@@ -5,41 +5,6 @@
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
-rbsa.dat$kWh_usage_fake <- ceiling(runif(n = nrow(rbsa.dat),
-                                               min = 3000, 
-                                               max = 30000))
-
-rbsa.dat$kWh_NAC_fake <- rbsa.dat$kWh_usage_fake * runif(n = nrow(rbsa.dat),
-                                                                     min = .8,
-                                                                     max = .95)
-
-rbsa.dat$Heating_kWh_fake <- rbsa.dat$kWh_NAC_fake * runif(n = nrow(rbsa.dat),
-                                                                       min = .05,
-                                                                       max = .8)
-
-rbsa.dat$Heating_kWh_fake[which(rbsa.dat$Heating_kWh_fake < 3000)] <- 0
-rbsa.dat$Cooling_kWh_fake <- rbsa.dat$kWh_NAC_fake * runif(n = nrow(rbsa.dat),
-                                                                       min = .05,
-                                                                       max = .5)
-rbsa.dat$Cooling_kWh_fake[which(rbsa.dat$Cooling_kWh_fake < 1500)] <- 0
-
-rbsa.dat$Heating_kWh_fake[which(rbsa.dat$kWh_NAC_fake -
-                                        rbsa.dat$Heating_kWh_fake - 
-                                        rbsa.dat$Cooling_kWh_fake < 0)] <- 0
-
-
-rbsa.dat$therm_usage_fake <- ceiling(runif(n = nrow(rbsa.dat),
-                                                 min = 200, 
-                                                 max = 3000))
-rbsa.dat$therm_NAC_fake <- rbsa.dat$therm_usage_fake * runif(n = nrow(rbsa.dat),
-                                                                         min = .8,
-                                                                         max = .95)
-
-rbsa.dat$Heating_therm_fake <- rbsa.dat$therm_NAC_fake * runif(n = nrow(rbsa.dat),
-                                                                           min = .1,
-                                                                           max = .9)
-rbsa.dat$Heating_therm_fake[which(rbsa.dat$Heating_therm_fake < 300)] <- 0
-
 
 ##  Clear variables
 rm(list=ls())
@@ -220,6 +185,7 @@ item145.table <- data.frame("BuildingType" = item145.final$BuildingType,
                             "SE_All" = item145.final$`SE_All Homes`,
                             "SampleSize" = item145.final$`SampleSize_All Homes`)
 item145.table.SF <- item145.table[which(item145.final$BuildingType %in% c("Single Family")),-1]
+item145.table.MH <- item145.table[which(item145.final$BuildingType %in% c("Manufactured")),-1]
 
 library(openxlsx)
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip.exe")
@@ -227,10 +193,133 @@ workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - C
 workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
 
 # UPDATE SHEET AND X
-writeData(workbook.SF, sheet = "Table 153", x = item150.table.SF, startRow = 20)
-writeData(workbook.MH, sheet = "Table 128", x = item150.table.MH, startRow = 20)
+writeData(workbook.SF, sheet = "Table 152", x = item145.table.SF, startRow = 20)
+writeData(workbook.MH, sheet = "Table 127", x = item145.table.MH, startRow = 20)
 
 saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
 saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+
+#############################################################################################
+# Item 149: AVERAGE GAS EUI PER HOME BY HEATING FUEL AND STATE  - SF TABLE 152, MH TABLE 136
+#############################################################################################
+item149.dat <- rbsa.dat.clean
+unique(item149.dat$Heating.Fuel)
+item149.dat$FuelType <- NA
+item149.dat$FuelType[which(item149.dat$Heating.Fuel %in% c("Wood (cord)",
+                                                           "Propane",
+                                                           "Other",
+                                                           "Oil",
+                                                           "Wood (pellets)",
+                                                           "Electric"))] <- "Other"
+
+item149.dat$FuelType[which(item149.dat$Heating.Fuel %in% c('Natural Gas',
+                                                           'Natural gas'))] <- 'Gas'
+
+item149.dat$EUI <- item149.dat$therm_NAC_fake/item149.dat$SqFt
+
+######################################################
+# Step 1.1: Using customer level data,
+#   Summarise data up to strata level
+######################################################
+item149.strata.fuel <- summarise(group_by(item149.dat, BuildingType, State, Region, Territory, FuelType)
+                                 ,n_h        = unique(n.h)
+                                 ,N_h        = unique(N.h)
+                                 ,fpc        = (1 - n_h / N_h)
+                                 ,w_h        = n_h / N_h
+                                 ,strataEUI = sum(EUI) / n_h
+                                 ,strataSD   = sd(EUI)
+                                 ,n          = length(unique(CK_Cadmus_ID))
+)
+
+item149.strata.all <- summarise(group_by(item149.dat, BuildingType, State, Region, Territory)
+                                ,FuelType = "All Homes"
+                                ,n_h        = unique(n.h)
+                                ,N_h        = unique(N.h)
+                                ,fpc        = (1 - n_h / N_h)
+                                ,w_h        = n_h / N_h
+                                ,strataEUI = sum(EUI) / n_h
+                                ,strataSD   = sd(EUI)
+                                ,n          = length(unique(CK_Cadmus_ID))
+)
+
+######################################################
+# Step 2: Using strata level data,
+#   Perform state level analysis
+######################################################
+
+item149.state.fuel <- summarise(group_by(item149.strata.fuel, BuildingType, State, FuelType)
+                                ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                                ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                                ,SampleSize = sum(unique(n))
+)
+item149.state.all <- summarise(group_by(item149.strata.all, BuildingType, State)
+                               ,FuelType = "All Homes"
+                               ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                               ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                               ,SampleSize = sum(unique(n))
+)
+
+item149.state <- rbind.data.frame(item149.state.fuel, item149.state.all,
+                                  stringsAsFactors = F)
+
+item149.state.table <- dcast(setDT(item149.state)
+                             ,formula = BuildingType + State ~ FuelType
+                             ,value.var = c("Mean", "SE", "SampleSize"))
+
+######################################################
+# Step 3: Using strata level data,
+#   Perform region level analysis
+######################################################
+item149.region.fuel <- summarise(group_by(item149.strata.fuel, BuildingType, FuelType)
+                                 ,State      = "Region"
+                                 ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                                 ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                                 ,SampleSize = sum(unique(n)))
+item149.region.all <- summarise(group_by(item149.strata.all, BuildingType)
+                                ,FuelType = "All Homes"
+                                ,State      = "Region"
+                                ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                                ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                                ,SampleSize = sum(unique(n)))
+
+item149.region <- rbind.data.frame(item149.region.fuel, 
+                                   item149.region.all, stringsAsFactors = F)
+
+item149.region.table <- dcast(setDT(item149.region)
+                              ,formula = BuildingType + State ~ FuelType
+                              ,value.var = c("Mean", "SE", "SampleSize"))
+
+######################################################
+# Step 4: Combine results into correct table format,
+#   Split table by building type
+#   and export tables to respective workbooks
+######################################################
+item149.final <- rbind.data.frame(item149.state.table, item149.region.table, stringsAsFactors = F)
+
+
+item149.table <- data.frame("BuildingType" = item149.final$BuildingType,
+                            "State" = item149.final$State,
+                            "Homes With Gas Heat" = item149.final$Mean_Gas,
+                            "SE_Gas" = item149.final$SE_Gas,
+                            "Homes With Other Heat" = item149.final$Mean_Other,
+                            "SE_Other" = item149.final$SE_Other,
+                            "All Homes" = item149.final$`Mean_All Homes`,
+                            "SE_All" = item149.final$`SE_All Homes`,
+                            "SampleSize" = item149.final$`SampleSize_All Homes`)
+item149.table.SF <- item149.table[which(item149.final$BuildingType %in% c("Single Family")),-1]
+item149.table.MH <- item149.table[which(item149.final$BuildingType %in% c("Manufactured")),-1]
+
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip.exe")
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook.SF, sheet = "Table 156", x = item149.table.SF, startRow = 20)
+writeData(workbook.MH, sheet = "Table 131", x = item149.table.MH, startRow = 20)
+
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+
 
 
