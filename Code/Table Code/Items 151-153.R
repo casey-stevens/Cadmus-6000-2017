@@ -72,7 +72,9 @@ keep.cols <- c("CK_Cadmus_ID",
                "SqFt",
                "Heating.Fuel",
                "kWh_NAC_fake",
-               "therm_NAC_fake")
+               "therm_NAC_fake",
+               "kWh_usage_fake",
+               "therm_usage_fake")
 
 rbsa.dat.clean <- rbsa.dat2[,which(colnames(rbsa.dat2) %in% keep.cols)]
 
@@ -147,7 +149,7 @@ saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COP
 #############################################################################################
 
 item152.dat <- rbsa.dat.clean
-item152.dat$kBtu <- item152.dat$kWh_NAC_fake * 3.412 + item152.dat$therm_NAC_fake * 99.98
+item152.dat$kBtu <- item152.dat$kWh_usage_fake * 3.412 + item152.dat$therm_usage_fake * 99.98
 item152.dat$EUI <- item152.dat$kBtu/item152.dat$SqFt
 
 
@@ -207,6 +209,73 @@ writeData(workbook.MH, sheet = "Table 133", x = item152.table.MH, startRow = 20)
 
 saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
 saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+
+#############################################################################################
+# Item 153: AVERAGE WEATHER-NORMALIZED ELECTRICITY AND GAS EUI BY STATE  - SF TABLE 160, MH TABLE 135
+#############################################################################################
+
+item153.dat <- rbsa.dat.clean
+item153.dat$kBtu <- item153.dat$kWh_NAC_fake * 3.412 + item153.dat$therm_NAC_fake * 99.98
+item153.dat$EUI <- item153.dat$kBtu/item153.dat$SqFt
+
+
+######################################################
+# Step 1.1: Using customer level data,
+#   Summarise data up to strata level
+######################################################
+item153.strata <- summarise(group_by(item153.dat, BuildingType, State, Region, Territory)
+                            ,n_h        = unique(n.h)
+                            ,N_h        = unique(N.h)
+                            ,fpc        = (1 - n_h / N_h)
+                            ,w_h        = n_h / N_h
+                            ,strataEUI = sum(EUI) / n_h
+                            ,strataSD   = sd(EUI)
+                            ,n          = length(unique(CK_Cadmus_ID))
+)
+
+item153.strata$strataSD[which(item153.strata$strataSD == "NaN")] <- 0
+
+######################################################
+# Step 2: Using strata level data,
+#   Perform state level analysis
+######################################################
+item153.state <- summarise(group_by(item153.strata, BuildingType, State)
+                           ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                           ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                           ,SampleSize = sum(unique(n))
+)
+
+######################################################
+# Step 3: Using strata level data,
+#   Perform region level analysis
+######################################################
+item153.region <- summarise(group_by(item153.strata, BuildingType)
+                            ,State      = "Region"
+                            ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                            ,SampleSize = sum(unique(n)))
+
+######################################################
+# Step 4: Combine results into correct table format,
+#   Split table by building type
+#   and export tables to respective workbooks
+######################################################
+item153.final <- rbind.data.frame(item153.state, item153.region, stringsAsFactors = F) 
+item153.table.SF <- item153.final[which(item153.final$BuildingType %in% c("Single Family")),-1]
+item153.table.MH <- item153.final[which(item153.final$BuildingType %in% c("Manufactured")),-1]
+
+library(openxlsx)
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip.exe")
+workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+
+# UPDATE SHEET AND X
+writeData(workbook.SF, sheet = "Table 158", x = item153.table.SF, startRow = 20)
+writeData(workbook.MH, sheet = "Table 133", x = item153.table.MH, startRow = 20)
+
+saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+
 
 
 
