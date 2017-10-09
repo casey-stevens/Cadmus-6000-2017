@@ -166,4 +166,6 @@ item145.final <- rbind.data.frame(item145.state, item145.region, stringsAsFactor
 item145.table.SF <- item145.final[which(item145.final$BuildingType %in% c("Single Family")),-1]
 item145.table.MH <- item145.final[which(item145.final$BuildingType %in% c("Manufactured")),-1]
 
-
+item145.table.SF2 <- dcast(setDT(item145.table.SF)
+                      ,formula = State ~ FuelType
+                      ,value.var = c("Mean", "SE", "SampleSize"))
