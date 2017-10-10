@@ -161,4 +161,26 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   
   item.final <- rbind.data.frame(item.state, item.region, stringsAsFactors = F)
   
+  return(item.final)
+}
+
+mean_two_groups <- function(CustomerLevelData, valueVariable, 
+                            byVariableRow, byVariableColumn,
+                            regionSummary = TRUE) {
+  
+  ######################################################
+  # Step 1.1: Using customer level data,
+  #   Summarise data up to strata level
+  ######################################################
+  item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory)
+                           ,n_h        = unique(n.h)
+                           ,N_h        = unique(N.h)
+                           ,fpc        = (1 - n_h / N_h)
+                           ,w_h        = n_h / N_h
+                           ,strataMean = sum(get(valueVariable)) / n_h
+                           ,strataSD   = sd(valueVariable)
+                           ,n          = length(unique(CK_Cadmus_ID))
+  )
+  
+  item.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 }

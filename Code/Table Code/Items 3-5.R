@@ -256,7 +256,7 @@ item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 # Step 2: Using strata level data,
 #   Perform state level analysis
 ######################################################
-item4.state <- summarise(group_by(item4.strata, BuildingType, State)
+item4.state <- summarise(group_by(item4.strata, BuildingType, State, )
                         ,Mean       = sum(N_h * strataArea) / sum(N_h)
                         ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                         ,SampleSize = sum(unique(n))
@@ -317,8 +317,10 @@ saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COP
 ##########################################################################
 # Item 5: AVERAGE CONDITIONED FLOOR AREA BY STATE AND VINTAGE
 ##########################################################################
-item5.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt"))]
-
+item5.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                              , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+colnames(item5.dat) <- c("CK_Cadmus_ID"
+                         , "BldgLevel_Area_SqFt")
 #merge
 item5.dat1 <- left_join(rbsa.dat, item5.dat, by = "CK_Cadmus_ID")
 length(unique(item5.dat1$CK_Cadmus_ID)) #565, yay!
@@ -395,9 +397,21 @@ item5.final <- rbind.data.frame(item5.tmp1, item5.tmp2, stringsAsFactors = F)
 
 #############################################################################################
 library(data.table)
+library(gdata)
+
 item5.table <- dcast(setDT(item5.final)
                      ,formula = BuildingType + HomeYearBuilt_bins ~ State
                      ,value.var = c("Mean", "SE", "SampleSize"))
+
+item5.table.tmp <- data.frame(item5.table, stringsAsFactors = F)
+target <- c("Pre 1951", "1951-1960", "1961-1970",
+             "1971-1980", "1981-1990", "1991-2000",
+             "Post 2000", "All Vintages", NA)
+
+item5.table.tmp$HomeYearBuilt_bins <- reorder.factor(item5.table.tmp$HomeYearBuilt_bins, 
+                                                     new.order = target)
+
+item5.table.tmp2 <- item5.table.tmp %>% arrange(HomeYearBuilt_bins)
 
 item5.table1 <- data.frame("BuildingType" = item5.table$BuildingType
                            ,"Housing.Vintage" = item5.table$HomeYearBuilt_bins
