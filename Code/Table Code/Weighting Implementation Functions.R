@@ -118,8 +118,7 @@ proportion_two_groups <- function(CustomerLevelData, valueVariable,
 }
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
-                                    byVariable,
-                                    regionSummary = TRUE) {
+                                    byVariable) {
   
   ######################################################
   # Step 1.1: Using customer level data,
@@ -135,13 +134,13 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,n          = length(unique(CK_Cadmus_ID))
   )
   
-  item.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
+  item.strata$strataSD[which(item.strata$strataSD == "NaN")] <- 0
   
   ######################################################
   # Step 2: Using strata level data,
   #   Perform state level analysis
   ######################################################
-  item.group <- summarise(group_by(item4.strata, BuildingType, get(byVariable))
+  item.group <- summarise(group_by(item.strata, BuildingType, get(byVariable))
                            ,Mean       = sum(N_h * strataMean) / sum(N_h)
                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                            ,SampleSize = sum(unique(n))
@@ -159,10 +158,14 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,SampleSize = sum(unique(n)))
   colnames(item.region)[which(colnames(item.region) == 'by')] <- byVariable
   
-  item.final <- rbind.data.frame(item.state, item.region, stringsAsFactors = F)
+  item.final <- rbind.data.frame(item.group, item.region, stringsAsFactors = F)
   
   return(item.final)
 }
+
+test <- mean_one_group(CustomerLevelData = item4.customer,
+                       valueVariable = 'siteAreaConditioned',
+                       byVariable = 'State')
 
 mean_two_groups <- function(CustomerLevelData, valueVariable, 
                             byVariableRow, byVariableColumn,
