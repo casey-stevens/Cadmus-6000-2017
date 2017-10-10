@@ -18,7 +18,6 @@ rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
 # Source
-# if("Casey.Stevens" %in% dir(file.path("C:","Users"))) SourcePath <- file.path("C:", "Users", "Casey.Stevens", "Documents", "Git", "Cadmus-6000-2017", "Cadmus-6000-2017", "Code", "Table Code")
 source("Code/Table Code/SourceCode.R")
 
 # Read in clean RBSA data
@@ -55,10 +54,10 @@ item1.state <- left_join(item1.state2 , item1.state1, by = c("BuildingType", "St
 
 #obtain the total population size for the building type by state combination observed in the sample
 weights.state <- summarise(group_by(item1.state, BuildingType, State)
-                         ,State.N.h = sum(unique(N.h))
-                         ,State.n.h = sum(unique(n.h)))
+                         ,State.N.h = sum(unique(N.h), na.rm = T)
+                         ,State.n.h = sum(unique(n.h)), na.rm = T)
 
-item1.state.join <- left_join(item1.state, weights.sum, by = c("BuildingType","State"))
+item1.state.join <- left_join(item1.state, weights.state, by = c("BuildingType","State"))
 
 
 #summarise by home type
@@ -90,8 +89,8 @@ item1.state.final <- item1.state.full[which(item1.state.full$n != 0),]
 #################################
 #obtain the total population size for the building type by state combination observed in the sample
 weights.region <- summarise(group_by(item1.state, BuildingType)
-                           ,Region.N.h = sum(unique(N.h))
-                           ,Region.n.h = sum(unique(n.h)))
+                           ,Region.N.h = sum(unique(N.h), na.rm = T)
+                           ,Region.n.h = sum(unique(n.h), na.rm = T))
 
 item1.region.join <- left_join(item1.state, weights.region, by = c("BuildingType"))
 
@@ -142,7 +141,7 @@ colnames(item1.full) <- c("BuildingType"
 library(data.table)
 item1.table <- dcast(setDT(item1.full)
                      ,formula = BuildingType + Home.Type ~ State
-                     ,value.var = c("Percent", "SE", "Count"))
+                     ,value.var = c("Percent", "SE", "Count")) #determine if this needs to be sample size or count depending on each table
 
 item1.table1 <- data.frame("BuildingType"    = item1.table$BuildingType
                            ,"Home.Type"      = item1.table$Home.Type
