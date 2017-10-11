@@ -45,7 +45,7 @@ item1.state1 <- summarise(group_by(item1.dat, BuildingType, State, Region, Terri
                          ,n.h   = unique(n.h)
 )
 # obtain count and proportion by strata and home type
-item1.state2 <- summarise(group_by(item1.dat, BuildingType, State, Region, Territory, BuildingTypeXX)
+item1.state2 <- summarise(group_by(item1.dat, BuildingType, State, Region, Territory, HomeType)
                          ,count = sum(count)
                          ,p.h   = count / unique(n.h)
 )
@@ -61,7 +61,7 @@ item1.state.join <- left_join(item1.state, weights.state, by = c("BuildingType",
 
 
 #summarise by home type
-item1.state.weighted <- summarise(group_by(item1.state.join, BuildingType, State, BuildingTypeXX)
+item1.state.weighted <- summarise(group_by(item1.state.join, BuildingType, State, HomeType)
                                   ,w.percent = sum(N.h * p.h) / unique(State.N.h)
                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(State.N.h)
                                   ,count     = sum(count)
@@ -71,7 +71,7 @@ item1.state.weighted <- summarise(group_by(item1.state.join, BuildingType, State
 
 #summarise across home types (total level)
 item1.state.tot <- summarise(group_by(item1.state.weighted, BuildingType, State)
-                             ,BuildingTypeXX = "Total"
+                             ,HomeType = "Total"
                              ,w.percent      = sum(w.percent)
                              ,w.SE           = NA
                              ,count          = sum(count, na.rm = T)
@@ -81,7 +81,7 @@ item1.state.tot <- summarise(group_by(item1.state.weighted, BuildingType, State)
 
 
 item1.state.full  <- rbind.data.frame(item1.state.weighted, item1.state.tot, stringsAsFactors = F)
-# item1.state.final <- item1.state.full[which(!is.na(item1.state.full$BuildingTypeXX)),]
+# item1.state.final <- item1.state.full[which(!is.na(item1.state.full$HomeType)),]
 item1.state.final <- item1.state.full[which(item1.state.full$n != 0),]
 
 #################################
@@ -95,7 +95,7 @@ weights.region <- summarise(group_by(item1.state, BuildingType)
 item1.region.join <- left_join(item1.state, weights.region, by = c("BuildingType"))
 
 #summarise by home type
-item1.region.weighted <- summarise(group_by(item1.region.join, BuildingType, BuildingTypeXX)
+item1.region.weighted <- summarise(group_by(item1.region.join, BuildingType, HomeType)
                                   ,State     = "Region"
                                   ,w.percent = sum(N.h * p.h) / unique(Region.N.h)
                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(Region.N.h)
@@ -109,7 +109,7 @@ item1.region.weighted <- summarise(group_by(item1.region.join, BuildingType, Bui
 #summarise across home types (total level)
 item1.region.tot <- summarise(group_by(item1.region.weighted, BuildingType)
                               ,State = "Region"
-                              ,BuildingTypeXX = "Total"
+                              ,HomeType = "Total"
                               ,w.percent = sum(w.percent)
                               ,w.SE      = NA
                               ,count     = sum(count, na.rm = T)
@@ -118,7 +118,7 @@ item1.region.tot <- summarise(group_by(item1.region.weighted, BuildingType)
 
 
 item1.region.full <- rbind.data.frame(item1.region.weighted, item1.region.tot, stringsAsFactors = F)
-# item1.region.final <- item1.region.full[which(!is.na(item1.region.full$BuildingTypeXX)),]
+# item1.region.final <- item1.region.full[which(!is.na(item1.region.full$HomeType)),]
 item1.region.final <- item1.region.full[which(item1.region.full$n != 0),]
 
 
@@ -139,6 +139,7 @@ colnames(item1.full) <- c("BuildingType"
 
 #cast data into correct format
 library(data.table)
+library(gdata)
 item1.table <- dcast(setDT(item1.full)
                      ,formula = BuildingType + Home.Type ~ State
                      ,value.var = c("Percent", "SE", "Count")) #determine if this needs to be sample size or count depending on each table
@@ -158,8 +159,26 @@ item1.table1 <- data.frame("BuildingType"    = item1.table$BuildingType
                            ,"SampleSize"     = item1.table$Count_Region)
 
 ### Split into respective tables
-item1.table.SF <- item1.table1[which(item1.table1$BuildingType %in% c("Single Family")),-1]
+
+## Re-order rows according to previous tables
+item1.table.SF <- data.frame(item1.table1[which(item1.table1$BuildingType %in% c("Single Family")),-1],stringsAsFactors = F)
+sf.target <- c("Single Family Detached"
+            ,"Duplex, Triplex, or Fourplex"
+            ,"Townhome or Rowhome"
+            ,"Total")
+item1.table.SF$Home.Type <- reorder.factor(item1.table.SF$Home.Type, new.order = sf.target)
+item1.table.SF <- item1.table.SF %>% arrange(Home.Type)
+
+## Re-order rows according to previous tables
 item1.table.MH <- item1.table1[which(item1.table1$BuildingType %in% c("Manufactured")),-1]
+mh.target <- c("Single Wide"
+               ,"Double Wide"
+               ,"Triple Wide"
+               ,"Total")
+item1.table.MH$Home.Type <- reorder.factor(item1.table.MH$Home.Type, new.order = mh.target)
+item1.table.MH <- item1.table.MH %>% arrange(Home.Type)
+
+
 
 library(openxlsx)
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
