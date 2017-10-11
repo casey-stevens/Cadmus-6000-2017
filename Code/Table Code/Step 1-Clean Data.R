@@ -92,14 +92,8 @@ unique(rbsa.dat$BuildingType)
 #############################################################################################
 unique(rbsa.dat$HomeYearBuiltXX)
 rbsa.dat$HomeYearBuiltXX <- gsub("\n", "", rbsa.dat$HomeYearBuiltXX)
-#update this with efficient expression
-rbsa.dat$HomeYearBuiltXX <- gsub(".1962", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- gsub(".1979", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- gsub(".1970", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- gsub(".1985", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- gsub(".2000", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
-rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$HomeYearBuiltXX == 0)] <- NA
+rbsa.dat$HomeYearBuiltXX <- gsub("*.[0-9]{4}", "", rbsa.dat$HomeYearBuiltXX)
+rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$HomeYearBuiltXX %in% c(0,00,000,0000,"0","00","000","0000"))] <- NA
 unique(rbsa.dat$HomeYearBuiltXX)
 
 rbsa.check <- rbsa.dat[which(!(is.na(rbsa.dat$HomeYearBuiltXX))),]
@@ -153,7 +147,7 @@ rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1
     unique(rbsa.dat$HomeYearBuilt_MF)
 
     
-        #QAQC
+        #QAQC - stop if there are NA in any Home Year Built category
         stopifnot(all(!(is.na(c(rbsa.dat$HomeYearBuilt_bins, rbsa.dat$HomeYearBuilt_bins4, rbsa.dat$HomeYearBuilt_MF)))))
 
 
@@ -187,6 +181,12 @@ rbsa.sub3 <- rbsa.sub2[which(colnames(rbsa.sub2) %in% c("CK_Cadmus_ID", "ZIP"))]
 rbsa.dat3 <- rbsa.dat2[which(colnames(rbsa.dat2) != "ZIP")]
 rbsa.dat4 <- left_join(rbsa.dat3, rbsa.sub3, by = "CK_Cadmus_ID")
 
+  # Clean ZIP info when there is a dash in zip
+  unique(rbsa.dat4$ZIP)
+  rbsa.dat4$ZIP[which(rbsa.dat4$ZIP == "Unknown")] <- NA
+  rbsa.dat4$ZIP <- substr(rbsa.dat4$ZIP, 1, 5)
+  unique(rbsa.dat4$ZIP)
+
   #identify which accounts have multiple zips
   zip.sub <- unique(rbsa.dat4[which(colnames(rbsa.dat4) %in% c("CK_Cadmus_ID", "ZIP"))])
   zip.dup.ind <- zip.sub$CK_Cadmus_ID[which(duplicated(zip.sub$CK_Cadmus_ID))]
@@ -198,6 +198,14 @@ rbsa.dat4 <- left_join(rbsa.dat3, rbsa.sub3, by = "CK_Cadmus_ID")
   
   #for site ID WS3209, discrepancy occurs in ZIP
   rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "WS3209")]   <- 98030
+  
+  ### FAKE: Delete when Rietz gives cleaned data
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "BPM21777 OS BPA")]   <- 98103
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "BPM24677 OS BPA")]   <- 98125
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "PSM26922 CORE")]     <- 98108
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "SG0200 OS SCL")]     <- 98118
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "PNM22969 OS PSE")]   <- 98439
+  rbsa.dat4$ZIP[which(rbsa.dat4$CK_Cadmus_ID == "KM23438 OS PSE")]    <- 98033
   
 
 #############################################################################################
@@ -212,6 +220,7 @@ rbsa.dat5 <- rbsa.dat4
   missing.ind #export into missing building type tab - ask Rietz for both Generic and Specific building type info
   rbsa.dat5[which(rbsa.dat5$CK_Cadmus_ID %in% missing.ind),]
 
+### Delete when Rietz gives cleaned data
 #update building type (generic)
 rbsa.dat5$BuildingType[which(rbsa.dat5$CK_Cadmus_ID == "SL2263 OS SCL")]   <- "Multifamily" #- Low Rise
 rbsa.dat5$BuildingType[which(rbsa.dat5$CK_Cadmus_ID == "SG0048 OS SCL")]   <- "Single Family"
@@ -241,11 +250,12 @@ rbsa.dat6 <- unique(rbsa.dat5[which(!(is.na(rbsa.dat5$BuildingType))),])
   
     #if not, identify where the duplicates are occurring
     dup.ind1 <- unique(rbsa.dat6$CK_Cadmus_ID[which(duplicated(rbsa.dat6$CK_Cadmus_ID))])
-    IND2 <- rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% dup.ind1),]
-    rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% IND2),]
+    rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% dup.ind1),]
     
     #For Site ID SE0872, the disrepancy occurs in home type
     rbsa.dat6$BuildingTypeXX[which(rbsa.dat6$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Single Family Detached"
+    #For Site ID SG0200, the disrepancy occurs in State
+    rbsa.dat6$State[which(rbsa.dat6$CK_Cadmus_ID == "SG0200 OS SCL")]   <- "WA"
 
 
 rbsa.dat7 <- unique(rbsa.dat6[which(!(duplicated(rbsa.dat6$CK_Cadmus_ID))),])

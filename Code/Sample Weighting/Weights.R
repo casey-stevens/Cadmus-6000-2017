@@ -96,7 +96,7 @@ stopifnot(length(which(id_zip.dat2$MeterType == "GAS")) == 0)
       
       length(unique(id_zip.dat1$CK_Cadmus_ID)) - length(unique(id_zip.dat2$CK_Cadmus_ID))
       ## This should be zero when the full data come in - if not, export list, send to Rietz 
-      ##  186 lost customers 
+      ## 0
       
       
 # Import ZIP code mapping
@@ -282,7 +282,8 @@ for(cntr in 1:length(dupCustIDs)) {
 ##  Subset to ID and Utility column and merge back into sample data
 names(dupData)
 dupData.1  <- unique(dupData[which(colnames(dupData) %in% c("CK_Cadmus_ID", "Utility"))])
-samp.dat.3 <- left_join(samp.dat.2, dupData.1, by="CK_Cadmus_ID")
+names(dupData.1)
+samp.dat.3 <- left_join(samp.dat.2, dupData.1, by = "CK_Cadmus_ID")
 
 ##  For non-duplicates, use cust data
 samp.dat.3$Utility[which(samp.dat.3$CK_Cadmus_ID %notin% dupCustIDs)] <-
@@ -333,7 +334,7 @@ samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State 
 
 ##  Remove old utility columns and duplicate rows
 samp.dat.4 <- unique(samp.dat.3[,-which(names(samp.dat.3) %in% c("Utility.Customer.Data", "Utility.ZIP.map"))])
-stopifnot(length(which(duplicated(samp.dat.4$CK_Cadmus_ID))) == 0) ## All duplicates removed
+stopifnot(length(which(duplicated(samp.dat.4$CK_Cadmus_ID))) == 0)
 
 dup.ind <- samp.dat.4$CK_Cadmus_ID[which(duplicated(samp.dat.4$CK_Cadmus_ID))]
 samp.dat.4[which(samp.dat.4$CK_Cadmus_ID %in% dup.ind),]
@@ -475,15 +476,15 @@ final.counts <- total.counts[which(!(colnames(total.counts) %in% c("variable")))
 # export final counts and final data
 #############################################################################################
 
-samp.dat.7 <- left_join(samp.dat.5, final.counts, by = c("BuildingType"
+samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
                                                          ,"State"
                                                          ,"Region"
                                                          ,"Territory"))
 
 # samp.dat.8 <- samp.dat.7[which(!(is.na(samp.dat.7$N.h))),]
 
-samp.dat.final <- left_join(samp.dat.7, cleanRBSA.dat, by = c("CK_Cadmus_ID", "BuildingType", "State"))
-unique(samp.dat.final$BuildingTypeXX)
+samp.dat.final <- samp.dat.7
+unique(samp.dat.final$HomeType)
 
 ############    ADD FAKE KWH USAGE ONTO SAMP.DAT.FINAL ######################
 samp.dat.final$kWh_usage_fake <- ceiling(runif(n = nrow(samp.dat.final),
