@@ -256,7 +256,7 @@ item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
 # Step 2: Using strata level data,
 #   Perform state level analysis
 ######################################################
-item4.state <- summarise(group_by(item4.strata, BuildingType, State, )
+item4.state <- summarise(group_by(item4.strata, BuildingType, State)
                         ,Mean       = sum(N_h * strataArea) / sum(N_h)
                         ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                         ,SampleSize = sum(unique(n))
@@ -280,15 +280,6 @@ item4.region <- summarise(group_by(item4.strata, BuildingType)
 #   and export tables to respective workbooks
 ######################################################
 item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
-
-### Andres added: issues with exporting - check to see this got resolved
-# item4.final.SF <- item4.final[which(item4.final$BuildingType == 'Single Family'),
-#                               -which(colnames(item4.final) == 'BuildingType')]
-# 
-# 
-# workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
-# writeData(workbook.SF, sheet = "Table 11", x = item4.final.SF, startRow = 20)
-# saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
 
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]

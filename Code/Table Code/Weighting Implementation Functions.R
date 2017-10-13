@@ -14,10 +14,12 @@
 #          And there is an overall column, which combines all the columns data
 #################################################################################
 
-proportionRowsAndColumns1 <- function(CustomerLevelData, valueVariable, 
-                                  columnVariable, rowVariable,
-                                  aggregateColumnName = NA,
-                                  totalRow = TRUE) {
+proportionRowsAndColumns1 <- function(CustomerLevelData
+                                      , valueVariable
+                                      , columnVariable
+                                      , rowVariable
+                                      , aggregateColumnName = NA
+                                      , totalRow = TRUE) {
   ########################
   # Step 1: State
   ########################
@@ -180,6 +182,12 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 test <- mean_one_group(CustomerLevelData = item4.customer,
                        valueVariable = 'siteAreaConditioned',
                        byVariable = 'State')
+
+
+
+
+
+
 
 
 ### This function works for when there are means by row and by column,
