@@ -179,9 +179,9 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   return(item.final)
 }
 
-test <- mean_one_group(CustomerLevelData = item4.customer,
-                       valueVariable = 'siteAreaConditioned',
-                       byVariable = 'State')
+# test <- mean_one_group(CustomerLevelData = item4.customer,
+#                        valueVariable = 'siteAreaConditioned',
+#                        byVariable = 'State')
 
 
 
