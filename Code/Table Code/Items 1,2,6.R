@@ -19,6 +19,8 @@ options(scipen=999)
 
 # Source
 source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
@@ -208,6 +210,15 @@ saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COP
 item2.dat <- rbsa.dat
 
 item2.dat$count <- 1
+
+# proportionRowsAndColumns1 <- function(CustomerLevelData
+#                                       , valueVariable
+#                                       , columnVariable
+#                                       , rowVariable
+#                                       , aggregateColumnName = NA
+#                                       , totalRow = TRUE)
+
+proportionRowsAndColumns1(item2.dat, valueVariable = 'count', columnVariable = 'State', rowVariable = 'HomeYearBuilt_bins2')
 
 ########################
 # Step 1: State

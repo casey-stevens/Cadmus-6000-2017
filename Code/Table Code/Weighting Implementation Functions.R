@@ -20,6 +20,15 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                       , rowVariable
                                       , aggregateColumnName = NA
                                       , totalRow = TRUE) {
+  
+  # #Test
+  # CustomerLevelData <- item2.dat
+  # valueVariable <- 'count'
+  # columnVariable <- 'State'
+  # rowVariable <- 'HomeYearBuilt_bins2'
+  # aggregateColumnName = NA
+  # totalRow = TRUE
+  
   ########################
   # Step 1: State
   ########################
@@ -30,26 +39,30 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                ,n.h   = unique(n.h))
   
   # obtain count and proportion by strata and row grouping variable
-  StrataGroupedProportions <- summarise(group_by(CustomerLevelData, BuildingType, 
-                                                 State, Region, Territory, 
-                                                 get(rowVariable))
+  StrataGroupedProportions <- summarise(group_by(CustomerLevelData
+                                                 , BuildingType
+                                                 , State
+                                                 , Region
+                                                 , Territory
+                                                 , get(rowVariable))
                                  ,count = sum(get(valueVariable))
                                  ,p.h   = count / unique(n.h))
   
-  StrataGroupedProportions <- ConvertColName(StrataGroupedProportions,
-                                             "get(rowVariable)",
-                                             rowVariable)
+  StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
+                                             ,"get(rowVariable)"
+                                             ,rowVariable)
   StrataData <- left_join(StrataPopCounts , StrataGroupedProportions, 
                           by = c("BuildingType", "State", "Region","Territory"))
   
   #obtain the total population size for the building type by state combination observed in the sample
-  StateWeights <- summarise(group_by(StrataData, BuildingType, 
-                                      get(columnVariable))
+  StateWeights <- summarise(group_by(StrataData
+                                     , BuildingType
+                                     , get(columnVariable))
                             ,State.N.h = sum(unique(N.h), na.rm = T)
                             ,State.n.h = sum(unique(n.h)), na.rm = T)
-  StateWeights <- ConvertColName(StateWeights,
-                                 "get(columnVariable)",
-                                 columnVariable)
+  StateWeights <- ConvertColName(StateWeights
+                                 ,"get(columnVariable)"
+                                 ,columnVariable)
   StrataDataWeights <- left_join(StrataData, StateWeights, by = c("BuildingType",
                                                                 columnVariable))
   
