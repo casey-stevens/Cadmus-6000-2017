@@ -21,11 +21,18 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                       , aggregateColumnName = NA
                                       , totalRow = TRUE) {
   
-  #Test
+  ### Function to convert column names
+  ConvertColName <- function(dataset, currentColName, newColName) {
+    data <- dataset
+    colnames(data)[which(colnames(data) == currentColName)] <- newColName
+    return(data)
+  }
+  
+  # #Test
   # CustomerLevelData <- item2.dat
-  # valueVariable  <- 'count'
+  # valueVariable <- 'count'
   # columnVariable <- 'State'
-  # rowVariable    <- 'HomeYearBuilt_bins2'
+  # rowVariable <- 'HomeYearBuilt_bins2'
   # aggregateColumnName = NA
   # totalRow = TRUE
   
@@ -45,8 +52,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , Region
                                                  , Territory
                                                  , get(rowVariable))
-                                        ,count = sum(count)
-                                        ,p.h   = count / unique(n.h))
+                                 ,count = sum(get(valueVariable))
+                                 ,p.h   = count / unique(n.h))
   
   StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
                                              ,"get(rowVariable)"
@@ -86,7 +93,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   
   #summarise across home types (total level)
   if (totalRow) {
-  ColumnTotals <- summarise(group_by(StrataDataWeights, BuildingType, State)
+  ColumnTotals <- summarise(group_by(ColumnProportionsByGroup, BuildingType, State)
                             ,num = "Total"
                             ,w.percent      = sum(w.percent)
                             ,w.SE           = NA
@@ -98,33 +105,33 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
                                     ColumnTotals, stringsAsFactors = F)
   AllRowsFinal <- AllRowsFinal[which(AllRowsFinal$n != 0),]
-  }
+  } else {AllRowsFinal <- ColumnProportionsByGroup}
   #################################
   # Step 2: Region (across states)
   #################################
-  if (length(aggregateColumns) > 0) {
+  if (!is.na(aggregateColumnName)) {
     #obtain the total population size for the building type by state combination observed in the sample
-    AggregateWeight <- summarise(group_by(item.state, BuildingType)
+    AggregateWeight <- summarise(group_by(StrataData, BuildingType)
                                  ,Region.N.h = sum(unique(N.h), na.rm = T)
                                  ,Region.n.h = sum(unique(n.h), na.rm = T))
     
-    item.region.join <- left_join(item.state, AggregateWeight, by = c("BuildingType"))
+    item.region.join <- left_join(StrataData, AggregateWeight, by = c("BuildingType"))
     
     #summarise by home type
     item.region.weighted <- summarise(group_by(item.region.join, BuildingType, 
-                                               get(groupVariableNumerator))
-                                       ,denom = "Region"
+                                               get(rowVariable))
+                                       ,denom = aggregateColumnName
                                        ,w.percent = sum(N.h * p.h) / unique(Region.N.h)
                                        ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(Region.N.h)
                                        ,count     = sum(count)
                                        ,N         = unique(Region.N.h)
                                        ,n         = unique(Region.n.h)
     )
-    colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'get(groupVariableNumerator)')] <- groupVariableNumerator
-    colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'denom')] <- groupVariableDenominator
+    colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'get(rowVariable)')] <- rowVariable
+    colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'denom')] <- columnVariable
     #summarise across home types (total level)
     item.region.tot <- summarise(group_by(item.region.weighted, BuildingType)
-                                  ,denom = "Region"
+                                  ,denom = columnVariable
                                   ,num = "Total"
                                   ,w.percent = sum(w.percent)
                                   ,w.SE      = NA
@@ -132,8 +139,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                   ,n         = sum(unique(n), na.rm = T)
                                   ,N         = sum(unique(N), na.rm = T))
     
-    colnames(item.region.tot)[which(colnames(item.region.tot) == 'denom')] <- groupVariableDenominator
-    colnames(item.region.tot)[which(colnames(item.region.tot) == 'num')] <- groupVariableNumerator
+    colnames(item.region.tot)[which(colnames(item.region.tot) == 'denom')] <- columnVariable
+    colnames(item.region.tot)[which(colnames(item.region.tot) == 'num')] <- rowVariable
     
     item.region.full <- rbind.data.frame(item.region.weighted, 
                                          item.region.tot, stringsAsFactors = F)
@@ -141,7 +148,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     # item1.region.final <- item1.region.full[which(!is.na(item1.region.full$BuildingTypeXX)),]
     item.region.final <- item.region.full[which(item.region.full$n != 0),]
   }
-  item.full <- rbind.data.frame(item.state.final, 
+  item.full <- rbind.data.frame(AllRowsFinal, 
                                  item.region.final, stringsAsFactors = F)
   return(item.full)
 }
