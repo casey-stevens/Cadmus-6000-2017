@@ -207,7 +207,7 @@ saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COP
 # 
 #############################################################################################
 
-item2.dat <- rbsa.dat
+item2.dat <- rbsa.dat[which(!is.na(rbsa.dat$HomeYearBuilt)),]
 
 item2.dat$count <- 1
 
@@ -275,7 +275,7 @@ colnames(item2.final) <- c("BuildingType"
                            , "SE"
                            , "Count"
                            , "Population.Size"
-                           , "SampleSize")
+                           , "Sample.Size")
 
 
 
@@ -295,27 +295,27 @@ colnames(item2.final) <- c("BuildingType"
 # Step 5: Cast data and create table
 ##################################################
 library(data.table)
-item2.table <- dcast(setDT(item2.final)
+item2.cast <- dcast(setDT(item2.final)
                      ,formula = BuildingType + Housing.Vintage ~ State
-                     ,value.var = c("Percent", "SE", "SampleSize", "Count"))
+                     ,value.var = c("Percent", "SE", "Sample.Size", "Population.Size", "Count"))
 
-item2.table1 <- data.frame("BuildingType"     = item2.table$BuildingType
-                           ,"Housing.Vintage" = item2.table$Housing.Vintage
+item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
+                           ,"Housing.Vintage" = item2.cast$Housing.Vintage
                            ,"Percent_ID"      = NA #missing for now, only partial data, placeholder until we get full data
                            ,"SE_ID"           = NA #missing for now, only partial data, placeholder until we get full data
-                           ,"Percent_MT"      = item2.table$Percent_MT
-                           ,"SE_MT"           = item2.table$SE_MT
-                           ,"Percent_OR"      = item2.table$Percent_OR
-                           ,"SE_OR"           = item2.table$SE_OR
-                           ,"Percent_WA"      = item2.table$Percent_WA
-                           ,"SE_WA"           = item2.table$SE_WA
-                           ,"Percent_Region"  = item2.table$Percent_Region
-                           ,"SE_Region"       = item2.table$SE_Region
-                           ,"SampleSize"      = item2.table$)
-
-item2.table2 <- item2.table1[which(item2.table1$BuildingType %in% c("Single Family", "Manufactured")),]
-item2.table.final <- item2.table2[which(!(is.na(item2.table2$Housing.Vintage))),]
-
+                           ,"n_ID"            = NA #
+                           ,"Percent_MT"      = item2.cast$Percent_MT
+                           ,"SE_MT"           = item2.cast$SE_MT
+                           ,"n_MT"            = item2.cast$Count_MT
+                           ,"Percent_OR"      = NA #item2.cast$Percent_OR
+                           ,"SE_OR"           = NA #item2.cast$SE_OR
+                           ,"n_OR"            = NA #item2.cast$Count_OR
+                           ,"Percent_WA"      = item2.cast$Percent_WA
+                           ,"SE_WA"           = item2.cast$SE_WA
+                           ,"n_WA"            = item2.cast$Count_WA
+                           ,"Percent_Region"  = item2.cast$Percent_Region
+                           ,"SE_Region"       = item2.cast$SE_Region
+                           ,"SampleSize"      = item2.cast$Count_Region)
 
 
 
@@ -323,8 +323,8 @@ item2.table.final <- item2.table2[which(!(is.na(item2.table2$Housing.Vintage))),
 # Step 6: Split table by building type
 # and export to correct workbook
 ##################################################
-item2.table.SF <- item2.table.final[which(item2.table.final$BuildingType == "Single Family"),-1]
-item2.table.MH <- item2.table.final[which(item2.table.final$BuildingType == "Manufactured"),-1]
+item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family"),-1]
+item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 
 library(openxlsx)
