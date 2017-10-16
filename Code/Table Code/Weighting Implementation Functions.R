@@ -29,12 +29,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   }
   
   # #Test
-  CustomerLevelData <- item2.dat
-  valueVariable <- 'count'
-  columnVariable <- 'State'
-  rowVariable <- 'HomeYearBuilt_bins2'
-  aggregateColumnName = 'Region'
-  totalRow = TRUE
+  # CustomerLevelData <- item2.dat
+  # valueVariable <- 'count'
+  # columnVariable <- 'State'
+  # rowVariable <- 'HomeYearBuilt_bins2'
+  # aggregateColumnName = 'Region'
+  # totalRow = TRUE
   
   ########################
   # Step 1: State
@@ -226,12 +226,6 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 ### specify the row variable and the column variable and the variable that
 ### needs summarizing. then specify whether the row needs an aggregate summary
 ### and whether the column needs an aggregate summary
-
-ConvertColName <- function(dataset, currentColName, newColName) {
-  data <- dataset
-  colnames(data)[which(colnames(data) == currentColName)] <- newColName
-  return(data)
-}
 
 mean_two_groups <- function(CustomerLevelData, valueVariable, 
                             byVariableRow, byVariableColumn,
