@@ -21,11 +21,11 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                       , aggregateColumnName = NA
                                       , totalRow = TRUE) {
   
-  # #Test
+  #Test
   # CustomerLevelData <- item2.dat
-  # valueVariable <- 'count'
+  # valueVariable  <- 'count'
   # columnVariable <- 'State'
-  # rowVariable <- 'HomeYearBuilt_bins2'
+  # rowVariable    <- 'HomeYearBuilt_bins2'
   # aggregateColumnName = NA
   # totalRow = TRUE
   
@@ -45,8 +45,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , Region
                                                  , Territory
                                                  , get(rowVariable))
-                                 ,count = sum(get(valueVariable))
-                                 ,p.h   = count / unique(n.h))
+                                        ,count = sum(count)
+                                        ,p.h   = count / unique(n.h))
   
   StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
                                              ,"get(rowVariable)"

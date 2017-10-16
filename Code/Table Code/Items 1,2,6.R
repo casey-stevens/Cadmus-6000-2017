@@ -218,18 +218,18 @@ item2.dat$count <- 1
 #                                       , aggregateColumnName = NA
 #                                       , totalRow = TRUE)
 
-proportionRowsAndColumns1(item2.dat, valueVariable = 'count', columnVariable = 'State', rowVariable = 'HomeYearBuilt_bins2')
+# proportionRowsAndColumns1(item2.dat, valueVariable = 'count', columnVariable = 'State', rowVariable = 'HomeYearBuilt_bins2')
 
 ########################
 # Step 1: State
 ########################
 #by vintage
-item2.state <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins, State)
+item2.state <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins2, State)
                               ,Count = sum(count)
                               ,SampleSize = length(unique(CK_Cadmus_ID)))
 #across vintages
 item2.state.tot <- summarise(group_by(item2.dat, BuildingType, State)
-                              ,HomeYearBuilt_bins = "Total"
+                              ,HomeYearBuilt_bins2 = "Total"
                               ,Count = sum(count)
                               ,SampleSize = length(unique(CK_Cadmus_ID)))
 #combine
@@ -240,14 +240,14 @@ item2.state.full <- rbind.data.frame(item2.state, item2.state.tot, stringsAsFact
 # Step 2: Region (across states)
 ########################
 #by vintage
-item2.region <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins)
+item2.region <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins2)
                                ,State = "Region"
                                ,Count = sum(count)
                                ,SampleSize = length(unique(CK_Cadmus_ID))
 )
 #across vintages
 item2.region.tot <- summarise(group_by(item2.dat, BuildingType)
-                               ,HomeYearBuilt_bins = "Total"
+                               ,HomeYearBuilt_bins2 = "Total"
                                ,State = "Region"
                                ,Count = sum(count)
                                ,SampleSize = length(unique(CK_Cadmus_ID))
