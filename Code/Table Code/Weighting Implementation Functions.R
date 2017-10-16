@@ -29,12 +29,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   }
   
   # #Test
-  # CustomerLevelData <- item2.dat
-  # valueVariable <- 'count'
-  # columnVariable <- 'State'
-  # rowVariable <- 'HomeYearBuilt_bins2'
-  # aggregateColumnName = NA
-  # totalRow = TRUE
+  CustomerLevelData <- item2.dat
+  valueVariable <- 'count'
+  columnVariable <- 'State'
+  rowVariable <- 'HomeYearBuilt_bins2'
+  aggregateColumnName = 'Region'
+  totalRow = TRUE
   
   ########################
   # Step 1: State
@@ -129,9 +129,9 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     )
     colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'get(rowVariable)')] <- rowVariable
     colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'denom')] <- columnVariable
+    
     #summarise across home types (total level)
-    item.region.tot <- summarise(group_by(item.region.weighted, BuildingType)
-                                  ,denom = columnVariable
+    item.region.tot <- summarise(group_by(item.region.weighted, BuildingType, get(columnVariable))
                                   ,num = "Total"
                                   ,w.percent = sum(w.percent)
                                   ,w.SE      = NA
@@ -139,8 +139,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                   ,n         = sum(unique(n), na.rm = T)
                                   ,N         = sum(unique(N), na.rm = T))
     
-    colnames(item.region.tot)[which(colnames(item.region.tot) == 'denom')] <- columnVariable
-    colnames(item.region.tot)[which(colnames(item.region.tot) == 'num')] <- rowVariable
+    colnames(item.region.tot)[which(colnames(item.region.tot) == "get(columnVariable)")] <- columnVariable
+    colnames(item.region.tot)[which(colnames(item.region.tot) == 'num')]   <- rowVariable
     
     item.region.full <- rbind.data.frame(item.region.weighted, 
                                          item.region.tot, stringsAsFactors = F)

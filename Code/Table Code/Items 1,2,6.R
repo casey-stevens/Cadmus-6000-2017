@@ -211,85 +211,83 @@ item2.dat <- rbsa.dat
 
 item2.dat$count <- 1
 
-# proportionRowsAndColumns1 <- function(CustomerLevelData
-#                                       , valueVariable
-#                                       , columnVariable
-#                                       , rowVariable
-#                                       , aggregateColumnName = NA
-#                                       , totalRow = TRUE)
+item2.final <- proportionRowsAndColumns1(item2.dat
+                          , valueVariable = 'count'
+                          , columnVariable = 'State'
+                          , rowVariable = 'HomeYearBuilt_bins2'
+                          , aggregateColumnName = "Region")
 
-# proportionRowsAndColumns1(item2.dat, valueVariable = 'count', columnVariable = 'State', rowVariable = 'HomeYearBuilt_bins2')
-
-########################
-# Step 1: State
-########################
-#by vintage
-item2.state <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins2, State)
-                              ,Count = sum(count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID)))
-#across vintages
-item2.state.tot <- summarise(group_by(item2.dat, BuildingType, State)
-                              ,HomeYearBuilt_bins2 = "Total"
-                              ,Count = sum(count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID)))
-#combine
-item2.state.full <- rbind.data.frame(item2.state, item2.state.tot, stringsAsFactors = F)
-
-
-########################
-# Step 2: Region (across states)
-########################
-#by vintage
-item2.region <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins2)
-                               ,State = "Region"
-                               ,Count = sum(count)
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-#across vintages
-item2.region.tot <- summarise(group_by(item2.dat, BuildingType)
-                               ,HomeYearBuilt_bins2 = "Total"
-                               ,State = "Region"
-                               ,Count = sum(count)
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-#combine
-item2.region.full <- rbind.data.frame(item2.region, item2.region.tot, stringsAsFactors = F)
-
-
-##################################################
-# Step 3 (part a): Sample Sizes for SEs
-##################################################
-# Extract sample sizes for standard error calculations from the Total Row information for states and region
-#   and subset to only columns needed
-item2.total <- rbind.data.frame(item2.state.tot, item2.region.tot, stringsAsFactors = F)
-item2.total1 <- item2.total[which(colnames(item2.total) %in% c("BuildingType"
-                                                               , "State"
-                                                               , "Count"
-                                                               , "SampleSize"))]
-
-#rbind state and region information
-item2.full <- rbind.data.frame(item2.state.full, item2.region.full, stringsAsFactors = F)
-
-item2.full1 <- left_join(item2.full, item2.total1, by = c("BuildingType", "State"))
-colnames(item2.full1) <- c("BuildingType"
-                           , "Housing.Vintage"
+# ########################
+# # Step 1: State
+# ########################
+# #by vintage
+# item2.state <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins2, State)
+#                               ,Count = sum(count)
+#                               ,SampleSize = length(unique(CK_Cadmus_ID)))
+# #across vintages
+# item2.state.tot <- summarise(group_by(item2.dat, BuildingType, State)
+#                               ,HomeYearBuilt_bins2 = "Total"
+#                               ,Count = sum(count)
+#                               ,SampleSize = length(unique(CK_Cadmus_ID)))
+# #combine
+# item2.state.full <- rbind.data.frame(item2.state, item2.state.tot, stringsAsFactors = F)
+# 
+# 
+# ########################
+# # Step 2: Region (across states)
+# ########################
+# #by vintage
+# item2.region <- summarise(group_by(item2.dat, BuildingType, HomeYearBuilt_bins2)
+#                                ,State = "Region"
+#                                ,Count = sum(count)
+#                                ,SampleSize = length(unique(CK_Cadmus_ID))
+# )
+# #across vintages
+# item2.region.tot <- summarise(group_by(item2.dat, BuildingType)
+#                                ,HomeYearBuilt_bins2 = "Total"
+#                                ,State = "Region"
+#                                ,Count = sum(count)
+#                                ,SampleSize = length(unique(CK_Cadmus_ID))
+# )
+# #combine
+# item2.region.full <- rbind.data.frame(item2.region, item2.region.tot, stringsAsFactors = F)
+# 
+# 
+# ##################################################
+# # Step 3 (part a): Sample Sizes for SEs
+# ##################################################
+# # Extract sample sizes for standard error calculations from the Total Row information for states and region
+# #   and subset to only columns needed
+# item2.total <- rbind.data.frame(item2.state.tot, item2.region.tot, stringsAsFactors = F)
+# item2.total1 <- item2.total[which(colnames(item2.total) %in% c("BuildingType"
+#                                                                , "State"
+#                                                                , "Count"
+#                                                                , "SampleSize"))]
+# 
+# #rbind state and region information
+# item2.full <- rbind.data.frame(item2.state.full, item2.region.full, stringsAsFactors = F)
+# 
+# item2.full1 <- left_join(item2.full, item2.total1, by = c("BuildingType", "State"))
+colnames(item2.final) <- c("BuildingType"
                            , "State"
+                           , "Housing.Vintage"
+                           , "Percent"
+                           , "SE"
                            , "Count"
-                           , "Remove.SampleSize" # Step 3 (part b) -- This sample size is only used for the report table
-                           , "Total.Count"
+                           , "Population.Size"
                            , "SampleSize")
 
 
 
 
 
-##################################################
-# Step 4: Calculate Percent distribution and SEs
-##################################################
-# calculate Percent distribution
-item2.full1$Percent <- item2.full1$Count / item2.full1$Total.Count
-# the denominator of this SE is the sample size of the denominator in the percent
-item2.full1$SE      <- sqrt((item2.full1$Percent * (1 - item2.full1$Percent)) / item2.full1$SampleSize)
+# ##################################################
+# # Step 4: Calculate Percent distribution and SEs
+# ##################################################
+# # calculate Percent distribution
+# item2.full1$Percent <- item2.full1$Count / item2.full1$Total.Count
+# # the denominator of this SE is the sample size of the denominator in the percent
+# item2.full1$SE      <- sqrt((item2.full1$Percent * (1 - item2.full1$Percent)) / item2.full1$SampleSize)
 
 
 
@@ -297,9 +295,9 @@ item2.full1$SE      <- sqrt((item2.full1$Percent * (1 - item2.full1$Percent)) / 
 # Step 5: Cast data and create table
 ##################################################
 library(data.table)
-item2.table <- dcast(setDT(item2.full1)
+item2.table <- dcast(setDT(item2.final)
                      ,formula = BuildingType + Housing.Vintage ~ State
-                     ,value.var = c("Percent", "SE", "SampleSize"))
+                     ,value.var = c("Percent", "SE", "SampleSize", "Count"))
 
 item2.table1 <- data.frame("BuildingType"     = item2.table$BuildingType
                            ,"Housing.Vintage" = item2.table$Housing.Vintage
@@ -313,7 +311,7 @@ item2.table1 <- data.frame("BuildingType"     = item2.table$BuildingType
                            ,"SE_WA"           = item2.table$SE_WA
                            ,"Percent_Region"  = item2.table$Percent_Region
                            ,"SE_Region"       = item2.table$SE_Region
-                           ,"SampleSize"      = item2.table$Remove.SampleSize_Region)
+                           ,"SampleSize"      = item2.table$)
 
 item2.table2 <- item2.table1[which(item2.table1$BuildingType %in% c("Single Family", "Manufactured")),]
 item2.table.final <- item2.table2[which(!(is.na(item2.table2$Housing.Vintage))),]
