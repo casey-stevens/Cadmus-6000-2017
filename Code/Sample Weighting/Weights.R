@@ -13,6 +13,9 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
+
+weightedData <- function(itemData){
+
 ##  Clear variables
 rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
@@ -38,10 +41,11 @@ bldg.export   <- "SITES_2017.06.16.xlsx"
 #############################################################################################
 
 # Import clean RBSA data
-cleanRBSA.dat <- read.xlsx(paste(filepathCleanData
-                                 , paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")
-                                 , sep="/")
-)
+# cleanRBSA.dat <- read.xlsx(paste(filepathCleanData
+#                                  , paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")
+#                                  , sep="/")
+# )
+cleanRBSA.dat <- itemData
 names(cleanRBSA.dat)
 
 cleanRBSA.dat1 <- data.frame(cleanRBSA.dat, stringsAsFactors = F)
@@ -523,10 +527,13 @@ samp.dat.final$Heating_therm_fake <- samp.dat.final$therm_NAC_fake * runif(n = n
 samp.dat.final$Heating_therm_fake[which(samp.dat.final$Heating_therm_fake < 300)] <- 0
 
 
-##  Export clean data merged with weights
-write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# ##  Export clean data merged with weights
+# write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
+# 
+# ##  Export 
+# write.xlsx(final.counts, paste(filepathCleanData, paste("weights.data", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
-##  Export 
-write.xlsx(final.counts, paste(filepathCleanData, paste("weights.data", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+}
+
