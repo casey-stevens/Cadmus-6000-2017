@@ -28,9 +28,6 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
                                            ,paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
 rbsa.dat.weighted <- weightedData(rbsa.dat)
 
-weights.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
-                                              ,paste("weights.data", rundate, ".xlsx", sep = "")))
-
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
 #############################################################################################
