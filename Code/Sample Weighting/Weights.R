@@ -526,7 +526,8 @@ samp.dat.final$Heating_therm_fake <- samp.dat.final$therm_NAC_fake * runif(n = n
                                                                              max = .9)
 samp.dat.final$Heating_therm_fake[which(samp.dat.final$Heating_therm_fake < 300)] <- 0
 
-
+return(samp.dat.final)
+return(final.counts)
 # ##  Export clean data merged with weights
 # write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
 #            append = T, row.names = F, showNA = F)
