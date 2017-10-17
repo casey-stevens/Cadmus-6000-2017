@@ -26,12 +26,11 @@ source("Code/Sample Weighting/Weights.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
                                            ,paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
-rbsa.dat.weighted <- weightedData(rbsa.dat)
 
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
 #############################################################################################
-item1.dat <- rbsa.dat
+item1.dat <- weightedData(rbsa.dat)
 
 item1.dat$count <- 1
 

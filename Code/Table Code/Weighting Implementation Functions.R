@@ -28,13 +28,13 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     return(data)
   }
   
-  #Test
-  CustomerLevelData <- item6.dat
-  valueVariable <- 'count'
-  columnVariable <- 'State'
-  rowVariable <- 'BuildingHeight'
-  aggregateColumnName = 'Region'
-  totalRow = TRUE
+  # #Test
+  # CustomerLevelData <- item6.dat
+  # valueVariable <- 'count'
+  # columnVariable <- 'State'
+  # rowVariable <- 'BuildingHeight'
+  # aggregateColumnName = 'Region'
+  # totalRow = TRUE
   
   ########################
   # Step 1: State
