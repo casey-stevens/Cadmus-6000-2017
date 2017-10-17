@@ -207,7 +207,7 @@ saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COP
 # 
 #############################################################################################
 
-item2.dat <- rbsa.dat[which(!is.na(rbsa.dat$HomeYearBuilt)),]
+item2.dat <- rbsa.dat#[which(!is.na(rbsa.dat$HomeYearBuilt)),]
 
 item2.dat$count <- 1
 
@@ -327,18 +327,8 @@ item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family")
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 
-library(openxlsx)
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
-workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
-
-# UPDATE SHEET AND X
-writeData(workbook.SF, sheet = "Table 9", x = item2.table.SF, startRow = 20)
-writeData(workbook.MH, sheet = "Table 8", x = item2.table.MH, startRow = 20)
-
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
-
+exportTable(item2.table.SF, "SF", "Table 9")
+exportTable(item2.table.MH, "MH", "Table 8")
 
 
 
