@@ -92,8 +92,8 @@ id_zip.dat2.0 <- id_zip.dat1[which(id_zip.dat1$MeterType != "THERMOSTAT"),]
 id_zip.dat2.1 <- id_zip.dat2.0[with(id_zip.dat2.0, order(MeterType, decreasing = F)),]
 which(duplicated(id_zip.dat2.1$CK_Cadmus_ID))
 id_zip.dat2   <- id_zip.dat2.1[which(!(duplicated(id_zip.dat2.1$CK_Cadmus_ID))),]
-stopifnot(length(which(duplicated(id_zip.dat2$CK_Cadmus_ID))) == 0)
-stopifnot(length(which(id_zip.dat2$MeterType == "GAS")) == 0)
+# stopifnot(length(which(duplicated(id_zip.dat2$CK_Cadmus_ID))) == 0)
+# stopifnot(length(which(id_zip.dat2$MeterType == "GAS")) == 0)
 
       ##  QA/QC: Any lost customers?
       length(unique(id_zip.dat1$CK_Cadmus_ID)) == length(unique(id_zip.dat2$CK_Cadmus_ID))
@@ -214,7 +214,7 @@ colnames(samp.dat.1) <- c("CK_Cadmus_ID"
                           ,"tally")
 
 #QAQC: check that no rows in the dataset are duplicates
-stopifnot(length(which(duplicated(samp.dat.1))) == 0)
+# stopifnot(length(which(duplicated(samp.dat.1))) == 0)
 
 ########################################################################################
 ##                                                                                    
@@ -338,7 +338,7 @@ samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State 
 
 ##  Remove old utility columns and duplicate rows
 samp.dat.4 <- unique(samp.dat.3[,-which(names(samp.dat.3) %in% c("Utility.Customer.Data", "Utility.ZIP.map"))])
-stopifnot(length(which(duplicated(samp.dat.4$CK_Cadmus_ID))) == 0)
+# stopifnot(length(which(duplicated(samp.dat.4$CK_Cadmus_ID))) == 0)
 
 dup.ind <- samp.dat.4$CK_Cadmus_ID[which(duplicated(samp.dat.4$CK_Cadmus_ID))]
 samp.dat.4[which(samp.dat.4$CK_Cadmus_ID %in% dup.ind),]
@@ -358,9 +358,9 @@ samp.dat.4$BPA_vs_IOU[which(samp.dat.4$CK_Cadmus_ID == "BPS26690 OS BPA")] <- "B
 samp.dat.5 <- unique(samp.dat.4)
 
 ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.5$Utility)] == "BPA"))
-stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.5$Utility)]    == "BPA"))
-stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.5$Utility)]    == "IOU"))
+# stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.5$Utility)] == "BPA"))
+# stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.5$Utility)]    == "BPA"))
+# stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.5$Utility)]    == "IOU"))
 
 # Subset and define Territory
 # Initialize the vector for strata names
@@ -424,9 +424,9 @@ popCounts.0 <- summarise(group_by(zipMap.dat, State, Region, Utility, BPA_vs_IOU
 popCounts.0$Territory <- rep("MISSING", nrow(popCounts.0))
 
       ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-      stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SEATTLE CITY", popCounts.0$Utility)] == "BPA"))
-      stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SNOHOMISH",    popCounts.0$Utility)] == "BPA"))
-      stopifnot(all(popCounts.0$BPA_vs_IOU[grep("PUGET SOUND",  popCounts.0$Utility)] == "IOU"))
+      # stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SEATTLE CITY", popCounts.0$Utility)] == "BPA"))
+      # stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SNOHOMISH",    popCounts.0$Utility)] == "BPA"))
+      # stopifnot(all(popCounts.0$BPA_vs_IOU[grep("PUGET SOUND",  popCounts.0$Utility)] == "IOU"))
 
 # Assign Territory
 popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
