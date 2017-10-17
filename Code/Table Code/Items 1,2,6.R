@@ -244,5 +244,5 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 
 
-exportTable(item1.table.SF, "SF", "Table 13")
+exportTable(item6.table.SF, "SF", "Table 13")
 
