@@ -54,18 +54,19 @@ library(data.table)
 library(gdata)
 item1.cast <- dcast(setDT(item1.final)
                      ,formula = BuildingType + Home.Type ~ State
-                     ,value.var = c("Percent", "SE", "Count", "n", "N")) #determine if this needs to be sample size or count depending on each table
+                     ,value.var = c("Percent", "SE", "Count", "n", "N"))
 
+#can add pop and sample sizes if needed in exported table
 item1.table <- data.frame("BuildingType"    = item1.cast$BuildingType
                            ,"Home.Type"      = item1.cast$Home.Type
-                           ,"Percent_ID"     = "" #item1.cast$Percent_ID  -- missing for now, only partial data, placeholder until we get full data
-                           ,"SE_ID"          = "" #item1.cast$SE_ID  -- missing for now, only partial data, placeholder until we get full data
+                           ,"Percent_ID"     = "" #item1.cast$Percent_ID
+                           ,"SE_ID"          = "" #item1.cast$SE_ID
                            ,"n_ID"           = "" #item1.cast$Count_ID
                            ,"Percent_MT"     = item1.cast$Percent_MT
                            ,"SE_MT"          = item1.cast$SE_MT
                            ,"n_MT"           = item1.cast$Count_MT
-                           ,"Percent_OR"     = "" #item1.cast$Percent_OR  -- missing for now, only partial data, placeholder until we get full data
-                           ,"SE_OR"          = "" #item1.cast$SE_OR  -- missing for now, only partial data, placeholder until we get full data 
+                           ,"Percent_OR"     = "" #item1.cast$Percent_OR
+                           ,"SE_OR"          = "" #item1.cast$SE_OR
                            ,"n_OR"           = "" #item1.cast$Count_OR
                            ,"Percent_WA"     = item1.cast$Percent_WA
                            ,"SE_WA"          = item1.cast$SE_WA
@@ -144,9 +145,9 @@ item2.cast <- dcast(setDT(item2.final)
 
 item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"Housing.Vintage" = item2.cast$Housing.Vintage
-                           ,"Percent_ID"      = NA #missing for now, only partial data, placeholder until we get full data
-                           ,"SE_ID"           = NA #missing for now, only partial data, placeholder until we get full data
-                           ,"n_ID"            = NA #
+                           ,"Percent_ID"      = NA #item2.cast$Percent_ID
+                           ,"SE_ID"           = NA #item2.cast$SE_ID
+                           ,"n_ID"            = NA #item2.cast$Count_ID
                            ,"Percent_MT"      = item2.cast$Percent_MT
                            ,"SE_MT"           = item2.cast$SE_MT
                            ,"n_MT"            = item2.cast$Count_MT
@@ -218,9 +219,9 @@ item6.cast <- dcast(setDT(item6.final)
 
 item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                            ,"BuildingHeight" = item6.cast$BuildingHeight
-                           ,"Percent_ID"     = NA #missing for now, only partial data, placeholder until we get full data
-                           ,"SE_ID"          = NA #missing for now, only partial data, placeholder until we get full data
-                           ,"n_ID"           = NA #item6.cast$Count_ID
+                          ,"Percent_ID"      = NA #item6.cast$Percent_ID
+                          ,"SE_ID"           = NA #item6.cast$SE_ID
+                          ,"n_ID"            = NA #item6.cast$Count_ID
                            ,"Percent_MT"     = item6.cast$Percent_MT
                            ,"SE_MT"          = item6.cast$SE_MT
                            ,"n_MT"           = item6.cast$Count_MT
