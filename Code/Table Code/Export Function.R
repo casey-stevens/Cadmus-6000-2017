@@ -23,5 +23,3 @@ exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName) {
   saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY.xlsx", sep = ""), sep="/"), overwrite = T)
   
 }
-
-exportTable(item2.table.SF, "SF", "Table 9")
