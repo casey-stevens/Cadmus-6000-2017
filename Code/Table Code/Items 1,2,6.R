@@ -20,11 +20,13 @@ options(scipen=999)
 # Source
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
-                                           ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+                                           ,paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
+rbsa.dat.weighted <- weightedData(rbsa.dat)
 
 weights.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
                                               ,paste("weights.data", rundate, ".xlsx", sep = "")))
@@ -190,7 +192,8 @@ exportTable(item2.table.MH, "MH", "Table 8")
 # Item 6: DISTRIBUTION OF HOMES BY BUILDING HEIGHT AND STATE (SF table 13)
 #
 #############################################################################################
-item6.dat  <- rbsa.dat[which(!(is.na(rbsa.dat$BuildingHeight))),] ##only 369
+item6.dat <- rbsa.dat[which(!(is.na(rbsa.dat$BuildingHeight))),] 
+item6.dat  <- weightedData(item6.dat)
 
 item6.dat$count <- 1
 
