@@ -35,7 +35,7 @@ source(file.path(SourcePath, "SourceCode.R"))
 site.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat1 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                                , "BuildingTypeXX"  = site.dat$SITE_GENL_INFO_BuildingType
-                               , "HomeYearBuiltXX" = site.dat$SITES_General_GENL_INFO_HomeYearBuilt
+                               , "HomeYearBuilt" = site.dat$SITES_General_GENL_INFO_HomeYearBuilt
                                , "State"           = site.dat$SITE_ST
                                , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
                                , "ZIP"             = site.dat$SITE_ZIP
@@ -90,60 +90,59 @@ unique(rbsa.dat$BuildingType)
 #############################################################################################
 # Clean home year built info
 #############################################################################################
-unique(rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- gsub("\n", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX <- gsub("*.[0-9]{4}", "", rbsa.dat$HomeYearBuiltXX)
-rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$HomeYearBuiltXX %in% c(0,00,000,0000,"0","00","000","0000"))] <- NA
-unique(rbsa.dat$HomeYearBuiltXX)
+unique(rbsa.dat$HomeYearBuilt)
+rbsa.dat$HomeYearBuilt <- gsub("\n", "", rbsa.dat$HomeYearBuilt)
+rbsa.dat$HomeYearBuilt <- gsub("*.[0-9]{4}", "", rbsa.dat$HomeYearBuilt)
+rbsa.dat$HomeYearBuilt[which(rbsa.dat$HomeYearBuilt %in% c(0,00,000,0000,"0","00","000","0000"))] <- NA
+unique(rbsa.dat$HomeYearBuilt)
 
-rbsa.check <- rbsa.dat[which(!(is.na(rbsa.dat$HomeYearBuiltXX))),]
+rbsa.check <- rbsa.dat[which(!(is.na(rbsa.dat$HomeYearBuilt))),]
 length(unique(rbsa.check$CK_Cadmus_ID))
 missing.year.ind <- unique(rbsa.dat$CK_Cadmus_ID[which(!(rbsa.dat$CK_Cadmus_ID %in% rbsa.check$CK_Cadmus_ID))])
 missing.year.ind## send list to Rietz - fill in correct information export to missing year tab
 length(missing.year.ind) 
 
 
-rbsa.dat$HomeYearBuiltXX[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
-rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 1948
-rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "WS3209")]          <- 1946
-rbsa.dat$HomeYearBuiltXX[which(rbsa.dat$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1957
+rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
+rbsa.dat$HomeYearBuilt[which(rbsa.dat$CK_Cadmus_ID == "SE0872 OS SCL")]   <- 1948
+rbsa.dat$HomeYearBuilt[which(rbsa.dat$CK_Cadmus_ID == "WS3209")]          <- 1946
+rbsa.dat$HomeYearBuilt[which(rbsa.dat$CK_Cadmus_ID == "SG0808 OS SCL")]   <- 1957
 
 
     # Convert home year built to New / Existing
-    rbsa.dat$HomeYearBuilt <- rbsa.dat$HomeYearBuiltXX
-    rbsa.dat$HomeYearBuilt[which(as.numeric(as.character(rbsa.dat$HomeYearBuilt)) < 2012)] <- "Existing"
-    rbsa.dat$HomeYearBuilt[which(as.numeric(as.character(rbsa.dat$HomeYearBuilt)) > 2012 | as.numeric(as.character(rbsa.dat$HomeYearBuilt)) == 2012)] <- "New"
+    rbsa.dat$HomeYearBuilt_bins1 <- rbsa.dat$HomeYearBuilt
+    rbsa.dat$HomeYearBuilt_bins1[which(as.numeric(as.character(rbsa.dat$HomeYearBuilt)) < 2012)] <- "Existing"
+    rbsa.dat$HomeYearBuilt_bins1[which(as.numeric(as.character(rbsa.dat$HomeYearBuilt)) > 2012 | as.numeric(as.character(rbsa.dat$HomeYearBuilt)) == 2012)] <- "New"
     ##Warning okay here
     unique(rbsa.dat$HomeYearBuilt)
     
     # Convert home year built to specific bins
-    rbsa.dat$HomeYearBuiltXX <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
-    rbsa.dat$HomeYearBuilt_bins <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX < 1951)] <- "Pre 1951"
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 1951 & rbsa.dat$HomeYearBuiltXX < 1961)] <- "1951-1960"
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 1961 & rbsa.dat$HomeYearBuiltXX < 1971)] <- "1961-1970"
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 1971 & rbsa.dat$HomeYearBuiltXX < 1981)] <- "1971-1980"
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 1981 & rbsa.dat$HomeYearBuiltXX < 1991)] <- "1981-1990"
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$HomeYearBuiltXX < 2001)] <- "1991-2000"
-    rbsa.dat$HomeYearBuilt_bins[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
-    unique(rbsa.dat$HomeYearBuilt_bins)
+    rbsa.dat$HomeYearBuilt_bins2 <- as.numeric(as.character(rbsa.dat$HomeYearBuilt))
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt < 1951)] <- "Pre 1951"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1951 & rbsa.dat$HomeYearBuilt < 1961)] <- "1951-1960"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1961 & rbsa.dat$HomeYearBuilt < 1971)] <- "1961-1970"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1971 & rbsa.dat$HomeYearBuilt < 1981)] <- "1971-1980"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1991)] <- "1981-1990"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
+    unique(rbsa.dat$HomeYearBuilt_bins2)
     
     # Convert home year built to specific bins (4 categories)
-    rbsa.dat$HomeYearBuilt_bins4 <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
-    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX < 1981)] <- "Pre 1981"
-    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1981 & rbsa.dat$HomeYearBuiltXX < 1991)] <- "1981-1990"
-    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$HomeYearBuiltXX < 2001)] <- "1991-2000"
-    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
-    unique(rbsa.dat$HomeYearBuilt_bins4)
+    rbsa.dat$HomeYearBuilt_bins3 <- as.numeric(as.character(rbsa.dat$HomeYearBuilt))
+    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt < 1981)] <- "Pre 1981"
+    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1991)] <- "1981-1990"
+    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
+    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
+    unique(rbsa.dat$HomeYearBuilt_bins3)
     
     # Convert home year built to specific bins for multifamily
-    rbsa.dat$HomeYearBuilt_MF <- as.numeric(as.character(rbsa.dat$HomeYearBuiltXX))
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX < 1955)] <- "Pre 1955"
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1955 & rbsa.dat$HomeYearBuiltXX < 1971)] <- "1955-1970"
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1971 & rbsa.dat$HomeYearBuiltXX < 1981)] <- "1971-1980"
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1981 & rbsa.dat$HomeYearBuiltXX < 1991)] <- "1981-1990"
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 1991 & rbsa.dat$HomeYearBuiltXX < 2001)] <- "1991-2000"
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuiltXX >= 2001)] <- "Post 2000"
+    rbsa.dat$HomeYearBuilt_MF <- as.numeric(as.character(rbsa.dat$HomeYearBuilt))
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt < 1955)] <- "Pre 1955"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1955 & rbsa.dat$HomeYearBuilt < 1971)] <- "1955-1970"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1971 & rbsa.dat$HomeYearBuilt < 1981)] <- "1971-1980"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1991)] <- "1981-1990"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
     unique(rbsa.dat$HomeYearBuilt_MF)
 
     
@@ -270,7 +269,7 @@ rbsa.dat7 <- unique(rbsa.dat6[which(!(duplicated(rbsa.dat6$CK_Cadmus_ID))),])
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat7, paste(filepathCleanData, paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = ""), sep="/"),
+write.xlsx(rbsa.dat7, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
 

@@ -231,6 +231,13 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
                             byVariableRow, byVariableColumn,
                             columnAggregate = NA, rowAggregate = NA) {
   
+  ### Function to convert column names
+  ConvertColName <- function(dataset, currentColName, newColName) {
+    data <- dataset
+    colnames(data)[which(colnames(data) == currentColName)] <- newColName
+    return(data)
+  }
+  
   ######################################################
   # Step 1.1: Using customer level data,
   #   Summarise data up to strata level

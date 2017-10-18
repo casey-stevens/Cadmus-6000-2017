@@ -21,11 +21,12 @@ options(scipen=999)
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
-                                           ,paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")))
+                                           ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)

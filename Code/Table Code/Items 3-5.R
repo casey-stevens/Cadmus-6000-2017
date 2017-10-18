@@ -23,11 +23,14 @@ options(scipen=999)
 
 # Source
 source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 
 #Read in data for analysis
@@ -56,10 +59,11 @@ env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
 colnames(env.dat) <- c("CK_Cadmus_ID"
                        , "FoundationType")
 env.dat1 <- env.dat[which(!(is.na(env.dat$FoundationType))),]
+env.dat1$FoundationType <- trimws(env.dat1$FoundationType)
 
 #merge table columns to generic columns
 item3.dat <- unique(left_join(rbsa.dat, env.dat1, by = "CK_Cadmus_ID"))
-item3.dat$FoundationType <- trimws(item3.dat$FoundationType)
+
 
 
 # Clean Ground Contact types
@@ -76,123 +80,64 @@ item3.dat1 <- item3.dat[which(item3.dat$GroundContact != "Remove"),]
 #subset to only single family for item 3
 item3.dat2 <- item3.dat1[which(item3.dat1$BuildingType == "Single Family"),]
 
+item3.data <- weightedData(item3.dat2[-which(colnames(item3.dat2) %in% c("FoundationType", "GroundContact"))])
 
-######################################################
-# Step 2: State Analysis 
-######################################################
-item3.dat2$count <- 1
-#Get state information
-#across home types
-item3.state.tot <- summarise(group_by(item3.dat2, BuildingType, State)
-                              ,GroundContact = "Total"
-                              ,Count = sum(count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID)))
+item3.data <- left_join(item3.data, item3.dat2[which(colnames(item3.dat2) %in% c("CK_Cadmus_ID", "FoundationType", "GroundContact"))])
 
-item3.state <- summarise(group_by(item3.dat2, BuildingType, GroundContact, State)
-                              ,Count = sum(count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID)))
-item3.state <- rbind.data.frame(item3.state, item3.state.tot, stringsAsFactors = F)
+item3.data$count <- 1
+colnames(item3.data)
+
+## Run analysis function: Proportions, two groups
+item3.final <- proportionRowsAndColumns1(item3.data
+                                         , valueVariable = 'count'
+                                         , columnVariable = 'State'
+                                         , rowVariable = 'GroundContact'
+                                         , aggregateColumnName = "Region")
 
 
-######################################################
-# Step 3: Region Analysis 
-######################################################
-#
-item3.region.tot <- summarise(group_by(item3.dat2, BuildingType)
-                               ,GroundContact = "Total"
-                               ,State = "Region"
-                               ,Count = sum(count)
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-item3.region <- summarise(group_by(item3.dat2, BuildingType, GroundContact)
-                               ,State = "Region"
-                               ,Count = sum(count)
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-item3.region <- rbind.data.frame(item3.region, item3.region.tot, stringsAsFactors = F)
-
-#rbind state and region information
-item3.full <- rbind.data.frame(item3.state, item3.region, stringsAsFactors = F)
-
-
-
-##################################################
-# Step 4 (part a): Sample Sizes for SEs
-##################################################
-# Extract sample sizes for standard error calculations from the Total Row information for states and region
-#   and subset to only columns needed
-item3.total <- rbind.data.frame(item3.state.tot, item3.region.tot, stringsAsFactors = F)
-item3.total1 <- item3.total[which(colnames(item3.total) %in% c("BuildingType"
-                                                               , "State"
-                                                               , "Count"
-                                                               , "SampleSize"))]
-
-# merge SE sample sizes onto rest of data
-item3.final <- left_join(item3.full, item3.total1, by = c("BuildingType", "State"))
 colnames(item3.final) <- c("BuildingType"
-                           , "GroundContact"
                            , "State"
+                           , "GroundContact"
+                           , "Percent"
+                           , "SE"
                            , "Count"
-                           , "Remove.SampleSize"
-                           , "Total.Count"
+                           , "PopSize"
                            , "SampleSize")
-
-
-
-##################################################
-# Step 5: Calculate Percent distribution and SEs
-##################################################
-# calculate Percent distribution
-item3.final$Percent <- item3.final$Count / item3.final$Total.Count
-# the denominator of this SE is the sample size of the denominator in the percent
-item3.final$SE      <- sqrt((item3.final$Percent * (1 - item3.final$Percent)) / item3.final$SampleSize)
-
-
-## Step 4 (part b): Fix sample size for Region as they should appear in the report tables 
-#     Note: this needs to be done after the SEs have been calcualted
-item3.final$SampleSize[which(item3.final$State == "Region")] <- item3.final$Remove.SampleSize[which(item3.final$State == "Region")]
-
-
 
 
 ##################################################
 # Step 5: Cast data and create table
 ##################################################
-library(data.table)
-item3.table <- dcast(setDT(item3.final)
+item3.cast <- dcast(setDT(item3.final)
                      ,formula = BuildingType + GroundContact ~ State
-                     ,value.var = c("Percent", "SE", "SampleSize"))
+                     ,value.var = c("Percent", "SE", "SampleSize", "Count", "PopSize"))
 
-item3.table1 <- data.frame("BuildingType" = item3.table$BuildingType
-                           ,"GroundContact" = item3.table$GroundContact
-                           ,"Percent_MT" = item3.table$Percent_MT
-                           ,"SE_MT" = item3.table$SE_MT
-                           ,"Percent_OR" = item3.table$Percent_OR
-                           ,"SE_OR" = item3.table$SE_OR
-                           ,"Percent_WA" = item3.table$Percent_WA
-                           ,"SE_WA" = item3.table$SE_WA
-                           ,"Percent_Region" = item3.table$Percent_Region
-                           ,"SE_Region" = item3.table$SE_Region
-                           ,"SampleSize" = item3.table$SampleSize_Region)
-
-item3.table.final <- item3.table1[which(item3.table1$BuildingType %in% c("Single Family")),]
+item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
+                           ,"GroundContact"  = item3.cast$GroundContact
+                           ,"Percent_ID"     = NA #item3.cast$Percent_ID
+                           ,"SE_ID"          = NA #item3.cast$SE_ID
+                           ,"n_ID"           = NA #item3.cast$Count_ID
+                           ,"Percent_MT"     = item3.cast$Percent_MT
+                           ,"SE_MT"          = item3.cast$SE_MT
+                           ,"n_MT"           = item3.cast$Count_MT
+                           ,"Percent_OR"     = NA #item3.cast$Percent_OR
+                           ,"SE_OR"          = NA #item3.cast$SE_OR
+                           ,"n_OR"           = NA #item3.cast$Count_OR
+                           ,"Percent_WA"     = item3.cast$Percent_WA
+                           ,"SE_WA"          = item3.cast$SE_WA
+                           ,"n_WA"           = item3.cast$Count_WA
+                           ,"Percent_Region" = item3.cast$Percent_Region
+                           ,"SE_Region"      = item3.cast$SE_Region
+                           ,"SampleSize"     = item3.cast$Count_Region)
 
 ##################################################
 # Step 6: Split table by building type
 # and export to correct workbook
 ##################################################
-item3.table.SF <- item3.table.final[which(item3.table.final$BuildingType == "Single Family"),-1]
+item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
 
-library(openxlsx)
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
-
-# UPDATE SHEET AND X
-writeData(workbook.SF, sheet = "Table 10", x = item3.table.SF, startRow = 20)
-
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-
+exportTable(item3.table.SF, "SF", "Table 10")
 
 
 
@@ -210,92 +155,117 @@ saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COP
 #         Perform data normalization / data cleaning
 #         subset to only single family homes
 ######################################################
-item4.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                               , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
-colnames(item4.dat) <- c("CK_Cadmus_ID"
+colnames(env.dat) <- c("CK_Cadmus_ID"
                          , "BldgLevel_Area_SqFt")
 
-#merge
-item4.dat0 <- left_join(rbsa.dat, item4.dat, by = "CK_Cadmus_ID")
-length(unique(item4.dat0$CK_Cadmus_ID)) #601
-
-item4.dat1 <- item4.dat0[which(item4.dat0$BuildingType != "Multifamily"),]
-
 #make conditioned area as.numeric
-item4.dat1$ConditionedArea <- as.numeric(as.character(item4.dat1$BldgLevel_Area_SqFt))
+env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
 
-#remove NAs
-item4.dat2 <- item4.dat1[which(!(is.na(item4.dat1$ConditionedArea))),]
-length(unique(item4.dat2$CK_Cadmus_ID)) #374
+
+#merge
+item4.dat <- left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
+length(unique(item4.dat$CK_Cadmus_ID)) #601
+
+item4.dat1 <- item4.dat[which(item4.dat$BuildingType != "Multifamily"),]
+item4.dat2 <- item4.dat1[which(!is.na(item4.dat1$ConditionedArea)),]
+
+
+item4.data <- weightedData(item4.dat2[-which(colnames(item4.dat2) %in% c("BldgLevel_Area_SqFt","ConditionedArea"))])
+item4.data <- left_join(item4.data, item4.dat2[which(colnames(item4.dat2) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt","ConditionedArea"))])
+
+item4.data$count <- 1
+colnames(item4.data)
+
 
 
 ######################################################
 # Step 1.1: Summarise data up to unique customer level
 ######################################################
-item4.customer <- summarise(group_by(item4.dat2,BuildingType , CK_Cadmus_ID, State, Region, Territory, n.h, N.h)
+item4.customer <- summarise(group_by(item4.data
+                                     , BuildingType
+                                     , HomeYearBuilt_bins2
+                                     , CK_Cadmus_ID
+                                     , State
+                                     , Region
+                                     , Territory
+                                     , n.h
+                                     , N.h)
                       ,siteAreaConditioned = sum(ConditionedArea)
 )
 
-######################################################
-# Step 1.2: Using customer level data,
-#   Summarise data up to strata level
-######################################################
-item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Territory)
-                              ,n_h        = unique(n.h)
-                              ,N_h        = unique(N.h)
-                              ,fpc        = (1 - n_h / N_h)
-                              ,w_h        = n_h / N_h
-                              ,strataArea = sum(siteAreaConditioned) / n_h
-                              ,strataSD   = sd(siteAreaConditioned)
-                              ,n          = length(unique(CK_Cadmus_ID))
-)
-
-item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
-
-######################################################
-# Step 2: Using strata level data,
-#   Perform state level analysis
-######################################################
-item4.state <- summarise(group_by(item4.strata, BuildingType, State)
-                        ,Mean       = sum(N_h * strataArea) / sum(N_h)
-                        ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                        ,SampleSize = sum(unique(n))
-                        )
 
 
-######################################################
-# Step 3: Using strata level data,
-#   Perform region level analysis
-######################################################
-item4.region <- summarise(group_by(item4.strata, BuildingType)
-                              ,State      = "Region"
-                              ,Mean       = sum(N_h * strataArea) / sum(N_h)
-                              ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                              ,SampleSize = sum(unique(n)))
+## Apply weigthing function: means, two groups
+mean_two_groups(CustomerLevelData = item4.customer
+                , valueVariable = 'siteAreaConditioned'
+                , byVariableRow = 'HomeYearBuilt_bins2'
+                , byVariableColumn = 'State'
+                , columnAggregate = "Region"
+                , rowAggregate = "All Vintages")
 
 
-######################################################
-# Step 4: Combine results into correct table format,
-#   Split table by building type
-#   and export tables to respective workbooks
-######################################################
-item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
-
-item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
-item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
-
-
-library(openxlsx)
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
-workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
-
-# UPDATE SHEET AND X
-writeData(workbook.SF, sheet = "Table 11", x = item4.table.SF, startRow = 20)
-writeData(workbook.MH, sheet = "Table 10", x = item4.table.MH, startRow = 20)
-
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+# ######################################################
+# # Step 1.2: Using customer level data,
+# #   Summarise data up to strata level
+# ######################################################
+# item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Territory)
+#                               ,n_h        = unique(n.h)
+#                               ,N_h        = unique(N.h)
+#                               ,fpc        = (1 - n_h / N_h)
+#                               ,w_h        = n_h / N_h
+#                               ,strataArea = sum(siteAreaConditioned) / n_h
+#                               ,strataSD   = sd(siteAreaConditioned)
+#                               ,n          = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
+# 
+# ######################################################
+# # Step 2: Using strata level data,
+# #   Perform state level analysis
+# ######################################################
+# item4.state <- summarise(group_by(item4.strata, BuildingType, State)
+#                         ,Mean       = sum(N_h * strataArea) / sum(N_h)
+#                         ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+#                         ,SampleSize = sum(unique(n))
+#                         )
+# 
+# 
+# ######################################################
+# # Step 3: Using strata level data,
+# #   Perform region level analysis
+# ######################################################
+# item4.region <- summarise(group_by(item4.strata, BuildingType)
+#                               ,State      = "Region"
+#                               ,Mean       = sum(N_h * strataArea) / sum(N_h)
+#                               ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+#                               ,SampleSize = sum(unique(n)))
+# 
+# 
+# ######################################################
+# # Step 4: Combine results into correct table format,
+# #   Split table by building type
+# #   and export tables to respective workbooks
+# ######################################################
+# item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
+# 
+# item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
+# item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
+# 
+# 
+# library(openxlsx)
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
+# workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+# 
+# # UPDATE SHEET AND X
+# writeData(workbook.SF, sheet = "Table 11", x = item4.table.SF, startRow = 20)
+# writeData(workbook.MH, sheet = "Table 10", x = item4.table.MH, startRow = 20)
+# 
+# saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+# saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
