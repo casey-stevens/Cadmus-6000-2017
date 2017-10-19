@@ -164,10 +164,10 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 
-CustomerLevelData <- item9.data
-valueVariable     <- 'Site_Area'
-byVariable        <- 'Clean.Type'
-aggregateRow      <- "All Room Types"
+# CustomerLevelData <- item9.data
+# valueVariable     <- 'Site_Area'
+# byVariable        <- 'Clean.Type'
+# aggregateRow      <- "All Room Types"
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {
   
