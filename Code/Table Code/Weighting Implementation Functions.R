@@ -29,12 +29,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   }
   
   # #Test
-  # CustomerLevelData <- item10.data
-  # valueVariable       = 'count'
-  # columnVariable      = 'rvalue.bins'
-  # rowVariable         = 'Wall.Type'
-  # aggregateColumnName = "All Insulation Levels"
-  # totalRow = TRUE
+  CustomerLevelData <- item10.data
+  valueVariable       = 'count'
+  columnVariable      = 'rvalue.bins'
+  rowVariable         = 'Wall.Type'
+  aggregateColumnName = "All Insulation Levels"
+  totalRow = TRUE
   
   ########################
   # Step 1: State

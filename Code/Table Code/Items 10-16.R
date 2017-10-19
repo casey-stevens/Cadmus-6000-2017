@@ -6,9 +6,21 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -80,13 +92,6 @@ unique(item10.dat1.2$Wall.Exterior.Insulation.Condition.1)
 unique(item10.dat1.2$Wall.Exterior.Insulation.Condition.2)
 unique(item10.dat1.2$Wall.Exterior.Insulation.Condition.3)
 
-#Clean Condition unknown values
-item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
 
 #remove unneccesary wall types
 item10.dat2 <- item10.dat1.2[which(!(item10.dat1.2$Wall.Type %in% c("Masonry","Masonry (Basement)","Log","Adiabatic"))),]
@@ -130,6 +135,16 @@ item10.dat3$Wall.Exterior.Insulation.Thickness.3[which(is.na(item10.dat3$Wall.Ex
 unique(item10.dat3$Wall.Exterior.Insulation.Thickness.1)
 unique(item10.dat3$Wall.Exterior.Insulation.Thickness.2)
 unique(item10.dat3$Wall.Exterior.Insulation.Thickness.3)
+
+
+#Clean Condition unknown values
+item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
+
 
 # add new ID variable for merging -- don't know if we need this
 item10.dat3$count <- 1
@@ -360,89 +375,118 @@ unique(item10.dat7$rvalue.bins)
 item10.dat7$count <- 1
 
 item10.dat8 <- item10.dat7[which(item10.dat7$rvalue.bins != "Unknown"),]
+colnames(item10.dat8)
 
-#summarise by wall frame types
-#summarise by r value bins
-item10.sum1 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type, rvalue.bins)
-                         ,SampleSize = ""
-                         ,Count = sum(count))
-#summarise across r value bins
-item10.sum2 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type)
-                         ,rvalue.bins = "All Insulation Levels"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
+item10.merge <- left_join(rbsa.dat, item10.dat8)
+item10.merge <- item10.merge[which(!is.na(item10.merge$count)),]
+
+item10.data <- weightedData(unique(item10.merge[-which(colnames(item10.merge) %in% c("Wall.Type"
+                                                                              ,"aveUval"
+                                                                              ,"aveRval"
+                                                                              ,"rvalue.bins"
+                                                                              ,"count"))]))
+item10.data <- left_join(item10.data, item10.merge[which(colnames(item10.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Wall.Type"
+                                                                                       ,"aveUval"
+                                                                                       ,"aveRval"
+                                                                                       ,"rvalue.bins"
+                                                                                       ,"count"))])
+
+item10.final <- proportionRowsAndColumns1(item10.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'rvalue.bins'
+                                          , rowVariable         = 'Wall.Type'
+                                          , aggregateColumnName = "All Insulation Levels"
+                                          )
 
 
-#summarise across wall frame types
-#summarise by r value bins
-item10.sum3 <- summarise(group_by(item10.dat8, BuildingType, rvalue.bins)
-                         , Wall.Type = "All Frame Types"
-                         ,SampleSize = ""
-                         ,Count = sum(count))
-#summarise across r value bins
-item10.sum4 <- summarise(group_by(item10.dat8, BuildingType)
-                         ,rvalue.bins = "All Insulation Levels"
-                         , Wall.Type = "All Frame Types"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
-
-item10.merge <- rbind.data.frame(item10.sum1,item10.sum2,item10.sum3,item10.sum4,stringsAsFactors = F)
-
-item10.tot.counts <- rbind.data.frame(item10.sum2, item10.sum4, stringsAsFactors = F)
-item10.tot.counts <- item10.tot.counts[which(colnames(item10.tot.counts) %in% c("BuildingType"
-                                                                                , "Wall.Type"
-                                                                                , "Count"))]
-item10.sampleSizes <- item10.merge[which(item10.merge$SampleSize != ""),which(colnames(item10.merge) %in% c("BuildingType"
-                                                                                                            ,"SampleSize"
-                                                                                                            ,"Wall.Type"))]
-
-item10.merge1 <- left_join(item10.merge, item10.tot.counts, by = c("BuildingType", "Wall.Type"))
-item10.merge2 <- left_join(item10.merge1, item10.sampleSizes, by = c("BuildingType", "Wall.Type"))
-colnames(item10.merge2) <- c("BuildingType", "Wall.Type", "rvalue.bins", "Remove", "Count", "TotalCount", "SampleSize")
-
-building.type <- rbind.data.frame("Manufactured"
-                                  , "Multifamily - High Rise"
-                                  , "Multifamily - Low Rise"
-                                  , "Single Family"
-                                  , stringsAsFactors = F)
-
-for(i in 1:4){
-  item10.merge2$TotalCount[which(item10.merge2$BuildingType == building.type[i,] & item10.merge2$rvalue.bins == "All Insulation Levels")] <-
-    item10.merge2$TotalCount[which(item10.merge2$BuildingType == building.type[i,] & item10.merge2$rvalue.bins == "All Insulation Levels" & item10.merge2$Wall.Type == "All Frame Types")]
-}
-
-item10.final <- item10.merge2
-item10.final$SampleSize <- as.numeric(as.character(item10.final$SampleSize))
-
-item10.final$Percent <- item10.final$Count / item10.final$TotalCount
-item10.final$SE <- sqrt(item10.final$Percent * (1 - item10.final$Percent) / item10.final$SampleSize)
+# #summarise by wall frame types
+# #summarise by r value bins
+# item10.sum1 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type, rvalue.bins)
+#                          ,SampleSize = ""
+#                          ,Count = sum(count))
+# #summarise across r value bins
+# item10.sum2 <- summarise(group_by(item10.dat8, BuildingType, Wall.Type)
+#                          ,rvalue.bins = "All Insulation Levels"
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Count = sum(count))
+# 
+# 
+# #summarise across wall frame types
+# #summarise by r value bins
+# item10.sum3 <- summarise(group_by(item10.dat8, BuildingType, rvalue.bins)
+#                          , Wall.Type = "All Frame Types"
+#                          ,SampleSize = ""
+#                          ,Count = sum(count))
+# #summarise across r value bins
+# item10.sum4 <- summarise(group_by(item10.dat8, BuildingType)
+#                          ,rvalue.bins = "All Insulation Levels"
+#                          , Wall.Type = "All Frame Types"
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Count = sum(count))
+# 
+# item10.merge <- rbind.data.frame(item10.sum1,item10.sum2,item10.sum3,item10.sum4,stringsAsFactors = F)
+# 
+# item10.tot.counts <- rbind.data.frame(item10.sum2, item10.sum4, stringsAsFactors = F)
+# item10.tot.counts <- item10.tot.counts[which(colnames(item10.tot.counts) %in% c("BuildingType"
+#                                                                                 , "Wall.Type"
+#                                                                                 , "Count"))]
+# item10.sampleSizes <- item10.merge[which(item10.merge$SampleSize != ""),which(colnames(item10.merge) %in% c("BuildingType"
+#                                                                                                             ,"SampleSize"
+#                                                                                                             ,"Wall.Type"))]
+# 
+# item10.merge1 <- left_join(item10.merge, item10.tot.counts, by = c("BuildingType", "Wall.Type"))
+# item10.merge2 <- left_join(item10.merge1, item10.sampleSizes, by = c("BuildingType", "Wall.Type"))
+# colnames(item10.merge2) <- c("BuildingType", "Wall.Type", "rvalue.bins", "Remove", "Count", "TotalCount", "SampleSize")
+# 
+# building.type <- rbind.data.frame("Manufactured"
+#                                   , "Multifamily - High Rise"
+#                                   , "Multifamily - Low Rise"
+#                                   , "Single Family"
+#                                   , stringsAsFactors = F)
+# 
+# for(i in 1:4){
+#   item10.merge2$TotalCount[which(item10.merge2$BuildingType == building.type[i,] & item10.merge2$rvalue.bins == "All Insulation Levels")] <-
+#     item10.merge2$TotalCount[which(item10.merge2$BuildingType == building.type[i,] & item10.merge2$rvalue.bins == "All Insulation Levels" & item10.merge2$Wall.Type == "All Frame Types")]
+# }
+# 
+# item10.final <- item10.merge2
+# item10.final$SampleSize <- as.numeric(as.character(item10.final$SampleSize))
+# 
+# item10.final$Percent <- item10.final$Count / item10.final$TotalCount
+# item10.final$SE <- sqrt(item10.final$Percent * (1 - item10.final$Percent) / item10.final$SampleSize)
 
 ##cast data
-item10.table <- dcast(setDT(item10.final),
+item10.cast <- dcast(setDT(item10.final),
                       formula   = BuildingType +  Wall.Type ~ rvalue.bins,
-                      value.var = c("Percent", "SE", "SampleSize"))
+                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 #join all insulation levels onto rvalue summary
-item10.table1 <- data.frame("BuildingType" = item10.table$BuildingType
-                            ,"Wall.Type" = item10.table$Wall.Type
-                            ,"Percent.R0" = item10.table$Percent_R0
-                            ,"SE.R0" = item10.table$SE_R0
-                            ,"Percent.R1.R10" = item10.table$Percent_R1.R10
-                            ,"SE.R1.R10" = item10.table$SE_R1.R10
-                            ,"Percent.R11.R16" = item10.table$Percent_R11.R16
-                            ,"SE.R11.R16" = item10.table$SE_R11.R16
-                            ,"Percent.R17.R22" = item10.table$Percent_R17.R22
-                            ,"SE.R17.R22" = item10.table$SE_R17.R22
-                            ,"Percent.RGT22" = item10.table$Percent_RGT22
-                            ,"SE.RGT22" = item10.table$SE_RGT22
-                            ,"Percent_All Insulation Levels" = item10.table$`Percent_All Insulation Levels`
-                            ,"SE_All Insulation Levels"   = item10.table$`SE_All Insulation Levels`
-                            ,"SampleSize" = item10.table$`SampleSize_All Insulation Levels`)
+item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
+                            ,"Wall.Type"       = item10.cast$Wall.Type
+                            ,"Percent.R0"      = item10.cast$w.percent_R0
+                            ,"SE.R0"           = item10.cast$w.SE_R0
+                            ,"Count.R0"        = item10.cast$count_R0
+                            ,"Percent.R1.R10"  = item10.cast$w.percent_R1.R10
+                            ,"SE.R1.R10"       = item10.cast$w.SE_R1.R10
+                            ,"Count.R1.R10"    = item10.cast$count_R1.R10
+                            ,"Percent.R11.R16" = item10.cast$w.percent_R11.R16
+                            ,"SE.R11.R16"      = item10.cast$w.SE_R11.R16
+                            ,"Count.R11.R16"   = item10.cast$count_R11.R16
+                            ,"Percent.R17.R22" = item10.cast$w.percent_R17.R22
+                            ,"SE.R17.R22"      = item10.cast$w.SE_R17.R22
+                            ,"Count.R17.R22"   = item10.cast$count_R17.R22
+                            ,"Percent.RGT22"   = item10.cast$w.percent_RGT22
+                            ,"SE.RGT22"        = item10.cast$w.SE_RGT22
+                            ,"Count.RGT22"     = item10.cast$count_RGT22
+                            ,"Percent_All Insulation Levels" = item10.cast$`w.percent_All Insulation Levels`
+                            ,"SE_All Insulation Levels"      = item10.cast$`w.SE_All Insulation Levels`
+                            ,"SampleSize"      = item10.cast$`count_All Insulation Levels`)
 
-item10.table2 <- item10.table1[which(item10.table1$BuildingType == "Single Family"),]
+item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
 
-
-
+#export table to correct workbook using exporting function
+exportTable(item10.table.SF, "SF", "Table 17")
 
 
 
@@ -472,8 +516,32 @@ unique(item11.dat3$Wall.Type)
                                                                
 #cast out by wall frame types
 item11.dat3$count <- 1
+item11.merge <- left_join(rbsa.dat, item11.dat3)
+
+item11.data <- weightedData(unique(item11.merge[-which(colnames(item11.merge) %in% c("Wall.Type"
+                                                                                     ,"aveUval"
+                                                                                     ,"aveRval"
+                                                                                     ,"rvalue.bins"
+                                                                                     ,"count"))]))
+item11.data <- left_join(item11.data, item11.merge[which(colnames(item11.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Wall.Type"
+                                                                                       ,"aveUval"
+                                                                                       ,"aveRval"
+                                                                                       ,"rvalue.bins"
+                                                                                       ,"count"))])
+
+
+
+item11.final <- proportionRowsAndColumns1(item11.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'rvalue.bins'
+                                          , rowVariable         = 'Wall.Type'
+                                          , aggregateColumnName = "All Insulation Levels"
+)
+
+
 item11.cast <- dcast(setDT(item11.dat3),
-                     formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins4 ~ Wall.Type, sum,
+                     formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
                      value.var = 'count')
 
 item11.sum1 <- summarise(group_by(item11.cast, BuildingType, HomeYearBuilt_bins4)
