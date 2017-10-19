@@ -13,7 +13,6 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-
 weightedData <- function(itemData){
 
 ##  Clear variables
@@ -45,6 +44,7 @@ bldg.export   <- "SITES_2017.06.16.xlsx"
 #                                  , paste("clean.rbsa.data.unweighted", rundate, ".xlsx", sep = "")
 #                                  , sep="/")
 # )
+# itemData <- item7.customer
 cleanRBSA.dat <- itemData
 names(cleanRBSA.dat)
 

@@ -5,23 +5,13 @@
 ##  Updated:          09/11/2017                                  
 ##  Billing Code(s):  6596.0000.0002.1002.0000
 #############################################################################################
-#############################################################################################
-# For items 3-5 - this code will summarize information to match the previous RBSA table
-#   Step 1: Subset to columns for analysis, normalize/clean, and 
-#     subset to correct building types needed for analysis
-#   Step 1.1 (FOR MEANS ONLY): Summarise data up to unique customer level
-#   Step 1.2 (FOR MEANS ONLY): Summarise customer data up to strata level
-#   Step 2: State level analysis
-#   Step 3: Region level analysis 
-#   Step 4: combine full data into one, put data into correct format for creating tables,
-#           subset tables by building type and export to respective workbooks
-#############################################################################################
+
 ##  Clear variables
 rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
-# Source
+# Source codes
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
@@ -48,12 +38,10 @@ GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) != "
 #############################################################################################
 # Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE 
 #############################################################################################
+#############################################################
+# Weighting Implementation function: Proportion, two groups
+#############################################################
 
-######################################################
-# Step 1: Subset to columns needed for analysis
-#         Perform data normalization / data cleaning
-#         subset to only single family homes
-######################################################
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                             , "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
 colnames(env.dat) <- c("CK_Cadmus_ID"
@@ -106,7 +94,7 @@ colnames(item3.final) <- c("BuildingType"
 
 
 ##################################################
-# Step 5: Cast data and create table
+# Cast data and create table
 ##################################################
 item3.cast <- dcast(setDT(item3.final)
                      ,formula = BuildingType + GroundContact ~ State
@@ -151,9 +139,7 @@ exportTable(item3.table.SF, "SF", "Table 10")
 # Item 4: AVERAGE CONDITIONED FLOOR AREA BY STATE
 #############################################################################################
 ######################################################
-# Step 1: Subset to columns needed for analysis
-#         Perform data normalization / data cleaning
-#         subset to only single family homes
+# Weighting Implementation function: Mean, one group
 ######################################################
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                               , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
@@ -185,7 +171,6 @@ colnames(item4.data)
 ######################################################
 item4.customer <- summarise(group_by(item4.data
                                      , BuildingType
-                                     , HomeYearBuilt_bins2
                                      , CK_Cadmus_ID
                                      , State
                                      , Region
@@ -198,13 +183,17 @@ item4.customer <- summarise(group_by(item4.data
 
 
 ## Apply weigthing function: means, two groups
-mean_two_groups(CustomerLevelData = item4.customer
-                , valueVariable = 'siteAreaConditioned'
-                , byVariableRow = 'HomeYearBuilt_bins2'
-                , byVariableColumn = 'State'
-                , columnAggregate = "Region"
-                , rowAggregate = "All Vintages")
+item4.final <- mean_one_group(CustomerLevelData = item4.customer
+                               , valueVariable = 'siteAreaConditioned'
+                               , byVariable    = 'State'
+                               , aggregateRow  = 'Region')
 
+
+item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
+item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
+
+exportTable(item4.table.SF, "SF", "Table 11")
+exportTable(item4.table.MH, "MH", "Table 10")
 
 # ######################################################
 # # Step 1.2: Using customer level data,
@@ -253,19 +242,6 @@ mean_two_groups(CustomerLevelData = item4.customer
 # 
 # item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 # item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
-# 
-# 
-# library(openxlsx)
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
-# workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
-# 
-# # UPDATE SHEET AND X
-# writeData(workbook.SF, sheet = "Table 11", x = item4.table.SF, startRow = 20)
-# writeData(workbook.MH, sheet = "Table 10", x = item4.table.MH, startRow = 20)
-# 
-# saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-# saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
 
 
 
@@ -278,115 +254,67 @@ mean_two_groups(CustomerLevelData = item4.customer
 ##########################################################################
 # Item 5: AVERAGE CONDITIONED FLOOR AREA BY STATE AND VINTAGE
 ##########################################################################
-item5.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                              , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
-colnames(item5.dat) <- c("CK_Cadmus_ID"
-                         , "BldgLevel_Area_SqFt")
-#merge
-item5.dat1 <- left_join(rbsa.dat, item5.dat, by = "CK_Cadmus_ID")
-length(unique(item5.dat1$CK_Cadmus_ID)) #565, yay!
+######################################################
+# Weighting Implementation function: Mean, two groups
+######################################################
 
-#remove NAs
-item5.dat2 <- item5.dat1[which(!(is.na(item5.dat1$BldgLevel_Area_SqFt))),]
-length(unique(item5.dat2$CK_Cadmus_ID)) #410, boo!
+env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                            , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+colnames(env.dat) <- c("CK_Cadmus_ID"
+                       , "BldgLevel_Area_SqFt")
 
 #make conditioned area as.numeric
-item5.dat2$ConditionedArea <- as.numeric(as.character(item5.dat2$BldgLevel_Area_SqFt))
+env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
 
 
-#### By state/region across homeyearbuilt
-#summarise by state
-item5.state.dat00 <- summarise(group_by(item5.dat2, BuildingType, CK_Cadmus_ID, State)
-                             ,siteAreaConditioned = sum(ConditionedArea)
+#merge
+item5.dat <- left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
+length(unique(item5.dat$CK_Cadmus_ID)) #601
+
+item5.dat1 <- item5.dat[which(item5.dat$BuildingType != "Multifamily"),]
+item5.dat2 <- item5.dat1[which(!is.na(item5.dat1$ConditionedArea)),]
+item5.dat3 <- item5.dat2[which(!is.na(item5.dat2$HomeYearBuilt)),]
+
+
+item5.data <- weightedData(item5.dat3[-which(colnames(item5.dat3) %in% c("BldgLevel_Area_SqFt","ConditionedArea"))])
+item5.data <- left_join(item5.data, item5.dat3[which(colnames(item5.dat3) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt","ConditionedArea"))])
+
+item5.data$count <- 1
+colnames(item5.data)
+
+
+
+######################################################
+# Step 1.1: Summarise data up to unique customer level
+######################################################
+item5.customer <- summarise(group_by(item5.data
+                                     , BuildingType
+                                     , HomeYearBuilt_bins2
+                                     , CK_Cadmus_ID
+                                     , State
+                                     , Region
+                                     , Territory
+                                     , n.h
+                                     , N.h)
+                            ,siteAreaConditioned = sum(ConditionedArea)
 )
 
-item5.state.dat01 <- summarise(group_by(item5.state.dat00, BuildingType, State)
-                               ,HomeYearBuilt_bins = "All Vintages"
-                              ,Mean = mean(siteAreaConditioned)
-                              ,SE  = sd(siteAreaConditioned) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-
-#summarise by region
-item5.region.dat00 <- summarise(group_by(item5.dat2, BuildingType, CK_Cadmus_ID)
-                              ,State = "Region"
-                              ,siteAreaConditioned = sum(ConditionedArea)
-)
-
-item5.region.dat01 <- summarise(group_by(item5.region.dat00, BuildingType)
-                               ,State = "Region"
-                               ,HomeYearBuilt_bins = "All Vintages"
-                               ,Mean = mean(siteAreaConditioned)
-                               ,SE  = sd(siteAreaConditioned) / sqrt(length(unique(CK_Cadmus_ID)))
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-
-item5.tmp1 <- rbind.data.frame(item5.state.dat01, item5.region.dat01, stringsAsFactors = F) 
 
 
+## Apply weigthing function: means, two groups
+item5.final <- mean_two_groups(CustomerLevelData = item5.customer
+                               , valueVariable = 'siteAreaConditioned'
+                               , byVariableRow = 'HomeYearBuilt_bins2'
+                               , byVariableColumn = 'State'
+                               , columnAggregate = "Region"
+                               , rowAggregate = "All Vintages")
 
-#### By state/region and homeyearbuilt bins
-#summarise by state
-item5.state.dat <- summarise(group_by(item5.dat2, BuildingType, CK_Cadmus_ID, State, HomeYearBuilt_bins)
-                             ,siteAreaConditioned = sum(ConditionedArea)
-)
-
-item5.state.dat1 <- summarise(group_by(item5.state.dat, BuildingType, State, HomeYearBuilt_bins)
-                              ,Mean = mean(siteAreaConditioned)
-                              ,SE  = sd(siteAreaConditioned) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,SampleSize = length(unique(CK_Cadmus_ID))
-                              )
-
-#summarise by region
-item5.region.dat <- summarise(group_by(item5.dat2, BuildingType, CK_Cadmus_ID, HomeYearBuilt_bins)
-                              ,State = "Region"
-                              ,siteAreaConditioned = sum(ConditionedArea)
-)
-
-item5.region.dat1 <- summarise(group_by(item5.region.dat, BuildingType, HomeYearBuilt_bins)
-                               ,State = "Region"
-                               ,Mean = mean(siteAreaConditioned)
-                               ,SE  = sd(siteAreaConditioned) / sqrt(length(unique(CK_Cadmus_ID)))
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-
-item5.tmp2 <- rbind.data.frame(item5.state.dat1, item5.region.dat1, stringsAsFactors = F) 
+colnames(item5.final)[which(colnames(item5.final) == "HomeYearBuilt_bins2")] <- "HousingVintage"
+colnames(item5.final)
 
 
-item5.final <- rbind.data.frame(item5.tmp1, item5.tmp2, stringsAsFactors = F)
+item5.table.SF <- item5.final[which(item5.final$BuildingType %in% c("Single Family")),-1]
+item5.table.MH <- item5.final[which(item5.final$BuildingType %in% c("Manufactured")),-1]
 
-
-#############################################################################################
-library(data.table)
-library(gdata)
-
-item5.table <- dcast(setDT(item5.final)
-                     ,formula = BuildingType + HomeYearBuilt_bins ~ State
-                     ,value.var = c("Mean", "SE", "SampleSize"))
-
-item5.table.tmp <- data.frame(item5.table, stringsAsFactors = F)
-target <- c("Pre 1951", "1951-1960", "1961-1970",
-             "1971-1980", "1981-1990", "1991-2000",
-             "Post 2000", "All Vintages", NA)
-
-item5.table.tmp$HomeYearBuilt_bins <- reorder.factor(item5.table.tmp$HomeYearBuilt_bins, 
-                                                     new.order = target)
-
-item5.table.tmp2 <- item5.table.tmp %>% arrange(HomeYearBuilt_bins)
-
-item5.table1 <- data.frame("BuildingType" = item5.table$BuildingType
-                           ,"Housing.Vintage" = item5.table$HomeYearBuilt_bins
-                           ,"Mean_MT" = item5.table$Mean_MT
-                           ,"SE_MT" = item5.table$SE_MT
-                           # ,"Mean_OR" = item5.table$Mean_OR
-                           # ,"SE_OR" = item5.table$SE_OR
-                           ,"Mean_WA" = item5.table$Mean_WA
-                           ,"SE_WA" = item5.table$SE_WA
-                           ,"Mean_Region" = item5.table$Mean_Region
-                           ,"SE_Region" = item5.table$SE_Region
-                           ,"SampleSize" = item5.table$SampleSize_Region)
-
-item5.table2 <- item5.table1[which(item5.table1$BuildingType %in% c("Single Family", "Manufactured")),]
-item5.table.final <- item5.table2[which(!(is.na(item5.table2$Housing.Vintage))),]
-
-
+exportTable(item5.table.SF, "SF", "Table 12")
+exportTable(item5.table.MH, "MH", "Table 11")

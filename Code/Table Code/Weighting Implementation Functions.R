@@ -164,9 +164,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 
-
+# CustomerLevelData <- item7.merge
+# valueVariable     <- 'CountRooms'
+# byVariable        <- 'State'
+# aggregateRow      <- 'Region'
 mean_one_group <- function(CustomerLevelData, valueVariable, 
-                                    byVariable) {
+                                    byVariable, aggregateRow) {
   
   ######################################################
   # Step 1.1: Using customer level data,
@@ -178,11 +181,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,fpc        = (1 - n_h / N_h)
                             ,w_h        = n_h / N_h
                             ,strataMean = sum(get(valueVariable)) / n_h
-                            ,strataSD   = sd(valueVariable)
+                            ,strataSD   = sd(get(valueVariable))
                             ,n          = length(unique(CK_Cadmus_ID))
   )
   
-  item.strata$strataSD[which(item.strata$strataSD == "NaN")] <- 0
+  item.strata$strataSD[which(item.strata$strataSD %in% c("NaN", NA))] <- 0
   
   ######################################################
   # Step 2: Using strata level data,
@@ -200,7 +203,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   #   Perform region level analysis
   ######################################################
   item.region <- summarise(group_by(item.strata, BuildingType)
-                            ,by      = "Region"
+                            ,by         = aggregateRow
                             ,Mean       = sum(N_h * strataMean) / sum(N_h)
                             ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                             ,SampleSize = sum(unique(n)))
@@ -313,7 +316,6 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
                                    ,Mean       = sum(N_h * strataMean) / sum(N_h)
                                    ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                                    ,SampleSize = sum(unique(n)))
-    colnames(item.group.rowAgg)[which(colnames(item.group.rowAgg) == 'byRow')] <- byVariableRow
     item.group.rowAgg <- ConvertColName(item.group.rowAgg, 
                                         'get(byVariableColumn)', 
                                         byVariableColumn)
@@ -360,6 +362,8 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
   CastedData <- dcast(setDT(dataToCast)
                        ,formula = BuildingType + get(byVariableRow) ~ get(byVariableColumn)
                        ,value.var = c("Mean", "SE", "SampleSize"))
+  CastedData <- ConvertColName(CastedData, 'byVariableRow',
+                               byVariableRow)
   return(CastedData)
 }
 

@@ -6,108 +6,125 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 room.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 room.dat$CK_Cadmus_ID <- trimws(toupper(room.dat$CK_Cadmus_ID))
 
 
-##############################################################################################################################
+##########################################################################
 # Item 7: AVERAGE NUMBER OF BEDROOMS PER HOME BY STATE (SF Table 14)
-##############################################################################################################################
+##########################################################################
+######################################################
+# Weighting Implementation function: Mean, one group
+######################################################
 
 #subset to columns need in table
-item7.dat <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
-item7.dat0 <- left_join(rbsa.dat, item7.dat, by = "CK_Cadmus_ID")
+room.tmp <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
+item7.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
 
 #remove building information
-item7.dat1 <- item7.dat0[-grep("BLDG", item7.dat0$Iteration),]
+item7.dat1 <- item7.dat[-grep("BLDG", item7.dat$Iteration),]
 
 #subset to only bedrooms
 item7.dat2 <- item7.dat1[which(item7.dat1$Clean.Type == "Bedroom"),]
-
 item7.dat2$count <- 1
 
-#summarize within home by state
-item7.state.dat <- summarise(group_by(item7.dat2, CK_Cadmus_ID, BuildingType, State)
-                        ,Home_Count = sum(count)
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        )
-#summarize across homes by state
-item7.state.dat <- summarise(group_by(item7.state.dat, BuildingType, State)
-                        ,Avg = mean(Home_Count)
-                        ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        )
+# Summarise up to the customer level
+item7.customer <- summarise(group_by(item7.dat2
+                                     , CK_Cadmus_ID
+                                     , BuildingType
+                                     , State)
+                            ,CountRooms = sum(count))
 
-#summarize within home by region
-item7.region.dat <- summarise(group_by(item7.dat2, CK_Cadmus_ID, BuildingType)
-                              ,State = "Region"
-                              ,Home_Count = sum(count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-#summarize across homes by region
-item7.region.dat <- summarise(group_by(item7.region.dat, BuildingType)
-                              ,State = "Region"
-                              ,Avg = mean(Home_Count)
-                              ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,SampleSize = length(unique(CK_Cadmus_ID))
-)
+item7.merge <- left_join(rbsa.dat, item7.customer)
+
+# apply weights to the subset of the data
+item7.data <- weightedData(item7.merge[-which(colnames(item7.merge) == "CountRooms")])
+#merge back on measured variable
+item7.data <- left_join(item7.data, item7.customer[which(colnames(item7.customer) %in% c("CK_Cadmus_ID", "CountRooms"))])
+item7.data$count <- 1
+
+# Perform analysis for mean, one group
+item7.final <- mean_one_group(CustomerLevelData = item7.data
+                              , valueVariable = 'CountRooms'
+                              , byVariable    = 'State'
+                              , aggregateRow  = 'Region')
 
 
-#rbind state and region information
-item7.full <- rbind.data.frame(item7.state.dat, item7.region.dat, stringsAsFactors = F)
+#subset by home type
+item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),]
+item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),]
+
+
+#export data
+exportTable(item7.final.SF, "SF", "Table 14")
+exportTable(item7.final.MH, "MH", "Table 12")
 
 
 
+#####################################################################################
+# Item 8: AVERAGE NUMBER OF BATHROOMS PER HOME BY STATE (SF Table 15, MH Table 13)
+#####################################################################################
+######################################################
+# Weighting Implementation function: Mean, one group
+######################################################
 
-##############################################################################################################################
-# Item 8: AVERAGE NUMBER OF BATHROOMS PER HOME BY STATE (SF Table 15)
-##############################################################################################################################
 #subset to columns need in table
-item8.dat <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
-item8.dat0 <- left_join(rbsa.dat, item8.dat, by = "CK_Cadmus_ID")
+room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
+item8.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
 
 #remove building information
-item8.dat1 <- item8.dat0[-grep("BLDG", item8.dat0$Iteration),]
+item8.dat1 <- item8.dat[-grep("BLDG", item8.dat$Iteration),]
 
 #subset to only bedrooms
 item8.dat2 <- item8.dat1[which(item8.dat1$Clean.Type == "Bathroom"),]
-
 item8.dat2$count <- 1
 
-#summarize within home by state
-item8.state.dat <- summarise(group_by(item8.dat2, CK_Cadmus_ID, BuildingType, State)
-                             ,Home_Count = sum(count)
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-#summarize across homes by state
-item8.state.dat <- summarise(group_by(item8.state.dat, BuildingType, State)
-                             ,Avg = mean(Home_Count)
-                             ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-)
 
-#summarize within home by region
-item8.region.dat <- summarise(group_by(item8.dat2, CK_Cadmus_ID, BuildingType)
-                              ,State = "Region"
-                              ,Home_Count = sum(count)
-                              ,SampleSize = length(unique(CK_Cadmus_ID))
-)
-#summarize across homes by region
-item8.region.dat <- summarise(group_by(item8.region.dat, BuildingType)
-                              ,State = "Region"
-                              ,Avg = mean(Home_Count)
-                              ,SE  = sd(Home_Count) / sqrt(length(unique(CK_Cadmus_ID)))
-                              ,SampleSize = length(unique(CK_Cadmus_ID))
-)
+# Summarise up to the customer level
+item8.customer <- summarise(group_by(item8.dat2
+                                     , CK_Cadmus_ID
+                                     , BuildingType
+                                     , State)
+                            ,CountRooms = sum(count))
+
+# apply weights to the subset of the data
+item8.data <- weightedData(item8.customer[-which(colnames(item8.customer) == "CountRooms")])
+#merge back on measured variable
+item8.data <- left_join(item8.data, item8.customer[which(colnames(item8.customer) %in% c("CK_Cadmus_ID", "CountRooms"))])
+item8.data$count <- 1
+
+# Perform analysis for mean, one group
+item8.final <- mean_one_group(CustomerLevelData = item8.data
+                              , valueVariable = 'CountRooms'
+                              , byVariable    = 'State'
+                              , aggregateRow  = 'Region')
 
 
-#rbind state and region information
-item8.full <- rbind.data.frame(item8.state.dat, item8.region.dat, stringsAsFactors = F)
+#subset by home type
+item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),]
+item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),]
+
+
+#export data
+exportTable(item8.final.SF, "SF", "Table 14")
+exportTable(item8.final.MH, "MH", "Table 12")
 
 
 
