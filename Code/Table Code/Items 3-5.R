@@ -283,10 +283,6 @@ item5.data$count <- 1
 colnames(item5.data)
 
 
-
-######################################################
-# Step 1.1: Summarise data up to unique customer level
-######################################################
 item5.customer <- summarise(group_by(item5.data
                                      , BuildingType
                                      , HomeYearBuilt_bins2

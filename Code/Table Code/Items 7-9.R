@@ -53,6 +53,7 @@ item7.customer <- summarise(group_by(item7.dat2
                             ,CountRooms = sum(count))
 
 item7.merge <- left_join(rbsa.dat, item7.customer)
+item7.merge <- item7.merge[which(!is.na(item7.merge$CountRooms)),]
 
 # apply weights to the subset of the data
 item7.data <- weightedData(item7.merge[-which(colnames(item7.merge) == "CountRooms")])
@@ -104,8 +105,11 @@ item8.customer <- summarise(group_by(item8.dat2
                                      , State)
                             ,CountRooms = sum(count))
 
+item8.merge <- left_join(rbsa.dat, item8.customer)
+item8.merge <- item8.merge[which(!is.na(item8.merge$CountRooms)),]
+
 # apply weights to the subset of the data
-item8.data <- weightedData(item8.customer[-which(colnames(item8.customer) == "CountRooms")])
+item8.data <- weightedData(item8.merge[-which(colnames(item8.merge) == "CountRooms")])
 #merge back on measured variable
 item8.data <- left_join(item8.data, item8.customer[which(colnames(item8.customer) %in% c("CK_Cadmus_ID", "CountRooms"))])
 item8.data$count <- 1
@@ -114,7 +118,7 @@ item8.data$count <- 1
 item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = 'Region')
+                              , aggregateRow  = "Region")
 
 
 #subset by home type
@@ -123,60 +127,60 @@ item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),
 
 
 #export data
-exportTable(item8.final.SF, "SF", "Table 14")
-exportTable(item8.final.MH, "MH", "Table 12")
+exportTable(item8.final.SF, "SF", "Table 15")
+exportTable(item8.final.MH, "MH", "Table 13")
 
 
 
 
 ##############################################################################################################################
-# Item 9: AVERAGE ROOM AREAS BY ROOM TYPE (SF Table 16)
+# Item 9: AVERAGE ROOM AREAS BY ROOM TYPE (SF Table 16, MH Table 14)
 ##############################################################################################################################
+######################################################
+# Weighting Implementation function: Mean, two groups
+######################################################
+
 #subset to columns need in table
-item9.dat <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
-item9.dat0 <- left_join(rbsa.dat, item9.dat, by = "CK_Cadmus_ID")
+room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
+item9.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
 
-item9.dat0$count <- 1
-item9.dat0$Area <- as.numeric(as.character(item9.dat0$Area))
+item9.dat$count <- 1
+item9.dat$Area <- as.numeric(as.character(item9.dat$Area))
+#remove missing area information
+item9.dat1 <- item9.dat[which(!is.na(item9.dat$Area)),]
 
 #average within houses
-item9.sum <- summarise(group_by(item9.dat0, CK_Cadmus_ID, BuildingType, Clean.Type)
-          ,Site_Area = mean(Area)
-          )
-#remove missing area information
-item9.dat1 <- item9.sum[which(!(is.na(item9.sum$Site_Area))),]
-
-#average across houses
-item9.sum1 <- summarise(group_by(item9.dat1, BuildingType, Clean.Type)
-                        ,Mean = mean(Site_Area)
-                        ,SE  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        )
-item9.sum2 <- item9.sum1[which(item9.sum1$Clean.Type %in% c("Bathroom"
-                                                             ,"Bedroom"
-                                                             ,"Closet"
-                                                             ,"Dining Room"
-                                                             ,"Family Room"
-                                                             ,"Garage"
-                                                             ,"Hall"
-                                                             ,"Kitchen"
-                                                             ,"Laundry Room"
-                                                             ,"Living Room"
-                                                             ,"Master Bedroom"
-                                                             ,"Office"
-                                                             ,"Other")),]
-item9.sum3 <- summarise(group_by(item9.dat1, BuildingType)
-                        ,Clean.Type = "All Room Types"
-                        ,Mean = mean(Site_Area)
-                        ,SE  = sd(Site_Area) / sqrt(length(unique(CK_Cadmus_ID)))
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
+item9.customer <- summarise(group_by(item9.dat1
+                                     , CK_Cadmus_ID
+                                     , BuildingType
+                                     , Clean.Type)
+                            ,Site_Area = mean(Area)
 )
 
-item9.final <- rbind.data.frame(item9.sum2, item9.sum3, stringsAsFactors = F)
+item9.merge <- left_join(rbsa.dat, item9.customer)
+item9.merge <- item9.merge[which(!is.na(item9.merge$Site_Area)),]
 
-item9.final.SF <- item9.final[which(item9.final$BuildingType == 'Single Family'),
-                              -which(colnames(item9.final) == 'BuildingType')]
+# apply weights to the subset of the data
+item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("Site_Area"
+                                                                           ,"Clean.Type"))])
+#merge back on measured variable
+item9.data <- left_join(item9.data, item9.merge[which(colnames(item9.merge) %in% c("CK_Cadmus_ID"
+                                                                                   , "Clean.Type"
+                                                                                   , "Site_Area"))])
+item9.data$count <- 1
 
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
-writeData(workbook.SF, sheet = "Table 16", x = item9.final.SF, startRow = 20)
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
+# Perform analysis for mean, one group
+item9.final <- mean_one_group(CustomerLevelData = item9.data
+                              , valueVariable = 'Site_Area'
+                              , byVariable    = 'Clean.Type'
+                              , aggregateRow  = "All Room Types")
+
+
+#subset by home type
+item9.final.SF <- item9.final[which(item9.final$BuildingType == "Single Family"),-1]
+item9.final.MH <- item9.final[which(item9.final$BuildingType == "Manufactured"),-1]
+
+
+#export data
+exportTable(item9.final.SF, "SF", "Table 16")
+exportTable(item9.final.MH, "MH", "Table 14")
