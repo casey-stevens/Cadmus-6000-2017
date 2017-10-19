@@ -498,10 +498,9 @@ exportTable(item10.table.SF, "SF", "Table 17")
 # Item 11: DISTRIBUTION OF WALL FRAMING TYPES BY VINTAGE (SF table 18)
 #############################################################################################
 ## Note: For this table, you must run up to item10.dat3 for the cleaned data
-item11.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+item11.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Category"
                                                                , "Wall.Type"))]
-item11.dat1 <- item11.dat[which(!(is.na(item11.dat$Wall.Type))),]
 
 item11.dat2 <- left_join(item11.dat1, rbsa.dat, by = c("CK_Cadmus_ID"))
 
@@ -516,33 +515,34 @@ unique(item11.dat3$Wall.Type)
                                                                
 #cast out by wall frame types
 item11.dat3$count <- 1
-item11.merge <- left_join(rbsa.dat, item11.dat3)
+item11.customer <- summarise(group_by(item11.dat3, CK_Cadmus_ID, BuildingType, State, HomeYearBuilt_bins3, Wall.Type)
+                             ,count = sum(count))
 
-item11.data <- weightedData(unique(item11.merge[-which(colnames(item11.merge) %in% c("Wall.Type"
-                                                                                     ,"aveUval"
-                                                                                     ,"aveRval"
-                                                                                     ,"rvalue.bins"
+item11.merge <- left_join(rbsa.dat, item11.customer)
+item11.merge <- item11.merge[which(!is.na(item11.merge$HomeYearBuilt)),]
+item11.merge <- item11.merge[which(!is.na(item11.merge$Wall.Type)),]
+
+item11.data <- weightedData(unique(item11.merge[-which(colnames(item11.merge) %in% c("Category"
+                                                                                     ,"Wall.Type"
                                                                                      ,"count"))]))
 item11.data <- left_join(item11.data, item11.merge[which(colnames(item11.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Category"
                                                                                        ,"Wall.Type"
-                                                                                       ,"aveUval"
-                                                                                       ,"aveRval"
-                                                                                       ,"rvalue.bins"
                                                                                        ,"count"))])
 
 
 
 item11.final <- proportionRowsAndColumns1(item11.data
                                           , valueVariable       = 'count'
-                                          , columnVariable      = 'rvalue.bins'
-                                          , rowVariable         = 'Wall.Type'
-                                          , aggregateColumnName = "All Insulation Levels"
+                                          , columnVariable      = 'Wall.Type'
+                                          , rowVariable         = 'HomeYearBuilt_bins3'
+                                          , aggregateColumnName = "All Home Vintages"
 )
 
 
-item11.cast <- dcast(setDT(item11.dat3),
-                     formula   = CK_Cadmus_ID + BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
-                     value.var = 'count')
+item11.cast <- dcast(setDT(item11.final),
+                     formula   = BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
+                     value.var = c("w.percent", "w.SE", "count","n","N"))
 
 item11.sum1 <- summarise(group_by(item11.cast, BuildingType, HomeYearBuilt_bins4)
                          ,SampleSize = length(unique(CK_Cadmus_ID))
