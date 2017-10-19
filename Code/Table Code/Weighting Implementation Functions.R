@@ -164,10 +164,10 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 
-# CustomerLevelData <- item9.data
-# valueVariable     <- 'Site_Area'
-# byVariable        <- 'Clean.Type'
-# aggregateRow      <- "All Room Types"
+CustomerLevelData <- item9.data
+valueVariable     <- 'CountRooms'
+byVariable        <- 'State'
+aggregateRow      <- "Region"
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {
   
@@ -175,7 +175,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   # Step 1.1: Using customer level data,
   #   Summarise data up to strata level
   ######################################################
-  item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, get(byVariable))
+  if(byVariable == "State"){
+  item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, State)
                             ,n_h        = unique(n.h)
                             ,N_h        = unique(N.h)
                             ,fpc        = (1 - n_h / N_h)
@@ -184,8 +185,20 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,strataSD   = sd(get(valueVariable))
                             ,n          = length(unique(CK_Cadmus_ID))
   )
-  colnames(item.strata)[which(colnames(item.strata) == 'get(byVariable)')] <- byVariable
+  }else{
+  item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, get(byVariable))
+                           ,n_h        = unique(n.h)
+                           ,N_h        = unique(N.h)
+                           ,fpc        = (1 - n_h / N_h)
+                           ,w_h        = n_h / N_h
+                           ,strataMean = sum(get(valueVariable)) / n_h
+                           ,strataSD   = sd(get(valueVariable))
+                           ,n          = length(unique(CK_Cadmus_ID))
+                           
+  )
   
+  colnames(item.strata)[which(colnames(item.strata) == 'get(byVariable)')] <- byVariable
+  }
   item.strata$strataSD[which(item.strata$strataSD %in% c("NaN", NA))] <- 0
   
   ######################################################
