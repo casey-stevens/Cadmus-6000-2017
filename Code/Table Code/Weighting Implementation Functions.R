@@ -163,11 +163,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 
+# # Test
+# CustomerLevelData <- item9.data
+# valueVariable     <- 'CountRooms'
+# byVariable        <- 'State'
+# aggregateRow      <- "Region"
 
-CustomerLevelData <- item9.data
-valueVariable     <- 'CountRooms'
-byVariable        <- 'State'
-aggregateRow      <- "Region"
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {
   
