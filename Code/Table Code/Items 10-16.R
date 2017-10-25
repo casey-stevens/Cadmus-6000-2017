@@ -141,9 +141,35 @@ unique(item10.dat3$Wall.Exterior.Insulation.Thickness.3)
 item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
 item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
 item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.2[which(item10.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
-item10.dat3$Wall.Cavity.Insulation.Condition.3[which(item10.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
+item10.dat3$Wall.Exterior.Insulation.Condition.1[which(item10.dat3$Wall.Exterior.Insulation.Condition.1 == "Unknown")] <- "100%"
+item10.dat3$Wall.Exterior.Insulation.Condition.2[which(item10.dat3$Wall.Exterior.Insulation.Condition.2 == "Unknown")] <- "100%"
+item10.dat3$Wall.Exterior.Insulation.Condition.3[which(item10.dat3$Wall.Exterior.Insulation.Condition.3 == "Unknown")] <- "100%"
+
+item10.dat3$Wall.Cavity.Insulation.Condition.1[which(is.na(item10.dat3$Wall.Cavity.Insulation.Condition.1) & item10.dat3$Wall.Cavity.Insulation.Thickness.1 != "N/A N/A")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.2[which(is.na(item10.dat3$Wall.Cavity.Insulation.Condition.2) & item10.dat3$Wall.Cavity.Insulation.Thickness.2 != "N/A N/A")] <- "100%"
+item10.dat3$Wall.Cavity.Insulation.Condition.3[which(is.na(item10.dat3$Wall.Cavity.Insulation.Condition.3) & item10.dat3$Wall.Cavity.Insulation.Thickness.3 != "N/A N/A")] <- "100%"
+item10.dat3$Wall.Exterior.Insulation.Condition.1[which(is.na(item10.dat3$Wall.Exterior.Insulation.Condition.1) & item10.dat3$Wall.Exterior.Insulation.Thickness.1 != "N/A N/A")] <- "100%"
+item10.dat3$Wall.Exterior.Insulation.Condition.2[which(is.na(item10.dat3$Wall.Exterior.Insulation.Condition.2) & item10.dat3$Wall.Exterior.Insulation.Thickness.2 != "N/A N/A")] <- "100%"
+item10.dat3$Wall.Exterior.Insulation.Condition.3[which(is.na(item10.dat3$Wall.Exterior.Insulation.Condition.3) & item10.dat3$Wall.Exterior.Insulation.Thickness.3 != "N/A N/A")] <- "100%"
+
+item10.dat3$Wall.Cavity.Insulation.Condition.1[which(item10.dat3$`Wall.Cavity.Insulated?` == "No")] <- "0%"
+item10.dat3$Wall.Exterior.Insulation.Condition.1[which(item10.dat3$`Wall.Cavity.Insulated?` == "No")] <- "0%"
+
+
+#remove percent signs and make numeric
+item10.dat3$Wall.Cavity.Insulation.Condition.1 <- gsub("%", "", item10.dat3$Wall.Cavity.Insulation.Condition.1)
+item10.dat3$Wall.Cavity.Insulation.Condition.1 <- as.numeric(as.character(item10.dat3$Wall.Cavity.Insulation.Condition.1))
+item10.dat3$Wall.Cavity.Insulation.Condition.2 <- gsub("%", "", item10.dat3$Wall.Cavity.Insulation.Condition.2)
+item10.dat3$Wall.Cavity.Insulation.Condition.2 <- as.numeric(as.character(item10.dat3$Wall.Cavity.Insulation.Condition.2))
+item10.dat3$Wall.Cavity.Insulation.Condition.3 <- gsub("%", "", item10.dat3$Wall.Cavity.Insulation.Condition.3)
+item10.dat3$Wall.Cavity.Insulation.Condition.3 <- as.numeric(as.character(item10.dat3$Wall.Cavity.Insulation.Condition.3))
+
+item10.dat3$Wall.Exterior.Insulation.Condition.1 <- gsub("%", "", item10.dat3$Wall.Exterior.Insulation.Condition.1)
+item10.dat3$Wall.Exterior.Insulation.Condition.1 <- as.numeric(as.character(item10.dat3$Wall.Exterior.Insulation.Condition.1))
+item10.dat3$Wall.Exterior.Insulation.Condition.2 <- gsub("%", "", item10.dat3$Wall.Exterior.Insulation.Condition.2)
+item10.dat3$Wall.Exterior.Insulation.Condition.2 <- as.numeric(as.character(item10.dat3$Wall.Exterior.Insulation.Condition.2))
+item10.dat3$Wall.Exterior.Insulation.Condition.3 <- gsub("%", "", item10.dat3$Wall.Exterior.Insulation.Condition.3)
+item10.dat3$Wall.Exterior.Insulation.Condition.3 <- as.numeric(as.character(item10.dat3$Wall.Exterior.Insulation.Condition.3))
 
 
 # add new ID variable for merging -- don't know if we need this
@@ -306,7 +332,11 @@ for(i in 28:39){
   item10.dat4[,i] <- as.numeric(as.character(item10.dat4[,i]))
 }
 
-item10.dat5 <- item10.dat4
+item10.dat4.5 <- item10.dat4
+
+
+#create total.r.value column
+item10.dat4.5$total.r.val <- NA
 
 
 #check uniques -- None should be NA
@@ -317,56 +347,86 @@ unique(item10.dat4$exterior.rvalues1)
 unique(item10.dat4$exterior.rvalues2)
 unique(item10.dat4$exterior.rvalues3)
 
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
 
+item10.condition.sub1 <- item10.dat4.5[which(item10.dat4.5$Wall.Cavity.Insulation.Condition.1 %notin% c(100, NA)),]
+item10.condition.sub1$Wall.Cavity.Insulation.Condition.1 <- 100 - item10.condition.sub1$Wall.Cavity.Insulation.Condition.1
+item10.condition.sub1$total.r.val <- 0
+# item10.condition.sub2 <- item10.dat4.5[which(item10.dat4.5$Wall.Cavity.Insulation.Condition.2 %notin% c(100, NA)),]
+# item10.condition.sub2$Wall.Cavity.Insulation.Condition.2 <- 100 - item10.condition.sub2$Wall.Cavity.Insulation.Condition.2
+# # item10.condition.sub2$total.r.val <- 0
+# item10.condition.sub3 <- item10.dat4.5[which(item10.dat4.5$Wall.Cavity.Insulation.Condition.3 %notin% c(100, NA)),]
+# item10.condition.sub3$Wall.Cavity.Insulation.Condition.3 <- 100 - item10.condition.sub3$Wall.Cavity.Insulation.Condition.3
+# # item10.condition.sub3$total.r.val <- 0
+# 
+# item10.condition.sub4 <- item10.dat4.5[which(item10.dat4.5$Wall.Exterior.Insulation.Condition.1 %notin% c(100, NA)),]
+# item10.condition.sub4$Wall.Exterior.Insulation.Condition.1 <- 100 - item10.condition.sub4$Wall.Exterior.Insulation.Condition.1
+# item10.condition.sub4$total.r.val <- 0
+# item10.condition.sub5 <- item10.dat4.5[which(item10.dat4.5$Wall.Exterior.Insulation.Condition.2 %notin% c(100, NA)),]
+# item10.condition.sub5$Wall.Exterior.Insulation.Condition.2 <- 100 - item10.condition.sub5$Wall.Exterior.Insulation.Condition.2
+# # item10.condition.sub5$total.r.val <- 0
+# item10.condition.sub6 <- item10.dat4.5[which(item10.dat4.5$Wall.Exterior.Insulation.Condition.3 %notin% c(100, NA)),]
+# item10.condition.sub6$Wall.Exterior.Insulation.Condition.3 <- 100 - item10.condition.sub6$Wall.Exterior.Insulation.Condition.3
+# # item10.condition.sub6$total.r.val <- 0
+
+item10.dat5 <- rbind.data.frame(item10.dat4.5
+                                ,item10.condition.sub1
+                                # ,item10.condition.sub2
+                                # ,item10.condition.sub3
+                                # ,item10.condition.sub4
+                                # ,item10.condition.sub5
+                                # ,item10.condition.sub6
+                                , stringsAsFactors = F)
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
 
-#create total.r.value column
-item10.dat5$total.r.val <- NA
 
 #calculate the weighted r value
-item10.dat5$total.r.val <- (item10.dat5$cavity.rvalues1 * item10.dat5$cavity.inches1) +  
-    (item10.dat5$cavity.rvalues2 * item10.dat5$cavity.inches2) + 
-    (item10.dat5$exterior.rvalues1 * item10.dat5$exterior.inches3)
+na.ind <- which(is.na(item10.dat5$total.r.val))
+item10.dat5$total.r.val[na.ind] <- (item10.dat5$cavity.rvalues1[na.ind] * item10.dat5$cavity.inches1[na.ind]) +  
+  (item10.dat5$cavity.rvalues2[na.ind] * item10.dat5$cavity.inches2[na.ind]) +  
+  (item10.dat5$cavity.rvalues3[na.ind] * item10.dat5$cavity.inches3[na.ind]) + 
+  (item10.dat5$exterior.rvalues1[na.ind] * item10.dat5$exterior.inches1[na.ind]) + 
+  (item10.dat5$exterior.rvalues2[na.ind] * item10.dat5$exterior.inches2[na.ind]) + 
+  (item10.dat5$exterior.rvalues3[na.ind] * item10.dat5$exterior.inches3[na.ind])
 
 #check -- NOTE -- NONE SHOULD BE NA
 unique(item10.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-item10.dat5$uvalue <- 1 / item10.dat5$total.r.val
+item10.dat5$uvalue <- 1 / (1 + item10.dat5$total.r.val)
 unique(item10.dat5$uvalue)
 
-# replace inf with 0
-item10.dat5$uvalue[which(item10.dat5$uvalue == "Inf")] <- 0
-
 #make area numeric
-item10.dat5$uvalue <- as.numeric(as.character(item10.dat5$uvalue))
+item10.dat5$uvalue    <- as.numeric(as.character(item10.dat5$uvalue))
 item10.dat5$Wall.Area <- as.numeric(as.character(item10.dat5$Wall.Area))
 
 #weight the u factor per home -- where weights are the wall area within home
 weightedU <- summarise(group_by(item10.dat5, CK_Cadmus_ID, Wall.Type)
-                       ,aveUval = sum(Wall.Area * uvalue) / sum(Wall.Area)
+                       ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 
 #back-calculate the weight r values
-weightedU$aveRval <- 1 / as.numeric(as.character(weightedU$aveUval))
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
 unique(weightedU$aveRval)
-weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
 
+# get unique cadmus IDs and building types for this subset of data
 wall.unique <- unique(item10.dat5[which(colnames(item10.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
 
+# merge on ID and building types to weighted uFactor and rValue data
 item10.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
 
 #merge weighted u values onto cleaned RBSA data
-item10.dat7 <- left_join(item10.dat6, rbsa.dat, by = "CK_Cadmus_ID")
+item10.dat7 <- left_join(item10.dat6, rbsa.dat)
 
 
 #Bin R values -- SF only
 item10.dat7$rvalue.bins <- "Unknown"
-item10.dat7$rvalue.bins[which(item10.dat7$aveRval == 0)] <- "R0"
-item10.dat7$rvalue.bins[which(item10.dat7$aveRval >  0  & item10.dat7$aveRval < 11)]  <- "R1.R10"
+item10.dat7$rvalue.bins[which(item10.dat7$aveRval < 1)] <- "R0"
+item10.dat7$rvalue.bins[which(item10.dat7$aveRval >=  1  & item10.dat7$aveRval < 11)]  <- "R1.R10"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 11 & item10.dat7$aveRval < 17)]  <- "R11.R16"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 17 & item10.dat7$aveRval < 23)]  <- "R17.R22"
 item10.dat7$rvalue.bins[which(item10.dat7$aveRval >= 22)] <- "RGT22"
@@ -391,13 +451,44 @@ item10.data <- left_join(item10.data, item10.merge[which(colnames(item10.merge) 
                                                                                        ,"aveRval"
                                                                                        ,"rvalue.bins"
                                                                                        ,"count"))])
+## Summary for everything except All Frame Types and insulation levels
+item10.summary <- proportionRowsAndColumns1(item10.data
+                                                     , valueVariable       = 'count'
+                                                     , columnVariable      = 'Wall.Type'
+                                                     , rowVariable         = 'rvalue.bins'
+                                                     , aggregateColumnName = "All Frame Types"
+)
+item10.summary <- item10.summary[which(item10.summary$Wall.Type != "All Frame Types"),]
 
-item10.final <- proportionRowsAndColumns1(item10.data
-                                          , valueVariable       = 'count'
-                                          , columnVariable      = 'rvalue.bins'
-                                          , rowVariable         = 'Wall.Type'
-                                          , aggregateColumnName = "All Insulation Levels"
-                                          )
+## Summary only for "All Frame Types"
+item10.data$All.Wall.Type <- item10.data$Wall.Type
+item10.all.frame.types <- proportionRowsAndColumns1(item10.data
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'All.Wall.Type'
+                                                    , rowVariable         = 'rvalue.bins'
+                                                    , aggregateColumnName = "All Frame Types"
+)
+colnames(item10.all.frame.types)[which(colnames(item10.all.frame.types) == "All.Wall.Type")] <- "Wall.Type"
+item10.all.frame.types <- item10.all.frame.types[which(item10.all.frame.types$Wall.Type == "All Frame Types"),]
+
+## Summary for only "All Insulation Levels"
+item10.all.insul.levels <- proportionRowsAndColumns1(item10.data
+                                                         , valueVariable       = 'count'
+                                                         , columnVariable      = 'rvalue.bins'
+                                                         , rowVariable         = 'Wall.Type'
+                                                         , aggregateColumnName = "All Insulation Levels"
+)
+item10.all.insul.levels <- item10.all.insul.levels[which(item10.all.insul.levels$rvalue.bins == "All Insulation Levels"),]
+
+
+#merge together!
+item10.final <- rbind.data.frame(item10.summary
+                                 , item10.all.frame.types
+                                 , item10.all.insul.levels
+                                 , stringsAsFactors = F)
+item10.final <- item10.final[which(item10.final$rvalue.bins != "Total"),]
+item10.final$Wall.Type[which(item10.final$Wall.Type == "Total")] <- "All Frame Types"
+
 
 
 # #summarise by wall frame types
@@ -458,7 +549,7 @@ item10.final <- proportionRowsAndColumns1(item10.data
 
 ##cast data
 item10.cast <- dcast(setDT(item10.final),
-                      formula   = BuildingType +  Wall.Type ~ rvalue.bins,
+                      formula   = BuildingType + Wall.Type ~ rvalue.bins,
                       value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 #join all insulation levels onto rvalue summary
@@ -532,56 +623,70 @@ item11.data <- left_join(item11.data, item11.merge[which(colnames(item11.merge) 
 
 
 
-item11.final <- proportionRowsAndColumns1(item11.data
+item11.by.vinage <- proportionRowsAndColumns1(item11.data
                                           , valueVariable       = 'count'
-                                          , columnVariable      = 'Wall.Type'
-                                          , rowVariable         = 'HomeYearBuilt_bins3'
-                                          , aggregateColumnName = "All Home Vintages"
+                                          , columnVariable      = 'HomeYearBuilt_bins3'
+                                          , rowVariable         = 'Wall.Type'
+                                          , aggregateColumnName = "Remove"
 )
+item11.across.vintages <- proportions_one_group(item11.data
+                                                , valueVariable    = 'count'
+                                                , groupingVariable = 'Wall.Type'
+                                                , total.name       = 'All Housing Vintages'
+                                                , columnName       = 'HomeYearBuilt_bins3')
+
+item11.final <- rbind.data.frame(item11.by.vinage, item11.across.vintages, stringsAsFactors = F)
+item11.final <- item11.final[which(item11.final$HomeYearBuilt_bins3 != "Remove"),]
+
 
 
 item11.cast <- dcast(setDT(item11.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
                      value.var = c("w.percent", "w.SE", "count","n","N"))
 
-item11.sum1 <- summarise(group_by(item11.cast, BuildingType, HomeYearBuilt_bins4)
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count_2x4 = sum(`Framed 2x4`)
-                         ,Count_2x6 = sum(`Framed 2x6`)
-                         ,Count_ALT = sum(Alternative)
-)
-
-item11.sum2 <- summarise(group_by(item11.cast, BuildingType)
-                         ,HomeYearBuilt_bins4 = "All Home Vintages"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count_2x4 = sum(`Framed 2x4`)
-                         ,Count_2x6 = sum(`Framed 2x6`)
-                         ,Count_ALT = sum(Alternative)
-)
-
-item11.dat4 <- rbind.data.frame(item11.sum1, item11.sum2, stringsAsFactors = F)
-item11.dat4$TotalCount <- item11.dat4$Count_2x4 + item11.dat4$Count_2x6 + item11.dat4$Count_ALT
-item11.dat4$Percent_2x4 <- item11.dat4$Count_2x4 / item11.dat4$TotalCount
-item11.dat4$SE_2x4 <- sqrt(item11.dat4$Percent_2x4 * (1 - item11.dat4$Percent_2x4) / item11.dat4$SampleSize)
-item11.dat4$Percent_2x6 <- item11.dat4$Count_2x6 / item11.dat4$TotalCount
-item11.dat4$SE_2x6 <- sqrt(item11.dat4$Percent_2x6 * (1 - item11.dat4$Percent_2x6) / item11.dat4$SampleSize)
-item11.dat4$Percent_ALT <- item11.dat4$Count_ALT / item11.dat4$TotalCount
-item11.dat4$SE_ALT <- sqrt(item11.dat4$Percent_ALT * (1 - item11.dat4$Percent_ALT) / item11.dat4$SampleSize)
-
-
-item11.final <- data.frame("BuildingType" = item11.dat4$BuildingType
-                           ,"Housing.Vintage" = item11.dat4$HomeYearBuilt_bins4
-                           ,"Percent_2x4" = item11.dat4$Percent_2x4
-                           ,"SE_2x4" = item11.dat4$SE_2x4
-                           ,"Percent_2x6" = item11.dat4$Percent_2x6
-                           ,"SE_2x6" = item11.dat4$SE_2x6
-                           ,"Percent_ALT" = item11.dat4$Percent_ALT
-                           ,"SE_ALT" = item11.dat4$SE_ALT
-                           ,"SampleSize" = item11.dat4$SampleSize)
+# item11.sum1 <- summarise(group_by(item11.cast, BuildingType, HomeYearBuilt_bins4)
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Count_2x4 = sum(`Framed 2x4`)
+#                          ,Count_2x6 = sum(`Framed 2x6`)
+#                          ,Count_ALT = sum(Alternative)
+# )
+# 
+# item11.sum2 <- summarise(group_by(item11.cast, BuildingType)
+#                          ,HomeYearBuilt_bins4 = "All Home Vintages"
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Count_2x4 = sum(`Framed 2x4`)
+#                          ,Count_2x6 = sum(`Framed 2x6`)
+#                          ,Count_ALT = sum(Alternative)
+# )
+# 
+# item11.dat4 <- rbind.data.frame(item11.sum1, item11.sum2, stringsAsFactors = F)
+# item11.dat4$TotalCount <- item11.dat4$Count_2x4 + item11.dat4$Count_2x6 + item11.dat4$Count_ALT
+# item11.dat4$Percent_2x4 <- item11.dat4$Count_2x4 / item11.dat4$TotalCount
+# item11.dat4$SE_2x4 <- sqrt(item11.dat4$Percent_2x4 * (1 - item11.dat4$Percent_2x4) / item11.dat4$SampleSize)
+# item11.dat4$Percent_2x6 <- item11.dat4$Count_2x6 / item11.dat4$TotalCount
+# item11.dat4$SE_2x6 <- sqrt(item11.dat4$Percent_2x6 * (1 - item11.dat4$Percent_2x6) / item11.dat4$SampleSize)
+# item11.dat4$Percent_ALT <- item11.dat4$Count_ALT / item11.dat4$TotalCount
+# item11.dat4$SE_ALT <- sqrt(item11.dat4$Percent_ALT * (1 - item11.dat4$Percent_ALT) / item11.dat4$SampleSize)
 
 
-item11.table1 <- item11.final[which(!(is.na(item11.final$Housing.Vintage))),]
-item11.table2 <- item11.table1[which(item11.table1$BuildingType %in% c("Single Family")),]
+item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
+                           ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
+                           ,"Percent_2x4"     = item11.cast$`w.percent_Framed 2x4`
+                           ,"SE_2x4"          = item11.cast$`w.SE_Framed 2x4`
+                           ,"Count_2x4"       = item11.cast$`count_Framed 2x4`
+                           ,"Percent_2x6"     = item11.cast$`w.percent_Framed 2x6`
+                           ,"SE_2x6"          = item11.cast$`w.SE_Framed 2x6`
+                           ,"Count_2x6"       = item11.cast$`count_Framed 2x6`
+                           ,"Percent_ALT"     = item11.cast$w.percent_Alternative
+                           ,"SE_ALT"          = item11.cast$w.SE_Alternative
+                           ,"Count_ALT"       = item11.cast$count_Alternative
+                           ,"SampleSize"      = item11.cast$count_Total)
+
+
+item11.table.SF <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item10.table.SF, "SF", "Table 18")
 
 
 
