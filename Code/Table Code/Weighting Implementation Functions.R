@@ -84,7 +84,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
                                              ,"get(rowVariable)"
                                              ,rowVariable)
-  }else if(columnVariable %in% c("Wall.Type", "HomeYearBuilt_bins3")){
+  }else if(columnVariable %in% c("Wall.Type", "HomeYearBuilt_bins3", "HomeYearBuilt_bins2")){
     # obtain count and proportion by strata and row grouping variable
     StrataGroupedProportions <- summarise(group_by(CustomerLevelData
                                                    , BuildingType
@@ -518,11 +518,12 @@ proportions_one_group <- function(CustomerLevelData
   }
   
   #Test
-  # CustomerLevelData <- item11.data
-  # valueVariable = 'count'
-  # groupingVariable = 'Wall.Type'
-  # total.name = "All Home Vintages"
-  # columnName = "HomeYearBuilt_bins3"
+  CustomerLevelData <- item13.data
+  valueVariable    = 'count'
+  groupingVariable = 'rvalue.bins.SF'
+  total.name       = 'All Housing Vintages'
+  columnName       = 'HomeYearBuilt_bins3'
+  
   
   ########################
   # Step 1: State
