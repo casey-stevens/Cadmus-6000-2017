@@ -476,13 +476,15 @@ item23.by.vinage <- proportionRowsAndColumns1(item23.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins.SF'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item23.across.vintages <- proportions_one_group(item23.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.SF'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 
 # row bind summaries
 item23.final <- rbind.data.frame(item23.by.vinage
@@ -529,7 +531,8 @@ item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.SF, "SF", "Table 30")
+exportTable(item23.table.SF, "SF", "Table 30"
+            , weighted = TRUE)
 
 
 ############################################################################################################
