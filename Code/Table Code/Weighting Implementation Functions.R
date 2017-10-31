@@ -272,21 +272,21 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   return(item.full)
   } else {
     item.unweighted1 <- summarise(group_by(CustomerLevelData, BuildingType, get(columnVariable), get(rowVariable))
-                                  ,Count = sum(valueVariable)
+                                  ,Count = sum(get(valueVariable))
                                   ,SampleSize = length(unique(CK_Cadmus_ID)))
     item.unweighted1 <- ConvertColName(item.unweighted1, 'get(columnVariable)', columnVariable)
     item.unweighted1 <- data.frame(ConvertColName(item.unweighted1, 'get(rowVariable)', rowVariable),stringsAsFactors = F)
     
     item.unweighted2 <- summarise(group_by(CustomerLevelData, BuildingType, get(columnVariable))
                                   ,rowTotal = "Total"
-                                  ,Count = sum(valueVariable)
+                                  ,Count = sum(get(valueVariable))
                                   ,SampleSize = length(unique(CK_Cadmus_ID)))
     item.unweighted2 <- ConvertColName(item.unweighted2,'get(columnVariable)',columnVariable)
     item.unweighted2 <- data.frame(ConvertColName(item.unweighted2,'rowTotal',rowVariable),stringsAsFactors = F)
     
     item.unweighted3 <- summarise(group_by(CustomerLevelData, BuildingType, get(rowVariable))
                                      ,colTotal = aggregateColumnName
-                                     ,Count = sum(valueVariable)
+                                     ,Count = sum(get(valueVariable))
                                      ,SampleSize = length(unique(CK_Cadmus_ID)))
     item.unweighted3 <- ConvertColName(item.unweighted3,'get(rowVariable)',rowVariable)
     item.unweighted3 <- data.frame(ConvertColName(item.unweighted3,'colTotal',columnVariable),stringsAsFactors = F)
@@ -294,7 +294,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     item.unweighted4 <- summarise(group_by(CustomerLevelData, BuildingType)
                                  ,colTotal = aggregateColumnName
                                  ,rowTotal = "Total"
-                                 ,Count = sum(valueVariable)
+                                 ,Count = sum(get(valueVariable))
                                  ,SampleSize = length(unique(CK_Cadmus_ID)))
     item.unweighted4 <- ConvertColName(item.unweighted4,'rowTotal',rowVariable)
     item.unweighted4 <- data.frame(ConvertColName(item.unweighted4,'colTotal',columnVariable),stringsAsFactors = F)
