@@ -68,6 +68,9 @@ item3.dat1 <- item3.dat[which(item3.dat$GroundContact != "Remove"),]
 #subset to only single family for item 3
 item3.dat2 <- item3.dat1[which(item3.dat1$BuildingType == "Single Family"),]
 
+
+
+#add weighting information
 item3.data <- weightedData(item3.dat2[-which(colnames(item3.dat2) %in% c("FoundationType", "GroundContact"))])
 
 item3.data <- left_join(item3.data, item3.dat2[which(colnames(item3.dat2) %in% c("CK_Cadmus_ID", "FoundationType", "GroundContact"))])

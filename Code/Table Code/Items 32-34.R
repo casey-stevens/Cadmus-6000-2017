@@ -5,18 +5,22 @@
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
+##  Clear variables
 rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
-#source
-# if("Casey.Stevens" %in% dir(file.path("C:","Users"))) SourcePath <- file.path("C:", "Users", "Casey.Stevens", "Documents", "Git", "Cadmus-6000-2017", "Cadmus-6000-2017", "Code", "Table Code")
-# if("Andres.Roma"   %in% dir(file.path("C:","Users"))) SourcePath <- file.path("C:", "Users", "Andres.Roma"  , "Documents", "Git", "Cadmus-6000-2017", "Cadmus-6000-2017", "Code", "Table Code")
+# Source codes
 source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+
 
 #Read in data for analysis
 windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
@@ -61,54 +65,93 @@ item32.dat2$Framing.Categories <- paste(item32.dat2$Frame.Type, item32.dat2$Glaz
 
 item32.dat2$count <- 1
 
-#Total count across door types
-item32.tmp1 <- summarise(group_by(item32.dat2, BuildingType)
-                          , Framing.Categories = "Total"
-                          , SampleSize = length(unique(CK_Cadmus_ID))
-                          , Count = sum(count))
-#door count by framing type categories
-item32.tmp2 <- summarise(group_by(item32.dat2, BuildingType, Framing.Categories)
-                         , SampleSize = length(unique(CK_Cadmus_ID))
-                         , Count = sum(count))
-item32.tmp3 <- summarise(group_by(item32.dat2, BuildingType)
-                         , TotalCount = sum(count))
+item32.data <- weightedData(item32.dat2[-which(colnames(item32.dat2) %in% c("Type"
+                                                                            ,"Sub-Type"
+                                                                            ,"Area"
+                                                                            ,"Quantity"
+                                                                            ,"Frame./.Body.Type"
+                                                                            ,"Glazing.Type"
+                                                                            ,"Frame.Type"
+                                                                            ,"Glazing"
+                                                                            ,"Framing.Categories"
+                                                                            ,"count"))])
+item32.data <- left_join(item32.data, item32.dat2[which(colnames(item32.dat2) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Type"
+                                                                                      ,"Sub-Type"
+                                                                                      ,"Area"
+                                                                                      ,"Quantity"
+                                                                                      ,"Frame./.Body.Type"
+                                                                                      ,"Glazing.Type"
+                                                                                      ,"Frame.Type"
+                                                                                      ,"Glazing"
+                                                                                      ,"Framing.Categories"
+                                                                                      ,"count"))])
 
-item32.merge <- rbind.data.frame(item32.tmp1, item32.tmp2, stringsAsFactors = F)
-item32.final <- left_join(item32.merge, item32.tmp3, by = "BuildingType")
+item32.data$Quantity <- as.numeric(as.character(item32.data$Quantity))
+item32.final <- proportions_one_group(CustomerLevelData = item32.data
+                                        , valueVariable   = 'Quantity'
+                                        , groupingVariable= 'Framing.Categories'
+                                        , total.name      = "Total"
+                                        , columnName      = "Door.Type")
 
-#percent
-item32.final$Percent <- item32.final$Count / item32.final$TotalCount
-item32.final$SE      <- sqrt(item32.final$Percent * (1 - item32.final$Percent) / item32.final$SampleSize)
+item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family"),-1]
 
-item32.table <- data.frame("BuildingType" = item32.final$BuildingType
-                           ,"Framing.Categories" = item32.final$Framing.Categories
-                           ,"Percent" = item32.final$Percent
-                           ,"SE" = item32.final$SE
-                           ,"SampleSize" = item32.final$SampleSize)
+exportTable(item3.table.SF, "SF", "Table 39")
 
-###Subset to only single family
-item32.final.SF <- item32.table[which(item32.table$BuildingType == 'Single Family'),
-                                -which(colnames(item32.table) == 'BuildingType')]
 
-###Package xlsx working only now for some reason here is a template
-workbook.SF <- xlsx::loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
-tableSheets <- xlsx::getSheets(workbook.SF)
-tableSheet  <- tableSheets$`Table 39`
-addDataFrame(x = item32.final.SF,
-             sheet = tableSheet,
-             startRow = 20)
 
-xlsx::saveWorkbook(wb = workbook.SF,
-                   file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", 
-                                sep = "/"))
 
-##################################### Table Format #####################################
 
-item32.table <- data.frame("BuildingType" = item32.final.SF$BuildingType
-                           ,"Framing.Categories" = item32.final.SF$Framing.Categories
-                           ,"Percent" = item32.final.SF$Percent
-                           ,"SE" = item32.final.SF$SE
-                           ,"SampleSize" = item32.final.SF$SampleSize)
+
+
+# #Total count across door types
+# item32.tmp1 <- summarise(group_by(item32.dat2, BuildingType)
+#                           , Framing.Categories = "Total"
+#                           , SampleSize = length(unique(CK_Cadmus_ID))
+#                           , Count = sum(count))
+# #door count by framing type categories
+# item32.tmp2 <- summarise(group_by(item32.dat2, BuildingType, Framing.Categories)
+#                          , SampleSize = length(unique(CK_Cadmus_ID))
+#                          , Count = sum(count))
+# item32.tmp3 <- summarise(group_by(item32.dat2, BuildingType)
+#                          , TotalCount = sum(count))
+# 
+# item32.merge <- rbind.data.frame(item32.tmp1, item32.tmp2, stringsAsFactors = F)
+# item32.final <- left_join(item32.merge, item32.tmp3, by = "BuildingType")
+# 
+# #percent
+# item32.final$Percent <- item32.final$Count / item32.final$TotalCount
+# item32.final$SE      <- sqrt(item32.final$Percent * (1 - item32.final$Percent) / item32.final$SampleSize)
+# 
+# item32.table <- data.frame("BuildingType" = item32.final$BuildingType
+#                            ,"Framing.Categories" = item32.final$Framing.Categories
+#                            ,"Percent" = item32.final$Percent
+#                            ,"SE" = item32.final$SE
+#                            ,"SampleSize" = item32.final$SampleSize)
+# 
+# ###Subset to only single family
+# item32.final.SF <- item32.table[which(item32.table$BuildingType == 'Single Family'),
+#                                 -which(colnames(item32.table) == 'BuildingType')]
+# 
+# ###Package xlsx working only now for some reason here is a template
+# workbook.SF <- xlsx::loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
+# tableSheets <- xlsx::getSheets(workbook.SF)
+# tableSheet  <- tableSheets$`Table 39`
+# addDataFrame(x = item32.final.SF,
+#              sheet = tableSheet,
+#              startRow = 20)
+# 
+# xlsx::saveWorkbook(wb = workbook.SF,
+#                    file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", 
+#                                 sep = "/"))
+# 
+# ##################################### Table Format #####################################
+# 
+# item32.table <- data.frame("BuildingType" = item32.final.SF$BuildingType
+#                            ,"Framing.Categories" = item32.final.SF$Framing.Categories
+#                            ,"Percent" = item32.final.SF$Percent
+#                            ,"SE" = item32.final.SF$SE
+#                            ,"SampleSize" = item32.final.SF$SampleSize)
 
 
 
@@ -155,45 +198,59 @@ item33.dat2$Framing.Categories <- paste(item33.dat2$Frame.Type, item33.dat2$Glaz
 item33.dat2$count <- 1
 
 
-#####################################Analysis - needs cleaning & work ###################################33
-# summarise by state and framing categories
-item33.tmp1 <- summarise(group_by(item33.dat2, BuildingType, State, Framing.Categories)
-                         , SampleSize = length(unique(CK_Cadmus_ID))
-                         , Count = sum(count))
-# summarise by state across framing categories
-item33.tmp2 <- summarise(group_by(item33.dat2, BuildingType, State)
-                         , Framing.Categories = "All Window Types"
-                         , SampleSize = length(unique(CK_Cadmus_ID))
-                         , Count = sum(count))
-#summarise by framing categories across states
-item33.tmp3 <- summarise(group_by(item33.dat2, BuildingType, Framing.Categories)
-                         , State = "Region"
-                         , SampleSize = length(unique(CK_Cadmus_ID))
-                         , Count = sum(count))
-item33.tmp4 <- summarise(group_by(item33.dat2, BuildingType)
-                         , State = "Region"
-                         , Framing.Categories = "All Window Types"
-                         , SampleSize = length(unique(CK_Cadmus_ID))
-                         , Count = sum(count))
+#insert weights
 
-item33.merge1 <- rbind.data.frame(item33.tmp1, item33.tmp2, item33.tmp3, item33.tmp4, stringsAsFactors = F)
+#weighting application
 
-#obtain total counts
-item33.tot.counts <- rbind.data.frame(item33.tmp2, item33.tmp4, stringsAsFactors = F)
-  
-item33.final <- left_join(item33.merge1, item33.tot.counts, by = c("BuildingType","State"))
-colnames(item33.final) <- c("BuildingType"
-                             ,"State"
-                             ,"Framing.Categories"
-                             ,"SampleSize"
-                             ,"Count"
-                             ,"Remove"
-                             ,"Remove"
-                             ,"TotalCount")
+#export table
 
-item33.final$Percent <- item33.final$Count / item33.final$TotalCount
-item33.final$SE      <- sqrt(item33.final$Percent * (1 - item33.final$Percent) / item33.final$SampleSize)
 
+
+
+
+
+
+
+
+# #####################################Analysis - needs cleaning & work ###################################33
+# # summarise by state and framing categories
+# item33.tmp1 <- summarise(group_by(item33.dat2, BuildingType, State, Framing.Categories)
+#                          , SampleSize = length(unique(CK_Cadmus_ID))
+#                          , Count = sum(count))
+# # summarise by state across framing categories
+# item33.tmp2 <- summarise(group_by(item33.dat2, BuildingType, State)
+#                          , Framing.Categories = "All Window Types"
+#                          , SampleSize = length(unique(CK_Cadmus_ID))
+#                          , Count = sum(count))
+# #summarise by framing categories across states
+# item33.tmp3 <- summarise(group_by(item33.dat2, BuildingType, Framing.Categories)
+#                          , State = "Region"
+#                          , SampleSize = length(unique(CK_Cadmus_ID))
+#                          , Count = sum(count))
+# item33.tmp4 <- summarise(group_by(item33.dat2, BuildingType)
+#                          , State = "Region"
+#                          , Framing.Categories = "All Window Types"
+#                          , SampleSize = length(unique(CK_Cadmus_ID))
+#                          , Count = sum(count))
+# 
+# item33.merge1 <- rbind.data.frame(item33.tmp1, item33.tmp2, item33.tmp3, item33.tmp4, stringsAsFactors = F)
+# 
+# #obtain total counts
+# item33.tot.counts <- rbind.data.frame(item33.tmp2, item33.tmp4, stringsAsFactors = F)
+#   
+# item33.final <- left_join(item33.merge1, item33.tot.counts, by = c("BuildingType","State"))
+# colnames(item33.final) <- c("BuildingType"
+#                              ,"State"
+#                              ,"Framing.Categories"
+#                              ,"SampleSize"
+#                              ,"Count"
+#                              ,"Remove"
+#                              ,"Remove"
+#                              ,"TotalCount")
+# 
+# item33.final$Percent <- item33.final$Count / item33.final$TotalCount
+# item33.final$SE      <- sqrt(item33.final$Percent * (1 - item33.final$Percent) / item33.final$SampleSize)
+# 
 ##################################### Table Format ###################################33
 detach(package:reshape2)
 library(data.table)
@@ -201,15 +258,15 @@ item33.table <- dcast(setDT(item33.final)
                       , formula = BuildingType + Framing.Categories ~ State
                       , value.var = c("Percent", "SE", "SampleSize"))
 
-item33.table2 <- data.frame("BuildingType" = item33.table$BuildingType
+item33.table2 <- data.frame("BuildingType"        = item33.table$BuildingType
                             ,"Framing.Categories" = item33.table$Framing.Categories
-                            ,"Percent_MT" = item33.table$Percent_MT
-                            ,"SE_MT" = item33.table$SE_MT
-                            ,"Percent_WA" = item33.table$Percent_WA
-                            ,"SE_WA" = item33.table$SE_WA
-                            ,"Percent_Region" = item33.table$Percent_Region
-                            ,"SE_Region" = item33.table$SE_Region
-                            ,"SampleSize" = item33.table$SampleSize_Region)
+                            ,"Percent_MT"         = item33.table$Percent_MT
+                            ,"SE_MT"              = item33.table$SE_MT
+                            ,"Percent_WA"         = item33.table$Percent_WA
+                            ,"SE_WA"              = item33.table$SE_WA
+                            ,"Percent_Region"     = item33.table$Percent_Region
+                            ,"SE_Region"          = item33.table$SE_Region
+                            ,"SampleSize"         = item33.table$SampleSize_Region)
 
 item33.table3 <- item33.table2[which(item33.table2$BuildingType %in% c("Single Family")),]
 
