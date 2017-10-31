@@ -65,7 +65,8 @@ item7.data$count <- 1
 item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = 'Region')
+                              , aggregateRow  = 'Region'
+                              , weighted = TRUE)
 
 
 #subset by home type
@@ -74,8 +75,10 @@ item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),
 
 
 #export data
-exportTable(item7.final.SF, "SF", "Table 14")
-exportTable(item7.final.MH, "MH", "Table 12")
+exportTable(item7.final.SF, "SF", "Table 14"
+            , weighted = TRUE)
+exportTable(item7.final.MH, "MH", "Table 12"
+            , weighted = TRUE)
 
 
 
@@ -118,7 +121,8 @@ item8.data$count <- 1
 item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = "Region")
+                              , aggregateRow  = "Region"
+                              , weighted = TRUE)
 
 
 #subset by home type
@@ -127,8 +131,10 @@ item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),
 
 
 #export data
-exportTable(item8.final.SF, "SF", "Table 15")
-exportTable(item8.final.MH, "MH", "Table 13")
+exportTable(item8.final.SF, "SF", "Table 15"
+            , weighted = TRUE)
+exportTable(item8.final.MH, "MH", "Table 13"
+            , weighted = TRUE)
 
 
 
@@ -173,7 +179,8 @@ item9.data$count <- 1
 item9.final <- mean_one_group(CustomerLevelData = item9.data
                               , valueVariable = 'Site_Area'
                               , byVariable    = 'Clean.Type'
-                              , aggregateRow  = "All Room Types")
+                              , aggregateRow  = "All Room Types"
+                              , weighted = TRUE)
 
 
 #subset by home type
@@ -182,5 +189,7 @@ item9.final.MH <- item9.final[which(item9.final$BuildingType == "Manufactured"),
 
 
 #export data
-exportTable(item9.final.SF, "SF", "Table 16")
-exportTable(item9.final.MH, "MH", "Table 14")
+exportTable(item9.final.SF, "SF", "Table 16"
+            , weighted = TRUE)
+exportTable(item9.final.MH, "MH", "Table 14"
+            , weighted = TRUE)

@@ -39,7 +39,8 @@ item1.final <- proportionRowsAndColumns1(item1.dat
                                          ,'count'
                                          ,'State'
                                          ,'HomeType'
-                                         , aggregateColumnName = "Region")
+                                         , aggregateColumnName = "Region"
+                                         , weighted = TRUE)
 colnames(item1.final) <- c("BuildingType"
                           , "State"
                           , "Home.Type"
@@ -99,8 +100,10 @@ item1.table.MH <- item1.table.MH %>% arrange(Home.Type)
 
 
 #exporting function
-exportTable(item1.table.SF, "SF", "Table 8")
-exportTable(item1.table.MH, "MH", "Table 7")
+exportTable(item1.table.SF, "SF", "Table 8"
+            , weighted = TRUE)
+exportTable(item1.table.MH, "MH", "Table 7"
+            , weighted = TRUE)
 
 
 
@@ -124,7 +127,8 @@ item2.final <- proportionRowsAndColumns1(item2.dat
                           , valueVariable = 'count'
                           , columnVariable = 'State'
                           , rowVariable = 'HomeYearBuilt_bins2'
-                          , aggregateColumnName = "Region")
+                          , aggregateColumnName = "Region"
+                          , weighted = TRUE)
 
 colnames(item2.final) <- c("BuildingType"
                            , "State"
@@ -172,8 +176,10 @@ item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family")
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 #exporting function
-exportTable(item2.table.SF, "SF", "Table 9")
-exportTable(item2.table.MH, "MH", "Table 8")
+exportTable(item2.table.SF, "SF", "Table 9"
+            , weighted = TRUE)
+exportTable(item2.table.MH, "MH", "Table 8"
+            , weighted = TRUE)
 
 
 
@@ -198,7 +204,8 @@ item6.final <- proportionRowsAndColumns1(item6.dat
                                          , valueVariable = 'count'
                                          , columnVariable = 'State'
                                          , rowVariable = 'BuildingHeight'
-                                         , aggregateColumnName = "Region")
+                                         , aggregateColumnName = "Region"
+                                         , weighted = TRUE)
 
 colnames(item6.final) <- c("BuildingType"
                            , "State"
@@ -246,5 +253,6 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 
 
-exportTable(item6.table.SF, "SF", "Table 13")
+exportTable(item6.table.SF, "SF", "Table 13"
+            , weighted = TRUE)
 

@@ -462,6 +462,7 @@ item10.summary <- proportionRowsAndColumns1(item10.data
                                                      , columnVariable      = 'Wall.Type'
                                                      , rowVariable         = 'rvalue.bins'
                                                      , aggregateColumnName = "All Frame Types"
+                                            , weighted = TRUE
 )
 item10.summary <- item10.summary[which(item10.summary$Wall.Type != "All Frame Types"),]
 
@@ -472,6 +473,7 @@ item10.all.frame.types <- proportionRowsAndColumns1(item10.data
                                                     , columnVariable      = 'All.Wall.Type'
                                                     , rowVariable         = 'rvalue.bins'
                                                     , aggregateColumnName = "All Frame Types"
+                                                    , weighted = TRUE
 )
 colnames(item10.all.frame.types)[which(colnames(item10.all.frame.types) == "All.Wall.Type")] <- "Wall.Type"
 item10.all.frame.types <- item10.all.frame.types[which(item10.all.frame.types$Wall.Type == "All Frame Types"),]
@@ -482,6 +484,7 @@ item10.all.insul.levels <- proportionRowsAndColumns1(item10.data
                                                          , columnVariable      = 'rvalue.bins'
                                                          , rowVariable         = 'Wall.Type'
                                                          , aggregateColumnName = "All Insulation Levels"
+                                                     , weighted = TRUE
 )
 item10.all.insul.levels <- item10.all.insul.levels[which(item10.all.insul.levels$rvalue.bins == "All Insulation Levels"),]
 
@@ -525,7 +528,8 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item10.table.SF, "SF", "Table 17")
+exportTable(item10.table.SF, "SF", "Table 17"
+            , weighted = TRUE)
 
 
 
@@ -635,13 +639,15 @@ item11.by.vinage <- proportionRowsAndColumns1(item11.data
                                           , columnVariable      = 'HomeYearBuilt_bins3'
                                           , rowVariable         = 'Wall.Type'
                                           , aggregateColumnName = "Remove"
+                                          , weighted = TRUE
 )
 # summarise for all housing vintages
 item11.across.vintages <- proportions_one_group(item11.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'Wall.Type'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 # row bind summaries
 item11.final <- rbind.data.frame(item11.by.vinage, item11.across.vintages, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")
@@ -672,7 +678,8 @@ item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
 item11.table.SF <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item11.table.SF, "SF", "Table 18")
+exportTable(item11.table.SF, "SF", "Table 18"
+            , weighted = TRUE)
 
 
 
@@ -766,13 +773,15 @@ item12.by.vinage <- proportionRowsAndColumns1(item12.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins.SF'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item12.across.vintages <- proportions_one_group(item12.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.SF'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 
 # row bind summaries
 item12.final <- rbind.data.frame(item12.by.vinage
@@ -810,7 +819,8 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
 item12.table.SF <- item12.table[which(item12.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item12.table.SF, "SF", "Table 19")
+exportTable(item12.table.SF, "SF", "Table 19"
+            , weighted = TRUE)
 
 
 
@@ -827,13 +837,15 @@ item12.by.vinage <- proportionRowsAndColumns1(item12.data
                                               , columnVariable      = 'HomeYearBuilt_bins2'
                                               , rowVariable         = 'rvalue.bins.MH'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item12.across.vintages <- proportions_one_group(item12.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.MH'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins2')
+                                                , columnName       = 'HomeYearBuilt_bins2'
+                                                , weighted = TRUE)
 
 ## Summary for only "All Insulation Levels"
 item12.all.insul.levels <- proportionRowsAndColumns1(item12.data
@@ -841,6 +853,7 @@ item12.all.insul.levels <- proportionRowsAndColumns1(item12.data
                                                      , columnVariable      = 'rvalue.bins.MH'
                                                      , rowVariable         = 'HomeYearBuilt_bins2'
                                                      , aggregateColumnName = "All Insulation Levels"
+                                                     , weighted = TRUE
 )
 item12.all.insul.levels <- item12.all.insul.levels[which(item12.all.insul.levels$rvalue.bins == "All Insulation Levels"),]
 
@@ -879,7 +892,8 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
 item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item12.table.MH, "MH", "Table 16")
+exportTable(item12.table.MH, "MH", "Table 16"
+            , weighted = TRUE)
 
 
 
@@ -1035,13 +1049,15 @@ item13.by.vinage <- proportionRowsAndColumns1(item13.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins.SF'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item13.across.vintages <- proportions_one_group(item13.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.SF'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 # row bind summaries
 item13.final <- rbind.data.frame(item13.by.vinage, item13.across.vintages, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")
@@ -1076,7 +1092,8 @@ item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
 item13.table.SF <- item13.table[which(item13.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item13.table.SF, "SF", "Table 20")
+exportTable(item13.table.SF, "SF", "Table 20"
+            , weighted = TRUE)
 
 # #summarise by vintage bins
 # #summarise by r value bins
@@ -1156,13 +1173,15 @@ item14.by.vinage <- proportionRowsAndColumns1(item14.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins.SF'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item14.across.vintages <- proportions_one_group(item14.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.SF'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 # row bind summaries
 item14.final <- rbind.data.frame(item14.by.vinage, item14.across.vintages, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")
@@ -1197,7 +1216,8 @@ item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
 item14.table.SF <- item14.table[which(item14.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item14.table.SF, "SF", "Table 21")
+exportTable(item14.table.SF, "SF", "Table 21"
+            , weighted = TRUE)
 
 
 
@@ -1281,13 +1301,15 @@ item15.by.vinage <- proportionRowsAndColumns1(item15.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins.SF'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item15.across.vintages <- proportions_one_group(item15.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.SF'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 # row bind summaries
 item15.final <- rbind.data.frame(item15.by.vinage, item15.across.vintages, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")
@@ -1322,7 +1344,8 @@ item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
 item15.table.SF <- item15.table[which(item15.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item15.table.SF, "SF", "Table 22")
+exportTable(item15.table.SF, "SF", "Table 22"
+            , weighted = TRUE)
 
 
 
@@ -1409,13 +1432,15 @@ item16.by.vinage <- proportionRowsAndColumns1(item16.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins.SF'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item16.across.vintages <- proportions_one_group(item16.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins.SF'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 # row bind summaries
 item16.final <- rbind.data.frame(item16.by.vinage, item16.across.vintages, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")
@@ -1450,7 +1475,8 @@ item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
 item16.table.SF <- item16.table[which(item16.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item16.table.SF, "SF", "Table 23")
+exportTable(item16.table.SF, "SF", "Table 23"
+            , weighted = TRUE)
 
 
 
@@ -1566,13 +1592,15 @@ item17.by.vinage <- proportionRowsAndColumns1(item17.data
                                               , columnVariable      = 'HomeYearBuilt_bins3'
                                               , rowVariable         = 'rvalue.bins'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item17.across.vintages <- proportions_one_group(item17.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'rvalue.bins'
                                                 , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3')
+                                                , columnName       = 'HomeYearBuilt_bins3'
+                                                , weighted = TRUE)
 
 # row bind summaries
 item17.final <- rbind.data.frame(item17.by.vinage
@@ -1610,7 +1638,8 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
 item17.table.SF <- item17.table[which(item17.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item17.table.SF, "SF", "Table 24")
+exportTable(item17.table.SF, "SF", "Table 24"
+            , weighted = TRUE)
 
 
 
@@ -1655,13 +1684,15 @@ item18.by.frame.type <- proportionRowsAndColumns1(item18.data
                                               , columnVariable      = 'Wall.Type'
                                               , rowVariable         = 'insulation.levels'
                                               , aggregateColumnName = "Remove"
+                                              , weighted = TRUE
 )
 # summarise for all housing vintages
 item18.across.frame.types <- proportions_one_group(item18.data
                                                 , valueVariable    = 'count'
                                                 , groupingVariable = 'insulation.levels'
                                                 , total.name       = 'All Framing Types'
-                                                , columnName       = 'Wall.Type')
+                                                , columnName       = 'Wall.Type'
+                                                , weighted = TRUE)
 # row bind summaries
 item18.final <- rbind.data.frame(item18.by.frame.type, item18.across.frame.types, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")
@@ -1695,4 +1726,5 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
 item18.table.SF <- item18.table[which(item18.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item18.table.SF, "SF", "Table 25")
+exportTable(item18.table.SF, "SF", "Table 25"
+            , weighted = TRUE)

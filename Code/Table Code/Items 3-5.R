@@ -83,7 +83,8 @@ item3.final <- proportionRowsAndColumns1(item3.data
                                          , valueVariable = 'count'
                                          , columnVariable = 'State'
                                          , rowVariable = 'GroundContact'
-                                         , aggregateColumnName = "Region")
+                                         , aggregateColumnName = "Region"
+                                         , weighted = TRUE)
 
 
 colnames(item3.final) <- c("BuildingType"
@@ -128,7 +129,8 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
 
-exportTable(item3.table.SF, "SF", "Table 10")
+exportTable(item3.table.SF, "SF", "Table 10"
+            , weighted = TRUE)
 
 
 
@@ -189,14 +191,17 @@ item4.customer <- summarise(group_by(item4.data
 item4.final <- mean_one_group(CustomerLevelData = item4.customer
                                , valueVariable = 'siteAreaConditioned'
                                , byVariable    = 'State'
-                               , aggregateRow  = 'Region')
+                               , aggregateRow  = 'Region'
+                              , weighted = TRUE)
 
 
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item4.table.SF, "SF", "Table 11")
-exportTable(item4.table.MH, "MH", "Table 10")
+exportTable(item4.table.SF, "SF", "Table 11"
+            , weighted = TRUE)
+exportTable(item4.table.MH, "MH", "Table 10"
+            , weighted = TRUE)
 
 # ######################################################
 # # Step 1.2: Using customer level data,
@@ -306,7 +311,8 @@ item5.final <- mean_two_groups(CustomerLevelData = item5.customer
                                , byVariableRow = 'HomeYearBuilt_bins2'
                                , byVariableColumn = 'State'
                                , columnAggregate = "Region"
-                               , rowAggregate = "All Vintages")
+                               , rowAggregate = "All Vintages"
+                               , weighted = TRUE)
 
 colnames(item5.final)[which(colnames(item5.final) == "HomeYearBuilt_bins2")] <- "HousingVintage"
 colnames(item5.final)
@@ -315,5 +321,7 @@ colnames(item5.final)
 item5.table.SF <- item5.final[which(item5.final$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.final[which(item5.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item5.table.SF, "SF", "Table 12")
-exportTable(item5.table.MH, "MH", "Table 11")
+exportTable(item5.table.SF, "SF", "Table 12"
+            , weighted = TRUE)
+exportTable(item5.table.MH, "MH", "Table 11"
+            , weighted = TRUE)
