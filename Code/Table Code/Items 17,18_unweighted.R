@@ -6,24 +6,53 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
-
-
-#############################################################################################
-# Item 17: DISTRIBUTION OF MASONRY WALL INSULATION LEVELS BY HOME VINTAGE (SF table 24)
-#############################################################################################
-
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
 rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 17: DISTRIBUTION OF Masonry Wall Insulation Levels by Vintage (SF table 24)
+#############################################################################################
 #subset envelope data to necessary columns
 item17.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Category"
