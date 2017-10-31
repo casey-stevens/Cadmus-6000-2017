@@ -1634,6 +1634,7 @@ item18.customer <- summarise(group_by(item18.merge, CK_Cadmus_ID, BuildingType, 
 item18.customer$insulation.levels[which(item18.customer$insulation.levels == 0)] <- "None"
 
 item18.merge <- left_join(rbsa.dat, item18.customer)
+item18.merge <- item18.merge[which(!is.na(item18.merge$Wall.Type)),]
 item18.merge$count <- 1
 
 item18.data <- weightedData(unique(item18.merge[-which(colnames(item18.merge) %in% c("Category"
@@ -1645,7 +1646,6 @@ item18.data <- left_join(item18.data, item18.merge[which(colnames(item18.merge) 
                                                                                        ,"Wall.Type"
                                                                                        ,"count"
                                                                                        ,"insulation.levels"))])
-item18.data <- item18.data[which(!is.na(item18.data$Wall.Type)),]
 
 
 
