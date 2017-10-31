@@ -14,11 +14,7 @@
 #          And there is an overall column, which combines all the columns data
 #################################################################################
 
-CustomerLevelData <- item124.dat2
-columnVariable <- "State"
-rowVariable <- "Ownership.Type"
-aggregateColumnName <- "Region"
-totalRow = TRUE
+
 
 proportionRowsAndColumns1 <- function(CustomerLevelData
                                       , valueVariable
