@@ -507,7 +507,8 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
 proportions_one_group <- function(CustomerLevelData
                                       , valueVariable
                                       , groupingVariable
-                                      , total.name) {
+                                      , total.name
+                                      , columnName) {
   
   ### Function to convert column names
   ConvertColName <- function(dataset, currentColName, newColName) {
@@ -522,7 +523,7 @@ proportions_one_group <- function(CustomerLevelData
   # groupingVariable = 'rvalue.bins'
   # total.name       = 'All Housing Vintages'
   # columnName       = 'HomeYearBuilt_bins3'
-  
+  # 
   
   ########################
   # Step 1: State
@@ -602,7 +603,7 @@ proportions_one_group <- function(CustomerLevelData
     item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
     
     
-  }else{
+  }else if(groupingVariable %in% c("rvalue.bins", "rvalue.bins.SF", "rvalue.bins.MH")){
     # obtain count and proportion by strata and row grouping variable
     StrataGroupedProportions <- summarise(group_by(CustomerLevelData
                                                    , BuildingType
