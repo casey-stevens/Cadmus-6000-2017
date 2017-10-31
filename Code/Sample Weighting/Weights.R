@@ -25,8 +25,8 @@ options(scipen=999)
 
 
 #source
-SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
-source(file.path(SourcePath, "SourceCode.R"))
+#SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
+#source(file.path(SourcePath, "SourceCode.R"))
 source("Code/Table Code/SourceCode.R")
 
 # Call file names
