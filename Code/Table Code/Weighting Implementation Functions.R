@@ -517,11 +517,11 @@ proportions_one_group <- function(CustomerLevelData
   }
   
   # #Test
-  # CustomerLevelData <- item19.data
-  # valueVariable    = 'Basement.Ind'
-  # groupingVariable = 'State'
-  # total.name       = "Region"
-  # columnName       = "ST"
+  # CustomerLevelData <- item23.data
+  # valueVariable    = 'count'
+  # groupingVariable = 'rvalue.bins'
+  # total.name       = 'All Housing Vintages'
+  # columnName       = 'HomeYearBuilt_bins3'
   
   
   ########################
@@ -687,6 +687,8 @@ proportions_one_group <- function(CustomerLevelData
     AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
                                       ColumnTotals, stringsAsFactors = F)
     
+    AllRowsFinal$tmp.total <- total.name
+    AllRowsFinal <- ConvertColName(AllRowsFinal, 'tmp.total', columnName)
     
     
     item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
