@@ -146,14 +146,14 @@ item25.data <- left_join(item25.data, item25.dat1[which(colnames(item25.dat1) %i
 item25.data$Ceiling.Type.Indicator <- 0
 item25.data$Ceiling.Type.Indicator[which(item25.data$Ceiling.Type == 'Attic')] <- 1
 
-item25.final <- proportions_one_group(CustomerLevelData  = item24.data
+item25.final <- proportions_one_group(CustomerLevelData  = item25.data
                                       , valueVariable    = 'Ceiling.Type.Indicator'
                                       , groupingVariable = 'State'
                                       , total.name       = "Total"
                                       , columnName       = "Homes with Attics"
                                       , weighted = TRUE)
 
-item25.final.SF <- item24.final[which(item24.final$BuildingType == "Single Family"),-1]
+item25.final.SF <- item25.final[which(item25.final$BuildingType == "Single Family"),-1]
 
 exportTable(item25.final.SF, "SF", "Table 32")
 
@@ -190,28 +190,50 @@ item28.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "
 
 item28.dat0 <- left_join(rbsa.dat, item28.dat, by = "CK_Cadmus_ID")
 
-item28.dat00 <- item28.dat0[which(item28.dat0$BuildingType == "Single Family"),]
+item28.dat1 <- item28.dat0[which(item28.dat0$BuildingType == "Single Family"),] # used to be item28.dat00
 
-item28.dat1 <- item28.dat00[which(item28.dat00$Ceiling.Type == "Sloped / Vaulted (no attic)"),]
+#item28.dat1 <- item28.dat00[which(item28.dat00$Ceiling.Type == "Sloped / Vaulted (no attic)"),]
+
+item28.data <- weightedData(item28.dat1[-which(colnames(item28.dat1) %in% c("Ceiling.Type"))])
+
+# Should see 'Joining, by = "CK_Cadmus_ID"'
+item28.data <- left_join(item28.data, item28.dat1[which(colnames(item28.dat1) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Ceiling.Type"))])
+
+item28.data$Ceiling.Type.Indicator <- 0
+item28.data$Ceiling.Type.Indicator[which(item28.data$Ceiling.Type == 'Sloped / Vaulted (no attic)')] <- 1
+
+item28.final <- proportions_one_group(CustomerLevelData  = item28.data
+                                      , valueVariable    = 'Ceiling.Type.Indicator'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Total"
+                                      , columnName       = "Homes with Vault Ceilings"
+                                      , weighted = TRUE)
+
+item28.final.SF <- item28.final[which(item28.final$BuildingType == "Single Family"),-1]
+
+exportTable(item28.final.SF, "SF", "Table 35")
 
 
-item28.cnt <- summarise(group_by(item28.dat1, BuildingType, State)
-                        , InsulatedCount = length(unique(CK_Cadmus_ID))
-)
-
-item28.SS <- summarise(group_by(item28.dat00, BuildingType, State)
-                       , SampleSize = length(unique(CK_Cadmus_ID))
-)
-
-item28.final <- left_join(item28.cnt, item28.SS, by = c("BuildingType", "State"))
-item28.final$Percent <- item28.final$InsulatedCount / item28.final$SampleSize
-item28.final$SE      <- sqrt(item28.final$Percent * (1 - item28.final$Percent) / item28.final$SampleSize)
-
-item28.table <- data.frame("BuildingType" = item28.final$BuildingType
-                           ,"State" = item28.final$State
-                           ,"Percent" = item28.final$Percent
-                           ,"SE" = item28.final$SE
-                           ,"SampleSize" = item28.final$SampleSize)
+# OLD CODE #
+# 
+# item28.cnt <- summarise(group_by(item28.dat1, BuildingType, State)
+#                         , InsulatedCount = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item28.SS <- summarise(group_by(item28.dat00, BuildingType, State)
+#                        , SampleSize = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item28.final <- left_join(item28.cnt, item28.SS, by = c("BuildingType", "State"))
+# item28.final$Percent <- item28.final$InsulatedCount / item28.final$SampleSize
+# item28.final$SE      <- sqrt(item28.final$Percent * (1 - item28.final$Percent) / item28.final$SampleSize)
+# 
+# item28.table <- data.frame("BuildingType" = item28.final$BuildingType
+#                            ,"State" = item28.final$State
+#                            ,"Percent" = item28.final$Percent
+#                            ,"SE" = item28.final$SE
+#                            ,"SampleSize" = item28.final$SampleSize)
 
 
 
@@ -225,26 +247,48 @@ item29.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "
 
 item29.dat0 <- left_join(rbsa.dat, item29.dat, by = "CK_Cadmus_ID")
 
-item29.dat00 <- item29.dat0[which(item29.dat0$BuildingType == "Single Family"),]
+item29.dat1 <- item29.dat0[which(item29.dat0$BuildingType == "Single Family"),]  # used to be item28.dat00
 
-item29.dat1 <- item29.dat00[which(item29.dat00$Ceiling.Type == "Roof Deck"),]
+#item29.dat1 <- item29.dat00[which(item29.dat00$Ceiling.Type == "Roof Deck"),]
+
+item29.data <- weightedData(item29.dat1[-which(colnames(item29.dat1) %in% c("Ceiling.Type"))])
+
+# Should see 'Joining, by = "CK_Cadmus_ID"'
+item29.data <- left_join(item29.data, item29.dat1[which(colnames(item29.dat1) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Ceiling.Type"))])
+
+item29.data$Ceiling.Type.Indicator <- 0
+item29.data$Ceiling.Type.Indicator[which(item29.data$Ceiling.Type == 'Roof Deck')] <- 1
+
+item29.final <- proportions_one_group(CustomerLevelData  = item29.data
+                                      , valueVariable    = 'Ceiling.Type.Indicator'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Total"
+                                      , columnName       = "Homes with Roof Deck Ceilings"
+                                      , weighted = TRUE)
+
+item29.final.SF <- item29.final[which(item29.final$BuildingType == "Single Family"),-1]
+
+exportTable(item29.final.SF, "SF", "Table 36")
 
 
-item29.cnt <- summarise(group_by(item29.dat1, BuildingType, State)
-                        , InsulatedCount = length(unique(CK_Cadmus_ID))
-)
-
-item29.SS <- summarise(group_by(item29.dat00, BuildingType, State)
-                       , SampleSize = length(unique(CK_Cadmus_ID))
-)
-
-item29.final <- left_join(item29.cnt, item29.SS, by = c("BuildingType", "State"))
-item29.final$Percent <- item29.final$InsulatedCount / item29.final$SampleSize
-item29.final$SE      <- sqrt(item29.final$Percent * (1 - item29.final$Percent) / item29.final$SampleSize)
-
-
-item29.table <- data.frame("BuildingType" = item29.final$BuildingType
-                           ,"State" = item29.final$State
-                           ,"Percent" = item29.final$Percent
-                           ,"SE" = item29.final$SE
-                           ,"SampleSize" = item29.final$SampleSize)
+# OLD CODE #
+# 
+# item29.cnt <- summarise(group_by(item29.dat1, BuildingType, State)
+#                         , InsulatedCount = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item29.SS <- summarise(group_by(item29.dat00, BuildingType, State)
+#                        , SampleSize = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item29.final <- left_join(item29.cnt, item29.SS, by = c("BuildingType", "State"))
+# item29.final$Percent <- item29.final$InsulatedCount / item29.final$SampleSize
+# item29.final$SE      <- sqrt(item29.final$Percent * (1 - item29.final$Percent) / item29.final$SampleSize)
+# 
+# 
+# item29.table <- data.frame("BuildingType" = item29.final$BuildingType
+#                            ,"State" = item29.final$State
+#                            ,"Percent" = item29.final$Percent
+#                            ,"SE" = item29.final$SE
+#                            ,"SampleSize" = item29.final$SampleSize)
