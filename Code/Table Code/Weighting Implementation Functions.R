@@ -31,13 +31,14 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     return(data)
   }
   
-  #Test
-  # CustomerLevelData <- item3.data
-  # valueVariable = 'count'
-  # columnVariable = 'State'
-  # rowVariable = 'GroundContact'
-  # aggregateColumnName = "Region"
-  # totalRow = TRUE
+  # TEST
+  # CustomerLevelData <-  item44.data
+  # valueVariable       <-  'count'
+  # columnVariable      <-  'State'
+  # rowVariable         <-  'Heating_Fuel'
+  # aggregateColumnName <-  'Fuel Choice (Primary System)'
+  # totalRow            <-  TRUE
+  # weighted            <-  TRUE
 
   ########################
   # Step 1: State
@@ -48,7 +49,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   StrataPopCounts <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory)
                                ,N.h   = unique(N.h)
                                ,n.h   = unique(n.h))
-  if(columnVariable == "State"){
+  if (columnVariable == "State") {
   # obtain count and proportion by strata and row grouping variable
   StrataGroupedProportions <- summarise(group_by(CustomerLevelData
                                                  , BuildingType
@@ -73,15 +74,17 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,columnVariable)
   StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
   StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
-  StrataGroupedProportions <- summarise(group_by(StrataGroupedProportions
-                                                 , BuildingType
-                                                 , State
-                                                 , Region
-                                                 , Territory
-                                                 , get(rowVariable))
-                                        ,count = count
-                                        ,total.count = total.count
-                                        ,p.h = count / total.count)
+  # OLD CODE, WAS CAUSING AN ERROR #
+  # StrataGroupedProportions <- summarise(group_by(StrataGroupedProportions
+  #                                                , BuildingType
+  #                                                , State
+  #                                                , Region
+  #                                                , Territory
+  #                                                , get(rowVariable))
+  #                                       ,count = count
+  #                                       ,total.count = total.count
+  #                                       ,p.h = count / total.count)
+  StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
   
   
   #fix column name
