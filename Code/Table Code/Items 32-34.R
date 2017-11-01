@@ -5,10 +5,11 @@
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
+
 ##  Clear variables
-rm(list=ls())
+rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
-options(scipen=999)
+options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
@@ -223,16 +224,17 @@ item33.data <- left_join(item33.data, item33.dat2[which(colnames(item33.dat2) %i
 #weighting application
 
 item33.data$Quantity <- as.numeric(as.character(item33.data$Quantity))
-item33.final <- proportions_one_group(CustomerLevelData  = item33.data
-                                      , valueVariable    = 'Quantity'
-                                      , groupingVariable = 'Framing.Categories'
-                                      , total.name       = "Total"
-                                      , columnName       = "Windows")
+item33.final <- proportionRowsAndColumns1(CustomerLevelData     = item33.data
+                                          , valueVariable       = 'Quantity'
+                                          , columnVariable      = 'State'
+                                          , rowVariable         = 'Frame.Type'
+                                          , aggregateColumnName = 'Windows'
+                                          , totalRow            = TRUE
+                                          , weighted            = TRUE)
 
 item33.final.SF <- item33.final[which(item33.final$BuildingType == "Single Family"),-1]
 
 #export table
-# NOTE: Table 40 looks much more different than 39/41
 
 exportTable(item33.final.SF, "SF", "Table 40")
 
