@@ -575,12 +575,12 @@ proportions_one_group <- function(CustomerLevelData
   }
   
   # #Test
-  # CustomerLevelData <- item23.data
+  # CustomerLevelData <- item43.data
   # valueVariable    = 'count'
-  # groupingVariable = 'rvalue.bins'
-  # total.name       = 'All Housing Vintages'
-  # columnName       = 'HomeYearBuilt_bins3'
-  # 
+  # groupingVariable = 'Heating_Type'
+  # total.name       = 'Total'
+  # columnName       = 'Primary Heating Systems'
+
   
   ########################
   # Step 1: State
@@ -683,15 +683,7 @@ proportions_one_group <- function(CustomerLevelData
     StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
     
     StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
-    StrataGroupedProportions <- summarise(group_by(StrataGroupedProportions
-                                                   , BuildingType
-                                                   , State
-                                                   , Region
-                                                   , Territory
-                                                   , get(groupingVariable))
-                                          ,count = count
-                                          ,total.count = total.count
-                                          ,p.h = count / total.count)
+    StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
     
     #fix column name
