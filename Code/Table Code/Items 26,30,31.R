@@ -10,8 +10,16 @@ rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
-# Source
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
 source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
@@ -22,22 +30,18 @@ length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
-
-
-
-
-
-
-
-#############################################################################################
-#############################################################################################
-# PREP FOR ITEMS 26, 30, 31
-#############################################################################################
-#############################################################################################
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
 rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
+
+
+
+#############################################################################################
+#
+# PREP FOR ITEMS 26, 30, 31
+#
+#############################################################################################
 #subset envelope data to necessary columns
 ceiling.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 , "Category"
