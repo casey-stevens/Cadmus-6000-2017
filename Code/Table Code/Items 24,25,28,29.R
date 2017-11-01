@@ -2,9 +2,21 @@
 ##  Title:            RBSA Analysis                      
 ##  Author:           Casey Stevens, Cadmus Group               
 ##  Created:          06/13/2017
-##  Updated:                                             
+##  Updated:          10/31/2017                                   
 ##  Billing Code(s):  
 #############################################################################################
+
+##  Clear variables
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -14,7 +26,9 @@ length(unique(rbsa.dat$CK_Cadmus_ID)) #565
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
-
+# Bring in clean ground contact types
+GroundContactTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "Ground Contact Types.xlsx"), sheet = 1)
+GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) != "Notes")]
 
 
 
@@ -24,30 +38,85 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 item24.dat <- envelope.dat[grep("CK_Cadmus_ID|Crawlspace", colnames(envelope.dat))]
 
 item24.dat1 <- left_join(rbsa.dat, item24.dat, by = "CK_Cadmus_ID")
-length(unique(item24.dat1$CK_Cadmus_ID)) #565
+length(unique(item24.dat1$CK_Cadmus_ID))
 
 item24.dat2 <- item24.dat1[which(item24.dat1$`Crawlspace.Walls.Insulated?` %in% c("Yes", "No")),]
-length(unique(item24.dat2$CK_Cadmus_ID)) #183
+length(unique(item24.dat2$CK_Cadmus_ID))
 
 item24.dat2$count <- 1
 item24.dat2$crawl.ins.ind <- 0
 item24.dat2$crawl.ins.ind[which(item24.dat2$`Crawlspace.Walls.Insulated?` == "Yes")] <- 1
 
-item24.final <- summarise(group_by(item24.dat2, BuildingType, State)
-                          ,InsulatedCount = sum(crawl.ins.ind)
-                          ,SampleSize     = sum(count)
-                          ,Percent        = InsulatedCount / SampleSize
-                          ,SE             = sqrt(Percent * (1 - Percent) / SampleSize)
-)
+item24.data <- weightedData(item24.dat2[-which(colnames(item24.dat2) %in% c("Crawlspace.Vents.Present"
+                                                                            ,"Crawlspace.Vents.Blocked"
+                                                                            ,"Crawlspace.Walls.Insulated?"
+                                                                            ,"Crawlspace.Wall.Insulation.Type.1"
+                                                                            ,"Crawlspace.Wall.Insulation.Thickness.1"
+                                                                            ,"Crawlspace.Wall.Insulation.Condition.1" 
+                                                                            ,"Crawlspace.Wall.Insulation.Type.2"
+                                                                            ,"Crawlspace.Wall.Insulation.Thickness.2"
+                                                                            ,"Crawlspace.Wall.Insulation.Condition.2"
+                                                                            ,"Crawlspace.Wall.Exteriors.Insulated?"
+                                                                            ,"Crawlspace.Wall.Exterior.Insulation.Type.1"
+                                                                            ,"Crawlspace.Wall.Exterior.Insulation.Thickness.1"
+                                                                            ,"Crawlspace.Wall.Exterior.Insulation.Condition.1"
+                                                                            ,"Crawlspace.Wall.Exterior.Insulation.Type.2"
+                                                                            ,"Crawlspace.Wall.Exterior.Insulation.Thickness.2"
+                                                                            ,"Crawlspace.Wall.Exterior.Insulation.Condition.2"
+                                                                            ,"count"
+                                                                            ,"crawl.ins.ind"))])
 
+# Should see 'Joining, by = "CK_Cadmus_ID"'
+item24.data <- left_join(item24.data, item24.dat2[which(colnames(item24.dat2) %in% c("CK_Cadmus_ID"
+                                                                                      ,"Crawlspace.Vents.Present"
+                                                                                      ,"Crawlspace.Vents.Blocked"
+                                                                                      ,"Crawlspace.Walls.Insulated?"
+                                                                                      ,"Crawlspace.Wall.Insulation.Type.1"
+                                                                                      ,"Crawlspace.Wall.Insulation.Thickness.1"
+                                                                                      ,"Crawlspace.Wall.Insulation.Condition.1" 
+                                                                                      ,"Crawlspace.Wall.Insulation.Type.2"
+                                                                                      ,"Crawlspace.Wall.Insulation.Thickness.2"
+                                                                                      ,"Crawlspace.Wall.Insulation.Condition.2"
+                                                                                      ,"Crawlspace.Wall.Exteriors.Insulated?"
+                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Type.1"
+                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Thickness.1"
+                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Condition.1"
+                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Type.2"
+                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Thickness.2"
+                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Condition.2"
+                                                                                      ,"count"
+                                                                                      ,"crawl.ins.ind"))])
 
-item24.table <- data.frame("BuildingType" = item24.final$BuildingType
-                           ,"State" = item24.final$State
-                           ,"Percent" = item24.final$Percent
-                           ,"SE" = item24.final$SE
-                           ,"SampleSize" = item24.final$SampleSize)
+item24.data$Crawlspace.Vents.Present.Indicator <- 0
+item24.data$Crawlspace.Vents.Present.Indicator[which(item24.data$Crawlspace.Vents.Present == 'Yes')] <- 1
 
+item24.final <- proportions_one_group(CustomerLevelData  = item24.data
+                                      , valueVariable    = 'Crawlspace.Vents.Present.Indicator'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Total"
+                                      , columnName       = "Insulated Crawlspace Walls"
+                                      , weighted = TRUE)
 
+item24.final.SF <- item24.final[which(item24.final$BuildingType == "Single Family"),-1]
+
+exportTable(item24.final.SF, "SF", "Table 31")
+
+# OLD CODE #
+# 
+# item24.final <- summarise(group_by(item24.dat2, BuildingType, State)
+#                           ,InsulatedCount = sum(crawl.ins.ind)
+#                           ,SampleSize     = sum(count)
+#                           ,Percent        = InsulatedCount / SampleSize
+#                           ,SE             = sqrt(Percent * (1 - Percent) / SampleSize)
+# )
+# 
+# 
+# item24.table <- data.frame("BuildingType" = item24.final$BuildingType
+#                            ,"State" = item24.final$State
+#                            ,"Percent" = item24.final$Percent
+#                            ,"SE" = item24.final$SE
+#                            ,"SampleSize" = item24.final$SampleSize)
+# 
 
 
 
@@ -62,28 +131,52 @@ item25.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "
 
 item25.dat0 <- left_join(rbsa.dat, item25.dat, by = "CK_Cadmus_ID")
 
-item25.dat00 <- item25.dat0[which(item25.dat0$BuildingType == "Single Family"),]
+item25.dat1 <- item25.dat0[which(item25.dat0$BuildingType == "Single Family"),]  # used to be item25.dat00
 
-item25.dat1 <- item25.dat00[which(item25.dat00$Ceiling.Type == "Attic"),]
+#item25.dat1 <- item25.dat00[which(item25.dat00$Ceiling.Type == "Attic"),]
 
 
-item25.cnt <- summarise(group_by(item25.dat1, BuildingType, State)
-                        , InsulatedCount = length(unique(CK_Cadmus_ID))
-)
 
-item25.SS <- summarise(group_by(item25.dat00, BuildingType, State)
-                       , SampleSize = length(unique(CK_Cadmus_ID))
-)
+item25.data <- weightedData(item25.dat1[-which(colnames(item25.dat1) %in% c("Ceiling.Type"))])
 
-item25.final <- left_join(item25.cnt, item25.SS, by = c("BuildingType", "State"))
-item25.final$Percent <- item25.final$InsulatedCount / item25.final$SampleSize
-item25.final$SE      <- sqrt(item25.final$Percent * (1 - item25.final$Percent) / item25.final$SampleSize)
+# Should see 'Joining, by = "CK_Cadmus_ID"'
+item25.data <- left_join(item25.data, item25.dat1[which(colnames(item25.dat1) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Ceiling.Type"))])
 
-item25.table <- data.frame("BuildingType" = item25.final$BuildingType
-                           ,"State" = item25.final$State
-                           ,"Percent" = item25.final$Percent
-                           ,"SE" = item25.final$SE
-                           ,"SampleSize" = item25.final$SampleSize)
+item25.data$Ceiling.Type.Indicator <- 0
+item25.data$Ceiling.Type.Indicator[which(item25.data$Ceiling.Type == 'Attic')] <- 1
+
+item25.final <- proportions_one_group(CustomerLevelData  = item24.data
+                                      , valueVariable    = 'Ceiling.Type.Indicator'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Total"
+                                      , columnName       = "Homes with Attics"
+                                      , weighted = TRUE)
+
+item25.final.SF <- item24.final[which(item24.final$BuildingType == "Single Family"),-1]
+
+exportTable(item25.final.SF, "SF", "Table 32")
+
+
+# OLD CODE #
+# 
+# item25.cnt <- summarise(group_by(item25.dat1, BuildingType, State)
+#                         , InsulatedCount = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item25.SS <- summarise(group_by(item25.dat00, BuildingType, State)
+#                        , SampleSize = length(unique(CK_Cadmus_ID))
+# )
+# 
+# item25.final <- left_join(item25.cnt, item25.SS, by = c("BuildingType", "State"))
+# item25.final$Percent <- item25.final$InsulatedCount / item25.final$SampleSize
+# item25.final$SE      <- sqrt(item25.final$Percent * (1 - item25.final$Percent) / item25.final$SampleSize)
+# 
+# item25.table <- data.frame("BuildingType" = item25.final$BuildingType
+#                            ,"State" = item25.final$State
+#                            ,"Percent" = item25.final$Percent
+#                            ,"SE" = item25.final$SE
+#                            ,"SampleSize" = item25.final$SampleSize)
 
 
 
