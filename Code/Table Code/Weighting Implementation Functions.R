@@ -661,7 +661,7 @@ proportions_one_group <- function(CustomerLevelData
     item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
     
     
-  }else if(groupingVariable %in% c("rvalue.bins", "rvalue.bins.SF", "rvalue.bins.MH", "Framing.Categories")){
+  }else if(groupingVariable %in% c("rvalue.bins", "rvalue.bins.SF", "rvalue.bins.MH", "Framing.Categories","Heating_Type")){
     # obtain count and proportion by strata and row grouping variable
     StrataGroupedProportions <- summarise(group_by(CustomerLevelData
                                                    , BuildingType
