@@ -223,6 +223,12 @@ samp.dat.1 <- unique(samp.dat.1)
 # samp.dat.1 <- samp.dat.1[which(!is.na(samp.dat.1$State)),]
 samp.dat.1$BPA_vs_IOU[which(is.na(samp.dat.1$BPA_vs_IOU))] <- "BPA"
 
+unique(samp.dat.1$Region)
+samp.dat.1$Region[which(is.na(samp.dat.1$Region) & samp.dat.1$State == "ID")] <- "-"
+samp.dat.1$Region[which(is.na(samp.dat.1$Region) & samp.dat.1$State == "MT")] <- "W"
+
+samp.dat.2 <- samp.dat.1[which(!is.na(samp.dat.1$Region)),]
+
 # export <- samp.dat.1[which(is.na(samp.dat.1$State.y)),]
 # ##  Write out confidence/precision info
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
@@ -262,14 +268,14 @@ samp.dat.1$BPA_vs_IOU[which(is.na(samp.dat.1$BPA_vs_IOU))] <- "BPA"
 
 ## STEP 1:
 #  Replace missing utility from sample data with utility from zip code mapping
-missingInd <- which(samp.dat.1$Utility.Customer.Data == "-- DID NOT ENTER! --")
+missingInd <- which(samp.dat.2$Utility.Customer.Data == "-- DID NOT ENTER! --")
 length(missingInd) 
 
 
 ## Prep for steps 2 and 3
 ##  Cust ID's with duplicates
-dupCustIDs <- unique(samp.dat.1$CK_Cadmus_ID[which(duplicated(samp.dat.1$CK_Cadmus_ID))])
-dupData    <- samp.dat.1[which(samp.dat.1$CK_Cadmus_ID %in% dupCustIDs),]
+dupCustIDs <- unique(samp.dat.2$CK_Cadmus_ID[which(duplicated(samp.dat.2$CK_Cadmus_ID))])
+dupData    <- samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% dupCustIDs),]
 
 
 # # Initialize counter and output vector
@@ -299,7 +305,7 @@ dupData    <- samp.dat.1[which(samp.dat.1$CK_Cadmus_ID %in% dupCustIDs),]
 # names(dupData)
 # dupData.1  <- unique(dupData[which(colnames(dupData) %in% c("CK_Cadmus_ID", "Utility"))])
 # names(dupData.1)
-# samp.dat.3 <- left_join(samp.dat.1, dupData.1, by = "CK_Cadmus_ID")
+# samp.dat.3 <- left_join(samp.dat.2, dupData.1, by = "CK_Cadmus_ID")
 # 
 # ##  For non-duplicates, use cust data
 # samp.dat.3$Utility[which(samp.dat.3$CK_Cadmus_ID %notin% dupCustIDs)] <-
@@ -340,19 +346,19 @@ dupData    <- samp.dat.1[which(samp.dat.1$CK_Cadmus_ID %in% dupCustIDs),]
 ##  Find remaining missing states and regions in full data
 #     NOTE: there are cases where zip codes found in our data collection did not show up in the population data from ACS.
 #     Make sure this gets written in weighting section of report
-missing.region <- samp.dat.1$CK_Cadmus_ID[which(is.na(samp.dat.1$Region))]
+missing.region <- samp.dat.2$CK_Cadmus_ID[which(is.na(samp.dat.2$Region))]
 #if region is missing in MT or ID, then replace with correct region
 # otherwise export CK_Cadmus_ID, send to Rietz to get correct region information
   # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State == "MT")] <- "W"
   # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State == "ID")] <- "-"
 #print this: send to Rietz (MF does not need region)
-samp.dat.1[which(samp.dat.1$CK_Cadmus_ID %in% missing.region & samp.dat.1$State %in% c("WA", "OR") & samp.dat.1$BuildingType != "Multifamily"),]
+samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.region & samp.dat.2$State %in% c("WA", "OR") & samp.dat.2$BuildingType != "Multifamily"),]
 
 
 
 
 ##  Remove old utility columns and duplicate rows
-samp.dat.4 <- samp.dat.1#unique(samp.dat.3[-which(samp.dat.3$CK_Cadmus_ID %in% missing.region),-which(names(samp.dat.3) %in% c("Utility.Customer.Data", "Utility.Data.State"))])
+samp.dat.4 <- samp.dat.2#unique(samp.dat.3[-which(samp.dat.3$CK_Cadmus_ID %in% missing.region),-which(names(samp.dat.3) %in% c("Utility.Customer.Data", "Utility.Data.State"))])
 # stopifnot(length(which(duplicated(samp.dat.4$CK_Cadmus_ID))) == 0)
 
 dup.ind <- samp.dat.4$CK_Cadmus_ID[which(duplicated(samp.dat.4$CK_Cadmus_ID))]

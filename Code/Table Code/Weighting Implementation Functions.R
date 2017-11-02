@@ -15,11 +15,11 @@
 #################################################################################
 
   # # TEST
-# CustomerLevelData <-  item109.data
-# valueVariable = 'count'
-# columnVariable = "EquipVintage_bins"
-# rowVariable = "TV.Screen.Type"
-# aggregateColumnName = "All Vintages"
+CustomerLevelData <-  item1.dat
+valueVariable <- 'count'
+columnVariable <- 'State'
+rowVariable <- 'HomeType'
+aggregateColumnName = "Region"
   # # totalRow = TRUE
   # weighted = FALSE
 
@@ -133,30 +133,30 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
     #obtain the total population size for the building type by state combination observed in the sample
     columnVarWeights <- summarise(group_by(StrataData
-                                       , BuildingType
-                                       , get(columnVariable))
-                              ,columnVar.N.h = sum(unique(N.h))
-                              ,columnVar.n.h = sum(unique(n.h)))
+                                           , BuildingType
+                                           , get(columnVariable))
+                                  ,columnVar.N.h = sum(unique(N.h))
+                                  ,columnVar.n.h = sum(unique(n.h)))
     #rename column
     columnVarWeights <- ConvertColName(columnVarWeights
-                                   ,"get(columnVariable)"
-                                   ,columnVariable)
+                                       ,"get(columnVariable)"
+                                       ,columnVariable)
     #join strata data with weights by column grouping variable 
     StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType",
-                                                                  columnVariable))
+                                                                        columnVariable))
     
     
     #summarise by column variable
     #summary of both grouping variables
     ColumnProportionsByGroup <- summarise(group_by(StrataDataWeights
-                                                 , BuildingType
-                                                 , get(columnVariable)
-                                                 , get(rowVariable))
-                                      ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
-                                      ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
-                                      ,count     = sum(count)
-                                      ,N         = unique(columnVar.N.h)
-                                      ,n         = unique(columnVar.n.h)
+                                                   , BuildingType
+                                                   , get(columnVariable)
+                                                   , get(rowVariable))
+                                          ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
+                                          ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
+                                          ,count     = sum(count)
+                                          ,N         = unique(columnVar.N.h)
+                                          ,n         = unique(columnVar.n.h)
     )  
     
     ColumnProportionsByGroup <- ConvertColName(ColumnProportionsByGroup,'get(columnVariable)',columnVariable)
@@ -175,7 +175,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', rowVariable)
     ColumnTotals <- ConvertColName(ColumnTotals, 'get(columnVariable)',columnVariable)
     
-  
+    
     
     #join total information onto summary by grouping variables
     AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
@@ -193,29 +193,29 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
     #join strata data onto region weights
     item.region.join <- left_join(StrataData, AggregateWeight, by = c("BuildingType"))
-  
+    
     
     #summarise by second grouping variable
     item.region.weighted <- summarise(group_by(item.region.join, BuildingType, 
                                                get(rowVariable))
-                                       ,aggregateName = aggregateColumnName
-                                       ,w.percent = sum(N.h * p.h) / unique(aggregate.N.h)
-                                       ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(aggregate.N.h)
-                                       ,count     = sum(count)
-                                       ,N         = unique(aggregate.N.h)
-                                       ,n         = unique(aggregate.n.h)
+                                      ,aggregateName = aggregateColumnName
+                                      ,w.percent = sum(N.h * p.h) / unique(aggregate.N.h)
+                                      ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(aggregate.N.h)
+                                      ,count     = sum(count)
+                                      ,N         = unique(aggregate.N.h)
+                                      ,n         = unique(aggregate.n.h)
     )
     colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'get(rowVariable)')] <- rowVariable
     colnames(item.region.weighted)[which(colnames(item.region.weighted) == 'aggregateName')] <- columnVariable
     
     #summarise at the total level
     item.region.tot <- summarise(group_by(item.region.weighted, BuildingType, get(columnVariable))
-                                  ,rowTotal = "Total"
-                                  ,w.percent = sum(w.percent)
-                                  ,w.SE      = NA
-                                  ,count     = sum(count, na.rm = T)
-                                  ,n         = sum(unique(n), na.rm = T)
-                                  ,N         = sum(unique(N), na.rm = T))
+                                 ,rowTotal = "Total"
+                                 ,w.percent = sum(w.percent)
+                                 ,w.SE      = NA
+                                 ,count     = sum(count, na.rm = T)
+                                 ,n         = sum(unique(n), na.rm = T)
+                                 ,N         = sum(unique(N), na.rm = T))
     
     colnames(item.region.tot)[which(colnames(item.region.tot) == "get(columnVariable)")] <- columnVariable
     colnames(item.region.tot)[which(colnames(item.region.tot) == 'rowTotal')]   <- rowVariable
