@@ -15,11 +15,11 @@
 #################################################################################
 
   # # TEST
-CustomerLevelData <-  item1.dat
-valueVariable <- 'count'
-columnVariable <- 'State'
-rowVariable <- 'HomeType'
-aggregateColumnName = "Region"
+# CustomerLevelData <-  item1.dat
+# valueVariable <- 'count'
+# columnVariable <- 'State'
+# rowVariable <- 'HomeType'
+# aggregateColumnName = "Region"
   # # totalRow = TRUE
   # weighted = FALSE
 
