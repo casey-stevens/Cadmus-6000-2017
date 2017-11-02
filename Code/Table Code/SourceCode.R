@@ -42,34 +42,34 @@ input.date <- "2017.06.16"
 
 # Call file names
 
-appliances.export          <- paste("Appliances_EquipConsol_", input.date, ".xlsx", sep = "")
-buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
-buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
-envelope.export            <- paste("Envelope_EquipConsol_"  , input.date, ".xlsx", sep = "")
-lighting.export            <- paste("Lighting_EquipConsol_"  , input.date, ".xlsx", sep = "")
-mechanical.export          <- paste("Mechanical_EquipConsol_", input.date, ".xlsx", sep = "")
-rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
-sites.interview.export     <- paste("SITES INTERVIEW_"       , input.date, ".xlsx", sep = "")
-sites.export               <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
-water.export               <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
-windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
-survey.export              <- "NOT FOR PSE_RBSA_Survey_Data.xlsx"
+# appliances.export          <- paste("Appliances_EquipConsol_", input.date, ".xlsx", sep = "")
+# buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
+# buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
+# envelope.export            <- paste("Envelope_EquipConsol_"  , input.date, ".xlsx", sep = "")
+# lighting.export            <- paste("Lighting_EquipConsol_"  , input.date, ".xlsx", sep = "")
+# mechanical.export          <- paste("Mechanical_EquipConsol_", input.date, ".xlsx", sep = "")
+# rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
+# sites.interview.export     <- paste("SITES INTERVIEW_"       , input.date, ".xlsx", sep = "")
+# sites.export               <- paste("SITES_"                 , input.date, ".xlsx", sep = "")
+# water.export               <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
+# windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
+# survey.export              <- "NOT FOR PSE_RBSA_Survey_Data.xlsx"
 
 
 #Final Data
-# appliances.export          <- "Appliances.xlsx"
-# buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
-# buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
-# envelope.export            <- "Envelope.xlsx"
-# lighting.export            <- "Lighting.xlsx"
-# mechanical.export          <- "Mechanical.xlsx"
-# rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
-# sites.interview.export     <- "Sites Interview.xlsx"
-# sites.export               <- "Sites.xlsx"
-# water.export               <- "Water.xlsx"
-# windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
-# survey.export              <- "Participant Survey.xlsx"
-# one.line.export            <- "One Line Summary.xlsm"
+appliances.export          <- "Appliances.xlsx"
+buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
+buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
+envelope.export            <- "Envelope.xlsx"
+lighting.export            <- "Lighting.xlsx"
+mechanical.export          <- "Mechanical.xlsx"
+rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
+sites.interview.export     <- "Sites Interview.xlsx"
+sites.export               <- "Sites.xlsx"
+water.export               <- "Water.xlsx"
+windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
+survey.export              <- "Participant Survey.xlsx"
+one.line.export            <- "One Line Summary.xlsm"
 
 
 #############################################################################################
