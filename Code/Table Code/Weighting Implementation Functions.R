@@ -15,11 +15,11 @@
 #################################################################################
 
   # # TEST
-  # CustomerLevelData <-  item3.data
-  # valueVariable = 'count'
-  # columnVariable = 'State'
-  # rowVariable = 'GroundContact'
-  # aggregateColumnName = "Region"
+# CustomerLevelData <-  item109.data
+# valueVariable = 'count'
+# columnVariable = "EquipVintage_bins"
+# rowVariable = "TV.Screen.Type"
+# aggregateColumnName = "All Vintages"
   # # totalRow = TRUE
   # weighted = FALSE
 
@@ -102,8 +102,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                              , BuildingType
                                              , State
                                              , Region
-                                             , Territory)
+                                             , Territory
+                                             , get(columnVariable))
                                     ,total.count = sum(count))
+      StrataProportion <- ConvertColName(StrataProportion
+                                         ,"get(columnVariable)"
+                                         ,columnVariable)
       StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
       StrataGroupedProportions <- summarise(group_by(StrataGroupedProportions
                                                      , BuildingType

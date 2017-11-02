@@ -13,6 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
+# itemData <- item107.customer
 weightedData <- function(itemData){
 
 ##  Clear variables
