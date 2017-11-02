@@ -32,7 +32,7 @@ source(file.path(SourcePath, "SourceCode.R"))
 #############################################################################################
 
 # Import site data
-one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathFinalData, one.line.export), sheet = "Site One Line Summary")
+one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary")
 one.line.dat1 <- data.frame("CK_Cadmus_ID" = one.line.dat$Cadmus.ID
                                , "BuildingTypeXX"  = one.line.dat$`Home.Type.-.FMP.Detailed`
                                , "BuildingType"    = one.line.dat$`Home.Type.-.Final`
@@ -41,7 +41,7 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID" = one.line.dat$Cadmus.ID
                                # , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
                                , "ZIP"             = one.line.dat$Zip
                                , stringsAsFactors  = F)
-site.dat  <- read.xlsx(xlsxFile = file.path(filepathFinalData, sites.export))
+site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                         # , "BuildingTypeXX"  = site.dat$SITE_GENL_INFO_BuildingType
                         , "HomeYearBuilt"   = site.dat$Age
@@ -62,6 +62,8 @@ length(unique(site.dat1$CK_Cadmus_ID)) #2068
 #############################################################################################
 
 ### Deal with missing / unknown states
+
+site.dat1$State <- trimws(toupper(site.dat1$State))
 
 # #replace all missing states with actual
 # state.na.ind <- site.dat1$CK_Cadmus_ID[which(is.na(site.dat1$State))]
