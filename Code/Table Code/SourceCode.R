@@ -29,8 +29,8 @@ library(data.table)
 ################################################################################
 rootpath              <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
 analysisFolder        <- rootpath
-filepathRawData       <- file.path(analysisFolder,"Data for PSE")
-filepathFinalData     <- file.path(analysisFolder,"$Clean Data", "2017.10.30")
+# filepathRawData       <- file.path(analysisFolder,"Data for PSE")
+filepathRawData       <- file.path(analysisFolder,"$Clean Data", "2017.10.30")
 filepathCleanData     <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
 filepathCleaningDocs  <- file.path(analysisFolder, "Analysis Documents")
 filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
