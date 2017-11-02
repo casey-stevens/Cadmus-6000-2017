@@ -84,7 +84,8 @@ item3.final <- proportionRowsAndColumns1(item3.data
                                          , columnVariable = 'State'
                                          , rowVariable = 'GroundContact'
                                          , aggregateColumnName = "Region"
-                                         , weighted = TRUE)
+                                         # , weighted = TRUE
+                                         )
 
 
 colnames(item3.final) <- c("BuildingType"

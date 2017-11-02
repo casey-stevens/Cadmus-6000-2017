@@ -27,15 +27,16 @@ library(data.table)
 # - clean input data
 # - output data
 ################################################################################
-rootpath <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
-analysisFolder <- rootpath
-filepathRawData <- file.path(analysisFolder,"Data for PSE")
-filepathCleanData <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
-filepathCleaningDocs <- file.path(analysisFolder, "Analysis Documents")
+rootpath              <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
+analysisFolder        <- rootpath
+filepathRawData       <- file.path(analysisFolder,"Data for PSE")
+filepathFinalData     <- file.path(analysisFolder,"$Clean Data", "2017.10.30")
+filepathCleanData     <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
+filepathCleaningDocs  <- file.path(analysisFolder, "Analysis Documents")
 filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
-outputFolder <- file.path(analysisFolder, "Tables from Previous RBSA Report")
+outputFolder          <- file.path(analysisFolder, "Tables from Previous RBSA Report")
 
-stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
+stopifnot(all(file.exists(rootpath, analysisFolder, filepathFinalData, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
 
 input.date <- "2017.06.16"
 
@@ -53,6 +54,23 @@ sites.export               <- paste("SITES_"                 , input.date, ".xls
 water.export               <- paste("Water_EquipConsol_"     , input.date, ".xlsx", sep = "")
 windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
 survey.export              <- "NOT FOR PSE_RBSA_Survey_Data.xlsx"
+
+
+#Final Data
+# appliances.export          <- "Appliances.xlsx"
+# buildings.interview.export <- paste("BUILDINGS INTERVIEW_"   , input.date, ".xlsx", sep = "")
+# buildings.export           <- paste("BUILDINGS_"             , input.date, ".xlsx", sep = "")
+# envelope.export            <- "Envelope.xlsx"
+# lighting.export            <- "Lighting.xlsx"
+# mechanical.export          <- "Mechanical.xlsx"
+# rooms.export               <- paste("ROOMS_"                 , input.date, ".xlsx", sep = "")
+# sites.interview.export     <- "Sites Interview.xlsx"
+# sites.export               <- "Sites.xlsx"
+# water.export               <- "Water.xlsx"
+# windows.export             <- paste("Windows_EquipConsol_"   , input.date, ".xlsx", sep = "")
+# survey.export              <- "Participant Survey.xlsx"
+# one.line.export            <- "One Line Summary.xlsm"
+
 
 #############################################################################################
 #
