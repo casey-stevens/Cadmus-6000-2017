@@ -36,7 +36,7 @@ filepathCleaningDocs  <- file.path(analysisFolder, "Analysis Documents")
 filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
 outputFolder          <- file.path(analysisFolder, "Tables from Previous RBSA Report")
 
-stopifnot(all(file.exists(rootpath, analysisFolder, filepathFinalData, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
+stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
 
 input.date <- "2017.06.16"
 
