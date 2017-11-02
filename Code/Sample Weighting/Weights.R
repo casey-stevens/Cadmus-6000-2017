@@ -195,7 +195,7 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
 # Join ZIP codes to cleaned building type data
 samp.dat.0       <- cadmus.dat3
 # Join ZIP mapping to previous step
-samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by=c("ZIPCode", "Utility"))
+samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by=c("ZIPCode", "Utility", "State"))
 samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
 head(samp.dat.1)  
 nrow(samp.dat.1)
@@ -212,16 +212,15 @@ colnames(samp.dat.1) <- c("CK_Cadmus_ID"
                           ,"BuildingHeight"
                           ,"ZIPCode"
                           ,"Utility.Customer.Data"
-                          ,"Utility.Data.State"
                           ,"Region"
                           ,"BPA_vs_IOU"
                           ,"tally")
 
 samp.dat.1 <- unique(samp.dat.1)
 
-samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by=c("ZIPCode", "Utility"))
+# samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by = c("ZIPCode", "Utility", "State"))
 
-samp.dat.1 <- samp.dat.1[which(!is.na(samp.dat.1$State.y)),]
+# samp.dat.1 <- samp.dat.1[which(!is.na(samp.dat.1$State)),]
 samp.dat.1$BPA_vs_IOU[which(is.na(samp.dat.1$BPA_vs_IOU))] <- "BPA"
 
 # export <- samp.dat.1[which(is.na(samp.dat.1$State.y)),]
@@ -422,7 +421,7 @@ samp.dat.6$tally <- 1
 
 # Get sample sizes in each strata
 sampCounts.1 <- summarise(group_by(samp.dat.6, 
-                                   BuildingType, State.x, Region, Territory)
+                                   BuildingType, State, Region, Territory)
                           , n.h = sum(tally))
       
 #############################################################################################
@@ -477,7 +476,7 @@ popMelt$BuildingType[grep("MH", popMelt$variable)] <- "Manufactured"
 #############################################################################################
 
 total.counts <- full_join(popMelt, sampCounts.1, by = c("BuildingType"
-                                                        ,c("State" = "State.x")
+                                                        ,"State"
                                                         ,"Region"
                                                         ,"Territory"))
 
@@ -498,7 +497,7 @@ final.counts <- total.counts[which(!(colnames(total.counts) %in% c("variable")))
 #############################################################################################
 
 samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
-                                                         ,c("State.x" = "State")
+                                                         ,"State"
                                                          ,"Region"
                                                          ,"Territory"))
 
