@@ -516,12 +516,13 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
 
 
   # #Test
-  # CustomerLevelData <- item43.data
-  # valueVariable    = 'count'
-  # groupingVariable = 'Heating_Type'
-  # total.name       = 'Total'
-  # columnName       = 'Primary Heating Systems'
-
+  # CustomerLevelData <- item31.data
+  # valueVariable = 'count'
+  # groupingVariable = 'ceiling.inches1'
+  # total.name = "Total"
+  # columnName = "Roof Deck Insulation Levels"
+  # weighted = TRUE
+  
   
 proportions_one_group <- function(CustomerLevelData
                                       , valueVariable
@@ -617,7 +618,7 @@ proportions_one_group <- function(CustomerLevelData
     item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
     
     
-  }else if(groupingVariable %in% c("rvalue.bins", "rvalue.bins.SF", "rvalue.bins.MH", "Framing.Categories","Heating_Type")){
+  }else {#if(groupingVariable %in% c("rvalue.bins", "rvalue.bins.SF", "rvalue.bins.MH", "Framing.Categories","Heating_Type","Ceiling.Insulation.Thickness.1"))
     # obtain count and proportion by strata and row grouping variable
     StrataGroupedProportions <- summarise(group_by(CustomerLevelData
                                                    , BuildingType
@@ -699,9 +700,10 @@ proportions_one_group <- function(CustomerLevelData
     
     
     item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
-  }
   
-  return(item.full)
+    return(item.full)
+    }
+  
   } else {
     item.tmp1 <- summarise(group_by(CustomerLevelData, BuildingType, get(groupingVariable))
                              ,SampleSizes = length(unique(CK_Cadmus_ID))
