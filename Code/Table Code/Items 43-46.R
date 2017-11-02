@@ -176,7 +176,7 @@ item44.final <- proportionRowsAndColumns1(CustomerLevelData = item44.data
 
 # I think this still has to be casted, skip for now
 # export table
-# SF = Table 51, MH = Table 33
+# SF = Table 54, MH = Table 36
 item44.final.SF <- item44.final[which(item44.final$BuildingType == "Single Family"),-1]
 item44.final.MH <- item44.final[which(item44.final$BuildingType == "Manufactured"),-1]
 

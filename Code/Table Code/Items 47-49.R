@@ -7,7 +7,15 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -39,29 +47,56 @@ item47.dat1 <- item47.dat[which(item47.dat$Generic == "Furnace"),]
 item47.dat2 <- left_join(item47.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 item47.dat2$count <- 1
 
-item47.tmp1 <- summarise(group_by(item47.dat2, BuildingType, Heating.Fuel)
-                          ,SampleSizes = length(unique(CK_Cadmus_ID))
-                          ,FuelCount   = sum(count))
+# Weighting function
+item47.data <- weightedData(item47.dat2[-which(colnames(item47.dat2) %in% c("Heating.Fuel"
+                                                                            ,"count"))])
+item47.data <- left_join(item47.data, item47.dat2[which(colnames(item47.dat2) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Heating.Fuel"
+                                                                                     ,"count"))])
 
-item47.tmp2 <- summarise(group_by(item47.dat2, BuildingType)
-                         ,Heating.Fuel = "Total"
-                         ,SampleSizes = length(unique(CK_Cadmus_ID))
-                         ,FuelCount   = sum(count))
-item47.merge1 <- rbind.data.frame(item47.tmp1, item47.tmp2, stringsAsFactors = F)
+# Apply analysis
+item47.final <- proportions_one_group(CustomerLevelData  = item47.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'Heating.Fuel'
+                                      , total.name       = "Total"
+                                      , columnName       = "Fuel Choice (Forced Air Furnaces)")
 
-item47.tmp3 <- summarise(group_by(item47.dat2, BuildingType)
-                         ,TotalCount   = sum(count))
+# SF = Table 54, MH = Table 36
+# Export table
+item47.final.SF <- item47.final[which(item47.final$BuildingType == "Single Family"),-1]
+item47.final.MH <- item47.final[which(item47.final$BuildingType == "Manufactured"),-1]
 
-item47.final <- left_join(item47.merge1, item47.tmp3, by = "BuildingType")
-item47.final$Percent <- item47.final$FuelCount / item47.final$TotalCount
-item47.final$SE      <- sqrt(item47.final$Percent * (1 - item47.final$Percent) / item47.final$SampleSizes)
+exportTable(item47.final.SF, "SF", "Table 50")
+exportTable(item47.final.MH, "MH", "Table 36")
+.
 
-item47.table <- data.frame("BuildingType" = item47.final$BuildingType
-                           ,"Heating.Fuel" = item47.final$Heating.Fuel
-                           ,"Percent" = item47.final$Percent
-                           ,"SE" = item47.final$SE
-                           ,"SampleSize" = item47.final$SampleSizes)
-item47.table1 <- item47.table[which(item47.table$BuildingType %in% c("Single Family", "Manufactured")),]
+
+
+# OLD CODE #
+#
+# item47.tmp1 <- summarise(group_by(item47.dat2, BuildingType, Heating.Fuel)
+#                           ,SampleSizes = length(unique(CK_Cadmus_ID))
+#                           ,FuelCount   = sum(count))
+# 
+# item47.tmp2 <- summarise(group_by(item47.dat2, BuildingType)
+#                          ,Heating.Fuel = "Total"
+#                          ,SampleSizes = length(unique(CK_Cadmus_ID))
+#                          ,FuelCount   = sum(count))
+# item47.merge1 <- rbind.data.frame(item47.tmp1, item47.tmp2, stringsAsFactors = F)
+# 
+# item47.tmp3 <- summarise(group_by(item47.dat2, BuildingType)
+#                          ,TotalCount   = sum(count))
+# 
+# item47.final <- left_join(item47.merge1, item47.tmp3, by = "BuildingType")
+# item47.final$Percent <- item47.final$FuelCount / item47.final$TotalCount
+# item47.final$SE      <- sqrt(item47.final$Percent * (1 - item47.final$Percent) / item47.final$SampleSizes)
+# 
+# item47.table <- data.frame("BuildingType" = item47.final$BuildingType
+#                            ,"Heating.Fuel" = item47.final$Heating.Fuel
+#                            ,"Percent" = item47.final$Percent
+#                            ,"SE" = item47.final$SE
+#                            ,"SampleSize" = item47.final$SampleSizes)
+# item47.table1 <- item47.table[which(item47.table$BuildingType %in% c("Single Family", "Manufactured")),]
 
 
 
