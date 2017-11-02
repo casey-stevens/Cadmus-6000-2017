@@ -7,7 +7,21 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -29,126 +43,169 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 
 #############################################################################################
-#Item 61: PERCENTAGE OF HOMES WITH DUCT SYSTEMS BY STATE (SF table 66)
+#Item 61: PERCENTAGE OF HOMES WITH DUCT SYSTEMS BY Insulation level (SF table 68)
 #############################################################################################
 #subset to columns needed for analysis
-item61.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
-                                                                   ,"Generic"
-                                                                   ,"System.Type"
-                                                                   ,"Duct.Insulation.Condition"
-                                                                   ,"Duct.Plenum.Insulation.Thickness.1"
-                                                                   ,"Duct.Plenum.Insulation.Thickness.2"
-                                                                   ,"Duct.Plenum.Insulation.Type.1"
-                                                                   ,"Duct.Plenum.Insulation.Type.2"
-                                                                   ,"Duct.Runs.Insulation.Type.1"
-                                                                   ,"Duct.Runs.Insulation.Type.2"))]
-item61.dat$count <- 1
+prep.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                 ,"Generic"
+                                                                 ,"System.Type"
+                                                                 ,"Duct.Type"
+                                                                 ,"Duct.Insulation.Condition"
+                                                                 ,"Duct.Plenum.Insulation.Thickness.1"
+                                                                 ,"Duct.Plenum.Insulation.Thickness.2"
+                                                                 ,"Duct.Plenum.Insulation.Thickness.3"
+                                                                 ,"Duct.Plenum.Insulation.Type.1"
+                                                                 ,"Duct.Plenum.Insulation.Type.2"
+                                                                 ,"Duct.Plenum.Insulation.Type.3"
+                                                                 ,"Duct.Runs.Insulation.Thickness.1"
+                                                                 ,"Duct.Runs.Insulation.Thickness.2"
+                                                                 ,"Duct.Runs.Insulation.Thickness.3"
+                                                                 ,"Duct.Runs.Insulation.Type.1"
+                                                                 ,"Duct.Runs.Insulation.Type.2"
+                                                                 ,"Duct.Runs.Insulation.Type.3"))]
+prep.data.duct <- prep.dat[which(prep.dat$Generic == "Ducting"),]
 
-#############################################################################################
-# Data selection and cleaning
-#############################################################################################
+unique(prep.data.duct$System.Type)
 
-#remove any repeat header rows 
-item61.dat00 <- item61.dat[which(item61.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-#subset to only ducting
-item61.dat01 <- item61.dat00[which(item61.dat00$Generic == "Ducting"),]
+#clean system type
+prep.data.duct$System.Type[grep("Not", prep.data.duct$System.Type)] <- "Not Present"
+prep.data.duct$System.Type[grep("Unknown|unknown", prep.data.duct$System.Type)] <- "Unknown"
 
-#join ducting data onto RBSA cleaned data
-item61.dat0 <- left_join(item61.dat01, rbsa.dat, by = "CK_Cadmus_ID")
-
-#remove datapoint not asked for
-item61.dat1 <- item61.dat0[which(item61.dat0$Duct.Insulation.Condition != "-- Datapoint not asked for --"),]
-
-#remove Unknown
-item61.dat2 <- item61.dat1[which(item61.dat1$Duct.Insulation.Condition != "Unknown"),]
-
-#remove N/A
-item61.dat3 <- item61.dat2[which(item61.dat2$Duct.Insulation.Condition != "N/A"),]
-
-#remove datapoint not asked for from insulation type
-item61.dat4 <- item61.dat3[which(item61.dat3$Duct.Plenum.Insulation.Type.1 != "-- Datapoint not asked for --"),]
-
-#remove unknown from insulation thickness
-item61.dat5 <- item61.dat4[which(item61.dat4$Duct.Plenum.Insulation.Type.1 != "Unknown"),]
-
-#change N/A to None per Rietz
-i=6
-for (i in 5:13){
-item61.dat5[which(item61.dat5[,i] == "N/A"),i] <- "None"
-}
-
-#change datapoint not asked for to NA
-i=6
-for (i in 5:13){
-  item61.dat5[which(item61.dat5[,i] == "-- Datapoint not asked for --"),i] <- NA
-}
+prep.data.duct1 <- prep.data.duct[which(prep.data.duct$System.Type %notin% c("Unknown")),]
 
 
-#############################################################################################
-# Insulation Analysis
-#############################################################################################
+#review types
+unique(prep.data.duct1$Duct.Plenum.Insulation.Type.1)
+unique(prep.data.duct1$Duct.Plenum.Insulation.Type.2)
+unique(prep.data.duct1$Duct.Plenum.Insulation.Type.3) #nothing in this column
+unique(prep.data.duct1$Duct.Runs.Insulation.Type.1)
+unique(prep.data.duct1$Duct.Runs.Insulation.Type.2)
+unique(prep.data.duct1$Duct.Runs.Insulation.Type.3) #nothing in this column
+
+#review insulation thicknesses
+unique(prep.data.duct1$Duct.Plenum.Insulation.Thickness.1)
+unique(prep.data.duct1$Duct.Plenum.Insulation.Thickness.2)
+unique(prep.data.duct1$Duct.Plenum.Insulation.Thickness.3)
+
+#assign new dataset
+prep.dat3 <- prep.data.duct1
+
 ###########################
 # Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
 ###########################
-item61.dat5$Duct.Plenum.Insulation.Thickness.1[which(item61.dat5$Duct.Plenum.Insulation.Thickness.1 == "Unknown")] <- "Unknown Unknown"
-item61.dat5$Duct.Plenum.Insulation.Thickness.1[which(item61.dat5$Duct.Plenum.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-item61.dat5$Duct.Plenum.Insulation.Thickness.1[which(item61.dat5$Duct.Plenum.Insulation.Thickness.1 == "None")] <- "None None"
-item61.dat5$Duct.Plenum.Insulation.Thickness.1[which(is.na(item61.dat5$Duct.Plenum.Insulation.Thickness.1))] <- "N/A N/A"
-item61.dat5$Duct.Plenum.Insulation.Thickness.2[which(item61.dat5$Duct.Plenum.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
-item61.dat5$Duct.Plenum.Insulation.Thickness.2[which(item61.dat5$Duct.Plenum.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
-item61.dat5$Duct.Plenum.Insulation.Thickness.2[which(item61.dat5$Duct.Plenum.Insulation.Thickness.2 == "None")] <- "None None"
-item61.dat5$Duct.Plenum.Insulation.Thickness.2[which(is.na(item61.dat5$Duct.Plenum.Insulation.Thickness.2))] <- "N/A N/A"
+
+for(i in 1:ncol(prep.dat3)){
+  prep.dat3[,i] <- ifelse(prep.dat3[,i] == "-- Datapoint not asked for --", NA, prep.dat3[,i])
+}
+
+#cleaning for wall.cavity
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(prep.dat3$Duct.Plenum.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(is.na(prep.dat3$Duct.Plenum.Insulation.Thickness.1))] <- "N/A N/A"
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(prep.dat3$Duct.Plenum.Insulation.Thickness.1 == "Unknown")] <- "Unknown Unknown"
+prep.dat3$Duct.Plenum.Insulation.Thickness.2[which(prep.dat3$Duct.Plenum.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
+prep.dat3$Duct.Plenum.Insulation.Thickness.2[which(prep.dat3$Duct.Plenum.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
+prep.dat3$Duct.Plenum.Insulation.Thickness.2[which(is.na(prep.dat3$Duct.Plenum.Insulation.Thickness.2))] <- "N/A N/A"
+prep.dat3$Duct.Plenum.Insulation.Thickness.3[which(prep.dat3$Duct.Plenum.Insulation.Thickness.3 == "Unknown")] <- "Unknown Unknown"
+prep.dat3$Duct.Plenum.Insulation.Thickness.3[which(prep.dat3$Duct.Plenum.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
+prep.dat3$Duct.Plenum.Insulation.Thickness.3[which(is.na(prep.dat3$Duct.Plenum.Insulation.Thickness.3))] <- "N/A N/A"
+unique(prep.dat3$Duct.Plenum.Insulation.Thickness.1)
+unique(prep.dat3$Duct.Plenum.Insulation.Thickness.2)
+unique(prep.dat3$Duct.Plenum.Insulation.Thickness.3)
+
+#Clean Condition unknown values
+prep.dat3$Duct.Insulation.Condition[which(prep.dat3$Duct.Insulation.Condition == "Unknown")] <- "100%"
+prep.dat3$Duct.Insulation.Condition[which(is.na(prep.dat3$Duct.Insulation.Condition) & prep.dat3$Duct.Plenum.Insulation.Thickness.1 != "N/A N/A")] <- "100%"
+prep.dat3$Duct.Insulation.Condition[which(prep.dat3$`Duct.Plenum.Insulated?` == "No")] <- "0%"
+unique(prep.dat3$Duct.Insulation.Condition)
+
+#remove percent signs and make numeric
+prep.dat3$Duct.Insulation.Condition <- gsub("%", "", prep.dat3$Duct.Insulation.Condition)
+prep.dat3$Duct.Insulation.Condition <- as.numeric(as.character(prep.dat3$Duct.Insulation.Condition))
 
 # add new ID variable for merging -- don't know if we need this
-item61.dat5$count <- 1
-item61.dat5$TMP_ID <- cumsum(item61.dat5$count)
+prep.dat3$count <- 1
+prep.dat3$TMP_ID <- cumsum(prep.dat3$count)
 
-## r-values ##
-clean.insul1 <- unlist(strsplit(item61.dat5$Duct.Plenum.Insulation.Thickness.1, " "))
-clean.insul1.1 <- cbind.data.frame("CK_Cadmus_ID" = item61.dat5$CK_Cadmus_ID
-                                   , "TMP_ID" = item61.dat5$TMP_ID
-                                   , as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
+
+clean.insul1 <- unlist(strsplit(prep.dat3$Duct.Plenum.Insulation.Thickness.1, " "))
+clean.insul1.1 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
+clean.insul1.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = prep.dat3$TMP_ID
+                                   , clean.insul1.1)
 dim(clean.insul1.1)
 
-clean.insul2 <- unlist(strsplit(item61.dat5$Duct.Plenum.Insulation.Thickness.2, " "))
-clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = item61.dat5$CK_Cadmus_ID
-                                   , "TMP_ID" = item61.dat5$TMP_ID
+clean.insul2 <- unlist(strsplit(prep.dat3$Duct.Plenum.Insulation.Thickness.2, " "))
+clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = prep.dat3$TMP_ID
                                    , as.data.frame(matrix(clean.insul2, ncol = 2, byrow = T)
                                                    , stringsAsFactors = F))
 dim(clean.insul2.1)
 
-clean.insul <- left_join(clean.insul1.1, clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
+clean.insul3 <- unlist(strsplit(prep.dat3$Duct.Plenum.Insulation.Thickness.3, " "))
+clean.insul3.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   , "TMP_ID" = prep.dat3$TMP_ID
+                                   , as.data.frame(matrix(clean.insul3, ncol = 2, byrow = T)
+                                                   , stringsAsFactors = F))
+dim(clean.insul3.1)
+
+
+clean.insul.join1 <- left_join(clean.insul1.2,    clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
+clean.insul.join2 <- left_join(clean.insul.join1, clean.insul3.1, by = c("CK_Cadmus_ID", "TMP_ID"))
+
+colnames(clean.insul.join2) <- c("CK_Cadmus_ID"
+                                 ,"TMP_ID"
+                                 ,"Duct.Plenum.inches1"
+                                 ,"Remove.1"
+                                 ,"Duct.Plenum.inches2"
+                                 ,"Remove.2"
+                                 ,"Duct.Plenum.inches3"
+                                 ,"Remove.3")
+
+clean.thickness.data <- clean.insul.join2[-grep("Remove", colnames(clean.insul.join2))]
 
 ###########################
 # End cleaning step
 ###########################
 
 #make into dataframe
-item61.dat6 <- as.data.frame(left_join(item61.dat5, clean.insul, by = c("CK_Cadmus_ID", "TMP_ID"))
-                              , stringsAsFactors = F) 
+prep.dat4 <- as.data.frame(left_join(prep.dat3, clean.thickness.data, by = c("CK_Cadmus_ID", "TMP_ID"))
+                           , stringsAsFactors = F) 
 # warning here is OK
 
 ###########################
 # Cleaning inches and rvalue information
 ###########################
-# rename columns
-item61.dat6$inches1 <- as.numeric(as.character(item61.dat6$V1.x)) # warning here is OK
-item61.dat6$inches2 <- as.numeric(as.character(item61.dat6$V1.y)) # warning here is OK
+# make numeric
+prep.dat4$Duct.Plenum.inches1   <- as.numeric(as.character(prep.dat4$Duct.Plenum.inches1)) # warning here is OK
+prep.dat4$Duct.Plenum.inches2   <- as.numeric(as.character(prep.dat4$Duct.Plenum.inches2)) # warning here is OK
+prep.dat4$Duct.Plenum.inches3   <- as.numeric(as.character(prep.dat4$Duct.Plenum.inches3)) # warning here is OK
 
-item61.dat6$rvalues1 <- item61.dat6$Duct.Plenum.Insulation.Type.1
-item61.dat6$rvalues2 <- item61.dat6$Duct.Plenum.Insulation.Type.2
+#replace any inches that are NA with zeros
+for(i in grep("inches", colnames(prep.dat4))){
+  prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
+}
 
-#check uniques
-unique(item61.dat6$rvalues1)
-unique(item61.dat6$rvalues2)
+#update column names
+prep.dat4$Duct.Plenum.rvalues1 <- prep.dat4$Duct.Plenum.Insulation.Type.1
+prep.dat4$Duct.Plenum.rvalues2 <- prep.dat4$Duct.Plenum.Insulation.Type.2
+prep.dat4$Duct.Plenum.rvalues3 <- prep.dat4$Duct.Plenum.Insulation.Type.3
+prep.dat4$Duct.Runs.rvalues1 <- prep.dat4$Duct.Runs.Insulation.Type.1
+prep.dat4$Duct.Runs.rvalues2 <- prep.dat4$Duct.Runs.Insulation.Type.2
+prep.dat4$Duct.Runs.rvalues3 <- prep.dat4$Duct.Runs.Insulation.Type.3
 
 #fix names that are not in R value table
-item61.dat6$rvalues1[which(item61.dat6$rvalues1 == "Foil-faced bubble wrap")] <- "Foil-faced polyiscyanurate foam board"
-item61.dat6$rvalues1[which(item61.dat6$rvalues1 == "Foil-faced fiberglass")]  <- "Foil-faced polyiscyanurate foam board"
-item61.dat6$rvalues1[which(item61.dat6$rvalues1 == "Foam board")]             <- 5.8
-item61.dat6$rvalues2[which(item61.dat6$rvalues2 == "Foil-faced bubble wrap")] <- "Foil-faced polyiscyanurate foam board"
-item61.dat6$rvalues2[which(item61.dat6$rvalues2 == "Foil-faced fiberglass")]  <- "Foil-faced polyiscyanurate foam board"
+prep.dat4$Duct.Plenum.rvalues1[grep("Foil|foil", prep.dat4$Duct.Plenum.rvalues1)]  <- "Foil-faced polyurethane foam board"
+prep.dat4$Duct.Plenum.rvalues1[grep("Foam board", prep.dat4$Duct.Plenum.rvalues1)] <- "Extruded polystyrene foam board"
+prep.dat4$Duct.Plenum.rvalues1[grep("N/A|None", prep.dat4$Duct.Plenum.rvalues1)] <- NA
+prep.dat4$Duct.Plenum.rvalues2[grep("Foil|foil", prep.dat4$Duct.Plenum.rvalues2)]  <- "Foil-faced polyurethane foam board"
+prep.dat4$Duct.Plenum.rvalues2[grep("N/A|None", prep.dat4$Duct.Plenum.rvalues2)] <- NA
+prep.dat4$Duct.Plenum.rvalues3[grep("Foil|foil", prep.dat4$Duct.Plenum.rvalues3)]  <- "Foil-faced polyurethane foam board"
+prep.dat4$Duct.Plenum.rvalues3[grep("N/A|None", prep.dat4$Duct.Plenum.rvalues3)] <- NA
+
+prep.dat4$Duct.Runs.rvalues1 <- as.numeric(as.character(gsub("R", "", prep.dat4$Duct.Runs.rvalues1)))
+prep.dat4$Duct.Runs.rvalues2 <- as.numeric(as.character(gsub("R", "", prep.dat4$Duct.Runs.rvalues2)))
+prep.dat4$Duct.Runs.rvalues3 <- as.numeric(as.character(gsub("R", "", prep.dat4$Duct.Runs.rvalues3)))
+
 ###########################
 # End cleaning step
 ###########################
@@ -158,152 +215,170 @@ item61.dat6$rvalues2[which(item61.dat6$rvalues2 == "Foil-faced fiberglass")]  <-
 # Replace R-value Names with Values from R value table
 ###########################
 for (i in 1:length(rvals$Type.of.Insulation)){
-  item61.dat6$rvalues1[which(item61.dat6$rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
-  item61.dat6$rvalues2[which(item61.dat6$rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  prep.dat4$Duct.Plenum.rvalues1[which(prep.dat4$Duct.Plenum.rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  prep.dat4$Duct.Plenum.rvalues2[which(prep.dat4$Duct.Plenum.rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  prep.dat4$Duct.Plenum.rvalues3[which(prep.dat4$Duct.Plenum.rvalues3 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  prep.dat4$Duct.Runs.rvalues1[which(prep.dat4$Duct.Runs.rvalues1 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  prep.dat4$Duct.Runs.rvalues2[which(prep.dat4$Duct.Runs.rvalues2 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
+  prep.dat4$Duct.Runs.rvalues3[which(prep.dat4$Duct.Runs.rvalues3 == rvals$Type.of.Insulation[i])] <- rvals$`Avg..R-Value.Per.Inch`[i]
 }
+
 ###########################
 # End Replace Step
 ###########################
+unique(prep.dat4$Duct.Plenum.rvalues1)
+unique(prep.dat4$Duct.Plenum.rvalues2)
+unique(prep.dat4$Duct.Plenum.rvalues3)
+unique(prep.dat4$Duct.Runs.rvalues1)
+unique(prep.dat4$Duct.Runs.rvalues2)
+unique(prep.dat4$Duct.Runs.rvalues3)
 
-item61.dat7 <- item61.dat6
-length(unique(item61.dat7$CK_Cadmus_ID)) #115
+
+prep.dat4$Duct.Plenum.rvalues1[which(prep.dat4$System.Type == "Not Present")] <- 0
+prep.dat4$Duct.Plenum.rvalues2[which(prep.dat4$System.Type == "Not Present")] <- 0
+prep.dat4$Duct.Plenum.rvalues3[which(prep.dat4$System.Type == "Not Present")] <- 0
+
+prep.dat4$Duct.Plenum.inches1[which(prep.dat4$System.Type == "Not Present")] <- 0
+prep.dat4$Duct.Plenum.inches2[which(prep.dat4$System.Type == "Not Present")] <- 0
+prep.dat4$Duct.Plenum.inches3[which(prep.dat4$System.Type == "Not Present")] <- 0
+
+#replace any inches and rvalues that are NA with zeros
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
+}
+
+
+#make all inches and rvalue columns numeric
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
+}
+
+prep.dat4.5 <- prep.dat4
+
+
+#create total.r.value column
+prep.dat4.5$total.r.val <- NA
+
+
+#check uniques -- None should be NA
+unique(prep.dat4.5$Duct.Plenum.rvalues1)
+unique(prep.dat4.5$Duct.Plenum.rvalues2)
+unique(prep.dat4.5$Duct.Plenum.rvalues3)
+
+# clean up condition information
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Duct.Insulation.Condition %notin% c(100, NA)),]
+prep.condition.sub1$Duct.Insulation.Condition <- 100 - prep.condition.sub1$Duct.Insulation.Condition
+prep.condition.sub1$total.r.val <- NA
+
+prep.dat5 <- rbind.data.frame(prep.dat4.5
+                              ,prep.condition.sub1
+                              , stringsAsFactors = F)
+
+unique(prep.dat5$Duct.Insulation.Condition)
 
 ###########################
-# Cleaning step (NA to zero)
-###########################
-#For now: convert NAs in rvalues and inches to zero for summarizing purposes (will revert back to NAs after)
-item61.dat7$rvalues1[which(item61.dat7$rvalues1 == "None")] <- 0
-item61.dat7$rvalues2[which(is.na(item61.dat7$rvalues2))] <- 0
-item61.dat7$rvalues2[which(item61.dat7$rvalues2 == "None")] <- 0
-
-#QC the clean bulb values
-unique(item61.dat7$rvalues1)
-unique(item61.dat7$rvalues2)
-
-item61.dat7$inches1[which(is.na(item61.dat7$inches1))] <- 0
-item61.dat7$inches2[which(is.na(item61.dat7$inches2))] <- 0
-
-#QC the clean bulb values -- There are NAs in each 
-unique(item61.dat7$inches1)
-unique(item61.dat7$inches2)
-###########################
-# End Cleaning step
+# Analysis: Calculate weighted R values by site, convert to U values
 ###########################
 
 
-# r values multiplied by inches
-item61.dat7$total.r.val <- (as.numeric(as.character(item61.dat7$rvalues1)) * as.numeric(as.character(item61.dat7$inches1))) + (as.numeric(as.character(item61.dat7$rvalues2)) * as.numeric(as.character(item61.dat7$inches2)))
-unique(item61.dat7$total.r.val)
+#calculate the weighted r value
+na.ind <- which(is.na(prep.dat5$total.r.val))
+prep.dat5$total.r.val[na.ind] <- (prep.dat5$Duct.Plenum.rvalues1[na.ind] * prep.dat5$Duct.Plenum.inches1[na.ind]) +  
+  (prep.dat5$Duct.Plenum.rvalues2[na.ind] * prep.dat5$Duct.Plenum.inches2[na.ind]) +  
+  (prep.dat5$Duct.Plenum.rvalues3[na.ind] * prep.dat5$Duct.Plenum.inches3[na.ind]) + 
+  prep.dat5$Duct.Runs.rvalues1[na.ind] + prep.dat5$Duct.Runs.rvalues2[na.ind] + prep.dat5$Duct.Runs.rvalues3[na.ind]
+
+#check -- NOTE -- NONE SHOULD BE NA
+unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-item61.dat7$ufactor <- 1 / as.numeric(as.character(item61.dat7$total.r.val))
+prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+unique(prep.dat5$uvalue)
 
-# replace inf with 0
-item61.dat7$ufactor[which(item61.dat7$ufactor == "Inf")] <- 0
+#make area numeric
+prep.dat5$uvalue           <- as.numeric(as.character(prep.dat5$uvalue))
+# prep.dat5$Duct.Plenum.Area <- as.numeric(as.character(prep.dat5$Duct.Plenum.Area))
 
-item61.sum <- summarise(group_by(item61.dat7, BuildingType, CK_Cadmus_ID)
-                        ,aveRval = mean(total.r.val))
+#weight the u factor per home -- where weights are the wall area within home
+weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, System.Type)
+                       # ,aveUval = sum(Duct.Plenum.Area * Duct.Plenum.Insulation.Condition.1 * uvalue) / sum(Duct.Plenum.Area * Duct.Plenum.Insulation.Condition.1)
+                       ,aveUval = mean(uvalue)
+)
 
-# #make area numeric
-# item61.dat7$ufactor <- as.numeric(as.character(item61.dat7$ufactor))
-# item61.dat7$Area <- as.numeric(as.character(item61.dat7$Area))
-# 
-# #weight the u factor per home
-# weightedU <- summarise(group_by(item61.dat7, CK_Cadmus_ID, )
-#                        ,aveUval = sum(Ceiling.Area * as.numeric(as.character(ufactor))) / sum(Ceiling.Area)
-# )
-# 
-# #back-calculate the weight r values
-# weightedU$aveRval <- 1 / as.numeric(as.character(weightedU$aveUval))
-# weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
-# 
-Ceiling.unique <- unique(item61.dat7[which(colnames(item61.dat7) %in% c("CK_Cadmus_ID"
-                                                                        , "BuildingType"
-                                                                        , "Duct.Plenum.Insulation.Type.1"
-                                                                        , "Duct.Runs.Insulation.Type.1"
-                                                                        , "Duct.Runs.Insulation.Type.2"))])
+#back-calculate the weight r values
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+unique(weightedU$aveRval)
 
-item61.dat8 <- left_join(item61.sum, Ceiling.unique, by = c("CK_Cadmus_ID", "BuildingType"))
-length(unique(item61.dat8$CK_Cadmus_ID)) #115
+# get unique cadmus IDs and building types for this subset of data
+wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
 
+# merge on ID and building types to weighted uFactor and rValue data
+prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
 
-############################################################################################################
-## This is a process to determine which Rvalues are NA and which are zero.
-############################################################################################################
-#determine which rvalues were NA and which were 0
-item61.dat8$aveRval[which(item61.dat8$aveRval == 0)] <- NA
+#merge weighted u values onto cleaned RBSA data
+prep.dat7 <- left_join(prep.dat6, rbsa.dat)
+prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
+prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
+###################################################################################################################
+#
+#
+# End Prep
+#
+#
+###################################################################################################################
 
-#get indicators for ceilings that are not insulated and rvalues that are NA
-item61.dat8$aveRval[which(item61.dat8$Duct.Plenum.Insulation.Type.1 == "None")] <- 0
-
-############################################################################################################
-## END Process
-############################################################################################################
-
-item61.dat9 <- left_join(item61.dat8, rbsa.dat, by = c("CK_Cadmus_ID", "BuildingType"))
-length(unique(item61.dat9$CK_Cadmus_ID)) #115
-
-unique(item61.dat9$Duct.Runs.Insulation.Type.1)
-item61.dat9$Duct.Runs.RValue1 <- ""
-item61.dat9$Duct.Runs.RValue1[which(item61.dat9$Duct.Runs.Insulation.Type.1 == "R8")] <- 8
-item61.dat9$Duct.Runs.RValue1[which(item61.dat9$Duct.Runs.Insulation.Type.1 == "R6")] <- 6
-item61.dat9$Duct.Runs.RValue1[which(item61.dat9$Duct.Runs.Insulation.Type.1 == "R4")] <- 4
-item61.dat9$Duct.Runs.RValue1[which(item61.dat9$Duct.Runs.Insulation.Type.1 == "R4.2")] <- 4.2
-item61.dat9$Duct.Runs.RValue1[which(item61.dat9$Duct.Runs.Insulation.Type.1 == "None")] <- 0
-
-item61.dat9$Duct.Runs.RValue1[which(item61.dat9$Duct.Runs.Insulation.Type.1 == "Unknown")] <- ""
-unique(item61.dat9$Duct.Runs.RValue1)
-item61.dat9$Duct.Runs.RValue1 <- as.numeric(as.character(item61.dat9$Duct.Runs.RValue1))
-
-
-item61.dat9$AverageRValueFinal <- ifelse(is.na(item61.dat9$Duct.Runs.RValue1), item61.dat9$aveRval, (item61.dat9$Duct.Runs.RValue1 + item61.dat9$aveRval) / 2)
-item61.dat9$AverageRValueFinal[which(is.na(item61.dat9$AverageRValueFinal))] <- item61.dat9$Duct.Runs.RValue1[which(is.na(item61.dat9$AverageRValueFinal))]
 
 
 ############################################################################################################
-## Final R value binning
+## Item 61
 ############################################################################################################
+item61.dat <- prep.dat7
 
 #Bin R values -- SF only
-item61.dat9$rvalue.bins <- "Unknown"
-item61.dat9$rvalue.bins[which(item61.dat9$AverageRValueFinal == 0)] <- "None"
-item61.dat9$rvalue.bins[which(item61.dat9$AverageRValueFinal >  0 & item61.dat9$AverageRValueFinal < 5)]  <- "R1.R4"
-item61.dat9$rvalue.bins[which(item61.dat9$AverageRValueFinal >= 5 & item61.dat9$AverageRValueFinal < 8)]  <- "R5.R7"
-item61.dat9$rvalue.bins[which(item61.dat9$AverageRValueFinal >= 8 & item61.dat9$AverageRValueFinal < 11)]  <- "R8.R10"
-item61.dat9$rvalue.bins[which(item61.dat9$AverageRValueFinal >= 11)] <- "RGT10"
-unique(item61.dat9$rvalue.bins)
+item61.dat$rvalue.bins <- "Unknown"
+item61.dat$rvalue.bins[which(item61.dat$aveRval == 0)] <- "None"
+item61.dat$rvalue.bins[which(item61.dat$aveRval >  0 & item61.dat$aveRval < 5)]  <- "R1.R4"
+item61.dat$rvalue.bins[which(item61.dat$aveRval >= 5 & item61.dat$aveRval < 8)]  <- "R5.R7"
+item61.dat$rvalue.bins[which(item61.dat$aveRval >= 8 & item61.dat$aveRval < 11)]  <- "R8.R10"
+item61.dat$rvalue.bins[which(item61.dat$aveRval >= 11)] <- "RGT10"
+unique(item61.dat$rvalue.bins)
 
-##cast data
-item61.dat9$count <- 1
-item61.dat10 <- item61.dat9[which(item61.dat9$rvalue.bins != "Unknown"),]
+item61.dat$count <- 1
 
 
-# summarise across rvalue bins
-item61.sum1 <- summarise(group_by(item61.dat10, BuildingType, rvalue.bins)
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        ,Count = sum(count))
-# summarise by rvalue bins
-item61.sum2 <- summarise(group_by(item61.dat10, BuildingType)
-                        ,rvalue.bins = "Total"
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        ,Count = sum(count))
-item61.tot.counts <- item61.sum2[which(colnames(item61.sum2) %in% c("BuildingType", "Count"))]
-colnames(item61.tot.counts) <- c("BuildingType", "TotalCount")
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item61.data <- weightedData(item61.dat[-which(colnames(item61.dat) %in% c("System.Type"
+                                                                          ,"aveUval"
+                                                                          ,"aveRval"
+                                                                          ,"rvalue.bins"
+                                                                          ,"count"))])
+item61.data <- left_join(item61.data, item61.dat[which(colnames(item61.dat) %in% c("CK_Cadmus_ID"
+                                                                                    ,"System.Type"
+                                                                                    ,"aveUval"
+                                                                                    ,"aveRval"
+                                                                                    ,"rvalue.bins"
+                                                                                    ,"count"))])
 
-item61.merge <- rbind.data.frame(item61.sum1, item61.sum2, stringsAsFactors = F)
+#######################
+# Weighted Analysis
+#######################
+item61.final <- proportions_one_group(CustomerLevelData = item61.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'rvalue.bins'
+                                      ,total.name       = "Total"
+                                      ,columnName       = "Duct Insulation Level"
+                                      ,weighted         = TRUE)
+item61.final.SF <- item61.final[which(item61.final$BuildingType == "Single Family"), -which(colnames(item61.final) %in% c("BuildingType", "Duct.Insulation.Level"))]
+exportTable(item61.final.SF, "SF", "Table 68", TRUE)
 
-item61.final <- left_join(item61.merge, item61.tot.counts, by = "BuildingType")
-
-item61.final$Percent <- item61.final$Count / item61.final$TotalCount
-item61.final$SE <- sqrt(item61.final$Percent * (1 - item61.final$Percent) / item61.final$SampleSize)
-
-
-
-
-item61.table <- data.frame("BuildingType" = item61.final$BuildingType
-                           ,"R.Values" = item61.final$rvalue.bins
-                           ,"Percent" = item61.final$Percent
-                           ,"SE" = item61.final$SE
-                           ,"SampleSize" = item61.final$SampleSize)
-item61.table1 <- item61.table[which(item61.table$BuildingType %in% c("Single Family")),]
+item61.final <- proportions_one_group(CustomerLevelData = item61.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'rvalue.bins'
+                                      ,total.name       = "Total"
+                                      ,columnName       = "Duct Insulation Level"
+                                      ,weighted         = FALSE)
+item61.final.SF <- item61.final[which(item61.final$BuildingType == "Single Family"), -which(colnames(item61.final) %in% c("BuildingType", "Duct.Insulation.Level"))]
+exportTable(item61.final.SF, "SF", "Table 68", FALSE)
 
