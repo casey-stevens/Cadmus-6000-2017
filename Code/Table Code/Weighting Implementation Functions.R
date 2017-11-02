@@ -515,7 +515,14 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
   
 
 
+  # #Test
+  # CustomerLevelData <- item43.data
+  # valueVariable    = 'count'
+  # groupingVariable = 'Heating_Type'
+  # total.name       = 'Total'
+  # columnName       = 'Primary Heating Systems'
 
+  
 proportions_one_group <- function(CustomerLevelData
                                       , valueVariable
                                       , groupingVariable
@@ -530,14 +537,7 @@ proportions_one_group <- function(CustomerLevelData
     return(data)
   }
   
-  # #Test
-  # CustomerLevelData <- item43.data
-  # valueVariable    = 'count'
-  # groupingVariable = 'Heating_Type'
-  # total.name       = 'Total'
-  # columnName       = 'Primary Heating Systems'
 
-  
   ########################
   # Step 1: State
   ########################
