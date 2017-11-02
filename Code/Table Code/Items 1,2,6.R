@@ -31,7 +31,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
 #############################################################################################
-item1.dat <- weightedData(rbsa.dat)
+item1.dat0 <- rbsa.dat[which(!is.na(rbsa.dat$BuildingTypeXX)),]
+item1.dat <- weightedData(item1.dat0)
 
 item1.dat$count <- 1
 
@@ -40,42 +41,35 @@ item1.final <- proportionRowsAndColumns1(item1.dat
                                          ,'State'
                                          ,'HomeType'
                                          , aggregateColumnName = "Region"
-                                         , weighted = TRUE)
-colnames(item1.final) <- c("BuildingType"
-                          , "State"
-                          , "Home.Type"
-                          , "Percent"
-                          , "SE"
-                          , "Count" 
-                          , "N"
-                          , "n")
+                                         # , weighted = TRUE
+                                         )
 
 
 #cast data into correct format
 library(data.table)
 library(gdata)
 item1.cast <- dcast(setDT(item1.final)
-                     ,formula = BuildingType + Home.Type ~ State
-                     ,value.var = c("Percent", "SE", "Count", "n", "N"))
+                     ,formula = BuildingType + HomeType ~ State
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 #can add pop and sample sizes if needed in exported table
 item1.table <- data.frame("BuildingType"    = item1.cast$BuildingType
-                           ,"Home.Type"      = item1.cast$Home.Type
-                           ,"Percent_ID"     = "" #item1.cast$Percent_ID
-                           ,"SE_ID"          = "" #item1.cast$SE_ID
-                           ,"n_ID"           = "" #item1.cast$Count_ID
-                           ,"Percent_MT"     = item1.cast$Percent_MT
-                           ,"SE_MT"          = item1.cast$SE_MT
-                           ,"n_MT"           = item1.cast$Count_MT
-                           ,"Percent_OR"     = "" #item1.cast$Percent_OR
-                           ,"SE_OR"          = "" #item1.cast$SE_OR
-                           ,"n_OR"           = "" #item1.cast$Count_OR
-                           ,"Percent_WA"     = item1.cast$Percent_WA
-                           ,"SE_WA"          = item1.cast$SE_WA
-                           ,"n_WA"           = item1.cast$Count_WA
-                           ,"Percent_Region" = item1.cast$Percent_Region
-                           ,"SE_Region"      = item1.cast$SE_Region
-                           ,"SampleSize"     = item1.cast$Count_Region)
+                           ,"Home.Type"      = item1.cast$HomeType
+                           ,"Percent_ID"     = item1.cast$w.percent_ID
+                           ,"SE_ID"          = item1.cast$w.SE_ID
+                           ,"n_ID"           = item1.cast$count_ID
+                           ,"Percent_MT"     = item1.cast$w.percent_MT
+                           ,"SE_MT"          = item1.cast$w.SE_MT
+                           ,"n_MT"           = item1.cast$count_MT
+                           ,"Percent_OR"     = item1.cast$w.percent_OR
+                           ,"SE_OR"          = item1.cast$w.SE_OR
+                           ,"n_OR"           = item1.cast$count_OR
+                           ,"Percent_WA"     = item1.cast$w.percent_WA
+                           ,"SE_WA"          = item1.cast$w.SE_WA
+                           ,"n_WA"           = item1.cast$count_WA
+                           ,"Percent_Region" = item1.cast$w.percent_Region
+                           ,"SE_Region"      = item1.cast$w.SE_Region
+                           ,"SampleSize"     = item1.cast$count_Region)
 
 ### Split into respective tables
 
@@ -93,6 +87,7 @@ item1.table.MH <- item1.table[which(item1.table$BuildingType %in% c("Manufacture
 mh.target <- c("Single Wide"
                ,"Double Wide"
                ,"Triple Wide"
+               ,"Modular / Prefab"
                ,"Total")
 item1.table.MH$Home.Type <- reorder.factor(item1.table.MH$Home.Type, new.order = mh.target)
 item1.table.MH <- item1.table.MH %>% arrange(Home.Type)
@@ -128,7 +123,8 @@ item2.final <- proportionRowsAndColumns1(item2.dat
                           , columnVariable = 'State'
                           , rowVariable = 'HomeYearBuilt_bins2'
                           , aggregateColumnName = "Region"
-                          , weighted = TRUE)
+                          # , weighted = TRUE
+                          )
 
 colnames(item2.final) <- c("BuildingType"
                            , "State"
@@ -150,15 +146,15 @@ item2.cast <- dcast(setDT(item2.final)
 
 item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"Housing.Vintage" = item2.cast$Housing.Vintage
-                           ,"Percent_ID"      = NA #item2.cast$Percent_ID
-                           ,"SE_ID"           = NA #item2.cast$SE_ID
-                           ,"n_ID"            = NA #item2.cast$Count_ID
+                           ,"Percent_ID"      = item2.cast$Percent_ID
+                           ,"SE_ID"           = item2.cast$SE_ID
+                           ,"n_ID"            = item2.cast$Count_ID
                            ,"Percent_MT"      = item2.cast$Percent_MT
                            ,"SE_MT"           = item2.cast$SE_MT
                            ,"n_MT"            = item2.cast$Count_MT
-                           ,"Percent_OR"      = NA #item2.cast$Percent_OR
-                           ,"SE_OR"           = NA #item2.cast$SE_OR
-                           ,"n_OR"            = NA #item2.cast$Count_OR
+                           ,"Percent_OR"      = item2.cast$Percent_OR
+                           ,"SE_OR"           = item2.cast$SE_OR
+                           ,"n_OR"            = item2.cast$Count_OR
                            ,"Percent_WA"      = item2.cast$Percent_WA
                            ,"SE_WA"           = item2.cast$SE_WA
                            ,"n_WA"            = item2.cast$Count_WA
@@ -205,7 +201,8 @@ item6.final <- proportionRowsAndColumns1(item6.dat
                                          , columnVariable = 'State'
                                          , rowVariable = 'BuildingHeight'
                                          , aggregateColumnName = "Region"
-                                         , weighted = TRUE)
+                                         # , weighted = TRUE
+                                         )
 
 colnames(item6.final) <- c("BuildingType"
                            , "State"
@@ -227,15 +224,15 @@ item6.cast <- dcast(setDT(item6.final)
 
 item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                            ,"BuildingHeight" = item6.cast$BuildingHeight
-                          ,"Percent_ID"      = NA #item6.cast$Percent_ID
-                          ,"SE_ID"           = NA #item6.cast$SE_ID
-                          ,"n_ID"            = NA #item6.cast$Count_ID
+                          ,"Percent_ID"      = item6.cast$Percent_ID
+                          ,"SE_ID"           = item6.cast$SE_ID
+                          ,"n_ID"            = item6.cast$Count_ID
                            ,"Percent_MT"     = item6.cast$Percent_MT
                            ,"SE_MT"          = item6.cast$SE_MT
                            ,"n_MT"           = item6.cast$Count_MT
-                           ,"Percent_OR"     = NA #item6.cast$Percent_OR
-                           ,"SE_OR"          = NA #item6.cast$SE_OR
-                           ,"n_OR"           = NA #item6.cast$Count_OR
+                           ,"Percent_OR"     = item6.cast$Percent_OR
+                           ,"SE_OR"          = item6.cast$SE_OR
+                           ,"n_OR"           = item6.cast$Count_OR
                            ,"Percent_WA"     = item6.cast$Percent_WA
                            ,"SE_WA"          = item6.cast$SE_WA
                            ,"n_WA"           = item6.cast$Count_WA

@@ -94,13 +94,15 @@ site.dat1$State <- trimws(toupper(site.dat1$State))
 rbsa.dat <- site.dat1
 
 # Convert building types to what we want
-# rbsa.dat$BuildingType[grep("Apartment",rbsa.dat$BuildingTypeXX)] <- "Multifamily"
-# rbsa.dat$BuildingType[grep("Single|Town|Duplex",rbsa.dat$BuildingTypeXX)] <- "Single Family"
-# rbsa.dat$BuildingType[grep("Wide|Modular",rbsa.dat$BuildingTypeXX)] <- "Manufactured"
-
 rbsa.dat$BuildingType[grep("Multifamily",rbsa.dat$BuildingType)] <- "Multifamily"
 rbsa.dat$BuildingType[grep("Single",rbsa.dat$BuildingType)]      <- "Single Family"
 rbsa.dat$BuildingType[grep("Manufa",rbsa.dat$BuildingType)]      <- "Manufactured"
+
+
+rbsa.dat$BuildingType[grep("Apartment",rbsa.dat$BuildingTypeXX)]          <- "Multifamily"
+rbsa.dat$BuildingType[grep("Single|Town|Duplex",rbsa.dat$BuildingTypeXX)] <- "Single Family"
+rbsa.dat$BuildingType[grep("Wide|Modular",rbsa.dat$BuildingTypeXX)]       <- "Manufactured"
+
 unique(rbsa.dat$BuildingType)
 
 #############################################################################################
