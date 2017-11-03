@@ -17,6 +17,9 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -55,15 +58,17 @@ item3.dat <- unique(left_join(rbsa.dat, env.dat1, by = "CK_Cadmus_ID"))
 
 
 # Clean Ground Contact types
+i=10
 item3.dat$GroundContact <- item3.dat$FoundationType
 for (i in 1:length(GroundContactTypes$Raw.data.categories)){
   item3.dat$GroundContact[which(item3.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
 }
+item3.dat$GroundContact <- trimws(item3.dat$GroundContact)
 # End cleaning Step
 unique(item3.dat$GroundContact)
 
 # Remove unwanted ground contact types
-item3.dat1 <- item3.dat[which(item3.dat$GroundContact != "Remove"),]
+item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA)),]
 
 #subset to only single family for item 3
 item3.dat2 <- item3.dat1[which(item3.dat1$BuildingType == "Single Family"),]
@@ -107,15 +112,15 @@ item3.cast <- dcast(setDT(item3.final)
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
-                          ,"Percent_ID"     = NA #item3.cast$Percent_ID
-                          ,"SE_ID"          = NA #item3.cast$SE_ID
-                          ,"n_ID"           = NA #item3.cast$Count_ID
+                          ,"Percent_ID"     = item3.cast$Percent_ID
+                          ,"SE_ID"          = item3.cast$SE_ID
+                          ,"n_ID"           = item3.cast$Count_ID
                           ,"Percent_MT"     = item3.cast$Percent_MT
                           ,"SE_MT"          = item3.cast$SE_MT
                           ,"n_MT"           = item3.cast$Count_MT
-                          ,"Percent_OR"     = NA #item3.cast$Percent_OR
-                          ,"SE_OR"          = NA #item3.cast$SE_OR
-                          ,"n_OR"           = NA #item3.cast$Count_OR
+                          ,"Percent_OR"     = item3.cast$Percent_OR
+                          ,"SE_OR"          = item3.cast$SE_OR
+                          ,"n_OR"           = item3.cast$Count_OR
                           ,"Percent_WA"     = item3.cast$Percent_WA
                           ,"SE_WA"          = item3.cast$SE_WA
                           ,"n_WA"           = item3.cast$Count_WA
@@ -203,6 +208,24 @@ exportTable(item4.table.SF, "SF", "Table 11"
             , weighted = TRUE)
 exportTable(item4.table.MH, "MH", "Table 10"
             , weighted = TRUE)
+
+
+
+## Apply weigthing function: means, two groups
+item4.final <- mean_one_group(CustomerLevelData = item4.customer
+                              , valueVariable = 'siteAreaConditioned'
+                              , byVariable    = 'State'
+                              , aggregateRow  = 'Region'
+                              , weighted = FALSE)
+
+
+item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
+item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
+
+exportTable(item4.table.SF, "SF", "Table 11"
+            , weighted = FALSE)
+exportTable(item4.table.MH, "MH", "Table 10"
+            , weighted = FALSE)
 
 # ######################################################
 # # Step 1.2: Using customer level data,
@@ -313,7 +336,8 @@ item5.final <- mean_two_groups(CustomerLevelData = item5.customer
                                , byVariableColumn = 'State'
                                , columnAggregate = "Region"
                                , rowAggregate = "All Vintages"
-                               , weighted = TRUE)
+                               # , weighted = TRUE
+                               )
 
 colnames(item5.final)[which(colnames(item5.final) == "HomeYearBuilt_bins2")] <- "HousingVintage"
 colnames(item5.final)
