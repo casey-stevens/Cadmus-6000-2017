@@ -232,7 +232,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 }
 
 
-
+# Test
+# CustomerLevelData = item1.dat
+# valueVariable     = 'count'
+# columnVariable    = 'State'
+# rowVariable       = 'HomeType'
+# aggregateColumnName = "Region"
 
 proportions_two_groups_unweighted <- function(CustomerLevelData
                                             , valueVariable
@@ -753,7 +758,12 @@ proportions_one_group <- function(CustomerLevelData
                              ,TotalCount   = sum(get(valueVariable)))
     
     item.final <- left_join(item.combined, item.tmp3, by = "BuildingType")
-    item.final$Percent <- item.final$Count / item.final$TotalCount
+    if(groupingVariable == "State"){
+      item.final$Percent <- item.final$Count / item.final$SampleSize
+    }else{
+      item.final$Percent <- item.final$Count / item.final$Total.Count
+    }
+    
     item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSizes)
     return(item.final)
   }
