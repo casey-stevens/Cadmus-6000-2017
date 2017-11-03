@@ -274,25 +274,33 @@ item52.dat2$HSPF <- as.numeric(as.character(item52.dat2$HSPF))
 item52.dat3 <- item52.dat2[which(!(is.na(item52.dat2$HSPF))),]
 
 #Join cleaned item 52 mechanical information with cleaned RBSA site information
-item52.dat4 <- unique(left_join(item52.dat3, rbsa.dat, by = "CK_Cadmus_ID"))
+item52.dat4 <- unique(left_join(rbsa.dat, item52.dat3, by = "CK_Cadmus_ID"))
+item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$HSPF)),]
 
 #any duplicates?
 which(duplicated(item52.dat4))
 
 # Weighting
-item52.data <- weightedData(item52.dat4[-which(colnames(item52.dat4) %in% c("HSPF"
+item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("Generic"
+                                                                            ,"Heating.Fuel"
+                                                                            ,"Component.1.Year.of.Manufacture"
+                                                                            ,"Heating.Efficiency.-.High"
+                                                                            ,"HSPF"
                                                                             ,"EquipVintage_bins"))])
 
-item52.data <- left_join(item52.data4, item43.dat5[which(colnames(item52.dat4) %in% c("CK_Cadmus_ID"
+item52.data <- left_join(item52.data, item52.dat4[which(colnames(item52.dat4) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"Heating.Fuel"
+                                                                                     ,"Component.1.Year.of.Manufacture"
                                                                                      ,"HSPF"
                                                                                      ,"EquipVintage_bins"))])
 
 # Analysis application
-item52.final <- mean_one_group(CustomerLevelData,
-                              valueVariable, 
-                              byVariable,
-                              aggregateRow,
-                              weighted = TRUE)
+item52.final <- mean_one_group(CustomerLevelData = item52.data
+                               ,valueVariable = 'HSPF' 
+                               ,byVariable    = 'EquipVintage_bins'
+                               ,aggregateRow  = "All Vintages"
+                               ,weighted = TRUE)
 
 # Export table
 # SF = Table 59, MH = Table 39

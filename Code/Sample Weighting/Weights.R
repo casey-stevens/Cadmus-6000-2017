@@ -41,7 +41,12 @@ UtilityMap <- UtilityMap[,1:2]
 # Import, Subset, CLean Data
 #############################################################################################
 
-itemData <- item52.dat4
+# itemData <- item52.dat5[-which(colnames(item52.dat5) %in% c("Generic"
+#                                                             ,"Heating.Fuel"
+#                                                             ,"Component.1.Year.of.Manufacture"
+#                                                             ,"Heating.Efficiency.-.High"
+#                                                             ,"HSPF"
+#                                                             ,"EquipVintage_bins"))]
 cleanRBSA.dat <- itemData
 names(cleanRBSA.dat)
 
@@ -84,14 +89,14 @@ cadmus.dat2$Utility[which(cadmus.dat2$Utility == "PACIFIC POWER")] <- "PACIFICOR
 cadmus.dat2$Utility[which(cadmus.dat2$Utility == "ROCKY MOUNTAIN POWER")] <- "PACIFICORP"
 # stopifnot(length(which(duplicated(cadmus.dat2$CK_Cadmus_ID))) == 0)
 
-      ##  QA/QC: Any lost customers?
-      stopifnot(length(unique(cadmus.dat1$CK_Cadmus_ID)) == length(unique(cadmus.dat2$CK_Cadmus_ID)))
-      
-      length(unique(cadmus.dat1$CK_Cadmus_ID)) - length(unique(cadmus.dat2$CK_Cadmus_ID))
-      ## This should be zero when the full data come in - if not, export list, send to Rietz 
-      ## 0
-      
-      
+##  QA/QC: Any lost customers?
+stopifnot(length(unique(cadmus.dat1$CK_Cadmus_ID)) == length(unique(cadmus.dat2$CK_Cadmus_ID)))
+
+length(unique(cadmus.dat1$CK_Cadmus_ID)) - length(unique(cadmus.dat2$CK_Cadmus_ID))
+## This should be zero when the full data come in - if not, export list, send to Rietz 
+## 0
+
+
 # Import ZIP code mapping
 zipMap.dat <- read.xlsx(xlsxFile = file.path(filepathWeightingDocs, popZIP.datMap), sheet=1)
 names(zipMap.dat)   <- c("ZIPCode"
@@ -130,64 +135,64 @@ zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
                           , "BPA_vs_IOU"     = zipMap.dat$BPA_vs_IOU
                           , stringsAsFactors = F)
 
-      ##  QA/QC: Check names of utilities for mismatches
-      sort(unique(zipMap.dat1$Utility), decreasing=F)
-      sort(unique(cadmus.dat2$Utility), decreasing=F)
-      #export these lists for Rietz to convert to the correct names
-      
-      sort(unique(cadmus.dat2$Utility[which(cadmus.dat2$Utility %notin% zipMap.dat1$Utility)]))
-      
-      
+##  QA/QC: Check names of utilities for mismatches
+sort(unique(zipMap.dat1$Utility), decreasing=F)
+sort(unique(cadmus.dat2$Utility), decreasing=F)
+#export these lists for Rietz to convert to the correct names
+
+sort(unique(cadmus.dat2$Utility[which(cadmus.dat2$Utility %notin% zipMap.dat1$Utility)]))
+
+
 ##  Andrew: were these reviewed with Rietz or Steve?, are there any others that could have been missed?
-      ##  Fix mismatches
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "TACOMA CITY OF")] <-
-        "CITY OF TACOMA"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "ELMHURST MUTUAL POWER  LIGHT CO")] <-
-        "ELMHURST MUTUAL POWER AND LIGHT"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "FLATHEAD ELECTRIC COOP")] <-
-        "FLATHEAD ELECTRIC COOPERATIVE"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "LAKEVIEW LIGHT  POWER")] <-
-        "LAKEVIEW POWER  LIGHT"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "USBIAMISSION VALLEY POWER")] <-
-        "MISSION VALLEY POWER"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "NORTHWESTERN CORPORATION")] <-
-        "NORTHWESTERN ENERGY"
-      cadmus.dat2$Utility[which(cadmus.dat2$Utility == "SUN RIVER ELECTRIC COOP")] <-
-        "NORTHWESTERN ENERGY"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "OHOP MUTUAL LIGHT COMPANY")] <-
-        "OHOP MUTUAL LIGHT CO"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "SEATTLE CITY OF")] <-
-        "SEATTLE CITY LIGHT"
-      zipMap.dat1$Utility[which(zipMap.dat1$Utility == "SNOHOMISH COUNTY PUD 1")] <-
-        "SNOHOMISH PUD"
-      
-      
-      for (i in 1:length(UtilityMap$ACS.Data)){
-        zipMap.dat1$Utility[which(zipMap.dat1$Utility == UtilityMap$ACS.Data[i])] <- UtilityMap$Map[i]
-      }
-      unique(zipMap.dat1$Utility)
-      
-  
-  cadmus.dat3 <- cadmus.dat2[which(!is.na(cadmus.dat2$Utility)),]
-      
-      
-      #there are some zip codes/states that are in our data that are not in the population data
-      cadmus.dat3[which(is.na(cadmus.dat3$State)),]
-      
-      # ###### CHECK WITH RIETZ
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97703)] <- 97701
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98763)] <- 98686
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98703)] <- 97701
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 59807)] <- 59804
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 93854)] <- 83854
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97802)] <- 97814
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97078)] <- 97068
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98127)] <- 98126
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98195)] <- 98199
-      # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98215)] <- 98203
-      
-      
-       
+##  Fix mismatches
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "TACOMA CITY OF")] <-
+  "CITY OF TACOMA"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "ELMHURST MUTUAL POWER  LIGHT CO")] <-
+  "ELMHURST MUTUAL POWER AND LIGHT"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "FLATHEAD ELECTRIC COOP")] <-
+  "FLATHEAD ELECTRIC COOPERATIVE"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "LAKEVIEW LIGHT  POWER")] <-
+  "LAKEVIEW POWER  LIGHT"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "USBIAMISSION VALLEY POWER")] <-
+  "MISSION VALLEY POWER"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "NORTHWESTERN CORPORATION")] <-
+  "NORTHWESTERN ENERGY"
+cadmus.dat2$Utility[which(cadmus.dat2$Utility == "SUN RIVER ELECTRIC COOP")] <-
+  "NORTHWESTERN ENERGY"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "OHOP MUTUAL LIGHT COMPANY")] <-
+  "OHOP MUTUAL LIGHT CO"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "SEATTLE CITY OF")] <-
+  "SEATTLE CITY LIGHT"
+zipMap.dat1$Utility[which(zipMap.dat1$Utility == "SNOHOMISH COUNTY PUD 1")] <-
+  "SNOHOMISH PUD"
+
+
+for (i in 1:length(UtilityMap$ACS.Data)){
+  zipMap.dat1$Utility[which(zipMap.dat1$Utility == UtilityMap$ACS.Data[i])] <- UtilityMap$Map[i]
+}
+unique(zipMap.dat1$Utility)
+
+
+cadmus.dat3 <- cadmus.dat2[which(!is.na(cadmus.dat2$Utility)),]
+colnames(cadmus.dat3)
+
+#there are some zip codes/states that are in our data that are not in the population data
+cadmus.dat3[which(is.na(cadmus.dat3$State)),]
+
+# ###### CHECK WITH RIETZ
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97703)] <- 97701
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98763)] <- 98686
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98703)] <- 97701
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 59807)] <- 59804
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 93854)] <- 83854
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97802)] <- 97814
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97078)] <- 97068
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98127)] <- 98126
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98195)] <- 98199
+# cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98215)] <- 98203
+
+
+
 #############################################################################################
 # Merge data and assign electric utility
 #############################################################################################

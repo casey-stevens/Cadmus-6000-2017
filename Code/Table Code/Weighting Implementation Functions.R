@@ -279,10 +279,11 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 # # Test
-# CustomerLevelData <- item9.data
-# valueVariable     <- 'CountRooms'
-# byVariable        <- 'State'
-# aggregateRow      <- "Region"
+CustomerLevelData = item52.data
+valueVariable = 'HSPF' 
+byVariable    = 'EquipVintage_bins'
+aggregateRow  = "All Vintages"
+weighted = TRUE
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow, weighted = TRUE) {
