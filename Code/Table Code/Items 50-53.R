@@ -281,10 +281,10 @@ item52.dat4 <- left_join(item52.dat3, rbsa.dat, by = "CK_Cadmus_ID")
 item52.dat5 <- item52.dat4[ !duplicated(item52.dat4), ]
 
 # Weighting
-item52.data <- weightedData(item52.dat4[-which(colnames(item52.dat4) %in% c("HSPF"
+item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("HSPF"
                                                                             ,"EquipVintage_bins"))])
 
-item52.data <- left_join(item52.data4, item43.dat5[which(colnames(item52.dat4) %in% c("CK_Cadmus_ID"
+item52.data <- left_join(item52.data5, item43.dat5[which(colnames(item52.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"HSPF"
                                                                                      ,"EquipVintage_bins"))])
 
