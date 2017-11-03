@@ -20,7 +20,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
@@ -80,34 +80,41 @@ item56.dat2$SEER <- as.numeric(as.character(item56.dat2$SEER))
 item56.dat3 <- item56.dat2[which(!(is.na(item56.dat2$SEER))),]
 
 #Join cleaned item 56 mechanical information with cleaned RBSA site information
-item56.dat4 <- left_join(item56.dat3, rbsa.dat, by = "CK_Cadmus_ID")
+item56.dat4 <- left_join(rbsa.dat, item56.dat3, by = "CK_Cadmus_ID")
 
 # Remove duplicates
-item56.dat5 <- item56.dat4[ !duplicated(item56.dat4), ]
+item56.dat5 <- item56.dat4[-which(is.na(item56.dat4$SEER)), ]
+
+# Not sure if needed
+#item56.dat5 <- item56.dat5[-which(is.na(item56.dat5$HomeYearBuilt)), ]
 
 
 # Weighting
-item56.data <- weightedData(item56.dat5[-which(colnames(item56.dat5) %in% c("SEER"
+item56.data <- weightedData(item56.dat5[-which(colnames(item56.dat5) %in% c("Generic"
+                                                                            ,"Seasonal./.Portable.Equipment?"
+                                                                            ,"Component.1.Year.of.Manufacture"
+                                                                            ,"SEER"
                                                                             ,"EquipVintage_bins"))])
 
-item56.data <- left_join(item56.data4, item43.dat5[which(colnames(item56.dat4) %in% c("CK_Cadmus_ID"
-                                                                                      ,"HSPF"
-                                                                                      ,"EquipVintage_bins"))])
+item56.data <- left_join(item56.data, item56.dat5[which(colnames(item56.dat5) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"Seasonal./.Portable.Equipment?"
+                                                                                     ,"Component.1.Year.of.Manufacture"
+                                                                                     ,"SEER"
+                                                                                     ,"EquipVintage_bins"))])
 
 # Analysis application
-item56.final <- mean_one_group(CustomerLevelData,
-                               valueVariable, 
-                               byVariable,
-                               aggregateRow,
-                               weighted = TRUE)
+item56.final <- mean_one_group(CustomerLevelData = item56.data
+                               ,valueVariable    = 'SEER'
+                               ,byVariable       = 'EquipVintage_bins'
+                               ,aggregateRow     = 'All Vintages'
+                               ,weighted         = TRUE)
 
 # Export table
-# SF = Table 59, MH = Table 39
+# SF = Table 63
 item56.final.SF <- item56.final[which(item56.final$BuildingType == "Single Family"),-1]
-item56.final.MH <- item56.final[which(item56.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item43.final.SF, "SF", "Table 59")
-exportTable(item43.final.MH, "MH", "Table 39")
+exportTable(item56.final.SF, "SF", "Table 63")
 
 
 # OLD CODE #
@@ -160,39 +167,48 @@ item57.dat1 <- item57.dat[which(item57.dat$SEER != "Could Not Collect"),]
 #remove any repeated header lines
 item57.dat2 <- item57.dat1[which(item57.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
+#make SEER information numeric
+item57.dat2$SEER <- as.numeric(as.character(item57.dat2$SEER))
+
 #remove any NAs in SEER
 item57.dat3 <- item57.dat2[which(!(is.na(item57.dat2$SEER))),]
 
-#make SEER information numeric
-item57.dat3$SEER <- as.numeric(as.character(item57.dat3$SEER))
-
 #Join cleaned item 57 mechanical information with cleaned RBSA site information
-item57.dat4 <- left_join(item57.dat3, rbsa.dat, by = "CK_Cadmus_ID")
+item57.dat4 <- left_join(rbsa.dat, item57.dat3, by = "CK_Cadmus_ID")
 
+# Remove duplicates
+item57.dat5 <- item57.dat4[-which(is.na(item57.dat4$SEER)), ]
 
 
 # Weighting
-item56.data <- weightedData(item56.dat5[-which(colnames(item56.dat5) %in% c("SEER"
+item57.data <- weightedData(item57.dat5[-which(colnames(item57.dat5) %in% c("Generic"
+                                                                            ,"Seasonal./.Portable.Equipment?"
+                                                                            ,"Component.1.Year.of.Manufacture"
+                                                                            ,"SEER"
                                                                             ,"EquipVintage_bins"))])
 
-item56.data <- left_join(item56.data4, item43.dat5[which(colnames(item56.dat4) %in% c("CK_Cadmus_ID"
-                                                                                      ,"HSPF"
+item57.data <- left_join(item57.data, item57.dat5[which(colnames(item57.dat5) %in% c("CK_Cadmus_ID"
+                                                                                      ,"Generic"
+                                                                                      ,"Seasonal./.Portable.Equipment?"
+                                                                                      ,"Component.1.Year.of.Manufacture"
+                                                                                      ,"SEER"
                                                                                       ,"EquipVintage_bins"))])
 
 # Analysis application
-item56.final <- mean_one_group(CustomerLevelData,
-                               valueVariable, 
-                               byVariable,
-                               aggregateRow,
-                               weighted = TRUE)
+item57.final <- mean_one_group(CustomerLevelData = item57.data
+                               ,valueVariable    = 'SEER'
+                               ,byVariable       = 'EquipVintage_bins'
+                               ,aggregateRow     = 'All Vintages'
+                               ,weighted         = TRUE)
+
 
 # Export table
-# SF = Table 59, MH = Table 39
-item56.final.SF <- item56.final[which(item56.final$BuildingType == "Single Family"),-1]
-item56.final.MH <- item56.final[which(item56.final$BuildingType == "Manufactured"),-1]
+# SF = Table 64, MH = Table 44
+item57.final.SF <- item57.final[which(item57.final$BuildingType == "Single Family"),-1]
+item57.final.MH <- item57.final[which(item57.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item43.final.SF, "SF", "Table 59")
-exportTable(item43.final.MH, "MH", "Table 39")
+exportTable(item43.final.SF, "SF", "Table 64")
+exportTable(item43.final.MH, "MH", "Table 44")
 
 # 
 # OLD CODE #
@@ -243,28 +259,40 @@ item58.dat <- mechanical.dat1[which(mechanical.dat1$`Seasonal./.Portable.Equipme
 #check unique Generic values
 unique(item58.dat$Generic)
 
+item58.dat2 <- left_join(rbsa.dat, item58.dat, by = "CK_Cadmus_ID")
+
+item58.dat3 <- item58.dat2[-which(is.na(item58.dat2$`Seasonal./.Portable.Equipment?`)), ]
+
+item58.dat3$count <- 1
 
 
 # Weighting
-item58.data <- weightedData(item58.dat5[-which(colnames(item58.dat5) %in% c("SEER"
-                                                                            ,"EquipVintage_bins"))])
+item58.data <- weightedData(item58.dat3[-which(colnames(item58.dat3) %in% c("Generic"
+                                                                            ,"Seasonal./.Portable.Equipment?"
+                                                                            ,"Component.1.Year.of.Manufacture"
+                                                                            ,"SEER"
+                                                                            ,"count"))])
 
-item58.data <- left_join(item58.data4, item43.dat5[which(colnames(item58.dat4) %in% c("CK_Cadmus_ID"
-                                                                                      ,"HSPF"
-                                                                                      ,"EquipVintage_bins"))])
+item58.data <- left_join(item58.data, item58.dat3[which(colnames(item58.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"Seasonal./.Portable.Equipment?"
+                                                                                     ,"Component.1.Year.of.Manufacture"
+                                                                                     ,"SEER"
+                                                                                     ,"count"))])
 
 # Analysis application
-item58.final <- mean_one_group(CustomerLevelData,
-                               valueVariable, 
-                               byVariable,
-                               aggregateRow,
-                               weighted = TRUE)
+item58.final <- mean_one_group(CustomerLevelData = item58.data
+                               ,valueVariable    = 'count'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region'
+                               ,weighted         = TRUE)
+
 
 # Export table
-# SF = Table 59, MH = Table 39
+# SF = Table 64, MH = Table 44
 item58.final.SF <- item58.final[which(item58.final$BuildingType == "Single Family"),-1]
 item58.final.MH <- item58.final[which(item58.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item43.final.SF, "SF", "Table 59")
-exportTable(item43.final.MH, "MH", "Table 39")
+exportTable(item43.final.SF, "SF", "Table 65")
+exportTable(item43.final.MH, "MH", "Table 45")
 
