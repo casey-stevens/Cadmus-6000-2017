@@ -7,11 +7,21 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
@@ -257,41 +267,71 @@ item52.dat1 <- item52.dat[which(item52.dat$HSPF != "Could Not Collect"),]
 #remove any repeated header lines
 item52.dat2 <- item52.dat1[which(item52.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
+#make HSPF information numeric
+item52.dat2$HSPF <- as.numeric(as.character(item52.dat2$HSPF))
+
 #remove any NAs in HSPF
 item52.dat3 <- item52.dat2[which(!(is.na(item52.dat2$HSPF))),]
-
-#make HSPF information numeric
-item52.dat3$HSPF <- as.numeric(as.character(item52.dat3$HSPF))
 
 #Join cleaned item 52 mechanical information with cleaned RBSA site information
 item52.dat4 <- left_join(item52.dat3, rbsa.dat, by = "CK_Cadmus_ID")
 
-#Calculate state and region level HSPF mean and SD by equip vintage bins:
-#average HSPF and standard deviation by building type, equipment vintage, 
-item52.sum <- summarise(group_by(item52.dat4, BuildingType, EquipVintage_bins)
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        ,Mean = mean(HSPF)
-                        ,SE = sd(HSPF) / sqrt(SampleSize))
+# Remove duplicates
+# Some values still duplicated
+item52.dat5 <- item52.dat4[ !duplicated(item52.dat4), ]
 
-#Calculate state and region level counts across equipment bins
-#HSPF means and SDs by building type  for all vintages
-item52.sum1 <- summarise(group_by(item52.dat4, BuildingType)
-                         ,EquipVintage_bins = "All Vintages"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Mean = mean(HSPF)
-                         ,SE = sd(HSPF) / sqrt(SampleSize))
-#row bind HSPF means and SDs by building type across equipment bins for state and region
-item52.final <- rbind.data.frame(item52.sum, item52.sum1, stringsAsFactors = F)
+# Weighting
+item52.data <- weightedData(item52.dat4[-which(colnames(item52.dat4) %in% c("HSPF"
+                                                                            ,"EquipVintage_bins"))])
 
-#subset to only relevant building types for this item
-item52.table <- item52.final[which(item52.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item52.data <- left_join(item52.data4, item43.dat5[which(colnames(item52.dat4) %in% c("CK_Cadmus_ID"
+                                                                                     ,"HSPF"
+                                                                                     ,"EquipVintage_bins"))])
 
-#subset to only the columns needed for the final RBSA table
-item52.table1 <- data.frame("BuildingType" = item52.table$BuildingType
-                            ,"EquipVintage_bins" = item52.table$EquipVintage_bins
-                            ,"Mean" = item52.table$Mean
-                            ,"SE" = item52.table$SE
-                            ,"SampleSize" = item52.table$SampleSize)
+# Analysis application
+item52.final <- mean_one_group(CustomerLevelData,
+                              valueVariable, 
+                              byVariable,
+                              aggregateRow,
+                              weighted = TRUE)
+
+# Export table
+# SF = Table 59, MH = Table 39
+item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Family"),-1]
+item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
+
+exportTable(item43.final.SF, "SF", "Table 59")
+exportTable(item43.final.MH, "MH", "Table 39")
+
+
+# OLD CODE #
+#
+# #Calculate state and region level HSPF mean and SD by equip vintage bins:
+# #average HSPF and standard deviation by building type, equipment vintage, 
+# item52.sum <- summarise(group_by(item52.dat4, BuildingType, EquipVintage_bins)
+#                         ,SampleSize = length(unique(CK_Cadmus_ID))
+#                         ,Mean = mean(HSPF)
+#                         ,SE = sd(HSPF) / sqrt(SampleSize))
+# 
+# #Calculate state and region level counts across equipment bins
+# #HSPF means and SDs by building type  for all vintages
+# item52.sum1 <- summarise(group_by(item52.dat4, BuildingType)
+#                          ,EquipVintage_bins = "All Vintages"
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Mean = mean(HSPF)
+#                          ,SE = sd(HSPF) / sqrt(SampleSize))
+# #row bind HSPF means and SDs by building type across equipment bins for state and region
+# item52.final <- rbind.data.frame(item52.sum, item52.sum1, stringsAsFactors = F)
+# 
+# #subset to only relevant building types for this item
+# item52.table <- item52.final[which(item52.final$BuildingType %in% c("Single Family", "Manufactured")),]
+# 
+# #subset to only the columns needed for the final RBSA table
+# item52.table1 <- data.frame("BuildingType" = item52.table$BuildingType
+#                             ,"EquipVintage_bins" = item52.table$EquipVintage_bins
+#                             ,"Mean" = item52.table$Mean
+#                             ,"SE" = item52.table$SE
+#                             ,"SampleSize" = item52.table$SampleSize)
 
 
 
