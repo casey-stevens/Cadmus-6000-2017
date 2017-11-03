@@ -7,7 +7,16 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -282,7 +291,7 @@ item105.dat$count <- 1
 
 item105.dat0 <- item105.dat[which(item105.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item105.dat1 <- left_join(item105.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item105.dat1 <- left_join( rbsa.dat,item105.dat0, by = "CK_Cadmus_ID")
 
 item105.dat2 <- item105.dat1[which(!(is.na(item105.dat1$DHW.Year.Manufactured))),]
 item105.dat3 <- item105.dat2[which(!(item105.dat2$DHW.Year.Manufactured %in% c("-- Datapoint not asked for --", "Unknown"))),]
@@ -300,37 +309,70 @@ item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2009)
 unique(item105.dat3$EquipVintage_bins)
 
 
-#summarise by equipment vintage bins
-item105.sum1 <- summarise(group_by(item105.dat3, BuildingType, EquipVintage_bins)
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Count = sum(count))
+# Weighting function
+item105.data <- weightedData(item105.dat3[-which(colnames(item105.dat3) %in% c("Generic"
+                                                                               ,"DHW.Size.(Gallons)"
+                                                                               ,"DHW.Year.Manufactured"
+                                                                               ,"DHW.Fuel"
+                                                                               ,"DHW.Location"
+                                                                               ,"count"
+                                                                               ,"EquipVintage_bins"))])
+item105.data <- left_join(item105.data, item105.dat3[which(colnames(item105.dat3) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Generic"
+                                                                                         ,"DHW.Size.(Gallons)"
+                                                                                         ,"DHW.Year.Manufactured"
+                                                                                         ,"DHW.Fuel"
+                                                                                         ,"DHW.Location"
+                                                                                         ,"count"
+                                                                                         ,"EquipVintage_bins"))])
+
+# Apply analysis
+item105.final <- proportions_one_group(CustomerLevelData  = item105.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'EquipVintage_bins'
+                                      , total.name       = "Total"
+                                      , columnName       = "Water Heaters")
+
+# SF = Table 66
+# Export table
+item105.final.SF <- item105.final[which(item105.final$BuildingType == "Single Family"),-1]
+
+exportTable(item105.final.SF, "SF", "Table 66")
 
 
-#summarise across equipment vitnage bins
-item105.sum2 <- summarise(group_by(item105.dat3, BuildingType)
-                          ,EquipVintage_bins = "Total"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Count = sum(count))
-
-#merge
-item105.merge1 <- rbind.data.frame(item105.sum1, item105.sum2, stringsAsFactors = F)
-
-item105.tot.counts <- item105.sum2[which(colnames(item105.sum2) %in% c("BuildingType", "Count"))]
-
-#join
-item105.final <- left_join(item105.merge1, item105.tot.counts, by = c("BuildingType"))
-colnames(item105.final) <- c("BuildingType", "EquipmentVintages", "SampleSize", "Count", "TotalCount")
-
-item105.final$Percent <- item105.final$Count / item105.final$TotalCount
-item105.final$SE <- sqrt(item105.final$Percent * (1 - item105.final$Percent) / item105.final$SampleSize)
-
-#keep only relevant columns
-item105.table <- item105.final[which(colnames(item105.final) %in% c("BuildingType"
-                                                                    ,"EquipmentVintages"
-                                                                    ,"SampleSize"
-                                                                    ,"Percent"
-                                                                    ,"SE"))]
-
-
-#subset to only relevant building types
-item105.table1 <- item105.table[which(item105.table$BuildingType %in% c("Single Family", "Manufactured")),]
+# OLD CODE #
+# 
+# #summarise by equipment vintage bins
+# item105.sum1 <- summarise(group_by(item105.dat3, BuildingType, EquipVintage_bins)
+#                           ,SampleSize = length(unique(CK_Cadmus_ID))
+#                           ,Count = sum(count))
+# 
+# 
+# #summarise across equipment vitnage bins
+# item105.sum2 <- summarise(group_by(item105.dat3, BuildingType)
+#                           ,EquipVintage_bins = "Total"
+#                           ,SampleSize = length(unique(CK_Cadmus_ID))
+#                           ,Count = sum(count))
+# 
+# #merge
+# item105.merge1 <- rbind.data.frame(item105.sum1, item105.sum2, stringsAsFactors = F)
+# 
+# item105.tot.counts <- item105.sum2[which(colnames(item105.sum2) %in% c("BuildingType", "Count"))]
+# 
+# #join
+# item105.final <- left_join(item105.merge1, item105.tot.counts, by = c("BuildingType"))
+# colnames(item105.final) <- c("BuildingType", "EquipmentVintages", "SampleSize", "Count", "TotalCount")
+# 
+# item105.final$Percent <- item105.final$Count / item105.final$TotalCount
+# item105.final$SE <- sqrt(item105.final$Percent * (1 - item105.final$Percent) / item105.final$SampleSize)
+# 
+# #keep only relevant columns
+# item105.table <- item105.final[which(colnames(item105.final) %in% c("BuildingType"
+#                                                                     ,"EquipmentVintages"
+#                                                                     ,"SampleSize"
+#                                                                     ,"Percent"
+#                                                                     ,"SE"))]
+# 
+# 
+# #subset to only relevant building types
+# item105.table1 <- item105.table[which(item105.table$BuildingType %in% c("Single Family", "Manufactured")),]
