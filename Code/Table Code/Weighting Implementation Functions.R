@@ -23,7 +23,7 @@
   # # totalRow = TRUE
   # weighted = FALSE
 
-proportions_two_groups_weighted <- function(CustomerLevelData
+proportionRowsAndColumns1 <- function(CustomerLevelData
                                       , valueVariable
                                       , columnVariable
                                       , rowVariable
