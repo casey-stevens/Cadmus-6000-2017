@@ -259,7 +259,7 @@ item51.table1 <- item51.table[which(item51.table$BuildingType %in% c("Single Fam
 #Item 52: AVERAGE AIR SOURCE HEAT PUMP EFFICIENCY (HSPF) BY EQUIPMENT VINTAGE (SF table 59, MH table 39)
 #############################################################################################
 #data for item 51
-item52.dat <- mechanical.dat3
+item52.dat <- mechanical.dat3[which(mechanical.dat3$CK_Cadmus_ID != "BUILDING"),]
 
 #remove any irrelevant HSPF datapoints (could not collect)
 item52.dat1 <- item52.dat[which(item52.dat$HSPF != "Could Not Collect"),]
@@ -274,11 +274,10 @@ item52.dat2$HSPF <- as.numeric(as.character(item52.dat2$HSPF))
 item52.dat3 <- item52.dat2[which(!(is.na(item52.dat2$HSPF))),]
 
 #Join cleaned item 52 mechanical information with cleaned RBSA site information
-item52.dat4 <- left_join(item52.dat3, rbsa.dat, by = "CK_Cadmus_ID")
+item52.dat4 <- unique(left_join(item52.dat3, rbsa.dat, by = "CK_Cadmus_ID"))
 
-# Remove duplicates
-# Some values still duplicated
-item52.dat5 <- item52.dat4[ !duplicated(item52.dat4), ]
+#any duplicates?
+which(duplicated(item52.dat4))
 
 # Weighting
 item52.data <- weightedData(item52.dat4[-which(colnames(item52.dat4) %in% c("HSPF"

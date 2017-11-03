@@ -41,7 +41,7 @@ UtilityMap <- UtilityMap[,1:2]
 # Import, Subset, CLean Data
 #############################################################################################
 
-# itemData <- rbsa.dat
+itemData <- item52.dat4
 cleanRBSA.dat <- itemData
 names(cleanRBSA.dat)
 
@@ -82,7 +82,7 @@ which(duplicated(cadmus.dat1$CK_Cadmus_ID))
 cadmus.dat2   <- cadmus.dat1#[which(!(duplicated(cadmus.dat1$CK_Cadmus_ID))),]
 cadmus.dat2$Utility[which(cadmus.dat2$Utility == "PACIFIC POWER")] <- "PACIFICORP"
 cadmus.dat2$Utility[which(cadmus.dat2$Utility == "ROCKY MOUNTAIN POWER")] <- "PACIFICORP"
-stopifnot(length(which(duplicated(cadmus.dat2$CK_Cadmus_ID))) == 0)
+# stopifnot(length(which(duplicated(cadmus.dat2$CK_Cadmus_ID))) == 0)
 
       ##  QA/QC: Any lost customers?
       stopifnot(length(unique(cadmus.dat1$CK_Cadmus_ID)) == length(unique(cadmus.dat2$CK_Cadmus_ID)))
@@ -511,6 +511,8 @@ samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
 
 samp.dat.final <- samp.dat.7
 unique(samp.dat.final$n.h)
+
+which(duplicated(samp.dat.final$CK_Cadmus_ID))
 
 
 return(samp.dat.final)

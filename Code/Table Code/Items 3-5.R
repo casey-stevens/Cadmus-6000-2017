@@ -85,7 +85,7 @@ item3.final <- proportionRowsAndColumns1(item3.data
                                          , rowVariable = 'GroundContact'
                                          , aggregateColumnName = "Region"
                                          # , weighted = TRUE
-                                         )
+)
 
 
 colnames(item3.final) <- c("BuildingType"
@@ -102,26 +102,26 @@ colnames(item3.final) <- c("BuildingType"
 # Cast data and create table
 ##################################################
 item3.cast <- dcast(setDT(item3.final)
-                     ,formula = BuildingType + GroundContact ~ State
-                     ,value.var = c("Percent", "SE", "SampleSize", "Count", "PopSize"))
+                    ,formula = BuildingType + GroundContact ~ State
+                    ,value.var = c("Percent", "SE", "SampleSize", "Count", "PopSize"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
-                           ,"GroundContact"  = item3.cast$GroundContact
-                           ,"Percent_ID"     = NA #item3.cast$Percent_ID
-                           ,"SE_ID"          = NA #item3.cast$SE_ID
-                           ,"n_ID"           = NA #item3.cast$Count_ID
-                           ,"Percent_MT"     = item3.cast$Percent_MT
-                           ,"SE_MT"          = item3.cast$SE_MT
-                           ,"n_MT"           = item3.cast$Count_MT
-                           ,"Percent_OR"     = NA #item3.cast$Percent_OR
-                           ,"SE_OR"          = NA #item3.cast$SE_OR
-                           ,"n_OR"           = NA #item3.cast$Count_OR
-                           ,"Percent_WA"     = item3.cast$Percent_WA
-                           ,"SE_WA"          = item3.cast$SE_WA
-                           ,"n_WA"           = item3.cast$Count_WA
-                           ,"Percent_Region" = item3.cast$Percent_Region
-                           ,"SE_Region"      = item3.cast$SE_Region
-                           ,"SampleSize"     = item3.cast$Count_Region)
+                          ,"GroundContact"  = item3.cast$GroundContact
+                          ,"Percent_ID"     = NA #item3.cast$Percent_ID
+                          ,"SE_ID"          = NA #item3.cast$SE_ID
+                          ,"n_ID"           = NA #item3.cast$Count_ID
+                          ,"Percent_MT"     = item3.cast$Percent_MT
+                          ,"SE_MT"          = item3.cast$SE_MT
+                          ,"n_MT"           = item3.cast$Count_MT
+                          ,"Percent_OR"     = NA #item3.cast$Percent_OR
+                          ,"SE_OR"          = NA #item3.cast$SE_OR
+                          ,"n_OR"           = NA #item3.cast$Count_OR
+                          ,"Percent_WA"     = item3.cast$Percent_WA
+                          ,"SE_WA"          = item3.cast$SE_WA
+                          ,"n_WA"           = item3.cast$Count_WA
+                          ,"Percent_Region" = item3.cast$Percent_Region
+                          ,"SE_Region"      = item3.cast$SE_Region
+                          ,"SampleSize"     = item3.cast$Count_Region)
 
 ##################################################
 # Step 6: Split table by building type
@@ -148,9 +148,9 @@ exportTable(item3.table.SF, "SF", "Table 10"
 # Weighting Implementation function: Mean, one group
 ######################################################
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                              , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+                                                            , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
 colnames(env.dat) <- c("CK_Cadmus_ID"
-                         , "BldgLevel_Area_SqFt")
+                       , "BldgLevel_Area_SqFt")
 
 #make conditioned area as.numeric
 env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
@@ -183,16 +183,16 @@ item4.customer <- summarise(group_by(item4.data
                                      , Territory
                                      , n.h
                                      , N.h)
-                      ,siteAreaConditioned = sum(ConditionedArea)
+                            ,siteAreaConditioned = sum(ConditionedArea)
 )
 
 
 
 ## Apply weigthing function: means, two groups
 item4.final <- mean_one_group(CustomerLevelData = item4.customer
-                               , valueVariable = 'siteAreaConditioned'
-                               , byVariable    = 'State'
-                               , aggregateRow  = 'Region'
+                              , valueVariable = 'siteAreaConditioned'
+                              , byVariable    = 'State'
+                              , aggregateRow  = 'Region'
                               , weighted = TRUE)
 
 
