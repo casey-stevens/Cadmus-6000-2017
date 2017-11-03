@@ -67,19 +67,31 @@ item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , byVariable    = 'State'
                               , aggregateRow  = 'Region'
                               , weighted = TRUE)
-
-
 #subset by home type
 item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),]
 item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),]
-
-
 #export data
 exportTable(item7.final.SF, "SF", "Table 14"
             , weighted = TRUE)
 exportTable(item7.final.MH, "MH", "Table 12"
             , weighted = TRUE)
 
+
+
+# Perform analysis for mean, one group
+item7.final <- mean_one_group(CustomerLevelData = item7.data
+                              , valueVariable = 'CountRooms'
+                              , byVariable    = 'State'
+                              , aggregateRow  = 'Region'
+                              , weighted = FALSE)
+#subset by home type
+item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),]
+item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),]
+#export data
+exportTable(item7.final.SF, "SF", "Table 14"
+            , weighted = FALSE)
+exportTable(item7.final.MH, "MH", "Table 12"
+            , weighted = FALSE)
 
 
 #####################################################################################
@@ -123,19 +135,32 @@ item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , byVariable    = 'State'
                               , aggregateRow  = "Region"
                               , weighted = TRUE)
-
-
 #subset by home type
 item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),]
 item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),]
-
-
 #export data
 exportTable(item8.final.SF, "SF", "Table 15"
             , weighted = TRUE)
 exportTable(item8.final.MH, "MH", "Table 13"
             , weighted = TRUE)
 
+
+
+
+# Perform analysis for mean, one group
+item8.final <- mean_one_group(CustomerLevelData = item8.data
+                              , valueVariable = 'CountRooms'
+                              , byVariable    = 'State'
+                              , aggregateRow  = "Region"
+                              , weighted = FALSE)
+#subset by home type
+item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),]
+item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),]
+#export data
+exportTable(item8.final.SF, "SF", "Table 15"
+            , weighted = FALSE)
+exportTable(item8.final.MH, "MH", "Table 13"
+            , weighted = FALSE)
 
 
 
@@ -193,3 +218,27 @@ exportTable(item9.final.SF, "SF", "Table 16"
             , weighted = TRUE)
 exportTable(item9.final.MH, "MH", "Table 14"
             , weighted = TRUE)
+
+
+
+
+
+
+# Perform analysis for mean, one group
+item9.final <- mean_one_group(CustomerLevelData = item9.data
+                              , valueVariable = 'Site_Area'
+                              , byVariable    = 'Clean.Type'
+                              , aggregateRow  = "All Room Types"
+                              , weighted = FALSE)
+
+
+#subset by home type
+item9.final.SF <- item9.final[which(item9.final$BuildingType == "Single Family"),-1]
+item9.final.MH <- item9.final[which(item9.final$BuildingType == "Manufactured"),-1]
+
+
+#export data
+exportTable(item9.final.SF, "SF", "Table 16"
+            , weighted = FALSE)
+exportTable(item9.final.MH, "MH", "Table 14"
+            , weighted = FALSE)
