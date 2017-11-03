@@ -48,12 +48,37 @@ item59.dat$count <- 1
 #check unique system types
 unique(item59.dat00$Generic)
 
-item59.dat0 <- left_join(item59.dat00, rbsa.dat, by = "CK_Cadmus_ID")
+item59.dat0 <- left_join(rbsa.dat, item59.dat00, by = "CK_Cadmus_ID")
 
 #subset to only Generic = Ducting
 item59.dat1 <- unique(item59.dat0[which(item59.dat0$Generic == "Ducting"),])
 length(unique(item59.dat1$CK_Cadmus_ID))
 
+# Add count var
+item59.dat1$count <- 1
+
+
+# Weighting function
+item59.data <- weightedData(item59.dat1[-which(colnames(item59.dat1) %in% c("Generic"
+                                                                            ,"System.Type"
+                                                                            ,"count"))])
+item59.data <- left_join(item59.data, item59.dat1[which(colnames(item59.dat1) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"System.Type"
+                                                                                     ,"count"))])
+
+# Apply analysis
+item59.final <- proportions_one_group(CustomerLevelData  = item59.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Region"
+                                      , columnName       = "Homes with Ducts")
+
+# SF = Table 66
+# Export table
+item59.final.SF <- item59.final[which(item59.final$BuildingType == "Single Family"),-1]
+
+exportTable(item59.final.SF, "SF", "Table 66")
 
 
 # OLD CODE #
@@ -144,6 +169,13 @@ item60.dat2$count <- 1
 item60.dat3 <- item60.dat2[which(item60.dat2$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 item60.dat4 <- item60.dat3[which(item60.dat3$BuildingType %in% c("Single Family")),]
+
+
+
+
+
+
+
 
 # For State
 # Across Unconditioned Bins
