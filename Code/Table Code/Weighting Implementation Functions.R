@@ -56,8 +56,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                      , Region
                                                      , Territory
                                                      , get(rowVariable))
-                                     ,count = sum(get(valueVariable))
-                                     )
+                                            ,count = sum(get(valueVariable))
+      )
       StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
                                                  ,"get(rowVariable)"
                                                  ,rowVariable)
@@ -229,48 +229,48 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                   , item.region.final
                                   , stringsAsFactors = F)
     return(item.full)
-  }
-  # else{
-  #   item.unweighted1 <- summarise(group_by(CustomerLevelData, BuildingType, get(columnVariable), get(rowVariable))
-  #                                 ,Count = sum(get(valueVariable))
-  #                                 ,SampleSize = length(unique(CK_Cadmus_ID)))
-  #   item.unweighted1 <- ConvertColName(item.unweighted1, 'get(columnVariable)', columnVariable)
-  #   item.unweighted1 <- data.frame(ConvertColName(item.unweighted1, 'get(rowVariable)', rowVariable),stringsAsFactors = F)
-  # 
-  #   item.unweighted2 <- summarise(group_by(CustomerLevelData, BuildingType, get(columnVariable))
-  #                                 ,rowTotal = "Total"
-  #                                 ,Count = sum(get(valueVariable))
-  #                                 ,SampleSize = length(unique(CK_Cadmus_ID)))
-  #   item.unweighted2 <- ConvertColName(item.unweighted2,'get(columnVariable)',columnVariable)
-  #   item.unweighted2 <- data.frame(ConvertColName(item.unweighted2,'rowTotal',rowVariable),stringsAsFactors = F)
-  # 
-  #   item.unweighted3 <- summarise(group_by(CustomerLevelData, BuildingType, get(rowVariable))
-  #                                    ,colTotal = aggregateColumnName
-  #                                    ,Count = sum(get(valueVariable))
-  #                                    ,SampleSize = length(unique(CK_Cadmus_ID)))
-  #   item.unweighted3 <- ConvertColName(item.unweighted3,'get(rowVariable)',rowVariable)
-  #   item.unweighted3 <- data.frame(ConvertColName(item.unweighted3,'colTotal',columnVariable),stringsAsFactors = F)
-  # 
-  #   item.unweighted4 <- summarise(group_by(CustomerLevelData, BuildingType)
-  #                                ,colTotal = aggregateColumnName
-  #                                ,rowTotal = "Total"
-  #                                ,Count = sum(get(valueVariable))
-  #                                ,SampleSize = length(unique(CK_Cadmus_ID)))
-  #   item.unweighted4 <- ConvertColName(item.unweighted4,'rowTotal',rowVariable)
-  #   item.unweighted4 <- data.frame(ConvertColName(item.unweighted4,'colTotal',columnVariable),stringsAsFactors = F)
-  #   item.combined <- rbind.data.frame(item.unweighted1, item.unweighted2,
-  #                                     item.unweighted3, item.unweighted4, stringsAsFactors = F)
-  # 
-  #   item.totals <- rbind.data.frame(item.unweighted2, item.unweighted4, stringsAsFactors = F)
-  # 
-  #   item.totals <- item.totals[which(colnames(item.totals) %in% c("BuildingType",columnVariable, "Count", "SampleSize"))]
-  #   colnames(item.totals) <- c("BuildingType",columnVariable, "Total.Count", "Denom.SampleSize")
-  # 
-  #   item.final <- left_join(item.combined, item.totals, by = c("BuildingType",columnVariable))
-  #   item.final$Percent <- item.final$Count / item.final$Total.Count
-  #   item.final$SE <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$Denom.SampleSize)
-  #   return(item.final)
-  # }
+}
+# else{
+#   item.unweighted1 <- summarise(group_by(CustomerLevelData, BuildingType, get(columnVariable), get(rowVariable))
+#                                 ,Count = sum(get(valueVariable))
+#                                 ,SampleSize = length(unique(CK_Cadmus_ID)))
+#   item.unweighted1 <- ConvertColName(item.unweighted1, 'get(columnVariable)', columnVariable)
+#   item.unweighted1 <- data.frame(ConvertColName(item.unweighted1, 'get(rowVariable)', rowVariable),stringsAsFactors = F)
+# 
+#   item.unweighted2 <- summarise(group_by(CustomerLevelData, BuildingType, get(columnVariable))
+#                                 ,rowTotal = "Total"
+#                                 ,Count = sum(get(valueVariable))
+#                                 ,SampleSize = length(unique(CK_Cadmus_ID)))
+#   item.unweighted2 <- ConvertColName(item.unweighted2,'get(columnVariable)',columnVariable)
+#   item.unweighted2 <- data.frame(ConvertColName(item.unweighted2,'rowTotal',rowVariable),stringsAsFactors = F)
+# 
+#   item.unweighted3 <- summarise(group_by(CustomerLevelData, BuildingType, get(rowVariable))
+#                                    ,colTotal = aggregateColumnName
+#                                    ,Count = sum(get(valueVariable))
+#                                    ,SampleSize = length(unique(CK_Cadmus_ID)))
+#   item.unweighted3 <- ConvertColName(item.unweighted3,'get(rowVariable)',rowVariable)
+#   item.unweighted3 <- data.frame(ConvertColName(item.unweighted3,'colTotal',columnVariable),stringsAsFactors = F)
+# 
+#   item.unweighted4 <- summarise(group_by(CustomerLevelData, BuildingType)
+#                                ,colTotal = aggregateColumnName
+#                                ,rowTotal = "Total"
+#                                ,Count = sum(get(valueVariable))
+#                                ,SampleSize = length(unique(CK_Cadmus_ID)))
+#   item.unweighted4 <- ConvertColName(item.unweighted4,'rowTotal',rowVariable)
+#   item.unweighted4 <- data.frame(ConvertColName(item.unweighted4,'colTotal',columnVariable),stringsAsFactors = F)
+#   item.combined <- rbind.data.frame(item.unweighted1, item.unweighted2,
+#                                     item.unweighted3, item.unweighted4, stringsAsFactors = F)
+# 
+#   item.totals <- rbind.data.frame(item.unweighted2, item.unweighted4, stringsAsFactors = F)
+# 
+#   item.totals <- item.totals[which(colnames(item.totals) %in% c("BuildingType",columnVariable, "Count", "SampleSize"))]
+#   colnames(item.totals) <- c("BuildingType",columnVariable, "Total.Count", "Denom.SampleSize")
+# 
+#   item.final <- left_join(item.combined, item.totals, by = c("BuildingType",columnVariable))
+#   item.final$Percent <- item.final$Count / item.final$Total.Count
+#   item.final$SE <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$Denom.SampleSize)
+#   return(item.final)
+# }
 
 # }
 
@@ -278,14 +278,23 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 
-# # Test
-# CustomerLevelData <- item9.data
-# valueVariable     <- 'CountRooms'
-# byVariable        <- 'State'
-# aggregateRow      <- "Region"
+# # # Test
+# CustomerLevelData = item52.data
+# valueVariable = 'HSPF' 
+# byVariable    = 'EquipVintage_bins'
+# aggregateRow  = "All Vintages"
+# weighted = TRUE
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow, weighted = TRUE) {
+  
+  ### Function to convert column names
+  ConvertColName <- function(dataset, currentColName, newColName) {
+    data <- dataset
+    colnames(data)[which(colnames(data) == currentColName)] <- newColName
+    return(data)
+  }
+  
   
   ######################################################
   # Step 1.1: Using customer level data,
