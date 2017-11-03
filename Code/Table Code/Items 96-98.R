@@ -7,7 +7,16 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -126,43 +135,68 @@ item97.dat$count <- 1
 
 item97.dat0 <- item97.dat[which(item97.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item97.dat1 <- left_join(item97.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item97.dat1 <- left_join(rbsa.dat, item97.dat0, by = "CK_Cadmus_ID")
 
 unique(item97.dat1$DHW.Fuel)
 item97.dat2 <- item97.dat1[grep("Water Heater",item97.dat1$Generic),]
 
-#summarise by type
-item97.sum1 <- summarise(group_by(item97.dat2, BuildingType, Generic)
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
 
-#summarise across types
-item97.sum2 <- summarise(group_by(item97.dat2, BuildingType)
-                         ,Generic = "Total"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
-#total counts
-item97.totCount <- item97.sum2[which(colnames(item97.sum2) %in% c("BuildingType", "Count"))]
-colnames(item97.totCount) <- c("BuildingType", "Total.Count")
+# Weighting function
+item97.data <- weightedData(item97.dat2[-which(colnames(item97.dat2) %in% c("Generic"
+                                                                            ,"DHW.Fuel"
+                                                                            ,"count"))])
+item97.data <- left_join(item97.data, item97.dat2[which(colnames(item97.dat2) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"DHW.Fuel"
+                                                                                     ,"count"))])
 
-#rbind by and across types
-item97.merge1 <- rbind.data.frame(item97.sum1, item97.sum2, stringsAsFactors = F)
+# Apply analysis
+item97.final <- proportions_one_group(CustomerLevelData  = item97.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'Generic'
+                                      , total.name       = "Total"
+                                      , columnName       = "Homes with Ducts")
 
-#merge on total counts
-item97.final <- left_join(item97.merge1, item97.totCount, by = "BuildingType")
+# Export table
+item97.final.SF <- item97.final[which(item97.final$BuildingType == "Single Family"),-1]
 
-#calculate percents and SEs
-item97.final$Percent <- item97.final$Count / item97.final$Total.Count
-item97.final$SE <- sqrt(item97.final$Percent * (1 - item97.final$Percent) / item97.final$SampleSize)
-
-item97.table <- data.frame("BuildingType" = item97.final$BuildingType
-                           ,"Water.Heaters" = item97.final$Generic
-                           ,"Percent" = item97.final$Percent
-                           ,"SE" = item97.final$SE
-                           ,"SampleSize" = item97.final$SampleSize)
-item97.SF.table <- item97.table[which(item97.table$BuildingType %in% c("Single Family")),]
+exportTable(item97.final.SF, "SF", "Table 104")
 
 
+# OLD CODE #
+# 
+# #summarise by type
+# item97.sum1 <- summarise(group_by(item97.dat2, BuildingType, Generic)
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Count = sum(count))
+# 
+# #summarise across types
+# item97.sum2 <- summarise(group_by(item97.dat2, BuildingType)
+#                          ,Generic = "Total"
+#                          ,SampleSize = length(unique(CK_Cadmus_ID))
+#                          ,Count = sum(count))
+# #total counts
+# item97.totCount <- item97.sum2[which(colnames(item97.sum2) %in% c("BuildingType", "Count"))]
+# colnames(item97.totCount) <- c("BuildingType", "Total.Count")
+# 
+# #rbind by and across types
+# item97.merge1 <- rbind.data.frame(item97.sum1, item97.sum2, stringsAsFactors = F)
+# 
+# #merge on total counts
+# item97.final <- left_join(item97.merge1, item97.totCount, by = "BuildingType")
+# 
+# #calculate percents and SEs
+# item97.final$Percent <- item97.final$Count / item97.final$Total.Count
+# item97.final$SE <- sqrt(item97.final$Percent * (1 - item97.final$Percent) / item97.final$SampleSize)
+# 
+# item97.table <- data.frame("BuildingType" = item97.final$BuildingType
+#                            ,"Water.Heaters" = item97.final$Generic
+#                            ,"Percent" = item97.final$Percent
+#                            ,"SE" = item97.final$SE
+#                            ,"SampleSize" = item97.final$SampleSize)
+# item97.SF.table <- item97.table[which(item97.table$BuildingType %in% c("Single Family")),]
+# 
+# 
 
 
 
