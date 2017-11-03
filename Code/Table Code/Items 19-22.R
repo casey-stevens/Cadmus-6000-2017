@@ -93,6 +93,23 @@ exportTable(item19.final.SF, "SF", "Table 26"
 
 
 
+
+item19.final <- proportions_one_group(CustomerLevelData  = item19.data
+                                      , valueVariable    = 'Basement.Ind'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Region"
+                                      , weighted = FALSE)
+
+#subset by home type
+item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Family"),]
+
+
+#export data
+exportTable(item19.final.SF, "SF", "Table 26"
+            , weighted = FALSE)
+
+
+
 # #summarise -- State JUST Basement
 # item19.sum1 <- summarise(group_by(item19.dat3, BuildingType, State)
 #                          , BSMTCount = sum(count))
@@ -177,6 +194,24 @@ exportTable(item20.final.SF, "SF", "Table 27"
 
 
 
+item20.final <- proportions_one_group(CustomerLevelData  = item20.data
+                                      , valueVariable    = 'cond.ind'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Region"
+                                      , weighted = FALSE)
+
+#subset by home type
+item20.final.SF <- item20.final[which(item20.final$BuildingType == "Single Family"),-1]
+
+
+#export data
+exportTable(item20.final.SF, "SF", "Table 27"
+            , weighted = FALSE)
+
+
+
+
+
 
 
 
@@ -254,7 +289,26 @@ item21.final <- proportions_one_group(CustomerLevelData  = item21.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'BSMT_Slab_Thickness'
                                       , total.name       = "Total"
+                                      , columnName       = "Basement Thickness"
                                       , weighted = TRUE)
+
+#subset by home type
+item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Family"),-c(1,8)]
+
+
+#export data
+exportTable(item21.final.SF, "SF", "Table 28"
+            , weighted = TRUE)
+
+
+
+
+
+item21.final <- proportions_one_group(CustomerLevelData  = item21.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'BSMT_Slab_Thickness'
+                                      , total.name       = "Total"
+                                      , weighted = FALSE)
 
 #subset by home type
 item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Family"),-1]
@@ -262,7 +316,8 @@ item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Famil
 
 #export data
 exportTable(item21.final.SF, "SF", "Table 28"
-            , weighted = TRUE)
+            , weighted = FALSE)
+
 
 
 
@@ -311,6 +366,24 @@ item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Famil
 #export data
 exportTable(item22.final.SF, "SF", "Table 29"
             , weighted = TRUE)
+
+
+
+
+
+item22.final <- proportions_one_group(CustomerLevelData  = item22.data
+                                      , valueVariable    = 'FloorOverCrawl'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Region"
+                                      , weighted = FALSE)
+
+#subset by home type
+item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Family"),]
+
+
+#export data
+exportTable(item22.final.SF, "SF", "Table 29"
+            , weighted = FALSE)
 
  #subset envelope data to necessary columns
 # item22.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
