@@ -2,12 +2,21 @@
 ##  Title:            RBSA Analysis                      
 ##  Author:           Casey Stevens, Cadmus Group               
 ##  Created:          06/13/2017
-##  Updated:                                             
+##  Updated:          11/3/2017                                   
 ##  Billing Code(s):  
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -45,48 +54,52 @@ item59.dat0 <- left_join(item59.dat00, rbsa.dat, by = "CK_Cadmus_ID")
 item59.dat1 <- unique(item59.dat0[which(item59.dat0$Generic == "Ducting"),])
 length(unique(item59.dat1$CK_Cadmus_ID))
 
-#summarise FULL data by state
-item59.sum1 <- summarise(group_by(item59.dat0, BuildingType, State)
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#summarise only ducting data by state
-item59.sum2 <- summarise(group_by(item59.dat1, BuildingType, State)
-                         ,DuctCount = length(unique(CK_Cadmus_ID)))
-
-#summarise FULL data for the region
-item59.sum3 <- summarise(group_by(item59.dat0, BuildingType)
-                         ,State = "Region"
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-#summarise only ducting for the region
-item59.sum4 <- summarise(group_by(item59.dat1, BuildingType)
-                         ,State = "Region"
-                         ,DuctCount = length(unique(CK_Cadmus_ID)))
-
-#row bind DUCT data counts
-item59.duct <- rbind.data.frame(item59.sum2, item59.sum4, stringsAsFactors = F)
-#row bind FULL data counts
-item59.full <- rbind.data.frame(item59.sum1, item59.sum3, stringsAsFactors = F)
 
 
-#merge duct and full info
-item59.final <- left_join(item59.duct, item59.full, by = c("BuildingType","State"))
-
-
-#calculate Ducting percent
-item59.final$Percent <- item59.final$DuctCount / item59.final$SampleSize
-#calculate SE for proportion (percent)
-item59.final$SE <- sqrt(item59.final$Percent * (1 - item59.final$Percent) / item59.final$SampleSize)
-
-#subset to only columns needed for table
-item59.table <- data.frame("BuildingType" = item59.final$BuildingType
-                           ,"State" = item59.final$State
-                           ,"Percent" = item59.final$Percent
-                           ,"SE" = item59.final$SE
-                           ,"SampleSize" = item59.final$SampleSize) 
-#subset to only building types needed for table
-item59.table.final <- item59.table[which(item59.table$BuildingType %in% c("Single Family")),]
-
-
-
+# OLD CODE #
+# 
+# #summarise FULL data by state
+# item59.sum1 <- summarise(group_by(item59.dat0, BuildingType, State)
+#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+# #summarise only ducting data by state
+# item59.sum2 <- summarise(group_by(item59.dat1, BuildingType, State)
+#                          ,DuctCount = length(unique(CK_Cadmus_ID)))
+# 
+# #summarise FULL data for the region
+# item59.sum3 <- summarise(group_by(item59.dat0, BuildingType)
+#                          ,State = "Region"
+#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+# #summarise only ducting for the region
+# item59.sum4 <- summarise(group_by(item59.dat1, BuildingType)
+#                          ,State = "Region"
+#                          ,DuctCount = length(unique(CK_Cadmus_ID)))
+# 
+# #row bind DUCT data counts
+# item59.duct <- rbind.data.frame(item59.sum2, item59.sum4, stringsAsFactors = F)
+# #row bind FULL data counts
+# item59.full <- rbind.data.frame(item59.sum1, item59.sum3, stringsAsFactors = F)
+# 
+# 
+# #merge duct and full info
+# item59.final <- left_join(item59.duct, item59.full, by = c("BuildingType","State"))
+# 
+# 
+# #calculate Ducting percent
+# item59.final$Percent <- item59.final$DuctCount / item59.final$SampleSize
+# #calculate SE for proportion (percent)
+# item59.final$SE <- sqrt(item59.final$Percent * (1 - item59.final$Percent) / item59.final$SampleSize)
+# 
+# #subset to only columns needed for table
+# item59.table <- data.frame("BuildingType" = item59.final$BuildingType
+#                            ,"State" = item59.final$State
+#                            ,"Percent" = item59.final$Percent
+#                            ,"SE" = item59.final$SE
+#                            ,"SampleSize" = item59.final$SampleSize) 
+# #subset to only building types needed for table
+# item59.table.final <- item59.table[which(item59.table$BuildingType %in% c("Single Family")),]
+# 
+# 
+# 
 
 
 

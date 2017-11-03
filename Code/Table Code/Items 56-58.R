@@ -2,7 +2,7 @@
 ##  Title:            RBSA Analysis                      
 ##  Author:           Casey Stevens, Cadmus Group               
 ##  Created:          06/13/2017
-##  Updated:                                             
+##  Updated:          11/3/2017                                   
 ##  Billing Code(s):  
 #############################################################################################
 
@@ -207,8 +207,8 @@ item57.final <- mean_one_group(CustomerLevelData = item57.data
 item57.final.SF <- item57.final[which(item57.final$BuildingType == "Single Family"),-1]
 item57.final.MH <- item57.final[which(item57.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item43.final.SF, "SF", "Table 64")
-exportTable(item43.final.MH, "MH", "Table 44")
+exportTable(item57.final.SF, "SF", "Table 64")
+exportTable(item57.final.MH, "MH", "Table 44")
 
 # 
 # OLD CODE #
@@ -293,6 +293,6 @@ item58.final <- mean_one_group(CustomerLevelData = item58.data
 item58.final.SF <- item58.final[which(item58.final$BuildingType == "Single Family"),-1]
 item58.final.MH <- item58.final[which(item58.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item43.final.SF, "SF", "Table 65")
-exportTable(item43.final.MH, "MH", "Table 45")
+exportTable(item58.final.SF, "SF", "Table 65")
+exportTable(item58.final.MH, "MH", "Table 45")
 
