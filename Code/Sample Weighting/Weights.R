@@ -41,12 +41,7 @@ weightedData <- function(itemData){
   # Import, Subset, CLean Data
   #############################################################################################
   
-  # itemData <- item52.dat5[-which(colnames(item52.dat5) %in% c("Generic"
-  #                                                             ,"Heating.Fuel"
-  #                                                             ,"Component.1.Year.of.Manufacture"
-  #                                                             ,"Heating.Efficiency.-.High"
-  #                                                             ,"HSPF"
-  #                                                             ,"EquipVintage_bins"))]
+  # itemData <- item1.dat0
   cleanRBSA.dat <- itemData
   names(cleanRBSA.dat)
   
@@ -178,18 +173,6 @@ weightedData <- function(itemData){
   
   #there are some zip codes/states that are in our data that are not in the population data
   cadmus.dat3[which(is.na(cadmus.dat3$State)),]
-  
-  # ###### CHECK WITH RIETZ
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97703)] <- 97701
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98763)] <- 98686
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98703)] <- 97701
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 59807)] <- 59804
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 93854)] <- 83854
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97802)] <- 97814
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 97078)] <- 97068
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98127)] <- 98126
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98195)] <- 98199
-  # cadmus.dat3$ZIPCode[which(cadmus.dat3$ZIPCode == 98215)] <- 98203
   
   
   
@@ -472,8 +455,8 @@ popCounts.1 <- summarise(group_by(popCounts.0,
                          , N_MH.h = sum(MH.pop)
                          , N_MF.h = sum(MF.pop))
 
-
-popMelt <- melt(popCounts.1, id.vars = c("State", "Region", "Territory"))
+popCounts.1 <- data.frame(popCounts.1, stringsAsFactors = F)
+popMelt <- reshape2::melt(popCounts.1, id.vars = c("State", "Region", "Territory"))
 popMelt$BuildingType <- NA
 popMelt$BuildingType[grep("SF", popMelt$variable)] <- "Single Family"
 popMelt$BuildingType[grep("MF", popMelt$variable)] <- "Multifamily"
