@@ -333,12 +333,13 @@ item105.final <- proportions_one_group(CustomerLevelData  = item105.data
                                       , total.name       = "Total"
                                       , columnName       = "Water Heaters")
 
-# SF = Table 66
+# SF = Table 112, MH = Table 87
 # Export table
 item105.final.SF <- item105.final[which(item105.final$BuildingType == "Single Family"),-1]
+item105.final.MH <- item105.final[which(item105.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item105.final.SF, "SF", "Table 66")
-
+exportTable(item105.final.SF, "SF", "Table 112")
+exportTable(item105.final.MH, "MH", "Table 87")
 
 # OLD CODE #
 # 
