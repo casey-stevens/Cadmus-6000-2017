@@ -278,7 +278,7 @@ item52.dat4 <- unique(left_join(rbsa.dat, item52.dat3, by = "CK_Cadmus_ID"))
 item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$HSPF)),]
 
 #any duplicates?
-which(duplicated(item52.dat4))
+which(duplicated(item52.dat5))
 
 # Weighting
 item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("Generic"
@@ -288,7 +288,7 @@ item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("Gen
                                                                             ,"HSPF"
                                                                             ,"EquipVintage_bins"))])
 
-item52.data <- left_join(item52.data, item52.dat4[which(colnames(item52.dat4) %in% c("CK_Cadmus_ID"
+item52.data <- left_join(item52.data, item52.dat5[which(colnames(item52.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Heating.Fuel"
                                                                                      ,"Component.1.Year.of.Manufacture"
@@ -307,8 +307,8 @@ item52.final <- mean_one_group(CustomerLevelData = item52.data
 item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Family"),-1]
 item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item43.final.SF, "SF", "Table 59")
-exportTable(item43.final.MH, "MH", "Table 39")
+exportTable(item52.final.SF, "SF", "Table 59")
+exportTable(item52.final.MH, "MH", "Table 39")
 
 
 # OLD CODE #
