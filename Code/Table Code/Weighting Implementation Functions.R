@@ -260,11 +260,11 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
 
 # # # Test
-# CustomerLevelData = item52.data
-# valueVariable = 'HSPF' 
-# byVariable    = 'EquipVintage_bins'
-# aggregateRow  = "All Vintages"
-# weighted = TRUE
+CustomerLevelData = item4.customer
+valueVariable = 'siteAreaConditioned'
+byVariable    = 'State'
+aggregateRow  = "Region"
+weighted = FALSE
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow, weighted = TRUE) {
@@ -336,16 +336,16 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   } else {
     #by state
     item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
-                               ,SampleSize = length(unique(CK_Cadmus_ID))
-                               ,Mean = mean(get(valueVariable))
-                               ,SE = sd(valueVariable) / sqrt(SampleSize))
+                               ,n = length(unique(CK_Cadmus_ID))
+                               ,Mean = mean(get(valueVariable), na.rm = T)
+                               ,SE = sd(get(valueVariable), na.rm = T) / sqrt(n))
     item.byGroup <- data.frame(ConvertColName(item.byGroup,'get(byVariable)',byVariable),stringsAsFactors = F)
     #by region
     item.all <- summarise(group_by(CustomerLevelData, BuildingType)
                                 ,All = aggregateRow
-                                ,SampleSize = length(unique(CK_Cadmus_ID))
-                                ,Mean = mean(get(valueVariable))
-                                ,SE = sd(valueVariable) / sqrt(SampleSize))
+                                ,n = length(unique(CK_Cadmus_ID))
+                                ,Mean = mean(get(valueVariable), na.rm = T)
+                                ,SE = sd(get(valueVariable), na.rm = T) / sqrt(n))
     item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
     item.final <- rbind.data.frame(item.byGroup, item.all, stringsAsFactors = F)
     return(item.final)
@@ -367,7 +367,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 
 
 # Test
-# CustomerLevelData = item5.customer
+# CustomerLevelData = item4.customer
 # valueVariable     = 'siteAreaConditioned'
 # byVariableRow     = 'HomeYearBuilt_bins2'
 # byVariableColumn  = 'State'
