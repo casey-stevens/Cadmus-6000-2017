@@ -1,7 +1,7 @@
 #############################################################################################
 ##  Title:            RBSA Analysis                      
-##  Author:           Casey Stevens, Cadmus Group               
-##  Created:          02/27/2017
+##  Authors:          Casey Stevens, Andres Roma, Diego Sosa-Coba, Cadmus Group               
+##  Created:          10/2017
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
@@ -35,11 +35,14 @@ room.dat$CK_Cadmus_ID <- trimws(toupper(room.dat$CK_Cadmus_ID))
 ######################################################
 
 #subset to columns need in table
-room.tmp <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
+room.tmp <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID"
+                                                     , "Iteration"
+                                                     , "Clean.Type"
+                                                     , "Area"))]
 item7.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
 
 #remove building information
-item7.dat1 <- item7.dat[-grep("BLDG", item7.dat$Iteration),]
+item7.dat1 <- item7.dat[grep("SITE", item7.dat$Iteration),]
 
 #subset to only bedrooms
 item7.dat2 <- item7.dat1[which(item7.dat1$Clean.Type == "Bedroom"),]
@@ -58,10 +61,14 @@ item7.merge <- item7.merge[which(!is.na(item7.merge$CountRooms)),]
 # apply weights to the subset of the data
 item7.data <- weightedData(item7.merge[-which(colnames(item7.merge) == "CountRooms")])
 #merge back on measured variable
-item7.data <- left_join(item7.data, item7.customer[which(colnames(item7.customer) %in% c("CK_Cadmus_ID", "CountRooms"))])
+item7.data <- left_join(item7.data, item7.customer[which(colnames(item7.customer) %in% c("CK_Cadmus_ID"
+                                                                                         , "CountRooms"))])
 item7.data$count <- 1
 
-# Perform analysis for mean, one group
+
+################################
+# Weighted Analysis
+################################
 item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
@@ -78,7 +85,10 @@ exportTable(item7.final.MH, "MH", "Table 12"
 
 
 
-# Perform analysis for mean, one group
+
+################################
+# Unweighted Analysis
+################################
 item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
@@ -102,11 +112,14 @@ exportTable(item7.final.MH, "MH", "Table 12"
 ######################################################
 
 #subset to columns need in table
-room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
+room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID"
+                                                      , "Iteration"
+                                                      , "Clean.Type"
+                                                      , "Area"))]
 item8.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
 
 #remove building information
-item8.dat1 <- item8.dat[-grep("BLDG", item8.dat$Iteration),]
+item8.dat1 <- item8.dat[grep("SITE", item8.dat$Iteration),]
 
 #subset to only bedrooms
 item8.dat2 <- item8.dat1[which(item8.dat1$Clean.Type == "Bathroom"),]
@@ -126,10 +139,14 @@ item8.merge <- item8.merge[which(!is.na(item8.merge$CountRooms)),]
 # apply weights to the subset of the data
 item8.data <- weightedData(item8.merge[-which(colnames(item8.merge) == "CountRooms")])
 #merge back on measured variable
-item8.data <- left_join(item8.data, item8.customer[which(colnames(item8.customer) %in% c("CK_Cadmus_ID", "CountRooms"))])
+item8.data <- left_join(item8.data, item8.customer[which(colnames(item8.customer) %in% c("CK_Cadmus_ID"
+                                                                                         , "CountRooms"))])
 item8.data$count <- 1
 
-# Perform analysis for mean, one group
+
+################################
+# Weighted Analysis
+################################
 item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
@@ -147,7 +164,10 @@ exportTable(item8.final.MH, "MH", "Table 13"
 
 
 
-# Perform analysis for mean, one group
+
+################################
+# Unweighted Analysis
+################################
 item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
@@ -172,7 +192,10 @@ exportTable(item8.final.MH, "MH", "Table 13"
 ######################################################
 
 #subset to columns need in table
-room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID", "Iteration", "Clean.Type", "Area"))]
+room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID"
+                                                      , "Iteration"
+                                                      , "Clean.Type"
+                                                      , "Area"))]
 item9.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
 
 item9.dat$count <- 1
@@ -200,7 +223,11 @@ item9.data <- left_join(item9.data, item9.merge[which(colnames(item9.merge) %in%
                                                                                    , "Site_Area"))])
 item9.data$count <- 1
 
-# Perform analysis for mean, one group
+
+
+################################
+# Weighted Analysis
+################################
 item9.final <- mean_one_group(CustomerLevelData = item9.data
                               , valueVariable = 'Site_Area'
                               , byVariable    = 'Clean.Type'
@@ -224,7 +251,9 @@ exportTable(item9.final.MH, "MH", "Table 14"
 
 
 
-# Perform analysis for mean, one group
+################################
+# Unweighted Analysis
+################################
 item9.final <- mean_one_group(CustomerLevelData = item9.data
                               , valueVariable = 'Site_Area'
                               , byVariable    = 'Clean.Type'
