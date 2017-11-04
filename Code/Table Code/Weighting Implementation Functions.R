@@ -199,11 +199,11 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 # Test
-# CustomerLevelData = item1.dat
-# valueVariable     = 'count'
-# columnVariable    = 'State'
-# rowVariable       = 'HomeType'
-# aggregateColumnName = "Region"
+CustomerLevelData = item10.data
+valueVariable       = 'count'
+columnVariable      = 'Wall.Type'
+rowVariable         = 'rvalue.bins'
+aggregateColumnName = "All Frame Types"
 
 proportions_two_groups_unweighted <- function(CustomerLevelData
                                             , valueVariable
@@ -256,7 +256,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
   item.final         <- left_join(item.combined, item.totals, by = c("BuildingType",columnVariable))
   item.final$Percent <- item.final$Count / item.final$Total.Count
-  item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$Denom.SampleSize)
+  item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSize)
   return(item.final)
 }
 
