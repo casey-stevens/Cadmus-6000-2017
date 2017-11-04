@@ -333,6 +333,14 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 
 mean_one_group_unweighted <- function(CustomerLevelData, valueVariable, 
                            byVariable, aggregateRow) {
+  
+  ### Function to convert column names
+  ConvertColName <- function(dataset, currentColName, newColName) {
+    data <- dataset
+    colnames(data)[which(colnames(data) == currentColName)] <- newColName
+    return(data)
+  }
+  
     #by state
     item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
                                ,n = length(unique(CK_Cadmus_ID))
