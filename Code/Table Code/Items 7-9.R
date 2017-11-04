@@ -72,8 +72,7 @@ item7.data$count <- 1
 item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = 'Region'
-                              , weighted = TRUE)
+                              , aggregateRow  = 'Region')
 #subset by home type
 item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),-1]
 item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),-1]
@@ -89,11 +88,10 @@ exportTable(item7.final.MH, "MH", "Table 12"
 ################################
 # Unweighted Analysis
 ################################
-item7.final <- mean_one_group(CustomerLevelData = item7.data
+item7.final <- mean_one_group_unweighted(CustomerLevelData = item7.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = 'Region'
-                              , weighted = FALSE)
+                              , aggregateRow  = 'Region')
 #subset by home type
 item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),-1]
 item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),-1]
@@ -102,6 +100,9 @@ exportTable(item7.final.SF, "SF", "Table 14"
             , weighted = FALSE)
 exportTable(item7.final.MH, "MH", "Table 12"
             , weighted = FALSE)
+
+
+
 
 
 #####################################################################################
@@ -150,8 +151,7 @@ item8.data$count <- 1
 item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = "Region"
-                              , weighted = TRUE)
+                              , aggregateRow  = "Region")
 #subset by home type
 item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),-1]
 item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),-1]
@@ -168,11 +168,10 @@ exportTable(item8.final.MH, "MH", "Table 13"
 ################################
 # Unweighted Analysis
 ################################
-item8.final <- mean_one_group(CustomerLevelData = item8.data
+item8.final <- mean_one_group_unweighted(CustomerLevelData = item8.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'State'
-                              , aggregateRow  = "Region"
-                              , weighted = FALSE)
+                              , aggregateRow  = "Region")
 #subset by home type
 item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),-1]
 item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),-1]
@@ -231,8 +230,7 @@ item9.data$count <- 1
 item9.final <- mean_one_group(CustomerLevelData = item9.data
                               , valueVariable = 'Site_Area'
                               , byVariable    = 'Clean.Type'
-                              , aggregateRow  = "All Room Types"
-                              , weighted = TRUE)
+                              , aggregateRow  = "All Room Types")
 
 
 #subset by home type
@@ -254,11 +252,10 @@ exportTable(item9.final.MH, "MH", "Table 14"
 ################################
 # Unweighted Analysis
 ################################
-item9.final <- mean_one_group(CustomerLevelData = item9.data
+item9.final <- mean_one_group_unweighted(CustomerLevelData = item9.data
                               , valueVariable = 'Site_Area'
                               , byVariable    = 'Clean.Type'
-                              , aggregateRow  = "All Room Types"
-                              , weighted = FALSE)
+                              , aggregateRow  = "All Room Types")
 
 
 #subset by home type

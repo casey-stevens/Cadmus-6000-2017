@@ -15,11 +15,11 @@
 #################################################################################
 
 # TEST
-# CustomerLevelData <-  item1.dat
-# valueVariable <- 'count'
-# columnVariable <- 'State'
-# rowVariable <- 'HomeType'
-# aggregateColumnName = "Region"
+CustomerLevelData     = item10.data
+valueVariable       = 'count'
+columnVariable      = 'Wall.Type'
+rowVariable         = 'rvalue.bins'
+aggregateColumnName = "All Frame Types"
   # # totalRow = TRUE
   # weighted = FALSE
 
@@ -106,10 +106,17 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataData <- left_join(StrataPopCounts , StrataGroupedProportions)
     
     #obtain the total population size for the building type by state combination observed in the sample
-    columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType", columnVariable)
+    StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                        ,"State"
+                                                                        ,"Region"
+                                                                        ,"Territory"
+                                                                        ,columnVariable
+                                                                        ,"N.h"
+                                                                        ,"n.h"))])
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", columnVariable)
                                          ,summarise
-                                         ,columnVar.N.h = sum(unique(N.h))
-                                         ,columnVar.n.h = sum(unique(n.h))), stringsAsFactors = F)
+                                         ,columnVar.N.h = sum(N.h)
+                                         ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
     
     #join strata data with weights by column grouping variable 
     StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable))
@@ -151,9 +158,15 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   # Step 2: Region (across states)
   #################################
     #obtain the total population size for the building type observed in the sample
-    AggregateWeight <- summarise(group_by(StrataData, BuildingType)
-                                 ,aggregate.N.h = sum(unique(N.h), na.rm = T)
-                                 ,aggregate.n.h = sum(unique(n.h), na.rm = T))
+    StrataData_n_agg <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                            ,"State"
+                                                                            ,"Region"
+                                                                            ,"Territory"
+                                                                            ,"N.h"
+                                                                            ,"n.h"))])
+    AggregateWeight <- summarise(group_by(StrataData_n_agg, BuildingType)
+                                 ,aggregate.N.h = sum(N.h, na.rm = T)
+                                 ,aggregate.n.h = sum(n.h, na.rm = T))
     
     #join strata data onto region weights
     item.region.join <- left_join(StrataData, AggregateWeight, by = c("BuildingType"))
