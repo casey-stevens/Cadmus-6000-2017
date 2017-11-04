@@ -260,10 +260,10 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
 
 # Test
-# CustomerLevelData = item7.data
-# valueVariable = 'CountRooms'
-# byVariable    = 'State'
-# aggregateRow  = 'Region'
+CustomerLevelData = item9.data
+valueVariable = 'Site_Area'
+byVariable    = 'Clean.Type'
+aggregateRow  = 'All Room Types'
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {
@@ -342,18 +342,23 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
   
     #by state
     item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
-                               ,n = length(unique(CK_Cadmus_ID))
-                               ,Mean = mean(get(valueVariable), na.rm = T)
-                               ,SE = sd(get(valueVariable), na.rm = T) / sqrt(n))
+                               ,n     = length(unique(CK_Cadmus_ID))
+                               ,count = sum(count)
+                               ,Mean  = mean(get(valueVariable), na.rm = T)
+                               ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
     item.byGroup <- data.frame(ConvertColName(item.byGroup,'get(byVariable)',byVariable),stringsAsFactors = F)
     #by region
     item.all <- summarise(group_by(CustomerLevelData, BuildingType)
-                                ,All = aggregateRow
-                                ,n = length(unique(CK_Cadmus_ID))
-                                ,Mean = mean(get(valueVariable), na.rm = T)
-                                ,SE = sd(get(valueVariable), na.rm = T) / sqrt(n))
+                          ,All   = aggregateRow
+                          ,n     = length(unique(CK_Cadmus_ID))
+                          ,count = sum(count)
+                          ,Mean  = mean(get(valueVariable), na.rm = T)
+                          ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
+    
     item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
+    
     item.final <- rbind.data.frame(item.byGroup, item.all, stringsAsFactors = F)
+    
     return(item.final)
 }
 
