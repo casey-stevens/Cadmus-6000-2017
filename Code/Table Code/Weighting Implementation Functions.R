@@ -367,7 +367,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 
 
 # Test
-# CustomerLevelData = item4.customer
+# CustomerLevelData = item5.customer
 # valueVariable     = 'siteAreaConditioned'
 # byVariableRow     = 'HomeYearBuilt_bins2'
 # byVariableColumn  = 'State'
@@ -399,8 +399,8 @@ mean_two_groups <- function(CustomerLevelData
                              ,N_h        = unique(N.h)
                              ,fpc        = (1 - n_h / N_h)
                              ,w_h        = n_h / N_h
-                             ,strataMean = sum(get(valueVariable)) / n_h
-                             ,strataSD   = sd(get(valueVariable))
+                             ,strataMean = mean(get(valueVariable), na.rm = T)
+                             ,strataSD   = sd(get(valueVariable), na.rm = T)
                              ,n          = length(unique(CK_Cadmus_ID))
   )
   
@@ -414,8 +414,8 @@ mean_two_groups <- function(CustomerLevelData
                              ,N_h        = unique(N.h)
                              ,fpc        = (1 - n_h / N_h)
                              ,w_h        = n_h / N_h
-                             ,strataMean = sum(get(valueVariable)) / n_h
-                             ,strataSD   = sd(get(valueVariable))
+                             ,strataMean = mean(get(valueVariable), na.rm = T)
+                             ,strataSD   = sd(get(valueVariable), na.rm = T)
                              ,n          = length(unique(CK_Cadmus_ID))
     )
     
@@ -429,8 +429,8 @@ mean_two_groups <- function(CustomerLevelData
                              ,N_h        = unique(N.h)
                              ,fpc        = (1 - n_h / N_h)
                              ,w_h        = n_h / N_h
-                             ,strataMean = sum(get(valueVariable)) / n_h
-                             ,strataSD   = sd(get(valueVariable))
+                             ,strataMean = mean(get(valueVariable), na.rm = T)
+                             ,strataSD   = sd(get(valueVariable), na.rm = T)
                              ,n          = length(unique(CK_Cadmus_ID))
     )
     
