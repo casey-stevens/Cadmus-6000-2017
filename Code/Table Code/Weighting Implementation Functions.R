@@ -260,11 +260,10 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
 
 # Test
-# CustomerLevelData = item4.customer
-# valueVariable = 'siteAreaConditioned'
+# CustomerLevelData = item7.data
+# valueVariable = 'CountRooms'
 # byVariable    = 'State'
-# aggregateRow  = "Region"
-# weighted = FALSE
+# aggregateRow  = 'Region'
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {
@@ -310,7 +309,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   item.group <- summarise(group_by(item.strata, BuildingType, get(byVariable))
                            ,Mean       = sum(N_h * strataMean) / sum(N_h)
                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                           ,SampleSize = sum(unique(n_h)))
+                           ,SampleSize = sum(n))
   colnames(item.group)[which(colnames(item.group) == 'get(byVariable)')] <- byVariable
   
   ######################################################
@@ -321,7 +320,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,by         = aggregateRow
                             ,Mean       = sum(N_h * strataMean) / sum(N_h)
                             ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                            ,SampleSize = sum(unique(n_h)))
+                            ,SampleSize = sum(n))
   colnames(item.region)[which(colnames(item.region) == 'by')] <- byVariable
   
   item.final <- rbind.data.frame(item.group, item.region, stringsAsFactors = F)
