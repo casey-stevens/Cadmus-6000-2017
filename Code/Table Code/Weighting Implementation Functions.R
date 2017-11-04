@@ -552,11 +552,11 @@ mean_two_groups <- function(CustomerLevelData, valueVariable,
 
 
   # #Test
-  # CustomerLevelData <- item31.data
-  # valueVariable = 'count'
-  # groupingVariable = 'ceiling.inches1'
-  # total.name = "Total"
-  # columnName = "Roof Deck Insulation Levels"
+  # CustomerLevelData <- item20.data
+  # valueVariable = 'cond.ind'
+  # groupingVariable = 'State'
+  # total.name = "Region"
+  # columnName = ""
   # weighted = TRUE
   
   
@@ -741,16 +741,19 @@ proportions_one_group <- function(CustomerLevelData
     }
   
   } else {
-    item.tmp1 <- summarise(group_by(CustomerLevelData, BuildingType, get(groupingVariable))
-                             ,SampleSizes = length(unique(CK_Cadmus_ID))
-                             ,Count   = sum(get(valueVariable)))
-    item.tmp1 <- data.frame(ConvertColName(item.tmp1, 'get(groupingVariable)', groupingVariable),stringsAsFactors = F)
+    item.tmp1 <- ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
+                       ,SampleSizes = length(unique(CK_Cadmus_ID))
+                       ,Count       = sum(get(valueVariable)))
     
     item.tmp2 <- summarise(group_by(CustomerLevelData, BuildingType)
                              ,Total = "Total"
                              ,SampleSizes = length(unique(CK_Cadmus_ID))
                              ,Count   = sum(get(valueVariable)))
-    item.tmp2 <- data.frame(ConvertColName(item.tmp2, 'Total', groupingVariable),stringsAsFactors = F)
+      # Convert column name
+      item.tmp2 <- data.frame(ConvertColName(item.tmp2
+                                             , 'Total'
+                                             , groupingVariable)
+                              ,stringsAsFactors = F)
     
     item.combined <- rbind.data.frame(item.tmp1, item.tmp2, stringsAsFactors = F)
     

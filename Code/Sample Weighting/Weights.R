@@ -456,7 +456,7 @@ popCounts.1 <- summarise(group_by(popCounts.0,
                          , N_MF.h = sum(MF.pop))
 
 popCounts.1 <- data.frame(popCounts.1, stringsAsFactors = F)
-popMelt <- reshape2::melt(popCounts.1, id.vars = c("State", "Region", "Territory"))
+popMelt     <- melt(popCounts.1, id.vars = c("State", "Region", "Territory"))
 popMelt$BuildingType <- NA
 popMelt$BuildingType[grep("SF", popMelt$variable)] <- "Single Family"
 popMelt$BuildingType[grep("MF", popMelt$variable)] <- "Multifamily"
