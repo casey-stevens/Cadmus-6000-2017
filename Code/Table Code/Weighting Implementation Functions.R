@@ -259,12 +259,12 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
 
 
-# # # Test
-CustomerLevelData = item4.customer
-valueVariable = 'siteAreaConditioned'
-byVariable    = 'State'
-aggregateRow  = "Region"
-weighted = FALSE
+# Test
+# CustomerLevelData = item4.customer
+# valueVariable = 'siteAreaConditioned'
+# byVariable    = 'State'
+# aggregateRow  = "Region"
+# weighted = FALSE
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow, weighted = TRUE) {
