@@ -14,7 +14,7 @@
 #          And there is an overall column, which combines all the columns data
 #################################################################################
 
-  # # TEST
+# TEST
 # CustomerLevelData <-  item1.dat
 # valueVariable <- 'count'
 # columnVariable <- 'State'
@@ -42,150 +42,106 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   ########################
   # Step 1: State
   ########################
-  
-  # if (weighted == TRUE) {
-    #sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
-    StrataPopCounts <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory)
-                                 ,N.h   = unique(N.h)
-                                 ,n.h   = unique(n.h))
+
+    # sample and pop sizes within defined strata - 
+    # this is to account for the fact that not all categories from each table will be observed in each strata
+    StrataPopCounts <- data.frame(ddply(CustomerLevelData
+                                        , c("BuildingType", "State", "Region", "Territory")
+                                        , summarise
+                                        ,N.h   = unique(N.h)
+                                        ,n.h   = unique(n.h)), stringsAsFactors = F)
+    
+    
     if (columnVariable == "State") {
       # obtain count and proportion by strata and row grouping variable
-      StrataGroupedProportions <- summarise(group_by(CustomerLevelData
-                                                     , BuildingType
-                                                     , State
-                                                     , Region
-                                                     , Territory
-                                                     , get(rowVariable))
-                                            ,count = sum(get(valueVariable))
-      )
-      StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
-                                                 ,"get(rowVariable)"
-                                                 ,rowVariable)
-      StrataProportion <- summarise(group_by(StrataGroupedProportions
-                                             , BuildingType
-                                             , State
-                                             , Region
-                                             , Territory
-                                             , get(columnVariable))
-                                    ,total.count = sum(count))
-      StrataProportion <- ConvertColName(StrataProportion
-                                         ,"get(columnVariable)"
-                                         ,columnVariable)
-      StrataProportion             <- data.frame(StrataProportion, stringsAsFactors = F)
+      StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                     , c("BuildingType", "State", "Region", "Territory", rowVariable)
+                                                   , summarise
+                                                   , count = sum(get(valueVariable)) ), stringsAsFactors = F)
+      
+      StrataProportion         <- data.frame(ddply(StrataGroupedProportions
+                                                   , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                                   , summarise
+                                                   , total.count = sum(count)), stringsAsFactors = F)
+      
       StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
       StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
       
       
-      #fix column name
-      StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
-                                                 ,"get(rowVariable)"
-                                                 ,rowVariable)
     }else{
-      StrataGroupedProportions <- summarise(group_by(CustomerLevelData
-                                                     , BuildingType
-                                                     , State
-                                                     , Region
-                                                     , Territory
-                                                     , get(rowVariable)
-                                                     , get(columnVariable))
-                                            ,count = sum(get(valueVariable)))
-      #fix column name
-      StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
-                                                 ,"get(rowVariable)"
-                                                 ,rowVariable)
-      StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
-                                                 ,"get(columnVariable)"
-                                                 ,columnVariable)
-      StrataGroupedProportions <- data.frame(StrataGroupedProportions, stringsAsFactors = F)
+      #Summarise
+      StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                   , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                   ,summarise
+                                                   ,count = sum(get(valueVariable))), stringsAsFactors = F)
       
-      StrataProportion <- summarise(group_by(StrataGroupedProportions
-                                             , BuildingType
-                                             , State
-                                             , Region
-                                             , Territory
-                                             , get(columnVariable))
-                                    ,total.count = sum(count))
-      StrataProportion <- ConvertColName(StrataProportion
-                                         ,"get(columnVariable)"
-                                         ,columnVariable)
+      #Summarise
+      StrataProportion         <- data.frame(ddply(StrataGroupedProportions
+                                                   , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                                   ,summarise
+                                                   ,total.count = sum(count)), stringsAsFactors = F)
+      
+      #Join Data
       StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
-      StrataGroupedProportions <- summarise(group_by(StrataGroupedProportions
-                                                     , BuildingType
-                                                     , State
-                                                     , Region
-                                                     , Territory
-                                                     , get(rowVariable)
-                                                     , get(columnVariable))
-                                            ,count = count
-                                            ,p.h = count / total.count)
-      #fix column name
-      StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
-                                                 ,"get(rowVariable)"
-                                                 ,rowVariable)
-      StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
-                                                 ,"get(columnVariable)"
-                                                 ,columnVariable)
-    }
+      
+      #Summarise
+      StrataGroupedProportions <- data.frame(ddply(StrataGroupedProportions
+                                                   , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                   ,summarise
+                                                   ,count = count
+                                                   ,p.h = count / total.count), stringsAsFactors = F)
+      
+    } # END else statement
     
     #join strata counts with summary of grouping variable within strata
     StrataData <- left_join(StrataPopCounts , StrataGroupedProportions, 
                             by = c("BuildingType", "State", "Region","Territory"))
     
     #obtain the total population size for the building type by state combination observed in the sample
-    columnVarWeights <- summarise(group_by(StrataData
-                                           , BuildingType
-                                           , get(columnVariable))
-                                  ,columnVar.N.h = sum(unique(N.h))
-                                  ,columnVar.n.h = sum(unique(n.h)))
-    #rename column
-    columnVarWeights <- ConvertColName(columnVarWeights
-                                       ,"get(columnVariable)"
-                                       ,columnVariable)
+    columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType", columnVariable)
+                                         ,summarise
+                                         ,columnVar.N.h = sum(unique(N.h))
+                                         ,columnVar.n.h = sum(unique(n.h))), stringsAsFactors = F)
+    
     #join strata data with weights by column grouping variable 
-    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType",
-                                                                        columnVariable))
+    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable))
     
     
     #summarise by column variable
     #summary of both grouping variables
-    ColumnProportionsByGroup <- summarise(group_by(StrataDataWeights
-                                                   , BuildingType
-                                                   , get(columnVariable)
-                                                   , get(rowVariable))
-                                          ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
-                                          ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
-                                          ,count     = sum(count)
-                                          ,N         = unique(columnVar.N.h)
-                                          ,n         = unique(columnVar.n.h)
-    )  
-    
-    ColumnProportionsByGroup <- ConvertColName(ColumnProportionsByGroup,'get(columnVariable)',columnVariable)
-    ColumnProportionsByGroup <- ConvertColName(ColumnProportionsByGroup,'get(rowVariable)',rowVariable)
-    ColumnProportionsByGroup <- data.frame(ColumnProportionsByGroup, stringsAsFactors = F)
+    ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+                                                   , c("BuildingType", columnVariable, rowVariable)
+                                                 , summarise
+                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
+                                                 ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
+                                                                         (N.h^2 / n.h) * 
+                                                                         (p.h * (1 - p.h)))) / unique(columnVar.N.h)
+                                                 ,count     = sum(count)
+                                                 ,N         = unique(columnVar.N.h)
+                                                 ,n         = unique(columnVar.n.h) ), stringsAsFactors = F)
     
     #summarise across home types (total level)
-    ColumnTotals <- summarise(group_by(ColumnProportionsByGroup, BuildingType, get(columnVariable))
-                              ,rowTotal       = "Total"
-                              ,w.percent      = sum(w.percent)
-                              ,w.SE           = NA
-                              ,count          = sum(count, na.rm = T)
-                              ,n              = sum(unique(n), na.rm = T)
-                              ,N              = sum(unique(N), na.rm = T)) 
+    ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup
+                                       , c("BuildingType", columnVariable)
+                                     ,summarise
+                                     ,rowTotal       = "Total"
+                                     ,w.percent      = sum(w.percent)
+                                     ,w.SE           = NA
+                                     ,count          = sum(count, na.rm = T)
+                                     ,n              = sum(unique(n), na.rm = T)
+                                     ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
     #rename column
     ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', rowVariable)
-    ColumnTotals <- ConvertColName(ColumnTotals, 'get(columnVariable)',columnVariable)
-    
     
     
     #join total information onto summary by grouping variables
-    AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
-                                      ColumnTotals, stringsAsFactors = F)
+    AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, ColumnTotals, stringsAsFactors = F)
     
     
     
-    #################################
-    # Step 2: Region (across states)
-    #################################
+  #################################
+  # Step 2: Region (across states)
+  #################################
     #obtain the total population size for the building type observed in the sample
     AggregateWeight <- summarise(group_by(StrataData, BuildingType)
                                  ,aggregate.N.h = sum(unique(N.h), na.rm = T)
@@ -219,15 +175,17 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
     colnames(item.region.tot)[which(colnames(item.region.tot) == "get(columnVariable)")] <- columnVariable
     colnames(item.region.tot)[which(colnames(item.region.tot) == 'rowTotal')]   <- rowVariable
-    
-    item.region.full <- rbind.data.frame(item.region.weighted, 
-                                         item.region.tot, stringsAsFactors = F)
+
+    item.region.full <- rbind.data.frame(item.region.weighted ,item.region.tot, stringsAsFactors = F)
     
     item.region.final <- item.region.full[which(item.region.full$n != 0),]
     
-    item.full <- rbind.data.frame(AllRowsFinal
-                                  , item.region.final
-                                  , stringsAsFactors = F)
+    
+  ###########
+  # Combine
+  ###########
+    item.full <- rbind.data.frame(AllRowsFinal, item.region.final, stringsAsFactors = F)
+    
     return(item.full)
 }
 

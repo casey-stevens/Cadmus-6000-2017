@@ -36,18 +36,18 @@ item1.dat <- weightedData(item1.dat0)
 
 item1.dat$count <- 1
 
+
+
+######################################
+# Weighted Analysis
+######################################
 item1.final <- proportionRowsAndColumns1(item1.dat
                                          ,'count'
                                          ,'State'
                                          ,'HomeType'
-                                         , aggregateColumnName = "Region"
-                                         # , weighted = TRUE
-                                         )
-
+                                         , aggregateColumnName = "Region")
 
 #cast data into correct format
-library(data.table)
-library(gdata)
 item1.cast <- dcast(setDT(item1.final)
                      ,formula = BuildingType + HomeType ~ State
                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
@@ -72,27 +72,8 @@ item1.table <- data.frame("BuildingType"    = item1.cast$BuildingType
                            ,"SampleSize"     = item1.cast$count_Region)
 
 ### Split into respective tables
-
-## Re-order rows according to previous tables
-item1.table.SF <- data.frame(item1.table[which(item1.table$BuildingType %in% c("Single Family")),-1],stringsAsFactors = F)
-sf.target <- c("Single Family Detached"
-            ,"Duplex, Triplex, or Fourplex"
-            ,"Townhome or Rowhome"
-            ,"Total")
-item1.table.SF$Home.Type <- reorder.factor(item1.table.SF$Home.Type, new.order = sf.target)
-item1.table.SF <- item1.table.SF %>% arrange(Home.Type)
-
-## Re-order rows according to previous tables
+item1.table.SF <- data.frame(item1.table[which(item1.table$BuildingType %in% c("Single Family")),-1], stringsAsFactors = F)
 item1.table.MH <- item1.table[which(item1.table$BuildingType %in% c("Manufactured")),-1]
-mh.target <- c("Single Wide"
-               ,"Double Wide"
-               ,"Triple Wide"
-               ,"Modular / Prefab"
-               ,"Total")
-item1.table.MH$Home.Type <- reorder.factor(item1.table.MH$Home.Type, new.order = mh.target)
-item1.table.MH <- item1.table.MH %>% arrange(Home.Type)
-
-
 
 #exporting function
 exportTable(item1.table.SF, "SF", "Table 8"
@@ -101,6 +82,51 @@ exportTable(item1.table.MH, "MH", "Table 7"
             , weighted = TRUE)
 
 
+
+######################################
+# Unweighted Analysis
+######################################
+item1.final.unweighted <- proportions_two_groups_unweighted(item1.dat
+                                                            ,'count'
+                                                            ,'State'
+                                                            ,'HomeType'
+                                                            , aggregateColumnName = "Region")
+
+
+#cast data into correct format
+item1.cast.unw <- dcast(setDT(item1.final.unweighted)
+                    ,formula = BuildingType + HomeType ~ State
+                    ,value.var = c("Percent", "SE", "Count", "SampleSize", "Total.Count"))
+
+#can add pop and sample sizes if needed in exported table
+item1.table.unw <- data.frame("BuildingType"= item1.cast.unw$BuildingType
+                          ,"Home.Type"      = item1.cast.unw$HomeType
+                          ,"Percent_ID"     = item1.cast.unw$Percent_ID
+                          ,"SE_ID"          = item1.cast.unw$SE_ID
+                          ,"n_ID"           = item1.cast.unw$Count_ID
+                          ,"Percent_MT"     = item1.cast.unw$Percent_MT
+                          ,"SE_MT"          = item1.cast.unw$SE_MT
+                          ,"n_MT"           = item1.cast.unw$Count_MT
+                          ,"Percent_OR"     = item1.cast.unw$Percent_OR
+                          ,"SE_OR"          = item1.cast.unw$SE_OR
+                          ,"n_OR"           = item1.cast.unw$Count_OR
+                          ,"Percent_WA"     = item1.cast.unw$Percent_WA
+                          ,"SE_WA"          = item1.cast.unw$SE_WA
+                          ,"n_WA"           = item1.cast.unw$Count_WA
+                          ,"Percent_Region" = item1.cast.unw$Percent_Region
+                          ,"SE_Region"      = item1.cast.unw$SE_Region
+                          ,"n_Region"       = item1.cast.unw$Count_Region
+                          ,"SampleSize"     = item1.cast.unw$SampleSize_Region)
+
+### Split into respective tables
+item1.table.SF.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c("Single Family")),-1]
+item1.table.MH.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c("Manufactured")),-1]
+
+#exporting function
+exportTable(item1.table.SF.unw, "SF", "Table 8"
+            , weighted = FALSE)
+exportTable(item1.table.MH.unw, "MH", "Table 7"
+            , weighted = FALSE)
 
 
 
@@ -117,13 +143,15 @@ item2.dat <- weightedData(rbsa.dat[which(!is.na(rbsa.dat$HomeYearBuilt)),])
 
 item2.dat$count <- 1
 
-#function for weighted analysis
+
+############################
+# Unweighted Analysis
+############################
 item2.final <- proportionRowsAndColumns1(item2.dat
                           , valueVariable = 'count'
                           , columnVariable = 'State'
                           , rowVariable = 'HomeYearBuilt_bins2'
                           , aggregateColumnName = "Region"
-                          # , weighted = TRUE
                           )
 
 colnames(item2.final) <- c("BuildingType"
@@ -136,13 +164,9 @@ colnames(item2.final) <- c("BuildingType"
                            , "Sample.Size")
 
 
-##################################################
-# Cast data and create table
-##################################################
-library(data.table)
 item2.cast <- dcast(setDT(item2.final)
                      ,formula = BuildingType + Housing.Vintage ~ State
-                     ,value.var = c("Percent", "SE", "Sample.Size", "Population.Size", "Count"))
+                     ,value.var = c("Percent", "SE", "Count", "Sample.Size", "Population.Size"))
 
 item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"Housing.Vintage" = item2.cast$Housing.Vintage
@@ -162,12 +186,6 @@ item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"SE_Region"       = item2.cast$SE_Region
                            ,"SampleSize"      = item2.cast$Count_Region)
 
-
-
-##################################################
-# Split table by building type
-# and export to correct workbook
-##################################################
 item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family"),-1]
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
@@ -178,6 +196,57 @@ exportTable(item2.table.MH, "MH", "Table 8"
             , weighted = TRUE)
 
 
+
+
+############################
+# Unweighted Analysis
+############################
+item2.final <- proportions_two_groups_unweighted(item2.dat
+                                                 , valueVariable = 'count'
+                                                 , columnVariable = 'State'
+                                                 , rowVariable = 'HomeYearBuilt_bins2'
+                                                 , aggregateColumnName = "Region")
+
+colnames(item2.final) <- c("BuildingType"
+                           , "State"
+                           , "Housing.Vintage"
+                           , "Count"
+                           , "Sample.Size"
+                           , "Total.Count"
+                           , "Denom"
+                           , "Percent"
+                           , "SE")
+
+item2.cast <- dcast(setDT(item2.final)
+                    ,formula = BuildingType + Housing.Vintage ~ State
+                    ,value.var = c("Percent", "SE", "Sample.Size", "Count"))
+
+item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
+                          ,"Housing.Vintage" = item2.cast$Housing.Vintage
+                          ,"Percent_ID"      = item2.cast$Percent_ID
+                          ,"SE_ID"           = item2.cast$SE_ID
+                          ,"n_ID"            = item2.cast$Count_ID
+                          ,"Percent_MT"      = item2.cast$Percent_MT
+                          ,"SE_MT"           = item2.cast$SE_MT
+                          ,"n_MT"            = item2.cast$Count_MT
+                          ,"Percent_OR"      = item2.cast$Percent_OR
+                          ,"SE_OR"           = item2.cast$SE_OR
+                          ,"n_OR"            = item2.cast$Count_OR
+                          ,"Percent_WA"      = item2.cast$Percent_WA
+                          ,"SE_WA"           = item2.cast$SE_WA
+                          ,"n_WA"            = item2.cast$Count_WA
+                          ,"Percent_Region"  = item2.cast$Percent_Region
+                          ,"SE_Region"       = item2.cast$SE_Region
+                          ,"SampleSize"      = item2.cast$Count_Region)
+
+item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family"),-1]
+item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
+
+#exporting function
+exportTable(item2.table.SF, "SF", "Table 9"
+            , weighted = FALSE)
+exportTable(item2.table.MH, "MH", "Table 8"
+            , weighted = FALSE)
 
 
 
@@ -195,13 +264,16 @@ item6.dat <- weightedData(rbsa.dat[which(!is.na(rbsa.dat$BuildingHeight)),])
 
 item6.dat$count <- 1
 
-#function for weighted analysis
+
+
+############################
+# Unweighted Analysis
+############################
 item6.final <- proportionRowsAndColumns1(item6.dat
                                          , valueVariable = 'count'
                                          , columnVariable = 'State'
                                          , rowVariable = 'BuildingHeight'
                                          , aggregateColumnName = "Region"
-                                         # , weighted = TRUE
                                          )
 
 colnames(item6.final) <- c("BuildingType"
@@ -213,43 +285,80 @@ colnames(item6.final) <- c("BuildingType"
                            , "N"
                            , "n")
 
-
-##################################################
-# Step 5: Cast data and create table
-##################################################
-library(data.table)
 item6.cast <- dcast(setDT(item6.final)
                      ,formula = BuildingType + BuildingHeight ~ State
                      ,value.var = c("Percent", "SE", "Count", "N", "n"))
 
 item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
-                           ,"BuildingHeight" = item6.cast$BuildingHeight
-                          ,"Percent_ID"      = item6.cast$Percent_ID
-                          ,"SE_ID"           = item6.cast$SE_ID
-                          ,"n_ID"            = item6.cast$Count_ID
-                           ,"Percent_MT"     = item6.cast$Percent_MT
-                           ,"SE_MT"          = item6.cast$SE_MT
-                           ,"n_MT"           = item6.cast$Count_MT
-                           ,"Percent_OR"     = item6.cast$Percent_OR
-                           ,"SE_OR"          = item6.cast$SE_OR
-                           ,"n_OR"           = item6.cast$Count_OR
-                           ,"Percent_WA"     = item6.cast$Percent_WA
-                           ,"SE_WA"          = item6.cast$SE_WA
-                           ,"n_WA"           = item6.cast$Count_WA
-                           ,"Percent_Region" = item6.cast$Percent_Region
-                           ,"SE_Region"      = item6.cast$SE_Region
-                           ,"SampleSize"     = item6.cast$Count_Region)
+                          ,"BuildingHeight" = item6.cast$BuildingHeight
+                          ,"Percent_ID"     = item6.cast$Percent_ID
+                          ,"SE_ID"          = item6.cast$SE_ID
+                          ,"n_ID"           = item6.cast$Count_ID
+                          ,"Percent_MT"     = item6.cast$Percent_MT
+                          ,"SE_MT"          = item6.cast$SE_MT
+                          ,"n_MT"           = item6.cast$Count_MT
+                          ,"Percent_OR"     = item6.cast$Percent_OR
+                          ,"SE_OR"          = item6.cast$SE_OR
+                          ,"n_OR"           = item6.cast$Count_OR
+                          ,"Percent_WA"     = item6.cast$Percent_WA
+                          ,"SE_WA"          = item6.cast$SE_WA
+                          ,"n_WA"           = item6.cast$Count_WA
+                          ,"Percent_Region" = item6.cast$Percent_Region
+                          ,"SE_Region"      = item6.cast$SE_Region
+                          ,"n_Region"       = item6.cast$Count_Region
+                          ,"SampleSize"     = item6.cast$n_Region)
 
-
-
-
-##################################################
-# Step 6: Split table by building type
-# and export to correct workbook
-##################################################
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
-
-
 exportTable(item6.table.SF, "SF", "Table 13"
             , weighted = TRUE)
 
+
+
+
+
+############################
+# Unweighted Analysis
+############################
+item6.final <- proportions_two_groups_unweighted(item6.dat
+                                         , valueVariable = 'count'
+                                         , columnVariable = 'State'
+                                         , rowVariable = 'BuildingHeight'
+                                         , aggregateColumnName = "Region"
+)
+
+colnames(item6.final) <- c("BuildingType"
+                           , "State"
+                           , "BuildingHeight"
+                           , "Count"
+                           , "n"
+                           , "Total.Count"
+                           , "Denom"
+                           , "Percent"
+                           , "SE")
+
+item6.cast <- dcast(setDT(item6.final)
+                    ,formula = BuildingType + BuildingHeight ~ State
+                    ,value.var = c("Percent", "SE", "Count", "n"))
+
+item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
+                          ,"BuildingHeight" = item6.cast$BuildingHeight
+                          ,"Percent_ID"     = item6.cast$Percent_ID
+                          ,"SE_ID"          = item6.cast$SE_ID
+                          ,"n_ID"           = item6.cast$Count_ID
+                          ,"Percent_MT"     = item6.cast$Percent_MT
+                          ,"SE_MT"          = item6.cast$SE_MT
+                          ,"n_MT"           = item6.cast$Count_MT
+                          ,"Percent_OR"     = item6.cast$Percent_OR
+                          ,"SE_OR"          = item6.cast$SE_OR
+                          ,"n_OR"           = item6.cast$Count_OR
+                          ,"Percent_WA"     = item6.cast$Percent_WA
+                          ,"SE_WA"          = item6.cast$SE_WA
+                          ,"n_WA"           = item6.cast$Count_WA
+                          ,"Percent_Region" = item6.cast$Percent_Region
+                          ,"SE_Region"      = item6.cast$SE_Region
+                          ,"n_Region"       = item6.cast$Count_Region
+                          ,"SampleSize"     = item6.cast$n_Region)
+
+item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
+exportTable(item6.table.SF, "SF", "Table 13"
+            , weighted = FALSE)
