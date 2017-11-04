@@ -19,8 +19,6 @@ library(stringr)
 library(data.table)
 
 
-# source('LOCAL.R')
-
 ################################################################################
 # SET FILEPATHS for folders and file names of:
 # - raw input data
@@ -40,9 +38,7 @@ stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCle
 
 input.date <- "2017.06.16"
 
-# Call file names
-
-#Final Data
+#File Names
 appliances.export          <- "Appliances.xlsx"
 buildings.interview.export <- "Buildings Interview.xlsx"
 buildings.export           <- "Buildings.xlsx"
@@ -56,10 +52,3 @@ water.export               <- "Water.xlsx"
 windows.export             <- "Windows.xlsx"
 survey.export              <- "Participant Survey.xlsx"
 one.line.export            <- "One Line Summary.xlsm"
-
-
-#############################################################################################
-#
-# Need to run this before any other scripts can be ran
-#
-#############################################################################################
