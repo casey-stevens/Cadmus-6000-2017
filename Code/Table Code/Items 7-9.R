@@ -75,8 +75,8 @@ item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , aggregateRow  = 'Region'
                               , weighted = TRUE)
 #subset by home type
-item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),]
-item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),]
+item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),-1]
+item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),-1]
 #export data
 exportTable(item7.final.SF, "SF", "Table 14"
             , weighted = TRUE)
@@ -95,8 +95,8 @@ item7.final <- mean_one_group(CustomerLevelData = item7.data
                               , aggregateRow  = 'Region'
                               , weighted = FALSE)
 #subset by home type
-item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),]
-item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),]
+item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),-1]
+item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),-1]
 #export data
 exportTable(item7.final.SF, "SF", "Table 14"
             , weighted = FALSE)
@@ -153,8 +153,8 @@ item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , aggregateRow  = "Region"
                               , weighted = TRUE)
 #subset by home type
-item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),]
-item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),]
+item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),-1]
+item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),-1]
 #export data
 exportTable(item8.final.SF, "SF", "Table 15"
             , weighted = TRUE)
@@ -174,8 +174,8 @@ item8.final <- mean_one_group(CustomerLevelData = item8.data
                               , aggregateRow  = "Region"
                               , weighted = FALSE)
 #subset by home type
-item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),]
-item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),]
+item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),-1]
+item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),-1]
 #export data
 exportTable(item8.final.SF, "SF", "Table 15"
             , weighted = FALSE)
