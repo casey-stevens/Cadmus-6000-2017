@@ -83,15 +83,16 @@ item3.data <- left_join(item3.data, item3.dat2[which(colnames(item3.dat2) %in% c
 item3.data$count <- 1
 colnames(item3.data)
 
-## Run analysis function: Proportions, two groups
+
+
+##############################
+# Weighted Analysis
+##############################
 item3.final <- proportionRowsAndColumns1(item3.data
                                          , valueVariable = 'count'
                                          , columnVariable = 'State'
                                          , rowVariable = 'GroundContact'
-                                         , aggregateColumnName = "Region"
-                                         # , weighted = TRUE
-)
-
+                                         , aggregateColumnName = "Region")
 
 colnames(item3.final) <- c("BuildingType"
                            , "State"
@@ -102,10 +103,6 @@ colnames(item3.final) <- c("BuildingType"
                            , "PopSize"
                            , "SampleSize")
 
-
-##################################################
-# Cast data and create table
-##################################################
 item3.cast <- dcast(setDT(item3.final)
                     ,formula = BuildingType + GroundContact ~ State
                     ,value.var = c("Percent", "SE", "SampleSize", "Count", "PopSize"))
@@ -128,10 +125,6 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"SE_Region"      = item3.cast$SE_Region
                           ,"SampleSize"     = item3.cast$Count_Region)
 
-##################################################
-# Step 6: Split table by building type
-# and export to correct workbook
-##################################################
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
 
@@ -140,6 +133,53 @@ exportTable(item3.table.SF, "SF", "Table 10"
 
 
 
+##############################
+# Unweighted Analysis
+##############################
+item3.final <- proportions_two_groups_unweighted(item3.data
+                                         , valueVariable = 'count'
+                                         , columnVariable = 'State'
+                                         , rowVariable = 'GroundContact'
+                                         , aggregateColumnName = "Region")
+
+colnames(item3.final) <- c("BuildingType"
+                           , "State"
+                           , "GroundContact"
+                           , "Count"
+                           , "n"
+                           , "Total.Count"
+                           , "Denom"
+                           , "Percent"
+                           , "SE")
+
+item3.cast <- dcast(setDT(item3.final)
+                    ,formula = BuildingType + GroundContact ~ State
+                    ,value.var = c("Percent", "SE", "Count", "n"))
+
+item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
+                          ,"GroundContact"  = item3.cast$GroundContact
+                          ,"Percent_ID"     = item3.cast$Percent_ID
+                          ,"SE_ID"          = item3.cast$SE_ID
+                          ,"n_ID"           = item3.cast$Count_ID
+                          ,"Percent_MT"     = item3.cast$Percent_MT
+                          ,"SE_MT"          = item3.cast$SE_MT
+                          ,"n_MT"           = item3.cast$Count_MT
+                          ,"Percent_OR"     = item3.cast$Percent_OR
+                          ,"SE_OR"          = item3.cast$SE_OR
+                          ,"n_OR"           = item3.cast$Count_OR
+                          ,"Percent_WA"     = item3.cast$Percent_WA
+                          ,"SE_WA"          = item3.cast$SE_WA
+                          ,"n_WA"           = item3.cast$Count_WA
+                          ,"Percent_Region" = item3.cast$Percent_Region
+                          ,"SE_Region"      = item3.cast$SE_Region
+                          ,"n_Region"       = item3.cast$Count_Region
+                          ,"SampleSize"     = item3.cast$n_Region)
+
+item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
+
+
+exportTable(item3.table.SF, "SF", "Table 10"
+            , weighted = FALSE)
 
 
 
@@ -175,10 +215,8 @@ item4.data <- left_join(item4.data, item4.dat2[which(colnames(item4.dat2) %in% c
 item4.data$count <- 1
 colnames(item4.data)
 
-
-
 ######################################################
-# Step 1.1: Summarise data up to unique customer level
+# Summarise data up to unique customer level
 ######################################################
 item4.customer <- summarise(group_by(item4.data
                                      , BuildingType
@@ -193,7 +231,9 @@ item4.customer <- summarise(group_by(item4.data
 
 
 
-## Apply weigthing function: means, two groups
+##############################
+# Weighted Analysis
+##############################
 item4.final <- mean_one_group(CustomerLevelData = item4.customer
                               , valueVariable = 'siteAreaConditioned'
                               , byVariable    = 'State'
@@ -211,7 +251,9 @@ exportTable(item4.table.MH, "MH", "Table 10"
 
 
 
-## Apply weigthing function: means, two groups
+##############################
+# Unweighted Analysis
+##############################
 item4.final <- mean_one_group(CustomerLevelData = item4.customer
                               , valueVariable = 'siteAreaConditioned'
                               , byVariable    = 'State'
@@ -226,55 +268,6 @@ exportTable(item4.table.SF, "SF", "Table 11"
             , weighted = FALSE)
 exportTable(item4.table.MH, "MH", "Table 10"
             , weighted = FALSE)
-
-# ######################################################
-# # Step 1.2: Using customer level data,
-# #   Summarise data up to strata level
-# ######################################################
-# item4.strata <- summarise(group_by(item4.customer, BuildingType, State, Region, Territory)
-#                               ,n_h        = unique(n.h)
-#                               ,N_h        = unique(N.h)
-#                               ,fpc        = (1 - n_h / N_h)
-#                               ,w_h        = n_h / N_h
-#                               ,strataArea = sum(siteAreaConditioned) / n_h
-#                               ,strataSD   = sd(siteAreaConditioned)
-#                               ,n          = length(unique(CK_Cadmus_ID))
-# )
-# 
-# item4.strata$strataSD[which(item4.strata$strataSD == "NaN")] <- 0
-# 
-# ######################################################
-# # Step 2: Using strata level data,
-# #   Perform state level analysis
-# ######################################################
-# item4.state <- summarise(group_by(item4.strata, BuildingType, State)
-#                         ,Mean       = sum(N_h * strataArea) / sum(N_h)
-#                         ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-#                         ,SampleSize = sum(unique(n))
-#                         )
-# 
-# 
-# ######################################################
-# # Step 3: Using strata level data,
-# #   Perform region level analysis
-# ######################################################
-# item4.region <- summarise(group_by(item4.strata, BuildingType)
-#                               ,State      = "Region"
-#                               ,Mean       = sum(N_h * strataArea) / sum(N_h)
-#                               ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-#                               ,SampleSize = sum(unique(n)))
-# 
-# 
-# ######################################################
-# # Step 4: Combine results into correct table format,
-# #   Split table by building type
-# #   and export tables to respective workbooks
-# ######################################################
-# item4.final <- rbind.data.frame(item4.state, item4.region, stringsAsFactors = F) 
-# 
-# item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
-# item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
-
 
 
 
@@ -314,7 +307,9 @@ item5.data <- left_join(item5.data, item5.dat3[which(colnames(item5.dat3) %in% c
 item5.data$count <- 1
 colnames(item5.data)
 
-
+##############################
+# Summarise to customer level
+##############################
 item5.customer <- summarise(group_by(item5.data
                                      , BuildingType
                                      , HomeYearBuilt_bins2
@@ -329,24 +324,79 @@ item5.customer <- summarise(group_by(item5.data
 
 
 
-## Apply weigthing function: means, two groups
-item5.final <- mean_two_groups(CustomerLevelData = item5.customer
-                               , valueVariable = 'siteAreaConditioned'
-                               , byVariableRow = 'HomeYearBuilt_bins2'
+##############################
+# Weighted Analysis
+##############################
+item5.final <- mean_two_groups(CustomerLevelData  = item5.customer
+                               , valueVariable    = 'siteAreaConditioned'
+                               , byVariableRow    = 'HomeYearBuilt_bins2'
                                , byVariableColumn = 'State'
-                               , columnAggregate = "Region"
-                               , rowAggregate = "All Vintages"
-                               # , weighted = TRUE
+                               , columnAggregate  = "Region"
+                               , rowAggregate     = "All Vintages"
                                )
 
-colnames(item5.final)[which(colnames(item5.final) == "HomeYearBuilt_bins2")] <- "HousingVintage"
-colnames(item5.final)
+item5.table <- data.frame("BuildingType"     = item5.final$BuildingType
+                          ,"HousingVintage"  = item5.final$HomeYearBuilt_bins2
+                          ,"Mean_ID"         = item5.final$Mean_ID
+                          ,"SE_ID"           = item5.final$SE_ID
+                          ,"n_ID"            = item5.final$SampleSize_ID
+                          ,"Mean_MT"         = item5.final$Mean_MT
+                          ,"SE_MT"           = item5.final$SE_MT
+                          ,"n_MT"            = item5.final$SampleSize_MT
+                          ,"Mean_OR"         = item5.final$Mean_OR
+                          ,"SE_OR"           = item5.final$SE_OR
+                          ,"n_OR"            = item5.final$SampleSize_OR
+                          ,"Mean_WA"         = item5.final$Mean_WA
+                          ,"SE_WA"           = item5.final$SE_WA
+                          ,"n_WA"            = item5.final$SampleSize_WA
+                          ,"Mean_Region"     = item5.final$Mean_Region
+                          ,"SE_Region"       = item5.final$SE_Region
+                          ,"n_Region"        = item5.final$SampleSize_Region)
 
 
-item5.table.SF <- item5.final[which(item5.final$BuildingType %in% c("Single Family")),-1]
-item5.table.MH <- item5.final[which(item5.final$BuildingType %in% c("Manufactured")),-1]
+item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
+item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
 exportTable(item5.table.SF, "SF", "Table 12"
             , weighted = TRUE)
 exportTable(item5.table.MH, "MH", "Table 11"
             , weighted = TRUE)
+
+
+
+##############################
+# Unweighted Analysis
+##############################
+item5.final <- mean_two_groups_unweighted(CustomerLevelData  = item5.customer
+                                          , valueVariable    = 'siteAreaConditioned'
+                                          , byVariableRow    = 'HomeYearBuilt_bins2'
+                                          , byVariableColumn = 'State'
+                                          , columnAggregate  = "Region"
+                                          , rowAggregate     = "All Vintages")
+
+item5.table <- data.frame("BuildingType"     = item5.final$BuildingType
+                          ,"HousingVintage"  = item5.final$HomeYearBuilt_bins2
+                          ,"Mean_ID"         = item5.final$Mean_ID
+                          ,"SE_ID"           = item5.final$SE_ID
+                          ,"n_ID"            = item5.final$n_ID
+                          ,"Mean_MT"         = item5.final$Mean_MT
+                          ,"SE_MT"           = item5.final$SE_MT
+                          ,"n_MT"            = item5.final$n_MT
+                          ,"Mean_OR"         = item5.final$Mean_OR
+                          ,"SE_OR"           = item5.final$SE_OR
+                          ,"n_OR"            = item5.final$n_OR
+                          ,"Mean_WA"         = item5.final$Mean_WA
+                          ,"SE_WA"           = item5.final$SE_WA
+                          ,"n_WA"            = item5.final$n_WA
+                          ,"Mean_Region"     = item5.final$Mean_Region
+                          ,"SE_Region"       = item5.final$SE_Region
+                          ,"n_Region"        = item5.final$n_Region)
+
+
+item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
+item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
+
+exportTable(item5.table.SF, "SF", "Table 12"
+            , weighted = FALSE)
+exportTable(item5.table.MH, "MH", "Table 11"
+            , weighted = FALSE)
