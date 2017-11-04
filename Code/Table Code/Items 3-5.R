@@ -209,8 +209,11 @@ item4.dat1 <- item4.dat[which(item4.dat$BuildingType != "Multifamily"),]
 item4.dat2 <- item4.dat1[which(!is.na(item4.dat1$ConditionedArea)),]
 
 
-item4.data <- weightedData(item4.dat2[-which(colnames(item4.dat2) %in% c("BldgLevel_Area_SqFt","ConditionedArea"))])
-item4.data <- left_join(item4.data, item4.dat2[which(colnames(item4.dat2) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt","ConditionedArea"))])
+item4.data <- weightedData(item4.dat2[-which(colnames(item4.dat2) %in% c("BldgLevel_Area_SqFt"
+                                                                         ,"ConditionedArea"))])
+item4.data <- left_join(item4.data, item4.dat2[which(colnames(item4.dat2) %in% c("CK_Cadmus_ID"
+                                                                                 , "BldgLevel_Area_SqFt"
+                                                                                 , "ConditionedArea"))])
 
 item4.data$count <- 1
 colnames(item4.data)
@@ -301,8 +304,11 @@ item5.dat2 <- item5.dat1[which(!is.na(item5.dat1$ConditionedArea)),]
 item5.dat3 <- item5.dat2[which(!is.na(item5.dat2$HomeYearBuilt)),]
 
 
-item5.data <- weightedData(item5.dat3[-which(colnames(item5.dat3) %in% c("BldgLevel_Area_SqFt","ConditionedArea"))])
-item5.data <- left_join(item5.data, item5.dat3[which(colnames(item5.dat3) %in% c("CK_Cadmus_ID", "BldgLevel_Area_SqFt","ConditionedArea"))])
+item5.data <- weightedData(item5.dat3[-which(colnames(item5.dat3) %in% c("BldgLevel_Area_SqFt"
+                                                                         ,"ConditionedArea"))])
+item5.data <- left_join(item5.data, item5.dat3[which(colnames(item5.dat3) %in% c("CK_Cadmus_ID"
+                                                                                 , "BldgLevel_Area_SqFt"
+                                                                                 , "ConditionedArea"))])
 
 item5.data$count <- 1
 colnames(item5.data)
