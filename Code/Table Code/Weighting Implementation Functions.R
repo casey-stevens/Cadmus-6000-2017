@@ -267,7 +267,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 # weighted = FALSE
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
-                                    byVariable, aggregateRow, weighted = TRUE) {
+                                    byVariable, aggregateRow) {
   
   ### Function to convert column names
   ConvertColName <- function(dataset, currentColName, newColName) {
@@ -277,18 +277,13 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   }
   
   
-  ######################################################
-  # Step 1.1: Using customer level data,
-  #   Summarise data up to strata level
-  ######################################################
-  if (weighted == TRUE) {
   if(byVariable == "State"){
   item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, State)
                             ,n_h        = unique(n.h)
                             ,N_h        = unique(N.h)
                             ,fpc        = (1 - n_h / N_h)
                             ,w_h        = n_h / N_h
-                            ,strataMean = sum(get(valueVariable)) / n_h
+                            ,strataMean = mean(get(valueVariable))
                             ,strataSD   = sd(get(valueVariable))
                             ,n          = length(unique(CK_Cadmus_ID))
   )
@@ -298,7 +293,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                            ,N_h        = unique(N.h)
                            ,fpc        = (1 - n_h / N_h)
                            ,w_h        = n_h / N_h
-                           ,strataMean = sum(get(valueVariable)) / n_h
+                           ,strataMean = mean(get(valueVariable))
                            ,strataSD   = sd(get(valueVariable))
                            ,n          = length(unique(CK_Cadmus_ID))
                            
@@ -315,8 +310,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   item.group <- summarise(group_by(item.strata, BuildingType, get(byVariable))
                            ,Mean       = sum(N_h * strataMean) / sum(N_h)
                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                           ,SampleSize = sum(unique(n))
-  )
+                           ,SampleSize = sum(unique(n_h)))
   colnames(item.group)[which(colnames(item.group) == 'get(byVariable)')] <- byVariable
   
   ######################################################
@@ -327,13 +321,18 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,by         = aggregateRow
                             ,Mean       = sum(N_h * strataMean) / sum(N_h)
                             ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                            ,SampleSize = sum(unique(n)))
+                            ,SampleSize = sum(unique(n_h)))
   colnames(item.region)[which(colnames(item.region) == 'by')] <- byVariable
   
   item.final <- rbind.data.frame(item.group, item.region, stringsAsFactors = F)
   
   return(item.final)
-  } else {
+} 
+
+
+
+mean_one_group_unweighted <- function(CustomerLevelData, valueVariable, 
+                           byVariable, aggregateRow) {
     #by state
     item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
                                ,n = length(unique(CK_Cadmus_ID))
@@ -349,7 +348,6 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
     item.final <- rbind.data.frame(item.byGroup, item.all, stringsAsFactors = F)
     return(item.final)
-  }
 }
 
 
