@@ -199,11 +199,11 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
 
 # Test
-CustomerLevelData = item10.data
-valueVariable       = 'count'
-columnVariable      = 'Wall.Type'
-rowVariable         = 'rvalue.bins'
-aggregateColumnName = "All Frame Types"
+# CustomerLevelData = item10.data
+# valueVariable       = 'count'
+# columnVariable      = 'Wall.Type'
+# rowVariable         = 'rvalue.bins'
+# aggregateColumnName = "All Frame Types"
 
 proportions_two_groups_unweighted <- function(CustomerLevelData
                                             , valueVariable
