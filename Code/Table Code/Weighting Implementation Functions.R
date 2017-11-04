@@ -260,10 +260,10 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
 
 # Test
-CustomerLevelData = item9.data
-valueVariable = 'Site_Area'
-byVariable    = 'Clean.Type'
-aggregateRow  = 'All Room Types'
+# CustomerLevelData = item9.data
+# valueVariable = 'Site_Area'
+# byVariable    = 'Clean.Type'
+# aggregateRow  = 'All Room Types'
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {
@@ -285,6 +285,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,strataMean = mean(get(valueVariable))
                             ,strataSD   = sd(get(valueVariable))
                             ,n          = length(unique(CK_Cadmus_ID))
+                            ,count      = sum(count)
   )
   }else{
   item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, get(byVariable))
@@ -295,6 +296,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                            ,strataMean = mean(get(valueVariable))
                            ,strataSD   = sd(get(valueVariable))
                            ,n          = length(unique(CK_Cadmus_ID))
+                           ,count      = sum(count)
                            
   )
   
@@ -309,7 +311,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   item.group <- summarise(group_by(item.strata, BuildingType, get(byVariable))
                            ,Mean       = sum(N_h * strataMean) / sum(N_h)
                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                           ,SampleSize = sum(n))
+                           ,SampleSize = sum(n)
+                           ,Count      = sum(count))
   colnames(item.group)[which(colnames(item.group) == 'get(byVariable)')] <- byVariable
   
   ######################################################
@@ -320,7 +323,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,by         = aggregateRow
                             ,Mean       = sum(N_h * strataMean) / sum(N_h)
                             ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                            ,SampleSize = sum(n))
+                            ,SampleSize = sum(n)
+                            ,Count      = sum(count))
   colnames(item.region)[which(colnames(item.region) == 'by')] <- byVariable
   
   item.final <- rbind.data.frame(item.group, item.region, stringsAsFactors = F)
