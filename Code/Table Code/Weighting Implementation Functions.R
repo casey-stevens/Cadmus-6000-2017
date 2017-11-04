@@ -45,11 +45,20 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
 
     # sample and pop sizes within defined strata - 
     # this is to account for the fact that not all categories from each table will be observed in each strata
+  if (rowVariable == "rvalue.bins"){
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
+                                        , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                        , summarise
+                                        ,N.h   = unique(N.h)
+                                        ,n.h   = unique(n.h)), stringsAsFactors = F)
+  }  else {
+     StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory")
                                         , summarise
                                         ,N.h   = unique(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
+  }
+ 
     
     
     if (columnVariable == "State") {
@@ -94,8 +103,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     } # END else statement
     
     #join strata counts with summary of grouping variable within strata
-    StrataData <- left_join(StrataPopCounts , StrataGroupedProportions, 
-                            by = c("BuildingType", "State", "Region","Territory"))
+    StrataData <- left_join(StrataPopCounts , StrataGroupedProportions)
     
     #obtain the total population size for the building type by state combination observed in the sample
     columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType", columnVariable)
@@ -122,7 +130,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
     #summarise across home types (total level)
     ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup
-                                       , c("BuildingType", columnVariable)
+                                     , c("BuildingType", columnVariable)
                                      ,summarise
                                      ,rowTotal       = "Total"
                                      ,w.percent      = sum(w.percent)
@@ -243,12 +251,12 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
   item.totals <- rbind.data.frame(item.unweighted2, item.unweighted4, stringsAsFactors = F)
 
-  item.totals <- item.totals[which(colnames(item.totals) %in% c("BuildingType",columnVariable, "Count", "SampleSize"))]
-  colnames(item.totals) <- c("BuildingType",columnVariable, "Total.Count", "Denom.SampleSize")
+  item.totals <- item.totals[which(colnames(item.totals) %in% c("BuildingType",columnVariable, "Count"))]
+  colnames(item.totals) <- c("BuildingType",columnVariable, "Total.Count")
 
-  item.final <- left_join(item.combined, item.totals, by = c("BuildingType",columnVariable))
+  item.final         <- left_join(item.combined, item.totals, by = c("BuildingType",columnVariable))
   item.final$Percent <- item.final$Count / item.final$Total.Count
-  item.final$SE <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$Denom.SampleSize)
+  item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$Denom.SampleSize)
   return(item.final)
 }
 
@@ -846,12 +854,12 @@ proportions_one_group <- function(CustomerLevelData
   
   } else {
     item.tmp1 <- ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
-                       ,SampleSizes = length(unique(CK_Cadmus_ID))
+                       ,SampleSize = length(unique(CK_Cadmus_ID))
                        ,Count       = sum(get(valueVariable)))
     
     item.tmp2 <- summarise(group_by(CustomerLevelData, BuildingType)
                              ,Total = "Total"
-                             ,SampleSizes = length(unique(CK_Cadmus_ID))
+                             ,SampleSize = length(unique(CK_Cadmus_ID))
                              ,Count   = sum(get(valueVariable)))
       # Convert column name
       item.tmp2 <- data.frame(ConvertColName(item.tmp2
@@ -862,16 +870,22 @@ proportions_one_group <- function(CustomerLevelData
     item.combined <- rbind.data.frame(item.tmp1, item.tmp2, stringsAsFactors = F)
     
     item.tmp3 <- summarise(group_by(CustomerLevelData, BuildingType)
-                             ,TotalCount   = sum(get(valueVariable)))
+                             ,Total.Count   = sum(get(valueVariable)))
     
     item.final <- left_join(item.combined, item.tmp3, by = "BuildingType")
+    item.final$tmp.total <- total.name
+    item.final <- ConvertColName(item.final, 'tmp.total', columnName)
+    
+    
+    item.final <- data.frame(item.final, stringsAsFactors = F)
+    
     if(groupingVariable == "State"){
       item.final$Percent <- item.final$Count / item.final$SampleSize
     }else{
       item.final$Percent <- item.final$Count / item.final$Total.Count
     }
     
-    item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSizes)
+    item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSize)
     return(item.final)
   }
 }
