@@ -676,13 +676,13 @@ mean_two_groups_unweighted <- function(CustomerLevelData
   
 
 
-  # #Test
-  # CustomerLevelData <- item20.data
-  # valueVariable = 'cond.ind'
-  # groupingVariable = 'State'
-  # total.name = "Region"
-  # columnName = ""
-  # weighted = TRUE
+# Test
+# CustomerLevelData  = item21.data
+# valueVariable    = 'count'
+# groupingVariable = 'BSMT_Slab_Thickness'
+# total.name       = "Total"
+# columnName       = "Remove"
+# weighted = TRUE
   
   
 proportions_one_group <- function(CustomerLevelData
@@ -725,11 +725,18 @@ proportions_one_group <- function(CustomerLevelData
                             by = c("BuildingType", "State", "Region","Territory"))
     
     #obtain the total population size for the building type by state combination observed in the sample
-    columnVarWeights <- summarise(group_by(StrataData
-                                           , BuildingType
-                                           , get(groupingVariable))
-                                  ,columnVar.N.h = sum(unique(N.h))
-                                  ,columnVar.n.h = sum(unique(n.h)))
+    StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                        ,"State"
+                                                                        ,"Region"
+                                                                        ,"Territory"
+                                                                        ,"N.h"
+                                                                        ,"n.h"))])
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", groupingVariable)
+                                         ,summarise
+                                         ,columnVar.N.h = sum(N.h)
+                                         ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+    
+
     columnVarWeights <- ConvertColName(columnVarWeights, 'get(groupingVariable)',
                                          groupingVariable)
     columnTotalWeights <- summarise(group_by(StrataData
@@ -815,10 +822,17 @@ proportions_one_group <- function(CustomerLevelData
                             by = c("BuildingType", "State", "Region","Territory"))
     
     #obtain the total population size for the building type by state combination observed in the sample
-    columnVarWeights <- summarise(group_by(StrataData
-                                           , BuildingType)
-                                  ,columnVar.N.h = sum(unique(N.h))
-                                  ,columnVar.n.h = sum(unique(n.h)))
+    StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                        ,"State"
+                                                                        ,"Region"
+                                                                        ,"Territory"
+                                                                        ,"N.h"
+                                                                        ,"n.h"))])
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType")
+                                         ,summarise
+                                         ,columnVar.N.h = sum(N.h)
+                                         ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+
   
     #join strata data with weights by column grouping variable 
     StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
