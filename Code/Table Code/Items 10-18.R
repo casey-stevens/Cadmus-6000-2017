@@ -69,8 +69,9 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Wall.Exterior.Insulation.Thickness.3"
                                                                , "Wall.Exterior.Insulation.Condition.3"))]
 prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
-prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes")] <- "No" ###treat anything not Yes as No
-prep.dat1.0 <- prep.dat0[which(!(is.na(prep.dat0$Wall.Area))),]
+prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
+prep.dat0.1 <- prep.dat0[which(!(is.na(prep.dat0$Wall.Area))),]
+prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area != "Unknown"),]
 prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
 prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1 == "Unknown"),]
 
@@ -369,15 +370,26 @@ unique(prep.dat4.5$exterior.rvalues1)
 unique(prep.dat4.5$exterior.rvalues2)
 unique(prep.dat4.5$exterior.rvalues3)
 
+prep.dat4.5$Wall.Cavity.Insulation.Condition.1   <- prep.dat4.5$Wall.Cavity.Insulation.Condition.1 / 100
+prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- prep.dat4.5$Wall.Exterior.Insulation.Condition.1 / 100
+
+
 # clean up condition information
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Wall.Cavity.Insulation.Condition.1 %notin% c(100, NA)),]
-prep.condition.sub1$Wall.Cavity.Insulation.Condition.1 <- 100 - prep.condition.sub1$Wall.Cavity.Insulation.Condition.1
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Wall.Cavity.Insulation.Condition.1 %notin% c(1, NA)),]
+prep.condition.sub1$Wall.Cavity.Insulation.Condition.1 <- 1 - prep.condition.sub1$Wall.Cavity.Insulation.Condition.1
 prep.condition.sub1$total.r.val <- NA
 
-prep.dat5 <- rbind.data.frame(prep.dat4.5
-                                ,prep.condition.sub1
+# clean up condition information
+prep.condition.sub2 <- prep.dat4.5[which(prep.dat4.5$Wall.Exterior.Insulation.Condition.1 %notin% c(1, NA)),]
+prep.condition.sub2$Wall.Exterior.Insulation.Condition.1 <- 1 - prep.condition.sub2$Wall.Exterior.Insulation.Condition.1
+prep.condition.sub2$total.r.val <- NA
+
+
+prep.dat4.9 <- rbind.data.frame(prep.dat4.5
+                              ,prep.condition.sub1
+                              ,prep.condition.sub2
                                 , stringsAsFactors = F)
-prep.dat5 <- prep.dat5[which(!is.na(prep.dat5$Wall.Framing.Size)),]
+prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Framing.Size)),]
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
@@ -541,7 +553,8 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Percent_All Insulation Levels" = item10.cast$`w.percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`w.SE_All Insulation Levels`
                            ,"count.All Insulation Levels"   = item10.cast$`count_All Insulation Levels`
-                           ,"SampleSize"                    = item10.cast$`n_All Insulation Levels`)
+                           # ,"SampleSize"                    = item10.cast$`n_All Insulation Levels`
+                           )
 
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
 
@@ -616,7 +629,8 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Percent_All Insulation Levels" = item10.cast$`Percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`SE_All Insulation Levels`
                            ,"Count.All Insulation Levels"   = item10.cast$`Count_All Insulation Levels`
-                           ,"SampleSize"                    = item10.cast$`SampleSize_All Insulation Levels`)
+                           # ,"SampleSize"                    = item10.cast$`SampleSize_All Insulation Levels`
+                           )
 
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
 
@@ -712,12 +726,12 @@ item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Percent_ALT"     = item11.cast$w.percent_Alternative
                            ,"SE_ALT"          = item11.cast$w.SE_Alternative
                            ,"Count_ALT"       = item11.cast$count_Alternative
-                           ,"SampleSize"      = item11.cast$n_Total #should be 925
+                           # ,"SampleSize"      = item11.cast$n_Total #should be 925
                            )
 
 
 item11.table.SF            <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
-item11.table.SF$SampleSize <- item11.table.SF$SampleSize[which(item11.table.SF$Housing.Vintage == "All Housing Vintages")]
+# item11.table.SF$SampleSize <- item11.table.SF$SampleSize[which(item11.table.SF$Housing.Vintage == "All Housing Vintages")]
 
 #export table to correct workbook using exporting function
 exportTable(item11.table.SF, "SF", "Table 18"
@@ -767,12 +781,12 @@ item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Percent_ALT"     = item11.cast$Percent_Alternative
                            ,"SE_ALT"          = item11.cast$SE_Alternative
                            ,"Count_ALT"       = item11.cast$Count_Alternative
-                           ,"SampleSize"      = item11.cast$SampleSize_Total
+                           # ,"SampleSize"      = item11.cast$SampleSize_Total
 )
 
 
 item11.table.SF <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
-item11.table.SF$SampleSize <- item11.table.SF$SampleSize[which(item11.table.SF$Housing.Vintage == "All Housing Vintages")]
+# item11.table.SF$SampleSize <- item11.table.SF$SampleSize[which(item11.table.SF$Housing.Vintage == "All Housing Vintages")]
 
 
 ##### CASEY: What we want for sample size is the total number of sites in each housing bin
@@ -864,55 +878,66 @@ item12.data <- left_join(item12.data, item12.merge[which(colnames(item12.merge) 
                                                                                        ,"rvalue.bins.MH"
                                                                                        ,"count"))])
 ############################################################################################################
-# Summarise - Single Family
+# Weighted Analysis - Single Family
 ############################################################################################################
-#summarise by housing vintage
-item12.by.vinage <- proportionRowsAndColumns1(item12.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins3'
-                                              , rowVariable         = 'rvalue.bins.SF'
-                                              , aggregateColumnName = "Remove"
+item12.summary <- proportionRowsAndColumns1(CustomerLevelData     = item12.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item12.across.vintages <- proportions_one_group(item12.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins.SF'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3'
-                                                , weighted = TRUE
-                                                )
+item12.summary <- item12.summary[which(item12.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
 
-# row bind summaries
-item12.final <- rbind.data.frame(item12.by.vinage
-                                 , item12.across.vintages
+## Summary only for "All Frame Types"
+item12.all.frame.types <- proportions_one_group(item12.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item12.all.insul.levels <-  proportions_one_group(item12.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = TRUE
+)
+
+
+#merge together!
+item12.final <- rbind.data.frame(item12.summary
+                                 , item12.all.frame.types
+                                 , item12.all.insul.levels
                                  , stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item12.final <- item12.final[which(item12.final$HomeYearBuilt_bins3 != "Remove"),]
-
-
+item12.final <- item12.final[which(item12.final$rvalue.bins.SF != "Total"),]
+item12.final$HomeYearBuilt_bins3[which(item12.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 item12.cast <- dcast(setDT(item12.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 + n + N ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count"))
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item12.cast$w.percent_R0
                            ,"SE.R0"           = item12.cast$w.SE_R0
-                           ,"n.R0"            = item12.cast$count_R0
+                           ,"Count.R0"            = item12.cast$count_R0
                            ,"Percent.R1.R10"  = item12.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item12.cast$w.SE_R1.R10
-                           ,"n.R1.R10"        = item12.cast$count_R1.R10
+                           ,"Count.R1.R10"        = item12.cast$count_R1.R10
                            ,"Percent.R11.R16" = item12.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item12.cast$w.SE_R11.R16
-                           ,"n.R11.R16"       = item12.cast$count_R11.R16
+                           ,"Count.R11.R16"       = item12.cast$count_R11.R16
                            ,"Percent.R17.R22" = item12.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item12.cast$w.SE_R17.R22
-                           ,"n.R17.R22"       = item12.cast$count_R17.R22
+                           ,"Count.R17.R22"       = item12.cast$count_R17.R22
                            ,"Percent.RGT22"   = item12.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item12.cast$w.SE_RGT22
-                           ,"n.RGT22"         = item12.cast$count_RGT22
-                           ,"SampleSize"      = item12.cast$count_Total)
+                           ,"Count.RGT22"         = item12.cast$count_RGT22
+                           # ,"SampleSize"      = item12.cast$count_Total
+                           )
 
 
 item12.table.SF <- item12.table[which(item12.table$BuildingType == "Single Family"),-1]
@@ -923,51 +948,124 @@ exportTable(item12.table.SF, "SF", "Table 19"
 
 
 
-
-
-
-
-############################################################################################################
-# Summarise - Manufactured
-############################################################################################################
-#summarise by housing vintage
-item12.by.vinage <- proportionRowsAndColumns1(item12.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins2'
-                                              , rowVariable         = 'rvalue.bins.MH'
-                                              , aggregateColumnName = "Remove"
+################################
+# Unweighted Analysis
+################################
+item12.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item12.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item12.across.vintages <- proportions_one_group(item12.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins.MH'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins2'
-                                                , weighted = TRUE
-                                                )
+item12.summary <- item12.summary[which(item12.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item12.all.frame.types <- proportions_one_group(item12.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = FALSE
+)
 
 ## Summary for only "All Insulation Levels"
-item12.all.insul.levels <- proportionRowsAndColumns1(item12.data
-                                                     , valueVariable       = 'count'
-                                                     , columnVariable      = 'rvalue.bins.MH'
-                                                     , rowVariable         = 'HomeYearBuilt_bins2'
-                                                     , aggregateColumnName = "All Insulation Levels"
-                                                     # , weighted = TRUE
+item12.all.insul.levels <-  proportions_one_group(item12.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = FALSE
 )
-item12.all.insul.levels <- item12.all.insul.levels[which(item12.all.insul.levels$rvalue.bins == "All Insulation Levels"),]
 
-# row bind summaries
-item12.final <- rbind.data.frame(item12.by.vinage
-                                 , item12.across.vintages
+
+#merge together!
+item12.final <- rbind.data.frame(item12.summary
+                                 , item12.all.frame.types
                                  , item12.all.insul.levels
                                  , stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item12.final <- item12.final[which(item12.final$HomeYearBuilt_bins2 != "Remove"),]
+item12.final <- item12.final[which(item12.final$rvalue.bins.SF != "Total"),]
+item12.final$HomeYearBuilt_bins3[which(item12.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 
+##cast data
+item12.cast <- dcast(setDT(item12.final),
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
+                           ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
+                           ,"Percent.R0"      = item12.cast$Percent_R0
+                           ,"SE.R0"           = item12.cast$SE_R0
+                           ,"Count.R0"            = item12.cast$Count_R0
+                           ,"Percent.R1.R10"  = item12.cast$Percent_R1.R10
+                           ,"SE.R1.R10"       = item12.cast$SE_R1.R10
+                           ,"Count.R1.R10"        = item12.cast$Count_R1.R10
+                           ,"Percent.R11.R16" = item12.cast$Percent_R11.R16
+                           ,"SE.R11.R16"      = item12.cast$SE_R11.R16
+                           ,"Count.R11.R16"       = item12.cast$Count_R11.R16
+                           ,"Percent.R17.R22" = item12.cast$Percent_R17.R22
+                           ,"SE.R17.R22"      = item12.cast$SE_R17.R22
+                           ,"Count.R17.R22"       = item12.cast$Count_R17.R22
+                           ,"Percent.RGT22"   = item12.cast$Percent_RGT22
+                           ,"SE.RGT22"        = item12.cast$SE_RGT22
+                           ,"Count.RGT22"         = item12.cast$Count_RGT22
+                           # ,"SampleSize"      = item12.cast$Count_Total
+                           )
+
+
+item12.table.SF <- item12.table[which(item12.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item12.table.SF, "SF", "Table 19"
+            , weighted = FALSE)
+
+
+
+
+
+
+
+############################################################################################################
+# Weighted Analysis - Manufactured
+############################################################################################################
+item12.summary <- proportionRowsAndColumns1(CustomerLevelData     = item12.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins2'
+                                            , rowVariable         = 'rvalue.bins.MH'
+                                            , aggregateColumnName = "All Housing Vintages"
+)
+item12.summary <- item12.summary[which(item12.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item12.all.frame.types <- proportions_one_group(item12.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.MH"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins2"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item12.all.insul.levels <-  proportions_one_group(item12.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins2"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.MH"
+                                                  ,weighted = TRUE
+)
+
+
+#merge together!
+item12.final <- rbind.data.frame(item12.summary
+                                 , item12.all.frame.types
+                                 , item12.all.insul.levels
+                                 , stringsAsFactors = F)
+item12.final <- item12.final[which(item12.final$rvalue.bins.MH != "Total"),]
+item12.final$HomeYearBuilt_bins2[which(item12.final$HomeYearBuilt_bins2 == "Total")] <- "All Housing Vintages"
 
 item12.cast <- dcast(setDT(item12.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins.MH,
+                     formula   = BuildingType + HomeYearBuilt_bins2 ~ rvalue.bins.MH,
                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
@@ -984,7 +1082,8 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Percent.R22.R30" = item12.cast$w.percent_R22.R30
                            ,"SE.R22.R30"      = item12.cast$w.SE_R22.R30
                            ,"n.R22.R30"       = item12.cast$count_R22.R30
-                           ,"SampleSize"      = item12.cast$count_Total)
+                           # ,"SampleSize"      = item12.cast$count_Total
+                           )
 
 
 item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
@@ -993,6 +1092,72 @@ item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured
 exportTable(item12.table.MH, "MH", "Table 16"
             , weighted = TRUE)
 
+
+############################################################################################################
+# Unweighted Analysis - Manufactured
+############################################################################################################
+item12.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item12.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins2'
+                                            , rowVariable         = 'rvalue.bins.MH'
+                                            , aggregateColumnName = "All Housing Vintages"
+)
+item12.summary <- item12.summary[which(item12.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item12.all.frame.types <- proportions_one_group(item12.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.MH"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins2"
+                                                ,weighted = FALSE
+)
+
+## Summary for only "All Insulation Levels"
+item12.all.insul.levels <-  proportions_one_group(item12.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins2"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.MH"
+                                                  ,weighted = FALSE
+)
+
+
+#merge together!
+item12.final <- rbind.data.frame(item12.summary
+                                 , item12.all.frame.types
+                                 , item12.all.insul.levels
+                                 , stringsAsFactors = F)
+item12.final <- item12.final[which(item12.final$rvalue.bins.MH != "Total"),]
+item12.final$HomeYearBuilt_bins2[which(item12.final$HomeYearBuilt_bins2 == "Total")] <- "All Housing Vintages"
+
+item12.cast <- dcast(setDT(item12.final),
+                     formula   = BuildingType + HomeYearBuilt_bins2 ~ rvalue.bins.MH,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
+                           ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins2
+                           ,"Percent.R0.R8"   = item12.cast$Percent_R0.R8
+                           ,"SE.R0.R8"        = item12.cast$SE_R0.R8
+                           ,"Count.R0.R8"     = item12.cast$Count_R0.R8
+                           ,"Percent.R9.R14"  = item12.cast$Percent_R9.R14
+                           ,"SE.R9.R14"       = item12.cast$SE_R9.R14
+                           ,"Count.R9.R14"    = item12.cast$Count_R9.R14
+                           ,"Percent.R15.R21" = item12.cast$Percent_R15.R21
+                           ,"SE.R15.R21"      = item12.cast$SE_R15.R21
+                           ,"Count.R15.R21"   = item12.cast$Count_R15.R21
+                           ,"Percent.R22.R30" = item12.cast$Percent_R22.R30
+                           ,"SE.R22.R30"      = item12.cast$SE_R22.R30
+                           ,"Count.R22.R30"   = item12.cast$Count_R22.R30
+                           # ,"SampleSize"      = item12.cast$Count_Total
+)
+
+
+item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item12.table.MH, "MH", "Table 16"
+            , weighted = FALSE)
 
 
 
@@ -1008,50 +1173,67 @@ exportTable(item12.table.MH, "MH", "Table 16"
 item13.data <- item12.data[which(item12.data$State == "ID"),]
 
 
-#summarise by housing vintage
-item13.by.vinage <- proportionRowsAndColumns1(item13.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins3'
-                                              , rowVariable         = 'rvalue.bins.SF'
-                                              , aggregateColumnName = "Remove"
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
+item13.summary <- proportionRowsAndColumns1(CustomerLevelData     = item13.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item13.across.vintages <- proportions_one_group(item13.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins.SF'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3'
-                                                , weighted = TRUE
-                                                )
-# row bind summaries
-item13.final <- rbind.data.frame(item13.by.vinage, item13.across.vintages, stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item13.final <- item13.final[which(item13.final$HomeYearBuilt_bins3 != "Remove"),]
+item13.summary <- item13.summary[which(item13.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item13.all.frame.types <- proportions_one_group(item13.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item13.all.insul.levels <-  proportions_one_group(item13.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = TRUE
+)
 
 
+#merge together!
+item13.final <- rbind.data.frame(item13.summary
+                                 , item13.all.frame.types
+                                 , item13.all.insul.levels
+                                 , stringsAsFactors = F)
+item13.final <- item13.final[which(item13.final$rvalue.bins.SF != "Total"),]
+item13.final$HomeYearBuilt_bins3[which(item13.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 item13.cast <- dcast(setDT(item13.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 + n + N ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count"))
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item13.cast$w.percent_R0
                            ,"SE.R0"           = item13.cast$w.SE_R0
-                           ,"n.R0"            = item13.cast$count_R0
+                           ,"Count.R0"            = item13.cast$count_R0
                            ,"Percent.R1.R10"  = item13.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item13.cast$w.SE_R1.R10
-                           ,"n.R1.R10"        = item13.cast$count_R1.R10
+                           ,"Count.R1.R10"        = item13.cast$count_R1.R10
                            ,"Percent.R11.R16" = item13.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item13.cast$w.SE_R11.R16
-                           ,"n.R11.R16"       = item13.cast$count_R11.R16
+                           ,"Count.R11.R16"       = item13.cast$count_R11.R16
                            ,"Percent.R17.R22" = item13.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item13.cast$w.SE_R17.R22
-                           ,"n.R17.R22"       = item13.cast$count_R17.R22
-                           ,"Percent.RGT22"   = NA #item13.cast$w.percent_RGT22
-                           ,"SE.RGT22"        = NA #item13.cast$w.SE_RGT22
-                           ,"n.RGT22"         = NA #item13.cast$count_RGT22
-                           ,"SampleSize"      = item13.cast$count_Total)
+                           ,"Count.R17.R22"       = item13.cast$count_R17.R22
+                           ,"Percent.RGT22"   = item13.cast$w.percent_RGT22
+                           ,"SE.RGT22"        = item13.cast$w.SE_RGT22
+                           ,"Count.RGT22"         = item13.cast$count_RGT22
+                           # ,"SampleSize"      = item13.cast$count_Total
+)
 
 
 item13.table.SF <- item13.table[which(item13.table$BuildingType == "Single Family"),-1]
@@ -1060,61 +1242,79 @@ item13.table.SF <- item13.table[which(item13.table$BuildingType == "Single Famil
 exportTable(item13.table.SF, "SF", "Table 20"
             , weighted = TRUE)
 
-# #summarise by vintage bins
-# #summarise by r value bins
-# item13.sum1 <- summarise(group_by(item13.dat, BuildingType, HomeYearBuilt_bins3, rvalue.bins)
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item13.sum2 <- summarise(group_by(item13.dat, BuildingType, HomeYearBuilt_bins3)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item13.merge1 <- left_join(item13.sum1, item13.sum2, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #summarise across wall frame types
-# #summarise by r value bins
-# item13.sum3 <- summarise(group_by(item13.dat, BuildingType, rvalue.bins)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item13.sum4 <- summarise(group_by(item13.dat, BuildingType)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item13.merge2 <- left_join(item13.sum3, item13.sum4, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# 
-# item13.final <- rbind.data.frame(item13.merge1, item13.merge2, stringsAsFactors = F)
-# 
-# #calculate percent and SE
-# item13.final$Percent <- item13.final$Count / item13.final$TotalCount
-# item13.final$SE <- sqrt(item13.final$Percent * (1 - item13.final$Percent) / item13.final$SampleSize)
-# 
-# ##cast data
-# item13.cast <- dcast(setDT(item13.final),
-#                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins,
-#                      value.var = c("Percent", "SE", "SampleSize"))
-# SampleSize <- rbind.data.frame(item13.sum2, item13.sum4, stringsAsFactors = F)
-# 
-# item13.table <- left_join(item13.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #join all insulation levels onto rvalue summary
-# item13.table.SF <- data.frame("BuildingType" = item13.table$BuildingType
-#                               ,"Housing.Vintage" = item13.table$HomeYearBuilt_bins3
-#                               ,"Percent.R0" = item13.table$Percent_R0
-#                               ,"SE.R0" = item13.table$SE_R0
-#                               ,"Percent.R1.R10" = item13.table$Percent_R1.R10
-#                               ,"SE.R1.R10" = item13.table$SE_R1.R10
-#                               ,"Percent.R11.R16" = item13.table$Percent_R11.R16
-#                               ,"SE.R11.R16" = item13.table$SE_R11.R16
-#                               ,"Percent.R17.R22" = item13.table$Percent_R17.R22
-#                               ,"SE.R17.R22" = item13.table$SE_R17.R22
-#                               ,"Percent.RGT22" = item13.table$Percent_RGT22
-#                               ,"SE.RGT22" = item13.table$SE_RGT22
-#                               ,"SampleSize" = item13.table$SampleSize)
-# 
-# item13.table.SF1 <- item13.table.SF[which(item13.table.SF$BuildingType == "Single Family"),]
+
+
+################################
+# Unweighted Analysis
+################################
+item13.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item13.data
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'HomeYearBuilt_bins3'
+                                                    , rowVariable         = 'rvalue.bins.SF'
+                                                    , aggregateColumnName = "All Housing Vintages"
+)
+item13.summary <- item13.summary[which(item13.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item13.all.frame.types <- proportions_one_group(item13.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = FALSE
+)
+
+## Summary for only "All Insulation Levels"
+item13.all.insul.levels <-  proportions_one_group(item13.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = FALSE
+)
+
+
+#merge together!
+item13.final <- rbind.data.frame(item13.summary
+                                 , item13.all.frame.types
+                                 , item13.all.insul.levels
+                                 , stringsAsFactors = F)
+item13.final <- item13.final[which(item13.final$rvalue.bins.SF != "Total"),]
+item13.final$HomeYearBuilt_bins3[which(item13.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
+
+
+##cast data
+item13.cast <- dcast(setDT(item13.final),
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
+                           ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
+                           ,"Percent.R0"      = item13.cast$Percent_R0
+                           ,"SE.R0"           = item13.cast$SE_R0
+                           ,"Count.R0"            = item13.cast$Count_R0
+                           ,"Percent.R1.R10"  = item13.cast$Percent_R1.R10
+                           ,"SE.R1.R10"       = item13.cast$SE_R1.R10
+                           ,"Count.R1.R10"        = item13.cast$Count_R1.R10
+                           ,"Percent.R11.R16" = item13.cast$Percent_R11.R16
+                           ,"SE.R11.R16"      = item13.cast$SE_R11.R16
+                           ,"Count.R11.R16"       = item13.cast$Count_R11.R16
+                           ,"Percent.R17.R22" = item13.cast$Percent_R17.R22
+                           ,"SE.R17.R22"      = item13.cast$SE_R17.R22
+                           ,"Count.R17.R22"       = item13.cast$Count_R17.R22
+                           ,"Percent.RGT22"   = item13.cast$Percent_RGT22
+                           ,"SE.RGT22"        = item13.cast$SE_RGT22
+                           ,"Count.RGT22"         = item13.cast$Count_RGT22
+                           # ,"SampleSize"      = item13.cast$Count_Total
+)
+
+
+item13.table.SF <- item13.table[which(item13.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item13.table.SF, "SF", "Table 20"
+            , weighted = FALSE)
 
 
 
@@ -1132,51 +1332,67 @@ exportTable(item13.table.SF, "SF", "Table 20"
 item14.data <- item12.data[which(item12.data$State == "MT"),]
 
 
-#summarise by housing vintage
-item14.by.vinage <- proportionRowsAndColumns1(item14.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins3'
-                                              , rowVariable         = 'rvalue.bins.SF'
-                                              , aggregateColumnName = "Remove"
-                                              # , weighted = TRUE
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
+item14.summary <- proportionRowsAndColumns1(CustomerLevelData     = item14.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item14.across.vintages <- proportions_one_group(item14.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins.SF'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3'
-                                                # , weighted = TRUE
-                                                )
-# row bind summaries
-item14.final <- rbind.data.frame(item14.by.vinage, item14.across.vintages, stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item14.final <- item14.final[which(item14.final$HomeYearBuilt_bins3 != "Remove"),]
+item14.summary <- item14.summary[which(item14.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item14.all.frame.types <- proportions_one_group(item14.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item14.all.insul.levels <-  proportions_one_group(item14.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = TRUE
+)
 
 
+#merge together!
+item14.final <- rbind.data.frame(item14.summary
+                                 , item14.all.frame.types
+                                 , item14.all.insul.levels
+                                 , stringsAsFactors = F)
+item14.final <- item14.final[which(item14.final$rvalue.bins.SF != "Total"),]
+item14.final$HomeYearBuilt_bins3[which(item14.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 item14.cast <- dcast(setDT(item14.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 + n + N ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count"))
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item14.cast$w.percent_R0
                            ,"SE.R0"           = item14.cast$w.SE_R0
-                           ,"n.R0"            = item14.cast$count_R0
+                           ,"Count.R0"            = item14.cast$count_R0
                            ,"Percent.R1.R10"  = item14.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item14.cast$w.SE_R1.R10
-                           ,"n.R1.R10"        = item14.cast$count_R1.R10
-                           ,"Percent.R11.R16" = NA #item14.cast$w.percent_R11.R16
-                           ,"SE.R11.R16"      = NA #item14.cast$w.SE_R11.R16
-                           ,"n.R11.R16"       = NA #item14.cast$count_R11.R16
+                           ,"Count.R1.R10"        = item14.cast$count_R1.R10
+                           ,"Percent.R11.R16" = item14.cast$w.percent_R11.R16
+                           ,"SE.R11.R16"      = item14.cast$w.SE_R11.R16
+                           ,"Count.R11.R16"       = item14.cast$count_R11.R16
                            ,"Percent.R17.R22" = item14.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item14.cast$w.SE_R17.R22
-                           ,"n.R17.R22"       = item14.cast$count_R17.R22
-                           ,"Percent.RGT22"   = NA #item14.cast$w.percent_RGT22
-                           ,"SE.RGT22"        = NA #item14.cast$w.SE_RGT22
-                           ,"n.RGT22"         = NA #item14.cast$count_RGT22
-                           ,"SampleSize"      = item14.cast$count_Total)
+                           ,"Count.R17.R22"       = item14.cast$count_R17.R22
+                           ,"Percent.RGT22"   = item14.cast$w.percent_RGT22
+                           ,"SE.RGT22"        = item14.cast$w.SE_RGT22
+                           ,"Count.RGT22"         = item14.cast$count_RGT22
+                           # ,"SampleSize"      = item14.cast$count_Total
+)
 
 
 item14.table.SF <- item14.table[which(item14.table$BuildingType == "Single Family"),-1]
@@ -1187,66 +1403,77 @@ exportTable(item14.table.SF, "SF", "Table 21"
 
 
 
+################################
+# Unweighted Analysis
+################################
+item14.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item14.data
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'HomeYearBuilt_bins3'
+                                                    , rowVariable         = 'rvalue.bins.SF'
+                                                    , aggregateColumnName = "All Housing Vintages"
+)
+item14.summary <- item14.summary[which(item14.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item14.all.frame.types <- proportions_one_group(item14.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = FALSE
+)
+
+## Summary for only "All Insulation Levels"
+item14.all.insul.levels <-  proportions_one_group(item14.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = FALSE
+)
 
 
-# ## Note: For this table, you must run up to item12.dat1 for the cleaned data
-# item14.dat <- item12.dat1[which(item12.dat1$State == "MT"),]
-# 
-# #summarise by vintage bins
-# #summarise by r value bins
-# item14.sum1 <- summarise(group_by(item14.dat, BuildingType, HomeYearBuilt_bins3, rvalue.bins)
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item14.sum2 <- summarise(group_by(item14.dat, BuildingType, HomeYearBuilt_bins3)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item14.merge1 <- left_join(item14.sum1, item14.sum2, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #summarise across wall frame types
-# #summarise by r value bins
-# item14.sum3 <- summarise(group_by(item14.dat, BuildingType, rvalue.bins)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item14.sum4 <- summarise(group_by(item14.dat, BuildingType)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item14.merge2 <- left_join(item14.sum3, item14.sum4, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# 
-# item14.final <- rbind.data.frame(item14.merge1, item14.merge2, stringsAsFactors = F)
-# 
-# #calculate percent and SE
-# item14.final$Percent <- item14.final$Count / item14.final$TotalCount
-# item14.final$SE <- sqrt(item14.final$Percent * (1 - item14.final$Percent) / item14.final$SampleSize)
-# 
-# ##cast data
-# item14.cast <- dcast(setDT(item14.final),
-#                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins,
-#                      value.var = c("Percent", "SE", "SampleSize"))
-# SampleSize <- rbind.data.frame(item14.sum2, item14.sum4, stringsAsFactors = F)
-# 
-# item14.table <- left_join(item14.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #join all insulation levels onto rvalue summary
-# item14.table1 <- data.frame("BuildingType" = item14.table$BuildingType
-#                               ,"Housing.Vintage" = item14.table$HomeYearBuilt_bins3
-#                               ,"Percent.R0" = 0#item14.table$Percent_R0
-#                               ,"SE.R0" = 0#item14.table$SE_R0
-#                               ,"Percent.R1.R10" = item14.table$Percent_R1.R10
-#                               ,"SE.R1.R10" = item14.table$SE_R1.R10
-#                               ,"Percent.R11.R16" = item14.table$Percent_R11.R16
-#                               ,"SE.R11.R16" = item14.table$SE_R11.R16
-#                               ,"Percent.R17.R22" = item14.table$Percent_R17.R22
-#                               ,"SE.R17.R22" = item14.table$SE_R17.R22
-#                               ,"Percent.RGT22" = item14.table$Percent_RGT22
-#                               ,"SE.RGT22" = item14.table$SE_RGT22
-#                               ,"SampleSize" = item14.table$SampleSize)
-# 
-# item14.table.SF1 <- item14.table1[which(item14.table1$BuildingType == "Single Family"),]
+#merge together!
+item14.final <- rbind.data.frame(item14.summary
+                                 , item14.all.frame.types
+                                 , item14.all.insul.levels
+                                 , stringsAsFactors = F)
+item14.final <- item14.final[which(item14.final$rvalue.bins.SF != "Total"),]
+item14.final$HomeYearBuilt_bins3[which(item14.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
+
+
+##cast data
+item14.cast <- dcast(setDT(item14.final),
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
+                           ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
+                           ,"Percent.R0"      = item14.cast$Percent_R0
+                           ,"SE.R0"           = item14.cast$SE_R0
+                           ,"Count.R0"            = item14.cast$Count_R0
+                           ,"Percent.R1.R10"  = item14.cast$Percent_R1.R10
+                           ,"SE.R1.R10"       = item14.cast$SE_R1.R10
+                           ,"Count.R1.R10"        = item14.cast$Count_R1.R10
+                           ,"Percent.R11.R16" = item14.cast$Percent_R11.R16
+                           ,"SE.R11.R16"      = item14.cast$SE_R11.R16
+                           ,"Count.R11.R16"       = item14.cast$Count_R11.R16
+                           ,"Percent.R17.R22" = item14.cast$Percent_R17.R22
+                           ,"SE.R17.R22"      = item14.cast$SE_R17.R22
+                           ,"Count.R17.R22"       = item14.cast$Count_R17.R22
+                           ,"Percent.RGT22"   = item14.cast$Percent_RGT22
+                           ,"SE.RGT22"        = item14.cast$SE_RGT22
+                           ,"Count.RGT22"         = item14.cast$Count_RGT22
+                           # ,"SampleSize"      = item14.cast$Count_Total
+)
+
+
+item14.table.SF <- item14.table[which(item14.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item14.table.SF, "SF", "Table 21"
+            , weighted = FALSE)
 
 
 
@@ -1261,51 +1488,67 @@ exportTable(item14.table.SF, "SF", "Table 21"
 item15.data <- item12.data[which(item12.data$State == "OR"),]
 
 
-#summarise by housing vintage
-item15.by.vinage <- proportionRowsAndColumns1(item15.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins3'
-                                              , rowVariable         = 'rvalue.bins.SF'
-                                              , aggregateColumnName = "Remove"
-                                              # , weighted = TRUE
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
+item15.summary <- proportionRowsAndColumns1(CustomerLevelData     = item15.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item15.across.vintages <- proportions_one_group(item15.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins.SF'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3'
-                                                # , weighted = TRUE
-                                                )
-# row bind summaries
-item15.final <- rbind.data.frame(item15.by.vinage, item15.across.vintages, stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item15.final <- item15.final[which(item15.final$HomeYearBuilt_bins3 != "Remove"),]
+item15.summary <- item15.summary[which(item15.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item15.all.frame.types <- proportions_one_group(item15.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item15.all.insul.levels <-  proportions_one_group(item15.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = TRUE
+)
 
 
+#merge together!
+item15.final <- rbind.data.frame(item15.summary
+                                 , item15.all.frame.types
+                                 , item15.all.insul.levels
+                                 , stringsAsFactors = F)
+item15.final <- item15.final[which(item15.final$rvalue.bins.SF != "Total"),]
+item15.final$HomeYearBuilt_bins3[which(item15.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 item15.cast <- dcast(setDT(item15.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 + n + N ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count"))
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item15.cast$w.percent_R0
                            ,"SE.R0"           = item15.cast$w.SE_R0
-                           ,"n.R0"            = item15.cast$count_R0
+                           ,"Count.R0"            = item15.cast$count_R0
                            ,"Percent.R1.R10"  = item15.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item15.cast$w.SE_R1.R10
-                           ,"n.R1.R10"        = item15.cast$count_R1.R10
+                           ,"Count.R1.R10"        = item15.cast$count_R1.R10
                            ,"Percent.R11.R16" = item15.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item15.cast$w.SE_R11.R16
-                           ,"n.R11.R16"       = item15.cast$count_R11.R16
+                           ,"Count.R11.R16"       = item15.cast$count_R11.R16
                            ,"Percent.R17.R22" = item15.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item15.cast$w.SE_R17.R22
-                           ,"n.R17.R22"       = item15.cast$count_R17.R22
-                           ,"Percent.RGT22"   = NA #item15.cast$w.percent_RGT22
-                           ,"SE.RGT22"        = NA #item15.cast$w.SE_RGT22
-                           ,"n.RGT22"         = NA #item15.cast$count_RGT22
-                           ,"SampleSize"      = item15.cast$count_Total)
+                           ,"Count.R17.R22"       = item15.cast$count_R17.R22
+                           ,"Percent.RGT22"   = item15.cast$w.percent_RGT22
+                           ,"SE.RGT22"        = item15.cast$w.SE_RGT22
+                           ,"Count.RGT22"         = item15.cast$count_RGT22
+                           # ,"SampleSize"      = item15.cast$count_Total
+)
 
 
 item15.table.SF <- item15.table[which(item15.table$BuildingType == "Single Family"),-1]
@@ -1316,67 +1559,77 @@ exportTable(item15.table.SF, "SF", "Table 22"
 
 
 
+################################
+# Unweighted Analysis
+################################
+item15.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item15.data
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'HomeYearBuilt_bins3'
+                                                    , rowVariable         = 'rvalue.bins.SF'
+                                                    , aggregateColumnName = "All Housing Vintages"
+)
+item15.summary <- item15.summary[which(item15.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item15.all.frame.types <- proportions_one_group(item15.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = FALSE
+)
+
+## Summary for only "All Insulation Levels"
+item15.all.insul.levels <-  proportions_one_group(item15.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = FALSE
+)
 
 
+#merge together!
+item15.final <- rbind.data.frame(item15.summary
+                                 , item15.all.frame.types
+                                 , item15.all.insul.levels
+                                 , stringsAsFactors = F)
+item15.final <- item15.final[which(item15.final$rvalue.bins.SF != "Total"),]
+item15.final$HomeYearBuilt_bins3[which(item15.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
-# ## Note: For this table, you must run up to item12.dat1 for the cleaned data
-# item15.dat <- item12.dat1[which(item12.dat1$State == "OR"),]
-# 
-# #summarise by vintage bins
-# #summarise by r value bins
-# item15.sum1 <- summarise(group_by(item15.dat, BuildingType, HomeYearBuilt_bins3, rvalue.bins)
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item15.sum2 <- summarise(group_by(item15.dat, BuildingType, HomeYearBuilt_bins3)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item15.merge1 <- left_join(item15.sum1, item15.sum2, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #summarise across wall frame types
-# #summarise by r value bins
-# item15.sum3 <- summarise(group_by(item15.dat, BuildingType, rvalue.bins)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item15.sum4 <- summarise(group_by(item15.dat, BuildingType)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item15.merge2 <- left_join(item15.sum3, item15.sum4, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# 
-# item15.final <- rbind.data.frame(item15.merge1, item15.merge2, stringsAsFactors = F)
-# 
-# #calculate percent and SE
-# item15.final$Percent <- item15.final$Count / item15.final$TotalCount
-# item15.final$SE <- sqrt(item15.final$Percent * (1 - item15.final$Percent) / item15.final$SampleSize)
-# 
-# ##cast data
-# item15.cast <- dcast(setDT(item15.final),
-#                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins,
-#                      value.var = c("Percent", "SE", "SampleSize"))
-# SampleSize <- rbind.data.frame(item15.sum2, item15.sum4, stringsAsFactors = F)
-# 
-# item15.table <- left_join(item15.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #join all insulation levels onto rvalue summary
-# item15.table1 <- data.frame("BuildingType" = item15.table$BuildingType
-#                             ,"Housing.Vintage" = item15.table$HomeYearBuilt_bins3
-#                             ,"Percent.R0" = item15.table$Percent_R0
-#                             ,"SE.R0" = item15.table$SE_R0
-#                             ,"Percent.R1.R10" = item15.table$Percent_R1.R10
-#                             ,"SE.R1.R10" = item15.table$SE_R1.R10
-#                             ,"Percent.R11.R16" = item15.table$Percent_R11.R16
-#                             ,"SE.R11.R16" = item15.table$SE_R11.R16
-#                             ,"Percent.R17.R22" = item15.table$Percent_R17.R22
-#                             ,"SE.R17.R22" = item15.table$SE_R17.R22
-#                             ,"Percent.RGT22" = item15.table$Percent_RGT22
-#                             ,"SE.RGT22" = item15.table$SE_RGT22
-#                             ,"SampleSize" = item15.table$SampleSize)
-# 
-# item15.table2 <- item15.table1[which(item15.table1$BuildingType == "Single Family"),]
+
+##cast data
+item15.cast <- dcast(setDT(item15.final),
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
+                           ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
+                           ,"Percent.R0"      = item15.cast$Percent_R0
+                           ,"SE.R0"           = item15.cast$SE_R0
+                           ,"Count.R0"            = item15.cast$Count_R0
+                           ,"Percent.R1.R10"  = item15.cast$Percent_R1.R10
+                           ,"SE.R1.R10"       = item15.cast$SE_R1.R10
+                           ,"Count.R1.R10"        = item15.cast$Count_R1.R10
+                           ,"Percent.R11.R16" = item15.cast$Percent_R11.R16
+                           ,"SE.R11.R16"      = item15.cast$SE_R11.R16
+                           ,"Count.R11.R16"       = item15.cast$Count_R11.R16
+                           ,"Percent.R17.R22" = item15.cast$Percent_R17.R22
+                           ,"SE.R17.R22"      = item15.cast$SE_R17.R22
+                           ,"Count.R17.R22"       = item15.cast$Count_R17.R22
+                           ,"Percent.RGT22"   = item15.cast$Percent_RGT22
+                           ,"SE.RGT22"        = item15.cast$SE_RGT22
+                           ,"Count.RGT22"         = item15.cast$Count_RGT22
+                           # ,"SampleSize"      = item15.cast$Count_Total
+)
+
+
+item15.table.SF <- item15.table[which(item15.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item15.table.SF, "SF", "Table 22"
+            , weighted = FALSE)
 
 
 
@@ -1393,51 +1646,67 @@ exportTable(item15.table.SF, "SF", "Table 22"
 item16.data <- item12.data[which(item12.data$State == "WA"),]
 
 
-#summarise by housing vintage
-item16.by.vinage <- proportionRowsAndColumns1(item16.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins3'
-                                              , rowVariable         = 'rvalue.bins.SF'
-                                              , aggregateColumnName = "Remove"
-                                              # , weighted = TRUE
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
+item16.summary <- proportionRowsAndColumns1(CustomerLevelData     = item16.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item16.across.vintages <- proportions_one_group(item16.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins.SF'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3'
-                                                # , weighted = TRUE
-                                                )
-# row bind summaries
-item16.final <- rbind.data.frame(item16.by.vinage, item16.across.vintages, stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item16.final <- item16.final[which(item16.final$HomeYearBuilt_bins3 != "Remove"),]
+item16.summary <- item16.summary[which(item16.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item16.all.frame.types <- proportions_one_group(item16.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item16.all.insul.levels <-  proportions_one_group(item16.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = TRUE
+)
 
 
+#merge together!
+item16.final <- rbind.data.frame(item16.summary
+                                 , item16.all.frame.types
+                                 , item16.all.insul.levels
+                                 , stringsAsFactors = F)
+item16.final <- item16.final[which(item16.final$rvalue.bins.SF != "Total"),]
+item16.final$HomeYearBuilt_bins3[which(item16.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 item16.cast <- dcast(setDT(item16.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 + n + N ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count"))
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item16.cast$w.percent_R0
                            ,"SE.R0"           = item16.cast$w.SE_R0
-                           ,"n.R0"            = item16.cast$count_R0
+                           ,"Count.R0"            = item16.cast$count_R0
                            ,"Percent.R1.R10"  = item16.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item16.cast$w.SE_R1.R10
-                           ,"n.R1.R10"        = item16.cast$count_R1.R10
+                           ,"Count.R1.R10"        = item16.cast$count_R1.R10
                            ,"Percent.R11.R16" = item16.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item16.cast$w.SE_R11.R16
-                           ,"n.R11.R16"       = item16.cast$count_R11.R16
+                           ,"Count.R11.R16"       = item16.cast$count_R11.R16
                            ,"Percent.R17.R22" = item16.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item16.cast$w.SE_R17.R22
-                           ,"n.R17.R22"       = item16.cast$count_R17.R22
-                           ,"Percent.RGT22"   = NA #item16.cast$w.percent_RGT22
-                           ,"SE.RGT22"        = NA #item16.cast$w.SE_RGT22
-                           ,"n.RGT22"         = NA #item16.cast$count_RGT22
-                           ,"SampleSize"      = item16.cast$count_Total)
+                           ,"Count.R17.R22"       = item16.cast$count_R17.R22
+                           ,"Percent.RGT22"   = item16.cast$w.percent_RGT22
+                           ,"SE.RGT22"        = item16.cast$w.SE_RGT22
+                           ,"Count.RGT22"         = item16.cast$count_RGT22
+                           # ,"SampleSize"      = item16.cast$count_Total
+)
 
 
 item16.table.SF <- item16.table[which(item16.table$BuildingType == "Single Family"),-1]
@@ -1448,71 +1717,77 @@ exportTable(item16.table.SF, "SF", "Table 23"
 
 
 
+################################
+# Unweighted Analysis
+################################
+item16.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item16.data
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'HomeYearBuilt_bins3'
+                                                    , rowVariable         = 'rvalue.bins.SF'
+                                                    , aggregateColumnName = "All Housing Vintages"
+)
+item16.summary <- item16.summary[which(item16.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item16.all.frame.types <- proportions_one_group(item16.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins.SF"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = FALSE
+)
+
+## Summary for only "All Insulation Levels"
+item16.all.insul.levels <-  proportions_one_group(item16.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins.SF"
+                                                  ,weighted = FALSE
+)
 
 
+#merge together!
+item16.final <- rbind.data.frame(item16.summary
+                                 , item16.all.frame.types
+                                 , item16.all.insul.levels
+                                 , stringsAsFactors = F)
+item16.final <- item16.final[which(item16.final$rvalue.bins.SF != "Total"),]
+item16.final$HomeYearBuilt_bins3[which(item16.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 
+##cast data
+item16.cast <- dcast(setDT(item16.final),
+                     formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
 
 
-# # Note: For this table, you must run up to item12.dat1 for the cleaned data
-# item16.dat <- item12.dat1[which(item12.dat1$State == "WA"),]
-# 
-# #summarise by vintage bins
-# #summarise by r value bins
-# item16.sum1 <- summarise(group_by(item16.dat, BuildingType, HomeYearBuilt_bins3, rvalue.bins)
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item16.sum2 <- summarise(group_by(item16.dat, BuildingType, HomeYearBuilt_bins3)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item16.merge1 <- left_join(item16.sum1, item16.sum2, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #summarise across wall frame types
-# #summarise by r value bins
-# item16.sum3 <- summarise(group_by(item16.dat, BuildingType, rvalue.bins)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,Count = sum(count))
-# #summarise across r value bins
-# item16.sum4 <- summarise(group_by(item16.dat, BuildingType)
-#                          , HomeYearBuilt_bins3 = "All Vintages"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,TotalCount = sum(count))
-# #merge
-# item16.merge2 <- left_join(item16.sum3, item16.sum4, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# 
-# item16.final <- rbind.data.frame(item16.merge1, item16.merge2, stringsAsFactors = F)
-# 
-# #calculate percent and SE
-# item16.final$Percent <- item16.final$Count / item16.final$TotalCount
-# item16.final$SE <- sqrt(item16.final$Percent * (1 - item16.final$Percent) / item16.final$SampleSize)
-# 
-# ##cast data
-# item16.cast <- dcast(setDT(item16.final),
-#                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins,
-#                      value.var = c("Percent", "SE", "SampleSize"))
-# SampleSize <- rbind.data.frame(item16.sum2, item16.sum4, stringsAsFactors = F)
-# 
-# item16.table <- left_join(item16.cast, SampleSize, by = c("BuildingType", "HomeYearBuilt_bins3"))
-# 
-# #join all insulation levels onto rvalue summary
-# item16.table1 <- data.frame("BuildingType" = item16.table$BuildingType
-#                             ,"Housing.Vintage" = item16.table$HomeYearBuilt_bins3
-#                             ,"Percent.R0" = item16.table$Percent_R0
-#                             ,"SE.R0" = item16.table$SE_R0
-#                             ,"Percent.R1.R10" = item16.table$Percent_R1.R10
-#                             ,"SE.R1.R10" = item16.table$SE_R1.R10
-#                             ,"Percent.R11.R16" = item16.table$Percent_R11.R16
-#                             ,"SE.R11.R16" = item16.table$SE_R11.R16
-#                             ,"Percent.R17.R22" = item16.table$Percent_R17.R22
-#                             ,"SE.R17.R22" = item16.table$SE_R17.R22
-#                             ,"Percent.RGT22" = item16.table$Percent_RGT22
-#                             ,"SE.RGT22" = item16.table$SE_RGT22
-#                             ,"SampleSize" = item16.table$SampleSize)
-# 
-# item16.table2 <- item16.table1[which(item16.table1$BuildingType == "Single Family"),]
+item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
+                           ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
+                           ,"Percent.R0"      = item16.cast$Percent_R0
+                           ,"SE.R0"           = item16.cast$SE_R0
+                           ,"Count.R0"            = item16.cast$Count_R0
+                           ,"Percent.R1.R10"  = item16.cast$Percent_R1.R10
+                           ,"SE.R1.R10"       = item16.cast$SE_R1.R10
+                           ,"Count.R1.R10"        = item16.cast$Count_R1.R10
+                           ,"Percent.R11.R16" = item16.cast$Percent_R11.R16
+                           ,"SE.R11.R16"      = item16.cast$SE_R11.R16
+                           ,"Count.R11.R16"       = item16.cast$Count_R11.R16
+                           ,"Percent.R17.R22" = item16.cast$Percent_R17.R22
+                           ,"SE.R17.R22"      = item16.cast$SE_R17.R22
+                           ,"Count.R17.R22"       = item16.cast$Count_R17.R22
+                           ,"Percent.RGT22"   = item16.cast$Percent_RGT22
+                           ,"SE.RGT22"        = item16.cast$SE_RGT22
+                           ,"Count.RGT22"         = item16.cast$Count_RGT22
+                           # ,"SampleSize"      = item16.cast$Count_Total
+)
 
+
+item16.table.SF <- item16.table[which(item16.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item16.table.SF, "SF", "Table 23"
+            , weighted = FALSE)
 
 
 
@@ -1524,7 +1799,56 @@ exportTable(item16.table.SF, "SF", "Table 23"
 #############################################################################################
 # Item 17: DISTRIBUTION OF Masonry Wall Insulation Levels by Vintage (SF table 24)
 #############################################################################################
-item17.dat <- prep.dat7[which(prep.dat7$Wall.Type %in% c("Masonry")),]
+###########################
+# Analysis: Calculate weighted R values by site, convert to U values
+###########################
+prep.dat5 <- prep.dat4.9[grep("Masonry",prep.dat4.9$Wall.Type),-grep("Cavity|cavity", colnames(prep.dat4.9))]
+prep.dat5 <- prep.dat5[which(prep.dat5$`Wall.Exterior.Insulated?` %in% c("Yes", "No")),]
+
+#calculate the weighted r value
+na.ind <- which(is.na(prep.dat5$total.r.val))
+prep.dat5$total.r.val[na.ind] <- (prep.dat5$exterior.rvalues1[na.ind] * prep.dat5$exterior.inches1[na.ind]) + 
+  (prep.dat5$exterior.rvalues2[na.ind] * prep.dat5$exterior.inches2[na.ind]) + 
+  (prep.dat5$exterior.rvalues3[na.ind] * prep.dat5$exterior.inches3[na.ind])
+
+#check -- NOTE -- NONE SHOULD BE NA
+unique(prep.dat5$total.r.val)
+
+#caluclate u factors = inverse of Rvalue
+prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+unique(prep.dat5$uvalue)
+
+#make area numeric
+prep.dat5$uvalue    <- as.numeric(as.character(prep.dat5$uvalue))
+prep.dat5$Wall.Area <- as.numeric(as.character(prep.dat5$Wall.Area))
+
+prep.dat5$Wall.Exterior.Insulation.Condition.1[which(is.na(prep.dat5$Wall.Exterior.Insulation.Condition.1))] <- 0
+
+#weight the u factor per home -- where weights are the wall area within home
+weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Wall.Type)
+                       ,aveUval = sum(Wall.Area * Wall.Exterior.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Exterior.Insulation.Condition.1)
+)
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 0
+
+#back-calculate the weight r values
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval[which(weightedU$aveRval == "Inf")] <- 0
+unique(weightedU$aveRval)
+
+
+# get unique cadmus IDs and building types for this subset of data
+wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
+
+# merge on ID and building types to weighted uFactor and rValue data
+prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
+
+#merge weighted u values onto cleaned RBSA data
+prep.dat7 <- left_join(prep.dat6, rbsa.dat)
+prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
+prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
+
+
+item17.dat <- prep.dat7
 
 #Bin R values -- SF only
 item17.dat$rvalue.bins <- "Unknown"
@@ -1554,35 +1878,48 @@ item17.data <- left_join(item17.data, item17.merge[which(colnames(item17.merge) 
                                                                                        ,"aveRval"
                                                                                        ,"rvalue.bins"
                                                                                        ,"count"))])
-#summarise by housing vintage
-item17.by.vinage <- proportionRowsAndColumns1(item17.data
-                                              , valueVariable       = 'count'
-                                              , columnVariable      = 'HomeYearBuilt_bins3'
-                                              , rowVariable         = 'rvalue.bins'
-                                              , aggregateColumnName = "Remove"
-                                              # , weighted = TRUE
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
+item17.summary <- proportionRowsAndColumns1(CustomerLevelData     = item17.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins'
+                                            , aggregateColumnName = "All Housing Vintages"
 )
-# summarise for all housing vintages
-item17.across.vintages <- proportions_one_group(item17.data
-                                                , valueVariable    = 'count'
-                                                , groupingVariable = 'rvalue.bins'
-                                                , total.name       = 'All Housing Vintages'
-                                                , columnName       = 'HomeYearBuilt_bins3'
-                                                # , weighted = TRUE
-                                                )
+item17.summary <- item17.summary[which(item17.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
 
-# row bind summaries
-item17.final <- rbind.data.frame(item17.by.vinage
-                                 , item17.across.vintages
+## Summary only for "All Frame Types"
+item17.all.frame.types <- proportions_one_group(item17.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = TRUE
+)
+
+## Summary for only "All Insulation Levels"
+item17.all.insul.levels <-  proportions_one_group(item17.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins"
+                                                  ,weighted = TRUE
+)
+
+
+#merge together!
+item17.final <- rbind.data.frame(item17.summary
+                                 , item17.all.frame.types
+                                 , item17.all.insul.levels
                                  , stringsAsFactors = F)
-# remove incorrect all housing vintage rows (labelled "Remove")
-item17.final <- item17.final[which(item17.final$HomeYearBuilt_bins3 != "Remove"),]
-
+item17.final <- item17.final[which(item17.final$rvalue.bins != "Total"),]
+item17.final$HomeYearBuilt_bins3[which(item17.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 
 item17.cast <- dcast(setDT(item17.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 + n + N ~ rvalue.bins,
-                     value.var = c("w.percent", "w.SE", "count"))
+                     formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 #join all insulation levels onto rvalue summary
 item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
@@ -1590,19 +1927,20 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
                            ,"Percent.None"    = item17.cast$w.percent_None
                            ,"SE.None"         = item17.cast$w.SE_None
                            ,"Count.None"      = item17.cast$count_None
-                           ,"Percent.R1.R9"   = NA #item17.cast$w.percent_R1.R9
-                           ,"SE.R1.R9"        = NA #item17.cast$w.SE_R1.R9
-                           ,"Count.R1.R9"     = NA #item17.cast$count_R1.R9
-                           ,"Percent.R10.R15" = NA #item17.cast$w.percent_R10.R15
-                           ,"SE.R10.R15"      = NA #item17.cast$w.SE_R10.R15
-                           ,"Count.R10.R15"   = NA #item17.cast$count_R10.R15
-                           ,"Percent.R16.R20" = NA #item17.cast$w.percent_R16.R20
-                           ,"SE.R16.R20"      = NA #item17.cast$w.SE_R16.R20
-                           ,"Count.R16.R20"   = NA #item17.cast$count_R16.R20
+                           ,"Percent.R1.R9"   = item17.cast$w.percent_R1.R9
+                           ,"SE.R1.R9"        = item17.cast$w.SE_R1.R9
+                           ,"Count.R1.R9"     = item17.cast$count_R1.R9
+                           ,"Percent.R10.R15" = item17.cast$w.percent_R10.R15
+                           ,"SE.R10.R15"      = item17.cast$w.SE_R10.R15
+                           ,"Count.R10.R15"   = item17.cast$count_R10.R15
+                           ,"Percent.R16.R20" = item17.cast$w.percent_R16.R20
+                           ,"SE.R16.R20"      = item17.cast$w.SE_R16.R20
+                           ,"Count.R16.R20"   = item17.cast$count_R16.R20
                            ,"Percent.RGT21"   = NA #item17.cast$w.percent_RGT21
                            ,"SE.RGT21"        = NA #item17.cast$w.SE_RGT21
                            ,"Count.RGT21"     = NA #item17.cast$count_RGT21
-                           ,"SampleSize"      = item17.cast$count_Total)
+                           ,"SampleSize"      = NA #item17.cast$count_Total
+                           )
 
 item17.table.SF <- item17.table[which(item17.table$BuildingType == "Single Family"),-1]
 
@@ -1610,6 +1948,75 @@ item17.table.SF <- item17.table[which(item17.table$BuildingType == "Single Famil
 exportTable(item17.table.SF, "SF", "Table 24"
             , weighted = TRUE)
 
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
+item17.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item17.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , rowVariable         = 'rvalue.bins'
+                                            , aggregateColumnName = "All Housing Vintages"
+)
+item17.summary <- item17.summary[which(item17.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+
+## Summary only for "All Frame Types"
+item17.all.frame.types <- proportions_one_group(item17.data
+                                                ,valueVariable    = "count"
+                                                ,groupingVariable = "rvalue.bins"
+                                                ,total.name       = "All Housing Vintages"
+                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,weighted = FALSE
+)
+
+## Summary for only "All Insulation Levels"
+item17.all.insul.levels <-  proportions_one_group(item17.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,total.name       = "All Housing Vintages"
+                                                  ,columnName       = "rvalue.bins"
+                                                  ,weighted = FALSE
+)
+
+
+#merge together!
+item17.final <- rbind.data.frame(item17.summary
+                                 , item17.all.frame.types
+                                 , item17.all.insul.levels
+                                 , stringsAsFactors = F)
+item17.final <- item17.final[which(item17.final$rvalue.bins != "Total"),]
+item17.final$HomeYearBuilt_bins3[which(item17.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
+
+
+item17.cast <- dcast(setDT(item17.final),
+                     formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins,
+                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+#join all insulation levels onto rvalue summary
+item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
+                           ,"Housing.Vintage" = item17.cast$HomeYearBuilt_bins3
+                           ,"Percent.None"    = item17.cast$Percent_None
+                           ,"SE.None"         = item17.cast$SE_None
+                           ,"Count.None"      = item17.cast$Count_None
+                           ,"Percent.R1.R9"   = item17.cast$Percent_R1.R9
+                           ,"SE.R1.R9"        = item17.cast$SE_R1.R9
+                           ,"Count.R1.R9"     = item17.cast$Count_R1.R9
+                           ,"Percent.R10.R15" = item17.cast$Percent_R10.R15
+                           ,"SE.R10.R15"      = item17.cast$SE_R10.R15
+                           ,"Count.R10.R15"   = item17.cast$Count_R10.R15
+                           ,"Percent.R16.R20" = item17.cast$Percent_R16.R20
+                           ,"SE.R16.R20"      = item17.cast$SE_R16.R20
+                           ,"Count.R16.R20"   = item17.cast$Count_R16.R20
+                           ,"Percent.RGT21"   = NA #item17.cast$Percent_RGT21
+                           ,"SE.RGT21"        = NA #item17.cast$SE_RGT21
+                           ,"Count.RGT21"     = NA #item17.cast$Count_RGT21
+                           ,"SampleSize"      = NA #item17.cast$Count_Total
+)
+
+item17.table.SF <- item17.table[which(item17.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item17.table.SF, "SF", "Table 24"
+            , weighted = FALSE)
 
 
 
@@ -1618,7 +2025,7 @@ exportTable(item17.table.SF, "SF", "Table 24"
 #############################################################################################
 # Item 18: DISTRIBUTION OF OBSERVED WALL SHEATHING INSULATION BY FRAMING TYPE (SF table 25)
 #############################################################################################
-item18.dat <- prep.dat5[which(prep.dat5$Wall.Type %notin% c("Masonry", "Masonry (Basement)", "Adiabatic")),]
+item18.dat <- prep.dat4.9[which(prep.dat4.9$Wall.Type %notin% c("Masonry", "Masonry (Basement)", "Adiabatic")),]
 item18.dat <- item18.dat[which(!is.na(item18.dat$Wall.Type)),]
 
 item18.dat$Insulation.Levels <- item18.dat$exterior.inches1
@@ -1647,13 +2054,14 @@ item18.data <- left_join(item18.data, item18.merge[which(colnames(item18.merge) 
 
 
 
-#summarise by framing types
+############################################################################################################
+# Weighted Analysis - Single Family
+############################################################################################################
 item18.by.frame.type <- proportionRowsAndColumns1(item18.data
                                               , valueVariable       = 'count'
                                               , columnVariable      = 'Wall.Type'
                                               , rowVariable         = 'insulation.levels'
                                               , aggregateColumnName = "Remove"
-                                              # , weighted = TRUE
 )
 # summarise for all housing vintages
 item18.across.frame.types <- proportions_one_group(item18.data
@@ -1661,7 +2069,7 @@ item18.across.frame.types <- proportions_one_group(item18.data
                                                 , groupingVariable = 'insulation.levels'
                                                 , total.name       = 'All Framing Types'
                                                 , columnName       = 'Wall.Type'
-                                                # , weighted = TRUE
+                                                , weighted = TRUE
                                                 )
 # row bind summaries
 item18.final <- rbind.data.frame(item18.by.frame.type, item18.across.frame.types, stringsAsFactors = F)
@@ -1678,19 +2086,35 @@ item18.cast <- dcast(setDT(item18.final),
 
 item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Housing.Vintage"   = item18.cast$Wall.Type
+                           ,"Percent_0.25_inch" = item18.cast$w.percent_0.25
+                           ,"SE_0.25_inch"      = item18.cast$w.SE_0.25
+                           ,"Count_0.25_inch"   = item18.cast$count_0.25
+                           ,"Percent_0.5_inch" = item18.cast$w.percent_0.5
+                           ,"SE_0.5_inch"      = item18.cast$w.SE_0.5
+                           ,"Count_0.5_inch"   = item18.cast$count_0.5
                            ,"Percent_0.75_inch" = item18.cast$w.percent_0.75
                            ,"SE_0.75_inch"      = item18.cast$w.SE_0.75
                            ,"Count_0.75_inch"   = item18.cast$count_0.75
                            ,"Percent_1_inch"    = item18.cast$w.percent_1
                            ,"SE_1_inch"         = item18.cast$w.SE_1
                            ,"Count_1_inch"      = item18.cast$count_1
+                           ,"Percent_1.5_inch"    = item18.cast$w.percent_1.5
+                           ,"SE_1.5_inch"         = item18.cast$w.SE_1.5
+                           ,"Count_1.5_inch"      = item18.cast$count_1.5
                            ,"Percent_2_inch"    = item18.cast$w.percent_2
                            ,"SE_2_inch"         = item18.cast$w.SE_2
                            ,"Count_2_inch"      = item18.cast$count_2
+                           ,"Percent_2.5_inch"    = item18.cast$w.percent_2.5
+                           ,"SE_2.5_inch"         = item18.cast$w.SE_2.5
+                           ,"Count_2.5_inch"      = item18.cast$count_2.5
+                           ,"Percent_4_inch"    = item18.cast$w.percent_4
+                           ,"SE_4_inch"         = item18.cast$w.SE_4
+                           ,"Count_4_inch"      = item18.cast$count_4
                            ,"Percent_None"      = item18.cast$w.percent_None
                            ,"SE_None"           = item18.cast$w.SE_None
                            ,"Count_None"        = item18.cast$count_None
-                           ,"SampleSize"        = item18.cast$count_Total)
+                           # ,"SampleSize"        = item18.cast$count_Total
+                           )
 
 
 item18.table.SF <- item18.table[which(item18.table$BuildingType == "Single Family"),-1]
@@ -1698,3 +2122,72 @@ item18.table.SF <- item18.table[which(item18.table$BuildingType == "Single Famil
 #export table to correct workbook using exporting function
 exportTable(item18.table.SF, "SF", "Table 25"
             , weighted = TRUE)
+
+
+############################################################################################################
+# Unweighted Analysis - Single Family
+############################################################################################################
+item18.by.frame.type <- proportions_two_groups_unweighted(item18.data
+                                                  , valueVariable       = 'count'
+                                                  , columnVariable      = 'Wall.Type'
+                                                  , rowVariable         = 'insulation.levels'
+                                                  , aggregateColumnName = "Remove"
+)
+# summarise for all housing vintages
+item18.across.frame.types <- proportions_one_group(item18.data
+                                                   , valueVariable    = 'count'
+                                                   , groupingVariable = 'insulation.levels'
+                                                   , total.name       = 'All Framing Types'
+                                                   , columnName       = 'Wall.Type'
+                                                   , weighted = FALSE
+)
+# row bind summaries
+item18.final <- rbind.data.frame(item18.by.frame.type, item18.across.frame.types, stringsAsFactors = F)
+# remove incorrect all housing vintage rows (labelled "Remove")
+item18.final <- item18.final[which(item18.final$Wall.Type != "Remove"),]
+
+
+
+item18.cast <- dcast(setDT(item18.final),
+                     formula   = BuildingType +  Wall.Type ~ insulation.levels, sum,
+                     value.var = c("Percent", "SE", "Count","SampleSize"))
+
+
+
+item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
+                           ,"Housing.Vintage"   = item18.cast$Wall.Type
+                           ,"Percent_0.25_inch" = item18.cast$Percent_0.25
+                           ,"SE_0.25_inch"      = item18.cast$SE_0.25
+                           ,"Count_0.25_inch"   = item18.cast$Count_0.25
+                           ,"Percent_0.5_inch" = item18.cast$Percent_0.5
+                           ,"SE_0.5_inch"      = item18.cast$SE_0.5
+                           ,"Count_0.5_inch"   = item18.cast$Count_0.5
+                           ,"Percent_0.75_inch" = item18.cast$Percent_0.75
+                           ,"SE_0.75_inch"      = item18.cast$SE_0.75
+                           ,"Count_0.75_inch"   = item18.cast$Count_0.75
+                           ,"Percent_1_inch"    = item18.cast$Percent_1
+                           ,"SE_1_inch"         = item18.cast$SE_1
+                           ,"Count_1_inch"      = item18.cast$Count_1
+                           ,"Percent_1.5_inch"    = item18.cast$Percent_1.5
+                           ,"SE_1.5_inch"         = item18.cast$SE_1.5
+                           ,"Count_1.5_inch"      = item18.cast$Count_1.5
+                           ,"Percent_2_inch"    = item18.cast$Percent_2
+                           ,"SE_2_inch"         = item18.cast$SE_2
+                           ,"Count_2_inch"      = item18.cast$Count_2
+                           ,"Percent_2.5_inch"    = item18.cast$Percent_2.5
+                           ,"SE_2.5_inch"         = item18.cast$SE_2.5
+                           ,"Count_2.5_inch"      = item18.cast$Count_2.5
+                           ,"Percent_4_inch"    = item18.cast$Percent_4
+                           ,"SE_4_inch"         = item18.cast$SE_4
+                           ,"Count_4_inch"      = item18.cast$Count_4
+                           ,"Percent_None"      = item18.cast$Percent_None
+                           ,"SE_None"           = item18.cast$SE_None
+                           ,"Count_None"        = item18.cast$Count_None
+                           # ,"SampleSize"        = item18.cast$Count_Total
+)
+
+item18.table.SF <- item18.table[which(item18.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item18.table.SF, "SF", "Table 25"
+            , weighted = FALSE)
