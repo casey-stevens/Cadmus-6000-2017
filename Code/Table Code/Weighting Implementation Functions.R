@@ -15,11 +15,11 @@
 #################################################################################
 
 # TEST
-CustomerLevelData     = item10.data
-valueVariable       = 'count'
-columnVariable      = 'Wall.Type'
-rowVariable         = 'rvalue.bins'
-aggregateColumnName = "All Frame Types"
+# CustomerLevelData     = item10.data
+# valueVariable       = 'count'
+# columnVariable      = 'Wall.Type'
+# rowVariable         = 'rvalue.bins'
+# aggregateColumnName = "All Frame Types"
   # # totalRow = TRUE
   # weighted = FALSE
 
