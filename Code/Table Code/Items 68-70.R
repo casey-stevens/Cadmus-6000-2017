@@ -5,9 +5,22 @@
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
-
 ##  Clear variables
-# rm(list=ls())
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -77,10 +90,10 @@ item69.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item69.dat$count <- 1
 
 #join clean rbsa data onto lighting analysis data
-item69.dat1 <- left_join(item69.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item69.dat1 <- left_join(rbsa.dat, item69.dat, by = "CK_Cadmus_ID")
 
 #remove building info
-item69.dat2 <- item69.dat1[-grep("BLDG", item69.dat1$CK_SiteID),]
+item69.dat2 <- item69.dat1[grep("SITE", item69.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 item69.dat2$Fixture.Qty <- as.numeric(as.character(item69.dat2$Fixture.Qty))
@@ -91,94 +104,119 @@ item69.dat2$Lamps <- item69.dat2$Fixture.Qty * item69.dat2$LIGHTING_BulbsPerFixt
 unique(item69.dat2$Lamps)
 
 #remove missing lamp quantities
-item69.dat3 <- item69.dat2[which(!(is.na(item69.dat2$Lamps))),]
+item69.dat3 <- item69.dat2[which(!(is.na(item69.dat2$Lamp.Category))),]
+item69.dat3 <- item69.dat3[which(item69.dat3$Lamp.Category != "Unknown"),]
 
 #check lamp types
 unique(item69.dat3$Lamp.Category)
 
-## For State
-## by lamp type
-item69.state1 <- summarise(group_by(item69.dat3, BuildingType, State, Lamp.Category)
-                           ,sampleSize = length(unique(CK_Cadmus_ID))
-                           ,LampCount = sum(Lamps))
-## across lamp types
-item69.state2 <- summarise(group_by(item69.dat3, BuildingType, State)
-                           ,Lamp.Category = "Total"
-                           ,sampleSize = length(unique(CK_Cadmus_ID))
-                           ,LampCount = sum(Lamps))
-## join state info by and across lamp types  
-item69.state <- rbind.data.frame(item69.state1, item69.state2, stringsAsFactors = F)
 
-## For region
-## by lamp type
-item69.region1 <- summarise(group_by(item69.dat3, BuildingType, Lamp.Category)
-                            ,sampleSize = length(unique(CK_Cadmus_ID))
-                            ,State = "Region"
-                           ,LampCount = sum(Lamps))
-## across lamp types
-item69.region2 <- summarise(group_by(item69.dat3, BuildingType)
-                            ,State = "Region"
-                           ,Lamp.Category = "Total"
-                           ,sampleSize = length(unique(CK_Cadmus_ID))
-                           ,LampCount = sum(Lamps))
-## join region info by and across lamp types  
-item69.region <- rbind.data.frame(item69.region1, item69.region2, stringsAsFactors = F)
+item69.merge <- left_join(rbsa.dat, item69.dat3)
 
-## join state and region info
-item69.dat4 <- rbind.data.frame(item69.state, item69.region, stringsAsFactors = F)
 
-##get total counts
-item69.totalcount <- rbind.data.frame(item69.state2, item69.region2, stringsAsFactors = F)
-#join on total counts
-item69.dat5 <- left_join(item69.dat4, item69.totalcount, by = c("BuildingType", "State"))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item69.data <- weightedData(item69.merge[-which(colnames(item69.merge) %in% c("CK_SiteID"               
+                                                                              ,"Fixture.Qty"
+                                                                              ,"LIGHTING_BulbsPerFixture"
+                                                                              ,"Lamp.Category"
+                                                                              ,"count"
+                                                                              ,"Lamps"))])
+item69.data <- left_join(item69.data, item69.merge[which(colnames(item69.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"CK_SiteID"               
+                                                                                       ,"Fixture.Qty"
+                                                                                       ,"LIGHTING_BulbsPerFixture"
+                                                                                       ,"Lamp.Category"
+                                                                                       ,"count"
+                                                                                       ,"Lamps"))])
+item69.data$count <- 1
+item69.data <- item69.data[which(!is.na(item69.data$Lamp.Category)),]
 
-#rename columns
-colnames(item69.dat5) <- c("BuildingType"
-                           ,"State"
-                           ,"Lamp.Category"
-                           ,"SampleSize"
-                           ,"Count"
-                           ,"Remove"
-                           ,"Remove"
-                           ,"Total")
-item69.dat6 <- item69.dat5[which(colnames(item69.dat5) != "Remove")]
+#######################
+# Weighted Analysis
+#######################
+item69.final <- proportionRowsAndColumns1(CustomerLevelData = item69.data
+                                          ,valueVariable    = 'count'
+                                          ,columnVariable   = 'State'
+                                          ,rowVariable      = 'Lamp.Category'
+                                          ,aggregateColumnName = "Region")
 
-item69.dat6$Percent <- item69.dat6$Count / item69.dat6$Total
-item69.dat6$SE      <- sqrt(item69.dat6$Percent * (1 - item69.dat6$Percent) / item69.dat6$SampleSize)
+item69.cast <- dcast(setDT(item69.final)
+                     , formula = BuildingType + Lamp.Category ~ State
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-library(data.table)
-item69.dat.cast <- dcast(setDT(item69.dat6)
-                         , formula = BuildingType + Lamp.Category ~ State
-                         , value.var = c("Percent", "SE", "SampleSize"))
+item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
+                           ,"Lamp.Type"      = item69.cast$Lamp.Category
+                           ,"Percent_ID"     = item69.cast$w.percent_ID
+                           ,"SE_ID"          = item69.cast$w.SE_ID
+                           ,"Count_ID"       = item69.cast$count_ID
+                           ,"Percent_MT"     = item69.cast$w.percent_MT
+                           ,"SE_MT"          = item69.cast$w.SE_MT
+                           ,"Count_MT"       = item69.cast$count_MT
+                           ,"Percent_OR"     = item69.cast$w.percent_OR
+                           ,"SE_OR"          = item69.cast$w.SE_OR
+                           ,"Count_OR"       = item69.cast$count_OR
+                           ,"Percent_WA"     = item69.cast$w.percent_WA
+                           ,"SE_WA"          = item69.cast$w.SE_WA
+                           ,"Count_WA"       = item69.cast$count_WA
+                           ,"Percent_Region" = item69.cast$w.percent_Region
+                           ,"SE_Region"      = item69.cast$w.SE_Region
+                           ,"Count_Region"   = item69.cast$count_Region
+                           # ,"SampleSize"     = item69.cast$SampleSize_Region
+)
 
-item69.final <- item69.dat.cast[which(item69.dat.cast$BuildingType %in% c("Single Family"
-                                                                           ,"Manufactured"))]
-item69.final <- data.frame(item69.final, stringsAsFactors = F)
-item69.final1 <- item69.final[which(colnames(item69.final) %in% c("BuildingType"
-                                                                  ,"Lamp.Category"
-                                                                  ,"Percent_MT"
-                                                                  ,"Percent_OR"
-                                                                  ,"Percent_WA"
-                                                                  ,"Percent_Region"
-                                                                  ,"SE_MT"
-                                                                  ,"SE_OR"
-                                                                  ,"SE_WA"
-                                                                  ,"SE_Region"
-                                                                  ,"SampleSize_Region"))]
-item69.table <- data.frame("BuildingType" = item69.final1$BuildingType
-                           ,"Lamp.Category" = item69.final1$Lamp.Category
-                           ,"Percent_MT" = item69.final1$Percent_MT
-                           ,"SE_MT" = item69.final1$SE_MT
-                           ,"Percent_OR" = item69.final1$Percent_OR
-                           ,"SE_OR" = item69.final1$SE_OR
-                           ,"Percent_WA" = item69.final1$Percent_WA
-                           ,"SE_WA" = item69.final1$SE_WA
-                           ,"Percent_Region" = item69.final1$Percent_Region
-                           ,"SE_Region" = item69.final1$SE_Region
-                           ,"SampleSize" = item69.final1$SampleSize_Region)
 
-item69.table1 <- item69.table[which(item69.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item69.final.SF <- item69.table[which(item69.table$BuildingType == "Single Family")
+                                ,-which(colnames(item69.table) %in% c("BuildingType"))]
+item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
+exportTable(item69.final.SF, "SF", "Table 76", weighted = TRUE)
+exportTable(item69.final.MH, "MH", "Table 55", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item69.final <- proportions_two_groups_unweighted(CustomerLevelData = item69.data
+                                          ,valueVariable    = 'count'
+                                          ,columnVariable   = 'State'
+                                          ,rowVariable      = 'Lamp.Category'
+                                          ,aggregateColumnName = "Region")
+
+item69.cast <- dcast(setDT(item69.final)
+                     , formula = BuildingType + Lamp.Category ~ State
+                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
+                           ,"Lamp.Type"      = item69.cast$Lamp.Category
+                           ,"Percent_ID"     = item69.cast$Percent_ID
+                           ,"SE_ID"          = item69.cast$SE_ID
+                           ,"Count_ID"       = item69.cast$Count_ID
+                           ,"Percent_MT"     = item69.cast$Percent_MT
+                           ,"SE_MT"          = item69.cast$SE_MT
+                           ,"Count_MT"       = item69.cast$Count_MT
+                           ,"Percent_OR"     = item69.cast$Percent_OR
+                           ,"SE_OR"          = item69.cast$SE_OR
+                           ,"Count_OR"       = item69.cast$Count_OR
+                           ,"Percent_WA"     = item69.cast$Percent_WA
+                           ,"SE_WA"          = item69.cast$SE_WA
+                           ,"Count_WA"       = item69.cast$Count_WA
+                           ,"Percent_Region" = item69.cast$Percent_Region
+                           ,"SE_Region"      = item69.cast$SE_Region
+                           ,"Count_Region"   = item69.cast$Count_Region
+                           # ,"SampleSize"     = item69.cast$SampleSize_Region
+)
+
+item69.final.SF <- item69.table[which(item69.table$BuildingType == "Single Family")
+                                ,-which(colnames(item69.table) %in% c("BuildingType"))]
+item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item69.table) %in% c("BuildingType"))]
+
+exportTable(item69.final.SF, "SF", "Table 76", weighted = FALSE)
+exportTable(item69.final.MH, "MH", "Table 55", weighted = FALSE)
 
 
 
@@ -198,12 +236,12 @@ item70.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item70.dat$count <- 1
 
 #join clean rbsa data onto lighting analysis data
-item70.dat1 <- left_join(item70.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item70.dat1 <- left_join(rbsa.dat, item70.dat, by = "CK_Cadmus_ID")
 
 item70.dat1.1 <- item70.dat1[which(!(item70.dat1$Clean.Room %in% c("Basement","Storage"))),]
 item70.dat1.1$Clean.Room[which(item70.dat1.1$Clean.Room == "Mechanical")] <- "Other"
 #remove building info
-item70.dat2 <- item70.dat1.1[-grep("BLDG", item70.dat1.1$CK_SiteID),]
+item70.dat2 <- item70.dat1.1[grep("SITE", item70.dat1.1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 item70.dat2$Fixture.Qty <- as.numeric(as.character(item70.dat2$Fixture.Qty))
@@ -218,87 +256,159 @@ item70.dat3 <- item70.dat2[which(!(is.na(item70.dat2$Lamps))),]
 
 #check lamp types
 unique(item70.dat3$Lamp.Category)
+item70.dat4 <- item70.dat3[which(item70.dat3$Lamp.Category != "Unknown"),]
 
-## For Room Type
-## by lamp type
-item70.room1 <- summarise(group_by(item70.dat3, BuildingType, Clean.Room, Lamp.Category)
-                           ,sampleSize = length(unique(CK_Cadmus_ID))
-                           ,LampCount = sum(Lamps))
-## across lamp types
-item70.room2 <- summarise(group_by(item70.dat3, BuildingType, Clean.Room)
-                           ,Lamp.Category = "Total"
-                           ,sampleSize = length(unique(CK_Cadmus_ID))
-                           ,LampCount = sum(Lamps))
-## join state info by and across lamp types  
-item70.room <- rbind.data.frame(item70.room1, item70.room2
-                                , stringsAsFactors = F)
 
-## Across Room Types
-## by lamp type
-item70.allRooms1 <- summarise(group_by(item70.dat3, BuildingType, Lamp.Category)
-                            ,sampleSize = length(unique(CK_Cadmus_ID))
-                            ,Clean.Room = "All Rooms"
-                            ,LampCount = sum(Lamps))
-## across lamp types
-item70.allRooms2 <- summarise(group_by(item70.dat3, BuildingType)
-                            ,Lamp.Category = "Total"
-                            ,sampleSize = length(unique(CK_Cadmus_ID))
-                            ,Clean.Room = "All Rooms"
-                            ,LampCount = sum(Lamps))
-## join region info by and across lamp types  
-item70.allRooms <- rbind.data.frame(item70.allRooms1, item70.allRooms2, stringsAsFactors = F)
+item70.merge <- left_join(rbsa.dat, item70.dat4)
 
-## join state and region info
-item70.dat4 <- rbind.data.frame(item70.room, item70.allRooms, stringsAsFactors = F)
 
-##get total counts
-item70.totalcount <- rbind.data.frame(item70.room2, item70.allRooms2, stringsAsFactors = F)
-#join on total counts
-item70.dat5 <- left_join(item70.dat4, item70.totalcount, by = c("BuildingType", "Clean.Room"))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item70.data <- weightedData(item70.merge[-which(colnames(item70.merge) %in% c("CK_SiteID"               
+                                                                              ,"Fixture.Qty"
+                                                                              ,"LIGHTING_BulbsPerFixture"
+                                                                              ,"Lamp.Category"
+                                                                              ,"count"
+                                                                              ,"Lamps"
+                                                                              ,"Clean.Room"))])
+item70.data <- left_join(item70.data, item70.merge[which(colnames(item70.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"CK_SiteID"               
+                                                                                       ,"Fixture.Qty"
+                                                                                       ,"LIGHTING_BulbsPerFixture"
+                                                                                       ,"Lamp.Category"
+                                                                                       ,"count"
+                                                                                       ,"Lamps"
+                                                                                       ,"Clean.Room"))])
+item70.data <- item70.data[which(!is.na(item70.data$Lamp.Category)),]
 
-#rename columns
-colnames(item70.dat5) <- c("BuildingType"
-                           ,"Clean.Room"
-                           ,"Lamp.Category"
-                           ,"SampleSize"
-                           ,"Count"
-                           ,"Remove"
-                           ,"Remove"
-                           ,"Total")
-item70.dat6 <- item70.dat5[which(colnames(item70.dat5) != "Remove")]
 
-item70.dat6$Percent <- item70.dat6$Count / item70.dat6$Total
-item70.dat6$SE      <- sqrt(item70.dat6$Percent * (1 - item70.dat6$Percent) / item70.dat6$SampleSize)
+#######################
+# Weighted Analysis
+#######################
+item70.final <- proportionRowsAndColumns1(CustomerLevelData = item70.data
+                                          ,valueVariable    = 'count'
+                                          ,columnVariable   = 'Clean.Room'
+                                          ,rowVariable      = 'Lamp.Category'
+                                          ,aggregateColumnName = "All Room Types")
+item70.final <- item70.final[which(item70.final$Clean.Room != "All Room Types"),]
 
-library(data.table)
-item70.dat.cast <- dcast(setDT(item70.dat6)
-                         , formula = BuildingType + Clean.Room ~ Lamp.Category
-                         , value.var = c("Percent", "SE", "SampleSize"))
 
-item70.final <- data.frame(item70.dat.cast, stringsAsFactors = F)
-item70.final1 <- item70.final[which(colnames(item70.final) %in% c("BuildingType"
-                                                                  ,"Clean.Room"
-                                                                  ,"Percent_Compact.Fluorescent"
-                                                                  ,"Percent_Halogen"
-                                                                  ,"Percent_Incandescent"
-                                                                  ,"Percent_Incandescent...Halogen"
-                                                                  ,"Percent_Light.Emitting.Diode"
-                                                                  ,"Percent_Linear.Fluorescent"
-                                                                  ,"Percent_Other"
-                                                                  ,"Percent_Unknown"
-                                                                  ,"Percent_Total"
-                                                                  ,"SampleSize_Total"))]
-item70.table <- data.frame("BuildingType"                 = item70.final1$BuildingType
-                           ,"Clean.Room"                   = item70.final1$Clean.Room
-                           ,"CFL Percent"                  = item70.final1$Percent_Compact.Fluorescent
-                           ,"Halogen Percent"              = item70.final1$Percent_Halogen
-                           ,"Incandescent Percent"         = item70.final1$Percent_Incandescent
-                           ,"Incandescent/Halogen Percent" = item70.final1$Percent_Incandescent...Halogen
-                           ,"LED Percent"                  = item70.final1$Percent_Light.Emitting.Diode
-                           ,"Linear.Fluorescent Percent"   = item70.final1$Percent_Linear.Fluorescent
-                           ,"Other Percent"                = item70.final1$Percent_Other
-                           ,"Unknown Percent"              = item70.final1$Percent_Unknown
-                           # ,"Total Percent"                = item70.final1$Percent_Total
-                           ,"Sample.Size"                  = item70.final1$SampleSize_Total)
-item70.table1 <- item70.table[which(item70.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
+                                               ,valueVariable = 'count'
+                                               ,groupingVariable = "Lamp.Category"
+                                               ,total.name = "All Room Types"
+                                               ,columnName = "Clean.Room"
+                                               ,weighted = TRUE)
+item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
+
+
+item70.final <- rbind.data.frame(item70.final, item70.all.room.types, stringsAsFactors = F)
+
+item70.cast <- dcast(setDT(item70.final)
+                     , formula = BuildingType + Clean.Room ~ Lamp.Category
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item70.table <- data.frame("BuildingType"                  = item70.cast$BuildingType
+                           ,"Room.Type"                    = item70.cast$Clean.Room
+                           ,"Percent_CFL"                  = item70.cast$`w.percent_Compact Fluorescent`
+                           ,"SE_CFL"                       = item70.cast$`w.SE_Compact Fluorescent`
+                           ,"Count_CFL"                    = item70.cast$`count_Compact Fluorescent`
+                           ,"Percent_Halogen"              = item70.cast$w.percent_Halogen
+                           ,"SE_Halogen"                   = item70.cast$w.SE_Halogen
+                           ,"Count_Halogen"                = item70.cast$count_Halogen
+                           ,"Percent_Incandescent"         = item70.cast$w.percent_Incandescent
+                           ,"SE_Incandescent"              = item70.cast$w.SE_Incandescent
+                           ,"Count_Incandescent"           = item70.cast$count_Incandescent
+                           ,"Percent_Incandescent.Halogen" = item70.cast$`w.percent_Incandescent / Halogen`
+                           ,"SE_Incandescent.Halogen"      = item70.cast$`w.SE_Incandescent / Halogen`
+                           ,"Count_Incandescent.Halogen"   = item70.cast$`count_Incandescent / Halogen`
+                           ,"Percent_LED"                  = item70.cast$`w.percent_Light Emitting Diode`
+                           ,"SE_LED"                       = item70.cast$`w.SE_Light Emitting Diode`
+                           ,"Count_LED"                    = item70.cast$`count_Light Emitting Diode`
+                           ,"Percent_LF"                   = item70.cast$`w.percent_Linear Fluorescent`
+                           ,"SE_LF"                        = item70.cast$`w.SE_Linear Fluorescent`
+                           ,"Count_LF"                     = item70.cast$`count_Linear Fluorescent`
+                           ,"Percent_Other"                = item70.cast$w.percent_Other
+                           ,"SE_Other"                     = item70.cast$w.SE_Other
+                           ,"Count_Other"                  = item70.cast$count_Other
+                           # ,"Percent_Total"                = item70.cast$w.percent_Total
+                           # ,"SE_Total"                     = item70.cast$w.SE_Total
+                           ,"Count_Total"                  = item70.cast$count_Total
+                           # ,"SampleSize"     = item70.cast$SampleSize_Region
+)
+
+
+item70.final.SF <- item70.table[which(item70.table$BuildingType == "Single Family")
+                                ,-which(colnames(item70.table) %in% c("BuildingType"))]
+item70.final.MH <- item70.table[which(item70.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item70.table) %in% c("BuildingType"))]
+
+exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
+exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item70.final <- proportions_two_groups_unweighted(CustomerLevelData = item70.data
+                                          ,valueVariable    = 'count'
+                                          ,columnVariable   = 'Clean.Room'
+                                          ,rowVariable      = 'Lamp.Category'
+                                          ,aggregateColumnName = "All Room Types")
+item70.final <- item70.final[which(item70.final$Clean.Room != "All Room Types"),]
+
+
+item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
+                                               ,valueVariable = 'count'
+                                               ,groupingVariable = "Lamp.Category"
+                                               ,total.name = "All Room Types"
+                                               ,columnName = "Clean.Room"
+                                               ,weighted = FALSE)
+item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
+
+
+item70.final <- rbind.data.frame(item70.final, item70.all.room.types, stringsAsFactors = F)
+
+item70.cast <- dcast(setDT(item70.final)
+                     , formula = BuildingType + Clean.Room ~ Lamp.Category
+                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item70.table <- data.frame("BuildingType"                  = item70.cast$BuildingType
+                           ,"Room.Type"                    = item70.cast$Clean.Room
+                           ,"Percent_CFL"                  = item70.cast$`Percent_Compact Fluorescent`
+                           ,"SE_CFL"                       = item70.cast$`SE_Compact Fluorescent`
+                           ,"Count_CFL"                    = item70.cast$`Count_Compact Fluorescent`
+                           ,"Percent_Halogen"              = item70.cast$Percent_Halogen
+                           ,"SE_Halogen"                   = item70.cast$SE_Halogen
+                           ,"Count_Halogen"                = item70.cast$Count_Halogen
+                           ,"Percent_Incandescent"         = item70.cast$Percent_Incandescent
+                           ,"SE_Incandescent"              = item70.cast$SE_Incandescent
+                           ,"Count_Incandescent"           = item70.cast$Count_Incandescent
+                           ,"Percent_Incandescent.Halogen" = item70.cast$`Percent_Incandescent / Halogen`
+                           ,"SE_Incandescent.Halogen"      = item70.cast$`SE_Incandescent / Halogen`
+                           ,"Count_Incandescent.Halogen"   = item70.cast$`Count_Incandescent / Halogen`
+                           ,"Percent_LED"                  = item70.cast$`Percent_Light Emitting Diode`
+                           ,"SE_LED"                       = item70.cast$`SE_Light Emitting Diode`
+                           ,"Count_LED"                    = item70.cast$`Count_Light Emitting Diode`
+                           ,"Percent_LF"                   = item70.cast$`Percent_Linear Fluorescent`
+                           ,"SE_LF"                        = item70.cast$`SE_Linear Fluorescent`
+                           ,"Count_LF"                     = item70.cast$`Count_Linear Fluorescent`
+                           ,"Percent_Other"                = item70.cast$Percent_Other
+                           ,"SE_Other"                     = item70.cast$SE_Other
+                           ,"Count_Other"                  = item70.cast$Count_Other
+                           # ,"Percent_Total"                = item70.cast$Percent_Total
+                           # ,"SE_Total"                     = item70.cast$SE_Total
+                           ,"Count_Total"                  = item70.cast$Count_Total
+                           # ,"SampleSize"     = item70.cast$SampleSize_Region
+)
+
+
+item70.final.SF <- item70.table[which(item70.table$BuildingType == "Single Family")
+                                ,-which(colnames(item70.table) %in% c("BuildingType"))]
+item70.final.MH <- item70.table[which(item70.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item70.table) %in% c("BuildingType"))]
+
+exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
+exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
 

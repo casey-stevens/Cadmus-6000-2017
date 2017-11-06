@@ -7,7 +7,21 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -29,9 +43,9 @@ item66.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"CK_SiteID"))]
 item66.dat$count <- 1
 
-item66.dat1 <- left_join(item66.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item66.dat1 <- left_join(rbsa.dat, item66.dat, by = "CK_Cadmus_ID")
 
-item66.dat2 <- item66.dat1[-grep("BLDG", item66.dat1$CK_SiteID),]
+item66.dat2 <- item66.dat1[grep("SITE", item66.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 item66.dat2$Fixture.Qty <- as.numeric(as.character(item66.dat2$Fixture.Qty))
@@ -42,50 +56,54 @@ unique(item66.dat2$Lamps)
 
 item66.dat3 <- item66.dat2[which(!(is.na(item66.dat2$Lamps))),]
 
+item66.customer <- summarise(group_by(item66.dat3, CK_Cadmus_ID)
+                             ,Lamps = sum(Lamps))
 
-##total lamps per home
-item66.lamps <- summarise(group_by(item66.dat3, BuildingType, State, CK_Cadmus_ID)
-                          ,LampsPerSite = sum(Lamps))
-##average lamps across homes per state
-item66.state <- summarise(group_by(item66.lamps, BuildingType, State)
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean = mean(LampsPerSite)
-                          ,SE   = sd(LampsPerSite) / SampleSize)
-##average lamps across homes per state
-item66.region <- summarise(group_by(item66.lamps, BuildingType)
-                           ,State = "Region"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean = mean(LampsPerSite)
-                          ,SE   = sd(LampsPerSite) / SampleSize)
-#combine state and region information
-item66.final <- rbind.data.frame(item66.state, item66.region, stringsAsFactors = F)
+item66.merge <- left_join(rbsa.dat, item66.customer)
+item66.merge <- item66.merge[which(!is.na(item66.merge$Lamps)),]
 
 
-#table format
-item66.table <- data.frame("BuildingType" = item66.final$BuildingType
-                           ,"State" = item66.final$State
-                           ,"Mean" = item66.final$Mean
-                           ,"SE" = item66.final$SE
-                           ,"SampleSize" = item66.final$SampleSize)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item66.data <- weightedData(item66.merge[-which(colnames(item66.merge) %in% c("Lamps"))])
+item66.data <- left_join(item66.data, item66.merge[which(colnames(item66.merge) %in% c("CK_Cadmus_ID"
+                                                                                   ,"Lamps"))])
+item66.data$count <- 1
 
-#subset to only relevant building types
-item66.table1 <- item66.table[which(item66.table$BuildingType %in% c("Single Family", "Manufactured")),]
+#######################
+# Weighted Analysis
+#######################
+item66.final <- mean_one_group(CustomerLevelData = item66.data
+                               ,valueVariable    = 'Lamps'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
+
+item66.final.SF <- item66.final[which(item66.final$BuildingType == "Single Family")
+                                ,-which(colnames(item66.final) %in% c("BuildingType"))]
+item66.final.MH <- item66.final[which(item66.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item66.final) %in% c("BuildingType"))]
+
+exportTable(item66.final.SF, "SF", "Table 73", weighted = TRUE)
+exportTable(item66.final.MH, "MH", "Table 52", weighted = TRUE)
 
 
-# ##write out to correct tab
-# library(XLConnect)
-# # writeWorksheetToFile(file = paste(outputFolder, "Prelim_Unweighted_Results.xlsx", sep = "/"), data = item66.final1, sheet = "Item 66")
-# # wb <- loadWorkbook(paste(outputFolder, "Prelim_Unweighted_Results.xlsx", sep = "/"), create=FALSE)
-# # writeWorksheet(wb, item66.final1, "Item 66", startRow = 20, startCol = 1, header = TRUE)
-# 
-# 
-# wb <- createWorkbook()
-# ws.name.site <- "Item 66"
-# addWorksheet(wb, ws.name.site)
-# writeData(wb,sheet = ws.name.site,x = item66.final1, startRow = 20)
-# 
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/www/js/workers")
-# saveWorkbook(wb, file.path(outputFolder,"Prelim_Unweighted_Results.xlsx"))
+#######################
+# Unweighted Analysis
+#######################
+item66.final <- mean_one_group_unweighted(CustomerLevelData = item66.data
+                               ,valueVariable    = 'Lamps'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
+
+item66.final.SF <- item66.final[which(item66.final$BuildingType == "Single Family")
+                                ,-which(colnames(item66.final) %in% c("BuildingType"))]
+item66.final.MH <- item66.final[which(item66.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item66.final) %in% c("BuildingType"))]
+
+exportTable(item66.final.SF, "SF", "Table 73", weighted = FALSE)
+exportTable(item66.final.MH, "MH", "Table 52", weighted = FALSE)
+
 
 
 
@@ -101,9 +119,9 @@ item67.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"CK_LightingDetail_ID"))]
 item67.dat$count <- 1
 
-item67.dat1 <- left_join(item67.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item67.dat1 <- left_join(rbsa.dat, item67.dat, by = "CK_Cadmus_ID")
 
-item67.dat2 <- item67.dat1[-grep("BLDG", item67.dat1$CK_SiteID),]
+item67.dat2 <- item67.dat1[grep("SITE", item67.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 item67.dat2$Fixture.Qty <- as.numeric(as.character(item67.dat2$Fixture.Qty))
@@ -115,31 +133,52 @@ unique(item67.dat2$Lamps)
 item67.dat3 <- item67.dat2[which(!(is.na(item67.dat2$Fixture.Qty))),]
 
 ##total fixtures per home
-item67.fixtures <- summarise(group_by(item67.dat3, BuildingType, State, CK_Cadmus_ID)
-                          ,FixturesPerSite = sum(Fixture.Qty))
-##average Fixtures across homes per state
-item67.state <- summarise(group_by(item67.fixtures, BuildingType, State)
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Mean = mean(FixturesPerSite)
-                          ,SE   = sd(FixturesPerSite) / SampleSize)
-##average Fixtures across homes per state
-item67.region <- summarise(group_by(item67.fixtures, BuildingType)
-                           ,State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(FixturesPerSite)
-                           ,SE   = sd(FixturesPerSite) / SampleSize)
-#combine state and region information
-item67.final <- rbind.data.frame(item67.state, item67.region, stringsAsFactors = F)
+item67.fixtures <- summarise(group_by(item67.dat3, CK_Cadmus_ID)
+                          ,Fixtures = sum(Fixture.Qty))
 
 
+item67.merge <- left_join(rbsa.dat, item67.fixtures)
+item67.merge <- item67.merge[which(!is.na(item67.merge$Fixtures)),]
 
-#table format
-item67.table <- data.frame("BuildingType" = item67.final$BuildingType
-                           ,"State" = item67.final$State
-                           ,"Mean" = item67.final$Mean
-                           ,"SE" = item67.final$SE
-                           ,"SampleSize" = item67.final$SampleSize)
 
-#subset to only relevant building types
-item67.table1 <- item67.table[which(item67.table$BuildingType %in% c("Single Family", "Manufactured")),]
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item67.data <- weightedData(item67.merge[-which(colnames(item67.merge) %in% c("Fixtures"))])
+item67.data <- left_join(item67.data, item67.merge[which(colnames(item67.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Fixtures"))])
+item67.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+item67.final <- mean_one_group(CustomerLevelData = item67.data
+                               ,valueVariable    = 'Fixtures'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
+
+item67.final.SF <- item67.final[which(item67.final$BuildingType == "Single Family")
+                                ,-which(colnames(item67.final) %in% c("BuildingType"))]
+item67.final.MH <- item67.final[which(item67.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item67.final) %in% c("BuildingType"))]
+
+exportTable(item67.final.SF, "SF", "Table 74", weighted = TRUE)
+exportTable(item67.final.MH, "MH", "Table 53", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item67.final <- mean_one_group_unweighted(CustomerLevelData = item67.data
+                                          ,valueVariable    = 'Fixtures'
+                                          ,byVariable       = 'State'
+                                          ,aggregateRow     = 'Region')
+
+item67.final.SF <- item67.final[which(item67.final$BuildingType == "Single Family")
+                                ,-which(colnames(item67.final) %in% c("BuildingType"))]
+item67.final.MH <- item67.final[which(item67.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item67.final) %in% c("BuildingType"))]
+
+exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
+exportTable(item67.final.MH, "MH", "Table 53", weighted = FALSE)
 

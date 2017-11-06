@@ -111,6 +111,11 @@ prep.dat3$Duct.Plenum.Insulation.Thickness.3[which(is.na(prep.dat3$Duct.Plenum.I
 unique(prep.dat3$Duct.Plenum.Insulation.Thickness.1)
 unique(prep.dat3$Duct.Plenum.Insulation.Thickness.2)
 unique(prep.dat3$Duct.Plenum.Insulation.Thickness.3)
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(prep.dat3$Duct.Plenum.Insulation.Thickness.1 == "1/2 inch")] <- "0.5 inches"
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(prep.dat3$Duct.Plenum.Insulation.Thickness.1 == "<1\"")]     <- "1 inch"
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(prep.dat3$Duct.Plenum.Insulation.Thickness.1 == "3.5")]      <- "3.5 inches"
+prep.dat3$Duct.Plenum.Insulation.Thickness.1[which(prep.dat3$Duct.Plenum.Insulation.Thickness.1 == "r30")]      <- "N/A N/A"
+
 
 #Clean Condition unknown values
 prep.dat3$Duct.Insulation.Condition[which(prep.dat3$Duct.Insulation.Condition == "Unknown")] <- "100%"
@@ -253,6 +258,19 @@ for(i in grep("inches|rvalues", colnames(prep.dat4))){
   prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
 }
 
+
+#replace any inches and rvalues that are NA with zeros
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
+}
+
+
+#make all inches and rvalue columns numeric
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
+}
+
+
 prep.dat4.5 <- prep.dat4
 
 
@@ -266,8 +284,11 @@ unique(prep.dat4.5$Duct.Plenum.rvalues2)
 unique(prep.dat4.5$Duct.Plenum.rvalues3)
 
 # clean up condition information
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Duct.Insulation.Condition %notin% c(100, NA)),]
-prep.condition.sub1$Duct.Insulation.Condition <- 100 - prep.condition.sub1$Duct.Insulation.Condition
+prep.dat4.5$Duct.Insulation.Condition <- as.numeric(as.character(prep.dat4.5$Duct.Insulation.Condition)) / 100
+prep.dat4.5$Duct.Insulation.Condition[which(is.na(prep.dat4.5$Duct.Insulation.Condition))] <- 1
+
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Duct.Insulation.Condition %notin% c(1, NA)),]
+prep.condition.sub1$Duct.Insulation.Condition <- 1 - prep.condition.sub1$Duct.Insulation.Condition
 prep.condition.sub1$total.r.val <- NA
 
 prep.dat5 <- rbind.data.frame(prep.dat4.5
@@ -373,12 +394,15 @@ item61.final <- proportions_one_group(CustomerLevelData = item61.data
 item61.final.SF <- item61.final[which(item61.final$BuildingType == "Single Family"), -which(colnames(item61.final) %in% c("BuildingType", "Duct.Insulation.Level"))]
 exportTable(item61.final.SF, "SF", "Table 68", TRUE)
 
+#######################
+# Unweighted Analysis
+#######################
 item61.final <- proportions_one_group(CustomerLevelData = item61.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,columnName       = "Duct Insulation Level"
                                       ,weighted         = FALSE)
-item61.final.SF <- item61.final[which(item61.final$BuildingType == "Single Family"), -which(colnames(item61.final) %in% c("BuildingType", "Duct.Insulation.Level"))]
+item61.final.SF <- item61.final[which(item61.final$BuildingType == "Single Family"), -which(colnames(item61.final) %in% c("BuildingType", "Duct.Insulation.Level", "Total.Count"))]
 exportTable(item61.final.SF, "SF", "Table 68", FALSE)
 
