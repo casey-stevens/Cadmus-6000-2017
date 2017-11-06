@@ -704,17 +704,24 @@ proportions_one_group <- function(CustomerLevelData
   }
   
 
-  ########################
-  # Step 1: State
-  ########################
-  
   if (weighted == TRUE){
   #sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
   StrataPopCounts <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory)
                                ,N.h   = unique(N.h)
                                ,n.h   = unique(n.h))
   if(groupingVariable == "State"){
-    # obtain count and proportion by strata and row grouping variable
+    if(valueVariable == "StorageBulbs"){
+      # obtain count and proportion by strata and row grouping variable
+      StrataGroupedProportions <- summarise(group_by(CustomerLevelData
+                                                     , BuildingType
+                                                     , State
+                                                     , Region
+                                                     , Territory)
+                                            ,count       = sum(get(valueVariable))
+                                            ,total.count = sum(TotalBulbs)
+                                            ,p.h = count / total.count)
+    }else{
+      # obtain count and proportion by strata and row grouping variable
     StrataGroupedProportions <- summarise(group_by(CustomerLevelData
                                                    , BuildingType
                                                    , State
@@ -723,6 +730,8 @@ proportions_one_group <- function(CustomerLevelData
                                           ,count = sum(get(valueVariable))
                                           ,total.count = length(unique(CK_Cadmus_ID))
                                           ,p.h = count / total.count)
+    }
+    
     
     #join strata counts with summary of grouping variable within strata
     StrataData <- left_join(StrataPopCounts , StrataGroupedProportions, 
@@ -803,23 +812,13 @@ proportions_one_group <- function(CustomerLevelData
     StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
                                                ,"get(groupingVariable)"
                                                ,groupingVariable)
-    if(valueVariable == "StorageBulbs"){
-      StrataProportion <- summarise(group_by(CustomerLevelData
-                                             , BuildingType
-                                             , State
-                                             , Region
-                                             , Territory)
-                                    ,total.count = sum(TotalBulbs))
-      StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
-    }else{
-      StrataProportion <- summarise(group_by(StrataGroupedProportions
+    StrataProportion <- summarise(group_by(StrataGroupedProportions
                                              , BuildingType
                                              , State
                                              , Region
                                              , Territory)
                                     ,total.count = sum(count))
       StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
-    }
     
     StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
@@ -898,22 +897,33 @@ proportions_one_group <- function(CustomerLevelData
                        ,SampleSize = length(unique(CK_Cadmus_ID))
                        ,Count       = sum(get(valueVariable)))
     
-    item.tmp2 <- summarise(group_by(CustomerLevelData, BuildingType)
+    
+      item.tmp2 <- ddply(CustomerLevelData, "BuildingType", summarise
                              ,Total = "Total"
                              ,SampleSize = length(unique(CK_Cadmus_ID))
                              ,Count   = sum(get(valueVariable)))
+    
       # Convert column name
-      item.tmp2 <- data.frame(ConvertColName(item.tmp2
-                                             , 'Total'
-                                             , groupingVariable)
+      item.tmp2 <- data.frame(ConvertColName(item.tmp2, 'Total', groupingVariable)
                               ,stringsAsFactors = F)
     
     item.combined <- rbind.data.frame(item.tmp1, item.tmp2, stringsAsFactors = F)
     
-    item.tmp3 <- summarise(group_by(CustomerLevelData, BuildingType)
-                             ,Total.Count   = sum(get(valueVariable)))
     
-    item.final <- left_join(item.combined, item.tmp3, by = "BuildingType")
+    if(valueVariable == "StorageBulbs"){
+      item.tmpyy <- summarise(group_by(CustomerLevelData, BuildingType, State)
+                             ,Total.Count   = sum(TotalBulbs))
+      item.tmpxx <- summarise(group_by(CustomerLevelData, BuildingType)
+                              ,State = "Total"
+                              ,Total.Count = sum(TotalBulbs))
+      item.tmp3 <- rbind.data.frame(item.tmpyy, item.tmpxx, stringsAsFactors = F)
+    }else{
+      item.tmp3 <- summarise(group_by(CustomerLevelData, BuildingType)
+                             ,Total.Count   = sum(get(valueVariable)))
+    }
+    
+    
+    item.final <- left_join(item.combined, item.tmp3)
     item.final$tmp.total <- total.name
     item.final <- ConvertColName(item.final, 'tmp.total', columnName)
     
@@ -921,7 +931,17 @@ proportions_one_group <- function(CustomerLevelData
     item.final <- data.frame(item.final, stringsAsFactors = F)
     
     if(groupingVariable == "State"){
-      item.final$Percent <- item.final$Count / item.final$SampleSize
+      if(valueVariable == "StorageBulbs"){
+        get.unweighted.proportion <- summarise(group_by(CustomerLevelData
+                                                       , BuildingType
+                                                       , State)
+                                              ,Percent = sum(get(valueVariable))/ sum(TotalBulbs))
+        item.final <- left_join(item.final, get.unweighted.proportion)
+        item.final$Percent[which(is.na(item.final$Percent))] <- item.final$Count[which(is.na(item.final$Percent))] / item.final$Total.Count[which(is.na(item.final$Percent))]
+        
+      }else{
+        item.final$Percent <- item.final$Count / item.final$SampleSize
+      }
     }else{
       item.final$Percent <- item.final$Count / item.final$Total.Count
     }

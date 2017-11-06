@@ -7,14 +7,31 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
+                                       , sheet = "APPLIANCES EXPORT.xlsx")
+                             ,stringsAsFactors = F)
+
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -51,27 +68,79 @@ item80.dat1$TotalQty <- item80.dat1$Large.Unusual.Load.Quantity * item80.dat1$co
 item80.sum <- summarise(group_by(item80.dat1, CK_Cadmus_ID, BuildingType, Type)
                         ,SiteCount = sum(TotalQty))
 
-#get sample sizes within building type categories
-item80.sampleSize <- summarise(group_by(item80.sum, BuildingType)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item80.merge <- left_join(rbsa.dat, item80.sum)
+item80.merge1 <- item80.merge[which(!is.na(item80.merge$SiteCount)),]
 
-item80.merge <- left_join(item80.sum, item80.sampleSize, by = "BuildingType")
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item80.data <- weightedData(item80.merge[-which(colnames(item80.merge) %in% c("StorageBulbs"
+                                                                              ,"TotalBulbs"))])
+item80.data <- left_join(item80.data, item80.merge[which(colnames(item80.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"StorageBulbs"
+                                                                                       ,"TotalBulbs"))])
+item80.data$count <- 1
 
-#summarise by type
-item80.final <- summarise(group_by(item80.merge, BuildingType, Type)
-                        ,SampleSize = unique(SampleSize)
-                        ,Mean = sum(SiteCount) / SampleSize
-                        ,SE   = sd(SiteCount) / sqrt(SampleSize))
+#######################
+# Weighted Analysis
+#######################
+item80.final <- proportions_one_group(CustomerLevelData = item80.data
+                                      ,valueVariable    = 'StorageBulbs'
+                                      ,groupingVariable = 'State'
+                                      ,total.name       = 'Region'
+                                      ,columnName       = 'Remove')
+
+item80.final.SF <- item80.final[which(item80.final$BuildingType == "Single Family")
+                                ,-which(colnames(item80.final) %in% c("BuildingType"))]
+item80.final.MH <- item80.final[which(item80.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item80.final) %in% c("BuildingType"))]
+
+exportTable(item80.final.SF, "SF", "Table ", weighted = TRUE)
+exportTable(item80.final.MH, "MH", "Table ", weighted = TRUE)
 
 
-item80.table <- data.frame("BuildingType" = item80.final$BuildingType
-                           ,"Type" = item80.final$Type
-                           ,"Mean" = item80.final$Mean
-                           ,"SE" = item80.final$SE
-                           ,"SampleSize" = item80.final$SampleSize)
+#######################
+# Unweighted Analysis
+#######################
+item80.final <- proportions_one_group(CustomerLevelData = item80.data
+                                      ,valueVariable    = 'StorageBulbs'
+                                      ,groupingVariable = 'State'
+                                      ,total.name       = 'Region'
+                                      ,columnName       = 'Remove'
+                                      ,weighted         = FALSE)
+
+item80.final.SF <- item80.final[which(item80.final$BuildingType == "Single Family")
+                                ,-which(colnames(item80.final) %in% c("BuildingType"))]
+item80.final.MH <- item80.final[which(item80.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item80.final) %in% c("BuildingType"))]
+
+exportTable(item80.final.SF, "SF", "Table ", weighted = FALSE)
+exportTable(item80.final.MH, "MH", "Table ", weighted = FALSE)
 
 
-item80.table1 <- item80.table[which(item80.table$BuildingType %in% c("Single Family","Manufactured")),]
+
+
+# #get sample sizes within building type categories
+# item80.sampleSize <- summarise(group_by(item80.sum, BuildingType)
+#                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+# 
+# item80.merge <- left_join(item80.sum, item80.sampleSize, by = "BuildingType")
+# 
+# #summarise by type
+# item80.final <- summarise(group_by(item80.merge, BuildingType, Type)
+#                         ,SampleSize = unique(SampleSize)
+#                         ,Mean = sum(SiteCount) / SampleSize
+#                         ,SE   = sd(SiteCount) / sqrt(SampleSize))
+# 
+# 
+# item80.table <- data.frame("BuildingType" = item80.final$BuildingType
+#                            ,"Type" = item80.final$Type
+#                            ,"Mean" = item80.final$Mean
+#                            ,"SE" = item80.final$SE
+#                            ,"SampleSize" = item80.final$SampleSize)
+# 
+# 
+# item80.table1 <- item80.table[which(item80.table$BuildingType %in% c("Single Family","Manufactured")),]
 
 
 
