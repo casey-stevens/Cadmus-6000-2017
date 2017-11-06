@@ -59,7 +59,7 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 , "Ceiling.Insulation.Thickness.3"
                                                                 , "Ceiling.Insulation.Condition.3"))]
 prep.dat0 <- prep.dat[which(prep.dat$`Ceiling.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
-prep.dat1.0 <- prep.dat0[which(!(is.na(prep.dat0$Ceiling.Area))),]
+prep.dat1.0 <- prep.dat0[which(!(is.na(as.numeric(as.character(prep.dat0$Ceiling.Area))))),]
 prep.dat1.2 <- prep.dat1.0[which(prep.dat1.0$Ceiling.Insulation.Thickness.1 != "Unknown"),]
 
 #review types
@@ -91,9 +91,11 @@ for(i in 1:ncol(prep.dat3)){
 #cleaning for wall.cavity
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.1))] <- "N/A N/A"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "12")] <- "12 inches"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.2))] <- "N/A N/A"
+prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "20 or more inches")] <- "20 inches"
 prep.dat3$Ceiling.Insulation.Thickness.3[which(prep.dat3$Ceiling.Insulation.Thickness.3 == "Unknown")] <- "Unknown Unknown"
 prep.dat3$Ceiling.Insulation.Thickness.3[which(prep.dat3$Ceiling.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.3[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.3))] <- "N/A N/A"
@@ -236,6 +238,17 @@ for(i in grep("inches|rvalues", colnames(prep.dat4))){
   prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
 }
 
+#replace any inches and rvalues that are NA with zeros
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
+}
+
+
+#make all inches and rvalue columns numeric
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
+}
+
 prep.dat4.5 <- prep.dat4
 
 
@@ -249,15 +262,17 @@ unique(prep.dat4.5$ceiling.rvalues2)
 unique(prep.dat4.5$ceiling.rvalues3)
 
 # clean up condition information
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Ceiling.Insulation.Condition.1 %notin% c(100, NA)),]
-prep.condition.sub1$Ceiling.Insulation.Condition.1 <- 100 - prep.condition.sub1$Ceiling.Insulation.Condition.1
+prep.dat4.5$Ceiling.Insulation.Condition.1 <- prep.dat4.5$Ceiling.Insulation.Condition.1 / 100
+
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Ceiling.Insulation.Condition.1 %notin% c(1, NA)),]
+prep.condition.sub1$Ceiling.Insulation.Condition.1 <- 1 - prep.condition.sub1$Ceiling.Insulation.Condition.1
 prep.condition.sub1$total.r.val <- NA
 
 prep.dat5 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               , stringsAsFactors = F)
 
-unique(prep.dat5$Ceiling.Insulation.Condition.1)
+prep.dat5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat5$Ceiling.Insulation.Condition.1))] <- 1 
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
@@ -358,7 +373,9 @@ unique(item26.data$rvalue.bins)
 
 item26.data$count <- 1
 
-
+##############################
+# Weighted Analysis
+##############################
 item26.final <- proportions_one_group(CustomerLevelData = item26.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
@@ -368,45 +385,20 @@ item26.final <- proportions_one_group(CustomerLevelData = item26.data
 item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family"),-which(colnames(item26.final) %in% c("BuildingType", "Attic.Insulation.Levels"))]
 exportTable(item26.final.SF, "SF", "Table 33", weighted = TRUE)
 
+##############################
+# Unweighted Analysis
+##############################
 item26.final <- proportions_one_group(CustomerLevelData = item26.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = FALSE)
-item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family"),-which(colnames(item26.final) %in% c("BuildingType", "Attic.Insulation.Levels"))]
+item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family")
+                                ,-which(colnames(item26.final) %in% c("BuildingType", "Attic.Insulation.Levels", "Total.Count"))]
 exportTable(item26.final.SF, "SF", "Table 33", weighted = FALSE)
 
 
-
-
-# #summarise by rvalue bins
-# item26.sum1 <- summarise(group_by(item26.dat0, BuildingType, rvalue.bins)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count))
-# 
-# item26.sum2 <- summarise(group_by(item26.dat0, BuildingType)
-#                          ,rvalue.bins = "Total"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count))
-# 
-# item26.merge <- rbind.data.frame(item26.sum1,item26.sum2, stringsAsFactors = F)
-# 
-# item26.tot.count <- item26.sum2[which(colnames(item26.sum2) %in% c("BuildingType"
-#                                                                    ,"Count"))]
-# colnames(item26.tot.count) <- c("BuildingType","Total.Count")
-# 
-# item26.final <- left_join(item26.merge, item26.tot.count, by = "BuildingType")
-# 
-# item26.final$Percent <- item26.final$Count / item26.final$Total.Count
-# item26.final$SE <- sqrt(item26.final$Percent * (1 - item26.final$Percent) / item26.final$SampleSize)
-# 
-# 
-# item26.table <- data.frame("BuildingType" = item26.final$BuildingType
-#                             ,"R Values" = item26.final$rvalue.bins
-#                             ,"Percent" = item26.final$Percent
-#                             ,"SE" = item26.final$SE
-#                             ,"SampleSize" = item26.final$SampleSize)
 
 
 
@@ -445,58 +437,34 @@ item30.data$count <- 1
 
 
 
-###################
-# Analysis
-###################
+##############################
+# Weighted Analysis
+##############################
 item30.final <- proportions_one_group(CustomerLevelData = item30.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = TRUE)
-item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family"),-which(colnames(item30.final) %in% c("BuildingType", "Attic.Insulation.Levels"))]
+item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
+                                ,-which(colnames(item30.final) %in% c("BuildingType"
+                                                                      , "Attic.Insulation.Levels"))]
 exportTable(item30.final.SF, "SF", "Table 37", weighted = TRUE)
 
+##############################
+# Unweighted Analysis
+##############################
 item30.final <- proportions_one_group(CustomerLevelData = item30.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = FALSE)
-item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family"),-which(colnames(item30.final) %in% c("BuildingType", "Attic.Insulation.Levels"))]
+item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
+                                ,-which(colnames(item30.final) %in% c("BuildingType"
+                                                                      , "Attic.Insulation.Levels"
+                                                                      , "Total.Count"))]
 exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
-
-
-# #summarise by rvalue bins
-# item30.sum1 <- summarise(group_by(item30.dat0, BuildingType, rvalue.bins)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count))
-# 
-# item30.sum2 <- summarise(group_by(item30.dat0, BuildingType)
-#                          ,rvalue.bins = "Total"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count))
-# 
-# item30.merge <- rbind.data.frame(item30.sum1,item30.sum2, stringsAsFactors = F)
-# 
-# item30.tot.count <- item30.sum2[which(colnames(item30.sum2) %in% c("BuildingType"
-#                                                                    ,"Count"))]
-# colnames(item30.tot.count) <- c("BuildingType","Total.Count")
-# 
-# item30.final <- left_join(item30.merge, item30.tot.count, by = "BuildingType")
-# 
-# item30.final$Percent <- item30.final$Count / item30.final$Total.Count
-# item30.final$SE <- sqrt(item30.final$Percent * (1 - item30.final$Percent) / item30.final$SampleSize)
-# 
-# 
-# item30.table <- data.frame("BuildingType" = item30.final$BuildingType
-#                            ,"R Values" = item30.final$rvalue.bins
-#                            ,"Percent" = item30.final$Percent
-#                            ,"SE" = item30.final$SE
-#                            ,"SampleSize" = item30.final$SampleSize)
-
-
-
 
 
 
@@ -510,60 +478,50 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 item31.dat <- prep.dat5[which(prep.dat5$Ceiling.Type == "Roof Deck"),]
 item31.dat$count <- 1
 
-item31.dat1 <- left_join(item31.dat, rbsa.dat)
+item31.dat0 <- item31.dat[which(item31.dat$Ceiling.Insulation.Thickness.1 != "N/A N/A"),]
 
-item31.data <- weightedData(item31.dat1[-c(grep("Ceiling|ceiling", colnames(item31.dat1)),which(colnames(item31.dat1) %in% c("Category"
-                                                                          ,"count"
-                                                                          ,"uvalue"
-                                                                          ,"total.r.val"
-                                                                          ,"TMP_ID")))])
-item31.data <- left_join(item31.data,item31.dat1[c(grep("Ceiling|ceiling", colnames(item31.dat1)),which(colnames(item31.dat1) %in% c("CK_Cadmus_ID"
-                                                                                                                                     ,"Category"
-                                                                                                                                     ,"count"
-                                                                                                                                     ,"uvalue"
-                                                                                                                                     ,"total.r.val"
-                                                                                                                                     ,"TMP_ID")))] )
+item31.dat1 <- left_join(rbsa.dat, item31.dat0)
+item31.dat2 <- item31.dat1[which(!is.na(item31.dat1$uvalue)),]
 
+item31.data <- weightedData(item31.dat2[-c(grep("Ceiling|ceiling", colnames(item31.dat2))
+                                           ,which(colnames(item31.dat2) %in% c("Category"
+                                                                               ,"count"
+                                                                               ,"uvalue"
+                                                                               ,"total.r.val"
+                                                                               ,"TMP_ID")))])
+item31.data <- left_join(item31.data,item31.dat2[c(grep("Ceiling|ceiling", colnames(item31.dat2))
+                                                   ,which(colnames(item31.dat2) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Category"
+                                                                                       ,"count"
+                                                                                       ,"uvalue"
+                                                                                       ,"total.r.val"
+                                                                                       ,"TMP_ID")))] )
+
+##############################
+# Weighted Analysis
+##############################
 item31.final <- proportions_one_group(CustomerLevelData = item31.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
                                       ,total.name       = "Total"
                                       ,columnName       = "Roof Deck Insulation Levels"
                                       ,weighted         = TRUE)
-item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family"), -which(colnames(item31.final) %in% c("BuildingType", "Roof.Deck.Insulation.Levels"))]
+item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
+                                , -which(colnames(item31.final) %in% c("BuildingType"
+                                                                       , "Roof.Deck.Insulation.Levels"))]
 exportTable(item31.final.SF, "SF", "Table 38", weighted = TRUE)
 
+##############################
+# Unweighted Analysis
+##############################
 item31.final <- proportions_one_group(CustomerLevelData = item31.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
                                       ,total.name       = "Total"
                                       ,columnName       = "Roof Deck Insulation Levels"
                                       ,weighted         = FALSE)
-item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family"), -which(colnames(item31.final) %in% c("BuildingType", "Roof.Deck.Insulation.Levels"))]
+item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
+                                , -which(colnames(item31.final) %in% c("BuildingType"
+                                                                       , "Roof.Deck.Insulation.Levels"
+                                                                       , "Total.Count"))]
 exportTable(item31.final.SF, "SF", "Table 38", weighted = FALSE)
-
-
-
-
-
-# item31.sum1 <- summarise(group_by(item31.dat2, Ceiling.Insulation.Thickness.1)
-#                          ,Count = sum(count)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# 
-# item31.sum2 <- summarise(group_by(item31.dat2)
-#                          ,Ceiling.Insulation.Thickness.1 = "Total"
-#                          ,Count = sum(count)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# 
-# item31.final <- rbind.data.frame(item31.sum1, item31.sum2, stringsAsFactors = F)
-# 
-# item31.final$Total.Count <- item31.sum2$Count
-# item31.final$Denom.SampleSize <- item31.sum2$SampleSize
-# 
-# item31.final$Percent <- item31.final$Count / item31.final$Total.Count
-# item31.final$SE <- sqrt(item31.final$Percent * (1 - item31.final$Percent) / item31.final$Denom.SampleSize)
-# 
-# item31.table <- data.frame("Insulation.Level" = item31.final$Ceiling.Insulation.Thickness.1
-#                            ,"Percent" = item31.final$Percent
-#                            ,"SE" = item31.final$SE
-#                            ,"SampleSize" = item31.final$SampleSize)
