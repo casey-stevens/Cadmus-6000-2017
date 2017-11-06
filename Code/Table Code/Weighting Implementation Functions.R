@@ -677,14 +677,13 @@ mean_two_groups_unweighted <- function(CustomerLevelData
 
 
 # Test
-# CustomerLevelData  = item21.data
-# valueVariable    = 'count'
-# groupingVariable = 'BSMT_Slab_Thickness'
-# total.name       = "Total"
-# columnName       = "Remove"
+# CustomerLevelData  = item25.data
+# valueVariable    = 'Ceiling.Ind'
+# groupingVariable = 'State'
+# total.name       = "Region"
+# columnName       = "Homes with Attics"
 # weighted = TRUE
-  
-  
+
 proportions_one_group <- function(CustomerLevelData
                                       , valueVariable
                                       , groupingVariable
