@@ -47,18 +47,23 @@ item43.dat2 <- item43.dat1[which(item43.dat1$Primary.Heating.System %in% c("Yes"
 #check uniques
 unique(item43.dat2$Primary.Heating.System)
 
+
+
 item43.dat2$Heating.System.Ind <- item43.dat2$Primary.Heating.System
 item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
 item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
 
 item43.dat3 <- unique(data.frame("CK_Cadmus_ID" = item43.dat2$CK_Cadmus_ID
-                          ,"Heating_Type" = item43.dat2$Generic
-                          ,"Primary_Secondary" = item43.dat2$Heating.System.Ind))
+                          ,"Heating_Type"       = item43.dat2$Generic
+                          ,"Primary_Secondary"  = item43.dat2$Heating.System.Ind))
+### Clean heating type
+unique(item43.dat3$Heating_Type)
+item43.dat3$Heating_Type[grep("geo|Geo|GEO", item43.dat3$Heating_Type)] <- "Geothermal Heat Pump"
 
 item43.dat4 <- left_join(rbsa.dat, item43.dat3, by = "CK_Cadmus_ID")
 
 item43.dat5 <- item43.dat4[which(item43.dat4$Primary_Secondary == "Primary Heating System"),]
-length(unique(item43.dat5$CK_Cadmus_ID)) #544
+length(unique(item43.dat5$CK_Cadmus_ID))
 item43.dat5$count <- 1
 
 
@@ -70,56 +75,51 @@ item43.data <- left_join(item43.data, item43.dat5[which(colnames(item43.dat5) %i
                                                                                      ,"Primary_Secondary"
                                                                                      ,"count"))])
 
+#########################
+# Weighted Analysis
+#########################
 item43.final <- proportions_one_group(CustomerLevelData  = item43.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Heating_Type'
                                       , total.name       = "Total"
-                                      , columnName       = "Primary Heating Systems")
+                                      , columnName       = "Remove"
+                                      , weighted = TRUE)
 
 # export table
 # SF = Table 50, MH = Table 32
-item43.final.SF <- item43.final[which(item43.final$BuildingType == "Single Family"),-1]
-item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured"),-1]
+item43.final.SF <- item43.final[which(item43.final$BuildingType == "Single Family")
+                                ,-which(colnames(item43.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item43.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 
-exportTable(item43.final.SF, "SF", "Table 50")
-exportTable(item43.final.MH, "MH", "Table 32")
+exportTable(item43.final.SF, "SF", "Table 50", weighted = TRUE)
+exportTable(item43.final.MH, "MH", "Table 32", weighted = TRUE)
 
+#########################
+# Weighted Analysis
+#########################
+item43.final <- proportions_one_group(CustomerLevelData  = item43.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'Heating_Type'
+                                      , total.name       = "Total"
+                                      , columnName       = "Remove"
+                                      , weighted = FALSE)
 
-# OLD CODE #
-# 
-# #summarize across heating types to get totals
-# item43.tmp1 <- summarise(group_by(item43.dat5, BuildingType)
-#                          ,Heating_Type = "Total"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# 
-# #summarize within heating types
-# item43.tmp2 <- summarise(group_by(item43.dat5, BuildingType, Heating_Type)
-#                          ,SampleSize   = length(unique(CK_Cadmus_ID)) 
-#                          ,Count = sum(count)) 
-# 
-# #join across and within heating type summaries
-# item43.merge <- rbind.data.frame(item43.tmp2, item43.tmp1, stringsAsFactors = F)
-# 
-# item43.final <- left_join(item43.merge, item43.tmp1, by = "BuildingType")
-# colnames(item43.final) <- c("BuildingType"
-#                             ,"Heating.Type"
-#                             ,"SampleSize"
-#                             ,"Count"
-#                             ,"Remove"
-#                             ,"Remove"
-#                             ,"Total.Count")
-# 
-# item43.final$Percent <- item43.final$Count / item43.final$Total.Count
-# item43.final$SE <- sqrt(item43.final$Percent * (1 - item43.final$Percent) / item43.final$SampleSize)
-# 
-# 
-# item43.table <- data.frame("BuildingType" = item43.final$BuildingType
-#                            ,"Heating.Type" = item43.final$Heating.Type
-#                            ,"Percent" = item43.final$Percent
-#                            ,"SE" = item43.final$SE
-#                            ,"SampleSize" = item43.final$SampleSize)
-# item43.table1 <- item43.table[which(item43.table$BuildingType %in% c("Single Family", "Manufactured")),]
+# export table
+# SF = Table 50, MH = Table 32
+item43.final.SF <- item43.final[which(item43.final$BuildingType == "Single Family")
+                                ,-which(colnames(item43.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item43.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item43.final.SF, "SF", "Table 50", weighted = FALSE)
+exportTable(item43.final.MH, "MH", "Table 32", weighted = FALSE)
 
 
 
@@ -145,6 +145,11 @@ item44.dat3 <- unique(data.frame("CK_Cadmus_ID" = item44.dat2$CK_Cadmus_ID
                                  ,"Heating_Fuel" = item44.dat2$Heating.Fuel
                                  ,"Primary_Secondary" = item44.dat2$Heating.System.Ind))
 
+### Clean heating type
+unique(item44.dat3$Heating_Type)
+item44.dat3$Heating_Type[grep("geo|Geo|GEO", item44.dat3$Heating_Type)] <- "Geothermal Heat Pump"
+
+
 item44.dat4 <- left_join(rbsa.dat, item44.dat3, by = "CK_Cadmus_ID")
 
 item44.dat5 <- item44.dat4[which(item44.dat4$Primary_Secondary == "Primary Heating System"),]
@@ -154,109 +159,116 @@ item44.dat5$count <- 1
 # Remove entries with missing fuel types
 item44.dat6 <- item44.dat5 %>%
                 filter(!is.na(Heating_Fuel))
+item44.dat7 <- item44.dat6 %>%
+  filter(Heating_Fuel != "Unknown")
 
-item44.data <- weightedData(item44.dat6[-which(colnames(item44.dat6) %in% c("Heating_Type"
+
+item44.data <- weightedData(item44.dat7[-which(colnames(item44.dat7) %in% c("Heating_Type"
                                                                             ,"Heating_Fuel"
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
 
-item44.data <- left_join(item44.data, item44.dat6[which(colnames(item44.dat6) %in% c("CK_Cadmus_ID"
+item44.data <- left_join(item44.data, item44.dat7[which(colnames(item44.dat7) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Heating_Fuel"
                                                                                      ,"Primary_Secondary"
                                                                                      ,"count"))])
-
+################################
+# Weighted Analysis
+################################
 item44.final <- proportionRowsAndColumns1(CustomerLevelData = item44.data
                                       , valueVariable       = 'count'
                                       , columnVariable      = 'State'
                                       , rowVariable         = 'Heating_Fuel'
-                                      , aggregateColumnName = 'Region'
-                                      , totalRow            = TRUE
-                                      , weighted            = TRUE)
+                                      , aggregateColumnName = 'Region')
 
-# I think this still has to be casted, skip for now
-# export table
-# SF = Table 54, MH = Table 36
-item44.final.SF <- item44.final[which(item44.final$BuildingType == "Single Family"),-1]
-item44.final.MH <- item44.final[which(item44.final$BuildingType == "Manufactured"),-1]
+item44.cast <- dcast(setDT(item44.final)
+                      , formula = BuildingType + Heating_Fuel ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item44.table <- data.frame("BuildingType"     = item44.cast$BuildingType
+                           ,"Heating.Fuel"   = item44.cast$Heating_Fuel
+                           ,"Percent_ID"     = item44.cast$w.percent_ID
+                           ,"SE_ID"          = item44.cast$w.SE_ID
+                           ,"Count_ID"       = item44.cast$count_ID
+                           ,"Percent_MT"     = item44.cast$w.percent_MT
+                           ,"SE_MT"          = item44.cast$w.SE_MT
+                           ,"Count_MT"       = item44.cast$count_MT
+                           ,"Percent_OR"     = item44.cast$w.percent_OR
+                           ,"SE_OR"          = item44.cast$w.SE_OR
+                           ,"Count_OR"       = item44.cast$count_OR
+                           ,"Percent_WA"     = item44.cast$w.percent_WA
+                           ,"SE_WA"          = item44.cast$w.SE_WA
+                           ,"Count_WA"       = item44.cast$count_WA
+                           ,"Percent_Region" = item44.cast$w.percent_Region
+                           ,"SE_Region"      = item44.cast$w.SE_Region
+                           ,"Count_Region"   = item44.cast$count_Region
+                           # ,"SampleSize"     = item44.cast$SampleSize_Region
+)
+
+
+item44.final.SF <- item44.table[which(item44.table$BuildingType == "Single Family")
+                                ,-which(colnames(item44.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+item44.final.MH <- item44.table[which(item44.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item44.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item44.final.SF, "SF", "Table 51", weighted = TRUE)
+exportTable(item44.final.MH, "MH", "Table 33", weighted = TRUE)
 
 
 
 
+#############################
+# Unweighted Analysis
+#############################
+item44.final <- proportions_two_groups_unweighted(CustomerLevelData = item44.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'State'
+                                          , rowVariable         = 'Heating_Fuel'
+                                          , aggregateColumnName = 'Region')
 
-exportTable(item44.final.SF, "SF", "Table 51")
-exportTable(item44.final.MH, "MH", "Table 33")
+item44.cast <- dcast(setDT(item44.final)
+                     , formula = BuildingType + Heating_Fuel ~ State
+                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
 
 
+item44.table <- data.frame("BuildingType"     = item44.cast$BuildingType
+                           ,"Heating.Fuel"   = item44.cast$Heating_Fuel
+                           ,"Percent_ID"     = item44.cast$Percent_ID
+                           ,"SE_ID"          = item44.cast$SE_ID
+                           ,"Count_ID"       = item44.cast$Count_ID
+                           ,"Percent_MT"     = item44.cast$Percent_MT
+                           ,"SE_MT"          = item44.cast$SE_MT
+                           ,"Count_MT"       = item44.cast$Count_MT
+                           ,"Percent_OR"     = item44.cast$Percent_OR
+                           ,"SE_OR"          = item44.cast$SE_OR
+                           ,"Count_OR"       = item44.cast$Count_OR
+                           ,"Percent_WA"     = item44.cast$Percent_WA
+                           ,"SE_WA"          = item44.cast$SE_WA
+                           ,"Count_WA"       = item44.cast$Count_WA
+                           ,"Percent_Region" = item44.cast$Percent_Region
+                           ,"SE_Region"      = item44.cast$SE_Region
+                           ,"Count_Region"   = item44.cast$Count_Region
+                           # ,"SampleSize"     = item44.cast$SampleSize_Region
+)
 
 
-# OLD CODE #
-# 
-# #summarize across fuel types to get totals by building type and state
-# item44.tmp1 <- summarise(group_by(item44.dat5, BuildingType, State)
-#                          ,Heating_Fuel = "All Fuel Types"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# 
-# #summarize within fuel types by building type and state
-# item44.tmp2 <- summarise(group_by(item44.dat5, BuildingType, State, Heating_Fuel)
-#                          ,SampleSize   = length(unique(CK_Cadmus_ID)) 
-#                          ,Count = sum(count))
-# #row bind
-# item44.merge1 <- rbind.data.frame(item44.tmp2, item44.tmp1, stringsAsFactors = F)
-# 
-# 
-# #summarize across fuel types to get totals by building type across states
-# item44.tmp3 <- summarise(group_by(item44.dat5, BuildingType)
-#                          ,Heating_Fuel = "All Fuel Types"
-#                          ,State = "Region"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# 
-# #summarize within fuel types by building type across states
-# item44.tmp4 <- summarise(group_by(item44.dat5, BuildingType, Heating_Fuel)
-#                          ,State = "Region"
-#                          ,SampleSize   = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# # row bind
-# item44.merge2 <- rbind.data.frame(item44.tmp4, item44.tmp3, stringsAsFactors = F)
-# 
-# #combine state and region information
-# item44.merge3 <- rbind.data.frame(item44.merge1, item44.merge2, stringsAsFactors = F)
-# 
-# 
-# itemm44.total.counts <- rbind.data.frame(item44.tmp1, item44.tmp3, stringsAsFactors = F)
-# itemm44.total.counts <- itemm44.total.counts[which(colnames(itemm44.total.counts) %in% c("BuildingType", "State","Count"))]
-# 
-# item44.final <- left_join(item44.merge3, itemm44.total.counts, by = c("BuildingType", "State"))
-# colnames(item44.final) <- c("BuildingType", "State", "Heating_Fuel", "SampleSize", "Count", "Total.Count")
-# 
-# item44.final$Percent <- item44.final$Count / item44.final$Total.Count
-# item44.final$SE <- sqrt(item44.final$Percent * (1 - item44.final$Percent) / item44.final$SampleSize)
-# 
-# 
-# ###########Make into table
-# detach(package:reshape2)
-# library(data.table)
-# item44.cast <- dcast(setDT(item44.final)
-#                       , formula = BuildingType + Heating_Fuel ~ State
-#                       , value.var = c("Percent", "SE", "SampleSize"))
-# 
-# item44.table <- data.frame("BuildingType" = item44.cast$BuildingType
-#                             ,"Heating.Fuel" = item44.cast$Heating_Fuel
-#                             ,"Percent_MT" = item44.cast$Percent_MT
-#                             ,"SE_MT" = item44.cast$SE_MT
-#                             ,"Percent_WA" = item44.cast$Percent_WA
-#                             ,"SE_WA" = item44.cast$SE_WA
-#                             ,"Percent_Region" = item44.cast$Percent_Region
-#                             ,"SE_Region" = item44.cast$SE_Region
-#                             ,"SampleSize" = item44.cast$SampleSize_Region)
-# 
-# 
-# item44.table1 <- item44.table[which(item44.table$BuildingType %in% c("Single Family", "Manufactured")),]
-# 
-# item44.table2 <- item44.table1[which(!(is.na(item44.table1$Heating.Fuel))),]
-# 
+item44.final.SF <- item44.table[which(item44.table$BuildingType == "Single Family")
+                                ,-which(colnames(item44.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"))]
+item44.final.MH <- item44.table[which(item44.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item44.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item44.final.SF, "SF", "Table 51", weighted = FALSE)
+exportTable(item44.final.MH, "MH", "Table 33", weighted = FALSE)
+
+
 
 
 
@@ -279,6 +291,11 @@ item45.dat3 <- unique(data.frame("CK_Cadmus_ID" = item45.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item45.dat2$Generic
                                  ,"Primary_Secondary" = item45.dat2$Heating.System.Ind))
 
+### Clean heating type
+unique(item45.dat3$Heating_Type)
+item45.dat3$Heating_Type[grep("geo|Geo|GEO", item45.dat3$Heating_Type)] <- "Geothermal Heat Pump"
+
+
 item45.dat4 <- left_join(rbsa.dat, item45.dat3, by = "CK_Cadmus_ID")
 
 item45.dat5 <- item45.dat4[which(item45.dat4$Primary_Secondary == "Secondary Heating System"),]
@@ -294,64 +311,54 @@ item45.data <- left_join(item45.data, item45.dat5[which(colnames(item45.dat5) %i
                                                                                      ,"Heating_Type"
                                                                                      ,"Primary_Secondary"
                                                                                      ,"count"))])
+
+################################
+# Weighted Analysis
+################################
 item45.final <- proportions_one_group(CustomerLevelData  = item45.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Heating_Type'
                                       , total.name       = "Total"
-                                      , columnName       = "Primary Heating Systems")
+                                      , columnName       = "Secondary Heating Systems"
+                                      , weighted = TRUE)
+
+item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Family")
+                                ,-which(colnames(item45.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item45.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item45.final.SF, "SF", "Table 52", weighted = TRUE)
+exportTable(item45.final.MH, "MH", "Table 34", weighted = TRUE)
 
 
-# I think this still has to be casted, skip for now
-# export table
-# SF = Table 51, MH = Table 33
-item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Family"),-1]
-item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item45.final.SF, "SF", "Table 51")
-exportTable(item45.final.MH, "MH", "Table 33")
+################################
+# Unweighted Analysis
+################################
+item45.final <- proportions_one_group(CustomerLevelData  = item45.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'Heating_Type'
+                                      , total.name       = "Total"
+                                      , columnName       = "Remove"
+                                      , weighted = FALSE)
+
+item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Family")
+                                ,-which(colnames(item45.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item45.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item45.final.SF, "SF", "Table 52", weighted = FALSE)
+exportTable(item45.final.MH, "MH", "Table 34", weighted = FALSE)
 
 
-# 
-# 
-# 
-# 
-# #summarize across heating types to get totals
-# item45.tmp1 <- summarise(group_by(item45.dat5, BuildingType)
-#                          ,Heating_Type = "Total"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# 
-# #summarize within heating types
-# item45.tmp2 <- summarise(group_by(item45.dat5, BuildingType, Heating_Type)
-#                          ,SampleSize   = length(unique(CK_Cadmus_ID)) 
-#                          ,Count = sum(count)) 
-# 
-# #join across and within heating type summaries
-# item45.merge <- rbind.data.frame(item45.tmp2, item45.tmp1, stringsAsFactors = F)
-# 
-# item45.final <- left_join(item45.merge, item45.tmp1, by = "BuildingType")
-# colnames(item45.final) <- c("BuildingType"
-#                             ,"Heating.Type"
-#                             ,"SampleSize"
-#                             ,"Count"
-#                             ,"Remove"
-#                             ,"Remove"
-#                             ,"Total.Count")
-# 
-# item45.final$Percent <- item45.final$Count / item45.final$Total.Count
-# item45.final$SE <- sqrt(item45.final$Percent * (1 - item45.final$Percent) / item45.final$SampleSize)
-# 
-# 
-# item45.table <- data.frame("BuildingType" = item45.final$BuildingType
-#                            ,"Heating.Type" = item45.final$Heating.Type
-#                            ,"Percent" = item45.final$Percent
-#                            ,"SE" = item45.final$SE
-#                            ,"SampleSize" = item45.final$SampleSize)
-# item45.table1 <- item45.table[which(item45.table$BuildingType %in% c("Single Family", "Manufactured")),]
-# 
-# 
-# 
-# 
 
 
 
@@ -377,105 +384,124 @@ item46.dat3 <- unique(data.frame("CK_Cadmus_ID" = item46.dat2$CK_Cadmus_ID
                                  ,"Heating_Fuel" = item46.dat2$Heating.Fuel
                                  ,"Primary_Secondary" = item46.dat2$Heating.System.Ind))
 
+### Clean heating type
+unique(item46.dat3$Heating_Type)
+item46.dat3$Heating_Type[grep("geo|Geo|GEO", item46.dat3$Heating_Type)] <- "Geothermal Heat Pump"
+
+
 item46.dat4 <- left_join(rbsa.dat, item46.dat3, by = "CK_Cadmus_ID")
 
 item46.dat5 <- item46.dat4[which(item46.dat4$Primary_Secondary == "Secondary Heating System"),]
 length(unique(item46.dat5$CK_Cadmus_ID)) #311
 item46.dat5$count <- 1
 
+# Remove entries with missing fuel types
+item46.dat6 <- item46.dat5 %>%
+  filter(!is.na(Heating_Fuel))
+item46.dat7 <- item46.dat6 %>%
+  filter(Heating_Fuel != "Unknown")
 
-item46.data <- weightedData(item46.dat5[-which(colnames(item46.dat5) %in% c("Heating_Type"
+
+item46.data <- weightedData(item46.dat7[-which(colnames(item46.dat7) %in% c("Heating_Type"
                                                                             ,"Heating_Fuel"
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
 
-item46.data <- left_join(item46.data, item46.dat5[which(colnames(item46.dat5) %in% c("CK_Cadmus_ID"
+item46.data <- left_join(item46.data, item46.dat7[which(colnames(item46.dat7) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Heating_Fuel"
                                                                                      ,"Primary_Secondary"
                                                                                      ,"count"))])
 
+################################
+# Unweighted Analysis
+################################
 item46.final <- proportionRowsAndColumns1(CustomerLevelData = item46.data
                                           , valueVariable       = 'count'
                                           , columnVariable      = 'State'
                                           , rowVariable         = 'Heating_Fuel'
-                                          , aggregateColumnName = 'Fuel Choice (Primary System)'
-                                          , totalRow            = TRUE
-                                          , weighted            = TRUE)
+                                          , aggregateColumnName = 'Region')
 
-# I think this still has to be casted, skip for now
-# export table
-# SF = Table 51, MH = Table 33
-item46.final.SF <- item46.final[which(item46.final$BuildingType == "Single Family"),-1]
-item46.final.MH <- item46.final[which(item46.final$BuildingType == "Manufactured"),-1]
+item46.cast <- dcast(setDT(item46.final)
+                     , formula = BuildingType + Heating_Fuel ~ State
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-exportTable(item46.final.SF, "SF", "Table 51")
-exportTable(item46.final.MH, "MH", "Table 33")
+item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
+                           ,"Heating.Fuel"   = item46.cast$Heating_Fuel
+                           ,"Percent_ID"     = item46.cast$w.percent_ID
+                           ,"SE_ID"          = item46.cast$w.SE_ID
+                           ,"Count_ID"       = item46.cast$count_ID
+                           ,"Percent_MT"     = item46.cast$w.percent_MT
+                           ,"SE_MT"          = item46.cast$w.SE_MT
+                           ,"Count_MT"       = item46.cast$count_MT
+                           ,"Percent_OR"     = item46.cast$w.percent_OR
+                           ,"SE_OR"          = item46.cast$w.SE_OR
+                           ,"Count_OR"       = item46.cast$count_OR
+                           ,"Percent_WA"     = item46.cast$w.percent_WA
+                           ,"SE_WA"          = item46.cast$w.SE_WA
+                           ,"Count_WA"       = item46.cast$count_WA
+                           ,"Percent_Region" = item46.cast$w.percent_Region
+                           ,"SE_Region"      = item46.cast$w.SE_Region
+                           ,"Count_Region"   = item46.cast$count_Region
+                           # ,"SampleSize"     = item46.cast$SampleSize_Region
+)
 
-# OLD CODE #
-# 
-# 
-# #summarize across fuel types to get totals by building type and state
-# item46.tmp1 <- summarise(group_by(item46.dat5, BuildingType, State)
-#                          ,Heating_Fuel = "All Fuel Types"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# 
-# #summarize within fuel types by building type and state
-# item46.tmp2 <- summarise(group_by(item46.dat5, BuildingType, State, Heating_Fuel)
-#                          ,SampleSize   = length(unique(CK_Cadmus_ID)) 
-#                          ,Count = sum(count))
-# #row bind
-# item46.merge1 <- rbind.data.frame(item46.tmp2, item46.tmp1, stringsAsFactors = F)
-# 
-# 
-# #summarize across fuel types to get totals by building type across states
-# item46.tmp3 <- summarise(group_by(item46.dat5, BuildingType)
-#                          ,Heating_Fuel = "All Fuel Types"
-#                          ,State = "Region"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# 
-# #summarize within fuel types by building type across states
-# item46.tmp4 <- summarise(group_by(item46.dat5, BuildingType, Heating_Fuel)
-#                          ,State = "Region"
-#                          ,SampleSize   = length(unique(CK_Cadmus_ID))
-#                          ,Count = sum(count)) 
-# # row bind
-# item46.merge2 <- rbind.data.frame(item46.tmp4, item46.tmp3, stringsAsFactors = F)
-# 
-# #combine state and region information
-# item46.merge3 <- rbind.data.frame(item46.merge1, item46.merge2, stringsAsFactors = F)
-# 
-# 
-# itemm46.total.counts <- rbind.data.frame(item46.tmp1, item46.tmp3, stringsAsFactors = F)
-# itemm46.total.counts <- itemm46.total.counts[which(colnames(itemm46.total.counts) %in% c("BuildingType", "State","Count"))]
-# 
-# item46.final <- left_join(item46.merge3, itemm46.total.counts, by = c("BuildingType", "State"))
-# colnames(item46.final) <- c("BuildingType", "State", "Heating_Fuel", "SampleSize", "Count", "Total.Count")
-# 
-# item46.final$Percent <- item46.final$Count / item46.final$Total.Count
-# item46.final$SE <- sqrt(item46.final$Percent * (1 - item46.final$Percent) / item46.final$SampleSize)
-# 
-# 
-# ###########Make into table
-# detach(package:reshape2)
-# library(data.table)
-# item46.cast <- dcast(setDT(item46.final)
-#                      , formula = BuildingType + Heating_Fuel ~ State
-#                      , value.var = c("Percent", "SE", "SampleSize"))
-# 
-# item46.table <- data.frame("BuildingType" = item46.cast$BuildingType
-#                            ,"Heating.Fuel" = item46.cast$Heating_Fuel
-#                            ,"Percent_MT" = item46.cast$Percent_MT
-#                            ,"SE_MT" = item46.cast$SE_MT
-#                            ,"Percent_WA" = item46.cast$Percent_WA
-#                            ,"SE_WA" = item46.cast$SE_WA
-#                            ,"Percent_Region" = item46.cast$Percent_Region
-#                            ,"SE_Region" = item46.cast$SE_Region
-#                            ,"SampleSize" = item46.cast$SampleSize_Region)
-# 
-# 
-# item46.table1 <- item46.table[which(item46.table$BuildingType %in% c("Single Family")),]
-# 
-# item46.table2 <- item46.table1[which(!(is.na(item46.table1$Heating.Fuel))),]
+
+item46.final.SF <- item46.table[which(item46.table$BuildingType == "Single Family")
+                                ,-which(colnames(item46.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item46.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item46.final.SF, "SF", "Table 53", weighted = TRUE)
+exportTable(item46.final.MH, "MH", "Table 35", weighted = TRUE)
+
+
+################################
+# Unweighted Analysis
+################################
+item46.final <- proportions_two_groups_unweighted(CustomerLevelData = item46.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'State'
+                                          , rowVariable         = 'Heating_Fuel'
+                                          , aggregateColumnName = 'Region')
+
+item46.cast <- dcast(setDT(item46.final)
+                     , formula = BuildingType + Heating_Fuel ~ State
+                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
+                           ,"Heating.Fuel"   = item46.cast$Heating_Fuel
+                           ,"Percent_ID"     = item46.cast$Percent_ID
+                           ,"SE_ID"          = item46.cast$SE_ID
+                           ,"Count_ID"       = item46.cast$Count_ID
+                           ,"Percent_MT"     = item46.cast$Percent_MT
+                           ,"SE_MT"          = item46.cast$SE_MT
+                           ,"Count_MT"       = item46.cast$Count_MT
+                           ,"Percent_OR"     = item46.cast$Percent_OR
+                           ,"SE_OR"          = item46.cast$SE_OR
+                           ,"Count_OR"       = item46.cast$Count_OR
+                           ,"Percent_WA"     = item46.cast$Percent_WA
+                           ,"SE_WA"          = item46.cast$SE_WA
+                           ,"Count_WA"       = item46.cast$Count_WA
+                           ,"Percent_Region" = item46.cast$Percent_Region
+                           ,"SE_Region"      = item46.cast$SE_Region
+                           ,"Count_Region"   = item46.cast$Count_Region
+                           # ,"SampleSize"     = item46.cast$SampleSize_Region
+)
+
+
+item46.final.SF <- item46.table[which(item46.table$BuildingType == "Single Family")
+                                ,-which(colnames(item46.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item46.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item46.final.SF, "SF", "Table 53", weighted = FALSE)
+exportTable(item46.final.MH, "MH", "Table 35", weighted = FALSE)

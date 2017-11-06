@@ -354,6 +354,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 } 
 
 
+# Test
+# CustomerLevelData = item52.data
+# valueVariable = 'HSPF' 
+# byVariable    = 'EquipVintage_bins'
+# aggregateRow  = "All Vintages"
 
 mean_one_group_unweighted <- function(CustomerLevelData, valueVariable, 
                            byVariable, aggregateRow) {
@@ -544,7 +549,6 @@ mean_two_groups <- function(CustomerLevelData
                                byVariableRow)
   return(CastedData)
 }
-
 
 
 
