@@ -803,13 +803,23 @@ proportions_one_group <- function(CustomerLevelData
     StrataGroupedProportions <- ConvertColName(StrataGroupedProportions
                                                ,"get(groupingVariable)"
                                                ,groupingVariable)
-    StrataProportion <- summarise(group_by(StrataGroupedProportions
-                                           , BuildingType
-                                           , State
-                                           , Region
-                                           , Territory)
-                                  ,total.count = sum(count))
-    StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
+    if(valueVariable == "StorageBulbs"){
+      StrataProportion <- summarise(group_by(CustomerLevelData
+                                             , BuildingType
+                                             , State
+                                             , Region
+                                             , Territory)
+                                    ,total.count = sum(TotalBulbs))
+      StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
+    }else{
+      StrataProportion <- summarise(group_by(StrataGroupedProportions
+                                             , BuildingType
+                                             , State
+                                             , Region
+                                             , Territory)
+                                    ,total.count = sum(count))
+      StrataProportion <- data.frame(StrataProportion, stringsAsFactors = F)
+    }
     
     StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
