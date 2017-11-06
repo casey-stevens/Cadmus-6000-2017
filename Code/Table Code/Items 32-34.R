@@ -89,73 +89,41 @@ item32.data <- left_join(item32.data, item32.dat2[which(colnames(item32.dat2) %i
                                                                                       ,"count"))])
 
 item32.data$Quantity <- as.numeric(as.character(item32.data$Quantity))
+
+
+
+#################################
+# Weighted Analysis
+#################################
 item32.final <- proportions_one_group(CustomerLevelData    = item32.data
                                         , valueVariable    = 'Quantity'
                                         , groupingVariable = 'Framing.Categories'
                                         , total.name       = "Total"
-                                        , columnName       = "Door.Type")
+                                        , columnName       = "Door.Type"
+                                      , weighted = TRUE)
 
 item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family"),-1]
 
-exportTable(item32.final.SF, "SF", "Table 39")
+exportTable(item32.final.SF, "SF", "Table 39", weighted = TRUE)
 
 
 
+#################################
+# Unweighted Analysis
+#################################
+item32.final <- proportions_one_group(CustomerLevelData    = item32.data
+                                      , valueVariable    = 'Quantity'
+                                      , groupingVariable = 'Framing.Categories'
+                                      , total.name       = "Total"
+                                      , columnName       = "Door.Type"
+                                      , weighted = FALSE)
 
+item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family")
+                                ,-which(colnames(item32.final) %in% c("Total.Count"
+                                                                         ,"Door.Type"
+                                                                         ,"BuildingType"))]
 
-
-
-# #Total count across door types
-# item32.tmp1 <- summarise(group_by(item32.dat2, BuildingType)
-#                           , Framing.Categories = "Total"
-#                           , SampleSize = length(unique(CK_Cadmus_ID))
-#                           , Count = sum(count))
-# #door count by framing type categories
-# item32.tmp2 <- summarise(group_by(item32.dat2, BuildingType, Framing.Categories)
-#                          , SampleSize = length(unique(CK_Cadmus_ID))
-#                          , Count = sum(count))
-# item32.tmp3 <- summarise(group_by(item32.dat2, BuildingType)
-#                          , TotalCount = sum(count))
-# 
-# item32.merge <- rbind.data.frame(item32.tmp1, item32.tmp2, stringsAsFactors = F)
-# item32.final <- left_join(item32.merge, item32.tmp3, by = "BuildingType")
-# 
-# #percent
-# item32.final$Percent <- item32.final$Count / item32.final$TotalCount
-# item32.final$SE      <- sqrt(item32.final$Percent * (1 - item32.final$Percent) / item32.final$SampleSize)
-# 
-# item32.table <- data.frame("BuildingType" = item32.final$BuildingType
-#                            ,"Framing.Categories" = item32.final$Framing.Categories
-#                            ,"Percent" = item32.final$Percent
-#                            ,"SE" = item32.final$SE
-#                            ,"SampleSize" = item32.final$SampleSize)
-# 
-# ###Subset to only single family
-# item32.final.SF <- item32.table[which(item32.table$BuildingType == 'Single Family'),
-#                                 -which(colnames(item32.table) == 'BuildingType')]
-# 
-# ###Package xlsx working only now for some reason here is a template
-# workbook.SF <- xlsx::loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep = "/"))
-# tableSheets <- xlsx::getSheets(workbook.SF)
-# tableSheet  <- tableSheets$`Table 39`
-# addDataFrame(x = item32.final.SF,
-#              sheet = tableSheet,
-#              startRow = 20)
-# 
-# xlsx::saveWorkbook(wb = workbook.SF,
-#                    file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", 
-#                                 sep = "/"))
-# 
-# ##################################### Table Format #####################################
-# 
-# item32.table <- data.frame("BuildingType" = item32.final.SF$BuildingType
-#                            ,"Framing.Categories" = item32.final.SF$Framing.Categories
-#                            ,"Percent" = item32.final.SF$Percent
-#                            ,"SE" = item32.final.SF$SE
-#                            ,"SampleSize" = item32.final.SF$SampleSize)
-
-
-
+exportTable(item32.final.SF, "SF", "Table 39", weighted = FALSE)
 
 
 
@@ -181,10 +149,13 @@ item33.dat2 <- item33.dat1[which(item33.dat1$Type == "Window"),]
 #clean up frame/body type
 unique(item33.dat2$`Frame./.Body.Type`)
 item33.dat2$Frame.Type <- trimws(item33.dat2$`Frame./.Body.Type`)
-item33.dat2$Frame.Type[grep("Wood|Vinyl|Fiberglass", item33.dat2$Frame.Type)] <- "Wood/Vinyl/Fiberglass"
-item33.dat2$Frame.Type[grep("Metal|Aluminum", item33.dat2$Frame.Type)] <- "Metal"
+item33.dat2$Frame.Type[grep("Wood|Vinyl|Fiberglass|wood|vinyl|fiberglass|tile|Garage", item33.dat2$Frame.Type)] <- "Wood/Vinyl/Fiberglass/Tile"
+item33.dat2$Frame.Type[grep("Metal|Aluminum|metal|aluminum", item33.dat2$Frame.Type)] <- "Metal"
 item33.dat2$Frame.Type[grep("N/A", item33.dat2$Frame.Type)] <- "Unknown"
+item33.dat2$Frame.Type[which(is.na(item33.dat2$Frame.Type))] <- "Unknown"
 unique(item33.dat2$Frame.Type)
+
+item33.dat2 <- item33.dat2[which(item33.dat2$Frame.Type != "Unknown"),]
 
 #clean up glazing types
 item33.dat2$Glazing <- trimws(item33.dat2$Glazing.Type)
@@ -194,13 +165,16 @@ item33.dat2$Glazing[grep("Triple", item33.dat2$Glazing)] <- "Triple Glazed"
 item33.dat2$Glazing[which(!(item33.dat2$Glazing %in% c("Single Glazed", "Double Glazed", "Triple Glazed")))] <- "Unknown"
 unique(item33.dat2$Glazing)
 
+item33.dat2 <- item33.dat2[which(item33.dat2$Glazing != "Unknown"),]
+
 item33.dat2$Framing.Categories <- paste(item33.dat2$Frame.Type, item33.dat2$Glazing, sep = " ")
 
 item33.dat2$count <- 1
+item33.dat3 <- item33.dat2[which(!is.na(as.numeric(as.character(item33.dat2$Quantity)))),]
 
 
 #insert weights
-item33.data <- weightedData(item33.dat2[-which(colnames(item33.dat2) %in% c("Type"
+item33.data <- weightedData(item33.dat3[-which(colnames(item33.dat3) %in% c("Type"
                                                                             ,"Sub-Type"
                                                                             ,"Area"
                                                                             ,"Quantity"
@@ -210,7 +184,7 @@ item33.data <- weightedData(item33.dat2[-which(colnames(item33.dat2) %in% c("Typ
                                                                             ,"Glazing"
                                                                             ,"Framing.Categories"
                                                                             ,"count"))])
-item33.data <- left_join(item33.data, item33.dat2[which(colnames(item33.dat2) %in% c("CK_Cadmus_ID"
+item33.data <- left_join(item33.data, item33.dat3[which(colnames(item33.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"Type"
                                                                                      ,"Sub-Type"
                                                                                      ,"Area"
@@ -221,88 +195,108 @@ item33.data <- left_join(item33.data, item33.dat2[which(colnames(item33.dat2) %i
                                                                                      ,"Glazing"
                                                                                      ,"Framing.Categories"
                                                                                      ,"count"))])
-#weighting application
 
 item33.data$Quantity <- as.numeric(as.character(item33.data$Quantity))
+
+#################################
+# Weighted Analysis
+#################################
 item33.final <- proportionRowsAndColumns1(CustomerLevelData     = item33.data
                                           , valueVariable       = 'Quantity'
                                           , columnVariable      = 'State'
-                                          , rowVariable         = 'Frame.Type'
-                                          , aggregateColumnName = 'Windows'
-                                          , totalRow            = TRUE
-                                          , weighted            = TRUE)
+                                          , rowVariable         = 'Framing.Categories'
+                                          , aggregateColumnName = 'Region')
+item33.final <- item33.final[which(item33.final$Framing.Categories != "Total"),]
 
-item33.final.SF <- item33.final[which(item33.final$BuildingType == "Single Family"),-1]
+item33.data$State.x <- item33.data$State
+item33.all.framing.categories <- proportions_one_group(CustomerLevelData = item33.data
+                                                       ,valueVariable    = 'Quantity'
+                                                       ,groupingVariable = 'State.x'
+                                                       ,total.name       = "All Framing Categories"
+                                                       ,columnName       = "Framing.Categories"
+                                                       ,weighted         = TRUE)
+colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.categories) == "State.x")] <- "State"
 
-#export table
+item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
 
-exportTable(item33.final.SF, "SF", "Table 40")
+item33.cast <- dcast(setDT(item33.final)
+                      , formula = BuildingType + Framing.Categories ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n"))
+
+item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
+                            ,"Framing.Categories" = item33.cast$Framing.Categories
+                            ,"Percent_ID"         = item33.cast$w.percent_ID
+                            ,"SE_ID"              = item33.cast$w.SE_ID
+                            ,"Count_ID"           = item33.cast$count_ID
+                            ,"Percent_MT"         = item33.cast$w.percent_MT
+                            ,"SE_MT"              = item33.cast$w.SE_MT
+                            ,"Count_MT"           = item33.cast$count_MT
+                            ,"Percent_OR"         = item33.cast$w.percent_OR
+                            ,"SE_OR"              = item33.cast$w.SE_OR
+                            ,"Count_OR"           = item33.cast$count_OR
+                            ,"Percent_WA"         = item33.cast$w.percent_WA
+                            ,"SE_WA"              = item33.cast$w.SE_WA
+                            ,"Count_WA"           = item33.cast$count_WA
+                            ,"Percent_Region"     = item33.cast$w.percent_Region
+                            ,"SE_Region"          = item33.cast$w.SE_Region
+                            ,"Count_Region"       = item33.cast$count_Region
+                            # ,"SampleSize"         = item33.cast$SampleSize_Region
+                            )
+
+item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family"),-which(colnames(item33.table) %in% c("BuildingType"))]
+
+exportTable(item33.final.SF, "SF", "Table 40", weighted = TRUE)
 
 
+#################################
+# Unweighted Analysis
+#################################
+item33.final <- proportions_two_groups_unweighted(CustomerLevelData     = item33.data
+                                          , valueVariable       = 'Quantity'
+                                          , columnVariable      = 'State'
+                                          , rowVariable         = 'Framing.Categories'
+                                          , aggregateColumnName = 'Region')
+item33.final <- item33.final[which(item33.final$Framing.Categories != "Total"),]
 
+item33.data$State.x <- item33.data$State
+item33.all.framing.categories <- proportions_one_group(CustomerLevelData = item33.data
+                                                       ,valueVariable    = 'Quantity'
+                                                       ,groupingVariable = 'State.x'
+                                                       ,total.name       = "All Framing Categories"
+                                                       ,columnName       = "Framing.Categories"
+                                                       ,weighted         = FALSE)
+colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.categories) == "State.x")] <- "State"
 
+item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
+item33.cast <- dcast(setDT(item33.final)
+                     , formula = BuildingType + Framing.Categories ~ State
+                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
 
+item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
+                           ,"Framing.Categories" = item33.cast$Framing.Categories
+                           ,"Percent_ID"         = item33.cast$Percent_ID
+                           ,"SE_ID"              = item33.cast$SE_ID
+                           ,"Count_ID"           = item33.cast$Count_ID
+                           ,"Percent_MT"         = item33.cast$Percent_MT
+                           ,"SE_MT"              = item33.cast$SE_MT
+                           ,"Count_MT"           = item33.cast$Count_MT
+                           ,"Percent_OR"         = item33.cast$Percent_OR
+                           ,"SE_OR"              = item33.cast$SE_OR
+                           ,"Count_OR"           = item33.cast$Count_OR
+                           ,"Percent_WA"         = item33.cast$Percent_WA
+                           ,"SE_WA"              = item33.cast$SE_WA
+                           ,"Count_WA"           = item33.cast$Count_WA
+                           ,"Percent_Region"     = item33.cast$Percent_Region
+                           ,"SE_Region"          = item33.cast$SE_Region
+                           ,"Count_Region"       = item33.cast$Count_Region
+                           # ,"SampleSize"         = item33.cast$SampleSize_Region
+)
 
+item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family")
+                                ,-which(colnames(item33.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"))]
 
-
-# #####################################Analysis - needs cleaning & work ###################################33
-# # summarise by state and framing categories
-# item33.tmp1 <- summarise(group_by(item33.dat2, BuildingType, State, Framing.Categories)
-#                          , SampleSize = length(unique(CK_Cadmus_ID))
-#                          , Count = sum(count))
-# # summarise by state across framing categories
-# item33.tmp2 <- summarise(group_by(item33.dat2, BuildingType, State)
-#                          , Framing.Categories = "All Window Types"
-#                          , SampleSize = length(unique(CK_Cadmus_ID))
-#                          , Count = sum(count))
-# #summarise by framing categories across states
-# item33.tmp3 <- summarise(group_by(item33.dat2, BuildingType, Framing.Categories)
-#                          , State = "Region"
-#                          , SampleSize = length(unique(CK_Cadmus_ID))
-#                          , Count = sum(count))
-# item33.tmp4 <- summarise(group_by(item33.dat2, BuildingType)
-#                          , State = "Region"
-#                          , Framing.Categories = "All Window Types"
-#                          , SampleSize = length(unique(CK_Cadmus_ID))
-#                          , Count = sum(count))
-# 
-# item33.merge1 <- rbind.data.frame(item33.tmp1, item33.tmp2, item33.tmp3, item33.tmp4, stringsAsFactors = F)
-# 
-# #obtain total counts
-# item33.tot.counts <- rbind.data.frame(item33.tmp2, item33.tmp4, stringsAsFactors = F)
-#   
-# item33.final <- left_join(item33.merge1, item33.tot.counts, by = c("BuildingType","State"))
-# colnames(item33.final) <- c("BuildingType"
-#                              ,"State"
-#                              ,"Framing.Categories"
-#                              ,"SampleSize"
-#                              ,"Count"
-#                              ,"Remove"
-#                              ,"Remove"
-#                              ,"TotalCount")
-# 
-# item33.final$Percent <- item33.final$Count / item33.final$TotalCount
-# item33.final$SE      <- sqrt(item33.final$Percent * (1 - item33.final$Percent) / item33.final$SampleSize)
-# 
-# ##################################### Table Format ###################################33
-# detach(package:reshape2)
-# library(data.table)
-# item33.table <- dcast(setDT(item33.final)
-#                       , formula = BuildingType + Framing.Categories ~ State
-#                       , value.var = c("Percent", "SE", "SampleSize"))
-# 
-# item33.table2 <- data.frame("BuildingType"        = item33.table$BuildingType
-#                             ,"Framing.Categories" = item33.table$Framing.Categories
-#                             ,"Percent_MT"         = item33.table$Percent_MT
-#                             ,"SE_MT"              = item33.table$SE_MT
-#                             ,"Percent_WA"         = item33.table$Percent_WA
-#                             ,"SE_WA"              = item33.table$SE_WA
-#                             ,"Percent_Region"     = item33.table$Percent_Region
-#                             ,"SE_Region"          = item33.table$SE_Region
-#                             ,"SampleSize"         = item33.table$SampleSize_Region)
-# 
-# item33.table3 <- item33.table2[which(item33.table2$BuildingType %in% c("Single Family")),]
-
+exportTable(item33.final.SF, "SF", "Table 40", weighted = FALSE)
 
 
 
@@ -322,67 +316,60 @@ item34.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cad
 item34.dat1 <- left_join(rbsa.dat, item34.dat, by = "CK_Cadmus_ID")
 length(unique(item34.dat1$CK_Cadmus_ID))
 
-#subset to only SF
-item34.dat.SF <- item34.dat1[which(item34.dat1$BuildingType == "Single Family"),]
+item34.dat1$Indicator <- 0
+item34.dat1$Indicator[which(item34.dat1$Type == 'Storm Window')] <- 1
 
-# #subset to only windows
-# unique(item34.dat.SF$Type)
-# item34.dat2 <- item34.dat.SF[which(item34.dat.SF$Type == "Storm Window"),]
+item34.summary <- summarise(group_by(item34.dat1, CK_Cadmus_ID)
+                            ,Ind = sum(unique(Indicator)))
 
-item34.dat2 <- item34.dat.SF
+item34.merge <- left_join(rbsa.dat, item34.summary)
+item34.merge <- item34.merge[which(!is.na(item34.merge$Ind)),]
 
 
 #insert weights
-item34.data <- weightedData(item34.dat2[-which(colnames(item34.dat2) %in% c("Type"
+item34.data <- weightedData(item34.merge[-which(colnames(item34.merge) %in% c("Type"
                                                                             ,"Sub-Type"
                                                                             ,"Area"
                                                                             ,"Quantity"
                                                                             ,"Frame./.Body.Type"
-                                                                            ,"Glazing.Type"))])
-item34.data <- left_join(item34.data, item34.dat2[which(colnames(item34.dat2) %in% c("CK_Cadmus_ID"
+                                                                            ,"Glazing.Type"
+                                                                            ,"Ind"))])
+item34.data <- left_join(item34.data, item34.merge[which(colnames(item34.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"Type"
                                                                                      ,"Sub-Type"
                                                                                      ,"Area"
                                                                                      ,"Quantity"
                                                                                      ,"Frame./.Body.Type"
-                                                                                     ,"Glazing.Type"))])
-#weighting application
-# Indicator variable for storm windows
-item34.data$Type.Indicator <- 0
-item34.data$Type.Indicator[which(item34.data$Type == 'Storm Window')] <- 1
+                                                                                     ,"Glazing.Type"
+                                                                                     ,"Ind"))])
+
+###############################
+# Weighted Analysis
+###############################
 item34.final <- proportions_one_group(CustomerLevelData  = item34.data
-                                      , valueVariable    = 'Type.Indicator'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
-                                      , total.name       = "Total"
-                                      , columnName       = "Windows")
+                                      , total.name       = "Region"
+                                      , columnName       = "Remove"
+                                      , weighted = TRUE)
 
 item34.final.SF <- item34.final[which(item34.final$BuildingType == "Single Family"),-1]
 
-#export table
+exportTable(item34.final.SF, "SF", "Table 41", weighted = TRUE)
 
-exportTable(item34.final.SF, "SF", "Table 41")
+###############################
+# Weighted Analysis
+###############################
+item34.final <- proportions_one_group(CustomerLevelData  = item34.data
+                                      , valueVariable    = 'Ind'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Region"
+                                      , columnName       = "Remove"
+                                      , weighted = FALSE)
 
+item34.final.SF <- item34.final[which(item34.final$BuildingType == "Single Family")
+                                ,-which(colnames(item34.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
 
-# OLD CODE #
-# 
-# #obtain total sample size counts
-# item34.tmp1 <- summarise(group_by(item34.dat.SF, BuildingType, State)
-#                          ,TotalCount = length(unique(CK_Cadmus_ID))
-#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# #obtain counts of site with storms windows
-# item34.tmp2 <- summarise(group_by(item34.dat2, BuildingType, State)
-#                          ,StormWindCount = length(unique(CK_Cadmus_ID)))
-# 
-# #merge
-# item34.final <- left_join(item34.tmp2, item34.tmp1, by = c("BuildingType", "State"))
-# item34.final$Percent <- item34.final$StormWindCount / item34.final$TotalCount
-# item34.final$SE      <- sqrt(item34.final$Percent * (1 - item34.final$Percent) / item34.final$SampleSize)
-# 
-# 
-# ##################################### Table Format #####################################
-# 
-# item34.table <- data.frame("BuildingType" = item34.final$BuildingType
-#                            ,"State" = item34.final$State
-#                            ,"Percent" = item34.final$Percent
-#                            ,"SE" = item34.final$SE
-#                            ,"SampleSize" = item34.final$SampleSize)
+exportTable(item34.final.SF, "SF", "Table 41", weighted = FALSE)
