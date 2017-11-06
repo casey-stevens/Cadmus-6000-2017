@@ -677,12 +677,12 @@ mean_two_groups_unweighted <- function(CustomerLevelData
 
 
 # Test
-# CustomerLevelData  = item25.data
-# valueVariable    = 'Ceiling.Ind'
+# CustomerLevelData = item33.data
+# valueVariable    = 'Quantity'
 # groupingVariable = 'State'
 # total.name       = "Region"
-# columnName       = "Homes with Attics"
-# weighted = TRUE
+# columnName       = "Framing.Categories"
+# weighted         = TRUE
 
 proportions_one_group <- function(CustomerLevelData
                                       , valueVariable
