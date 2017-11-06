@@ -55,76 +55,65 @@ item59.dat1 <- unique(item59.dat0[which(item59.dat0$Generic == "Ducting"),])
 length(unique(item59.dat1$CK_Cadmus_ID))
 
 # Add count var
-item59.dat1$count <- 1
+item59.dat1$Ind <- 1
+
+item59.dat2 <- left_join(rbsa.dat, item59.dat1)
+item59.dat2$Ind[which(is.na(item59.dat2$Ind))] <- 0
+which(duplicated(item59.dat2$CK_Cadmus_ID))
+
+item59.customer <- summarise(group_by(item59.dat2, CK_Cadmus_ID)
+                             ,Ind = sum(unique(Ind)))
+
+item59.merge <- left_join(rbsa.dat, item59.customer)
 
 
 # Weighting function
-item59.data <- weightedData(item59.dat1[-which(colnames(item59.dat1) %in% c("Generic"
+item59.data <- weightedData(item59.merge[-which(colnames(item59.merge) %in% c("Generic"
                                                                             ,"System.Type"
-                                                                            ,"count"))])
-item59.data <- left_join(item59.data, item59.dat1[which(colnames(item59.dat1) %in% c("CK_Cadmus_ID"
+                                                                            ,"count"
+                                                                            ,"Ind"))])
+item59.data <- left_join(item59.data, item59.merge[which(colnames(item59.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Type"
-                                                                                     ,"count"))])
+                                                                                     ,"Ind"))])
 
-# Apply analysis
+#############################
+# Weighted Analysis
+#############################
 item59.final <- proportions_one_group(CustomerLevelData  = item59.data
-                                      , valueVariable    = 'count'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Homes with Ducts")
+                                      , columnName       = "Homes with Ducts"
+                                      , weighted = TRUE)
 
 # SF = Table 66
 # Export table
 item59.final.SF <- item59.final[which(item59.final$BuildingType == "Single Family"),-1]
 
-exportTable(item59.final.SF, "SF", "Table 66")
+exportTable(item59.final.SF, "SF", "Table 66", weighted = TRUE)
 
 
-# OLD CODE #
-# 
-# #summarise FULL data by state
-# item59.sum1 <- summarise(group_by(item59.dat0, BuildingType, State)
-#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# #summarise only ducting data by state
-# item59.sum2 <- summarise(group_by(item59.dat1, BuildingType, State)
-#                          ,DuctCount = length(unique(CK_Cadmus_ID)))
-# 
-# #summarise FULL data for the region
-# item59.sum3 <- summarise(group_by(item59.dat0, BuildingType)
-#                          ,State = "Region"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# #summarise only ducting for the region
-# item59.sum4 <- summarise(group_by(item59.dat1, BuildingType)
-#                          ,State = "Region"
-#                          ,DuctCount = length(unique(CK_Cadmus_ID)))
-# 
-# #row bind DUCT data counts
-# item59.duct <- rbind.data.frame(item59.sum2, item59.sum4, stringsAsFactors = F)
-# #row bind FULL data counts
-# item59.full <- rbind.data.frame(item59.sum1, item59.sum3, stringsAsFactors = F)
-# 
-# 
-# #merge duct and full info
-# item59.final <- left_join(item59.duct, item59.full, by = c("BuildingType","State"))
-# 
-# 
-# #calculate Ducting percent
-# item59.final$Percent <- item59.final$DuctCount / item59.final$SampleSize
-# #calculate SE for proportion (percent)
-# item59.final$SE <- sqrt(item59.final$Percent * (1 - item59.final$Percent) / item59.final$SampleSize)
-# 
-# #subset to only columns needed for table
-# item59.table <- data.frame("BuildingType" = item59.final$BuildingType
-#                            ,"State" = item59.final$State
-#                            ,"Percent" = item59.final$Percent
-#                            ,"SE" = item59.final$SE
-#                            ,"SampleSize" = item59.final$SampleSize) 
-# #subset to only building types needed for table
-# item59.table.final <- item59.table[which(item59.table$BuildingType %in% c("Single Family")),]
-# 
-# 
-# 
+
+#############################
+# Unweighted Analysis
+#############################
+item59.final <- proportions_one_group(CustomerLevelData  = item59.data
+                                      , valueVariable    = 'Ind'
+                                      , groupingVariable = 'State'
+                                      , total.name       = "Region"
+                                      , columnName       = "Remove"
+                                      , weighted = FALSE)
+
+# SF = Table 66
+# Export table
+item59.final.SF <- item59.final[which(item59.final$BuildingType == "Single Family")
+                                ,-which(colnames(item59.final) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item59.final.SF, "SF", "Table 66", weighted = FALSE)
+
 
 
 
@@ -158,83 +147,114 @@ item60.dat2$PercentDuctsUnconditionedSpace
 
 
 #create percent ducts unconditioned space bins
-item60.dat2$UnconditionedBins <- ""
+item60.dat2$UnconditionedBins <- "MISSING"
 item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace == 0)] <- "None"
 item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 1 & item60.dat2$PercentDuctsUnconditionedSpace < 51)] <- "1-50%"
 item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 51 & item60.dat2$PercentDuctsUnconditionedSpace < 100)] <- "51-99%"
-item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace == 100)] <- "100%"
+item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 100)] <- "100%"
 unique(item60.dat2$UnconditionedBins)
 item60.dat2$count <- 1
 
 item60.dat3 <- item60.dat2[which(item60.dat2$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-
-item60.dat4 <- item60.dat3[which(item60.dat3$BuildingType %in% c("Single Family")),]
-
+item60.dat4 <- item60.dat3[which(item60.dat3$UnconditionedBins != "MISSING"),]
 
 
+item60.data <- weightedData(item60.dat4[-which(colnames(item60.dat4) %in% c("Generic"
+                                                                            ,"System.Type"
+                                                                            ,"Percentage.of.Supply.Ducts.in.Conditioned.Space"
+                                                                            ,"PercentDuctsUnconditionedSpace"
+                                                                            ,"UnconditionedBins"
+                                                                            ,"count"))])
 
-
-
-
-
-# For State
-# Across Unconditioned Bins
-item60.state1 <- summarise(group_by(item60.dat4, BuildingType, State)
-                           ,UnconditionedBins = "Total"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(count)) 
-# By Unconditioned Bins
-item60.state2 <- summarise(group_by(item60.dat4, BuildingType, State, UnconditionedBins)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(count))
-item60.state <- rbind.data.frame(item60.state1, item60.state2, stringsAsFactors = F)
-
-# For Region
-# Across Unconditioned Bins
-item60.region1 <- summarise(group_by(item60.dat4, BuildingType)
-                           ,UnconditionedBins = "Total"
-                           ,State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(count)) 
-# By Unconditioned Bins
-item60.region2 <- summarise(group_by(item60.dat4, BuildingType, UnconditionedBins)
-                           ,State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(count))
-item60.region <- rbind.data.frame(item60.region1, item60.region2, stringsAsFactors = F)
-
-
-# merge state and region information
-item60.merge <- rbind.data.frame(item60.state, item60.region, stringsAsFactors = F)
-
-#merge total counts onto previous data
-item60.totalcount <- rbind.data.frame(item60.state1, item60.region1, stringsAsFactors = F)
-item60.final <- left_join(item60.merge, item60.totalcount, by = c("BuildingType", "State"))
-
-#rename columns to how they should appear in table
-colnames(item60.final) <- c("BuildingType"
-                            ,"State"
-                            ,"Percentage of Ducts in Unconditioned Space"
-                            ,"SampleSize"
-                            ,"Count"
-                            ,"Remove"
-                            ,"Remove"
-                            ,"TotalCount")
-#calculate percent
-item60.final$Percent <- item60.final$SampleSize / item60.final$TotalCount
-item60.final$SE <- sqrt(item60.final$Percent * (1 - item60.final$Percent) / item60.final$SampleSize)
+item60.data <- left_join(item60.data, item60.dat4[which(colnames(item60.dat4) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"System.Type"
+                                                                                     ,"Percentage.of.Supply.Ducts.in.Conditioned.Space"
+                                                                                     ,"PercentDuctsUnconditionedSpace"
+                                                                                     ,"UnconditionedBins"
+                                                                                     ,"count"))])
+################################
+# Weighted Analysis
+################################
+item60.final <- proportionRowsAndColumns1(CustomerLevelData = item60.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'State'
+                                          , rowVariable         = 'UnconditionedBins'
+                                          , aggregateColumnName = 'Region')
 
 item60.cast <- dcast(setDT(item60.final)
-                      , formula = BuildingType + `Percentage of Ducts in Unconditioned Space` ~ State
-                      , value.var = c("Percent", "SE", "SampleSize"))
+                     , formula = BuildingType + UnconditionedBins ~ State
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-#Subset to only columns for table
-item60.table <- data.frame("BuildingType" = item60.cast$BuildingType
-                           ,"Percentage of Ducts in Unconditioned Space" = item60.cast$`Percentage of Ducts in Unconditioned Space`
-                           ,"Percent_MT" = item60.cast$Percent_MT
-                           ,"SE_MT" = item60.cast$SE_MT
-                           ,"Percent_WA" = item60.cast$Percent_WA
-                           ,"SE_WA" = item60.cast$SE_WA
+item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
+                           ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.cast$UnconditionedBins
+                           ,"Percent_ID"     = item60.cast$w.percent_ID
+                           ,"SE_ID"          = item60.cast$w.SE_ID
+                           ,"Count_ID"       = item60.cast$count_ID
+                           ,"Percent_MT"     = item60.cast$w.percent_MT
+                           ,"SE_MT"          = item60.cast$w.SE_MT
+                           ,"Count_MT"       = item60.cast$count_MT
+                           ,"Percent_OR"     = item60.cast$w.percent_OR
+                           ,"SE_OR"          = item60.cast$w.SE_OR
+                           ,"Count_OR"       = item60.cast$count_OR
+                           ,"Percent_WA"     = item60.cast$w.percent_WA
+                           ,"SE_WA"          = item60.cast$w.SE_WA
+                           ,"Count_WA"       = item60.cast$count_WA
+                           ,"Percent_Region" = item60.cast$w.percent_Region
+                           ,"SE_Region"      = item60.cast$w.SE_Region
+                           ,"Count_Region"   = item60.cast$count_Region
+                           # ,"SampleSize"     = item60.cast$SampleSize_Region
+)
+
+
+item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
+                                ,-which(colnames(item60.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item60.final.SF, "SF", "Table 67", weighted = TRUE)
+
+
+
+
+#############################
+# Unweighted Analysis
+#############################
+item60.final <- proportions_two_groups_unweighted(CustomerLevelData = item60.data
+                                                  , valueVariable       = 'count'
+                                                  , columnVariable      = 'State'
+                                                  , rowVariable         = 'UnconditionedBins'
+                                                  , aggregateColumnName = 'Region')
+
+item60.cast <- dcast(setDT(item60.final)
+                     , formula = BuildingType + UnconditionedBins ~ State
+                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
+                           ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.cast$UnconditionedBins
+                           ,"Percent_ID"     = item60.cast$Percent_ID
+                           ,"SE_ID"          = item60.cast$SE_ID
+                           ,"Count_ID"       = item60.cast$Count_ID
+                           ,"Percent_MT"     = item60.cast$Percent_MT
+                           ,"SE_MT"          = item60.cast$SE_MT
+                           ,"Count_MT"       = item60.cast$Count_MT
+                           ,"Percent_OR"     = item60.cast$Percent_OR
+                           ,"SE_OR"          = item60.cast$SE_OR
+                           ,"Count_OR"       = item60.cast$Count_OR
+                           ,"Percent_WA"     = item60.cast$Percent_WA
+                           ,"SE_WA"          = item60.cast$SE_WA
+                           ,"Count_WA"       = item60.cast$Count_WA
                            ,"Percent_Region" = item60.cast$Percent_Region
-                           ,"SE_Region" = item60.cast$SE_Region
-                           ,"SampleSize" = item60.cast$SampleSize_Region)
+                           ,"SE_Region"      = item60.cast$SE_Region
+                           ,"Count_Region"   = item60.cast$Count_Region
+                           # ,"SampleSize"     = item60.cast$SampleSize_Region
+)
+
+
+item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
+                                ,-which(colnames(item60.table) %in% c("BuildingType"
+                                                                      ,"Total.Count"
+                                                                      ,"Remove"))]
+
+exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)

@@ -281,10 +281,11 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
 
 
 # Test
-# CustomerLevelData = item9.data
-# valueVariable = 'Site_Area'
-# byVariable    = 'Clean.Type'
-# aggregateRow  = 'All Room Types'
+# CustomerLevelData = item58.data
+# valueVariable    = 'Ind'
+# byVariable       = 'State'
+# aggregateRow     = 'Region'
+
 
 mean_one_group <- function(CustomerLevelData, valueVariable, 
                                     byVariable, aggregateRow) {

@@ -81,12 +81,7 @@ item56.dat3 <- item56.dat2[which(!(is.na(item56.dat2$SEER))),]
 
 #Join cleaned item 56 mechanical information with cleaned RBSA site information
 item56.dat4 <- left_join(rbsa.dat, item56.dat3, by = "CK_Cadmus_ID")
-
-# Remove duplicates
 item56.dat5 <- item56.dat4[-which(is.na(item56.dat4$SEER)), ]
-
-# Not sure if needed
-#item56.dat5 <- item56.dat5[-which(is.na(item56.dat5$HomeYearBuilt)), ]
 
 
 # Weighting
@@ -103,49 +98,39 @@ item56.data <- left_join(item56.data, item56.dat5[which(colnames(item56.dat5) %i
                                                                                      ,"SEER"
                                                                                      ,"EquipVintage_bins"))])
 
-# Analysis application
+################################
+# Weighted Analysis
+################################
+item56.data$count <-1
 item56.final <- mean_one_group(CustomerLevelData = item56.data
                                ,valueVariable    = 'SEER'
                                ,byVariable       = 'EquipVintage_bins'
-                               ,aggregateRow     = 'All Vintages'
-                               ,weighted         = TRUE)
+                               ,aggregateRow     = 'All Vintages')
 
 # Export table
 # SF = Table 63
 item56.final.SF <- item56.final[which(item56.final$BuildingType == "Single Family"),-1]
+item56.final.MH <- item56.final[which(item56.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item56.final.SF, "SF", "Table 63")
+exportTable(item56.final.SF, "SF", "Table 63", weighted = TRUE)
+exportTable(item56.final.MH, "MH", "Table 43", weighted = TRUE)
 
+################################
+# Unweighted Analysis
+################################
+item56.final <- mean_one_group_unweighted(CustomerLevelData = item56.data
+                               ,valueVariable    = 'SEER'
+                               ,byVariable       = 'EquipVintage_bins'
+                               ,aggregateRow     = 'All Vintages')
 
-# OLD CODE #
-#
-# #Calculate  and region level SEER mean and SD by equip vintage bins:
-# #average SEER and standard deviation by building type, equipment vintage
-# item56.sum <- summarise(group_by(item56.dat4, BuildingType, EquipVintage_bins)
-#                         ,SampleSize = length(unique(CK_Cadmus_ID))
-#                         ,Mean = mean(SEER)
-#                         ,SE = sd(SEER) / sqrt(SampleSize))
-# 
-# #Calculate region level counts across equipment bins
-# #SEER means and SDs by building type for region and all vintages
-# item56.sum1 <- summarise(group_by(item56.dat4, BuildingType)
-#                          ,EquipVintage_bins = "All Vintages"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Mean = mean(SEER)
-#                          ,SE = sd(SEER) / sqrt(SampleSize))
-# 
-# #row bins SEER means and SDs by building types by and across equipment bins for  and region
-# item56.final <- rbind.data.frame(item56.sum, item56.sum1, stringsAsFactors = F) 
-# 
-# item56.table <- data.frame("BuildingType" = item56.final$BuildingType
-#                            ,"Equipment.Vintage" = item56.final$EquipVintage_bins
-#                            ,"Mean" = item56.final$Mean
-#                            ,"SE" = item56.final$SE
-#                            ,"SampleSize" = item56.final$SampleSize)
-# 
-# 
-# item56.table1 <- item56.table[which(item56.table$BuildingType %in% c("Single Family")),]
-# 
+# Export table
+# SF = Table 63
+item56.final.SF <- item56.final[which(item56.final$BuildingType == "Single Family"),-1]
+item56.final.MH <- item56.final[which(item56.final$BuildingType == "Manufactured"),-1]
+
+exportTable(item56.final.SF, "SF", "Table 63", weighted = FALSE)
+exportTable(item56.final.MH, "MH", "Table 43", weighted = FALSE)
+
 
 
 
@@ -193,13 +178,15 @@ item57.data <- left_join(item57.data, item57.dat5[which(colnames(item57.dat5) %i
                                                                                       ,"Component.1.Year.of.Manufacture"
                                                                                       ,"SEER"
                                                                                       ,"EquipVintage_bins"))])
+item57.data$count <- 1
 
-# Analysis application
+########################
+# Weighted Analysis
+########################
 item57.final <- mean_one_group(CustomerLevelData = item57.data
                                ,valueVariable    = 'SEER'
                                ,byVariable       = 'EquipVintage_bins'
-                               ,aggregateRow     = 'All Vintages'
-                               ,weighted         = TRUE)
+                               ,aggregateRow     = 'All Vintages')
 
 
 # Export table
@@ -207,41 +194,28 @@ item57.final <- mean_one_group(CustomerLevelData = item57.data
 item57.final.SF <- item57.final[which(item57.final$BuildingType == "Single Family"),-1]
 item57.final.MH <- item57.final[which(item57.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item57.final.SF, "SF", "Table 64")
-exportTable(item57.final.MH, "MH", "Table 44")
+exportTable(item57.final.SF, "SF", "Table 64",weighted = TRUE)
+exportTable(item57.final.MH, "MH", "Table 44",weighted = TRUE)
 
-# 
-# OLD CODE #
-# 
-# #Calculate  and region level SEER mean and SD by equip vintage bins:
-# #average SEER and standard deviation by building type, equipment vintage
-# item57.sum <- summarise(group_by(item57.dat4, BuildingType, EquipVintage_bins)
-#                         ,SampleSize = length(unique(CK_Cadmus_ID))
-#                         ,Mean = mean(SEER)
-#                         ,SE = sd(SEER) / sqrt(SampleSize))
-# 
-# #Calculate region level counts across equipment bins
-# #SEER means and SDs by building type for region and all vintages
-# item57.sum1 <- summarise(group_by(item57.dat4, BuildingType)
-#                          ,EquipVintage_bins = "All Vintages"
-#                          ,SampleSize = length(unique(CK_Cadmus_ID))
-#                          ,Mean = mean(SEER)
-#                          ,SE = sd(SEER) / sqrt(SampleSize))
-# 
-# #row bins SEER means and SDs by building types by and across equipment bins for  and region
-# item57.final <- rbind.data.frame(item57.sum, item57.sum1, stringsAsFactors = F) 
-# 
-# item57.table <- data.frame("BuildingType" = item57.final$BuildingType
-#                            ,"Equipment.Vintage" = item57.final$EquipVintage_bins
-#                            ,"Mean" = item57.final$Mean
-#                            ,"SE" = item57.final$SE
-#                            ,"SampleSize" = item57.final$SampleSize)
-# 
-# 
-# item57.table1 <- item57.table[which(item57.table$BuildingType %in% c("Single Family")),]
-# 
-# 
-# 
+
+########################
+# Unweighted Analysis
+########################
+item57.final <- mean_one_group_unweighted(CustomerLevelData = item57.data
+                               ,valueVariable    = 'SEER'
+                               ,byVariable       = 'EquipVintage_bins'
+                               ,aggregateRow     = 'All Vintages')
+
+
+# Export table
+# SF = Table 64, MH = Table 44
+item57.final.SF <- item57.final[which(item57.final$BuildingType == "Single Family"),-1]
+item57.final.MH <- item57.final[which(item57.final$BuildingType == "Manufactured"),-1]
+
+exportTable(item57.final.SF, "SF", "Table 64",weighted = FALSE)
+exportTable(item57.final.MH, "MH", "Table 44",weighted = FALSE)
+
+ 
 
 
 
@@ -261,31 +235,52 @@ unique(item58.dat$Generic)
 
 item58.dat2 <- left_join(rbsa.dat, item58.dat, by = "CK_Cadmus_ID")
 
-item58.dat3 <- item58.dat2[-which(is.na(item58.dat2$`Seasonal./.Portable.Equipment?`)), ]
+item58.dat2$`Seasonal./.Portable.Equipment?`[which(is.na(item58.dat2$`Seasonal./.Portable.Equipment?`))] <- "No"
 
-item58.dat3$count <- 1
+item58.dat2$Ind <- 0
+item58.dat2$Ind[which(item58.dat2$`Seasonal./.Portable.Equipment?` == "Yes")] <- 1
 
 
 # Weighting
-item58.data <- weightedData(item58.dat3[-which(colnames(item58.dat3) %in% c("Generic"
+item58.data <- weightedData(item58.dat2[-which(colnames(item58.dat2) %in% c("Generic"
                                                                             ,"Seasonal./.Portable.Equipment?"
                                                                             ,"Component.1.Year.of.Manufacture"
                                                                             ,"SEER"
-                                                                            ,"count"))])
+                                                                            ,"Ind"))])
 
-item58.data <- left_join(item58.data, item58.dat3[which(colnames(item58.dat3) %in% c("CK_Cadmus_ID"
+item58.data <- left_join(item58.data, item58.dat2[which(colnames(item58.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Seasonal./.Portable.Equipment?"
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"SEER"
-                                                                                     ,"count"))])
+                                                                                     ,"Ind"))])
+item58.data$count <- 1
+item58.data$Ind <- as.numeric(as.character(item58.data$Ind))
 
-# Analysis application
+########################
+# Weighted Analysis
+########################
 item58.final <- mean_one_group(CustomerLevelData = item58.data
-                               ,valueVariable    = 'count'
+                               ,valueVariable    = 'Ind'
                                ,byVariable       = 'State'
-                               ,aggregateRow     = 'Region'
-                               ,weighted         = TRUE)
+                               ,aggregateRow     = 'Region')
+
+# Export table
+item58.final.SF <- item58.final[which(item58.final$BuildingType == "Single Family"),-1]
+item58.final.MH <- item58.final[which(item58.final$BuildingType == "Manufactured"),-1]
+
+exportTable(item58.final.SF, "SF", "Table 65", weighted = TRUE)
+exportTable(item58.final.MH, "MH", "Table 45", weighted = TRUE)
+
+
+
+########################
+# Weighted Analysis
+########################
+item58.final <- mean_one_group_unweighted(CustomerLevelData = item58.data
+                               ,valueVariable    = 'Ind'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
 
 
 # Export table
@@ -293,6 +288,5 @@ item58.final <- mean_one_group(CustomerLevelData = item58.data
 item58.final.SF <- item58.final[which(item58.final$BuildingType == "Single Family"),-1]
 item58.final.MH <- item58.final[which(item58.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item58.final.SF, "SF", "Table 65")
-exportTable(item58.final.MH, "MH", "Table 45")
-
+exportTable(item58.final.SF, "SF", "Table 65", weighted = FALSE)
+exportTable(item58.final.MH, "MH", "Table 45", weighted = FALSE)
