@@ -11,6 +11,9 @@ rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
 # Source codes
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")

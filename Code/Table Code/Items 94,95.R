@@ -11,6 +11,9 @@ rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
 # Source codes
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
@@ -19,10 +22,11 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
+                            , sheet = "Sheet1")
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -39,59 +43,66 @@ item94.dat$count <- 1
 
 item94.dat0 <- item94.dat[which(item94.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item94.dat1 <- left_join(item94.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item94.dat1 <- left_join(rbsa.dat, item94.dat0, by = "CK_Cadmus_ID")
+item94.dat2 <- item94.dat1[which(item94.dat1$Type == "Stove/Oven"),]
 
-item94.dat1.1 <- item94.dat1[which(item94.dat1$Stove.Fuel %in% c("Electric", "Gas", "Propane")),]
-item94.dat2 <- item94.dat1.1[which(item94.dat1.1$Type == "Stove/Oven"),]
-
-
-#summarise by fuel type
-item94.sum1 <- summarise(group_by(item94.dat2, BuildingType, Stove.Fuel)
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
-
-#summarise across fuel types
-item94.sum2 <- summarise(group_by(item94.dat2, BuildingType)
-                         ,Stove.Fuel = "All Fuel Types"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
-
-#row bind
-item94.merge <- rbind.data.frame(item94.sum1, item94.sum2, stringsAsFactors = F)
-
-item94.merge1 <- left_join(item94.merge, item94.sum2, by = c("BuildingType"))
-colnames(item94.merge1) <- c("BuildingType"
-                             ,"Stove.Fuel"
-                             ,"SampleSize"
-                             ,"Count"
-                             ,"Remove"
-                             ,"Remove"
-                             ,"Total.Count")
-
-item94.final <- item94.merge1[which(colnames(item94.merge1) %in% c("BuildingType"
-                                                                   ,"Stove.Fuel"
-                                                                   ,"SampleSize"
-                                                                   ,"Count"
-                                                                   ,"Total.Count"))]
-
-item94.final$Percent <- item94.final$Count / item94.final$Total.Count
-item94.final$SE <- sqrt(item94.final$Percent * (1 - item94.final$Percent) / item94.final$SampleSize)
-
-item94.table <- data.frame("BuildingType" = item94.final$BuildingType
-                           ,"Stove.Fuel" = item94.final$Stove.Fuel
-                           ,"Percent" = item94.final$Percent
-                           ,"SE" = item94.final$SE
-                           ,"SampleSize" = item94.final$SampleSize)
-
-item94.table1 <- item94.table[which(item94.table$BuildingType %in% c("Single Family","Manufactured")),]
+item94.dat3 <- item94.dat2[which(item94.dat2$Stove.Fuel %notin% c("No Stove", "No Cooktop", NA)),]
+item94.dat3$Stove.Fuel[which(item94.dat3$Stove.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
 
 
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item94.data <- weightedData(item94.dat3[-which(colnames(item94.dat3) %in% c("count"
+                                                                              ,"Type"
+                                                                              ,"Stove.Fuel"))])
+item94.data <- left_join(item94.data, item94.dat3[which(colnames(item94.dat3) %in% c("CK_Cadmus_ID"
+                                                                                       ,"count"
+                                                                                       ,"Type"
+                                                                                       ,"Stove.Fuel"))])
+item94.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+item94.final <- proportions_one_group(CustomerLevelData = item94.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'Stove.Fuel'
+                                      ,total.name       = 'Total'
+                                      ,columnName       = 'Remove')
+
+item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Family")
+                                ,-which(colnames(item94.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item94.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+
+exportTable(item94.final.SF, "SF", "Table 101", weighted = TRUE)
+exportTable(item94.final.MH, "MH", "Table 82", weighted = TRUE)
 
 
+#######################
+# Unweighted Analysis
+#######################
+item94.final <- proportions_one_group(CustomerLevelData = item94.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'Stove.Fuel'
+                                      ,total.name       = 'Total'
+                                      ,columnName       = 'Remove'
+                                      ,weighted         = FALSE)
 
+item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Family")
+                                ,-which(colnames(item94.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
+item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item94.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
 
-
-
+exportTable(item94.final.SF, "SF", "Table 101", weighted = FALSE)
+exportTable(item94.final.MH, "MH", "Table 82", weighted = FALSE)
 
 
 
@@ -109,48 +120,63 @@ item95.dat$count <- 1
 
 item95.dat0 <- item95.dat[which(item95.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item95.dat1 <- left_join(item95.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item95.dat1 <- left_join(rbsa.dat, item95.dat0, by = "CK_Cadmus_ID")
+item95.dat2 <- item95.dat1[which(item95.dat1$Type == "Stove/Oven"),]
 
-item95.dat1.1 <- item95.dat1[which(item95.dat1$Oven.Fuel %in% c("Electric", "Gas", "Propane")),]
-item95.dat2 <- item95.dat1.1[which(item95.dat1.1$Type == "Stove/Oven"),]
+item95.dat3 <- item95.dat2[which(item95.dat2$Oven.Fuel %notin% c("No Stove", "No Cooktop", NA)),]
+item95.dat3$Oven.Fuel[which(item95.dat3$Oven.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
 
 
-#summarise by fuel type
-item95.sum1 <- summarise(group_by(item95.dat2, BuildingType, Oven.Fuel)
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item95.data <- weightedData(item95.dat3[-which(colnames(item95.dat3) %in% c("count"
+                                                                            ,"Type"
+                                                                            ,"Oven.Fuel"))])
+item95.data <- left_join(item95.data, item95.dat3[which(colnames(item95.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"count"
+                                                                                     ,"Type"
+                                                                                     ,"Oven.Fuel"))])
+item95.data$count <- 1
 
-#summarise across fuel types
-item95.sum2 <- summarise(group_by(item95.dat2, BuildingType)
-                         ,Oven.Fuel = "All Fuel Types"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
+#######################
+# Weighted Analysis
+#######################
+item95.final <- proportions_one_group(CustomerLevelData = item95.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'Oven.Fuel'
+                                      ,total.name       = 'Total'
+                                      ,columnName       = 'Remove')
 
-#row bind
-item95.merge <- rbind.data.frame(item95.sum1, item95.sum2, stringsAsFactors = F)
+item95.final.SF <- item95.final[which(item95.final$BuildingType == "Single Family")
+                                ,-which(colnames(item95.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item95.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 
-item95.merge1 <- left_join(item95.merge, item95.sum2, by = c("BuildingType"))
-colnames(item95.merge1) <- c("BuildingType"
-                             ,"Oven.Fuel"
-                             ,"SampleSize"
-                             ,"Count"
-                             ,"Remove"
-                             ,"Remove"
-                             ,"Total.Count")
+exportTable(item95.final.SF, "SF", "Table 102", weighted = TRUE)
+exportTable(item95.final.MH, "MH", "Table 83", weighted = TRUE)
 
-item95.final <- item95.merge1[which(colnames(item95.merge1) %in% c("BuildingType"
-                                                                   ,"Oven.Fuel"
-                                                                   ,"SampleSize"
-                                                                   ,"Count"
-                                                                   ,"Total.Count"))]
 
-item95.final$Percent <- item95.final$Count / item95.final$Total.Count
-item95.final$SE <- sqrt(item95.final$Percent * (1 - item95.final$Percent) / item95.final$SampleSize)
+#######################
+# Unweighted Analysis
+#######################
+item95.final <- proportions_one_group(CustomerLevelData = item95.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'Oven.Fuel'
+                                      ,total.name       = 'Total'
+                                      ,columnName       = 'Remove'
+                                      ,weighted         = FALSE)
 
-item95.table <- data.frame("BuildingType" = item95.final$BuildingType
-                           ,"Oven.Fuel" = item95.final$Oven.Fuel
-                           ,"Percent" = item95.final$Percent
-                           ,"SE" = item95.final$SE
-                           ,"SampleSize" = item95.final$SampleSize)
+item95.final.SF <- item95.final[which(item95.final$BuildingType == "Single Family")
+                                ,-which(colnames(item95.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
+item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item95.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
 
-item95.table1 <- item95.table[which(item95.table$BuildingType %in% c("Single Family","Manufactured")),]
+exportTable(item95.final.SF, "SF", "Table 102", weighted = FALSE)
+exportTable(item95.final.MH, "MH", "Table 83", weighted = FALSE)

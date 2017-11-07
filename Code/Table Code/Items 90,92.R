@@ -6,10 +6,15 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+
 ##  Clear variables
 rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
@@ -19,7 +24,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
@@ -40,12 +45,13 @@ item90.dat$count <- 1
 
 item90.dat0 <- item90.dat[which(item90.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item90.dat1 <- left_join(item90.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item90.dat1 <- left_join(rbsa.dat, item90.dat0, by = "CK_Cadmus_ID")
 
 item90.dat2 <- item90.dat1[which(item90.dat1$Type == "Dryer"),]
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
 item90.dat2$EquipVintage_bins <- as.numeric(as.character(item90.dat2$Age))
+unique(item90.dat2$Age)
 item90.dat3 <- item90.dat2[which(!(is.na(item90.dat2$EquipVintage_bins))),]
 
 item90.dat3$EquipVintage_bins[which(item90.dat3$Age < 1980)] <- "Pre 1980"
@@ -58,40 +64,64 @@ item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2009)] <- "Post 2009"
 #check uniques
 unique(item90.dat3$EquipVintage_bins)
 
-#count by vintage
-item90.sum <- summarise(group_by(item90.dat3, BuildingType, Type, EquipVintage_bins)
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        ,Count = sum(count))
-#count across vintages (i.e. total counts)
-item90.sum1 <- summarise(group_by(item90.dat3, BuildingType, Type)
-                         ,EquipVintage_bins = "All Vintages"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
+item90.merge <- left_join(rbsa.dat, item90.dat3)
+item90.merge <- item90.merge[which(!is.na(item90.merge$EquipVintage_bins)),]
 
-item90.count <- rbind.data.frame(item90.sum, item90.sum1, stringsAsFactors = F)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item90.data <- weightedData(item90.merge[-which(colnames(item90.merge) %in% c("count"
+                                                                              ,"Type"
+                                                                              ,"Age"
+                                                                              ,"EquipVintage_bins"))])
+item90.data <- left_join(item90.data, item90.merge[which(colnames(item90.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"count"
+                                                                                       ,"Type"
+                                                                                       ,"Age"
+                                                                                       ,"EquipVintage_bins"))])
+item90.data$count <- 1
 
-item90.totalCount <- left_join(item90.count, item90.sum1, by = c("BuildingType","Type"))
-colnames(item90.totalCount) <- c("BuildingType"
-                                 ,"Remove"
-                                 ,"Equipment Vintage"
-                                 ,"SampleSize"
-                                 ,"Count"
-                                 ,"Remove"
-                                 ,"Remove"
-                                 ,"TotalCount")
-item90.final <- item90.totalCount[which(colnames(item90.totalCount) != "Remove")]
-item90.final$Percent <- item90.final$Count / item90.final$TotalCount
-item90.final$SE      <- sqrt(item90.final$Percent * (1 - item90.final$Percent) / item90.final$SampleSize)
+#######################
+# Weighted Analysis
+#######################
+item90.final <- proportions_one_group(CustomerLevelData = item90.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'EquipVintage_bins'
+                                      ,total.name       = 'All Vintages'
+                                      ,columnName       = 'Remove')
 
-item90.table <- data.frame("BuildingType" = item90.final$BuildingType
-                           ,"Equipment.Vintage" = item90.final$`Equipment Vintage`
-                           ,"Percent" = item90.final$Percent
-                           ,"SE" = item90.final$SE
-                           ,"SampleSize" = item90.final$SampleSize)
+item90.final.SF <- item90.final[which(item90.final$BuildingType == "Single Family")
+                                ,-which(colnames(item90.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+item90.final.MH <- item90.final[which(item90.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item90.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 
-item90.table1 <- item90.table[which(item90.table$BuildingType %in% c("Single Family", "Manufactured")),]
+exportTable(item90.final.SF, "SF", "Table 97", weighted = TRUE)
+exportTable(item90.final.MH, "MH", "Table 78", weighted = TRUE)
 
 
+#######################
+# Unweighted Analysis
+#######################
+item90.final <- proportions_one_group(CustomerLevelData = item90.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'EquipVintage_bins'
+                                      ,total.name       = 'All Vintages'
+                                      ,columnName       = 'Remove'
+                                      ,weighted         = FALSE)
+
+item90.final.SF <- item90.final[which(item90.final$BuildingType == "Single Family")
+                                ,-which(colnames(item90.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
+item90.final.MH <- item90.final[which(item90.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item90.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
+
+exportTable(item90.final.SF, "SF", "Table 97", weighted = FALSE)
+exportTable(item90.final.MH, "MH", "Table 78", weighted = FALSE)
 
 
 
@@ -112,11 +142,10 @@ item92.dat$count <- 1
 
 item92.dat0 <- item92.dat[which(item92.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item92.dat1 <- left_join(item92.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item92.dat1 <- left_join(rbsa.dat, item92.dat0, by = "CK_Cadmus_ID")
 
 item92.dat2 <- item92.dat1[which(item92.dat1$Type == "Dishwasher"),]
 
-# Bin equipment vintages for items 50 and 52 (4 categories)
 item92.dat2$EquipVintage_bins <- as.numeric(as.character(item92.dat2$Age))
 item92.dat3 <- item92.dat2[which(!(is.na(item92.dat2$EquipVintage_bins))),]
 
@@ -130,38 +159,61 @@ item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2009)] <- "Post 2009"
 #check uniques
 unique(item92.dat3$EquipVintage_bins)
 
-#count by vintage
-item92.sum <- summarise(group_by(item92.dat3, BuildingType, Type, EquipVintage_bins)
-                        ,SampleSize = length(unique(CK_Cadmus_ID))
-                        ,Count = sum(count))
-#count across vintages (i.e. total counts)
-item92.sum1 <- summarise(group_by(item92.dat3, BuildingType, Type)
-                         ,EquipVintage_bins = "All Vintages"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
+item92.merge <- left_join(rbsa.dat, item92.dat3)
+item92.merge <- item92.merge[which(!is.na(item92.merge$EquipVintage_bins)),]
 
-item92.count <- rbind.data.frame(item92.sum, item92.sum1, stringsAsFactors = F)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item92.data <- weightedData(item92.merge[-which(colnames(item92.merge) %in% c("count"
+                                                                              ,"Type"
+                                                                              ,"Age"
+                                                                              ,"EquipVintage_bins"))])
+item92.data <- left_join(item92.data, item92.merge[which(colnames(item92.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"count"
+                                                                                       ,"Type"
+                                                                                       ,"Age"
+                                                                                       ,"EquipVintage_bins"))])
+item92.data$count <- 1
 
-item92.totalCount <- left_join(item92.count, item92.sum1, by = c("BuildingType","Type"))
-colnames(item92.totalCount) <- c("BuildingType"
-                                 ,"Remove"
-                                 ,"Equipment Vintage"
-                                 ,"SampleSize"
-                                 ,"Count"
-                                 ,"Remove"
-                                 ,"Remove"
-                                 ,"TotalCount")
-item92.final <- item92.totalCount[which(colnames(item92.totalCount) != "Remove")]
-item92.final$Percent <- item92.final$Count / item92.final$TotalCount
-item92.final$SE      <- sqrt(item92.final$Percent * (1 - item92.final$Percent) / item92.final$SampleSize)
+#######################
+# Weighted Analysis
+#######################
+item92.final <- proportions_one_group(CustomerLevelData = item92.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'EquipVintage_bins'
+                                      ,total.name       = 'All Vintages'
+                                      ,columnName       = 'Remove')
 
-item92.table <- data.frame("BuildingType" = item92.final$BuildingType
-                           ,"Equipment.Vintage" = item92.final$`Equipment Vintage`
-                           ,"Percent" = item92.final$Percent
-                           ,"SE" = item92.final$SE
-                           ,"SampleSize" = item92.final$SampleSize)
+item92.final.SF <- item92.final[which(item92.final$BuildingType == "Single Family")
+                                ,-which(colnames(item92.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+item92.final.MH <- item92.final[which(item92.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item92.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 
-item92.table1 <- item92.table[which(item92.table$BuildingType %in% c("Single Family", "Manufactured")),]
+exportTable(item92.final.SF, "SF", "Table 99", weighted = TRUE)
+exportTable(item92.final.MH, "MH", "Table 80", weighted = TRUE)
 
 
+#######################
+# Unweighted Analysis
+#######################
+item92.final <- proportions_one_group(CustomerLevelData = item92.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'EquipVintage_bins'
+                                      ,total.name       = 'All Vintages'
+                                      ,columnName       = 'Remove'
+                                      ,weighted         = FALSE)
 
+item92.final.SF <- item92.final[which(item92.final$BuildingType == "Single Family")
+                                ,-which(colnames(item92.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
+item92.final.MH <- item92.final[which(item92.final$BuildingType == "Manufactured")
+                                ,-which(colnames(item92.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
+
+exportTable(item92.final.SF, "SF", "Table 99", weighted = FALSE)
+exportTable(item92.final.MH, "MH", "Table 80", weighted = FALSE)
