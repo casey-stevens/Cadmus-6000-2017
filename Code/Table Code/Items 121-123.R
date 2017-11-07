@@ -7,7 +7,18 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -60,30 +71,87 @@ item122.dat$count <- 1
 item122.dat0 <- item122.dat[which(item122.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item122.dat1 <- left_join(item122.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item122.dat1 <- left_join(rbsa.dat, item122.dat0, by = "CK_Cadmus_ID")
+
+item122.dat2 <- item122.dat1[which(!is.na(item122.dat1$Qty.Occupants)), ]
+
+item122.merge <- item122.dat2
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item122.data <- weightedData(item122.merge[-which(colnames(item122.merge) %in% c("Qty.Occupants"
+                                                                                 ,"count"))])
+item122.data <- left_join(item122.data, item122.merge[which(colnames(item122.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Qty.Occupants"
+                                                                                           ,"count"))])
+
+item122.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item122.final <- mean_one_group(item122.data
+                                ,valueVariable = 'Qty.Occupants'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item122.final.SF <- item122.final[which(item122.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+item122.final.MH <- item122.final[which(item122.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item122.final.SF, "SF", "Table 129", weighted = TRUE)
+exportTable(item122.final.MH, "MH", "Table 104", weighted = TRUE)
 
 
-#by state
-item122.state <- summarise(group_by(item122.dat1, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Qty.Occupants)
-                           ,SE = sd(Qty.Occupants) / sqrt(SampleSize))
-#by region
-item122.region <- summarise(group_by(item122.dat1, BuildingType)
-                            , State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Qty.Occupants)
-                           ,SE = sd(Qty.Occupants) / sqrt(SampleSize))
 
-item122.final <- rbind.data.frame(item122.state, item122.region, stringsAsFactors = F)
+#######################
+# Unweighted Analysis
+#######################
+item122.final <- mean_one_group_unweighted(item122.data
+                                           ,valueVariable = 'Qty.Occupants'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
 
-item122.table <- data.frame("BuildingType" = item122.final$BuildingType
-                            ,"State" = item122.final$State
-                            ,"Mean" = item122.final$Mean
-                            ,"SE" = item122.final$SE
-                            ,"SampleSize" = item122.final$SampleSize)
-item122.table1 <- item122.table[which(item122.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item122.final.SF <- item122.final[which(item122.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+item122.final.MH <- item122.final[which(item122.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
 
+exportTable(item122.final.SF, "SF", "Table 129", weighted = FALSE)
+exportTable(item122.final.MH, "MH", "Table 104", weighted = FALSE)
+
+
+
+## OLD CODE ##
+# 
+# #by state
+# item122.state <- summarise(group_by(item122.dat1, BuildingType, State)
+#                            ,SampleSize = length(unique(CK_Cadmus_ID))
+#                            ,Mean = mean(Qty.Occupants)
+#                            ,SE = sd(Qty.Occupants) / sqrt(SampleSize))
+# #by region
+# item122.region <- summarise(group_by(item122.dat1, BuildingType)
+#                             , State = "Region"
+#                            ,SampleSize = length(unique(CK_Cadmus_ID))
+#                            ,Mean = mean(Qty.Occupants)
+#                            ,SE = sd(Qty.Occupants) / sqrt(SampleSize))
+# 
+# item122.final <- rbind.data.frame(item122.state, item122.region, stringsAsFactors = F)
+# 
+# item122.table <- data.frame("BuildingType" = item122.final$BuildingType
+#                             ,"State" = item122.final$State
+#                             ,"Mean" = item122.final$Mean
+#                             ,"SE" = item122.final$SE
+#                             ,"SampleSize" = item122.final$SampleSize)
+# item122.table1 <- item122.table[which(item122.table$BuildingType %in% c("Single Family", "Manufactured")),]
+# 
 
 
 
