@@ -309,7 +309,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                             ,n          = length(unique(CK_Cadmus_ID))
                             ,count      = sum(count)
   )
-  }else if(byVariable == "Type"){
+  }else{
   item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, get(byVariable))
                            ,n_h        = unique(n.h)
                            ,N_h        = unique(N.h)
@@ -318,25 +318,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                            ,strataMean = mean(get(valueVariable))
                            ,strataSD   = sd(get(valueVariable))
                            ,n          = length(unique(CK_Cadmus_ID))
-                           ,count      = sum(get(valueVariable))
+                           ,count      = sum(count)
                            
   )
-  colnames(item.strata)[which(colnames(item.strata) == 'get(byVariable)')] <- byVariable
   
-  }else {
-    item.strata <- summarise(group_by(CustomerLevelData, BuildingType, State, Region, Territory, get(byVariable))
-                             ,n_h        = unique(n.h)
-                             ,N_h        = unique(N.h)
-                             ,fpc        = (1 - n_h / N_h)
-                             ,w_h        = n_h / N_h
-                             ,strataMean = mean(get(valueVariable))
-                             ,strataSD   = sd(get(valueVariable))
-                             ,n          = length(unique(CK_Cadmus_ID))
-                             ,count      = sum(count)
-                             
-    )
-    
-    colnames(item.strata)[which(colnames(item.strata) == 'get(byVariable)')] <- byVariable
+  colnames(item.strata)[which(colnames(item.strata) == 'get(byVariable)')] <- byVariable
   }
   item.strata$strataSD[which(item.strata$strataSD %in% c("NaN", NA))] <- 0
   
@@ -385,43 +371,22 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
     return(data)
   }
   
-    if(byVariable == "Type"){
-      #by state
-      item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
-                                ,n     = length(unique(CK_Cadmus_ID))
-                                ,count = sum(get(valueVariable))
-                                ,Mean  = mean(get(valueVariable), na.rm = T)
-                                ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
-      item.byGroup <- data.frame(ConvertColName(item.byGroup,'get(byVariable)',byVariable),stringsAsFactors = F)
-      #by region
-      item.all <- summarise(group_by(CustomerLevelData, BuildingType)
-                            ,All   = aggregateRow
-                            ,n     = length(unique(CK_Cadmus_ID))
-                            ,count = sum(get(valueVariable))
-                            ,Mean  = mean(get(valueVariable), na.rm = T)
-                            ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
-      
-      item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
-      
-    }else{
-      #by state
-      item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
-                                 ,n     = length(unique(CK_Cadmus_ID))
-                                 ,count = sum(count)
-                                 ,Mean  = mean(get(valueVariable), na.rm = T)
-                                 ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
-      item.byGroup <- data.frame(ConvertColName(item.byGroup,'get(byVariable)',byVariable),stringsAsFactors = F)
-      #by region
-      item.all <- summarise(group_by(CustomerLevelData, BuildingType)
-                            ,All   = aggregateRow
-                            ,n     = length(unique(CK_Cadmus_ID))
-                            ,count = sum(count)
-                            ,Mean  = mean(get(valueVariable), na.rm = T)
-                            ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
-      
-      item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
+    #by state
+    item.byGroup <- summarise(group_by(CustomerLevelData, BuildingType, get(byVariable))
+                               ,n     = length(unique(CK_Cadmus_ID))
+                               ,count = sum(count)
+                               ,Mean  = mean(get(valueVariable), na.rm = T)
+                               ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
+    item.byGroup <- data.frame(ConvertColName(item.byGroup,'get(byVariable)',byVariable),stringsAsFactors = F)
+    #by region
+    item.all <- summarise(group_by(CustomerLevelData, BuildingType)
+                          ,All   = aggregateRow
+                          ,n     = length(unique(CK_Cadmus_ID))
+                          ,count = sum(count)
+                          ,Mean  = mean(get(valueVariable), na.rm = T)
+                          ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n))
     
-    }
+    item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
     
     item.final <- rbind.data.frame(item.byGroup, item.all, stringsAsFactors = F)
     
