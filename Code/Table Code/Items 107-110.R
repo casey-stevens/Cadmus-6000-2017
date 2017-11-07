@@ -26,7 +26,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
+                            , sheet = "Sheet1")
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -53,74 +54,50 @@ item107.customer <- summarise(group_by(item107.merge, CK_Cadmus_ID, BuildingType
 item107.customer <- left_join(rbsa.dat, item107.customer)
 item107.customer <- item107.customer[which(!is.na(item107.customer$Site.Count)),]
 
+################################################
+# Adding pop and sample sizes for weights
+################################################
 item107.data <- weightedData(item107.customer[-which(colnames(item107.customer) %in% c("Site.Count"))])
 item107.data <- left_join(item107.data, item107.customer[which(colnames(item107.customer) %in% c("CK_Cadmus_ID"
                                                                                                  ,"Site.Count"))])
-
-
+item107.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
 item107.final <- mean_one_group(item107.data
                                 ,valueVariable = 'Site.Count'
                                 ,byVariable = 'State'
-                                ,aggregateRow = 'Region'
-                                ,weighted = TRUE)
+                                ,aggregateRow = 'Region')
+
 item107.final.SF <- item107.final[which(item107.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item107.final) %in% c("BuildingType"))]
-exportTable(item107.final.SF, "SF", "Table 114", weighted = TRUE)
-
-
+                                  ,-which(colnames(item107.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
 item107.final.MH <- item107.final[which(item107.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item107.final) %in% c("BuildingType"))]
+                                  ,-which(colnames(item107.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item107.final.SF, "SF", "Table 114", weighted = TRUE)
 exportTable(item107.final.MH, "MH", "Table 89", weighted = TRUE)
 
 
 
-
-item107.final <- mean_one_group(item107.data
+#######################
+# Unweighted Analysis
+#######################
+item107.final <- mean_one_group_unweighted(item107.data
                                 ,valueVariable = 'Site.Count'
                                 ,byVariable = 'State'
-                                ,aggregateRow = 'Region'
-                                ,weighted = FALSE)
+                                ,aggregateRow = 'Region')
+
 item107.final.SF <- item107.final[which(item107.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item107.final) %in% c("BuildingType"))]
-exportTable(item107.final.SF, "SF", "Table 114", weighted = FALSE)
-
-
+                                  ,-which(colnames(item107.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
 item107.final.MH <- item107.final[which(item107.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item107.final) %in% c("BuildingType"))]
+                                  ,-which(colnames(item107.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item107.final.SF, "SF", "Table 114", weighted = FALSE)
 exportTable(item107.final.MH, "MH", "Table 89", weighted = FALSE)
-
-
-
-# ##Summarise by state
-# #summarise by site
-# item107.state1 <- summarise(group_by(item107.dat2, CK_Cadmus_ID, BuildingType, State)
-#                           ,Site.Count = sum(count))
-# 
-# #summarise across sites
-# item107.state <- summarise(group_by(item107.dat3, BuildingType, State)
-#                           ,SampleSize = length(unique(CK_Cadmus_ID))
-#                           ,Mean = mean(Site.Count)
-#                           ,SE = sd(Site.Count) / sqrt(SampleSize))
-# 
-# 
-# ##Summarise across states
-# #summarise by site
-# item107.region1 <- summarise(group_by(item107.dat2, CK_Cadmus_ID, BuildingType)
-#                           ,State = "Region"
-#                           ,Site.Count = sum(count))
-# 
-# #summarise across sites
-# item107.region <- summarise(group_by(item107.dat3, BuildingType)
-#                           ,State = "Region"
-#                           ,SampleSize = length(unique(CK_Cadmus_ID))
-#                           ,Mean = mean(Site.Count)
-#                           ,SE = sd(Site.Count) / sqrt(SampleSize))
-# 
-# item107.final <- rbind.data.frame(item107.state, item107.region, stringsAsFactors = F)
-# item107.table <- item107.final[which(item107.final$BuildingType %in% c("Single Family", "Manufactured")),]
-
-
-
 
 
 
@@ -190,60 +167,37 @@ item108.data <- left_join(item108.data, item108.customer[which(colnames(item108.
 item108.final    <- mean_one_group(item108.data
                                    ,valueVariable = 'TV.Wattage'
                                    ,byVariable    = 'EquipVintage_bins'
-                                   ,aggregateRow  = "All Vintages"
-                                   ,weighted = TRUE)
-item108.final.SF <- item108.final[which(item108.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item108.final) == "BuildingType")]
-exportTable(item108.final.SF, "SF", "Table 115", weighted = TRUE)
+                                   ,aggregateRow  = "All Vintages")
 
+item108.final.SF <- item108.final[which(item108.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
 item108.final.MH <- item108.final[which(item108.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item108.final) == "BuildingType")]
+                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+
+exportTable(item108.final.SF, "SF", "Table 115", weighted = TRUE)
 exportTable(item108.final.MH, "MH", "Table 90", weighted = TRUE)
 
 
 ##############
 # Unweighted
 ##############
-item108.final    <- mean_one_group(item108.data
+item108.final    <- mean_one_group_unweighted(item108.data
                                    ,valueVariable = 'TV.Wattage'
                                    ,byVariable    = 'EquipVintage_bins'
-                                   ,aggregateRow  = "All Vintages"
-                                   ,weighted = FALSE)
+                                   ,aggregateRow  = "All Vintages")
+
 item108.final.SF <- item108.final[which(item108.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item108.final) == "BuildingType")]
-exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
-
+                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
 item108.final.MH <- item108.final[which(item108.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item108.final) == "BuildingType")]
+                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
 exportTable(item108.final.MH, "MH", "Table 90", weighted = FALSE)
-
-
-# #summarise at the site level
-# item108.dat5 <- summarise(group_by(item108.dat4,CK_Cadmus_ID, BuildingType, EquipVintage_bins)
-#                           ,Site.Mean = mean(TV.Wattage))
-# 
-# #summarise across sites
-# #by vintages
-# item108.sum1 <- summarise(group_by(item108.dat4, BuildingType, EquipVintage_bins)
-#                           ,SampleSize = length(unique(CK_Cadmus_ID))
-#                           ,Mean = mean(TV.Wattage)
-#                           ,SE = sd(TV.Wattage) / sqrt(SampleSize))
-# #across vintages
-# item108.sum2 <- summarise(group_by(item108.dat4, BuildingType)
-#                           ,EquipVintage_bins = "All Vintages"
-#                           ,SampleSize = length(unique(CK_Cadmus_ID))
-#                           ,Mean = mean(TV.Wattage)
-#                           ,SE = sd(TV.Wattage) / sqrt(SampleSize))
-# 
-# 
-# #row bind
-# item108.final <- rbind.data.frame(item108.sum1, item108.sum2, stringsAsFactors = F)
-# 
-# item108.table <- item108.final[which(item108.final$BuildingType %in% c("Single Family","Manufactured")),]
-
-
-
-
 
 
 
@@ -318,101 +272,92 @@ item109.final    <- proportionRowsAndColumns1(item109.data
                                               ,valueVariable       = 'count'
                                               ,columnVariable      = "EquipVintage_bins"
                                               ,rowVariable         = "TV.Screen.Type"
-                                              ,aggregateColumnName = "All Vintages"
-                                              # ,weighted            = TRUE
-)
+                                              ,aggregateColumnName = "Remove")
+item109.final <- item109.final[which(item109.final$EquipVintage_bins != "Remove"),]
+
+item109.all.vintages <- proportions_one_group(CustomerLevelData = item109.data
+                                              ,valueVariable = 'count'
+                                              ,groupingVariable = 'TV.Screen.Type'
+                                              ,total.name = "All Vintages"
+                                              ,columnName = "EquipVintage_bins"
+                                              ,weighted = TRUE)
+item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
+
+
+item109.final <- rbind.data.frame(item109.final, item109.all.vintages, stringsAsFactors = F)
+
 item109.cast <- dcast(setDT(item109.final)
                       ,BuildingType + EquipVintage_bins ~ TV.Screen.Type
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
+item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
+                            ,"Vintage"        = item109.cast$EquipVintage_bins
+                            ,"Percent_CRT"    = item109.cast$w.percent_CRT
+                            ,"SE_CRT"         = item109.cast$w.SE_CRT
+                            ,"Count_CRT"      = item109.cast$count_CRT
+                            ,"Percent_Other"  = item109.cast$w.percent_Other
+                            ,"SE_Other"       = item109.cast$w.SE_Other
+                            ,"Count_Other"    = item109.cast$count_Other
+                            ,"SampleSize"     = item109.cast$n_Total)
 
-item109.final.SF <- item109.cast[which(item109.cast$BuildingType == "Single Family"),]
+
+item109.final.SF <- item109.table[which(item109.table$BuildingType == "Single Family")
+                                 ,-which(colnames(item109.table) %in% c("BuildingType"))]
+item109.final.MH <- item109.table[which(item109.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item109.table) %in% c("BuildingType"))]
+
+
 exportTable(item109.final.SF, "SF", "Table 116", weighted = TRUE)
-
-item109.final.MH <- item109.final[which(item109.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item109.final) == "BuildingType")]
 exportTable(item109.final.MH, "MH", "Table 91", weighted = TRUE)
 
 
 ##############
 # Unweighted
 ##############
-item109.final    <- proportionRowsAndColumns1(item109.data
+#####################
+# Weighted analysis
+#####################
+item109.final    <- proportions_two_groups_unweighted(item109.data
                                               ,valueVariable       = 'count'
                                               ,columnVariable      = "EquipVintage_bins"
                                               ,rowVariable         = "TV.Screen.Type"
-                                              ,aggregateColumnName = "All Vintages"
-                                              # ,weighted            = FALSE
-                                              )
+                                              ,aggregateColumnName = "Remove")
+item109.final <- item109.final[which(item109.final$EquipVintage_bins != "Remove"),]
+
+item109.all.vintages <- proportions_one_group(CustomerLevelData = item109.data
+                                              ,valueVariable = 'count'
+                                              ,groupingVariable = 'TV.Screen.Type'
+                                              ,total.name = "All Vintages"
+                                              ,columnName = "EquipVintage_bins"
+                                              ,weighted = FALSE)
+item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
+
+
+item109.final <- rbind.data.frame(item109.final, item109.all.vintages, stringsAsFactors = F)
 
 item109.cast <- dcast(setDT(item109.final)
                       ,BuildingType + EquipVintage_bins ~ TV.Screen.Type
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
+                            ,"Vintage"        = item109.cast$EquipVintage_bins
+                            ,"Percent_CRT"    = item109.cast$Percent_CRT
+                            ,"SE_CRT"         = item109.cast$SE_CRT
+                            ,"Count_CRT"      = item109.cast$Count_CRT
+                            ,"Percent_Other"  = item109.cast$Percent_Other
+                            ,"SE_Other"       = item109.cast$SE_Other
+                            ,"Count_Other"    = item109.cast$Count_Other
+                            ,"SampleSize"     = item109.cast$SampleSize_Total)
 
 
-item109.final.SF <- item109.cast[which(item109.cast$BuildingType == "Single Family"),]
+item109.final.SF <- item109.table[which(item109.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item109.table) %in% c("BuildingType"))]
+item109.final.MH <- item109.table[which(item109.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item109.table) %in% c("BuildingType"))]
+
+
 exportTable(item109.final.SF, "SF", "Table 116", weighted = FALSE)
-
-item109.final.MH <- item109.final[which(item109.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item109.final) == "BuildingType")]
 exportTable(item109.final.MH, "MH", "Table 91", weighted = FALSE)
-
-
-
-
-
-
-# #summarise by TV Type
-# #by vintage
-# item109.sum1 <- summarise(group_by(item109.dat5, BuildingType, TV.Screen.Type, EquipVintage_bins)
-#                           ,Count = sum(count))
-# #across vintages
-# item109.sum2 <- summarise(group_by(item109.dat5, BuildingType, TV.Screen.Type)
-#                           ,EquipVintage_bins = "All Vintages"
-#                           ,Count = sum(count))
-# 
-# item109.tot.count1 <- summarise(group_by(item109.dat5, BuildingType, EquipVintage_bins)
-#                                 ,SampleSize = length(unique(CK_Cadmus_ID))
-#                                ,Count = sum(count))
-# item109.tot.count2 <- summarise(group_by(item109.dat5, BuildingType)
-#                                 ,EquipVintage_bins = "All Vintages"
-#                                 ,SampleSize = length(unique(CK_Cadmus_ID))
-#                                 ,Count = sum(count))
-# item109.tot.count <- rbind.data.frame(item109.tot.count1, item109.tot.count2, stringsAsFactors = F)
-# 
-# 
-# item109.merge <- rbind.data.frame(item109.sum1, item109.sum2, stringsAsFactors = F)
-# item109.join <- left_join(item109.merge, item109.tot.count, by = c("BuildingType", "EquipVintage_bins"))
-# colnames(item109.join) <- c("BuildingType"
-#                             ,"TV.Screen.Type"
-#                             ,"Equipment.Vintages"
-#                             ,"Count"
-#                             ,"SampleSize"
-#                             ,"Total.Count")
-# item109.join$Percent <- item109.join$Count / item109.join$Total.Count
-# item109.join$SE <- sqrt(item109.join$Percent * (1 - item109.join$Percent) / item109.join$SampleSize)
-# 
-# library(data.table)
-# item109.cast <- dcast(setDT(item109.join)
-#                       ,formula = BuildingType + Equipment.Vintages + SampleSize ~ TV.Screen.Type
-#                       ,value.var = c("Percent", "SE"))
-# 
-# 
-# 
-# item109.final <- data.frame("BuildingType" = item109.cast$BuildingType
-#                             ,"Equipment.Vintages" = item109.cast$Equipment.Vintages
-#                             ,"Percent_CRT" = item109.cast$Percent_CRT
-#                             ,"SE_CRT" = item109.cast$SE_CRT
-#                             ,"Percent_Other" = item109.cast$Percent_Other
-#                             ,"SE_Other" = item109.cast$SE_Other
-#                             ,"SampleSize" = item109.cast$SampleSize)
-# 
-# 
-# item109.table <- item109.final[which(item109.final$BuildingType %in% c("Single Family", "Manufactured")),]
-
-
-
-
 
 
 
@@ -463,11 +408,13 @@ item110.final    <- proportions_one_group(item110.data
                                    ,columnName       = "Room"
                                    ,weighted         = TRUE)
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item110.final) == "BuildingType")]
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"
+                                                                         ,"Room"))]
 exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item110.final) == "BuildingType")]
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"
+                                                                         ,"Room"))]
 exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
 
 
@@ -481,47 +428,14 @@ item110.final    <- proportions_one_group(item110.data
                                           ,columnName       = "Room"
                                           ,weighted         = FALSE)
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item110.final) == "BuildingType")]
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"
+                                                                         ,"Room"
+                                                                         ,"Total.Count"))]
 exportTable(item110.final.SF, "SF", "Table 115", weighted = FALSE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item110.final) == "BuildingType")]
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"
+                                                                         ,"Room"
+                                                                         ,"Total.Count"))]
 exportTable(item110.final.MH, "MH", "Table 90", weighted = FALSE)
 
-
-
-
-
-
-# #summarise by clean room
-# item110.sum1 <- summarise(group_by(item110.dat3, BuildingType, Clean.Room)
-#                           ,SampleSize = length(unique(CK_Cadmus_ID))
-#                           ,Count = sum(count))
-# #summarise across clean room
-# item110.sum2 <- summarise(group_by(item110.dat3, BuildingType)
-#                           ,Clean.Room = "All Room Types"
-#                           ,SampleSize = length(unique(CK_Cadmus_ID))
-#                           ,Count = sum(count))
-# 
-# item110.tot.count <- item110.sum2[which(colnames(item110.sum2) %in% c("BuildingType","Count"))]
-# 
-# #rbind
-# item110.merge1 <- rbind.data.frame(item110.sum1, item110.sum2, stringsAsFactors = F)
-# #leftjoin
-# item110.final <- left_join(item110.merge1, item110.tot.count, by = "BuildingType")
-# colnames(item110.final) <- c("BuildingType"
-#                              ,"Room.Type"
-#                              ,"SampleSize"
-#                              ,"Count"
-#                              ,"Total.Count")
-# item110.final$Percent <- item110.final$Count / item110.final$Total.Count
-# item110.final$SE <- sqrt(item110.final$Percent * (1 - item110.final$Percent) / item110.final$SampleSize)
-# 
-# 
-# item110.table <- data.frame("BuildingType" = item110.final$BuildingType
-#                             ,"Room.Type" = item110.final$Room.Type
-#                             ,"Percent" = item110.final$Percent
-#                             ,"SE" = item110.final$SE
-#                             ,"SampleSize" = item110.final$SampleSize
-#                             ,stringsAsFactors = F)
-# item110.table1 <- item110.table[which(item110.table$BuildingType %in% c("Single Family", "Manufactured")),]
