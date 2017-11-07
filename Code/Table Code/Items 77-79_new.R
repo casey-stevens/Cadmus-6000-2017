@@ -125,9 +125,13 @@ item77.final <- proportions_one_group(CustomerLevelData = item77.data
                                       ,weighted         = FALSE)
 
 item77.final.SF <- item77.final[which(item77.final$BuildingType == "Single Family")
-                                ,-which(colnames(item77.final) %in% c("BuildingType"))]
+                                ,-which(colnames(item77.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
 item77.final.MH <- item77.final[which(item77.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item77.final) %in% c("BuildingType"))]
+                                ,-which(colnames(item77.final) %in% c("BuildingType"
+                                                                      ,"Remove"
+                                                                      ,"Total.Count"))]
 
 exportTable(item77.final.SF, "SF", "Table 84", weighted = FALSE)
 exportTable(item77.final.MH, "MH", "Table 63", weighted = FALSE)
