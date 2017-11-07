@@ -186,10 +186,12 @@ item116.final <- mean_one_group_unweighted(item116.data
 
 item116.final.SF <- item116.final[which(item116.final$BuildingType == "Single Family")
                                   ,-which(colnames(item116.final) %in% c("BuildingType"
-                                                                         ,"Count"))]
+                                                                         ,"Count"
+                                                                         ,"count"))]
 item116.final.MH <- item116.final[which(item116.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item116.final) %in% c("BuildingType"
-                                                                         ,"Count"))]
+                                                                         ,"Count"
+                                                                         ,"count"))]
 
 exportTable(item116.final.SF, "SF", "Table 123", weighted = FALSE)
 exportTable(item116.final.MH, "MH", "Table 98", weighted = FALSE)
@@ -256,10 +258,11 @@ item117.dat2 <- item117.dat1[which(item117.dat1$Type %in% c("Laptop", "Desktop")
 item117.dat2$Ind <- 1
 
 item117.sum <- summarise(group_by(item117.dat2, CK_Cadmus_ID)
-                         ,Ind = sum(Ind))
+                         ,Ind = sum(Ind, na.rm = T))
 
 item117.merge <- left_join(rbsa.dat, item117.sum)
-item117.merge <- item117.merge[which(is.na(item117.merge$Ind)),]
+item117.merge <- item117.merge[which(!is.na(item117.merge$Ind)),]
+
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -267,6 +270,50 @@ item117.merge <- item117.merge[which(is.na(item117.merge$Ind)),]
 item117.data <- weightedData(item117.merge[-which(colnames(item117.merge) %in% c("Ind"))])
 item117.data <- left_join(item117.data, item117.merge[which(colnames(item117.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"))])
+
+item117.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item117.final <- mean_one_group(item117.data
+                                ,valueVariable = 'Ind'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item117.final.SF <- item117.final[which(item117.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item117.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+item117.final.MH <- item117.final[which(item117.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item117.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+
+exportTable(item117.final.SF, "SF", "Table 124", weighted = TRUE)
+exportTable(item117.final.MH, "MH", "Table 99", weighted = TRUE)
+
+
+
+#######################
+# Unweighted Analysis
+#######################
+item117.final <- mean_one_group_unweighted(item117.data
+                                           ,valueVariable = 'Ind'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item117.final.SF <- item117.final[which(item117.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item117.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+item117.final.MH <- item117.final[which(item117.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item117.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+
+exportTable(item117.final.SF, "SF", "Table 124", weighted = FALSE)
+exportTable(item117.final.MH, "MH", "Table 99", weighted = FALSE)
+
 
 
 # #total computers by site
@@ -364,10 +411,12 @@ item118.final <- proportions_one_group(CustomerLevelData = item118.data
 
 item118.final.SF <- item118.final[which(item118.final$BuildingType == "Single Family")
                                   ,-which(colnames(item118.final) %in% c("BuildingType"
-                                                                         ,"Remove"))]
+                                                                         ,"Remove"
+                                                                         ,"count"))]
 item118.final.MH <- item118.final[which(item118.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item118.final) %in% c("BuildingType"
-                                                                         ,"Remove"))]
+                                                                         ,"Remove"
+                                                                         ,"count"))]
 
 exportTable(item118.final.SF, "SF", "Table 125", weighted = TRUE)
 exportTable(item118.final.MH, "MH", "Table 100", weighted = TRUE)
@@ -386,11 +435,13 @@ item118.final <- proportions_one_group(CustomerLevelData = item118.data
 item118.final.SF <- item118.final[which(item118.final$BuildingType == "Single Family")
                                   ,-which(colnames(item118.final) %in% c("BuildingType"
                                                                          ,"Remove"
-                                                                         ,"Total.Count"))]
+                                                                         ,"Total.Count"
+                                                                         ,"Count"))]
 item118.final.MH <- item118.final[which(item118.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item118.final) %in% c("BuildingType"
                                                                          ,"Remove"
-                                                                         ,"Total.Count"))]
+                                                                         ,"Total.Count"
+                                                                         ,"Count"))]
 
 exportTable(item118.final.SF, "SF", "Table 125", weighted = FALSE)
 exportTable(item118.final.MH, "MH", "Table 100", weighted = FALSE)
@@ -464,7 +515,57 @@ item119.sum <- summarise(group_by(item119.dat2, CK_Cadmus_ID)
                          ,Ind = sum(Ind))
 
 item119.merge <- left_join(rbsa.dat, item119.sum)
-item119.merge <- item119.merge[which(is.na(item119.merge$Ind)),]
+item119.merge <- item119.merge[which(!is.na(item119.merge$Ind)),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item119.data <- weightedData(item119.merge[-which(colnames(item119.merge) %in% c("Ind"))])
+item119.data <- left_join(item119.data, item119.merge[which(colnames(item119.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+
+item119.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item119.final <- mean_one_group(item119.data
+                                ,valueVariable = 'Ind'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item119.final.SF <- item119.final[which(item119.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item119.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+item119.final.MH <- item119.final[which(item119.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item119.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item119.final.SF, "SF", "Table 126", weighted = TRUE)
+exportTable(item119.final.MH, "MH", "Table 101", weighted = TRUE)
+
+
+
+#######################
+# Unweighted Analysis
+#######################
+item119.final <- mean_one_group_unweighted(item119.data
+                                           ,valueVariable = 'Ind'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item119.final.SF <- item119.final[which(item119.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item119.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+item119.final.MH <- item119.final[which(item119.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item119.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+
+exportTable(item119.final.SF, "SF", "Table 126", weighted = FALSE)
+exportTable(item119.final.MH, "MH", "Table 101", weighted = FALSE)
+
 
 
 # #total computers by site
@@ -538,7 +639,57 @@ item120.sum <- summarise(group_by(item120.dat2, CK_Cadmus_ID)
                          ,Ind = sum(Ind))
 
 item120.merge <- left_join(rbsa.dat, item120.sum)
-item120.merge <- item120.merge[which(is.na(item120.merge$Ind)),]
+item120.merge <- item120.merge[which(!is.na(item120.merge$Ind)),]
+
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item120.data <- weightedData(item120.merge[-which(colnames(item120.merge) %in% c("Ind"))])
+item120.data <- left_join(item120.data, item120.merge[which(colnames(item120.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+
+item120.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item120.final <- mean_one_group(item120.data
+                                ,valueVariable = 'Ind'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item120.final.SF <- item120.final[which(item120.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item120.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+item120.final.MH <- item120.final[which(item120.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item120.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item120.final.SF, "SF", "Table 127", weighted = TRUE)
+exportTable(item120.final.MH, "MH", "Table 102", weighted = TRUE)
+
+
+
+#######################
+# Unweighted Analysis
+#######################
+item120.final <- mean_one_group_unweighted(item120.data
+                                           ,valueVariable = 'Ind'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item120.final.SF <- item120.final[which(item120.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item120.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+item120.final.MH <- item120.final[which(item120.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item120.final) %in% c("BuildingType"
+                                                                         ,"Count"
+                                                                         ,"count"))]
+
+exportTable(item120.final.SF, "SF", "Table 127", weighted = FALSE)
+exportTable(item120.final.MH, "MH", "Table 102", weighted = FALSE)
 
 
 
