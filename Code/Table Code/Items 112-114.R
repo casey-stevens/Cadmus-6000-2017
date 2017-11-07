@@ -26,7 +26,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
+                            , sheet = "Sheet1")
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -51,35 +52,56 @@ item112.dat1 <- left_join(item112.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 item112.dat2 <- item112.dat1[which(item112.dat1$TV.Set.Top.Box == "Yes"),]
 
 #summarise by site
-item112.dat3 <- summarise(group_by(item112.dat2, CK_Cadmus_ID, BuildingType, State)
+item112.customer <- summarise(group_by(item112.dat2, CK_Cadmus_ID)
                           ,Site.Count = sum(count))
 
-#summarise by state
-item112.state <- summarise(group_by(item112.dat3, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Site.Count)
-                           ,SE = sd(Site.Count) / sqrt(SampleSize))
+item112.merge <- left_join(rbsa.dat, item112.customer)
+item112.merge <- item112.merge[which(!is.na(item112.merge$Site.Count)),]
 
-#summarise by region
-item112.region <- summarise(group_by(item112.dat3, BuildingType)
-                            ,State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Site.Count)
-                           ,SE = sd(Site.Count) / sqrt(SampleSize))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item112.data <- weightedData(item112.merge[-which(colnames(item112.merge) %in% c("Site.Count"))])
+item112.data <- left_join(item112.data, item112.merge[which(colnames(item112.merge) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"Site.Count"))])
+item112.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item112.final <- mean_one_group(item112.data
+                                ,valueVariable = 'Site.Count'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
 
-item112.final <- rbind.data.frame(item112.state, item112.region, stringsAsFactors = F)
+item112.final.SF <- item112.final[which(item112.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item112.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+item112.final.MH <- item112.final[which(item112.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item112.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
 
-item112.table <- data.frame("BuildingType" = item112.final$BuildingType
-                            ,"State" = item112.final$State
-                            ,"Mean" = item112.final$Mean
-                            ,"SE" = item112.final$SE
-                            ,"SampleSize" = item112.final$SampleSize)
-item112.table1 <- item112.table[which(item112.table$BuildingType %in% c("Single Family", "Manufactured")),]
-
-
-
+exportTable(item112.final.SF, "SF", "Table 119", weighted = TRUE)
+exportTable(item112.final.MH, "MH", "Table 94", weighted = TRUE)
 
 
+
+#######################
+# Unweighted Analysis
+#######################
+item112.final <- mean_one_group_unweighted(item112.data
+                                           ,valueVariable = 'Site.Count'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item112.final.SF <- item112.final[which(item112.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item112.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+item112.final.MH <- item112.final[which(item112.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item112.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item112.final.SF, "SF", "Table 119", weighted = FALSE)
+exportTable(item112.final.MH, "MH", "Table 94", weighted = FALSE)
 
 
 
@@ -102,52 +124,67 @@ item113.dat1 <- left_join(item113.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 #subset to set.top.box not NA
 item113.dat2 <- item113.dat1[which(item113.dat1$TV.Set.Top.Box == "Yes"),]
+item113.dat2$STB.Ind <- 1
+
+item113.merge <- unique(left_join(rbsa.dat, item113.dat2))
+item113.merge$STB.Ind[which(is.na(item113.merge$STB.Ind))] <- 0
+unique(item113.merge$STB.Ind)
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item113.data <- weightedData(item113.merge[-which(colnames(item113.merge) %in% c("TV.Set.Top.Box"
+                                                                                 ,"STB.Records?"
+                                                                                 ,"count"
+                                                                                 ,"STB.Ind"))])
+item113.data <- left_join(item113.data, item113.merge[which(colnames(item113.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"TV.Set.Top.Box"
+                                                                                           ,"STB.Records?"
+                                                                                           ,"count"
+                                                                                           ,"STB.Ind"))])
+item113.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item113.final <- proportions_one_group(CustomerLevelData = item113.data
+                                       ,valueVariable = 'STB.Ind'
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,columnName = "Remove"
+                                       ,weighted = TRUE)
+
+item113.final.SF <- item113.final[which(item113.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+item113.final.MH <- item113.final[which(item113.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+exportTable(item113.final.SF, "SF", "Table 120", weighted = TRUE)
+exportTable(item113.final.MH, "MH", "Table 95", weighted = TRUE)
 
 
-#summarise by state
-#obtain sample size total
-item113.total <- summarise(group_by(item113.dat1, BuildingType, State)
-                           ,SampleSize.Total = length(unique(CK_Cadmus_ID)))
+#######################
+# Weighted Analysis
+#######################
+item113.final <- proportions_one_group(CustomerLevelData = item113.data
+                                       ,valueVariable = 'STB.Ind'
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,columnName = "Remove"
+                                       ,weighted = FALSE)
 
-#obtain sample size for only sites with set top boxes
-item113.setTopBox <- summarise(group_by(item113.dat2, BuildingType, State)
-                               ,SampleSize.STB = length(unique(CK_Cadmus_ID)))
-
-item113.state <- left_join(item113.total, item113.setTopBox, by = c("BuildingType", "State"))
-
-
-#summarise across states
-#obtain sample size total
-item113.total1 <- summarise(group_by(item113.dat1, BuildingType)
-                            ,State = "Region"
-                           ,SampleSize.Total = length(unique(CK_Cadmus_ID)))
-
-#obtain sample size for only sites with set top boxes
-item113.setTopBox1 <- summarise(group_by(item113.dat2, BuildingType)
-                                ,State = "Region"
-                               ,SampleSize.STB = length(unique(CK_Cadmus_ID)))
-
-item113.region <- left_join(item113.total1, item113.setTopBox1, by = c("BuildingType", "State"))
-
-
-item113.final <- rbind.data.frame(item113.state, item113.region, stringsAsFactors = F)
-item113.final$Percent <- item113.final$SampleSize.STB / item113.final$SampleSize.Total
-item113.final$SE <- sqrt(item113.final$Percent * (1 - item113.final$Percent) / item113.final$SampleSize.Total)
-
-item113.table <- data.frame("BuildingType" = item113.final$BuildingType
-                            ,"State" = item113.final$State
-                            ,"Percent" = item113.final$Percent
-                            ,"SE" = item113.final$SE
-                            ,"SampleSize" = item113.final$SampleSize.Total
-                            ,stringsAsFactors = F)
-
-item113.table1 <- item113.table[which(item113.table$BuildingType %in% c("Single Family", "Manufactured")),]
-
-
-
-
-
-
+item113.final.SF <- item113.final[which(item113.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+item113.final.MH <- item113.final[which(item113.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+exportTable(item113.final.SF, "SF", "Table 120", weighted = FALSE)
+exportTable(item113.final.MH, "MH", "Table 95", weighted = FALSE)
 
 
 
@@ -173,38 +210,69 @@ item114.dat2 <- item114.dat1[which(item114.dat1$TV.Set.Top.Box == "Yes"),]
 #remove unknown or DP not asked for
 item114.dat3 <- item114.dat2[which(item114.dat2$`STB.Records?` %in% c("Yes", "No")),]
 
-#summarise by state
-#count of total settopboxes
-item114.state1 <- summarise(group_by(item114.dat2, BuildingType, State)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Total.Count = sum(count))
-#count of settopboxes with DVR capabilities
-item114.state2 <- summarise(group_by(item114.dat3, BuildingType, State)
-                          ,Count = sum(count))
 
-item114.state <- left_join(item114.state1, item114.state2, by = c("BuildingType", "State"))
+item114.merge <- left_join(rbsa.dat, item114.dat3)
+item114.merge <- item114.merge[which(!is.na(item114.merge$`STB.Records?`)),]
 
-#summarise across states
-#count of total settopboxes
-item114.region1 <- summarise(group_by(item114.dat2, BuildingType)
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,State = "Region"
-                            ,Total.Count = sum(count))
-#count of settopboxes with DVR capabilities
-item114.region2 <- summarise(group_by(item114.dat3, BuildingType)
-                            ,State = "Region"
-                            ,Count = sum(count))
+item114.merge$STB.Ind <- item114.merge$`STB.Records?`
+item114.merge$STB.Ind[which(item114.merge$`STB.Records?` == "Yes")]  <- 1
+item114.merge$STB.Ind[which(item114.merge$`STB.Records?` == "No")]   <- 0
 
-item114.region <- left_join(item114.region1, item114.region2, by = c("BuildingType", "State"))
 
-item114.final <- rbind.data.frame(item114.state, item114.region, stringsAsFactors = F)
-item114.final$Percent <- item114.final$Count / item114.final$Total.Count
-item114.final$SE <- sqrt(item114.final$Percent * (1 - item114.final$Percent) / item114.final$SampleSize)
 
-item114.table <- data.frame("BuildingType" = item114.final$BuildingType
-                            ,"State" = item114.final$State
-                            ,"Percent" = item114.final$Percent
-                            ,"SE" = item114.final$SE
-                            ,"SampleSize" = item114.final$SampleSize)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item114.data <- weightedData(item114.merge[-which(colnames(item114.merge) %in% c("TV.Set.Top.Box"
+                                                                                 ,"STB.Records?"
+                                                                                 ,"count"
+                                                                                 ,"STB.Ind"))])
+item114.data <- left_join(item114.data, item114.merge[which(colnames(item114.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"TV.Set.Top.Box"
+                                                                                           ,"STB.Records?"
+                                                                                           ,"count"
+                                                                                           ,"STB.Ind"))])
+item114.data$count <- 1
+item114.data$STB.Ind <- as.numeric(as.character(item114.data$STB.Ind))
+#######################
+# Weighted Analysis
+#######################
+item114.final <- proportions_one_group(CustomerLevelData = item114.data
+                                       ,valueVariable = 'STB.Ind'
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,columnName = "Remove"
+                                       ,weighted = TRUE)
 
-item114.table1 <- item114.table[which(item114.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item114.final.SF <- item114.final[which(item114.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+item114.final.MH <- item114.final[which(item114.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+exportTable(item114.final.SF, "SF", "Table 121", weighted = TRUE)
+exportTable(item114.final.MH, "MH", "Table 96", weighted = TRUE)
+
+
+#######################
+# Weighted Analysis
+#######################
+item114.final <- proportions_one_group(CustomerLevelData = item114.data
+                                       ,valueVariable = 'STB.Ind'
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,columnName = "Remove"
+                                       ,weighted = FALSE)
+
+item114.final.SF <- item114.final[which(item114.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+item114.final.MH <- item114.final[which(item114.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"
+                                                                         ,"Remove"
+                                                                         ,"Total.Count"))]
+exportTable(item114.final.SF, "SF", "Table 121", weighted = FALSE)
+exportTable(item114.final.MH, "MH", "Table 96", weighted = FALSE)
