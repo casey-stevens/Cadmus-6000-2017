@@ -112,6 +112,7 @@ unique(item69.dat3$Lamp.Category)
 
 
 item69.merge <- left_join(rbsa.dat, item69.dat3)
+item69.merge <- item69.merge[which(!is.na(item69.merge$Lamp.Category))]
 
 
 ################################################
@@ -131,8 +132,6 @@ item69.data <- left_join(item69.data, item69.merge[which(colnames(item69.merge) 
                                                                                        ,"count"
                                                                                        ,"Lamps"))])
 item69.data$count <- 1
-item69.data <- item69.data[which(!is.na(item69.data$Lamp.Category)),]
-
 #######################
 # Weighted Analysis
 #######################

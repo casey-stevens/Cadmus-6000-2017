@@ -212,12 +212,18 @@ item81.final <- proportions_one_group(CustomerLevelData = item81.data
                                       ,columnName       = 'Remove')
 
 item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
+item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily")
+                                ,-which(colnames(item81.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 
 exportTable(item81.final.SF, "SF", "Table 88", weighted = TRUE)
 exportTable(item81.final.MH, "MH", "Table 69", weighted = TRUE)
+exportTable(item81.final.MF, "MF", "Table 87", weighted = TRUE)
 
 
 #######################
@@ -238,7 +244,11 @@ item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured
                                 ,-which(colnames(item81.final) %in% c("BuildingType"
                                                                       ,"Remove"
                                                                       ,"Total.Count"))]
+item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily")
+                                ,-which(colnames(item81.final) %in% c("BuildingType"
+                                                                      ,"Remove"))]
 
 exportTable(item81.final.SF, "SF", "Table 88", weighted = FALSE)
 exportTable(item81.final.MH, "MH", "Table 69", weighted = FALSE)
+exportTable(item81.final.MF, "MF", "Table 87", weighted = FALSE)
 
