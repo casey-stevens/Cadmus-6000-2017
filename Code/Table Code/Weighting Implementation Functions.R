@@ -580,7 +580,7 @@ proportions_one_group <- function(CustomerLevelData
       }
       
       item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
-      
+      item.full <- item.full[which(colnames(item.full) != "Total.Count")]
       return(item.full)
     }
     
@@ -648,6 +648,8 @@ proportions_one_group <- function(CustomerLevelData
     }
     
     item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSize)
+    
+    item.final <- item.final[which(colnames(item.final) != "Total.Count")]
     return(item.final)
   }
 }
@@ -852,6 +854,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   # calculations made across the column variables
   #################################################################
   item.full <- rbind.data.frame(AllRowsFinal, item.agg.final, stringsAsFactors = F)
+  item.full <- item.full[which(colnames(item.full) != "Total.Count")]
   
   return(item.full)
 }
