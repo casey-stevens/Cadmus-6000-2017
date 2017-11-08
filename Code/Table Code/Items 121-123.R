@@ -129,39 +129,6 @@ exportTable(item122.final.MH, "MH", "Table 104", weighted = FALSE)
 
 
 
-## OLD CODE ##
-# 
-# #by state
-# item122.state <- summarise(group_by(item122.dat1, BuildingType, State)
-#                            ,SampleSize = length(unique(CK_Cadmus_ID))
-#                            ,Mean = mean(Qty.Occupants)
-#                            ,SE = sd(Qty.Occupants) / sqrt(SampleSize))
-# #by region
-# item122.region <- summarise(group_by(item122.dat1, BuildingType)
-#                             , State = "Region"
-#                            ,SampleSize = length(unique(CK_Cadmus_ID))
-#                            ,Mean = mean(Qty.Occupants)
-#                            ,SE = sd(Qty.Occupants) / sqrt(SampleSize))
-# 
-# item122.final <- rbind.data.frame(item122.state, item122.region, stringsAsFactors = F)
-# 
-# item122.table <- data.frame("BuildingType" = item122.final$BuildingType
-#                             ,"State" = item122.final$State
-#                             ,"Mean" = item122.final$Mean
-#                             ,"SE" = item122.final$SE
-#                             ,"SampleSize" = item122.final$SampleSize)
-# item122.table1 <- item122.table[which(item122.table$BuildingType %in% c("Single Family", "Manufactured")),]
-# 
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -197,55 +164,116 @@ str(item123.dat1)
 item123.dat1$Age_0_18 <- item123.dat1$Age_Less_Than_1 + item123.dat1$Age_1_5 + item123.dat1$Age_6_10 + item123.dat1$Age_11_18
 item123.dat1$Age_19_64 <- item123.dat1$Age_19_45 + item123.dat1$Age_46_64
 
+item123.dat2 <- item123.dat1[which(colnames(item123.dat1) %notin% c("Age_1_5"
+                                                                    ,"Age_11_18"
+                                                                    ,"Age_19_45"
+                                                                    ,"Age_46_64"
+                                                                    ,"Age_6_10"
+                                                                    ,"Age_Less_Than_1"))]
 
-#summarise by state
-item123.state <- summarise(group_by(item123.dat1, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean_0 = mean(Age_0_18)
-                           ,SE_0 = sd(Age_0_18) / sqrt(SampleSize)
-                           ,Mean_19 = mean(Age_19_64)
-                           ,SE_19 = sd(Age_19_64) / sqrt(SampleSize)
-                           ,Mean_65 = mean(Age_65_Older)
-                           ,SE_65 = sd(Age_65_Older) / sqrt(SampleSize))
+item123.melt <- melt(item123.dat2, measure.vars = c("Age_0_18"
+                                                    , "Age_19_64"
+                                                    , "Age_65_Older"))
+colnames(item123.melt)[which(colnames(item123.melt) == "variable")] <- "Age.Category"
 
-#summarise across states
-item123.region <- summarise(group_by(item123.dat1, BuildingType)
-                           ,State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean_0 = mean(Age_0_18)
-                           ,SE_0 = sd(Age_0_18) / sqrt(SampleSize)
-                           ,Mean_19 = mean(Age_19_64)
-                           ,SE_19 = sd(Age_19_64) / sqrt(SampleSize)
-                           ,Mean_65 = mean(Age_65_Older)
-                           ,SE_65 = sd(Age_65_Older) / sqrt(SampleSize))
+item123.sum <- summarise(group_by(item123.melt, CK_Cadmus_ID, Age.Category)
+                         ,Occupants = sum(value))
 
-item123.merge <- rbind.data.frame(item123.state, item123.region, stringsAsFactors = F)
-item123.merge <- data.table(item123.merge)
-library(data.table)
-item123.melt <- reshape(item123.merge, varying = 4:9, sep = "_", direction = 'long')
-item123.melt$Age.Category <- c(rep("0 to 18", 12)
-                               ,rep("19 to 64", 12)
-                               ,rep("Older than 65", 12))
+item123.merge <- left_join(rbsa.dat, item123.sum)
+item123.merge <- item123.merge[which(!is.na(item123.merge$Occupants)),]
 
-item123.cast <- dcast(setDT(item123.melt)
-                      ,formula = BuildingType + Age.Category ~ State
-                      ,value.var = c("Mean", "SE", "SampleSize"))
 
-item123.cast <- data.frame(item123.cast)
-item123.cast1 <- item123.cast[which(!(colnames(item123.cast) %in% c("SampleSize_MT"
-                                                                    ,"SampleSize_OR"
-                                                                    ,"SampleSize_WA")))]
 
-item123.final <- data.frame("BuildingType" = item123.cast1$BuildingType
-                            ,"Age.Category" = item123.cast1$Age.Category
-                            ,"Mean_MT" = item123.cast1$Mean_MT
-                            ,"SE_MT" = item123.cast1$SE_MT
-                            ,"Mean_OR" = item123.cast1$Mean_OR
-                            ,"SE_OR" = item123.cast1$SE_OR
-                            ,"Mean_WA" = item123.cast1$Mean_WA
-                            ,"SE_WA" = item123.cast1$SE_WA
-                            ,"Mean_Region" = item123.cast1$Mean_Region
-                            ,"SE_Region" = item123.cast1$SE_Region
-                            ,"SampleSize" = item123.cast1$SampleSize_Region)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item123.data <- weightedData(item123.merge[-which(colnames(item123.merge) %in% c("Age.Category"               
+                                                                               ,"Occupants"))])
+item123.data <- left_join(item123.data, item123.merge[which(colnames(item123.merge) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Age.Category"               
+                                                                                         ,"Occupants"))])
+item123.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item123.cast <- mean_two_groups(CustomerLevelData = item123.data
+                                 ,valueVariable    = 'Occupants'
+                                 ,byVariableRow    = 'Age.Category'
+                                 ,byVariableColumn = 'State'
+                                 ,columnAggregate  = "Region"
+                                 ,rowAggregate     = "All_Ages")
 
-item123.table <- item123.final[which(item123.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
+                            ,"Age.Category"   = item123.cast$Age.Category
+                            ,"Mean_ID"        = item123.cast$Mean_ID
+                            ,"SE_ID"          = item123.cast$SE_ID
+                            ,"n_ID"           = item123.cast$SampleSize_ID
+                            ,"Mean_MT"        = item123.cast$Mean_MT
+                            ,"SE_MT"          = item123.cast$SE_MT
+                            ,"n_MT"           = item123.cast$SampleSize_MT
+                            ,"Mean_OR"        = item123.cast$Mean_OR
+                            ,"SE_OR"          = item123.cast$SE_OR
+                            ,"n_OR"           = item123.cast$SampleSize_OR
+                            ,"Mean_WA"        = item123.cast$Mean_WA
+                            ,"SE_WA"          = item123.cast$SE_WA
+                            ,"n_WA"           = item123.cast$SampleSize_WA
+                            ,"Mean_Region"    = item123.cast$Mean_Region
+                            ,"SE_Region"      = item123.cast$SE_Region
+                            ,"n_Region"       = item123.cast$SampleSize_Region
+                            # ,"SampleSize"     = item123.cast$SampleSize_Region
+)
+
+item123.final.SF <- item123.table[which(item123.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item123.table) %in% c("BuildingType"))]
+item123.final.MH <- item123.table[which(item123.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item123.table) %in% c("BuildingType"))]
+
+exportTable(item123.final.SF, "SF", "Table ", weighted = TRUE)
+exportTable(item123.final.MH, "MH", "Table ", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item123.final <- proportions_two_groups_unweighted(CustomerLevelData = item123.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'QTY_bins'
+                                                   ,aggregateColumnName = "Region")
+
+item123.cast <- dcast(setDT(item123.final)
+                      , formula = BuildingType + QTY_bins ~ State
+                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item123.table <- data.frame("BuildingType"   = item123.cast$BuildingType
+                            ,"Annual.Wood.Use"= item123.cast$QTY_bins
+                            ,"Percent_ID"     = item123.cast$Percent_ID
+                            ,"SE_ID"          = item123.cast$SE_ID
+                            ,"Count_ID"       = item123.cast$Count_ID
+                            ,"Percent_MT"     = item123.cast$Percent_MT
+                            ,"SE_MT"          = item123.cast$SE_MT
+                            ,"Count_MT"       = item123.cast$Count_MT
+                            ,"Percent_OR"     = item123.cast$Percent_OR
+                            ,"SE_OR"          = item123.cast$SE_OR
+                            ,"Count_OR"       = item123.cast$Count_OR
+                            ,"Percent_WA"     = item123.cast$Percent_WA
+                            ,"SE_WA"          = item123.cast$SE_WA
+                            ,"Count_WA"       = item123.cast$Count_WA
+                            ,"Percent_Region" = item123.cast$Percent_Region
+                            ,"SE_Region"      = item123.cast$SE_Region
+                            ,"Count_Region"   = item123.cast$Count_Region
+                            # ,"SampleSize"     = item123.cast$SampleSize_Region
+)
+stopifnot(sum(item123.table[which(item123.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(item123.table))], na.rm = T) == 10)
+
+
+item123.final.SF <- item123.table[which(item123.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item123.table) %in% c("BuildingType"))]
+item123.final.MH <- item123.table[which(item123.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item123.table) %in% c("BuildingType"))]
+
+exportTable(item123.final.SF, "SF", "Table ", weighted = FALSE)
+exportTable(item123.final.MH, "MH", "Table ", weighted = FALSE)
+
