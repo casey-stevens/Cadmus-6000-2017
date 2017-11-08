@@ -932,6 +932,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
   
   item.final <- data.frame("BuildingType" = item.final$BuildingType
                            ,"Percent"     = item.final$Percent
+                           ,"SE"          = item.final$SE
                            ,"Count"       = item.final$Count
                            ,"SampleSize"  = item.final$SampleSize, stringsAsFactors = F)
   
