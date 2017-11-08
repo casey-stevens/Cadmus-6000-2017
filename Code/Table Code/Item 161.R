@@ -6,9 +6,26 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -50,14 +67,16 @@ item161.dat.12$count <- 1
 
 item161.dat.13 <- unique(item161.dat.12[which(item161.dat.12$Heating.Fuel == "Electric"),])
 
-item161.sum1 <- summarise(group_by(item161.dat.13, CK_Cadmus_ID, Heating.Fuel)
-                          ,Count = sum(count))
-item161.sum1$Count <- 1
-which(duplicated(item161.sum1$CK_Cadmus_ID)) #none are duplicated!
-unique(item161.sum1$Heating.Fuel)
+item161.sum <- summarise(group_by(item161.dat.13, CK_Cadmus_ID, Heating.Fuel)
+                         ,Count = sum(count))
+item161.sum$Count <- 1
+which(duplicated(item161.sum$CK_Cadmus_ID)) #none are duplicated!
+unique(item161.sum$Heating.Fuel)
 
-item161.mechanical <- item161.sum1
+item161.merge <- left_join(rbsa.dat, item161.sum)
+item161.merge <- item161.merge[which(!is.na(item161.merge$Heating.Fuel)),]
 
+item161.mechanical <- item161.merge
 
 
 
@@ -73,47 +92,75 @@ item161.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Floor.Type"
                                                                ,"Floor.Sub-Type"))]
 
-item161.dat0 <- left_join(item161.dat, item161.mechanical, by = "CK_Cadmus_ID")
-item161.dat0.1 <- item161.dat0[which(item161.dat0$Heating.Fuel == "Electric"),]
+item161.dat$Basement.Ind <- 0
+item161.dat$Basement.Ind[which(item161.dat$Floor.Type == "Basement")] <- 1
 
-item161.dat1 <- left_join(rbsa.dat, item161.dat0.1, by = "CK_Cadmus_ID")
-length(unique(item161.dat1$CK_Cadmus_ID))#601
+item161.dat1 <- unique(item161.dat[which(item161.dat$Basement.Ind == 1),])
+which(duplicated(item161.dat3$CK_Cadmus_ID))
 
-#subset to only single family homes
-item161.dat2 <- item161.dat1[which(item161.dat1$BuildingType == "Single Family"),]
-item161.dat2$count <- 1
+item161.merge <- left_join(rbsa.dat, item161.dat1)
+item161.merge$Basement.Ind[which(is.na(item161.merge$Basement.Ind))] <- 0
 
-item161.dat3 <- item161.dat2[which(item161.dat2$Floor.Type == "Basement"),]
-item161.dat3$cond.ind <- 0
-item161.dat3$cond.ind[which(item161.dat3$`Floor.Sub-Type` == "Conditioned")] <- 1
 
-#summarise -- State JUST Basement
-item161.sum1 <- summarise(group_by(item161.dat3, BuildingType, State)
-                         , BSMTCount = sum(count))
-#summarise -- State All Sites Basement
-item161.sum2 <- summarise(group_by(item161.dat2, BuildingType, State)
-                         , SampleSize = length(unique(CK_Cadmus_ID)))
 
-#summarise -- Region JUST Basement
-item161.sum3 <- summarise(group_by(item161.dat3, BuildingType)
-                         , State = "Region"
-                         , BSMTCount = sum(count))
-#summarise -- Region All Sites Basement
-item161.sum4 <- summarise(group_by(item161.dat2, BuildingType)
-                         , State = "Region"
-                         , SampleSize = length(unique(CK_Cadmus_ID)))
+#############################################################################################
+#
+#Merge mechanical and envelope data together
+#
+#############################################################################################
 
-## rbind state and region sample sizes
-item161.tmp1 <- left_join(item161.sum1, item161.sum2, by = c("BuildingType", "State"))
-item161.tmp2 <- left_join(item161.sum3, item161.sum4, by = c("BuildingType", "State"))
+item161.merge1 <- left_join(item161.merge, item161.mechanical)
+item161.merge2 <- unique(item161.merge1[which(item161.merge1$Heating.Fuel == "Electric"),])
 
-item161.final <- rbind.data.frame(item161.tmp1, item161.tmp2, stringsAsFactors = F)
+item161.merge3 <- left_join(rbsa.dat, item161.merge2)
+item161.merge <- item161.merge3[which(!is.na(item161.merge3$Heating.Fuel)),]
 
-item161.final$Percent <- item161.final$BSMTCount / item161.final$SampleSize
-item161.final$SE <- sqrt(item161.final$Percent * (1 - item161.final$Percent) / item161.final$SampleSize)
 
-item161.table <- data.frame("BuildingType" = item161.final$BuildingType
-                           ,"State" = item161.final$State
-                           ,"Percent" = item161.final$Percent
-                           ,"SE" = item161.final$SE
-                           ,"SampleSize" = item161.final$SampleSize)
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item161.data <- weightedData(item161.merge[-which(colnames(item161.merge) %in% c("Heating.Fuel"
+                                                                                 ,"Count"
+                                                                                 ,"Site.SQFT"
+                                                                                 ,"Floor.Type"
+                                                                                 ,"Floor.Sub-Type"
+                                                                                 ,"Basement.Ind"))])
+item161.data <- left_join(item161.data, item161.merge[which(colnames(item161.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Heating.Fuel"
+                                                                                           ,"Count"
+                                                                                           ,"Site.SQFT"
+                                                                                           ,"Floor.Type"
+                                                                                           ,"Floor.Sub-Type"
+                                                                                           ,"Basement.Ind"))])
+#######################
+# Weighted Analysis
+#######################
+item161.final <- proportions_one_group(CustomerLevelData = item161.data
+                                       ,valueVariable = 'Basement.Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE
+                                       ,two.prop.total = NA)
+
+item161.final.SF <- item161.final[which(item161.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item161.final) %in% c("BuildingType"))]
+
+exportTable(item161.final.SF, "SF", "Table B-6", weighted = TRUE)
+
+#######################
+# Unweighted Analysis
+#######################
+item161.final <- proportions_one_group(CustomerLevelData = item161.data
+                                       ,valueVariable = 'Basement.Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE
+                                       ,two.prop.total = NA)
+
+item161.final.SF <- item161.final[which(item161.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item161.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+
+exportTable(item161.final.SF, "SF", "Table B-6", weighted = FALSE)
+

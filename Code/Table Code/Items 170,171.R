@@ -1,7 +1,29 @@
+#############################################################################################
+##  Title:            RBSA Analysis                      
+##  Author:           Casey Stevens, Cadmus Group               
+##  Created:          06/13/2017
+##  Updated:                                             
+##  Billing Code(s):  
+#############################################################################################
+
+##  Clear variables
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
@@ -41,16 +63,16 @@ mechanical.dat.12$count <- 1
 
 mechanical.dat.13 <- unique(mechanical.dat.12[which(mechanical.dat.12$Heating.Fuel == "Electric"),])
 
-mechanical.sum1 <- summarise(group_by(mechanical.dat.13, CK_Cadmus_ID, Heating.Fuel)
-                          ,Count = sum(count))
-mechanical.sum1$Count <- 1
-which(duplicated(mechanical.sum1$CK_Cadmus_ID)) #none are duplicated!
-unique(mechanical.sum1$Heating.Fuel)
+mechanical.sum <- summarise(group_by(mechanical.dat.13, CK_Cadmus_ID, Heating.Fuel)
+                         ,Count = sum(count))
+mechanical.sum$Count <- 1
+which(duplicated(mechanical.sum$CK_Cadmus_ID)) #none are duplicated!
+unique(mechanical.sum$Heating.Fuel)
 
-mechanical.final <- mechanical.sum1
+mechanical.merge <- left_join(rbsa.dat, mechanical.sum)
+mechanical.merge <- mechanical.merge[which(!is.na(mechanical.merge$Heating.Fuel)),]
 
-
-
+item170.mechanical <- mechanical.merge
 
 
 
@@ -73,43 +95,59 @@ item170.dat$count <- 1
 item170.dat0 <- item170.dat[which(item170.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item170.dat1 <- left_join(item170.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item170.dat1 <- left_join(rbsa.dat, item170.dat0, by = "CK_Cadmus_ID")
 
-item170.dat1.1 <-left_join(item170.dat1, mechanical.final, by = "CK_Cadmus_ID")
-item170.dat1.2 <- item170.dat1.1[which(item170.dat1.1$Heating.Fuel == "Electric"),]
+unique(item170.dat1$Thermostat_Setpoint)
 
-item170.dat1.3 <- item170.dat1.2[which(!(is.na(item170.dat1.2$Thermostat_Setpoint))),]
-item170.dat2 <- item170.dat1.3[which(item170.dat1.3$Thermostat_Setpoint != 0),]
-
-#summarise by state
-item170.state <- summarise(group_by(item170.dat2, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Mean = mean(Thermostat_Setpoint)
-                           ,SE = sd(Thermostat_Setpoint) / sqrt(SampleSize))
-
-#summarise across states
-item170.region <- summarise(group_by(item170.dat2, BuildingType)
-                            ,State = "Region"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean = mean(Thermostat_Setpoint)
-                            ,SE = sd(Thermostat_Setpoint) / sqrt(SampleSize))
-
-#join together state and region info
-item170.final <- rbind.data.frame(item170.state, item170.region, stringsAsFactors = F)
-
-#put columns in correct order
-item170.table <- data.frame("BuildingType" = item170.final$BuildingType
-                            ,"State" = item170.final$State
-                            ,"Mean" = item170.final$Mean
-                            ,"SE" = item170.final$SE
-                            ,"SampleSize" = item170.final$SampleSize)
-
-#subset to only relevant buildingtypes
-item170.table1 <- item170.table[which(item170.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item170.dat2.0 <- item170.dat1[which(!(is.na(item170.dat1$Thermostat_Setpoint))),]
+item170.dat2 <- item170.dat2.0[which(item170.dat2.0$Thermostat_Setpoint != 0),]
+colnames(item170.dat2)
 
 
 
+item170.merge <- left_join(item170.dat2, item170.mechanical)
+item170.merge <- item170.merge[which(!is.na(item170.merge$Heating.Fuel)),]
 
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item170.data <- weightedData(item170.merge[-which(colnames(item170.merge) %in% c("Thermostat_Setpoint"
+                                                                               ,"count"
+                                                                               ,"Heating.Fuel"
+                                                                               ,"Count"))])
+item170.data <- left_join(item170.data, item170.merge[which(colnames(item170.merge) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Thermostat_Setpoint"
+                                                                                         ,"count"
+                                                                                         ,"Heating.Fuel"
+                                                                                         ,"Count"))])
+
+#######################
+# Weighted Analysis
+#######################
+item170.final <- mean_one_group(item170.data
+                                ,valueVariable = 'Thermostat_Setpoint'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item170.final.SF <- item170.final[which(item170.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item170.final) %in% c("BuildingType"))]
+
+exportTable(item170.final.SF, "SF", "Table B-15", weighted = TRUE)
+
+
+
+#######################
+# Unweighted Analysis
+#######################
+item170.final <- mean_one_group_unweighted(item170.data
+                                           ,valueVariable = 'Thermostat_Setpoint'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item170.final.SF <- item170.final[which(item170.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item170.final) %in% c("BuildingType"))]
+
+exportTable(item170.final.SF, "SF", "Table B-15", weighted = FALSE)
 
 
 
@@ -124,7 +162,6 @@ item171.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouHeatYourHomeWhatTemperatureDoYouTryToMaintain"
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForHeating"))])
 colnames(item171.dat) <- c("CK_Cadmus_ID", "Nighttime_Heating", "Thermostat_Setpoint")
-item171.dat$count <- 1
 
 #remove any repeat header rows from exporting
 item171.dat0 <- item171.dat[which(item171.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -132,12 +169,8 @@ item171.dat0 <- item171.dat[which(item171.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 #merge together analysis data with cleaned RBSA data
 item171.dat1 <- left_join(item171.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
-item171.dat1.1 <-left_join(item171.dat1, mechanical.final, by = "CK_Cadmus_ID")
-item171.dat1.2 <- item171.dat1.1[which(item171.dat1.1$Heating.Fuel == "Electric"),]
-
-item171.dat1.3 <- item171.dat1.2[which(!(is.na(item171.dat1.2$Thermostat_Setpoint))),]
-item171.dat2 <- item171.dat1.3[which(item171.dat1.3$Thermostat_Setpoint != 0),]
-
+item171.dat2.0 <- item171.dat1[which(!(is.na(item171.dat1$Thermostat_Setpoint))),]
+item171.dat2 <- item171.dat2.0[which(item171.dat2.0$Thermostat_Setpoint != 0),]
 unique(item171.dat2$Thermostat_Setpoint)
 unique(item171.dat2$Nighttime_Heating)
 
@@ -147,40 +180,57 @@ item171.dat3 <- item171.dat3.0[which(item171.dat3.0$Nighttime_Heating != 0),]
 item171.dat3$Heating.Setback <- 0
 item171.dat3$Heating.Setback[which(item171.dat3$Nighttime_Heating < item171.dat3$Thermostat_Setpoint)] <- 1
 
+item171.sum <- summarise(group_by(item171.dat3, CK_Cadmus_ID)
+                         ,Ind = sum(Heating.Setback))
 
-#summarise by states
-item171.state <- summarise(group_by(item171.dat3, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(Heating.Setback)
-                           ,Total.Count = sum(count)
-                           ,Percent = Count / Total.Count
-                           ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
-
-#summarise across states
-item171.region <- summarise(group_by(item171.dat3, BuildingType)
-                            ,State = "Region"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Count = sum(Heating.Setback)
-                            ,Total.Count = sum(count)
-                            ,Percent = Count / Total.Count
-                            ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
-
-#join state and region information
-item171.final <- rbind.data.frame(item171.state, item171.region, stringsAsFactors = F)
-
-#put columns in correct order
-item171.table <- data.frame("BuildingType" = item171.final$BuildingType
-                            ,"State" = item171.final$State
-                            ,"Percent" = item171.final$Percent
-                            ,"SE" = item171.final$SE
-                            ,"SampleSize" = item171.final$SampleSize)
-
-#subset to only relevant buildingtypes
-item171.table1 <- item171.table[which(item171.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item171.merge <- left_join(rbsa.dat, item171.sum)
+item171.merge <- item171.merge[which(!is.na(item171.merge$Ind)),]
 
 
+item171.merge <- left_join(item171.merge, item170.mechanical)
+item171.merge <- item171.merge[which(!is.na(item171.merge$Heating.Fuel)),]
 
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item171.data <- weightedData(item171.merge[-which(colnames(item171.merge) %in% c("Ind"
+                                                                                 ,"Heating.Fuel"
+                                                                                 ,"Count"))])
+item171.data <- left_join(item171.data, item171.merge[which(colnames(item171.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"
+                                                                                           ,"Heating.Fuel"
+                                                                                           ,"Count"))])
 
+#######################
+# Weighted Analysis
+#######################
+item171.final <- proportions_one_group(CustomerLevelData = item171.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE
+                                       ,two.prop.total = NA)
+
+item171.final.SF <- item171.final[which(item171.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item171.final) %in% c("BuildingType"))]
+
+exportTable(item171.final.SF, "SF", "Table B-16", weighted = TRUE)
+
+#######################
+# Unweighted Analysis
+#######################
+item171.final <- proportions_one_group(CustomerLevelData = item171.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE
+                                       ,two.prop.total = NA)
+
+item171.final.SF <- item171.final[which(item171.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item171.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+
+exportTable(item171.final.SF, "SF", "Table B-16", weighted = FALSE)
 
 
 

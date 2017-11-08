@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -42,7 +42,6 @@ item19.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Floor.Sub-Type"))]
 
 item19.dat1 <- left_join(rbsa.dat, item19.dat, by = "CK_Cadmus_ID")
-length(unique(item19.dat1$CK_Cadmus_ID))#601
 
 #subset to only single family homes
 item19.dat2 <- item19.dat1[which(item19.dat1$BuildingType == "Single Family"),]
