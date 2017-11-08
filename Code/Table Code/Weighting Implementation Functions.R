@@ -131,13 +131,12 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
 # and whether the column needs an aggregate summary
 #####################################################################################
 # Test
-# CustomerLevelData = item123.data
-# valueVariable    = 'Occupants'
-# byVariableRow    = 'Age.Category'
+# CustomerLevelData = item159.data
+# valueVariable    = 'Site.SQFT'
+# byVariableRow    = 'HomeYearBuilt_bins2'
 # byVariableColumn = 'State'
 # columnAggregate  = "Region"
-# rowAggregate     = "All_Ages"
-
+# rowAggregate     = "All Vintages"
 
 mean_two_groups <- function(CustomerLevelData
                             , valueVariable

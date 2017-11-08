@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -234,7 +234,7 @@ exportTable(item123.final.MH, "MH", "Table 105", weighted = TRUE)
 #######################
 # Unweighted Analysis
 #######################
-item123.final <-  mean_two_groups_unweighted(CustomerLevelData = item123.data
+item123.cast <-  mean_two_groups_unweighted(CustomerLevelData = item123.data
                                              ,valueVariable    = 'Occupants'
                                              ,byVariableRow    = 'Age.Category'
                                              ,byVariableColumn = 'State'

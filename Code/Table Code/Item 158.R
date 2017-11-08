@@ -6,9 +6,24 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #565
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -33,14 +48,16 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 #############################################################################################
 
 #subset to columns need in table
-env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
-env.dat1 <- env.dat[which(!(is.na(env.dat$ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt))),]
+env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                            , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+names(env.dat) <- c("CK_Cadmus_ID", "Floor.Area")
+env.dat1 <- env.dat[which(!(is.na(env.dat$Floor.Area))),]
 
-env.dat2 <- env.dat1[which(!(env.dat1$ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt %in% c("0", "Unknown"))),]
-env.dat2$ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt <- as.numeric(as.character(env.dat2$ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt))
+env.dat2 <- env.dat1[which(!(env.dat1$Floor.Area %in% c("0", "Unknown"))),]
+env.dat2$Floor.Area <- as.numeric(as.character(env.dat2$Floor.Area))
 
 env.sum <- summarise(group_by(env.dat2, CK_Cadmus_ID)
-                     ,Site.SQFT = sum(ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt))
+                     ,Site.SQFT = sum(Floor.Area))
 
 item158.envelope <- env.sum
 
@@ -71,16 +88,16 @@ item158.dat.12$count <- 1
 
 item158.dat.13 <- unique(item158.dat.12[which(item158.dat.12$Heating.Fuel == "Electric"),])
 
-item158.sum1 <- summarise(group_by(item158.dat.13, CK_Cadmus_ID, Heating.Fuel)
-                          ,Count = sum(count))
-item158.sum1$Count <- 1
-which(duplicated(item158.sum1$CK_Cadmus_ID)) #none are duplicated!
-unique(item158.sum1$Heating.Fuel)
+item158.sum <- summarise(group_by(item158.dat.13, CK_Cadmus_ID, Heating.Fuel)
+                         ,Count = sum(count))
+item158.sum$Count <- 1
+which(duplicated(item158.sum$CK_Cadmus_ID)) #none are duplicated!
+unique(item158.sum$Heating.Fuel)
 
-item158.mechanical <- item158.sum1
+item158.merge <- left_join(rbsa.dat, item158.sum)
+item158.merge <- item158.merge[which(!is.na(item158.merge$Heating.Fuel)),]
 
-
-
+item158.mechanical <- item158.merge
 
 
 
@@ -90,36 +107,50 @@ item158.mechanical <- item158.sum1
 #
 #############################################################################################
 
-item158.merge <- left_join(item158.envelope, item158.mechanical, by = c("CK_Cadmus_ID"))
+item158.merge <- left_join(item158.envelope, item158.mechanical)
 
 item158.merge1 <- item158.merge[which(!(is.na(item158.merge$Heating.Fuel))),]
 
-item158.merge2 <- left_join(item158.merge1, rbsa.dat, by = c("CK_Cadmus_ID"))
-
-#summarise by state
-item158.state <- summarise(group_by(item158.merge2, BuildingType, State)
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Mean = mean(Site.SQFT)
-                            ,SE = sd(Site.SQFT) / sqrt(SampleSize))
-#summarise across states
-item158.region <- summarise(group_by(item158.merge2, BuildingType)
-                             ,State = "Region"
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                             ,Mean = mean(Site.SQFT)
-                             ,SE = sd(Site.SQFT) / sqrt(SampleSize))
-
-#row bind state information together
-item158.final <- rbind.data.frame(item158.state, item158.region, stringsAsFactors = F)
-
-item158.table <- data.frame("BuildingType" = item158.final$BuildingType
-                            ,"State" = item158.final$State
-                            ,"Mean" = item158.final$Mean
-                            ,"SE" = item158.final$SE
-                            ,"SampleSize" = item158.final$SampleSize)
+item158.merge2 <- left_join(rbsa.dat, item158.merge1)
+item158.merge <- item158.merge2[which(!is.na(item158.merge2$Heating.Fuel)),]
 
 
-item158.table1 <- item158.table[which(item158.table$BuildingType %in% c("Single Family")),]
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item158.data <- weightedData(item158.merge[-which(colnames(item158.merge) %in% c("Heating.Fuel"
+                                                                                 ,"Count"
+                                                                                 ,"Site.SQFT"))])
+item158.data <- left_join(item158.data, item158.merge[which(colnames(item158.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Heating.Fuel"
+                                                                                           ,"Count"
+                                                                                           ,"Site.SQFT"))])
+#######################
+# Weighted Analysis
+#######################
+item158.final <- mean_one_group(item158.data
+                                ,valueVariable = 'Site.SQFT'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item158.final.SF <- item158.final[which(item158.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item158.final) %in% c("BuildingType"
+                                                                         ,"Count"))]
+
+exportTable(item158.final.SF, "SF", "Table B-3", weighted = TRUE)
 
 
 
+#######################
+# Unweighted Analysis
+#######################
+item158.final <- mean_one_group_unweighted(item158.data
+                                           ,valueVariable = 'Site.SQFT'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item158.final.SF <- item158.final[which(item158.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item158.final) %in% c("BuildingType"))]
+
+exportTable(item158.final.SF, "SF", "Table B-3", weighted = FALSE)
 
