@@ -7,11 +7,23 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -19,7 +31,7 @@ sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.int
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Combined")
+survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated")
 #clean cadmus IDs
 survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
 
@@ -39,56 +51,63 @@ colnames(item139.dat) <- c("CK_Cadmus_ID", "Reporting")
 #remove any repeat header rows from exporting
 item139.dat0 <- item139.dat[which(item139.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item139.dat0.5 <- item139.dat0[which(!(is.na(item139.dat0$Reporting))),]
-item139.dat1   <- item139.dat0.5[which(item139.dat0.5$Reporting != "Unknown"),]
+unique(item139.dat0$Reporting)
+item139.dat1   <- item139.dat0[which(item139.dat0$Reporting %in% c("Yes", "No")),]
+item139.dat1$Ind <- 0
+item139.dat1$Ind[which(item139.dat1$Reporting == "Yes")] <- 1
+
+item139.sum <- summarise(group_by(item139.dat1, CK_Cadmus_ID)
+                         ,Ind = sum(unique(Ind)))
+
+item139.merge <- left_join(rbsa.dat, item139.sum)
+item139.merge <- item139.merge[which(!is.na(item139.merge$Ind)),]
 
 
-item139.dat2 <- left_join(item139.dat1, rbsa.dat, by = "CK_Cadmus_ID")
-item139.dat2$count <- 1
 
-#summarise by state
-#by reporting
-item139.state1 <- summarise(group_by(item139.dat2, BuildingType, State, Reporting)
-                           ,Count = sum(count))
-#obtain sample sizes and total counts
-item139.state2 <- summarise(group_by(item139.dat2, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Total.Count = sum(count))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item139.data <- weightedData(item139.merge[-which(colnames(item139.merge) %in% c("Ind"))])
+item139.data <- left_join(item139.data, item139.merge[which(colnames(item139.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+item139.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item139.final <- proportions_one_group(CustomerLevelData = item139.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE
+                                       ,two.prop.total = NA)
 
-item139.state <- left_join(item139.state1, item139.state2, by = c("BuildingType", "State"))
+item139.final.SF <- item139.final[which(item139.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item139.final) %in% c("BuildingType"))]
+item139.final.MH <- item139.final[which(item139.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item139.final) %in% c("BuildingType"))]
 
+exportTable(item139.final.SF, "SF", "Table 146", weighted = TRUE)
+exportTable(item139.final.MH, "MH", "Table 121", weighted = TRUE)
 
-#summarise across states
-#by reporting
-item139.region1 <- summarise(group_by(item139.dat2, BuildingType, Reporting)
-                            ,State = "Region"
-                            ,Count = sum(count))
-#obtain sample sizes and total counts
-item139.region2 <- summarise(group_by(item139.dat2, BuildingType)
-                            ,State = "Region"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Total.Count = sum(count))
+#######################
+# Unweighted Analysis
+#######################
+item139.final <- proportions_one_group(CustomerLevelData = item139.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE
+                                       ,two.prop.total = NA)
 
-item139.region <- left_join(item139.region1, item139.region2, by = c("BuildingType", "State"))
+item139.final.SF <- item139.final[which(item139.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item139.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+item139.final.MH <- item139.final[which(item139.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item139.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
 
-
-item139.merge <- rbind.data.frame(item139.state, item139.region, stringsAsFactors = F)
-
-
-item139.final <- item139.merge[which(item139.merge$Reporting == "Yes"),]
-item139.final$Percent <- item139.final$Count / item139.final$Total.Count
-item139.final$SE <- sqrt(item139.final$Percent * (1 - item139.final$Percent) / item139.final$SampleSize)
-
-#put columns in correct order
-item139.table <- data.frame("BuildingType" = item139.final$BuildingType
-                            ,"State" = item139.final$State
-                            ,"Percent" = item139.final$Percent
-                            ,"SE" = item139.final$SE
-                            ,"SampleSize" = item139.final$SampleSize)
-
-#subset to only relevant buildingtypes
-item139.table1 <- item139.table[which(item139.table$BuildingType %in% c("Single Family", "Manufactured")),]
-
+exportTable(item139.final.SF, "SF", "Table 146", weighted = FALSE)
+exportTable(item139.final.MH, "MH", "Table 121", weighted = FALSE)
 
 
 
@@ -103,48 +122,62 @@ item140.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
 
 colnames(item140.dat) <- c("Reporting", "CK_Cadmus_ID")
 
-item140.dat1   <- item140.dat[which(!(item140.dat$Reporting %in% c(NA, "Don't know", "Prefer not to say"))),]
+item140.dat1   <- item140.dat[which(item140.dat$Reporting %in% c("Yes", "No")),]
 unique(item140.dat1$Reporting)
 
-item140.dat2 <- left_join(rbsa.dat, item140.dat1, by = "CK_Cadmus_ID")
-item140.dat2$Reporting.Count <- 0
-item140.dat2$Reporting.Count[which(item140.dat2$Reporting == "Yes")] <- 1
-item140.dat2$count <- 1
+item140.dat1$Reporting.Count <- 0
+item140.dat1$Reporting.Count[which(item140.dat1$Reporting == "Yes")] <- 1
 
-#summarise by state
-item140.state <- summarise(group_by(item140.dat2, BuildingType, State)
-                           ,Percent = sum(Reporting.Count) / sum(count)
-                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
-                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+item140.sum <- summarise(group_by(item140.dat1, CK_Cadmus_ID)
+                         ,Ind = sum(unique(Reporting.Count)))
 
-#summarise across states
-#by reporting
-item140.region <- summarise(group_by(item140.dat2, BuildingType)
-                            ,State = "Region"
-                            ,Percent = sum(Reporting.Count) / sum(count)
-                            ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
-                            ,SampleSize = length(unique(CK_Cadmus_ID)))
+item140.merge <- left_join(rbsa.dat, item140.sum)
+item140.merge <- item140.merge[which(!is.na(item140.merge$Ind)),]
 
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item140.data <- weightedData(item140.merge[-which(colnames(item140.merge) %in% c("Ind"))])
+item140.data <- left_join(item140.data, item140.merge[which(colnames(item140.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+item140.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item140.final <- proportions_one_group(CustomerLevelData = item140.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE
+                                       ,two.prop.total = NA)
 
-item140.final <- rbind.data.frame(item140.state, item140.region, stringsAsFactors = F)
+item140.final.SF <- item140.final[which(item140.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item140.final) %in% c("BuildingType"))]
+item140.final.MH <- item140.final[which(item140.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item140.final) %in% c("BuildingType"))]
 
+exportTable(item140.final.SF, "SF", "Table 147", weighted = TRUE)
+exportTable(item140.final.MH, "MH", "Table 122", weighted = TRUE)
 
-#put columns in correct order
-item140.table <- data.frame("BuildingType" = item140.final$BuildingType
-                            ,"State" = item140.final$State
-                            ,"Percent" = item140.final$Percent
-                            ,"SE" = item140.final$SE
-                            ,"SampleSize" = item140.final$SampleSize)
+#######################
+# Unweighted Analysis
+#######################
+item140.final <- proportions_one_group(CustomerLevelData = item140.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE
+                                       ,two.prop.total = NA)
 
-#subset to only relevant buildingtypes
-item140.table1 <- item140.table[which(item140.table$BuildingType %in% c("Single Family", "Manufactured")),]
+item140.final.SF <- item140.final[which(item140.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item140.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+item140.final.MH <- item140.final[which(item140.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item140.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
 
-
-
-
-
-
-
+exportTable(item140.final.SF, "SF", "Table 147", weighted = FALSE)
+exportTable(item140.final.MH, "MH", "Table 122", weighted = FALSE)
 
 
 
@@ -165,42 +198,59 @@ colnames(item141.dat) <- c("CK_Cadmus_ID", "Reporting.tax")
 item141.dat0 <- item141.dat[which(item141.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 item141.dat1   <- item141.dat0[which(item141.dat0$Reporting.tax %in% c("Yes", "No")),]
+item141.dat1$Reporting.tax.count <- 0
+item141.dat1$Reporting.tax.count[which(item141.dat1$Reporting.tax == "Yes")] <- 1
 
-item141.dat2 <- left_join(rbsa.dat, item141.dat1, by = "CK_Cadmus_ID")
-item141.dat2$count <- 1
-item141.dat2$Reporting.tax.count <- 0
-item141.dat2$Reporting.tax.count[which(item141.dat2$Reporting.tax == "Yes")] <- 1
+item141.sum <- summarise(group_by(item141.dat1, CK_Cadmus_ID)
+                         ,Ind = sum(unique(Reporting.tax.count)))
 
+item141.merge <- left_join(rbsa.dat, item141.sum)
+item141.merge <- item141.merge[which(!is.na(item141.merge$Ind)),]
 
-#summarise by state
-#by Reporting.tax
-item141.state <- summarise(group_by(item141.dat2, BuildingType, State)
-                           ,Percent = sum(Reporting.tax.count) / sum(count)
-                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
-                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item141.data <- weightedData(item141.merge[-which(colnames(item141.merge) %in% c("Ind"))])
+item141.data <- left_join(item141.data, item141.merge[which(colnames(item141.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+item141.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item141.final <- proportions_one_group(CustomerLevelData = item141.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE
+                                       ,two.prop.total = NA)
 
+item141.final.SF <- item141.final[which(item141.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item141.final) %in% c("BuildingType"))]
+item141.final.MH <- item141.final[which(item141.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item141.final) %in% c("BuildingType"))]
 
-#summarise across states
-#by Reporting.tax
-item141.region <- summarise(group_by(item141.dat2, BuildingType)
-                            ,State = "Region"
-                            ,Percent = sum(Reporting.tax.count) / sum(count)
-                            ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
-                            ,SampleSize = length(unique(CK_Cadmus_ID)))
+exportTable(item141.final.SF, "SF", "Table 148", weighted = TRUE)
+exportTable(item141.final.MH, "MH", "Table 123", weighted = TRUE)
 
+#######################
+# Unweighted Analysis
+#######################
+item141.final <- proportions_one_group(CustomerLevelData = item141.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE
+                                       ,two.prop.total = NA)
 
-item141.final <- rbind.data.frame(item141.state, item141.region, stringsAsFactors = F)
+item141.final.SF <- item141.final[which(item141.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item141.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+item141.final.MH <- item141.final[which(item141.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item141.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
 
-
-#subset to only relevant buildingtypes
-item141.table <- item141.final[which(item141.final$BuildingType %in% c("Single Family", "Manufactured")),]
-
-
-
-
-
-
-
+exportTable(item141.final.SF, "SF", "Table 148", weighted = FALSE)
+exportTable(item141.final.MH, "MH", "Table 123", weighted = FALSE)
 
 
 
@@ -210,35 +260,64 @@ item141.table <- item141.final[which(item141.final$BuildingType %in% c("Single F
 #############################################################################################
 #Item 142: PERCENTAGE OF HOUSEHOLDS REPORTING USE OF BOTH UTILITY AND TAX CREDIT CONSERVATION PROGRAMS (SF table 149, MH table 124)
 #############################################################################################
-item141.tmp <- item141.dat2[which(colnames(item141.dat2) %in% c("CK_Cadmus_ID"
+item141.tmp <- item141.dat1[which(colnames(item141.dat1) %in% c("CK_Cadmus_ID"
                                                                 ,"Reporting.tax"
                                                                 ,"Reporting.tax.count"))]
-item142.dat <- left_join(item140.dat2, item141.tmp, by = "CK_Cadmus_ID")
+item142.dat <- left_join(item140.merge, item141.tmp, by = "CK_Cadmus_ID")
 
 item142.dat$Total.Reporting.Count <- 0
-item142.dat$Total.Reporting.Count[which(item142.dat$Reporting.Count == 1 & item142.dat$Reporting.tax.count == 1)] <- 1
+item142.dat$Total.Reporting.Count[which(item142.dat$Ind == 1 & item142.dat$Reporting.tax.count == 1)] <- 1
 
 unique(item142.dat$Total.Reporting.Count)
 
-#summarise by state
-#by Reporting.tax
-item142.state <- summarise(group_by(item142.dat, BuildingType, State)
-                           ,Percent = sum(Total.Reporting.Count) / sum(count)
-                           ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
-                           ,SampleSize = length(unique(CK_Cadmus_ID)))
+item142.sum <- summarise(group_by(item142.dat, CK_Cadmus_ID)
+                         ,Ind = sum(unique(Total.Reporting.Count)))
+
+item142.merge <- left_join(rbsa.dat, item142.sum)
+item142.merge <- item142.merge[which(!is.na(item142.merge$Ind)),]
 
 
-#summarise across states
-#by Reporting.tax
-item142.region <- summarise(group_by(item142.dat, BuildingType)
-                            ,State = "Region"
-                            ,Percent = sum(Total.Reporting.Count) / sum(count)
-                            ,SE = sqrt(Percent * (1 - Percent) / length(unique(CK_Cadmus_ID)))
-                            ,SampleSize = length(unique(CK_Cadmus_ID)))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item142.data <- weightedData(item142.merge[-which(colnames(item142.merge) %in% c("Ind"))])
+item142.data <- left_join(item142.data, item142.merge[which(colnames(item142.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+item142.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item142.final <- proportions_one_group(CustomerLevelData = item142.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE
+                                       ,two.prop.total = NA)
 
+item142.final.SF <- item142.final[which(item142.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item142.final) %in% c("BuildingType"))]
+item142.final.MH <- item142.final[which(item142.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item142.final) %in% c("BuildingType"))]
 
-item142.final <- rbind.data.frame(item142.state, item142.region, stringsAsFactors = F)
+exportTable(item142.final.SF, "SF", "Table 149", weighted = TRUE)
+exportTable(item142.final.MH, "MH", "Table 124", weighted = TRUE)
 
+#######################
+# Unweighted Analysis
+#######################
+item142.final <- proportions_one_group(CustomerLevelData = item142.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE
+                                       ,two.prop.total = NA)
 
-#subset to only relevant buildingtypes
-item142.table <- item142.final[which(item142.final$BuildingType %in% c("Single Family", "Manufactured")),]
+item142.final.SF <- item142.final[which(item142.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item142.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+item142.final.MH <- item142.final[which(item142.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item142.final) %in% c("BuildingType"
+                                                                         ,"Remove"))]
+
+exportTable(item142.final.SF, "SF", "Table 149", weighted = FALSE)
+exportTable(item142.final.MH, "MH", "Table 124", weighted = FALSE)
