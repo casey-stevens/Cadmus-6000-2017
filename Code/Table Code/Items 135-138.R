@@ -64,52 +64,52 @@ item135.dat2$QTY_bins[which(item135.dat2$QTY > 6)] <- "> 6 Cords"
 # Adding pop and sample sizes for weights
 ################################################
 item135.data <- weightedData(item135.dat2[-which(colnames(item135.dat2) %in% c("QTY"               
-                                                                            ,"QTY_bins"))])
+                                                                               ,"QTY_bins"))])
 item135.data <- left_join(item135.data, item135.dat2[which(colnames(item135.dat2) %in% c("CK_Cadmus_ID"
-                                                                                     ,"QTY"               
-                                                                                     ,"QTY_bins"))])
+                                                                                         ,"QTY"               
+                                                                                         ,"QTY_bins"))])
 item135.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
 item135.final <- proportionRowsAndColumns1(CustomerLevelData = item135.data
-                                          ,valueVariable    = 'count'
-                                          ,columnVariable   = 'State'
-                                          ,rowVariable      = 'QTY_bins'
-                                          ,aggregateColumnName = "Region")
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'State'
+                                           ,rowVariable      = 'QTY_bins'
+                                           ,aggregateColumnName = "Region")
 
 item135.cast <- dcast(setDT(item135.final)
-                     , formula = BuildingType + QTY_bins ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , formula = BuildingType + QTY_bins ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item135.table <- data.frame("BuildingType"   = item135.cast$BuildingType
-                           ,"Annual.Wood.Use"= item135.cast$QTY_bins
-                           ,"Percent_ID"     = item135.cast$w.percent_ID
-                           ,"SE_ID"          = item135.cast$w.SE_ID
-                           ,"Count_ID"       = item135.cast$count_ID
-                           ,"Percent_MT"     = item135.cast$w.percent_MT
-                           ,"SE_MT"          = item135.cast$w.SE_MT
-                           ,"Count_MT"       = item135.cast$count_MT
-                           ,"Percent_OR"     = item135.cast$w.percent_OR
-                           ,"SE_OR"          = item135.cast$w.SE_OR
-                           ,"Count_OR"       = item135.cast$count_OR
-                           ,"Percent_WA"     = item135.cast$w.percent_WA
-                           ,"SE_WA"          = item135.cast$w.SE_WA
-                           ,"Count_WA"       = item135.cast$count_WA
-                           ,"Percent_Region" = item135.cast$w.percent_Region
-                           ,"SE_Region"      = item135.cast$w.SE_Region
-                           ,"Count_Region"   = item135.cast$count_Region
-                           # ,"SampleSize"     = item135.cast$SampleSize_Region
+                            ,"Annual.Wood.Use"= item135.cast$QTY_bins
+                            ,"Percent_ID"     = item135.cast$w.percent_ID
+                            ,"SE_ID"          = item135.cast$w.SE_ID
+                            ,"Count_ID"       = item135.cast$count_ID
+                            ,"Percent_MT"     = item135.cast$w.percent_MT
+                            ,"SE_MT"          = item135.cast$w.SE_MT
+                            ,"Count_MT"       = item135.cast$count_MT
+                            ,"Percent_OR"     = item135.cast$w.percent_OR
+                            ,"SE_OR"          = item135.cast$w.SE_OR
+                            ,"Count_OR"       = item135.cast$count_OR
+                            ,"Percent_WA"     = item135.cast$w.percent_WA
+                            ,"SE_WA"          = item135.cast$w.SE_WA
+                            ,"Count_WA"       = item135.cast$count_WA
+                            ,"Percent_Region" = item135.cast$w.percent_Region
+                            ,"SE_Region"      = item135.cast$w.SE_Region
+                            ,"Count_Region"   = item135.cast$count_Region
+                            # ,"SampleSize"     = item135.cast$SampleSize_Region
 )
 #QAQC
 stopifnot(sum(item135.table[which(item135.table$BuildingType == "Single Family")
-                           ,grep("Percent",colnames(item135.table))], na.rm = T) == 10)
+                            ,grep("Percent",colnames(item135.table))], na.rm = T) == 10)
 
 
 item135.final.SF <- item135.table[which(item135.table$BuildingType == "Single Family")
-                                ,-which(colnames(item135.table) %in% c("BuildingType"))]
+                                  ,-which(colnames(item135.table) %in% c("BuildingType"))]
 item135.final.MH <- item135.table[which(item135.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item135.table) %in% c("BuildingType"))]
+                                  ,-which(colnames(item135.table) %in% c("BuildingType"))]
 
 exportTable(item135.final.SF, "SF", "Table 142", weighted = TRUE)
 exportTable(item135.final.MH, "MH", "Table 117", weighted = TRUE)
@@ -119,19 +119,19 @@ exportTable(item135.final.MH, "MH", "Table 117", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item135.final <- proportions_two_groups_unweighted(CustomerLevelData = item135.data
-                                                  ,valueVariable    = 'count'
-                                                  ,columnVariable   = 'State'
-                                                  ,rowVariable      = 'QTY_bins'
-                                                  ,aggregateColumnName = "Region")
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'QTY_bins'
+                                                   ,aggregateColumnName = "Region")
 
 item135.cast <- dcast(setDT(item135.final)
-                     , formula = BuildingType + QTY_bins ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , formula = BuildingType + QTY_bins ~ State
+                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
 
 
 item135.table <- data.frame("BuildingType"   = item135.cast$BuildingType
-                           ,"Annual.Wood.Use"= item135.cast$QTY_bins
-                           ,"Percent_ID"     = item135.cast$Percent_ID
+                            ,"Annual.Wood.Use"= item135.cast$QTY_bins
+                            ,"Percent_ID"     = item135.cast$Percent_ID
                            ,"SE_ID"          = item135.cast$SE_ID
                            ,"Count_ID"       = item135.cast$Count_ID
                            ,"Percent_MT"     = item135.cast$Percent_MT
@@ -374,8 +374,8 @@ item137.final.SF <- item137.table[which(item137.table$BuildingType == "Single Fa
 item137.final.MH <- item137.table[which(item137.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item137.table) %in% c("BuildingType"))]
 
-exportTable(item137.final.SF, "SF", "Table ", weighted = TRUE)
-exportTable(item137.final.MH, "MH", "Table ", weighted = TRUE)
+exportTable(item137.final.SF, "SF", "Table 144", weighted = TRUE)
+exportTable(item137.final.MH, "MH", "Table 119", weighted = TRUE)
 
 
 #######################
@@ -420,8 +420,8 @@ item137.final.SF <- item137.table[which(item137.table$BuildingType == "Single Fa
 item137.final.MH <- item137.table[which(item137.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item137.table) %in% c("BuildingType"))]
 
-exportTable(item137.final.SF, "SF", "Table ", weighted = FALSE)
-exportTable(item137.final.MH, "MH", "Table ", weighted = FALSE)
+exportTable(item137.final.SF, "SF", "Table 144", weighted = FALSE)
+exportTable(item137.final.MH, "MH", "Table 119", weighted = FALSE)
 
 
 
@@ -506,8 +506,8 @@ item138.final.SF <- item138.table[which(item138.table$BuildingType == "Single Fa
 item138.final.MH <- item138.table[which(item138.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item138.table) %in% c("BuildingType"))]
 
-exportTable(item138.final.SF, "SF", "Table ", weighted = TRUE)
-exportTable(item138.final.MH, "MH", "Table ", weighted = TRUE)
+exportTable(item138.final.SF, "SF", "Table 145", weighted = TRUE)
+exportTable(item138.final.MH, "MH", "Table 120", weighted = TRUE)
 
 
 #######################
@@ -552,5 +552,5 @@ item138.final.SF <- item138.table[which(item138.table$BuildingType == "Single Fa
 item138.final.MH <- item138.table[which(item138.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item138.table) %in% c("BuildingType"))]
 
-exportTable(item138.final.SF, "SF", "Table ", weighted = FALSE)
-exportTable(item138.final.MH, "MH", "Table ", weighted = FALSE)
+exportTable(item138.final.SF, "SF", "Table 145", weighted = FALSE)
+exportTable(item138.final.MH, "MH", "Table 120", weighted = FALSE)

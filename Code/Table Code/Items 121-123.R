@@ -207,20 +207,19 @@ item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
                             ,"Age.Category"   = item123.cast$Age.Category
                             ,"Mean_ID"        = item123.cast$Mean_ID
                             ,"SE_ID"          = item123.cast$SE_ID
-                            ,"n_ID"           = item123.cast$SampleSize_ID
+                            ,"n_ID"           = item123.cast$n_ID
                             ,"Mean_MT"        = item123.cast$Mean_MT
                             ,"SE_MT"          = item123.cast$SE_MT
-                            ,"n_MT"           = item123.cast$SampleSize_MT
+                            ,"n_MT"           = item123.cast$n_MT
                             ,"Mean_OR"        = item123.cast$Mean_OR
                             ,"SE_OR"          = item123.cast$SE_OR
-                            ,"n_OR"           = item123.cast$SampleSize_OR
+                            ,"n_OR"           = item123.cast$n_OR
                             ,"Mean_WA"        = item123.cast$Mean_WA
                             ,"SE_WA"          = item123.cast$SE_WA
-                            ,"n_WA"           = item123.cast$SampleSize_WA
+                            ,"n_WA"           = item123.cast$n_WA
                             ,"Mean_Region"    = item123.cast$Mean_Region
                             ,"SE_Region"      = item123.cast$SE_Region
-                            ,"n_Region"       = item123.cast$SampleSize_Region
-                            # ,"SampleSize"     = item123.cast$SampleSize_Region
+                            ,"n_Region"       = item123.cast$n_Region
 )
 
 item123.final.SF <- item123.table[which(item123.table$BuildingType == "Single Family")
@@ -228,52 +227,44 @@ item123.final.SF <- item123.table[which(item123.table$BuildingType == "Single Fa
 item123.final.MH <- item123.table[which(item123.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item123.table) %in% c("BuildingType"))]
 
-exportTable(item123.final.SF, "SF", "Table ", weighted = TRUE)
-exportTable(item123.final.MH, "MH", "Table ", weighted = TRUE)
+exportTable(item123.final.SF, "SF", "Table 130", weighted = TRUE)
+exportTable(item123.final.MH, "MH", "Table 105", weighted = TRUE)
 
 
 #######################
 # Unweighted Analysis
 #######################
-item123.final <- proportions_two_groups_unweighted(CustomerLevelData = item123.data
-                                                   ,valueVariable    = 'count'
-                                                   ,columnVariable   = 'State'
-                                                   ,rowVariable      = 'QTY_bins'
-                                                   ,aggregateColumnName = "Region")
+item123.final <-  mean_two_groups_unweighted(CustomerLevelData = item123.data
+                                             ,valueVariable    = 'Occupants'
+                                             ,byVariableRow    = 'Age.Category'
+                                             ,byVariableColumn = 'State'
+                                             ,columnAggregate  = "Region"
+                                             ,rowAggregate     = "All_Ages")
 
-item123.cast <- dcast(setDT(item123.final)
-                      , formula = BuildingType + QTY_bins ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
-
-
-item123.table <- data.frame("BuildingType"   = item123.cast$BuildingType
-                            ,"Annual.Wood.Use"= item123.cast$QTY_bins
-                            ,"Percent_ID"     = item123.cast$Percent_ID
+item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
+                            ,"Age.Category"   = item123.cast$Age.Category
+                            ,"Mean_ID"        = item123.cast$Mean_ID
                             ,"SE_ID"          = item123.cast$SE_ID
-                            ,"Count_ID"       = item123.cast$Count_ID
-                            ,"Percent_MT"     = item123.cast$Percent_MT
+                            ,"n_ID"           = item123.cast$n_ID
+                            ,"Mean_MT"        = item123.cast$Mean_MT
                             ,"SE_MT"          = item123.cast$SE_MT
-                            ,"Count_MT"       = item123.cast$Count_MT
-                            ,"Percent_OR"     = item123.cast$Percent_OR
+                            ,"n_MT"           = item123.cast$n_MT
+                            ,"Mean_OR"        = item123.cast$Mean_OR
                             ,"SE_OR"          = item123.cast$SE_OR
-                            ,"Count_OR"       = item123.cast$Count_OR
-                            ,"Percent_WA"     = item123.cast$Percent_WA
+                            ,"n_OR"           = item123.cast$n_OR
+                            ,"Mean_WA"        = item123.cast$Mean_WA
                             ,"SE_WA"          = item123.cast$SE_WA
-                            ,"Count_WA"       = item123.cast$Count_WA
-                            ,"Percent_Region" = item123.cast$Percent_Region
+                            ,"n_WA"           = item123.cast$n_WA
+                            ,"Mean_Region"    = item123.cast$Mean_Region
                             ,"SE_Region"      = item123.cast$SE_Region
-                            ,"Count_Region"   = item123.cast$Count_Region
-                            # ,"SampleSize"     = item123.cast$SampleSize_Region
+                            ,"n_Region"       = item123.cast$n_Region
 )
-stopifnot(sum(item123.table[which(item123.table$BuildingType == "Single Family")
-                            ,grep("Percent",colnames(item123.table))], na.rm = T) == 10)
-
 
 item123.final.SF <- item123.table[which(item123.table$BuildingType == "Single Family")
                                   ,-which(colnames(item123.table) %in% c("BuildingType"))]
 item123.final.MH <- item123.table[which(item123.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item123.table) %in% c("BuildingType"))]
 
-exportTable(item123.final.SF, "SF", "Table ", weighted = FALSE)
-exportTable(item123.final.MH, "MH", "Table ", weighted = FALSE)
+exportTable(item123.final.SF, "SF", "Table 130", weighted = FALSE)
+exportTable(item123.final.MH, "MH", "Table 105", weighted = FALSE)
 
