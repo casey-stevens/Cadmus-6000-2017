@@ -44,66 +44,105 @@ item173.dat$count <- 1
 item173.dat0 <- item173.dat[which(item173.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item173.dat1 <- left_join(item173.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item173.dat1 <- left_join(rbsa.dat, item173.dat0, by = "CK_Cadmus_ID")
 unique(item173.dat1$Age.and.Construction.Standard)
 
 item173.dat2 <- item173.dat1[which(!(is.na(item173.dat1$Age.and.Construction.Standard))),]
+item173.dat3 <- item173.dat2[which(item173.dat2$Age.and.Construction.Standard %notin% c("N/A", "Unknown", "1977")),]
+item173.dat3$Age.and.Construction.Standard[which(item173.dat3$Age.and.Construction.Standard == "1995 to current, NEEM ; 2000 to current, EnergyStar")] <- "1995 to current, NEEM 2000 to current, EnergyStar"
 
 
-#summarise by state
-#by age/standard
-item173.state1 <- summarise(group_by(item173.dat2, BuildingType, State, Age.and.Construction.Standard)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Count = sum(count))
-#across age/standard
-item173.state2 <- summarise(group_by(item173.dat2, BuildingType, State)
-                            ,Age.and.Construction.Standard = "Total"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Count = sum(count))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item173.data <- weightedData(item173.dat3[-which(colnames(item173.dat3) %in% c("Age.and.Construction.Standard"
+                                                                                 ,"count"))])
+item173.data <- left_join(item173.data, item173.dat3[which(colnames(item173.dat3) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Age.and.Construction.Standard"
+                                                                                         ,"count"))])
 
-#summarise across states
-#by age/standard
-item173.region1 <- summarise(group_by(item173.dat2, BuildingType, Age.and.Construction.Standard)
-                            , State = "Region"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Count = sum(count))
-#across age/standard
-item173.region2 <- summarise(group_by(item173.dat2, BuildingType)
-                            ,Age.and.Construction.Standard = "Total"
-                            , State = "Region"
-                            ,SampleSize = length(unique(CK_Cadmus_ID))
-                            ,Count = sum(count))
 
-item173.merge <- rbind.data.frame(item173.state1,item173.state2,item173.region1, item173.region2, stringsAsFactors = F)
+#######################
+# Weighted Analysis
+#######################
+item173.final <- proportionRowsAndColumns1(CustomerLevelData = item173.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'State'
+                                           ,rowVariable      = 'Age.and.Construction.Standard'
+                                           ,aggregateColumnName = "Region")
 
-item173.tot.counts <- rbind.data.frame(item173.state2, item173.region2, stringsAsFactors = F)
-
-item173.final <- left_join(item173.merge, item173.tot.counts, by = c("BuildingType", "State"))
-colnames(item173.final) <- c("BuildingType"
-                             , "State"
-                             , "Age_Construction_Std"
-                             , "SampleSize"
-                             , "Count"
-                             , "Remove"
-                             , "Remove"
-                             , "TotalCount")
-
-item173.final$Percent <- item173.final$Count / item173.final$TotalCount
-item173.final$SE <- sqrt(item173.final$Percent * (1 - item173.final$Percent) / item173.final$SampleSize)
-
-library(data.table)
 item173.cast <- dcast(setDT(item173.final)
-                      ,formula = BuildingType + Age_Construction_Std ~ State
-                      ,value.var = c("Percent", "SE", "SampleSize"))
+                      , formula = BuildingType + Age.and.Construction.Standard ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item173.table <- data.frame("BuildingType" = item173.cast$BuildingType
-                             ,"Age_Construction_Standard" = item173.cast$Age_Construction_Std
-                             ,"Percent_MT" = item173.cast$Percent_MT
-                             ,"SE_MT" = item173.cast$SE_MT
-                             ,"Percent_WA" = item173.cast$Percent_WA
-                             ,"SE_WA" = item173.cast$SE_WA
-                             ,"Percent_Region" = item173.cast$Percent_Region
-                             ,"SE_Region" = item173.cast$SE_Region
-                             ,"SampleSize" = item173.cast$SampleSize_Region)
+item173.table <- data.frame("BuildingType"    = item173.cast$BuildingType
+                            ,"Age_Standard"   = item173.cast$Age.and.Construction.Standard
+                            ,"Percent_ID"     = item173.cast$w.percent_ID
+                            ,"SE_ID"          = item173.cast$w.SE_ID
+                            ,"Count_ID"       = item173.cast$count_ID
+                            ,"n_ID"           = item173.cast$n_ID
+                            ,"Percent_MT"     = item173.cast$w.percent_MT
+                            ,"SE_MT"          = item173.cast$w.SE_MT
+                            ,"Count_MT"       = item173.cast$count_MT
+                            ,"n_MT"           = item173.cast$n_MT
+                            ,"Percent_OR"     = item173.cast$w.percent_OR
+                            ,"SE_OR"          = item173.cast$w.SE_OR
+                            ,"Count_OR"       = item173.cast$count_OR
+                            ,"n_OR"           = item173.cast$n_OR
+                            ,"Percent_WA"     = item173.cast$w.percent_WA
+                            ,"SE_WA"          = item173.cast$w.SE_WA
+                            ,"Count_WA"       = item173.cast$count_WA
+                            ,"n_WA"           = item173.cast$n_WA
+                            ,"Percent_Region" = item173.cast$w.percent_Region
+                            ,"SE_Region"      = item173.cast$w.SE_Region
+                            ,"Count_Region"   = item173.cast$count_Region
+                            ,"n_Region"       = item173.cast$n_Region
+)
 
-item173.table1 <- item173.table[which(item173.table$BuildingType %in% c("Manufactured")),]
+
+item173.final.MH <- item173.table[which(item173.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item173.table) %in% c("BuildingType"))]
+
+exportTable(item173.final.MH, "MH", "Table 9", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item173.final <- proportions_two_groups_unweighted(CustomerLevelData = item173.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'Age.and.Construction.Standard'
+                                                   ,aggregateColumnName = "Region")
+
+
+item173.cast <- dcast(setDT(item173.final)
+                      , formula = BuildingType + Age.and.Construction.Standard ~ State
+                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+
+item173.table <- data.frame("BuildingType"    = item173.cast$BuildingType
+                            ,"Age_Standard"   = item173.cast$Age.and.Construction.Standard
+                            ,"Percent_ID"     = item173.cast$Percent_ID
+                            ,"SE_ID"          = item173.cast$SE_ID
+                            ,"Count_ID"       = item173.cast$Count_ID
+                            ,"Percent_MT"     = item173.cast$Percent_MT
+                            ,"SE_MT"          = item173.cast$SE_MT
+                            ,"Count_MT"       = item173.cast$Count_MT
+                            ,"Percent_OR"     = item173.cast$Percent_OR
+                            ,"SE_OR"          = item173.cast$SE_OR
+                            ,"Count_OR"       = item173.cast$Count_OR
+                            ,"Percent_WA"     = item173.cast$Percent_WA
+                            ,"SE_WA"          = item173.cast$SE_WA
+                            ,"Count_WA"       = item173.cast$Count_WA
+                            ,"Percent_Region" = item173.cast$Percent_Region
+                            ,"SE_Region"      = item173.cast$SE_Region
+                            ,"Count_Region"   = item173.cast$Count_Region
+)
+
+
+item173.final.MH <- item173.table[which(item173.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item173.table) %in% c("BuildingType"))]
+
+exportTable(item173.final.MH, "MH", "Table 9", weighted = FALSE)
+
