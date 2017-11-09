@@ -7,11 +7,26 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list=ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen=999)
+
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
+
 
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -33,39 +48,52 @@ colnames(item179.dat) <- c("CK_Cadmus_ID", "Replacement_Windows")
 item179.dat0 <- item179.dat[which(item179.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item179.dat1 <- left_join(item179.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item179.dat1 <- left_join(rbsa.dat, item179.dat0, by = "CK_Cadmus_ID")
 unique(item179.dat1$Replacement_Windows)
-
-item179.dat1$Replacement_Windows[which(is.na(item179.dat1$Replacement_Windows))] <- "No"
-
 item179.dat2 <- item179.dat1
 
 item179.dat2$Replaced_Window_ind <- item179.dat2$Replacement_Windows
 item179.dat2$Replaced_Window_ind[which(item179.dat2$Replacement_Windows == "Yes")] <- 1
-item179.dat2$Replaced_Window_ind[which(item179.dat2$Replacement_Windows == "No")] <- 0
+item179.dat2$Replaced_Window_ind[which(item179.dat2$Replacement_Windows != "Yes")] <- 0
+item179.dat2$Replaced_Window_ind[which(is.na(item179.dat2$Replaced_Window_ind))] <- 0
+
 unique(item179.dat2$Replaced_Window_ind)
+
 item179.dat2$Replaced_Window_ind <- as.numeric(as.character(item179.dat2$Replaced_Window_ind))
 
 item179.dat2$count <- 1
-# str(item179.dat2)
 
-#summarise by state
-item179.state <- summarise(group_by(item179.dat2, BuildingType, State)
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Percent = sum(Replaced_Window_ind) / sum(count)
-                           ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
-#summarise across states
-item179.region <- summarise(group_by(item179.dat2, BuildingType)
-                           ,State = "Region"
-                           ,SampleSize = length(unique(CK_Cadmus_ID))
-                           ,Percent = sum(Replaced_Window_ind) / sum(count)
-                           ,SE = sqrt(Percent * (1 - Percent) / SampleSize))
 
-item179.final <- rbind.data.frame(item179.state, item179.region, stringsAsFactors = F)
+##########################################
+# add pop and sample sizes by strata
+##########################################
+item179.data <- weightedData(item179.dat2[-which(colnames(item179.dat2) %in% c("Replacement_Windows"
+                                                                               ,"Replaced_Window_ind"
+                                                                               ,"count"))])
+item179.data <- left_join(item179.data, item179.dat2[which(colnames(item179.dat2) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Replacement_Windows"
+                                                                                         ,"Replaced_Window_ind"
+                                                                                         ,"count"))])
+##############################
+# Weighted Analysis
+##############################
+item179.final <- proportions_one_group(CustomerLevelData = item179.data
+                                       ,valueVariable    = 'Replaced_Window_ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name       = "Region"
+                                       ,weighted         = TRUE)
+item179.final.MH <- item179.final[which(item179.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item179.final) %in% c("BuildingType"))]
+exportTable(item179.final.MH, "MH", "Table 22", weighted = TRUE)
 
-item179.table <- data.frame("BuildingType" = item179.final$BuildingType
-                            ,"State" = item179.final$State
-                            ,"Percent" = item179.final$Percent
-                            ,"SE" = item179.final$SE
-                            ,"SampleSize" = item179.final$SampleSize)
-item179.table1 <- item179.table[which(item179.table$BuildingType == "Manufactured"),]
+##############################
+# Unweighted Analysis
+##############################
+item179.final <- proportions_one_group(CustomerLevelData = item179.data
+                                       ,valueVariable    = 'Replaced_Window_ind'
+                                       ,groupingVariable = 'State'
+                                       ,total.name       = "Region"
+                                       ,weighted         = FALSE)
+item179.final.MH <- item179.final[which(item179.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item179.final) %in% c("BuildingType"))]
+exportTable(item179.final.MH, "MH", "Table 22", weighted = FALSE)
