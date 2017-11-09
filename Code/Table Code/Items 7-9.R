@@ -210,6 +210,10 @@ item9.customer <- summarise(group_by(item9.dat1
                             ,Site_Area = mean(Area)
 )
 
+item9.cast <- dcast(item9.customer,formula = CK_Cadmus_ID ~ Clean.Type, sum, value.var = "Site_Area")
+
+item9.melt <- melt(item9.cast, id.vars = "CK_Cadmus_ID")
+
 item9.merge <- left_join(rbsa.dat, item9.customer)
 item9.merge <- item9.merge[which(!is.na(item9.merge$Site_Area)),]
 

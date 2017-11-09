@@ -23,13 +23,14 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 #clean cadmus IDs
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
+stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK_Cadmus_ID)))
 
 # Bring in clean ground contact types
 GroundContactTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "Ground Contact Types.xlsx"), sheet = 1)
@@ -203,45 +204,40 @@ env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
 
 #merge
 item4.dat <- left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
-length(unique(item4.dat$CK_Cadmus_ID)) #601
+length(unique(item4.dat$CK_Cadmus_ID))
 
 item4.dat1 <- item4.dat[which(item4.dat$BuildingType != "Multifamily"),]
 item4.dat2 <- item4.dat1[which(!is.na(item4.dat1$ConditionedArea)),]
 
+######################################################
+# Summarise data up to unique customer level
+######################################################
+item4.customer <- summarise(group_by(item4.dat2, CK_Cadmus_ID)
+                            ,siteAreaConditioned = sum(ConditionedArea))
 
-item4.data <- weightedData(item4.dat2[-which(colnames(item4.dat2) %in% c("BldgLevel_Area_SqFt"
-                                                                         ,"ConditionedArea"))])
-item4.data <- left_join(item4.data, item4.dat2[which(colnames(item4.dat2) %in% c("CK_Cadmus_ID"
-                                                                                 , "BldgLevel_Area_SqFt"
-                                                                                 , "ConditionedArea"))])
+item4.merge <- left_join(rbsa.dat, item4.customer)
+item4.merge <- item4.merge[which(!is.na(item4.merge$siteAreaConditioned)),]
+
+
+item4.data <- weightedData(item4.merge[-which(colnames(item4.merge) %in% c("BldgLevel_Area_SqFt"
+                                                                         ,"siteAreaConditioned"))])
+item4.data <- left_join(item4.data, item4.merge[which(colnames(item4.merge) %in% c("CK_Cadmus_ID"
+                                                                                 ,"BldgLevel_Area_SqFt"
+                                                                                 , "siteAreaConditioned"))])
 
 item4.data$count <- 1
 colnames(item4.data)
 
-######################################################
-# Summarise data up to unique customer level
-######################################################
-item4.customer <- summarise(group_by(item4.data
-                                     , BuildingType
-                                     , CK_Cadmus_ID
-                                     , State
-                                     , Region
-                                     , Territory
-                                     , n.h
-                                     , N.h)
-                            ,siteAreaConditioned = sum(ConditionedArea)
-)
 
 
 
 ##############################
 # Weighted Analysis
 ##############################
-item4.final <- mean_one_group(CustomerLevelData = item4.customer
+item4.final <- mean_one_group(CustomerLevelData = item4.data
                               , valueVariable = 'siteAreaConditioned'
                               , byVariable    = 'State'
-                              , aggregateRow  = 'Region'
-                              , weighted = TRUE)
+                              , aggregateRow  = 'Region')
 
 
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]

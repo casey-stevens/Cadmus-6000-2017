@@ -380,9 +380,9 @@ item26.final <- proportions_one_group(CustomerLevelData = item26.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
-                                      ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = TRUE)
-item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family"),-which(colnames(item26.final) %in% c("BuildingType", "Attic.Insulation.Levels"))]
+item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family")
+                                ,-which(colnames(item26.final) %in% c("BuildingType"))]
 exportTable(item26.final.SF, "SF", "Table 33", weighted = TRUE)
 
 ##############################
@@ -392,10 +392,9 @@ item26.final <- proportions_one_group(CustomerLevelData = item26.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
-                                      ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = FALSE)
 item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family")
-                                ,-which(colnames(item26.final) %in% c("BuildingType", "Attic.Insulation.Levels", "Total.Count"))]
+                                ,-which(colnames(item26.final) %in% c("BuildingType"))]
 exportTable(item26.final.SF, "SF", "Table 33", weighted = FALSE)
 
 
@@ -423,14 +422,12 @@ item30.data <- left_join(item30.data, item30.dat[which(colnames(item30.dat) %in%
 #Bin R values -- SF only
 item30.data$rvalue.bins <- "Unknown"
 item30.data$rvalue.bins[which(item30.data$aveRval == 0)] <- "R0"
-item30.data$rvalue.bins[which(item30.data$aveRval >  0  & item30.data$aveRval < 11)]  <- "R1.R10"
-item30.data$rvalue.bins[which(item30.data$aveRval >= 11 & item30.data$aveRval < 16)]  <- "R11.R15"
+item30.data$rvalue.bins[which(item30.data$aveRval >  0 & item30.data$aveRval < 16)]   <- "R1.R15"
 item30.data$rvalue.bins[which(item30.data$aveRval >= 16 & item30.data$aveRval < 21)]  <- "R16.R20"
 item30.data$rvalue.bins[which(item30.data$aveRval >= 21 & item30.data$aveRval < 26)]  <- "R21.R25"
 item30.data$rvalue.bins[which(item30.data$aveRval >= 26 & item30.data$aveRval < 31)]  <- "R26.R30"
 item30.data$rvalue.bins[which(item30.data$aveRval >= 31 & item30.data$aveRval < 41)]  <- "R31.R40"
-item30.data$rvalue.bins[which(item30.data$aveRval >= 41 & item30.data$aveRval < 51)]  <- "R41.R50"
-item30.data$rvalue.bins[which(item30.data$aveRval >= 51)] <- "RGT50"
+item30.data$rvalue.bins[which(item30.data$aveRval >= 41)]  <- "R41.R50"
 unique(item30.data$rvalue.bins)
 
 item30.data$count <- 1
@@ -444,11 +441,9 @@ item30.final <- proportions_one_group(CustomerLevelData = item30.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
-                                      ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = TRUE)
 item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
-                                ,-which(colnames(item30.final) %in% c("BuildingType"
-                                                                      , "Attic.Insulation.Levels"))]
+                                ,-which(colnames(item30.final) %in% c("BuildingType"))]
 exportTable(item30.final.SF, "SF", "Table 37", weighted = TRUE)
 
 ##############################
@@ -458,12 +453,9 @@ item30.final <- proportions_one_group(CustomerLevelData = item30.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
-                                      ,columnName       = "Attic Insulation Levels"
                                       ,weighted         = FALSE)
 item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
-                                ,-which(colnames(item30.final) %in% c("BuildingType"
-                                                                      , "Attic.Insulation.Levels"
-                                                                      , "Total.Count"))]
+                                ,-which(colnames(item30.final) %in% c("BuildingType"))]
 exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 
 
@@ -504,11 +496,9 @@ item31.final <- proportions_one_group(CustomerLevelData = item31.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
                                       ,total.name       = "Total"
-                                      ,columnName       = "Roof Deck Insulation Levels"
                                       ,weighted         = TRUE)
 item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
-                                , -which(colnames(item31.final) %in% c("BuildingType"
-                                                                       , "Roof.Deck.Insulation.Levels"))]
+                                , -which(colnames(item31.final) %in% c("BuildingType"))]
 exportTable(item31.final.SF, "SF", "Table 38", weighted = TRUE)
 
 ##############################
@@ -518,10 +508,7 @@ item31.final <- proportions_one_group(CustomerLevelData = item31.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
                                       ,total.name       = "Total"
-                                      ,columnName       = "Roof Deck Insulation Levels"
                                       ,weighted         = FALSE)
 item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
-                                , -which(colnames(item31.final) %in% c("BuildingType"
-                                                                       , "Roof.Deck.Insulation.Levels"
-                                                                       , "Total.Count"))]
+                                , -which(colnames(item31.final) %in% c("BuildingType"))]
 exportTable(item31.final.SF, "SF", "Table 38", weighted = FALSE)

@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -459,10 +459,10 @@ item10.dat <- prep.dat7[which(prep.dat7$Wall.Type %notin% c("Masonry", "Masonry 
 
 #Bin R values -- SF only
 item10.dat$rvalue.bins <- "Unknown"
-item10.dat$rvalue.bins[which(item10.dat$aveRval < 1)] <- "R0"
-item10.dat$rvalue.bins[which(item10.dat$aveRval >=  1  & item10.dat$aveRval < 11)]  <- "R1.R10"
-item10.dat$rvalue.bins[which(item10.dat$aveRval >= 11 & item10.dat$aveRval < 17)]  <- "R11.R16"
-item10.dat$rvalue.bins[which(item10.dat$aveRval >= 17 & item10.dat$aveRval < 23)]  <- "R17.R22"
+item10.dat$rvalue.bins[which(item10.dat$aveRval ==  0)] <- "R0"
+item10.dat$rvalue.bins[which(item10.dat$aveRval >   0  & item160.dat$aveRval < 11)]  <- "R1.R10"
+item10.dat$rvalue.bins[which(item10.dat$aveRval >= 11  & item10.dat$aveRval < 17)]  <- "R11.R16"
+item10.dat$rvalue.bins[which(item10.dat$aveRval >= 17  & item10.dat$aveRval < 23)]  <- "R17.R22"
 item10.dat$rvalue.bins[which(item10.dat$aveRval >= 22)] <- "RGT22"
 unique(item10.dat$rvalue.bins)
 
