@@ -13,7 +13,7 @@
 #################################################################################
 
 
-exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weighted = TRUE) {
+exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weighted = TRUE, weights = NA) {
   if (weighted == TRUE){
     library(openxlsx)
     Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
@@ -31,4 +31,12 @@ exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weig
     
     saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY.xlsx", sep = ""), sep="/"), overwrite = T)
   }
+  
+  # if (!is.na(weights)){
+  #   Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+  #   
+  #   workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Weights for Tables - ",buildingTypeIndicator,".xlsx", sep = ""), sep="/"))
+  #   writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 20)
+  #   
+  # }
 }

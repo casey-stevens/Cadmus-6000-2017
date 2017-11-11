@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item107.customer
+# itemData <- rbsa.dat
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -30,7 +30,6 @@ weightedData <- function(itemData){
   popZIP.datMap <- "ZIP_Code_Utility_Mapping.xlsx"
   
   meter.export  <- "One Line Summary.xlsm"
-  bldg.export   <- "Sites.xlsx"
   
   #Bring in R-value table
   UtilityMap <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "UtilityMapping.xlsx"), sheet = 1)
@@ -103,6 +102,7 @@ weightedData <- function(itemData){
                            , "Utility"
                            , "Fraction"
                            , "BPA_vs_IOU"
+                           , "Remove"
                            , "SF.N"
                            , "MF.N"
                            , "MH.N"
@@ -171,7 +171,6 @@ weightedData <- function(itemData){
   cadmus.dat3 <- cadmus.dat2[which(!is.na(cadmus.dat2$Utility)),]
   colnames(cadmus.dat3)
   
-  #there are some zip codes/states that are in our data that are not in the population data
   cadmus.dat3[which(is.na(cadmus.dat3$State)),]
   
   
@@ -217,7 +216,7 @@ weightedData <- function(itemData){
   
   samp.dat.2 <- samp.dat.1[which(!is.na(samp.dat.1$Region)),]
   
-  # export <- samp.dat.1[which(is.na(samp.dat.1$State.y)),]
+  # export <- samp.dat.1[which(is.na(samp.dat.1$Region)),]
   # ##  Write out confidence/precision info
   # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
   # write.xlsx(export, paste(analysisFolder, "Missing From Population.xlsx", sep="/"),
@@ -502,6 +501,10 @@ unique(samp.dat.final$n.h)
 
 which(duplicated(samp.dat.final$CK_Cadmus_ID))
 
+length(unique(cleanRBSA.dat1$CK_Cadmus_ID)) - length(unique(samp.dat.final$CK_Cadmus_ID))
+
+missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat.2$CK_Cadmus_ID),]
+# samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.ind),]
 
 return(samp.dat.final)
 # return(final.counts)
@@ -511,6 +514,9 @@ return(samp.dat.final)
 # 
 # ##  Export 
 # write.xlsx(final.counts, paste(filepathCleanData, paste("weights.data", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
+
+# write.xlsx(missing.data, paste(analysisFolder, paste("Missing Population Data", rundate, ".xlsx", sep = ""), sep="/"),
 #            append = T, row.names = F, showNA = F)
 
 }
