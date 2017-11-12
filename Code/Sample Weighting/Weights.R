@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat
+# itemData <- rbsa.dat7
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -188,6 +188,7 @@ weightedData <- function(itemData){
   nrow(samp.dat.1)
   colnames(samp.dat.1)
   colnames(samp.dat.1) <- c("CK_Cadmus_ID"
+                            ,"PK_Site_ID"
                             ,"HomeType"
                             ,"BuildingType"
                             ,"State"

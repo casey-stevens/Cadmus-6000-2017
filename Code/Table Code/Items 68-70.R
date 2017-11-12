@@ -27,13 +27,13 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
 
 #############################################################################################
-#Item 68: DISTRIBUTION OF LAMPS BY EISA CATEGORY AND STATE (SF table 75, MH table 54)
+#Item 68: DISTRIBUTION OF LAMPS BY EISA CATEGORY AND STATE (SF table 75, MH table 54, MF table 81)
 #############################################################################################
 #subset to columns needed for analysis
 item68.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
@@ -79,20 +79,22 @@ item68.dat3 <- item68.dat2[which(!(is.na(item68.dat2$Lamps))),]
 
 
 #############################################################################################
-#Item 69: DISTRIBUTION OF LAMPS BY TYPE AND STATE (SF table 76, MH table 55)
+#Item 69: DISTRIBUTION OF LAMPS BY TYPE AND STATE (SF table 76, MH table 55, MF table 83)
 #############################################################################################
 #subset to columns needed for analysis
 item69.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"CK_SiteID"
                                                                ,"Lamp.Category"
                                                                ,"Fixture.Qty"
-                                                               ,"LIGHTING_BulbsPerFixture"))]
+                                                               ,"LIGHTING_BulbsPerFixture"
+                                                               ,"Clean.Room"))]
 item69.dat$count <- 1
 
 #join clean rbsa data onto lighting analysis data
 item69.dat1 <- left_join(rbsa.dat, item69.dat, by = "CK_Cadmus_ID")
 
 #remove building info
+item69.dat1.5 <- item69.dat1[which(item69.dat1$Clean.Room != "Storage"),]
 item69.dat2 <- item69.dat1[grep("SITE", item69.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
@@ -112,7 +114,7 @@ unique(item69.dat3$Lamp.Category)
 
 
 item69.merge <- left_join(rbsa.dat, item69.dat3)
-item69.merge <- item69.merge[which(!is.na(item69.merge$Lamp.Category))]
+item69.merge <- item69.merge[which(!is.na(item69.merge$Lamp.Category)),]
 
 
 ################################################
@@ -123,14 +125,16 @@ item69.data <- weightedData(item69.merge[-which(colnames(item69.merge) %in% c("C
                                                                               ,"LIGHTING_BulbsPerFixture"
                                                                               ,"Lamp.Category"
                                                                               ,"count"
-                                                                              ,"Lamps"))])
+                                                                              ,"Lamps"
+                                                                              ,"Clean.Room"))])
 item69.data <- left_join(item69.data, item69.merge[which(colnames(item69.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"CK_SiteID"               
                                                                                        ,"Fixture.Qty"
                                                                                        ,"LIGHTING_BulbsPerFixture"
                                                                                        ,"Lamp.Category"
                                                                                        ,"count"
-                                                                                       ,"Lamps"))])
+                                                                                       ,"Lamps"
+                                                                                       ,"Clean.Room"))])
 item69.data$count <- 1
 #######################
 # Weighted Analysis
@@ -170,9 +174,12 @@ item69.final.SF <- item69.table[which(item69.table$BuildingType == "Single Famil
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
 item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
+item69.final.MF <- item69.table[which(item69.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
 exportTable(item69.final.SF, "SF", "Table 76", weighted = TRUE)
 exportTable(item69.final.MH, "MH", "Table 55", weighted = TRUE)
+exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
 
 
 #######################
@@ -213,9 +220,12 @@ item69.final.SF <- item69.table[which(item69.table$BuildingType == "Single Famil
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
 item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
+item69.final.MF <- item69.table[which(item69.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
 exportTable(item69.final.SF, "SF", "Table 76", weighted = FALSE)
 exportTable(item69.final.MH, "MH", "Table 55", weighted = FALSE)
+exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
 
 
 
@@ -259,6 +269,7 @@ item70.dat4 <- item70.dat3[which(item70.dat3$Lamp.Category != "Unknown"),]
 
 
 item70.merge <- left_join(rbsa.dat, item70.dat4)
+item70.merge <- item70.merge[which(!is.na(item70.merge$Lamp.Category)),]
 
 
 ################################################
@@ -279,7 +290,6 @@ item70.data <- left_join(item70.data, item70.merge[which(colnames(item70.merge) 
                                                                                        ,"count"
                                                                                        ,"Lamps"
                                                                                        ,"Clean.Room"))])
-item70.data <- item70.data[which(!is.na(item70.data$Lamp.Category)),]
 
 
 #######################
@@ -342,9 +352,12 @@ item70.final.SF <- item70.table[which(item70.table$BuildingType == "Single Famil
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 item70.final.MH <- item70.table[which(item70.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
+item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
 exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
+exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
 
 
 #######################
@@ -407,7 +420,10 @@ item70.final.SF <- item70.table[which(item70.table$BuildingType == "Single Famil
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 item70.final.MH <- item70.table[which(item70.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
+item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
 exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
+exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
 

@@ -7,93 +7,161 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
-buildings.dat$CK_Cadmus_ID <- trimws(toupper(buildings.dat$CK_Cadmus_ID))
-length(unique(buildings.dat$CK_Cadmus_ID)) #196/201 unique
-
-buildings.dat.clean <- buildings.dat[-which(duplicated(buildings.dat$CK_Cadmus_ID)),]
+buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
+length(unique(buildings.dat$CK_Building_ID))
+buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building_ID)),]
 
 
 #############################################################################################
 # Item 212: DISTRIBUTION OF BUILDINGS BY BUILDING SIZE AND VINTAGE (MF table 4)
 #############################################################################################
 item212.dat <- rbsa.dat
-item212.dat1$count <- 1
 
 #subset to only MF homes
-item212.dat2 <- item212.dat1[grep("Multifamily", item212.dat1$BuildingType),]
+item212.dat1 <- item212.dat[grep("Multifamily", item212.dat$BuildingType),]
 
 #remove missing vintage information
-item212.dat3 <- item212.dat2[which(!(is.na(item212.dat2$HomeYearBuilt))),]
+item212.dat2 <- item212.dat1[which(!(is.na(item212.dat1$HomeYearBuilt))),]
 
-#summarise by Vintage
-#by buildingtypeXX
-item212.size <- summarise(group_by(item212.dat3, HomeYearBuilt_MF, BuildingTypeXX)
-                             ,SampleSize = length(unique(CK_Cadmus_ID))
-                             ,Count = sum(count))
-#across buildingtypeXX
-item212.all <- summarise(group_by(item212.dat3, HomeYearBuilt_MF)
-                         ,BuildingTypeXX = "All Sizes"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
 
-#summarise across Vintage
-#by buildingtypeXX
-item212.size1 <- summarise(group_by(item212.dat3, BuildingTypeXX)
-                          ,HomeYearBuilt_MF = "All Vintages"
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Count = sum(count))
-#across buildingtypeXX
-item212.all1 <- summarise(group_by(item212.dat3)
-                         ,BuildingTypeXX = "All Sizes"
-                         ,HomeYearBuilt_MF = "All Vintages"
-                         ,SampleSize = length(unique(CK_Cadmus_ID))
-                         ,Count = sum(count))
-#join vintage info
-item212.vintage <- rbind.data.frame(item212.size, item212.all, item212.size1, item212.all1, stringsAsFactors = F)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item212.data <- weightedData(item212.dat2)
+item212.data$count <- 1
 
-item212.vintage$Total.Count <- 0
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "Pre 1955")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "Pre 1955")]
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "1955-1970")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "1955-1970")]
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "1971-1980")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "1971-1980")]
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "1981-1990")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "1981-1990")]
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "1991-2000")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "1991-2000")]
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "Post 2000")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "Post 2000")]
-item212.vintage$Total.Count[which(item212.vintage$HomeYearBuilt_MF == "All Vintages")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "All Vintages")]
-item212.vintage$Total.Count[which(item212.vintage$BuildingTypeXX == "All Sizes")] <- item212.vintage$Count[which(item212.vintage$BuildingTypeXX == "All Sizes" & item212.vintage$HomeYearBuilt_MF == "All Vintages")]
+#######################
+# Weighted Analysis
+#######################
+item212.summary <- proportionRowsAndColumns1(CustomerLevelData = item212.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'HomeYearBuilt_bins_MF'
+                                             ,rowVariable = 'HomeType'
+                                             ,aggregateColumnName = "All Vintages")
+item212.summary <- item212.summary[which(item212.summary$HomeYearBuilt_bins_MF != "All Vintages"),]
+item212.summary <- item212.summary[which(item212.summary$HomeType != "Total"),]
 
-item212.vintage$Percent <- item212.vintage$Count / item212.vintage$Total.Count
-item212.vintage$SE <- sqrt(item212.vintage$Percent * (1 - item212.vintage$Percent) / item212.vintage$SampleSize)
+item212.all.vintages <- proportions_one_group(CustomerLevelData = item212.data
+                                              ,valueVariable = 'count'
+                                              ,groupingVariable = 'HomeType'
+                                              ,total.name = "All Vintages"
+                                              ,columnName = 'HomeYearBuilt_bins_MF'
+                                              ,weighted = TRUE
+                                              ,two.prop.total = TRUE)
+item212.all.vintages <- item212.all.vintages[which(item212.all.vintages$HomeType != "Total"),]
 
-library(data.table)
-item212.cast <- dcast(setDT(item212.vintage)
-                      ,formula = HomeYearBuilt_MF ~ BuildingTypeXX
-                      ,value.var = c("Percent", "SE", "SampleSize"))
 
-item212.final <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_MF
+item212.all.sizes <- proportions_one_group(CustomerLevelData = item212.data
+                                           ,valueVariable = 'count'
+                                           ,groupingVariable = 'HomeYearBuilt_bins_MF'
+                                           ,total.name = 'All Sizes'
+                                           ,columnName = "HomeType"
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+item212.all.sizes$HomeYearBuilt_bins_MF[which(item212.all.sizes$HomeYearBuilt_bins_MF == "Total")] <- "All Vintages"
+
+
+item212.final <- rbind.data.frame(item212.summary, item212.all.vintages, item212.all.sizes, stringsAsFactors = F)
+
+item212.cast <- dcast(setDT(item212.final)
+                      ,formula = HomeYearBuilt_bins_MF ~ HomeType
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item212.table <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_bins_MF
+                            ,"Low-Rise.(1-3)" = item212.cast$`w.percent_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.SE"    = item212.cast$`w.SE_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
+                            ,"Mid-Rise.(4-6)" = item212.cast$`w.percent_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.SE"    = item212.cast$`w.SE_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
+                            ,"High-Rise.(7+)" = item212.cast$`w.percent_Apartment Building (More than 6 floors)`
+                            ,"High-Rise.SE"   = item212.cast$`w.SE_Apartment Building (More than 6 floors)`
+                            ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
+                            ,"All.Sizes"      = item212.cast$`w.percent_All Sizes`
+                            ,"All.Sizes.SE"   = item212.cast$`w.SE_All Sizes`
+                            ,"All.Sizes.n"    = item212.cast$`n_All Sizes`)
+
+exportTable(item212.table, "MF", "Table 4", weighted = TRUE)
+
+#######################
+# Unweighted Analysis
+#######################
+item212.summary <- proportions_two_groups_unweighted(CustomerLevelData = item212.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'HomeYearBuilt_bins_MF'
+                                             ,rowVariable = 'HomeType'
+                                             ,aggregateColumnName = "All Vintages")
+item212.summary <- item212.summary[which(item212.summary$HomeYearBuilt_bins_MF != "All Vintages"),]
+item212.summary <- item212.summary[which(item212.summary$HomeType != "Total"),]
+
+item212.all.vintages <- proportions_one_group(CustomerLevelData = item212.data
+                                              ,valueVariable = 'count'
+                                              ,groupingVariable = 'HomeType'
+                                              ,total.name = "All Vintages"
+                                              ,columnName = 'HomeYearBuilt_bins_MF'
+                                              ,weighted = FALSE
+                                              ,two.prop.total = TRUE)
+item212.all.vintages <- item212.all.vintages[which(item212.all.vintages$HomeType != "Total"),]
+
+
+item212.all.sizes <- proportions_one_group(CustomerLevelData = item212.data
+                                           ,valueVariable = 'count'
+                                           ,groupingVariable = 'HomeYearBuilt_bins_MF'
+                                           ,total.name = 'All Sizes'
+                                           ,columnName = "HomeType"
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
+item212.all.sizes$HomeYearBuilt_bins_MF[which(item212.all.sizes$HomeYearBuilt_bins_MF == "Total")] <- "All Vintages"
+
+
+item212.final <- rbind.data.frame(item212.summary, item212.all.vintages, item212.all.sizes, stringsAsFactors = F)
+
+item212.cast <- dcast(setDT(item212.final)
+                      ,formula = HomeYearBuilt_bins_MF ~ HomeType
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item212.table <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_bins_MF
                             ,"Low-Rise.(1-3)" = item212.cast$`Percent_Apartment Building (3 or fewer floors)`
-                            ,"Low-Rise.SE" = item212.cast$`SE_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.SE"    = item212.cast$`SE_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.n"     = item212.cast$`SampleSize_Apartment Building (3 or fewer floors)`
                             ,"Mid-Rise.(4-6)" = item212.cast$`Percent_Apartment Building (4 to 6 floors)`
-                            ,"Mid-Rise.SE" = item212.cast$`SE_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.SE"    = item212.cast$`SE_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.n"     = item212.cast$`SampleSize_Apartment Building (4 to 6 floors)`
                             ,"High-Rise.(7+)" = item212.cast$`Percent_Apartment Building (More than 6 floors)`
-                            ,"High-Rise.SE" = item212.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"All.Sizes" = item212.cast$`Percent_All Sizes`
-                            ,"All.Sizes.SE" = item212.cast$`SE_All Sizes`
-                            ,"SampleSize" = item212.cast$`SampleSize_All Sizes`)
+                            ,"High-Rise.SE"   = item212.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"High-Rise.n"    = item212.cast$`SampleSize_Apartment Building (More than 6 floors)`
+                            ,"All.Sizes"      = item212.cast$`Percent_All Sizes`
+                            ,"All.Sizes.SE"   = item212.cast$`SE_All Sizes`
+                            ,"All.Sizes.n"    = item212.cast$`SampleSize_All Sizes`)
+
+exportTable(item212.table, "MF", "Table 4", weighted = FALSE)
 
 
 
 
 #############################################################################################
-# Item 216: DISTRIBUTION OF BUILDING FLOOR AREA BY FLOOR AREA CATEGORY AND BUILDING SIZE (MF table 4)
+# Item 216: DISTRIBUTION OF BUILDING FLOOR AREA BY FLOOR AREA CATEGORY AND BUILDING SIZE (MF table 8)
 #############################################################################################
 item216.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround"
