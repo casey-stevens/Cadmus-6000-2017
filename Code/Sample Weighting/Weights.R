@@ -460,8 +460,6 @@ popCounts.SF <- summarise(group_by(popCounts.0,
                                    State, Region, Territory)
                           ,BuildingType = "Single Family"
                          , N.h = sum(SF.pop)
-                         # , N_MH.h = sum(unique(MH.pop))
-                         # , N_MF.h = sum(unique(MF.pop))
                          )
 popCounts.MH <- summarise(group_by(popCounts.0, 
                                    State, Region, Territory)

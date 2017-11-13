@@ -1069,8 +1069,8 @@ proportions_one_group_MF <- function(CustomerLevelData
                                                    ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
                                                    ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
                                                    ,count     = sum(count)
-                                                   ,N         = unique(columnVar.N.h)
-                                                   ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
+                                                   ,N         = unique(columnTot.N.h)
+                                                   ,n         = unique(columnTot.n.h)), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
@@ -1078,8 +1078,8 @@ proportions_one_group_MF <- function(CustomerLevelData
                                        ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
                                        ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
                                        ,count     = sum(count)
-                                       ,N         = unique(columnVar.N.h)
-                                       ,n         = unique(columnVar.n.h)), stringsAsFactors = F) 
+                                       ,N         = unique(columnTot.N.h)
+                                       ,n         = unique(columnTot.n.h)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
