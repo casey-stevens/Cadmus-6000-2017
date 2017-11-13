@@ -34,7 +34,7 @@ source(file.path(SourcePath, "SourceCode.R"))
 # Import site data
 one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary")
 one.line.dat1 <- data.frame("CK_Cadmus_ID" = one.line.dat$Cadmus.ID
-                            ,"PK_Site_ID"  = one.line.dat$PK_SiteID
+                            ,"CK_Building_ID"  = one.line.dat$CK_BuildingID
                                , "BuildingTypeXX"  = one.line.dat$`Home.Type.-.FMP.Detailed`
                                , "BuildingType"    = one.line.dat$`Home.Type.-.Final`
                                # , "HomeYearBuilt"   = site.dat$SITES_General_GENL_INFO_HomeYearBuilt

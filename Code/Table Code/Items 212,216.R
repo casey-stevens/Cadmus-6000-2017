@@ -163,7 +163,7 @@ exportTable(item212.table, "MF", "Table 4", weighted = FALSE)
 #############################################################################################
 # Item 216: DISTRIBUTION OF BUILDING FLOOR AREA BY FLOOR AREA CATEGORY AND BUILDING SIZE (MF table 8)
 #############################################################################################
-item216.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
+item216.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotalResidentialFloorArea"
@@ -174,8 +174,7 @@ item216.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Other_SqFt"
                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Retail_SqFt"
                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Vacant_SqFt"))]
-colnames(item216.dat) <- c("CK_Cadmus_ID"
-                           ,"Common.Area"
+colnames(item216.dat) <- c("Common.Area"
                            ,"Number.of.Floors"
                            ,"Total.Residential.Floor.Area"
                            ,"Total.Residential.Commercial.Floor.Area"
@@ -184,12 +183,13 @@ colnames(item216.dat) <- c("CK_Cadmus_ID"
                            ,"Nonres.Office.SQFT"
                            ,"Nonres.Other.SQFT"
                            ,"Nonres.Retail.SQFT"
-                           ,"Nonres.Vacant.SQFT")
+                           ,"Nonres.Vacant.SQFT"
+                           ,"CK_Building_ID")
 
 item216.dat1 <- item216.dat[which(!(is.na(item216.dat$Number.of.Floors))),]
 item216.dat1[is.na(item216.dat1)] <- 0
 
-for (i in 2:ncol(item216.dat1)){
+for (i in 1:10){
   item216.dat1[,i] <- as.numeric(as.character(item216.dat1[,i]))
 }
 
@@ -207,38 +207,139 @@ item216.dat1$Total.Floor.Area <- item216.dat1$Total.Nonres.Floor.Area +
   item216.dat1$Common.Area
 
 
-item216.merge <- left_join(item216.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+item216.merge <- left_join(rbsa.dat, item216.dat1)
 
 item216.dat2 <- item216.merge[grep("Multifamily", item216.merge$BuildingType),]
 item216.dat3 <- item216.dat2[which(item216.dat2$Total.Floor.Area != 0),]
+item216.dat4 <- item216.dat3[which(!is.na(item216.dat3$Total.Floor.Area)),]
 
-# summarise across building types
-item216.sum1 <- summarise(group_by(item216.dat3)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
-                          ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
-                          ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
-                          ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / length(unique(CK_Cadmus_ID)))
-                          ,Percent_Nonres = sum(Total.Nonres.Floor.Area) / sum(Total.Floor.Area)
-                          ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item216.data <- weightedData(item216.dat4[which(colnames(item216.dat4) %notin% c("Common.Area"
+                                                                                 ,"Number.of.Floors"
+                                                                                 ,"Total.Residential.Floor.Area"
+                                                                                 ,"Total.Residential.Commercial.Floor.Area"
+                                                                                 ,"Commercial.Area"
+                                                                                 ,"Nonres.Grocery.SQFT"
+                                                                                 ,"Nonres.Office.SQFT"
+                                                                                 ,"Nonres.Other.SQFT"
+                                                                                 ,"Nonres.Retail.SQFT"
+                                                                                 ,"Nonres.Vacant.SQFT"
+                                                                                 ,"Total.Nonres.Floor.Area"
+                                                                                 ,"Total.Floor.Area"))])
 
-#item216.dat2 <- data.frame(item216.dat1, "SampleSize" = item216.sum1$SampleSize, stringsAsFactors = F)
+item216.data <- left_join(item216.data, item216.dat4[which(colnames(item216.dat4) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Common.Area"
+                                                                                            ,"Number.of.Floors"
+                                                                                            ,"Total.Residential.Floor.Area"
+                                                                                            ,"Total.Residential.Commercial.Floor.Area"
+                                                                                            ,"Commercial.Area"
+                                                                                            ,"Nonres.Grocery.SQFT"
+                                                                                            ,"Nonres.Office.SQFT"
+                                                                                            ,"Nonres.Other.SQFT"
+                                                                                            ,"Nonres.Retail.SQFT"
+                                                                                            ,"Nonres.Vacant.SQFT"
+                                                                                            ,"Total.Nonres.Floor.Area"
+                                                                                            ,"Total.Floor.Area"))])
 
-# summarise by building types
-item216.sum2 <- summarise(group_by(item216.dat3, BuildingTypeXX)
-                          ,SampleSize = length(unique(CK_Cadmus_ID))
-                          ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
-                          ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / unique(SampleSize))
-                          ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
-                          ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / unique(SampleSize))
-                          ,Percent_Nonres = sum(Total.Nonres.Floor.Area) / sum(Total.Floor.Area)
-                          ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / unique(SampleSize)))
+
+item216.sub <- item216.data[which(colnames(item216.data) %in% c("CK_Cadmus_ID"
+                                                                ,"HomeType"
+                                                                ,"Common.Area"
+                                                                ,"Total.Nonres.Floor.Area"
+                                                                ,"Total.Residential.Floor.Area"
+                                                                ,"Total.Floor.Area"))]
+item216.melt <- melt(data = item216.sub, id.vars = c("CK_Cadmus_ID", "HomeType", "Total.Floor.Area"))
+colnames(item216.melt) <- c("CK_Cadmus_ID"
+                            ,"HomeType"
+                            ,"Total.Floor.Area"
+                            ,"Area.Type"
+                            ,"Floor.Area")
+
+item216.merge <- left_join(item216.data, item216.melt)
+
+#######################
+# Weighted Analysis
+#######################
+item216.summary <- proportionRowsAndColumns1(CustomerLevelData = item216.merge
+                                             ,valueVariable = 'Floor.Area'
+                                             ,columnVariable = "HomeType"
+                                             ,rowVariable = "Area.Type"
+                                             ,aggregateColumnName = "All.Sizes")
+item216.summary <- item216.summary[which(item216.summary$HomeType != "All.Sizes"),]
+item216.summary <- item216.summary[which(item216.summary$Area.Type != "Total"),]
+
+item216.all.sizes <- proportions_one_group(CustomerLevelData = item216.merge
+                                           ,valueVariable = 'Floor.Area'
+                                           ,groupingVariable = 'Area.Type'
+                                           ,total.name = 'All Sizes'
+                                           ,columnName = "HomeType"
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+item216.all.sizes <- item216.all.sizes[which(item216.all.sizes$Area.Type != "Total"),]
 
 
+item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsFactors = F)
 
-item216.final <- rbind.data.frame(item216.sum2, item216.sum1, stringsAsFactors = F)
 
-item216.sub <- item216.final[which(colnames(item216.final) != "SampleSize")]
+item216.cast <- dcast(setDT(item216.final)
+                      ,formula = BuildingType + HomeType ~ Area.Type
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item216.table <- data.frame(item216.sub,"SampleSize" = item216.final$SampleSize,stringsAsFactors = F)
+item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
+                            ,"HomeType"    = item216.cast$HomeType
+                            ,"Percent_Common.Area" = item216.cast$w.percent_Common.Area
+                            ,"SE_Common.Area"      = item216.cast$w.SE_Common.Area
+                            ,"n_Common.Area"       = item216.cast$n_Common.Area
+                            ,"Percent_Non-Residential.Area" = item216.cast$w.percent_Total.Nonres.Floor.Area
+                            ,"SE_Non-Residential.Area"      = item216.cast$w.SE_Total.Nonres.Floor.Area
+                            ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
+                            ,"Percent_Residential.Area"     = item216.cast$w.percent_Total.Residential.Floor.Area
+                            ,"SE_Residential.Area"          = item216.cast$w.SE_Total.Residential.Floor.Area
+                            ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area)
+
+exportTable(item216.table, "MF", "Table 8", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item216.summary <- proportions_two_groups_unweighted(CustomerLevelData = item216.merge
+                                             ,valueVariable = 'Floor.Area'
+                                             ,columnVariable = "HomeType"
+                                             ,rowVariable = "Area.Type"
+                                             ,aggregateColumnName = "All.Sizes")
+item216.summary <- item216.summary[which(item216.summary$HomeType != "All.Sizes"),]
+item216.summary <- item216.summary[which(item216.summary$Area.Type != "Total"),]
+
+item216.all.sizes <- proportions_one_group(CustomerLevelData = item216.merge
+                                           ,valueVariable = 'Floor.Area'
+                                           ,groupingVariable = 'Area.Type'
+                                           ,total.name = 'All Sizes'
+                                           ,columnName = "HomeType"
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
+item216.all.sizes <- item216.all.sizes[which(item216.all.sizes$Area.Type != "Total"),]
+
+
+item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsFactors = F)
+
+
+item216.cast <- dcast(setDT(item216.final)
+                      ,formula = BuildingType + HomeType ~ Area.Type
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
+                            ,"HomeType"    = item216.cast$HomeType
+                            ,"Percent_Common.Area" = item216.cast$Percent_Common.Area
+                            ,"SE_Common.Area"      = item216.cast$SE_Common.Area
+                            ,"n_Common.Area"       = item216.cast$SampleSize_Common.Area
+                            ,"Percent_Non-Residential.Area" = item216.cast$Percent_Total.Nonres.Floor.Area
+                            ,"SE_Non-Residential.Area"      = item216.cast$SE_Total.Nonres.Floor.Area
+                            ,"n_Non-Residential.Area"       = item216.cast$SampleSize_Total.Nonres.Floor.Area
+                            ,"Percent_Residential.Area"     = item216.cast$Percent_Total.Residential.Floor.Area
+                            ,"SE_Residential.Area"          = item216.cast$SE_Total.Residential.Floor.Area
+                            ,"n_Residential.Area"           = item216.cast$SampleSize_Total.Residential.Floor.Area)
+
+exportTable(item216.table, "MF", "Table 8", weighted = FALSE)

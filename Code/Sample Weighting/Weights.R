@@ -13,7 +13,8 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat7
+# itemData <- item223.dat2[which(colnames(item223.dat2) %notin% c("Nonres.Area"
+#                                                                 ,"Ind"))]
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -182,13 +183,13 @@ weightedData <- function(itemData){
   # Join ZIP codes to cleaned building type data
   samp.dat.0       <- cadmus.dat3
   # Join ZIP mapping to previous step
-  samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by=c("ZIPCode", "Utility", "State"))
+  samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1)
   samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
   head(samp.dat.1)  
   nrow(samp.dat.1)
   colnames(samp.dat.1)
   colnames(samp.dat.1) <- c("CK_Cadmus_ID"
-                            ,"PK_Site_ID"
+                            ,"CK_Building_ID"
                             ,"HomeType"
                             ,"BuildingType"
                             ,"State"
@@ -414,10 +415,16 @@ length(unique(samp.dat.6$CK_Cadmus_ID))
 samp.dat.6$tally <- 1
 
 # Get sample sizes in each strata
-sampCounts.1 <- summarise(group_by(samp.dat.6, 
+sampCounts.SF <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Single Family"),], 
                                    BuildingType, State, Region, Territory)
                           , n.h = sum(tally))
-      
+sampCounts.MH <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactured"),], 
+                                    BuildingType, State, Region, Territory)
+                           ,n.h = sum(tally))
+sampCounts.MF <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),], 
+                                    BuildingType, State, Region, Territory)
+                           ,n.h = sum(tally))
+
 #############################################################################################
 # Count population sizes
 #############################################################################################
@@ -427,8 +434,8 @@ names(zipMap.dat)
 popCounts.0 <- summarise(group_by(zipMap.dat, State, Region, Utility, BPA_vs_IOU)
                          , SF.pop = round(sum(SF.N.adj), 0)
                          , MH.pop = round(sum(MH.N.adj), 0)
-                         , MF.pop = round(sum(MF.N.adj), 0)
-                         )
+                         , MF.pop = round(sum(MF.N.adj), 0))
+
 
 # Initialize the vector for Territory names
 popCounts.0$Territory <- rep("MISSING", nrow(popCounts.0))
@@ -449,19 +456,21 @@ popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL"
 unique(popCounts.0$Territory)
 
 # Get sample sizes in each Territory
-popCounts.1 <- summarise(group_by(popCounts.0, 
+popCounts.SF <- summarise(group_by(popCounts.0, 
                                    State, Region, Territory)
-                         , N_SF.h = sum(SF.pop)
-                         , N_MH.h = sum(MH.pop)
-                         , N_MF.h = sum(MF.pop))
-
-popCounts.1 <- data.frame(popCounts.1, stringsAsFactors = F)
-popMelt     <- melt(popCounts.1, id.vars = c("State", "Region", "Territory"))
-popMelt$BuildingType <- NA
-popMelt$BuildingType[grep("SF", popMelt$variable)] <- "Single Family"
-popMelt$BuildingType[grep("MF", popMelt$variable)] <- "Multifamily"
-popMelt$BuildingType[grep("MH", popMelt$variable)] <- "Manufactured"
-
+                          ,BuildingType = "Single Family"
+                         , N.h = sum(SF.pop)
+                         # , N_MH.h = sum(unique(MH.pop))
+                         # , N_MF.h = sum(unique(MF.pop))
+                         )
+popCounts.MH <- summarise(group_by(popCounts.0, 
+                                   State, Region, Territory)
+                          ,BuildingType = "Manufactured"
+                          ,N.h = sum(MH.pop))
+popCounts.MF <- summarise(group_by(popCounts.0, 
+                                   State, Region, Territory)
+                          ,BuildingType = "Multifamily"
+                          ,N.h = sum(MH.pop))
 
 
 
@@ -469,35 +478,36 @@ popMelt$BuildingType[grep("MH", popMelt$variable)] <- "Manufactured"
 # Combine population and sample sizes by Territory
 #############################################################################################
 
-total.counts <- full_join(popMelt, sampCounts.1, by = c("BuildingType"
+total.counts.SF <- full_join(popCounts.SF, sampCounts.SF, by = c("BuildingType"
                                                         ,"State"
                                                         ,"Region"
                                                         ,"Territory"))
+total.counts.MH <- full_join(popCounts.MH, sampCounts.MH, by = c("BuildingType"
+                                                                 ,"State"
+                                                                 ,"Region"
+                                                                 ,"Territory"))
+total.counts.MF <- full_join(popCounts.MF, sampCounts.MF, by = c("BuildingType"
+                                                                 ,"State"
+                                                                 ,"Region"
+                                                                 ,"Territory"))
 
 ## check that there are no NA's in final sample sizes
 ## Put zero as a placeholder until final comes in
-total.counts$n.h[which(is.na(total.counts$n.h))] <- 0
-
-
-colnames(total.counts)[which(colnames(total.counts) == "value")] <- "N.h"
-
-#Note: This will be written out
-final.counts <- total.counts[which(!(colnames(total.counts) %in% c("variable")))]
-
+total.counts.SF$n.h[which(is.na(total.counts.SF$n.h))] <- 0
 
 #############################################################################################
 # Cmerge pop and sample sizes onto cleaned data
 # export final counts and final data
 #############################################################################################
 
-samp.dat.7 <- left_join(samp.dat.6, final.counts, by = c("BuildingType"
-                                                         ,"State"
-                                                         ,"Region"
-                                                         ,"Territory"))
+samp.dat.SF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Single Family"),]
+                         , total.counts.SF)
+samp.dat.MH <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactured"),]
+                         , total.counts.MH)
+samp.dat.MF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),]
+                         , total.counts.MF)
 
-# samp.dat.8 <- samp.dat.7[which(!(is.na(samp.dat.7$N.h))),]
-
-samp.dat.final <- samp.dat.7
+samp.dat.final <- rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F)
 unique(samp.dat.final$n.h)
 
 which(duplicated(samp.dat.final$CK_Cadmus_ID))

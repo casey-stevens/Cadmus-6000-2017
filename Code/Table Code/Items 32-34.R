@@ -65,6 +65,11 @@ item32.dat2$Glazing[which(item32.dat2$Glazing %in% c("Decorative window (arch, e
 item32.dat2$Framing.Categories <- paste(item32.dat2$Frame.Type, item32.dat2$Glazing, sep = " ")
 
 item32.dat2$count <- 1
+item32.dat2 <- item32.dat2[-grep("Unknown|NA", item32.dat2$Framing.Categories),]
+
+item32.dat2$Framing.Categories <- gsub("glass", "Glass", item32.dat2$Framing.Categories)
+item32.dat2$Framing.Categories <- gsub("None", "Other", item32.dat2$Framing.Categories)
+
 
 item32.data <- weightedData(item32.dat2[-which(colnames(item32.dat2) %in% c("Type"
                                                                             ,"Sub-Type"
