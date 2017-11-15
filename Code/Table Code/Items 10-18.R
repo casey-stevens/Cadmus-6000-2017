@@ -389,7 +389,7 @@ prep.dat4.9 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               ,prep.condition.sub2
                                 , stringsAsFactors = F)
-prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Framing.Size)),]
+prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Type)),]
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
