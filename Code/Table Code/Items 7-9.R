@@ -202,28 +202,34 @@ item9.dat$Area <- as.numeric(as.character(item9.dat$Area))
 #remove missing area information
 item9.dat1 <- item9.dat[which(!is.na(item9.dat$Area)),]
 
-#average within houses
-item9.customer <- summarise(group_by(item9.dat1
-                                     , CK_Cadmus_ID
-                                     , BuildingType
-                                     , Clean.Type)
-                            ,Site_Area = mean(Area)
-)
+# #average within houses
+# item9.customer <- summarise(group_by(item9.dat1
+#                                      , CK_Cadmus_ID
+#                                      , BuildingType
+#                                      , Clean.Type)
+#                             ,Site_Area = mean(Area)
+# )
+# 
+# item9.cast <- dcast(item9.customer,formula = CK_Cadmus_ID ~ Clean.Type, sum, value.var = "Site_Area")
+# 
+# item9.melt <- melt(item9.cast, id.vars = "CK_Cadmus_ID")
 
-item9.cast <- dcast(item9.customer,formula = CK_Cadmus_ID ~ Clean.Type, sum, value.var = "Site_Area")
-
-item9.melt <- melt(item9.cast, id.vars = "CK_Cadmus_ID")
-
-item9.merge <- left_join(rbsa.dat, item9.customer)
-item9.merge <- item9.merge[which(!is.na(item9.merge$Site_Area)),]
+item9.merge <- left_join(rbsa.dat, item9.dat1)
+item9.merge <- item9.merge[which(!is.na(item9.merge$Area)),]
 
 # apply weights to the subset of the data
 item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("Site_Area"
-                                                                           ,"Clean.Type"))])
+                                                                           ,"Clean.Type"
+                                                                           ,"Area"
+                                                                           ,"count"
+                                                                           ,"Iteration"))])
 #merge back on measured variable
 item9.data <- left_join(item9.data, item9.merge[which(colnames(item9.merge) %in% c("CK_Cadmus_ID"
-                                                                                   , "Clean.Type"
-                                                                                   , "Site_Area"))])
+                                                                                   ,"Site_Area"
+                                                                                   ,"Clean.Type"
+                                                                                   ,"Area"
+                                                                                   ,"count"
+                                                                                   ,"Iteration"))])
 item9.data$count <- 1
 
 
@@ -232,7 +238,7 @@ item9.data$count <- 1
 # Weighted Analysis
 ################################
 item9.final <- mean_one_group(CustomerLevelData = item9.data
-                              , valueVariable = 'Site_Area'
+                              , valueVariable = 'Area'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 

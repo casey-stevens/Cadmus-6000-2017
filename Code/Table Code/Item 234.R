@@ -6,75 +6,156 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 
 #read in Envelope data for MF table
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
-envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_SiteID"
                                                                   ,"Wall.Area"
                                                                   ,"Wall.Type"
                                                                   ,"Wall.Framing.Material"))]
 
-envelope.dat2 <- left_join(rbsa.dat, envelope.dat1, by = "CK_Cadmus_ID")
-length(unique(envelope.dat2$CK_Cadmus_ID)) #601
-envelope.dat3 <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType),]
+envelope.dat2 <- left_join(rbsa.dat, envelope.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
+length(unique(envelope.dat2$CK_Cadmus_ID))
+envelope.dat.MF <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType),]
 
 #############################################################################################
 #Item 234: Table 26
 #############################################################################################
 
-item234.dat <- envelope.dat3[which(!is.na(envelope.dat3$Wall.Area)),]
+item234.dat <- envelope.dat.MF[which(!is.na(envelope.dat.MF$Wall.Area)),]
+unique(item234.dat$Wall.Type)
 
 item234.dat$WallType <- ""
-item234.dat$WallType[grep("masonry",item234.dat$Wall.Type,ignore.case = T)] <- "Masonry"
-item234.dat$WallType[grep("framed",item234.dat$Wall.Type,ignore.case = T)] <- "Framed"
+item234.dat$WallType[grep("masonry", item234.dat$Wall.Type, ignore.case = T)] <- "Masonry"
+item234.dat$WallType[grep("framed",  item234.dat$Wall.Type, ignore.case = T)] <- "Framed"
 item234.dat$WallType[which(!(item234.dat$WallType %in% c("Masonry", "Framed")))] <- "Other"
-item234.dat$WallType[which(item234.dat$WallType == "Framed")] <- item234.dat$Wall.Framing.Material[which(item234.dat$WallType == "Framed")]
+item234.dat$WallType[which(item234.dat$WallType == "Framed")] <- paste(item234.dat$Wall.Framing.Material[which(item234.dat$WallType == "Framed")], "Frame", sep = " ")
+unique(item234.dat$WallType)
 
-item234.dat1 <- item234.dat[which(item234.dat$WallType != "Unknown"),]
+item234.dat1 <- item234.dat[which(item234.dat$WallType != "Unknown Frame"),]
 
-item234.sum1 <- summarise(group_by(item234.dat1, BuildingTypeXX,WallType)
-                                           ,WallAreaByWallType = sum(Wall.Area))
+item234.merge <- left_join(rbsa.dat, item234.dat1)
+item234.merge <- item234.merge[which(!is.na(item234.merge$WallType)),]
 
-item234.sum2 <- summarise(group_by(item234.dat1, BuildingTypeXX)
-                                                 ,WallAreaTotal = sum(Wall.Area)
-                                                 ,SampleSize = length(unique(CK_Cadmus_ID)))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item234.data <- weightedData(item234.merge[-which(colnames(item234.merge) %in% c("Wall.Type"
+                                                                                 ,"Wall.Area"
+                                                                                 ,"Wall.Framing.Material"
+                                                                                 ,"WallType"))])
+item234.data <- left_join(item234.data, item234.merge[which(colnames(item234.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"WallType"))])
 
-item234.sum3 <- summarise(group_by(item234.dat1,WallType)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,WallAreaByWallType = sum(Wall.Area))
+item234.data$count <- 1
 
-item234.sum4 <- summarise(group_by(item234.dat1)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,WallAreaTotal = sum(Wall.Area)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+#######################
+# Weighted Analysis
+#######################
+item234.final <- proportionRowsAndColumns1(CustomerLevelData = item234.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'HomeType'
+                                           ,rowVariable      = 'WallType'
+                                           ,aggregateColumnName = "Remove")
+item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
+item234.final <- item234.final[which(item234.final$WallType != "Total"),]
 
 
-item234.WallType <- rbind.data.frame(item234.sum1,
-                                     item234.sum3,
-                                     stringsAsFactors = F)
-item234.Totals <- rbind.data.frame(item234.sum2,
-                                   item234.sum4,
-                                   stringsAsFactors = F)
+item234.all.vintages <- proportions_one_group_MF(CustomerLevelData = item234.data
+                                                 ,valueVariable = 'count'
+                                                 ,groupingVariable = 'WallType'
+                                                 ,total.name = "All Sizes"
+                                                 ,columnName = "HomeType"
+                                                 ,weighted = TRUE
+                                                 ,two.prop.total = TRUE)
 
-item234.all <- left_join(item234.WallType,
-                         item234.Totals,
-                         by = c("BuildingTypeXX"))
-item234.all$Percent <- item234.all$WallAreaByWallType/item234.all$WallAreaTotal
-item234.all$SE      <- sqrt(item234.all$Percent * (1 - item234.all$Percent) / item234.all$SampleSize)
+item234.final <- rbind.data.frame(item234.final, item234.all.vintages, stringsAsFactors = F)
 
-item234.table <- dcast(setDT(item234.all)
-                          , formula = BuildingTypeXX + SampleSize ~ WallType
-                          , value.var = c("Percent", "SE"))
-item234.final <- data.frame( "Building Type" = item234.table$BuildingTypeXX
-                             ,"Masonry" = item234.table$Percent_Masonry
-                             ,"Masonry SE" = item234.table$SE_Masonry
-                             ,"Wood" = item234.table$Percent_Wood
-                             ,"Wood SE" = item234.table$SE_Wood
-                             ,"Other" = item234.table$Percent_Other
-                             ,"Other SE" = item234.table$SE_Other
-                             ,"SampleSize" = item234.table$SampleSize)
+item234.cast <- dcast(setDT(item234.final)
+                      ,formula = HomeType ~ WallType
+                      ,value.var = c("w.percent","w.SE", "count","n","N"))
 
+item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
+                             ,"In-fill.Steel"    = NA
+                             ,"In-fill.Steel.SE" = NA
+                             ,"In-fill.Steel.n"  = NA
+                             ,"Masonry"          = item234.cast$w.percent_Masonry
+                             ,"Masonry.SE"       = item234.cast$w.SE_Masonry
+                             ,"Masonry.n"        = item234.cast$count_Masonry
+                             ,"Steel.Frame"      = NA#item234.cast$w.percent_Steel.Frame
+                             ,"Steel.Frame.SE"   = NA#item234.cast$w.SE_Steel.Frame
+                             ,"Steel.Frame.n"    = NA
+                             ,"Wood"             = item234.cast$`w.percent_Wood Frame`
+                             ,"Wood.SE"          = item234.cast$`w.SE_Wood Frame`
+                             ,"Wood.n"           = item234.cast$`count_Wood Frame`
+                             ,"Other"            = item234.cast$w.percent_Other
+                             ,"Other.SE"         = item234.cast$w.SE_Other
+                             ,"Other.n"          = item234.cast$count_Other)
+
+exportTable(item234.final, "MF", "Table 26", weighted = TRUE)
+
+
+#######################
+# unweighted Analysis
+#######################
+item234.final <- proportions_two_groups_unweighted(CustomerLevelData = item234.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'HomeType'
+                                           ,rowVariable      = 'WallType'
+                                           ,aggregateColumnName = "Remove")
+item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
+item234.final <- item234.final[which(item234.final$WallType != "Total"),]
+
+
+item234.all.vintages <- proportions_one_group_MF(CustomerLevelData = item234.data
+                                                 ,valueVariable = 'count'
+                                                 ,groupingVariable = 'WallType'
+                                                 ,total.name = "All Sizes"
+                                                 ,columnName = "HomeType"
+                                                 ,weighted = FALSE
+                                                 ,two.prop.total = TRUE)
+
+item234.final <- rbind.data.frame(item234.final, item234.all.vintages, stringsAsFactors = F)
+
+item234.cast <- dcast(setDT(item234.final)
+                      ,formula = HomeType ~ WallType
+                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+
+item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
+                             ,"In-fill.Steel"    = NA
+                             ,"In-fill.Steel.SE" = NA
+                             ,"In-fill.Steel.n"  = NA
+                             ,"Masonry"          = item234.cast$Percent_Masonry
+                             ,"Masonry.SE"       = item234.cast$SE_Masonry
+                             ,"Masonry.n"        = item234.cast$Count_Masonry
+                             ,"Steel.Frame"      = NA#item234.cast$Percent_Steel.Frame
+                             ,"Steel.Frame.SE"   = NA#item234.cast$SE_Steel.Frame
+                             ,"Steel.Frame.n"    = NA
+                             ,"Wood"             = item234.cast$`Percent_Wood Frame`
+                             ,"Wood.SE"          = item234.cast$`SE_Wood Frame`
+                             ,"Wood.n"           = item234.cast$`Count_Wood Frame`
+                             ,"Other"            = item234.cast$Percent_Other
+                             ,"Other.SE"         = item234.cast$SE_Other
+                             ,"Other.n"          = item234.cast$Count_Other)
+
+exportTable(item234.final, "MF", "Table 26", weighted = FALSE)

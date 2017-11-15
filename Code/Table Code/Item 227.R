@@ -6,8 +6,24 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+##  Clear variables
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
+
+# Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -43,39 +59,65 @@ item227.dat$count <- 1
 #remove any repeat header rows from exporting
 item227.dat0 <- item227.dat[which(item227.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-#merge together analysis data with cleaned RBSA data
-item227.dat1 <- left_join(item227.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item227.dat0$Age_0_18 <- item227.dat0$Age_Less_Than_1 + item227.dat0$Age_1_5 + item227.dat0$Age_6_10 + item227.dat0$Age_11_18
+item227.dat0$Age_19_64 <- item227.dat0$Age_19_45 + item227.dat0$Age_46_64
+item227.dat0$AllCategories <- item227.dat0$Age_0_18 + item227.dat0$Age_19_64 + item227.dat0$Age_65_Older
 
-item227.dat1$Age_0_18 <- item227.dat1$Age_Less_Than_1 + item227.dat1$Age_1_5 + item227.dat1$Age_6_10 + item227.dat1$Age_11_18
-item227.dat1$Age_19_64 <- item227.dat1$Age_19_45 + item227.dat1$Age_46_64
-item227.dat1$AllCategories <- item227.dat1$Age_0_18 + item227.dat1$Age_19_64 + item227.dat1$Age_65_Older
+item227.dat0 <- item227.dat0[which(colnames(item227.dat0) %in% c("CK_Cadmus_ID"
+                                                                 ,"Age_0_18"
+                                                                 ,"Age_19_64"
+                                                                 ,"Age_65_Older"
+                                                                 ,"AllCategories"))]
+
+item227.melt <- melt(item227.dat0, id = c("CK_Cadmus_ID"))
+colnames(item227.melt) <- c("CK_Cadmus_ID", "Age.Category", "Number.of.Residents")
+item227.melt$CK_Cadmus_ID <- as.character(item227.melt$CK_Cadmus_ID)
+
+item227.merge <- left_join(rbsa.dat, item227.melt)
+
 #Subset to Multifamily
-item227.dat2 <- item227.dat1[grep("Multifamily", item227.dat1$BuildingType),]
+item227.merge <- item227.merge[grep("Multifamily", item227.merge$BuildingType),]
 
-item227.age <- summarise(item227.dat2
-                           ,SampleSize_0 = length(unique(CK_Cadmus_ID)[which(Age_0_18 >0)])
-                           ,SampleSize_19 = length(unique(CK_Cadmus_ID)[which(Age_19_64 >0)])
-                           ,SampleSize_65 = length(unique(CK_Cadmus_ID)[which(Age_65_Older >0)])
-                           ,SampleSize_All = length(unique(CK_Cadmus_ID)[which(AllCategories >0)])
-                           ,Mean_0 = mean(Age_0_18)
-                           ,SE_0 = sd(Age_0_18) / sqrt(SampleSize_0)
-                           ,Mean_19 = mean(Age_19_64)
-                           ,SE_19 = sd(Age_19_64) / sqrt(SampleSize_19)
-                           ,Mean_65 = mean(Age_65_Older)
-                           ,SE_65 = sd(Age_65_Older) / sqrt(SampleSize_65)
-                           ,Mean_All = mean(AllCategories)
-                           ,SE_All = sd(AllCategories) / sqrt(SampleSize_All))
+#remove missing
+item227.merge <- item227.merge[which(!is.na(item227.merge$Number.of.Residents)),]
+item227.merge <- item227.merge[which(!is.na(item227.merge$Age.Category)),]
 
-item227.table <- data.table(item227.age)
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item227.data <- weightedData(item227.merge[-which(colnames(item227.merge) %in% c("Age.Category"
+                                                                                 ,"Number.of.Residents"))])
+item227.data <- left_join(item227.data, item227.merge[which(colnames(item227.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Age.Category"
+                                                                                           ,"Number.of.Residents"))])
 
-item227.melt <- reshape(item227.table, varying = 1:12, sep = "_", direction = 'long')
-item227.melt$Age.Category <- c(rep("0 to 18", 1)
-                               ,rep("19 to 64", 1)
-                               ,rep("Older than 65", 1)
-                               ,rep("All Categories", 1))
-item227.final <- data.frame("Age Category" = item227.melt$Age.Category
-                            ,"Mean" = item227.melt$Mean
-                            ,"SE" = item227.melt$SE
-                            ,"SampleSize" = item227.melt$SampleSize
-                            ,stringsAsFactors = F)
+
+item227.data$Number.of.Residents <- as.numeric(as.character(item227.data$Number.of.Residents))
+item227.data$count <- 1
+item227.data$count[which(item227.data$Number.of.Residents == 0)] <- 0
+
+#######################
+# weighted analysis
+#######################
+
+item227.final <- mean_one_group(CustomerLevelData = item227.data
+                                ,valueVariable = 'Number.of.Residents'
+                                ,byVariable = 'Age.Category'
+                                ,aggregateRow = NA)
+item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
+
+exportTable(item227.final, "MF", "Table 19", weighted = TRUE)
+
+#######################
+# unweighted analysis
+#######################
+
+item227.final <- mean_one_group_unweighted(CustomerLevelData = item227.data
+                                ,valueVariable = 'Number.of.Residents'
+                                ,byVariable = 'Age.Category'
+                                ,aggregateRow = NA)
+item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
+
+item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuidingType", "n"))]
+exportTable(item227.final.MF, "MF", "Table 19", weighted = FALSE)
 
