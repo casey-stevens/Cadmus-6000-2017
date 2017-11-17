@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
@@ -48,27 +59,58 @@ item285.dat1 <- item285.dat[which((!is.na(item285.dat$System.Type) |
                                     !is.na(item285.dat$DHW.Type)) &
                                     item285.dat$Category == "DHW"),]
 
-item285.dat2 <- item285.dat1[-grep("bldg",item285.dat1$CK_SiteID,ignore.case = T),]
+item285.dat2 <- item285.dat1[grep("site",item285.dat1$CK_SiteID,ignore.case = T),]
 
 item285.dat3 <- unique(item285.dat2)
-item285.dat3$count <- 1
+
+item285.merge <- left_join(rbsa.dat, item285.dat3)
+item285.merge <- item285.merge[which(!is.na(item285.merge$Category)),]
+
 ######################################
-#Summarize system types
+#Pop and Sample Sizes for weights
 ######################################
+item285.data <- weightedData(item285.merge[which(colnames(item285.merge) %notin% c("CK_SiteID"
+                                                                                 ,"System.Type"
+                                                                                 ,"Category"
+                                                                                 ,"DHW.Type"
+                                                                                 ,"DHW.Provided.by.Heating.System"))])
 
-item285.sum1 <- summarise(group_by(item285.dat3,DHW.Type),
-                          count = sum(count),
-                          SampleSize = length(unique(CK_Cadmus_ID)))
-                          
-item285.sum1$SampleSize <- sum(item285.sum1$SampleSize)
+item285.data <- left_join(item285.data, item285.merge[which(colnames(item285.merge) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"System.Type"
+                                                                                         ,"Category"
+                                                                                         ,"DHW.Type"
+                                                                                         ,"DHW.Provided.by.Heating.System"))])
+item285.data$count <- 1
 
-item285.sum1$Percent <- item285.sum1$count / item285.sum1$SampleSize
-item285.sum1$SE <- sqrt(item285.sum1$Percent * (1 - item285.sum1$Percent) / item285.sum1$SampleSize)
 
-item285.final <- data.frame("Heater Type" = item285.sum1$DHW.Type,
-                            "Percent" = item285.sum1$Percent,
-                            "SE" = item285.sum1$SE,
-                            "n" = item285.sum1$count)
+######################
+# weighted analysis
+######################
+item285.final <- proportions_one_group_MF(CustomerLevelData = item285.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'System.Type'
+                                          ,total.name = 'Remove')
+item285.final <- item285.final[which(item285.final$System.Type != "Total"),]
+
+exportTable(item285.final, "MF", "Table 77", weighted = TRUE)
+
+######################
+# unweighted analysis
+######################
+item285.final <- proportions_one_group_MF(CustomerLevelData = item285.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'System.Type'
+                                          ,total.name = 'Remove'
+                                          ,weighted = FALSE)
+item285.final <- item285.final[which(item285.final$System.Type != "Total"),]
+
+exportTable(item285.final, "MF", "Table 77", weighted = FALSE)
+
+
+
+
+
 
 #############################################################################################
 #Item 286: DISTRIBUTION OF IN-UNIT WATER HEATER TANKS BY SIZE AND FUEL TYPE (MF Table 78)
@@ -80,7 +122,7 @@ item286.dat <- mechanical.dat5[,which(colnames(mechanical.dat5) %in% c("CK_Cadmu
                                                                        ,"DHW.Fuel"
                                                                        ,"Category"))]
 
-item286.dat1 <- item286.dat[-grep("bldg",item286.dat$CK_SiteID,ignore.case = T),]
+item286.dat1 <- item286.dat[grep("site",item286.dat$CK_SiteID,ignore.case = T),]
 item286.dat2 <- item286.dat1[which(item286.dat1$Category == "DHW"),]
 
 item286.dat3 <- item286.dat2[which(!is.na(item286.dat2$`DHW.Size.(Gallons)`) &
@@ -95,50 +137,91 @@ item286.dat3$TankSize[which(item286.dat3$`DHW.Size.(Gallons)` >= 0 &
 item286.dat3$TankSize[which(item286.dat3$`DHW.Size.(Gallons)` > 55)] <- ">55"
 
 unique(item286.dat3$TankSize)
+
+item286.merge <- left_join(rbsa.dat, item286.dat3)
+item286.merge <- item286.merge[which(!is.na(item286.merge$TankSize)),]
+
 ######################################
-#Summarize BY FUEL AND SIZE
+#Pop and Sample Sizes for weights
 ######################################
+item286.data <- weightedData(item286.merge[which(colnames(item286.merge) %notin% c("CK_SiteID"
+                                                                                 ,"Category"
+                                                                                 ,"DHW.Size.(Gallons)"
+                                                                                 ,"DHW.Fuel"
+                                                                                 ,"Count"
+                                                                                 ,"TankSize"))])
 
-item286.sum1 <- summarise(group_by(item286.dat3,TankSize, DHW.Fuel),
-                          SizeCount = sum(Count))
-                        
-item286.sum2 <-  summarise(group_by(item286.dat3, TankSize),
-                           DHW.Fuel = "All Types",
-                           SizeCount = sum(Count))  
-
-item286.sum3 <- rbind.data.frame(item286.sum1,item286.sum2,stringsAsFactors = F)
-
-item286.sum4 <- summarise(group_by(item286.sum3, DHW.Fuel),
-                          n = sum(SizeCount))  
-
-item286.sum5 <-  summarise(group_by(item286.dat3, DHW.Fuel),
-                           TankSize = "All Sizes",
-                           SizeCount = sum(Count))  
-
-item286.sum6 <- rbind.data.frame(item286.sum3,item286.sum5,stringsAsFactors = F)
-item286.sum7 <- left_join(item286.sum6,item286.sum4, by = "DHW.Fuel")
+item286.data <- left_join(item286.data, item286.merge[which(colnames(item286.merge) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"Category"
+                                                                                         ,"DHW.Size.(Gallons)"
+                                                                                         ,"DHW.Fuel"
+                                                                                         ,"Count"
+                                                                                         ,"TankSize"))])
+item286.data$count <- 1
 
 
-item286.sum7$SampleSize <- unique(item286.sum7$n[which(item286.sum7$DHW.Fuel == "All Types")])
 
-item286.table <- item286.sum7
+#########################
+# weighted analysis
+#########################
+item286.summary <- proportionRowsAndColumns1(CustomerLevelData = item286.data
+                                                     ,valueVariable = 'count'
+                                                     ,columnVariable = 'TankSize'
+                                                     ,rowVariable = 'DHW.Fuel'
+                                                     ,aggregateColumnName = "All Sizes")
+item286.summary$DHW.Fuel[which(item286.summary$DHW.Fuel == "Total")] <- "All Types"
 
-item286.table$Percent <- item286.table$SizeCount / item286.table$SampleSize
-item286.table$SE <- sqrt(item286.table$Percent * (1 - item286.table$Percent) / item286.table$SampleSize)
 
-item286.table2 <- dcast(setDT(item286.table),
-                        formula = DHW.Fuel + n ~ TankSize,
-                        value.var = c("Percent", "SE"))
+item286.cast <- dcast(setDT(item286.summary)
+                      ,formula = DHW.Fuel ~ TankSize
+                      ,value.var = c("w.percent", "w.SE","count","n", "N"))
+
+item286.table <- data.frame("Water.Heater.Fuel" = item286.cast$DHW.Fuel
+                            ,"0.55.Gal"         = item286.cast$`w.percent_0-55`
+                            ,"0.55.Gal.SE"      = item286.cast$`w.SE_0-55`
+                            ,"0.55.Gal.n"       = item286.cast$`count_0-55`
+                            ,"GT55.Gal"         = item286.cast$`w.percent_>55`
+                            ,"GT55.Gal.SE"      = item286.cast$`w.SE_>55`
+                            ,"GT55.Gal.n"       = item286.cast$`count_>55`
+                            ,"All.Sizes"         = item286.cast$`w.percent_All Sizes`
+                            ,"All.Sizes.SE"      = item286.cast$`w.SE_All Sizes`
+                            ,"All.Sizes.n"       = item286.cast$`count_All Sizes`)
+
+exportTable(item286.table, "MF", "Table 78", weighted = TRUE)
+
+#########################
+# unweighted analysis
+#########################
+item286.summary <- proportions_two_groups_unweighted(CustomerLevelData = item286.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'TankSize'
+                                             ,rowVariable = 'DHW.Fuel'
+                                             ,aggregateColumnName = "All Sizes")
+item286.summary$DHW.Fuel[which(item286.summary$DHW.Fuel == "Total")] <- "All Types"
+
+item286.cast <- dcast(setDT(item286.summary)
+                      ,formula = DHW.Fuel ~ TankSize
+                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+
+item286.table <- data.frame("Water.Heater.Fuel" = item286.cast$DHW.Fuel
+                            ,"0.55.Gal"         = item286.cast$`Percent_0-55`
+                            ,"0.55.Gal.SE"      = item286.cast$`SE_0-55`
+                            ,"0.55.Gal.n"       = item286.cast$`Count_0-55`
+                            ,"GT55.Gal"         = item286.cast$`Percent_>55`
+                            ,"GT55.Gal.SE"      = item286.cast$`SE_>55`
+                            ,"GT55.Gal.n"       = item286.cast$`Count_>55`
+                            ,"All.Sizes"         = item286.cast$`Percent_All Sizes`
+                            ,"All.Sizes.SE"      = item286.cast$`SE_All Sizes`
+                            ,"All.Sizes.n"       = item286.cast$`Count_All Sizes`)
+
+exportTable(item286.table, "MF", "Table 78", weighted = FALSE)
 
 
-item286.final <- data.frame("WaterHeaterFuel" = item286.table2$DHW.Fuel,
-                            "0 to 55" = item286.table2$`Percent_0-55`,
-                            "0 to 55 SE" = item286.table2$`SE_0-55`,
-                            "Greater than 55" = item286.table2$`Percent_>55`,
-                            "Greater than 55 SE" = item286.table2$`SE_>55`,
-                            "All Sizes" = item286.table2$`Percent_All Sizes`,
-                            "All Sizes SE" = item286.table2$`SE_All Sizes`,
-                            "n" = item286.table2$n)
+
+
+
+
 
 #############################################################################################
 #Item 287: DISTRIBUTION OF IN-UNIT WATER HEATERS BY VINTAGE  (MF Table 78)
@@ -166,23 +249,58 @@ item287.dat4$Vintage[which(item287.dat4$Year >= 2005 & item287.dat4$Year <= 2009
 item287.dat4$Vintage[which(item287.dat4$Year > 2009)] <- "Post_2009"
 
 item287.dat4$Count <- 1
+
+item287.merge <- left_join(rbsa.dat, item287.dat4)
+item287.merge <- item287.merge[which(!is.na(item287.merge$Vintage)),]
+
 ######################################
-#Summarize BY FUEL AND SIZE
+#Pop and Sample Sizes for weights
 ######################################
+item287.data <- weightedData(item287.merge[which(colnames(item287.merge) %notin% c("CK_SiteID"
+                                                                                   ,"Category"
+                                                                                   ,"DHW.Size.(Gallons)"
+                                                                                   ,"DHW.Fuel"
+                                                                                   ,"DHW.Type"
+                                                                                   ,"DHW.Year.Manufactured"
+                                                                                   ,"Count"
+                                                                                   ,"Year"
+                                                                                   ,'Vintage'
+                                                                                   ,"TankSize"))])
+
+item287.data <- left_join(item287.data, item287.merge[which(colnames(item287.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"CK_SiteID"
+                                                                                           ,"Category"
+                                                                                           ,"DHW.Size.(Gallons)"
+                                                                                           ,"DHW.Fuel"
+                                                                                           ,"DHW.Type"
+                                                                                           ,"DHW.Year.Manufactured"
+                                                                                           ,"Count"
+                                                                                           ,"Year"
+                                                                                           ,'Vintage'
+                                                                                           ,"TankSize"))])
+item287.data$count <- 1
 
 
-item287.sum1 <- summarise(group_by(item287.dat4, Vintage),
-                          Count = sum(Count))
 
-item287.sum1$SampleSize <- sum(item287.sum1$Count)
+#########################
+# weighted analysis
+#########################
+item287.final <- proportions_one_group_MF(CustomerLevelData = item287.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Vintage'
+                                          ,total.name = "Remove")
+item287.final <- item287.final[which(item287.final$Vintage != "Total"),]
 
-item287.table <- item287.sum1
+exportTable(item287.final, "MF", "Table 79", weighted = TRUE)
 
-item287.table$Percent <- item287.table$Count / item287.table$SampleSize
-item287.table$SE <- sqrt(item287.table$Percent * (1 - item287.table$Percent) / item287.table$SampleSize)
+#########################
+# weighted analysis
+#########################
+item287.final <- proportions_one_group_MF(CustomerLevelData = item287.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Vintage'
+                                          ,total.name = "Remove"
+                                          ,weighted = FALSE)
+item287.final <- item287.final[which(item287.final$Vintage != "Total"),]
 
-item287.final <- data.frame("Vintage" = item287.table$Vintage,
-                            "Percent" = item287.table$Percent,
-                            "SE" = item287.table$SE,
-                            "n" = item287.table$Count)
-
+exportTable(item287.final, "MF", "Table 79", weighted = FALSE)

@@ -7,14 +7,25 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -44,99 +55,62 @@ item290.dat2 <- left_join(item290.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 
 item290.dat3 <- item290.dat2[which(item290.dat2$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item290.dat4 <- item290.dat3[-grep("BLDG", item290.dat3$CK_SiteID),]
+item290.dat4 <- item290.dat3[grep("SITE", item290.dat3$CK_SiteID),]
 
 item290.dat5 <- item290.dat4[grep("Multifamily", item290.dat4$BuildingType),]
 
 item290.dat5$Lamp.Category[which(item290.dat5$Lamp.Category %in% c("Unknown", "Incandescent / Halogen"))] <- "Other"
 
-
-
-##################################
-# For Fixtures and lamps per unit
-##################################
 item290.site <- summarise(group_by(item290.dat5, CK_Cadmus_ID)
                           ,Total.Unit.Fixtures = sum(Fixture.Qty)
                           ,Total.Unit.Lamps = sum(Total.Lamps))
 
-item290.fixture <- summarise(item290.site
-                             ,Category = "Fixtures per Unit"
-                             ,Mean = mean(Total.Unit.Fixtures)
-                             ,SE = sd(Total.Unit.Fixtures) / sqrt(length(unique(CK_Cadmus_ID)))
-                             ,SampleSize = length(unique(CK_Cadmus_ID)))
-item290.lamp <- summarise(item290.site
-                          ,Category = "Lamps per Unit"
-                          ,Mean = mean(Total.Unit.Lamps)
-                          ,SE = sd(Total.Unit.Lamps) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-item290.site.sum <- rbind.data.frame(item290.fixture, item290.lamp, stringsAsFactors = F)
-
-
-##################################
-# For specific bulb types per unit
-##################################
-
 item290.cast <- dcast(setDT(item290.dat5)
                       ,formula = CK_Cadmus_ID ~ Lamp.Category, sum
                       ,value.var = "Total.Lamps")
+item290.join <- left_join(item290.site, item290.cast)
 
-colnames(item290.cast)
-
-item290.cfl <- summarise(item290.cast
-                         ,Category = "CFL Lamps per Unit"
-                         ,Mean = mean(`Compact Fluorescent`)
-                         ,SE = sd(`Compact Fluorescent`) / sqrt(length(unique(CK_Cadmus_ID)))
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item290.halogen <- summarise(item290.cast
-                             ,Category = "Halogen Lamps per Unit"
-                             ,Mean = mean(Halogen)
-                             ,SE = sd(Halogen) / sqrt(length(unique(CK_Cadmus_ID)))
-                             ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item290.incandescent <- summarise(item290.cast
-                                  ,Category = "Incandescent Lamps per Unit"
-                                  ,Mean = mean(Incandescent)
-                                  ,SE = sd(Incandescent) / sqrt(length(unique(CK_Cadmus_ID)))
-                                  ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item290.LED <- summarise(item290.cast
-                         ,Category = "LED Lamps per Unit"
-                         ,Mean = mean(`Light Emitting Diode`)
-                         ,SE = sd(`Light Emitting Diode`) / sqrt(length(unique(CK_Cadmus_ID)))
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item290.Linear.Fluorescent <- summarise(item290.cast
-                                        ,Category = "Linear Fluorescent Lamps per Unit"
-                                        ,Mean = mean(`Linear Fluorescent`)
-                                        ,SE = sd(`Linear Fluorescent`) / sqrt(length(unique(CK_Cadmus_ID)))
-                                        ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item290.Other <- summarise(item290.cast
-                           ,Category = "Other Lamps per Unit"
-                           ,Mean = mean(Other)
-                           ,SE = sd(Other) / sqrt(length(unique(CK_Cadmus_ID)))
-                           ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item290.lamp.types <- rbind.data.frame(item290.cfl
-                                       ,item290.halogen
-                                       ,item290.incandescent
-                                       ,item290.LED
-                                       ,item290.Linear.Fluorescent
-                                       ,item290.Other)
-
-##############################
-# Combine results
-##############################
-
-item290.final <- rbind.data.frame(item290.site.sum, item290.lamp.types, stringsAsFactors = F)
+item290.melt <- melt(item290.join, id.vars = "CK_Cadmus_ID")
+names(item290.melt) <- c("CK_Cadmus_ID", "Lamp.Category", "Lamp.Count")
 
 
+item290.merge <- left_join(rbsa.dat, item290.melt)
+item290.merge <- item290.merge[which(!is.na(item290.merge$Lamp.Count)),]
+
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item290.data <- weightedData(item290.merge[which(colnames(item290.merge) %notin% c("Lamp.Category"
+                                                                                   ,"Lamp.Count"))])
+
+item290.data <- left_join(item290.data, item290.merge[which(colnames(item290.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Lamp.Category"
+                                                                                           ,"Lamp.Count"))])
+item290.data$count <- 1
 
 
+#########################
+# weighted analysis
+#########################
+item290.final <- mean_one_group(CustomerLevelData = item290.data
+                                ,valueVariable = 'Lamp.Count'
+                                ,byVariable = 'Lamp.Category'
+                                ,aggregateRow = "Remove")
+item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),]
+
+exportTable(item290.final, "MF", "Table 82", weighted = TRUE)
 
 
+#########################
+# weighted analysis
+#########################
+item290.final <- mean_one_group_unweighted(CustomerLevelData = item290.data
+                                ,valueVariable = 'Lamp.Count'
+                                ,byVariable = 'Lamp.Category'
+                                ,aggregateRow = "Remove")
+item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),]
 
+exportTable(item290.final, "MF", "Table 82", weighted = FALSE)
 
 
 
@@ -147,7 +121,7 @@ item290.final <- rbind.data.frame(item290.site.sum, item290.lamp.types, stringsA
 #############################################################################################
 #Item 291: DISTRIBUTION OF LAMPS BY TYPE (MF Table 83)
 #############################################################################################
-item291.dat <- item290.dat4
+item291.dat <- item290.dat5
 item291.dat1 <- item291.dat[grep("Multifamily", item291.dat$BuildingType),]
 
 item291.dat1$Lamp.Category[which(item291.dat1$Lamp.Category %in% c("Incandescent / Halogen"))] <- "Other"
@@ -202,15 +176,12 @@ item292.area1 <- summarise(group_by(item292.area, CK_Cadmus_ID, Clean.Room)
 ############
 # For Lighting
 ############
-item292.dat <- item290.dat4
-item292.dat1 <- item292.dat[grep("Multifamily", item292.dat$BuildingType),]
-
-item292.dat1$Lamp.Category[which(item292.dat1$Lamp.Category %in% c("Incandescent / Halogen"))] <- "Other"
+item292.dat1 <- item290.dat5
 item292.dat1$Total.Wattage <- item292.dat1$Total.Lamps * as.numeric(as.character(item292.dat1$Clean.Wattage))
 
 item292.dat2 <- item292.dat1[which(!(is.na(item292.dat1$Total.Wattage))),]
 
-item292.dat3 <- summarise(group_by(item292.dat2, CK_Cadmus_ID, BuildingType, State, Clean.Room)
+item292.dat3 <- summarise(group_by(item292.dat2, CK_Cadmus_ID, Clean.Room)
                          ,Total.Wattage = sum(Total.Wattage))
 
 
@@ -218,26 +189,45 @@ item292.dat4 <- left_join(item292.dat3, item292.area1, by = c("CK_Cadmus_ID", "C
 
 item292.dat4$LPD <- item292.dat4$Total.Wattage / item292.dat4$SiteArea
 
-item292.dat5 <- item292.dat4[which(!(is.na(item292.dat4$LPD))),]
+item292.merge <- left_join(rbsa.dat, item292.dat4)
+item292.merge <- item292.merge[which(!(is.na(item292.merge$LPD))),]
 
 
-#summarise by clean room
-item292.sum1 <- summarise(group_by(item292.dat5, Clean.Room)
-                          ,Mean = mean(LPD)
-                          ,SE = sd(LPD) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item292.data <- weightedData(item292.merge[which(colnames(item292.merge) %notin% c("Clean.Room"
+                                                                                   ,"Total.Wattage"
+                                                                                   ,"SiteArea"
+                                                                                   ,"LPD"))])
 
-#summarise across clean room
-item292.sum2 <- summarise(group_by(item292.dat5)
-                          ,Clean.Room = "Unit Lighting Power Density"
-                          ,Mean = mean(LPD)
-                          ,SE = sd(LPD) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item292.data <- left_join(item292.data, item292.merge[which(colnames(item292.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Clean.Room"
+                                                                                           ,"Total.Wattage"
+                                                                                           ,"SiteArea"
+                                                                                           ,"LPD"))])
+item292.data$count <- 1
 
 
-item292.final <- rbind.data.frame(item292.sum1, item292.sum2, stringsAsFactors = F)
+######################
+# weighted analysis
+######################
+item292.final <- mean_one_group(CustomerLevelData = item292.data
+                                ,valueVariable = "LPD"
+                                ,byVariable = 'Clean.Room'
+                                ,aggregateRow = "Unit LPD")
+item292.final <- item292.final[which(colnames(item292.final) %notin% c("N_h", "BuildingType"))]
+  
+exportTable(item292.final, "MF", "Table 85", weighted = TRUE)
 
-item292.table <- data.frame("Room.Type" = item292.final$Clean.Room
-                            ,"Mean" = item292.final$Mean
-                            ,"SE" = item292.final$SE
-                            ,"SampleSize" = item292.final$SampleSize)
+######################
+# weighted analysis
+######################
+item292.final <- mean_one_group_unweighted(CustomerLevelData = item292.data
+                                ,valueVariable = "LPD"
+                                ,byVariable = 'Clean.Room'
+                                ,aggregateRow = "Unit LPD")
+item292.final <- item292.final[which(colnames(item292.final) %notin% c("N_h", "BuildingType"))]
+
+exportTable(item292.final, "MF", "Table 85", weighted = FALSE)
+

@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
@@ -35,30 +46,44 @@ item276.dat0 <- item276.dat[grep("BLDG",item276.dat$CK_SiteID),]
 item276.dat00 <- item276.dat0[which(item276.dat0$Clean.Type == "Kitchen"),]
 
 #merge on rooms data with rbsa cleaned data
-item276.dat1 <- left_join(rbsa.dat, item276.dat00, by = "CK_Cadmus_ID")
+item276.dat1 <- left_join(rbsa.dat, item276.dat00, by = c("CK_Building_ID" = "CK_SiteID"))
+colnames(item276.dat1)[which(colnames(item276.dat1) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 #subset to only multifamily units
 item276.dat2 <- item276.dat1[grep("Multifamily",item276.dat1$BuildingType),]
-item276.dat2$Kitchen.Ind <- 0
-item276.dat2$Kitchen.Ind[which(item276.dat2$Clean.Type == "Kitchen")] <- 1
+item276.dat2$Ind <- 0
+item276.dat2$Ind[which(item276.dat2$Clean.Type == "Kitchen")] <- 1
 
-#summarise by buildings size
-item276.sum1 <- summarise(group_by(item276.dat2, BuildingTypeXX)
-                          ,Mean = mean(Kitchen.Ind)
-                          ,SE = sd(Kitchen.Ind) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-#summarise across building size
-item276.sum2 <- summarise(group_by(item276.dat2)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,Mean = mean(Kitchen.Ind)
-                          ,SE = sd(Kitchen.Ind) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-#merge
-item276.final <- rbind.data.frame(item276.sum1, item276.sum2, stringsAsFactors = F)
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item276.data <- weightedData(item276.dat2[which(colnames(item276.dat2) %notin% c("CK_Cadmus_ID.y"
+                                                                                 ,"Clean.Type"
+                                                                                 ,"Ind"))])
 
-item276.table <- data.frame("Building.Size" = item276.final$BuildingTypeXX
-                            ,"Mean" = item276.final$Mean
-                            ,"SE" = item276.final$SE
-                            ,"SampleSize" = item276.final$SampleSize)
+item276.data <- left_join(item276.data, item276.dat2[which(colnames(item276.dat2) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Clean.Type"
+                                                                                         ,"Ind"))])
+item276.data$count <- 1
 
-                          
+
+######################
+# weighted analysis
+######################
+item276.final <- mean_one_group(CustomerLevelData = item276.data
+                                ,valueVariable = 'Ind'
+                                ,byVariable = 'HomeType'
+                                ,aggregateRow = 'All Sizes')
+
+exportTable(item276.final, "MF", "Table 68", weighted = TRUE)
+
+
+######################
+# weighted analysis
+######################
+item276.final <- mean_one_group_unweighted(CustomerLevelData = item276.data
+                                ,valueVariable = 'Ind'
+                                ,byVariable = 'HomeType'
+                                ,aggregateRow = 'All Sizes')
+
+exportTable(item276.final, "MF", "Table 68", weighted = FALSE)

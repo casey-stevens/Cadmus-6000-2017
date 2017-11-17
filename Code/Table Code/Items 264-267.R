@@ -7,14 +7,25 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -40,13 +51,14 @@ item264.dat$count <- 1
 item264.dat00 <- item264.dat[which(item264.dat$Clean.Room %in% c("Outside", "Parking")),]
 
 #join clean rbsa data onto lighting analysis data
-item264.dat0 <- left_join(item264.dat00, rbsa.dat, by = "CK_Cadmus_ID")
+item264.dat0 <- left_join(rbsa.dat, item264.dat00, by = c("CK_Building_ID" = "CK_SiteID"))
+colnames(item264.dat0)[which(colnames(item264.dat0) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 #remove missing vintage info
 item264.dat1 <- item264.dat0[which(!(is.na(item264.dat0$HomeYearBuilt_MF))),]
 
 #remove building info
-item264.dat2 <- item264.dat1[grep("BLDG", item264.dat1$CK_SiteID),]
+item264.dat2 <- item264.dat1[grep("BLDG", item264.dat1$CK_Building_ID),]
 
 #clean fixture and bulbs per fixture
 item264.dat2$Fixture.Qty <- as.numeric(as.character(item264.dat2$Fixture.Qty))
@@ -65,63 +77,147 @@ item264.dat4 <- item264.dat3[which(!(is.na(item264.dat3$Total.Wattage))),]
 #make wattage numeric
 item264.dat4$Total.Wattage <- as.numeric(as.character(item264.dat4$Total.Wattage))
 
+
+## Clean Switch Type
+unique(item264.dat4$Switch.Type)
+item264.dat4$Switch.Type[grep("On/off|3", item264.dat4$Switch.Type, ignore.case = T)] <- "Manual Switch"
+item264.dat4$Switch.Type[grep("Other", item264.dat4$Switch.Type, ignore.case = T)] <- "Other"
+item264.dat4$Switch.Type[grep("Timer", item264.dat4$Switch.Type, ignore.case = T)] <- "Timer Control"
+item264.dat4$Switch.Type[grep("Dimmer", item264.dat4$Switch.Type, ignore.case = T)] <- "Dimmer Switch"
+item264.dat4$Switch.Type[grep("Unknown", item264.dat4$Switch.Type, ignore.case = T)] <- "Unknown Switch"
+item264.dat4$Switch.Type[grep("Always", item264.dat4$Switch.Type, ignore.case = T)] <- "24 Hour Operation"
+
+
+
 #Subset to Multifamily
 item264.dat5 <- item264.dat4[grep("Multifamily", item264.dat4$BuildingType),]
 
 #summarise up to the site level
-item264.dat6 <- summarise(group_by(item264.dat5, CK_Cadmus_ID, Clean.Room, Lamp.Category)
-                          ,SiteCount = sum(Lamps)
+item264.dat6 <- summarise(group_by(item264.dat5, CK_Cadmus_ID, CK_Building_ID, Clean.Room, Lamp.Category)
+                          ,SiteLampCount = sum(Lamps)
                           ,SiteWattage = sum(Total.Wattage))
 
+item264.merge <- left_join(rbsa.dat, item264.dat6)
+item264.merge <- item264.merge[which(!is.na(item264.merge$SiteWattage)),]
 
-#summarise by lamp category
-# by clean room
-item264.sum1 <- summarise(group_by(item264.dat6, Clean.Room, Lamp.Category)
-                          ,Wattage = sum(SiteWattage))
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item264.data <- weightedData(item264.merge[which(colnames(item264.merge) %notin% c("SiteWattage"
+                                                                                   ,"Clean.Room"
+                                                                                   ,"Lamp.Category"
+                                                                                   ,'SiteLampCount'))])
 
-#summarise by lamp category
-# across clean room
-item264.sum2 <- summarise(group_by(item264.dat6, Lamp.Category)
-                          ,Clean.Room = "All Categories"
-                          ,Wattage = sum(SiteWattage))
+item264.data <- left_join(item264.data, item264.merge[which(colnames(item264.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"SiteWattage"
+                                                                                           ,"Clean.Room"
+                                                                                           ,"Lamp.Category"
+                                                                                           ,'SiteLampCount'))])
+item264.data$count <- 1
 
-item264.merge1 <- rbind.data.frame(item264.sum1, item264.sum2, stringsAsFactors = F)
 
+######################
+# weighted analysis
+######################
+item264.summary <- proportionRowsAndColumns1(CustomerLevelData = item264.data
+                                             ,valueVariable = 'SiteWattage'
+                                             ,columnVariable = 'Clean.Room'
+                                             ,rowVariable = 'Lamp.Category'
+                                             ,aggregateColumnName = "Remove")
+item264.summary <- item264.summary[which(item264.summary$Clean.Room != "Remove"),]
+item264.summary <- item264.summary[which(item264.summary$Lamp.Category != "Total"),]
 
-#summarise by clean room
-item264.sum3 <- summarise(group_by(item264.dat6, Clean.Room)
-                          ,Total.Wattage = sum(SiteWattage)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# across clean room
-item264.sum4 <- summarise(group_by(item264.dat6)
-                          ,Clean.Room = "All Categories"
-                          ,Total.Wattage = sum(SiteWattage)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item264.all.categories <- proportions_one_group_MF(CustomerLevelData = item264.data
+                                                   ,valueVariable = 'SiteWattage'
+                                                   ,groupingVariable = 'Lamp.Category'
+                                                   ,total.name = 'All Categories'
+                                                   ,columnName = 'Clean.Room'
+                                                   ,weighted = TRUE
+                                                   ,two.prop.total = TRUE)
+item264.all.categories <- item264.all.categories[which(item264.all.categories$Lamp.Category != "Total"),]
 
-item264.merge2 <- rbind.data.frame(item264.sum3, item264.sum4, stringsAsFactors = F)
-
-item264.final <- left_join(item264.merge1, item264.merge2, by = "Clean.Room")
-item264.final$Percent <- item264.final$Wattage / item264.final$Total.Wattage
-item264.final$SE <- sqrt(item264.final$Percent * (1 - item264.final$Percent) / item264.final$SampleSize)
+item264.final <- rbind.data.frame(item264.summary, item264.all.categories, stringsAsFactors = F)
 
 item264.cast <- dcast(setDT(item264.final)
-                      ,formula = Clean.Room + SampleSize ~ Lamp.Category
-                      ,value.var = c("Percent", "SE"))
+                      ,formula = Clean.Room ~ Lamp.Category
+                      ,value.var = c("w.percent", "w.SE", "count", "n","N"))
 
-item264.table <- data.frame("Exterior.Category" = item264.cast$Clean.Room
-                            ,"CFL" = item264.cast$`Percent_Compact Fluorescent`
-                            ,"CFL.SE" = item264.cast$`SE_Compact Fluorescent`
-                            ,"Halogen"= item264.cast$Percent_Halogen
-                            ,"Halogen.SE" = item264.cast$SE_Halogen
-                            ,"Incandescent" = item264.cast$Percent_Incandescent
-                            ,"Incandescent.SE" = item264.cast$SE_Incandescent
-                            ,"Linear.Fluorescent" = item264.cast$`Percent_Linear Fluorescent`
+item264.table <- data.frame("Exterior.Category"      = item264.cast$Clean.Room
+                            ,"CFL"                   = item264.cast$`w.percent_Compact Fluorescent`
+                            ,"CFL.SE"                = item264.cast$`w.SE_Compact Fluorescent`
+                            ,"CFL.n"                 = item264.cast$`n_Compact Fluorescent`
+                            ,"Halogen"               = item264.cast$w.percent_Halogen
+                            ,"Halogen.SE"            = item264.cast$w.SE_Halogen
+                            ,"Halogen.n"             = item264.cast$n_Halogen
+                            ,"Incandescent"          = item264.cast$w.percent_Incandescent
+                            ,"Incandescent.SE"       = item264.cast$w.SE_Incandescent
+                            ,"Incandescent.n"        = item264.cast$n_Incandescent
+                            ,"Linear.Fluorescent"    = item264.cast$`w.percent_Linear Fluorescent`
+                            ,"Linear.Fluorescent.SE" = item264.cast$`w.SE_Linear Fluorescent`
+                            ,"Linear.Fluorescent.n"  = item264.cast$`n_Linear Fluorescent`
+                            ,"LED"                   = item264.cast$`w.percent_Light Emitting Diode`
+                            ,"LED.SE"                = item264.cast$`w.SE_Light Emitting Diode`
+                            ,"LED.n"                 = item264.cast$`n_Light Emitting Diode`
+                            ,"Other"                 = item264.cast$w.percent_Other
+                            ,"Other.SE"              = item264.cast$w.SE_Other
+                            ,"Other.n"               = item264.cast$n_Other
+                            ,"Unknown"               = item264.cast$w.percent_Unknown
+                            ,"Unknown.SE"            = item264.cast$w.SE_Unknown
+                            ,"Unknown.n"             = item264.cast$n_Unknown)
+
+exportTable(item264.table, "MF", "Table 56", weighted = TRUE)
+
+
+######################
+# unweighted analysis
+######################
+item264.summary <- proportions_two_groups_unweighted(CustomerLevelData = item264.data
+                                             ,valueVariable = 'SiteWattage'
+                                             ,columnVariable = 'Clean.Room'
+                                             ,rowVariable = 'Lamp.Category'
+                                             ,aggregateColumnName = "Remove")
+item264.summary <- item264.summary[which(item264.summary$Clean.Room != "Remove"),]
+item264.summary <- item264.summary[which(item264.summary$Lamp.Category != "Total"),]
+
+item264.all.categories <- proportions_one_group_MF(CustomerLevelData = item264.data
+                                                   ,valueVariable = 'SiteWattage'
+                                                   ,groupingVariable = 'Lamp.Category'
+                                                   ,total.name = 'All Categories'
+                                                   ,columnName = 'Clean.Room'
+                                                   ,weighted = FALSE
+                                                   ,two.prop.total = TRUE)
+item264.all.categories <- item264.all.categories[which(item264.all.categories$Lamp.Category != "Total"),]
+
+item264.final <- rbind.data.frame(item264.summary, item264.all.categories, stringsAsFactors = F)
+
+item264.cast <- dcast(setDT(item264.final)
+                      ,formula = Clean.Room ~ Lamp.Category
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item264.table <- data.frame("Exterior.Category"      = item264.cast$Clean.Room
+                            ,"CFL"                   = item264.cast$`Percent_Compact Fluorescent`
+                            ,"CFL.SE"                = item264.cast$`SE_Compact Fluorescent`
+                            ,"CFL.n"                 = item264.cast$`SampleSize_Compact Fluorescent`
+                            ,"Halogen"               = item264.cast$Percent_Halogen
+                            ,"Halogen.SE"            = item264.cast$SE_Halogen
+                            ,"Halogen.n"             = item264.cast$SampleSize_Halogen
+                            ,"Incandescent"          = item264.cast$Percent_Incandescent
+                            ,"Incandescent.SE"       = item264.cast$SE_Incandescent
+                            ,"Incandescent.n"        = item264.cast$SampleSize_Incandescent
+                            ,"Linear.Fluorescent"    = item264.cast$`Percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE" = item264.cast$`SE_Linear Fluorescent`
-                            ,"LED" = item264.cast$`Percent_Light Emitting Diode`
-                            ,"LED.SE" = item264.cast$`SE_Light Emitting Diode`
-                            ,"Other" = item264.cast$Percent_Other
-                            ,"Other.SE" = item264.cast$SE_Other
-                            ,"SampleSize" = item264.cast$SampleSize)
+                            ,"Linear.Fluorescent.n"  = item264.cast$`SampleSize_Linear Fluorescent`
+                            ,"LED"                   = item264.cast$`Percent_Light Emitting Diode`
+                            ,"LED.SE"                = item264.cast$`SE_Light Emitting Diode`
+                            ,"LED.n"                 = item264.cast$`SampleSize_Light Emitting Diode`
+                            ,"Other"                 = item264.cast$Percent_Other
+                            ,"Other.SE"              = item264.cast$SE_Other
+                            ,"Other.n"               = item264.cast$SampleSize_Other
+                            ,"Unknown"               = item264.cast$Percent_Unknown
+                            ,"Unknown.SE"            = item264.cast$SE_Unknown
+                            ,"Unknown.n"             = item264.cast$SampleSize_Unknown)
+
+exportTable(item264.table, "MF", "Table 56", weighted = FALSE)
 
 
 
@@ -129,56 +225,110 @@ item264.table <- data.frame("Exterior.Category" = item264.cast$Clean.Room
 #############################################################################################
 #Item 265: DISTRIBUTION OF EXTERIOR LAMPS BY LAMP TYPE AND EXTERIOR CATEGORY (MF Table 57)
 #############################################################################################
-item265.dat <- item264.dat6
+item265.data <- item264.data
 
-#summarise by lamp category
-# by clean room
-item265.sum1 <- summarise(group_by(item265.dat, Clean.Room, Lamp.Category)
-                          ,LampCount = sum(SiteCount))
+######################
+# weighted analysis
+######################
+item265.summary <- proportionRowsAndColumns1(CustomerLevelData = item265.data
+                                             ,valueVariable = 'SiteLampCount'
+                                             ,columnVariable = 'Clean.Room'
+                                             ,rowVariable = 'Lamp.Category'
+                                             ,aggregateColumnName = "Remove")
+item265.summary <- item265.summary[which(item265.summary$Clean.Room != "Remove"),]
+item265.summary <- item265.summary[which(item265.summary$Lamp.Category != "Total"),]
 
-#summarise by lamp category
-# across clean room
-item265.sum2 <- summarise(group_by(item265.dat, Lamp.Category)
-                          ,Clean.Room = "All Categories"
-                          ,LampCount = sum(SiteCount))
+item265.all.categories <- proportions_one_group_MF(CustomerLevelData = item265.data
+                                                   ,valueVariable = 'SiteLampCount'
+                                                   ,groupingVariable = 'Lamp.Category'
+                                                   ,total.name = 'All Categories'
+                                                   ,columnName = 'Clean.Room'
+                                                   ,weighted = TRUE
+                                                   ,two.prop.total = TRUE)
+item265.all.categories <- item265.all.categories[which(item265.all.categories$Lamp.Category != "Total"),]
 
-item265.merge1 <- rbind.data.frame(item265.sum1, item265.sum2, stringsAsFactors = F)
-
-
-#summarise by clean room
-item265.sum3 <- summarise(group_by(item265.dat, Clean.Room)
-                          ,TotalLampCount = sum(SiteCount)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# across clean room
-item265.sum4 <- summarise(group_by(item265.dat)
-                          ,Clean.Room = "All Categories"
-                          ,TotalLampCount = sum(SiteCount)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item265.merge2 <- rbind.data.frame(item265.sum3, item265.sum4, stringsAsFactors = F)
-
-item265.final <- left_join(item265.merge1, item265.merge2, by = "Clean.Room")
-item265.final$Percent <- item265.final$LampCount / item265.final$TotalLampCount
-item265.final$SE <- sqrt(item265.final$Percent * (1 - item265.final$Percent) / item265.final$SampleSize)
+item265.final <- rbind.data.frame(item265.summary, item265.all.categories, stringsAsFactors = F)
 
 item265.cast <- dcast(setDT(item265.final)
-                      ,formula = Clean.Room + SampleSize ~ Lamp.Category
-                      ,value.var = c("Percent", "SE"))
+                      ,formula = Clean.Room ~ Lamp.Category
+                      ,value.var = c("w.percent", "w.SE", "count", "n","N"))
 
-item265.table <- data.frame("Exterior.Category" = item265.cast$Clean.Room
-                            ,"CFL" = item265.cast$`Percent_Compact Fluorescent`
-                            ,"CFL.SE" = item265.cast$`SE_Compact Fluorescent`
-                            ,"Halogen"= item265.cast$Percent_Halogen
-                            ,"Halogen.SE" = item265.cast$SE_Halogen
-                            ,"Incandescent" = item265.cast$Percent_Incandescent
-                            ,"Incandescent.SE" = item265.cast$SE_Incandescent
-                            ,"Linear.Fluorescent" = item265.cast$`Percent_Linear Fluorescent`
+item265.table <- data.frame("Exterior.Category"      = item265.cast$Clean.Room
+                            ,"CFL"                   = item265.cast$`w.percent_Compact Fluorescent`
+                            ,"CFL.SE"                = item265.cast$`w.SE_Compact Fluorescent`
+                            ,"CFL.n"                 = item265.cast$`n_Compact Fluorescent`
+                            ,"Halogen"               = item265.cast$w.percent_Halogen
+                            ,"Halogen.SE"            = item265.cast$w.SE_Halogen
+                            ,"Halogen.n"             = item265.cast$n_Halogen
+                            ,"Incandescent"          = item265.cast$w.percent_Incandescent
+                            ,"Incandescent.SE"       = item265.cast$w.SE_Incandescent
+                            ,"Incandescent.n"        = item265.cast$n_Incandescent
+                            ,"Linear.Fluorescent"    = item265.cast$`w.percent_Linear Fluorescent`
+                            ,"Linear.Fluorescent.SE" = item265.cast$`w.SE_Linear Fluorescent`
+                            ,"Linear.Fluorescent.n"  = item265.cast$`n_Linear Fluorescent`
+                            ,"LED"                   = item265.cast$`w.percent_Light Emitting Diode`
+                            ,"LED.SE"                = item265.cast$`w.SE_Light Emitting Diode`
+                            ,"LED.n"                 = item265.cast$`n_Light Emitting Diode`
+                            ,"Other"                 = item265.cast$w.percent_Other
+                            ,"Other.SE"              = item265.cast$w.SE_Other
+                            ,"Other.n"               = item265.cast$n_Other
+                            ,"Unknown"               = item265.cast$w.percent_Unknown
+                            ,"Unknown.SE"            = item265.cast$w.SE_Unknown
+                            ,"Unknown.n"             = item265.cast$n_Unknown)
+
+exportTable(item265.table, "MF", "Table 57", weighted = TRUE)
+
+
+######################
+# unweighted analysis
+######################
+item265.summary <- proportions_two_groups_unweighted(CustomerLevelData = item265.data
+                                                     ,valueVariable = 'SiteLampCount'
+                                                     ,columnVariable = 'Clean.Room'
+                                                     ,rowVariable = 'Lamp.Category'
+                                                     ,aggregateColumnName = "Remove")
+item265.summary <- item265.summary[which(item265.summary$Clean.Room != "Remove"),]
+item265.summary <- item265.summary[which(item265.summary$Lamp.Category != "Total"),]
+
+item265.all.categories <- proportions_one_group_MF(CustomerLevelData = item265.data
+                                                   ,valueVariable = 'SiteLampCount'
+                                                   ,groupingVariable = 'Lamp.Category'
+                                                   ,total.name = 'All Categories'
+                                                   ,columnName = 'Clean.Room'
+                                                   ,weighted = FALSE
+                                                   ,two.prop.total = TRUE)
+item265.all.categories <- item265.all.categories[which(item265.all.categories$Lamp.Category != "Total"),]
+
+item265.final <- rbind.data.frame(item265.summary, item265.all.categories, stringsAsFactors = F)
+
+item265.cast <- dcast(setDT(item265.final)
+                      ,formula = Clean.Room ~ Lamp.Category
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item265.table <- data.frame("Exterior.Category"      = item265.cast$Clean.Room
+                            ,"CFL"                   = item265.cast$`Percent_Compact Fluorescent`
+                            ,"CFL.SE"                = item265.cast$`SE_Compact Fluorescent`
+                            ,"CFL.n"                 = item265.cast$`SampleSize_Compact Fluorescent`
+                            ,"Halogen"               = item265.cast$Percent_Halogen
+                            ,"Halogen.SE"            = item265.cast$SE_Halogen
+                            ,"Halogen.n"             = item265.cast$SampleSize_Halogen
+                            ,"Incandescent"          = item265.cast$Percent_Incandescent
+                            ,"Incandescent.SE"       = item265.cast$SE_Incandescent
+                            ,"Incandescent.n"        = item265.cast$SampleSize_Incandescent
+                            ,"Linear.Fluorescent"    = item265.cast$`Percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE" = item265.cast$`SE_Linear Fluorescent`
-                            ,"LED" = item265.cast$`Percent_Light Emitting Diode`
-                            ,"LED.SE" = item265.cast$`SE_Light Emitting Diode`
-                            ,"Other" = item265.cast$Percent_Other
-                            ,"Other.SE" = item265.cast$SE_Other
-                            ,"SampleSize" = item265.cast$SampleSize)
+                            ,"Linear.Fluorescent.n"  = item265.cast$`SampleSize_Linear Fluorescent`
+                            ,"LED"                   = item265.cast$`Percent_Light Emitting Diode`
+                            ,"LED.SE"                = item265.cast$`SE_Light Emitting Diode`
+                            ,"LED.n"                 = item265.cast$`SampleSize_Light Emitting Diode`
+                            ,"Other"                 = item265.cast$Percent_Other
+                            ,"Other.SE"              = item265.cast$SE_Other
+                            ,"Other.n"               = item265.cast$SampleSize_Other
+                            ,"Unknown"               = item265.cast$Percent_Unknown
+                            ,"Unknown.SE"            = item265.cast$SE_Unknown
+                            ,"Unknown.n"             = item265.cast$SampleSize_Unknown)
+
+exportTable(item265.table, "MF", "Table 57", weighted = FALSE)
 
 
 
@@ -188,128 +338,208 @@ item265.table <- data.frame("Exterior.Category" = item265.cast$Clean.Room
 #############################################################################################
 #Item 266: AVERAGE EXTERIOR LIGHTING POWER (WATTS) BY EXTERIOR CATEGORY AND BUILDING SIZE (MF Table 58)
 #############################################################################################
-item266.dat <- item264.dat6
+item266.data <- item264.data
 
-item266.dat1 <- left_join(item266.dat, rbsa.dat, by = "CK_Cadmus_ID")
+######################
+# weighted analysis
+######################
+item266.cast <- mean_two_groups(CustomerLevelData = item266.data
+                                   ,valueVariable = 'SiteWattage'
+                                   ,byVariableRow = 'Clean.Room'
+                                   ,byVariableColumn = 'HomeType'
+                                   ,columnAggregate = "All Sizes"
+                                   ,rowAggregate = "All Categories")
+item266.cast <- data.frame(item266.cast, stringsAsFactors = F)
 
-#summarise by building size
-# by clean room
-item266.sum1 <- summarise(group_by(item266.dat1, Clean.Room, BuildingTypeXX)
-                          ,Mean = mean(SiteWattage)
-                          ,SE = sd(SiteWattage) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item266.table <- data.frame("Exterior.Category"        = item266.cast$Clean.Room
+                            ,"Low_Rise_1.3_Mean"       = item266.cast$Mean_Apartment.Building..3.or.fewer.floors.
+                            ,"Low_Rise_SE"             = item266.cast$SE_Apartment.Building..3.or.fewer.floors.
+                            ,"Low_Rise_n"              = item266.cast$n_Apartment.Building..3.or.fewer.floors.
+                            ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
+                            ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
+                            ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
+                            ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
+                            ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_Mean"          = item266.cast$Mean_All.Sizes
+                            ,"All_Sizes_SE"            = item266.cast$SE_All.Sizes
+                            ,"All_Sizes_n"             = item266.cast$n_All.Sizes
+)
 
-#summarise by building size
-# across clean room
-item266.sum2 <- summarise(group_by(item266.dat1, BuildingTypeXX)
-                          ,Clean.Room = "All Categories"
-                          ,Mean = mean(SiteWattage)
-                          ,SE = sd(SiteWattage) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-#summarise across building size
-# by clean room
-item266.sum3 <- summarise(group_by(item266.dat1, Clean.Room)
-                          ,BuildingTypeXX = "All Sizes"
-                          ,Mean = mean(SiteWattage)
-                          ,SE = sd(SiteWattage) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-#summarise across building size
-# across clean room
-item266.sum4 <- summarise(group_by(item266.dat1)
-                          ,Clean.Room = "All Categories"
-                          ,BuildingTypeXX = "All Sizes"
-                          ,Mean = mean(SiteWattage)
-                          ,SE = sd(SiteWattage) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+exportTable(item266.table, "MF", "Table 58", weighted = TRUE)
 
 
-item266.final <- rbind.data.frame(item266.sum1, item266.sum2, item266.sum3, item266.sum4, stringsAsFactors = F)
+######################
+# weighted analysis
+######################
+item266.cast <- mean_two_groups_unweighted(CustomerLevelData = item266.data
+                                ,valueVariable = 'SiteWattage'
+                                ,byVariableRow = 'Clean.Room'
+                                ,byVariableColumn = 'HomeType'
+                                ,columnAggregate = "All Sizes"
+                                ,rowAggregate = "All Categories")
+item266.cast <- data.frame(item266.cast, stringsAsFactors = F)
 
-item266.cast <- dcast(setDT(item266.final)
-                      ,formula = Clean.Room ~ BuildingTypeXX
-                      ,value.var = c("Mean", "SE", "SampleSize"))
+item266.table <- data.frame("Exterior.Category"        = item266.cast$Clean.Room
+                            ,"Low_Rise_1.3_Mean"       = item266.cast$Mean_Apartment.Building..3.or.fewer.floors.
+                            ,"Low_Rise_SE"             = item266.cast$SE_Apartment.Building..3.or.fewer.floors.
+                            ,"Low_Rise_n"              = item266.cast$n_Apartment.Building..3.or.fewer.floors.
+                            ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
+                            ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
+                            ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
+                            ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
+                            ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_Mean"          = item266.cast$Mean_All.Sizes
+                            ,"All_Sizes_SE"            = item266.cast$SE_All.Sizes
+                            ,"All_Sizes_n"             = item266.cast$n_All.Sizes
+)
 
-item266.table <- data.frame("Exterior.Category" = item266.cast$Clean.Room
-                            ,"Low_Rise_1.3_Mean" = item266.cast$`Mean_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_SE" = item266.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Mean" = item266.cast$`Mean_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE" = item266.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Mean" = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE" = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Mean" = item266.cast$`Mean_All Sizes`
-                            ,"All_Sizes_SE" = item266.cast$`SE_All Sizes`
-                            ,"SampleSize" = item266.sum1$SampleSize)
+exportTable(item266.table, "MF", "Table 58", weighted = FALSE)
+
+
+
+
 
 
 
 #############################################################################################
 #Item 267: DISTRIBUTION OF EXTERIOR LIGHTING POWER (WATTS) BY CONTROL TYPE AND EXTERIOR CATEGORY (MF Table 59)
 #############################################################################################
-item267.dat <- item264.dat5
-item267.dat$Switch.Type[grep("On/off", item267.dat$Switch.Type)] <- "Manual Switch"
-item267.dat$Switch.Type[grep("Other", item267.dat$Switch.Type)] <- "Other"
+#Subset to Multifamily
+item267.dat5 <- item264.dat4[grep("Multifamily", item264.dat4$BuildingType),]
 
 #summarise up to the site level
-item267.dat1 <- summarise(group_by(item267.dat, CK_Cadmus_ID, Clean.Room, Switch.Type)
-                          ,SiteCount = sum(Lamps)
+item267.dat6 <- summarise(group_by(item267.dat5, CK_Cadmus_ID, CK_Building_ID, Clean.Room, Lamp.Category, Switch.Type)
+                          ,SiteLampCount = sum(Lamps)
                           ,SiteWattage = sum(Total.Wattage))
 
-#summarise by Switch.Type
-# by clean room
-item267.sum1 <- summarise(group_by(item267.dat1, Clean.Room, Switch.Type)
-                          ,LampCount = sum(SiteCount))
+item267.merge <- left_join(rbsa.dat, item267.dat6)
+item267.merge <- item267.merge[which(!is.na(item267.merge$SiteWattage)),]
 
-#summarise by Switch.Type
-# across clean room
-item267.sum2 <- summarise(group_by(item267.dat1, Switch.Type)
-                          ,Clean.Room = "All Categories"
-                          ,LampCount = sum(SiteCount))
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item267.data <- weightedData(item267.merge[which(colnames(item267.merge) %notin% c("Clean.Room"
+                                                                                   ,"Switch.Type"
+                                                                                   ,"Lamp.Category"
+                                                                                   ,"SiteLampCount"
+                                                                                   ,"SiteWattage"))])
 
-item267.merge1 <- rbind.data.frame(item267.sum1, item267.sum2, stringsAsFactors = F)
+item267.data <- left_join(item267.data, item267.merge[which(colnames(item267.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Clean.Room"
+                                                                                           ,"Switch.Type"
+                                                                                           ,"Lamp.Category"
+                                                                                           ,"SiteLampCount"
+                                                                                           ,"SiteWattage"))])
+item267.data$count <- 1
 
 
-#summarise by clean room
-item267.sum3 <- summarise(group_by(item267.dat1, Clean.Room)
-                          ,TotalLampCount = sum(SiteCount)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-# across clean room
-item267.sum4 <- summarise(group_by(item267.dat1)
-                          ,Clean.Room = "All Categories"
-                          ,TotalLampCount = sum(SiteCount)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+######################
+# weighted analysis
+######################
+item267.summary <- proportionRowsAndColumns1(CustomerLevelData = item267.data
+                                             ,valueVariable = 'SiteLampCount'
+                                             ,columnVariable = 'Clean.Room'
+                                             ,rowVariable = 'Switch.Type'
+                                             ,aggregateColumnName = "Remove")
+item267.summary <- item267.summary[which(item267.summary$Clean.Room != "Remove"),]
+item267.summary <- item267.summary[which(item267.summary$Switch.Type != "Total"),]
 
-item267.merge2 <- rbind.data.frame(item267.sum3, item267.sum4, stringsAsFactors = F)
+item267.all.categories <- proportions_one_group_MF(CustomerLevelData = item267.data
+                                                   ,valueVariable = 'SiteLampCount'
+                                                   ,groupingVariable = 'Switch.Type'
+                                                   ,total.name = 'All Types'
+                                                   ,columnName = 'Clean.Room'
+                                                   ,weighted = TRUE
+                                                   ,two.prop.total = TRUE)
+item267.all.categories <- item267.all.categories[which(item267.all.categories$Lamp.Category != "Total"),]
 
-item267.final <- left_join(item267.merge1, item267.merge2, by = "Clean.Room")
-item267.final$Percent <- item267.final$LampCount / item267.final$TotalLampCount
-item267.final$SE <- sqrt(item267.final$Percent * (1 - item267.final$Percent) / item267.final$SampleSize)
+item267.final <- rbind.data.frame(item267.summary, item267.all.categories, stringsAsFactors = F)
 
 item267.cast <- dcast(setDT(item267.final)
-                      ,formula = Clean.Room + SampleSize ~ Switch.Type
-                      ,value.var = c("Percent", "SE"))
+                      ,formula = Clean.Room ~ Switch.Type
+                      ,value.var = c("w.percent", "w.SE", "count", "n","N"))
 
-item267.table <- data.frame("Exterior.Category" = item267.cast$Clean.Room
-                            ,"Hour.24.Operation" = NA#
-                            ,"Hour.24.Operation.SE" = NA#
-                            ,"Manual.Switch" = item267.cast$`Percent_Manual Switch`
-                            ,"Manual.Switch.SE" = item267.cast$`SE_Manual Switch`
-                            ,"Motion.Sensor" = item267.cast$`Percent_Motion Sensor`
-                            ,"Motion.Sensor.SE" = item267.cast$`SE_Motion Sensor`
-                            ,"Light.Sensor" = item267.cast$`Percent_Light Sensor`
-                            ,"Light.Sensor.SE" = item267.cast$`SE_Light Sensor`
-                            ,"Light.and.Motion.Sensor" = NA#
-                            ,"Light.and.Motion.Sensor.SE" = NA#
-                            ,"Timer.Control" = item267.cast$Percent_Timer
-                            ,"Timer.Control.SE" = item267.cast$SE_Timer
-                            ,"Other" = item267.cast$Percent_Other
-                            ,"Other.SE" = item267.cast$SE_Other
-                            ,"Unknown" = item267.cast$Percent_Unknown
-                            ,"Unknown.SE" = item267.cast$SE_Unknown
-                            ,"SampleSize" = item267.cast$SampleSize)
+item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.Room
+                            ,"24.Hour.Operation"          = item267.cast$`w.percent_24 Hour Operation`
+                            ,"24.Hour.Operation.SE"       = item267.cast$`w.SE_24 Hour Operation`
+                            ,"24.Hour.Operation.n"        = item267.cast$`n_24 Hour Operation`
+                            ,"Manual.Switch"              = item267.cast$`w.percent_Manual Switch`
+                            ,"Manual.Switch.SE"           = item267.cast$`w.SE_Manual Switch`
+                            ,"Manual.Switch.n"            = item267.cast$`n_Manual Switch`
+                            ,"Motion.Sensor"              = item267.cast$`w.percent_Motion Sensor`
+                            ,"Motion.Sensor.SE"           = item267.cast$`w.SE_Motion Sensor`
+                            ,"Motion.Sensor.n"            = item267.cast$`n_Motion Sensor`
+                            ,"Photo.Sensor"               = NA#item267.cast$`w.percent_Photo Sensor`
+                            ,"Photo.Sensor.SE"            = NA#item267.cast$
+                            ,"Photo.Sensor.n"             = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor"    = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor.SE" = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor.n"  = NA#item267.cast$
+                            ,"Timer Control"              = item267.cast$`w.percent_Timer Control`
+                            ,"Timer Control.SE"           = item267.cast$`w.SE_Timer Control`
+                            ,"Timer Control.n"            = item267.cast$`n_Timer Control`
+                            ,"Other"                      = NA#item267.cast$w.percent
+                            ,"Other.SE"                   = NA#item267.cast$w.SE_Other
+                            ,"Other.n"                    = NA#item267.cast$n_Other
+                            ,"Unknown"                    = item267.cast$w.percent_Unknown
+                            ,"Unknown.SE"                 = item267.cast$w.SE_Unknown
+                            ,"Unknown.n"                  = item267.cast$n_Unknown)
+
+exportTable(item267.table, "MF", "Table 59", weighted = TRUE)
 
 
+######################
+# weighted analysis
+######################
+item267.summary <- proportions_two_groups_unweighted(CustomerLevelData = item267.data
+                                             ,valueVariable = 'SiteLampCount'
+                                             ,columnVariable = 'Clean.Room'
+                                             ,rowVariable = 'Switch.Type'
+                                             ,aggregateColumnName = "Remove")
+item267.summary <- item267.summary[which(item267.summary$Clean.Room != "Remove"),]
+item267.summary <- item267.summary[which(item267.summary$Switch.Type != "Total"),]
 
+item267.all.categories <- proportions_one_group_MF(CustomerLevelData = item267.data
+                                                   ,valueVariable = 'SiteLampCount'
+                                                   ,groupingVariable = 'Switch.Type'
+                                                   ,total.name = 'All Types'
+                                                   ,columnName = 'Clean.Room'
+                                                   ,weighted = FALSE
+                                                   ,two.prop.total = TRUE)
+item267.all.categories <- item267.all.categories[which(item267.all.categories$Lamp.Category != "Total"),]
 
+item267.final <- rbind.data.frame(item267.summary, item267.all.categories, stringsAsFactors = F)
 
+item267.cast <- dcast(setDT(item267.final)
+                      ,formula = Clean.Room ~ Switch.Type
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.Room
+                            ,"24.Hour.Operation"          = item267.cast$`Percent_24 Hour Operation`
+                            ,"24.Hour.Operation.SE"       = item267.cast$`SE_24 Hour Operation`
+                            ,"24.Hour.Operation.n"        = item267.cast$`SampleSize_24 Hour Operation`
+                            ,"Manual.Switch"              = item267.cast$`Percent_Manual Switch`
+                            ,"Manual.Switch.SE"           = item267.cast$`SE_Manual Switch`
+                            ,"Manual.Switch.n"            = item267.cast$`SampleSize_Manual Switch`
+                            ,"Motion.Sensor"              = item267.cast$`Percent_Motion Sensor`
+                            ,"Motion.Sensor.SE"           = item267.cast$`SE_Motion Sensor`
+                            ,"Motion.Sensor.n"            = item267.cast$`SampleSize_Motion Sensor`
+                            ,"Photo.Sensor"               = NA#item267.cast$`Percent_Photo Sensor`
+                            ,"Photo.Sensor.SE"            = NA#item267.cast$
+                            ,"Photo.Sensor.n"             = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor"    = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor.SE" = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor.n"  = NA#item267.cast$
+                            ,"Timer Control"              = item267.cast$`Percent_Timer Control`
+                            ,"Timer Control.SE"           = item267.cast$`SE_Timer Control`
+                            ,"Timer Control.n"            = item267.cast$`SampleSize_Timer Control`
+                            ,"Other"                      = NA#item267.cast$Percent
+                            ,"Other.SE"                   = NA#item267.cast$SE_Other
+                            ,"Other.n"                    = NA#item267.cast$SampleSize_Other
+                            ,"Unknown"                    = item267.cast$Percent_Unknown
+                            ,"Unknown.SE"                 = item267.cast$SE_Unknown
+                            ,"Unknown.n"                  = item267.cast$SampleSize_Unknown)
+
+exportTable(item267.table, "MF", "Table 59", weighted = FALSE)

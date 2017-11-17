@@ -121,6 +121,7 @@ item243.all.types <- proportions_one_group_MF(CustomerLevelData = item243.data
                                                  ,columnName = "Fuel"
                                                  ,weighted = TRUE
                                                  ,two.prop.total = TRUE)
+item243.all.types <- item243.all.types[which(item243.all.types$Heating_System != "Total"),]
 
 item243.final <- rbind.data.frame(item243.final, item243.all.types, stringsAsFactors = F)
 
@@ -170,6 +171,7 @@ item243.all.types <- proportions_one_group_MF(CustomerLevelData = item243.data
                                               ,columnName = "Fuel"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
+item243.all.types <- item243.all.types[which(item243.all.types$Heating_System != "Total"),]
 
 item243.final <- rbind.data.frame(item243.final, item243.all.types, stringsAsFactors = F)
 
@@ -584,7 +586,7 @@ item248.final.MF <- item248.final[which(colnames(item248.final) %notin% c("N", "
 exportTable(item248.final.MF, "MF", "Table 40", weighted = TRUE)
 
 #######################
-# Weighted Analysis
+# unweighted Analysis
 #######################
 item248.final <- proportions_one_group_MF(CustomerLevelData = item248.data
                                           ,valueVariable = 'count'
