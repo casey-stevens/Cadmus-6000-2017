@@ -32,6 +32,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   
 
   if(byVariable == "State"){
+    
     item.strata <- data.frame(ddply(CustomerLevelData
                                     , c("BuildingType", "State", "Region", "Territory"), summarise
                               ,n_h        = unique(n.h)
@@ -39,13 +40,22 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                               ,strataMean = mean(get(valueVariable), na.rm = T)
                               ,strataSD   = sd(get(valueVariable), na.rm = T)
                               ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    PopandSampleSizes <- data.frame(ddply(item.strata
+                                          , c("BuildingType"), summarise
+                                          ,n_h        = sum(n_h)
+                                          ,N_h        = sum(N_h)), stringsAsFactors = F)
+    
     #QAQC
     stopifnot(item.strata$n == item.strata$n_h)
   }else {
-    StrataPopCounts <- data.frame(ddply(CustomerLevelData
-                                        , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N_h   = sum(unique(N.h))
-                                        ,n_h   = sum(unique(n.h))), stringsAsFactors = F)
+    PopandSampleSizes0 <- data.frame(ddply(CustomerLevelData
+                                    , c("BuildingType", "State", "Region", "Territory"), summarise
+                                    ,n_h        = unique(n.h)
+                                    ,N_h        = unique(N.h)), stringsAsFactors = F)
+    PopandSampleSizes <- data.frame(ddply(PopandSampleSizes0
+                                          , c("BuildingType"), summarise
+                                          ,n_h        = sum(n_h)
+                                          ,N_h        = sum(N_h)), stringsAsFactors = F)
     DomainCounts    <- data.frame(ddply(CustomerLevelData #item.strata.group
                                     , c("BuildingType", "State", "Region", "Territory", byVariable), summarise
                                     # ,DomainSum = sum(get(valueVariable), na.rm = T)
@@ -54,7 +64,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                     ,strataSD   = sd(get(valueVariable), na.rm = T)## needs updated per cluster SE
                                     ,count_hj   = sum(count)
                                     ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata <- left_join(DomainCounts, StrataPopCounts) #replaced item.strata.group with DomainCounts
+    item.strata <- left_join(DomainCounts, PopandSampleSizes) #replaced item.strata.group with DomainCounts
     
     #QAQC
     stopifnot(item.strata$n <= item.strata$n_h)
@@ -82,8 +92,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                    ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                    ,n      = sum(count_hj)
                                    # ,n      = sum(unique(n_hj))
-                                   ,n_h    = sum(unique(n_h))
-                                   ,N_h    = sum(unique(N_h))), stringsAsFactors = F)
+                                   ,n_h    = unique(n_h)
+                                   ,N_h    = unique(N_h)), stringsAsFactors = F)
 
   }else{
     item.group <- data.frame(ddply(item.strata, c("BuildingType", byVariable), summarise
@@ -99,8 +109,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                            ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                            ,n      = sum(count_hj)
                            # ,n      = sum(unique(n_hj))
-                           ,n_h    = sum(unique(n_h))
-                           ,N_h    = sum(unique(N_h))), stringsAsFactors = F)
+                           ,n_h    = (unique(n_h))
+                           ,N_h    = (unique(N_h))), stringsAsFactors = F)
     
     item.region <- data.frame(ddply(item.strata, "BuildingType", summarise
                                     ,byRow  = aggregateRow
@@ -108,8 +118,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                     ,SE     = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                     ,n      = sum(count_hj)
                                     # ,n      = sum(unique(n_hj))
-                                    ,n_h    = sum(unique(n_h))
-                                    ,N_h      = sum(unique(N_h))
+                                    ,n_h    = unique((n_h))
+                                    ,N_h    = unique((N_h))
     )
     , stringsAsFactors = F)
     #rename columns
@@ -788,7 +798,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
     # Analysis for any column variable that is not state should include columnVariable as a grouping variable
-  }else if(columnVariable %in% c("System.Type", "TankSize")){
+  }else if(columnVariable %in% c("System.Type", "TankSize", "Washer.Age")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType","Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1012,6 +1022,8 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$HomeType == "Total" & item.final$System.Type == "All Systems")])
   }else if(columnVariable == "TankSize" & rowVariable == "DHW.Fuel"){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$DHW.Fuel == "Total" & item.final$TankSize == "All Sizes")])
+  }else if(columnVariable == "Washer.Age" & rowVariable == "Washer.Type"){
+    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Washer.Type == "Total" & item.final$Washer.Age == "All Vintages")])
   }else{
     item.final$Percent <- item.final$Count / item.final$Total.Count
   }

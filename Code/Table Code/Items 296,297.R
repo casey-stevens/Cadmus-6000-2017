@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -28,35 +39,35 @@ appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 #############################################################################################
 #subset to columns needed for analysis
 item296.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                    ,"Iteration"
+                                                                    ,"CK_SiteID"
                                                                     ,"Age"
                                                                     ,"Type"
                                                                     ,"Washer.Type"
                                                                     ,""))]
-item296.dat$count <- 1
-
 #join clean rbsa data onto appliances analysis data
-item296.dat0 <- left_join(item296.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item296.dat0 <- left_join(rbsa.dat, item296.dat, by = "CK_Cadmus_ID")
 
 #remove missing vintage info
 item296.dat1 <- item296.dat0[which(!(is.na(item296.dat0$HomeYearBuilt_MF))),]
 
 #subset to only MF
 item296.dat2 <- item296.dat1[grep("Multifamily", item296.dat1$BuildingType),]
+length(unique(item296.dat2$CK_Cadmus_ID))
 
 #subset to only washers
 item296.dat3 <- item296.dat2[which(item296.dat2$Type %in% c("Washer")),]
 
 #subset to only common area washers
-item296.dat4 <- item296.dat3[-grep("BLDG", item296.dat3$Iteration),]
+item296.dat4 <- item296.dat3[grep("SITE", item296.dat3$CK_SiteID),]
 
 #subset to only common area washers that have observed age info
-item296.dat5 <- item296.dat4#[which(item296.dat4$Age > 0),]
+item296.dat5 <- item296.dat4[which(item296.dat4$Age > 0),]
 
 
 ####################
 # Clean AGE
 ####################
+item296.dat5$Age <- as.numeric(as.character(item296.dat5$Age))
 item296.dat5$Washer.Age <- as.numeric(as.character(item296.dat5$Age))
 item296.dat5$Washer.Age[which(item296.dat5$Age < 1980)] <- "Pre 1980"
 item296.dat5$Washer.Age[which(item296.dat5$Age >= 1980 & item296.dat5$Age < 1990)] <- "1980-1989"
@@ -69,75 +80,105 @@ unique(item296.dat5$Washer.Age)
 
 item296.dat5$Washer.Type[grep("Stacked|stacked|top", item296.dat5$Washer.Type)] <- "Stacked Washer/Dryer"
 item296.dat5$Washer.Type[grep("Wager|combo", item296.dat5$Washer.Type)] <- "Combined Washer/Dryer"
+unique(item296.dat5$Washer.Type)
 ####################
 # end cleaning
 ####################
 
-#add counter
-item296.dat5$count <- 1
+item296.dat6 <- item296.dat5[which(item296.dat5$Washer.Type != "Unknown"),]
+item296.dat7 <- item296.dat6[which(!is.na(item296.dat6$Washer.Age)),]
 
-#summarise by washer type
-#by measure Washer.Age
-item296.sum1 <- summarise(group_by(item296.dat5, Washer.Type, Washer.Age)
-                          ,Count = sum(count))
-#across measure Washer.Age
-item296.sum2 <- summarise(group_by(item296.dat5, Washer.Type)
-                          ,Washer.Age = "All Vintages"
-                          ,Count = sum(count))
-#summarise across washer type
-#by measure Washer.Age
-item296.sum3 <- summarise(group_by(item296.dat5, Washer.Age)
-                          ,Washer.Type = "All Types"
-                          ,Count = sum(count))
-#across measure Washer.Age
-item296.sum4 <- summarise(group_by(item296.dat5)
-                          ,Washer.Type = "All Types"
-                          ,Washer.Age = "All Vintages"
-                          ,Count = sum(count))
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item296.data <- weightedData(item296.dat7[which(colnames(item296.dat7) %notin% c("CK_SiteID"
+                                                                                 ,"Type"
+                                                                                   ,"Age"
+                                                                                   ,"Washer.Type"
+                                                                                   ,"Washer.Age"))])
 
-item296.final <- rbind.data.frame(item296.sum1,item296.sum2,item296.sum3,item296.sum4, stringsAsFactors = F)
+item296.data <- left_join(item296.data, item296.dat7[which(colnames(item296.dat7) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"Type"
+                                                                                         ,"Age"
+                                                                                         ,"Washer.Type"
+                                                                                         ,"Washer.Age"))])
+item296.data$count <- 1
 
-#Sample Sizes
-item296.tmp1 <- summarise(group_by(item296.dat5, Washer.Type)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-item296.tmp2 <- summarise(group_by(item296.dat5)
-                          ,Washer.Type = "All Types"
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-item296.merge2 <- rbind.data.frame(item296.tmp1, item296.tmp2, stringsAsFactors = F)
 
-#merge on sample sizes
-item296.final <- left_join(item296.merge1, item296.merge2, by = "Washer.Type")
+######################
+# weighted analysis
+######################
+item296.summary <- proportionRowsAndColumns1(CustomerLevelData = item296.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'Washer.Age'
+                                             ,rowVariable = 'Washer.Type'
+                                             ,aggregateColumnName = "All Vintages")
+item296.summary$Washer.Type[which(item296.summary$Washer.Type == "Total")] <- "All Types"
 
-#calculate total count for entire table (denominator of percent)
-item296.final$Total.Count <- item296.final$Count[which(item296.final$Washer.Type == "All Types" & item296.final$Washer.Age == "All Vintages")]
 
-#calculate percent and SE
-item296.final$Percent <- item296.final$Count / item296.final$Total.Count
-item296.final$SE <- sqrt(item296.final$Percent * (1 - item296.final$Percent) / item296.final$SampleSize)
-
-item296.cast <- dcast(setDT(item296.final)
+item296.cast <- dcast(setDT(item296.summary)
                       ,formula = Washer.Age ~ Washer.Type
-                      ,value.var = c("Percent", "SE", "SampleSize"))
+                      ,value.var = c("w.percent", "w.SE","count","n", "N"))
 
-item296.table <- data.frame("Clothes.Washer.Age" = item296.cast$Washer.Age
-                            ,"Combined.Washer.Dryer" = item296.cast$`Percent_Combined Washer/Dryer`
-                            ,"Combined.Washer.Dryer.SE" = item296.cast$`SE_Combined Washer/Dryer`
-                            ,"Horizontal.Axis" = item296.cast$`Percent_Horizontal Axis`
-                            ,"Horizontal.Axis.SE" = item296.cast$`SE_Horizontal Axis`
-                            ,"Stacked.Washer.Dryer" = item296.cast$`Percent_Stacked Washer/Dryer`
-                            ,"Stacked.Washer.Dryer.SE" = item296.cast$`SE_Stacked Washer/Dryer`
-                            ,"Vertical.Axis.with.Agitator" = item296.cast$`Percent_Vertical Axis (with agitator)`
-                            ,"Vertical.Axis.with.Agitator.SE" = item296.cast$`SE_Vertical Axis (with agitator)`
-                            ,"Vertical.Axis.without.Agitator" = item296.cast$`Percent_Vertical Axis (without agitator)`
+item296.table <- data.frame("Clothes.Washer.Age"                 = item296.cast$Washer.Age
+                            ,"Combined.Washer.Dryer"             = NA#item296.cast$`w.percent_Combined Washer/Dryer`
+                            ,"Combined.Washer.Dryer.SE"          = NA#item296.cast$`w.SE_Combined Washer/Dryer`
+                            ,"Combined.Washer.Dryer.n"           = NA#item296.cast$`count_Combined Washer/Dryer`
+                            ,"Horizontal.Axis"                   = item296.cast$`w.percent_Horizontal Axis`
+                            ,"Horizontal.Axis.SE"                = item296.cast$`w.SE_Horizontal Axis`
+                            ,"Horizontal.Axis.n"                 = item296.cast$`count_Horizontal Axis`
+                            ,"Stacked.Washer.Dryer"              = item296.cast$`w.percent_Stacked Washer/Dryer`
+                            ,"Stacked.Washer.Dryer.SE"           = item296.cast$`w.SE_Stacked Washer/Dryer`
+                            ,"Stacked.Washer.Dryer.n"            = item296.cast$`count_Stacked Washer/Dryer`
+                            ,"Vertical.Axis.with.Agitator"       = item296.cast$`w.percent_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.with.Agitator.SE"    = item296.cast$`w.SE_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.with.Agitator.n"     = item296.cast$`count_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.without.Agitator"    = item296.cast$`w.percent_Vertical Axis (without agitator)`
+                            ,"Vertical.Axis.without.Agitator.SE" = item296.cast$`w.SE_Vertical Axis (without agitator)`
+                            ,"Vertical.Axis.without.Agitator.n"  = item296.cast$`count_Vertical Axis (without agitator)`
+                            ,"All.Types"                         = item296.cast$`w.percent_All Types`
+                            ,"All.Types.SE"                      = item296.cast$`w.SE_All Types`
+                            ,"All.Types.n"                       = item296.cast$`count_All Types`)
+
+exportTable(item296.table, "MF", "Table 90", weighted = TRUE)
+
+######################
+# unweighted analysis
+######################
+item296.summary <- proportions_two_groups_unweighted(CustomerLevelData = item296.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'Washer.Age'
+                                             ,rowVariable = 'Washer.Type'
+                                             ,aggregateColumnName = "All Vintages")
+item296.summary$Washer.Type[which(item296.summary$Washer.Type == "Total")] <- "All Types"
+
+
+item296.cast <- dcast(setDT(item296.summary)
+                      ,formula = Washer.Age ~ Washer.Type
+                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+
+item296.table <- data.frame("Clothes.Washer.Age"                 = item296.cast$Washer.Age
+                            ,"Combined.Washer.Dryer"             = NA#item296.cast$`Percent_Combined Washer/Dryer`
+                            ,"Combined.Washer.Dryer.SE"          = NA#item296.cast$`SE_Combined Washer/Dryer`
+                            ,"Combined.Washer.Dryer.n"           = NA#item296.cast$`Count_Combined Washer/Dryer`
+                            ,"Horizontal.Axis"                   = item296.cast$`Percent_Horizontal Axis`
+                            ,"Horizontal.Axis.SE"                = item296.cast$`SE_Horizontal Axis`
+                            ,"Horizontal.Axis.n"                 = item296.cast$`Count_Horizontal Axis`
+                            ,"Stacked.Washer.Dryer"              = item296.cast$`Percent_Stacked Washer/Dryer`
+                            ,"Stacked.Washer.Dryer.SE"           = item296.cast$`SE_Stacked Washer/Dryer`
+                            ,"Stacked.Washer.Dryer.n"            = item296.cast$`Count_Stacked Washer/Dryer`
+                            ,"Vertical.Axis.with.Agitator"       = item296.cast$`Percent_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.with.Agitator.SE"    = item296.cast$`SE_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.with.Agitator.n"     = item296.cast$`Count_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.without.Agitator"    = item296.cast$`Percent_Vertical Axis (without agitator)`
                             ,"Vertical.Axis.without.Agitator.SE" = item296.cast$`SE_Vertical Axis (without agitator)`
-                            ,"Unknown" = item296.cast$Percent_Unknown
-                            ,"Unknown.SE" = item296.cast$SE_Unknown
-                            ,"All.Types" = item296.cast$`Percent_All Types`
-                            ,"All.Types.SE" = item296.cast$`SE_All Types`
-                            ,"SampleSize" = item296.cast$`SampleSize_All Types`)
+                            ,"Vertical.Axis.without.Agitator.n"  = item296.cast$`Count_Vertical Axis (without agitator)`
+                            ,"All.Types"                         = item296.cast$`Percent_All Types`
+                            ,"All.Types.SE"                      = item296.cast$`SE_All Types`
+                            ,"All.Types.n"                       = item296.cast$`Count_All Types`)
 
-
-
+exportTable(item296.table, "MF", "Table 90", weighted = FALSE)
 
 
 

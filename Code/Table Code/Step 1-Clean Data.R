@@ -37,18 +37,13 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID" = one.line.dat$Cadmus.ID
                             ,"CK_Building_ID"  = one.line.dat$CK_BuildingID
                                , "BuildingTypeXX"  = one.line.dat$`Home.Type.-.FMP.Detailed`
                                , "BuildingType"    = one.line.dat$`Home.Type.-.Final`
-                               # , "HomeYearBuilt"   = site.dat$SITES_General_GENL_INFO_HomeYearBuilt
+                               , "HomeYearBuilt"   = one.line.dat$Year.Built
                                , "State"           = one.line.dat$State
-                               # , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
                                , "ZIP"             = one.line.dat$Zip
                                , stringsAsFactors  = F)
 site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
-                        # , "BuildingTypeXX"  = site.dat$SITE_GENL_INFO_BuildingType
-                        , "HomeYearBuilt"   = site.dat$Age
-                        # , "State"           = site.dat$SITE_ST
                         , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
-                        # , "ZIP"             = site.dat$SITE_ZIP
                         , stringsAsFactors  = F)
 
 one.line.dat1$CK_Cadmus_ID <- trimws(toupper(one.line.dat1$CK_Cadmus_ID))
@@ -110,13 +105,11 @@ unique(rbsa.dat$BuildingType)
 # Clean home year built info
 #############################################################################################
 unique(rbsa.dat$HomeYearBuilt)
-rbsa.dat$HomeYearBuilt <- gsub("_x000D_\n", "", rbsa.dat$HomeYearBuilt)
-rbsa.dat$HomeYearBuilt <- gsub("*.[0-9]{4}", "", rbsa.dat$HomeYearBuilt)
-rbsa.dat$HomeYearBuilt <- gsub("9999", "", rbsa.dat$HomeYearBuilt)
-rbsa.dat$HomeYearBuilt[which(rbsa.dat$HomeYearBuilt == "1905.2")] <- "1905"
+# rbsa.dat$HomeYearBuilt <- gsub("_x000D_\n", "", rbsa.dat$HomeYearBuilt)
+# rbsa.dat$HomeYearBuilt <- gsub("*.[0-9]{4}", "", rbsa.dat$HomeYearBuilt)
+# rbsa.dat$HomeYearBuilt <- gsub("9999", "", rbsa.dat$HomeYearBuilt)
+# rbsa.dat$HomeYearBuilt[which(rbsa.dat$HomeYearBuilt == "1905.2")] <- "1905"
 rbsa.dat$HomeYearBuilt <- as.numeric(as.character(rbsa.dat$HomeYearBuilt))
-
-rbsa.dat$HomeYearBuilt[which(rbsa.dat$HomeYearBuilt < 1000)] <- NA
 unique(rbsa.dat$HomeYearBuilt)
 
 rbsa.check <- rbsa.dat[which(is.na(rbsa.dat$HomeYearBuilt)),]
@@ -125,7 +118,7 @@ missing.year.ind <- unique(rbsa.check$CK_Cadmus_ID)
 # missing.year.ind <- rbsa.dat$CK_Cadmus_ID[which(!(rbsa.dat$CK_Cadmus_ID %in% rbsa.check$CK_Cadmus_ID))]
 unique(missing.year.ind)## send list to Rietz - fill in correct information export to missing year tab
 
-
+rbsa.dat <- unique(rbsa.dat)
 rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
 
 
