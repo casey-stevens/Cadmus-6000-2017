@@ -501,6 +501,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
                                                 ,total.name       = "All Housing Vintages"
                                                 ,columnName       = "HomeYearBuilt_bins3"
                                                 ,weighted = TRUE
+                                                ,two.prop.total = TRUE
 )
 
 ## Summary for only "All Insulation Levels"
@@ -510,6 +511,7 @@ item23.all.insul.levels <-  proportions_one_group(item23.data
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.SF"
                                                   ,weighted = TRUE
+                                                  ,two.prop.total = TRUE
 )
 
 
@@ -580,6 +582,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
                                                 ,total.name       = "All Housing Vintages"
                                                 ,columnName       = "HomeYearBuilt_bins3"
                                                 ,weighted = FALSE
+                                                ,two.prop.total = TRUE
 )
 
 ## Summary for only "All Insulation Levels"
@@ -589,6 +592,7 @@ item23.all.insul.levels <-  proportions_one_group(item23.data
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.SF"
                                                   ,weighted = FALSE
+                                                  ,two.prop.total = TRUE
 )
 
 
@@ -663,6 +667,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
                                                 ,total.name       = "All Housing Vintages"
                                                 ,columnName       = "HomeYearBuilt_bins3"
                                                 ,weighted = TRUE
+                                                ,two.prop.total = TRUE
 )
 
 ## Summary for only "All Insulation Levels"
@@ -672,6 +677,7 @@ item23.all.insul.levels <-  proportions_one_group(item23.data
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.MH"
                                                   ,weighted = TRUE
+                                                  ,two.prop.total = TRUE
 )
 
 
@@ -733,6 +739,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
                                                 ,total.name       = "All Housing Vintages"
                                                 ,columnName       = "HomeYearBuilt_bins3"
                                                 ,weighted = FALSE
+                                                ,two.prop.total = TRUE
 )
 
 ## Summary for only "All Insulation Levels"
@@ -742,6 +749,7 @@ item23.all.insul.levels <-  proportions_one_group(item23.data
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.MH"
                                                   ,weighted = FALSE
+                                                  ,two.prop.total = TRUE
 )
 
 

@@ -82,7 +82,6 @@ item43.final <- proportions_one_group(CustomerLevelData  = item43.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Heating_Type'
                                       , total.name       = "Total"
-                                      , columnName       = "Remove"
                                       , weighted = TRUE)
 
 # export table
@@ -104,7 +103,6 @@ item43.final <- proportions_one_group(CustomerLevelData  = item43.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Heating_Type'
                                       , total.name       = "Total"
-                                      , columnName       = "Remove"
                                       , weighted = FALSE)
 
 # export table

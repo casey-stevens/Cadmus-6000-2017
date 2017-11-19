@@ -341,19 +341,19 @@ item5.table <- data.frame("BuildingType"     = item5.final$BuildingType
                           ,"HousingVintage"  = item5.final$HomeYearBuilt_bins2
                           ,"Mean_ID"         = item5.final$Mean_ID
                           ,"SE_ID"           = item5.final$SE_ID
-                          ,"n_ID"            = item5.final$SampleSize_ID
+                          ,"n_ID"            = item5.final$n_ID
                           ,"Mean_MT"         = item5.final$Mean_MT
                           ,"SE_MT"           = item5.final$SE_MT
-                          ,"n_MT"            = item5.final$SampleSize_MT
+                          ,"n_MT"            = item5.final$n_MT
                           ,"Mean_OR"         = item5.final$Mean_OR
                           ,"SE_OR"           = item5.final$SE_OR
-                          ,"n_OR"            = item5.final$SampleSize_OR
+                          ,"n_OR"            = item5.final$n_OR
                           ,"Mean_WA"         = item5.final$Mean_WA
                           ,"SE_WA"           = item5.final$SE_WA
-                          ,"n_WA"            = item5.final$SampleSize_WA
+                          ,"n_WA"            = item5.final$n_WA
                           ,"Mean_Region"     = item5.final$Mean_Region
                           ,"SE_Region"       = item5.final$SE_Region
-                          ,"n_Region"        = item5.final$SampleSize_Region)
+                          ,"n_Region"        = item5.final$n_Region)
 
 
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
