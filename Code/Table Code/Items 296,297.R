@@ -45,10 +45,7 @@ item296.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_I
                                                                     ,"Washer.Type"
                                                                     ,""))]
 #join clean rbsa data onto appliances analysis data
-item296.dat0 <- left_join(rbsa.dat, item296.dat, by = "CK_Cadmus_ID")
-
-#remove missing vintage info
-item296.dat1 <- item296.dat0[which(!(is.na(item296.dat0$HomeYearBuilt_MF))),]
+item296.dat1 <- left_join(rbsa.dat, item296.dat, by = "CK_Cadmus_ID")
 
 #subset to only MF
 item296.dat2 <- item296.dat1[grep("Multifamily", item296.dat1$BuildingType),]
@@ -194,16 +191,10 @@ item297.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_I
                                                                     ,"CK_SiteID"
                                                                     ,"Age"
                                                                     ,"Type"
-                                                                    ,"Iteration"
-                                                                    ,""
                                                                     ,""))]
-item297.dat$count <- 1
 
 #join clean rbsa data onto appliances analysis data
-item297.dat0 <- left_join(item297.dat, rbsa.dat, by = "CK_Cadmus_ID")
-
-#remove missing vintage info
-item297.dat1 <- item297.dat0[which(!(is.na(item297.dat0$HomeYearBuilt_MF))),]
+item297.dat1 <- left_join(rbsa.dat, item297.dat, by = "CK_Cadmus_ID")
 
 #subset to only MF
 item297.dat2 <- item297.dat1[grep("Multifamily", item297.dat1$BuildingType),]
@@ -212,14 +203,15 @@ item297.dat2 <- item297.dat1[grep("Multifamily", item297.dat1$BuildingType),]
 item297.dat3 <- item297.dat2[which(item297.dat2$Type %in% c("Dryer")),]
 
 #subset to only common area Dryers
-item297.dat4 <- item297.dat3[-grep("BLDG", item297.dat3$Iteration),]
+item297.dat4 <- item297.dat3[grep("SITE", item297.dat3$CK_SiteID),]
 
 #subset to only common area Dryers that have observed age info
-item297.dat5 <- item297.dat4#[which(item297.dat4$Age > 0),]
+item297.dat5 <- item297.dat4[which(item297.dat4$Age > 0),]
 
 ####################
 # Clean AGE
 ####################
+item297.dat5$Age       <- as.numeric(as.character(item297.dat5$Age))
 item297.dat5$Dryer.Age <- as.numeric(as.character(item297.dat5$Age))
 item297.dat5$Dryer.Age[which(item297.dat5$Age < 1980)] <- "Pre 1980"
 item297.dat5$Dryer.Age[which(item297.dat5$Age >= 1980 & item297.dat5$Age < 1990)] <- "1980-1989"
@@ -233,34 +225,45 @@ unique(item297.dat5$Dryer.Age)
 # end cleaning
 ####################
 
-item297.dat6 <- item297.dat5[which(!(is.na(item297.dat5$Dryer.Age))),]
-
-#add counter
-item297.dat6$count <- 1
-
-#summarise by AGE
-item297.sum1 <- summarise(group_by(item297.dat6, Dryer.Age)
-                          ,Count = sum(count)
-                          ,Num.SampleSize = length(unique(CK_Cadmus_ID)))
-#across AGE
-item297.sum2 <- summarise(group_by(item297.dat6)
-                          ,Dryer.Age = "All Vintages"
-                          ,Count = sum(count)
-                          ,Num.SampleSize = length(unique(CK_Cadmus_ID)))
-
-item297.merge1 <- rbind.data.frame(item297.sum1,item297.sum2, stringsAsFactors = F)
-
-item297.samplesize <- summarise(group_by(item297.dat6)
-                                ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item297.final <- data.frame(item297.merge1, item297.samplesize, stringsAsFactors = F)
-
-item297.final$Total.Count <- item297.sum2$Count
-item297.final$Percent <- item297.final$Count / item297.final$Total.Count
-item297.final$SE <- sqrt(item297.final$Percent * (1 - item297.final$Percent) / item297.final$SampleSize)
+item297.dat5$Dryer.Age[which(is.na(item297.dat5$Dryer.Age))] <- "Unknown"
 
 
-item297.table <- data.frame("Dryer.Vintage" = item297.final$Dryer.Age
-                            ,"Percent" = item297.final$Percent
-                            ,"SE" = item297.final$SE
-                            ,"SampleSize" = item297.final$Num.SampleSize)
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item297.data <- weightedData(item297.dat5[which(colnames(item297.dat5) %notin% c("CK_SiteID"
+                                                                                 ,"Type"
+                                                                                 ,"Age"
+                                                                                 ,"Dryer.Age"
+                                                                                 ,""))])
+
+item297.data <- left_join(item297.data, item297.dat5[which(colnames(item297.dat5) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"Type"
+                                                                                         ,"Age"
+                                                                                         ,"Dryer.Age"))])
+item297.data$count <- 1
+
+
+######################
+# weighted analysis
+######################
+item297.final <- proportions_one_group_MF(CustomerLevelData = item297.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Dryer.Age'
+                                          ,total.name = 'Remove')
+item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
+
+exportTable(item297.final, "MF", "Table 91", weighted = TRUE)
+
+######################
+# unweighted analysis
+######################
+item297.final <- proportions_one_group_MF(CustomerLevelData = item297.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Dryer.Age'
+                                          ,total.name = 'Remove'
+                                          ,weighted = FALSE)
+item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
+
+exportTable(item297.final, "MF", "Table 91", weighted = FALSE)

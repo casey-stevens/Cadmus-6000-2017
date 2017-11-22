@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -31,16 +42,12 @@ item299.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_I
                                                                     ,"CK_SiteID"
                                                                     ,"Age"
                                                                     ,"Type"
-                                                                    ,"Iteration"
-                                                                    ,""
                                                                     ,""))]
-item299.dat$count <- 1
 
 #join clean rbsa data onto appliances analysis data
-item299.dat0 <- left_join(item299.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item299.dat0 <- left_join(rbsa.dat, item299.dat, by = "CK_Cadmus_ID")
 
-#remove missing vintage info
-item299.dat1 <- item299.dat0[which(!(is.na(item299.dat0$HomeYearBuilt_MF))),]
+item299.dat1 <- item299.dat0[grep("SITE", ietm299.dat0$CK_SiteID),]
 
 #subset to only MF
 item299.dat2 <- item299.dat1[grep("Multifamily", item299.dat1$BuildingType),]
@@ -56,7 +63,7 @@ item299.tmp <- item299.dat3[which(colnames(item299.dat3) %in% c("CK_Cadmus_ID", 
 colnames(item299.tmp) <- c("CK_Cadmus_ID", "Dishwasher.Age")
 
 #merge back on with cleaned RBSA data to observe how many MF do not have dishwashers
-item299.dat4 <- left_join(rbsa.dat, item299.tmp, by = "CK_Cadmus_ID")
+item299.dat4 <- left_join(rbsa.dat, item299.tmp)
 
 #subset to only MF
 item299.dat5 <- item299.dat4[grep("Multifamily", item299.dat4$BuildingType),]
@@ -89,29 +96,42 @@ item299.dat6 <- item299.dat5
 #add counter
 item299.dat6$count <- 1
 
-#summarise by AGE
-item299.sum1 <- summarise(group_by(item299.dat6, Dishwasher.Cat)
-                          ,Count = sum(count)
-                          ,Num.SampleSize = length(unique(CK_Cadmus_ID)))
-#across AGE
-item299.sum2 <- summarise(group_by(item299.dat6)
-                          ,Dishwasher.Cat = "All Vintages"
-                          ,Count = sum(count)
-                          ,Num.SampleSize = length(unique(CK_Cadmus_ID)))
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item299.data <- weightedData(item299.dat6[which(colnames(item299.dat6) %notin% c("Dishwasher.Age"
+                                                                                 ,"Age.Num"
+                                                                                 ,"Dishwasher.Cat"
+                                                                                 ,"count"
+                                                                                 ,""))])
 
-item299.merge1 <- rbind.data.frame(item299.sum1,item299.sum2, stringsAsFactors = F)
-
-item299.samplesize <- summarise(group_by(item299.dat6)
-                                ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item299.final <- data.frame(item299.merge1, item299.samplesize, stringsAsFactors = F)
-
-item299.final$Total.Count <- item299.sum2$Count
-item299.final$Percent <- item299.final$Count / item299.final$Total.Count
-item299.final$SE <- sqrt(item299.final$Percent * (1 - item299.final$Percent) / item299.final$SampleSize)
+item299.data <- left_join(item299.data, item299.dat6[which(colnames(item299.dat6) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Dishwasher.Age"
+                                                                                         ,"Age.Num"
+                                                                                         ,"Dishwasher.Cat"
+                                                                                         ,"count"))])
+item299.data$count <- 1
 
 
-item299.table <- data.frame("Dishwasher.Vintage" = item299.final$Dishwasher.Cat
-                            ,"Percent" = item299.final$Percent
-                            ,"SE" = item299.final$SE
-                            ,"SampleSize" = item299.final$Num.SampleSize)
+######################
+# weighted analysis
+######################
+item299.final <- proportions_one_group_MF(CustomerLevelData = item299.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Dishwasher.Cat'
+                                          ,total.name = 'Remove')
+item299.final <- item299.final[which(item299.final$Dishwasher.Cat != "Total"),]
+
+exportTable(item299.final, "MF", "Table 93", weighted = TRUE)
+
+######################
+# unweighted analysis
+######################
+item299.final <- proportions_one_group_MF(CustomerLevelData = item299.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Dishwasher.Cat'
+                                          ,total.name = 'Remove'
+                                          ,weighted = FALSE)
+item299.final <- item299.final[which(item299.final$Dishwasher.Cat != "Total"),]
+
+exportTable(item299.final, "MF", "Table 93", weighted = FALSE)

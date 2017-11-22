@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -19,7 +30,7 @@ appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.exp
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 #subset to columns provided by Rietz -- this includes columns for all three items (302-304)
 appliances.dat1 <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                        ,"Iteration"
+                                                                        ,"CK_SiteID"
                                                                         ,"Type"
                                                                         ,"TV.Wattage"
                                                                         ,"Age"
@@ -29,9 +40,9 @@ appliances.dat1 <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadm
                                                                         ,""))]
 
 #merge appliances data onto RBSA cleaned data
-rbsa.appliances <- left_join(appliances.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+rbsa.appliances <- left_join(rbsa.dat, appliances.dat1, by = "CK_Cadmus_ID")
 
-rbsa.appliances1 <- rbsa.appliances[-grep("BLDG|iter|Iter|ITER", rbsa.appliances$Iteration),]
+rbsa.appliances1 <- rbsa.appliances[grep("SITE", rbsa.appliances$CK_SiteID),]
 
 #subset to only MF
 rbsa.app.MF <- rbsa.appliances1[grep("Multifamily",rbsa.appliances1$BuildingType),]
@@ -39,7 +50,6 @@ rbsa.app.MF <- rbsa.appliances1[grep("Multifamily",rbsa.appliances1$BuildingType
 ###################################################################################################################
 # ITEM 302: AVERAGE IN-UNIT TELEVISION POWER BY VINTAGE (MF Table 96)
 ###################################################################################################################
-
 #subset to only televisions
 item302.dat <- rbsa.app.MF[which(rbsa.app.MF$Type == "Television"),]
 
@@ -61,21 +71,40 @@ item302.dat2$Age.Cat[which(item302.dat2$Age >= 2010)] <- "Post 2009"
 #check age category mapping
 unique(item302.dat2$Age.Cat)
 
-#summarise by vintages
-item302.sum1 <- summarise(group_by(item302.dat2, Age.Cat)
-                          ,Mean = mean(TV.Wattage)
-                          ,SE = sd(TV.Wattage) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-#summarise across vintages
-item302.sum2 <- summarise(group_by(item302.dat2)
-                          ,Age.Cat = "All Vintages"
-                          ,Mean = mean(TV.Wattage)
-                          ,SE = sd(TV.Wattage) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+item302.dat3 <- item302.dat2[which(!is.na(item302.dat2$Age.Cat)),]
+item302.dat4 <- item302.dat3[which(!is.na(item302.dat3$TV.Wattage)),]
 
-item302.final <- rbind.data.frame(item302.sum1, item302.sum2, stringsAsFactors = F)
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item302.data <- weightedData(item302.dat4[which(colnames(item302.dat4) %notin% c("CK_SiteID"
+                                                                                 ,"Type"
+                                                                                 ,"Age"                
+                                                                                 ,"TV.Screen.Type"
+                                                                                 ,"TV.Wattage"
+                                                                                 ,"Room"
+                                                                                 ,"Clean.Room"
+                                                                                 ,"Age.Cat"))])
+
+item302.data <- left_join(item302.data, item302.dat4[which(colnames(item302.dat4) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"Type"
+                                                                                         ,"Age"                
+                                                                                         ,"TV.Screen.Type"
+                                                                                         ,"TV.Wattage"
+                                                                                         ,"Room"
+                                                                                         ,"Clean.Room"
+                                                                                         ,"Age.Cat"))])
+item302.data$count <- 1
 
 
+######################
+# weighted analysis
+######################
+item302.final <- mean_one_group(CustomerLevelData = item302.data
+                                ,valueVariable = 'TV.Wattage'
+                                ,byVariable = 'Age.Cat'
+                                ,aggregateRow = "All Vintages")
 
 
 
