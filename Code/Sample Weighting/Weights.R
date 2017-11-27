@@ -13,8 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item5.dat3[which(colnames(item5.dat3) %notin% c("BldgLevel_Area_SqFt"
-#                                                 ,"ConditionedArea"))]
+# itemData <- rbsa.dat7
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -194,6 +193,9 @@ weightedData <- function(itemData){
                             ,"BuildingType"
                             ,"HomeYearBuilt"
                             ,"State"
+                            ,"Detailed.Region"
+                            ,"Conditioned.Area"
+                            ,"Conditioned.Volume"
                             ,"HomeYearBuilt_bins1"
                             ,"HomeYearBuilt_bins2"
                             ,"HomeYearBuilt_bins3"

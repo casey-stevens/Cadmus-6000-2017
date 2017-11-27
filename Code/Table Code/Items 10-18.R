@@ -574,7 +574,6 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Percent_All Insulation Levels" = item10.cast$`w.percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`w.SE_All Insulation Levels`
                            ,"count.All Insulation Levels"   = item10.cast$`count_All Insulation Levels`
-                           # ,"SampleSize"                    = item10.cast$`n_All Insulation Levels`
                            )
 
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
@@ -652,7 +651,6 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Percent_All Insulation Levels" = item10.cast$`Percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`SE_All Insulation Levels`
                            ,"Count.All Insulation Levels"   = item10.cast$`Count_All Insulation Levels`
-                           # ,"SampleSize"                    = item10.cast$`SampleSize_All Insulation Levels`
                            )
 
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
@@ -741,12 +739,12 @@ item11.cast <- dcast(setDT(item11.final),
 
 item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
-                           ,"Percent_2x2"     = item11.cast$`w.percent_Framed 2x2`
-                           ,"SE_2x2"          = item11.cast$`w.SE_Framed 2x2`
-                           ,"Count_2x2"       = item11.cast$`count_Framed 2x2`
-                           ,"Percent_2x3"     = item11.cast$`w.percent_Framed 2x3`
-                           ,"SE_2x3"          = item11.cast$`w.SE_Framed 2x3`
-                           ,"Count_2x3"       = item11.cast$`count_Framed 2x3`
+                           # ,"Percent_2x2"     = item11.cast$`w.percent_Framed 2x2`
+                           # ,"SE_2x2"          = item11.cast$`w.SE_Framed 2x2`
+                           # ,"Count_2x2"       = item11.cast$`count_Framed 2x2`
+                           # ,"Percent_2x3"     = item11.cast$`w.percent_Framed 2x3`
+                           # ,"SE_2x3"          = item11.cast$`w.SE_Framed 2x3`
+                           # ,"Count_2x3"       = item11.cast$`count_Framed 2x3`
                            ,"Percent_2x4"     = item11.cast$`w.percent_Framed 2x4`
                            ,"SE_2x4"          = item11.cast$`w.SE_Framed 2x4`
                            ,"Count_2x4"       = item11.cast$`count_Framed 2x4`
@@ -759,10 +757,9 @@ item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Percent_ALT"     = item11.cast$w.percent_Alternative
                            ,"SE_ALT"          = item11.cast$w.SE_Alternative
                            ,"Count_ALT"       = item11.cast$count_Alternative
-                           ,"Percent_(Unknown)" = item11.cast$`w.percent_Framed (Unknown)`
-                           ,"SE_(Unknown)"      = item11.cast$`w.SE_Framed (Unknown)`
-                           ,"Count_(Unknown)"   = item11.cast$`count_Framed (Unknown)`
-                           # ,"SampleSize"      = item11.cast$n_Total #should be 925
+                           ,"Percent_Unknown" = item11.cast$`w.percent_Framed (Unknown)`
+                           ,"SE_Unknown"      = item11.cast$`w.SE_Framed (Unknown)`
+                           ,"Count_Unknown"   = item11.cast$`count_Framed (Unknown)`
                            )
 
 
@@ -809,12 +806,12 @@ item11.cast <- dcast(setDT(item11.final),
 
 item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
-                           ,"Percent_2x2"     = item11.cast$`Percent_Framed 2x2`
-                           ,"SE_2x2"          = item11.cast$`SE_Framed 2x2`
-                           ,"Count_2x2"       = item11.cast$`Count_Framed 2x2`
-                           ,"Percent_2x3"     = item11.cast$`Percent_Framed 2x3`
-                           ,"SE_2x3"          = item11.cast$`SE_Framed 2x3`
-                           ,"Count_2x3"       = item11.cast$`Count_Framed 2x3`
+                           # ,"Percent_2x2"     = item11.cast$`Percent_Framed 2x2`
+                           # ,"SE_2x2"          = item11.cast$`SE_Framed 2x2`
+                           # ,"Count_2x2"       = item11.cast$`Count_Framed 2x2`
+                           # ,"Percent_2x3"     = item11.cast$`Percent_Framed 2x3`
+                           # ,"SE_2x3"          = item11.cast$`SE_Framed 2x3`
+                           # ,"Count_2x3"       = item11.cast$`Count_Framed 2x3`
                            ,"Percent_2x4"     = item11.cast$`Percent_Framed 2x4`
                            ,"SE_2x4"          = item11.cast$`SE_Framed 2x4`
                            ,"Count_2x4"       = item11.cast$`Count_Framed 2x4`
@@ -827,10 +824,9 @@ item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Percent_ALT"     = item11.cast$Percent_Alternative
                            ,"SE_ALT"          = item11.cast$SE_Alternative
                            ,"Count_ALT"       = item11.cast$Count_Alternative
-                           ,"Percent_(Unknown)" = item11.cast$`Percent_Framed (Unknown)`
-                           ,"SE_(Unknown)"      = item11.cast$`SE_Framed (Unknown)`
-                           ,"Count_(Unknown)"   = item11.cast$`Count_Framed (Unknown)`
-                           # ,"SampleSize"      = item11.cast$n_Total #should be 925
+                           ,"Percent_Unknown" = item11.cast$`Percent_Framed (Unknown)`
+                           ,"SE_Unknown"      = item11.cast$`SE_Framed (Unknown)`
+                           ,"Count_Unknown"   = item11.cast$`Count_Framed (Unknown)`
 )
 
 
@@ -850,7 +846,7 @@ exportTable(item11.table.SF, "SF", "Table 18"
 #############################################################################################
 # Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19, MH table 16)
 #############################################################################################
-## Note: For this table, you must run up to item10.dat7 for the cleaned data
+## Note: For this table, you must run up to prep.dat7 for the cleaned data
 item12.dat <- prep.dat7
 
 item12.dat1 <- item12.dat[which(!(is.na(item12.dat$HomeYearBuilt_bins3))),]
@@ -943,20 +939,19 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item12.cast$w.percent_R0
                            ,"SE.R0"           = item12.cast$w.SE_R0
-                           ,"Count.R0"            = item12.cast$count_R0
+                           ,"Count.R0"        = item12.cast$count_R0
                            ,"Percent.R1.R10"  = item12.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item12.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"        = item12.cast$count_R1.R10
+                           ,"Count.R1.R10"    = item12.cast$count_R1.R10
                            ,"Percent.R11.R16" = item12.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item12.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"       = item12.cast$count_R11.R16
+                           ,"Count.R11.R16"   = item12.cast$count_R11.R16
                            ,"Percent.R17.R22" = item12.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item12.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"       = item12.cast$count_R17.R22
+                           ,"Count.R17.R22"   = item12.cast$count_R17.R22
                            ,"Percent.RGT22"   = item12.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item12.cast$w.SE_RGT22
-                           ,"Count.RGT22"         = item12.cast$count_RGT22
-                           # ,"SampleSize"      = item12.cast$count_Total
+                           ,"Count.RGT22"     = item12.cast$count_RGT22
                            )
 
 
@@ -1019,20 +1014,19 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item12.cast$Percent_R0
                            ,"SE.R0"           = item12.cast$SE_R0
-                           ,"Count.R0"            = item12.cast$Count_R0
+                           ,"Count.R0"        = item12.cast$Count_R0
                            ,"Percent.R1.R10"  = item12.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item12.cast$SE_R1.R10
-                           ,"Count.R1.R10"        = item12.cast$Count_R1.R10
+                           ,"Count.R1.R10"    = item12.cast$Count_R1.R10
                            ,"Percent.R11.R16" = item12.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item12.cast$SE_R11.R16
-                           ,"Count.R11.R16"       = item12.cast$Count_R11.R16
+                           ,"Count.R11.R16"   = item12.cast$Count_R11.R16
                            ,"Percent.R17.R22" = item12.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item12.cast$SE_R17.R22
-                           ,"Count.R17.R22"       = item12.cast$Count_R17.R22
+                           ,"Count.R17.R22"   = item12.cast$Count_R17.R22
                            ,"Percent.RGT22"   = item12.cast$Percent_RGT22
                            ,"SE.RGT22"        = item12.cast$SE_RGT22
-                           ,"Count.RGT22"         = item12.cast$Count_RGT22
-                           # ,"SampleSize"      = item12.cast$Count_Total
+                           ,"Count.RGT22"     = item12.cast$Count_RGT22
                            )
 
 
@@ -1106,7 +1100,6 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Percent.R22.R30" = item12.cast$w.percent_R22.R30
                            ,"SE.R22.R30"      = item12.cast$w.SE_R22.R30
                            ,"n.R22.R30"       = item12.cast$count_R22.R30
-                           # ,"SampleSize"      = item12.cast$count_Total
                            )
 
 
@@ -1175,7 +1168,6 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Percent.R22.R30" = item12.cast$Percent_R22.R30
                            ,"SE.R22.R30"      = item12.cast$SE_R22.R30
                            ,"Count.R22.R30"   = item12.cast$Count_R22.R30
-                           # ,"SampleSize"      = item12.cast$Count_Total
 )
 
 
@@ -1247,20 +1239,19 @@ item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item13.cast$w.percent_R0
                            ,"SE.R0"           = item13.cast$w.SE_R0
-                           ,"Count.R0"            = item13.cast$count_R0
+                           ,"Count.R0"        = item13.cast$count_R0
                            ,"Percent.R1.R10"  = item13.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item13.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"        = item13.cast$count_R1.R10
+                           ,"Count.R1.R10"    = item13.cast$count_R1.R10
                            ,"Percent.R11.R16" = item13.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item13.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"       = item13.cast$count_R11.R16
+                           ,"Count.R11.R16"   = item13.cast$count_R11.R16
                            ,"Percent.R17.R22" = item13.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item13.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"       = item13.cast$count_R17.R22
+                           ,"Count.R17.R22"   = item13.cast$count_R17.R22
                            ,"Percent.RGT22"   = item13.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item13.cast$w.SE_RGT22
-                           ,"Count.RGT22"         = item13.cast$count_RGT22
-                           # ,"SampleSize"      = item13.cast$count_Total
+                           ,"Count.RGT22"     = item13.cast$count_RGT22
 )
 
 
@@ -1323,20 +1314,19 @@ item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item13.cast$Percent_R0
                            ,"SE.R0"           = item13.cast$SE_R0
-                           ,"Count.R0"            = item13.cast$Count_R0
+                           ,"Count.R0"        = item13.cast$Count_R0
                            ,"Percent.R1.R10"  = item13.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item13.cast$SE_R1.R10
-                           ,"Count.R1.R10"        = item13.cast$Count_R1.R10
+                           ,"Count.R1.R10"    = item13.cast$Count_R1.R10
                            ,"Percent.R11.R16" = item13.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item13.cast$SE_R11.R16
-                           ,"Count.R11.R16"       = item13.cast$Count_R11.R16
+                           ,"Count.R11.R16"   = item13.cast$Count_R11.R16
                            ,"Percent.R17.R22" = item13.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item13.cast$SE_R17.R22
-                           ,"Count.R17.R22"       = item13.cast$Count_R17.R22
+                           ,"Count.R17.R22"   = item13.cast$Count_R17.R22
                            ,"Percent.RGT22"   = item13.cast$Percent_RGT22
                            ,"SE.RGT22"        = item13.cast$SE_RGT22
-                           ,"Count.RGT22"         = item13.cast$Count_RGT22
-                           # ,"SampleSize"      = item13.cast$Count_Total
+                           ,"Count.RGT22"     = item13.cast$Count_RGT22
 )
 
 
@@ -1410,20 +1400,19 @@ item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item14.cast$w.percent_R0
                            ,"SE.R0"           = item14.cast$w.SE_R0
-                           ,"Count.R0"            = item14.cast$count_R0
+                           ,"Count.R0"        = item14.cast$count_R0
                            ,"Percent.R1.R10"  = item14.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item14.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"        = item14.cast$count_R1.R10
+                           ,"Count.R1.R10"    = item14.cast$count_R1.R10
                            ,"Percent.R11.R16" = item14.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item14.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"       = item14.cast$count_R11.R16
+                           ,"Count.R11.R16"   = item14.cast$count_R11.R16
                            ,"Percent.R17.R22" = item14.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item14.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"       = item14.cast$count_R17.R22
+                           ,"Count.R17.R22"   = item14.cast$count_R17.R22
                            ,"Percent.RGT22"   = item14.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item14.cast$w.SE_RGT22
-                           ,"Count.RGT22"         = item14.cast$count_RGT22
-                           # ,"SampleSize"      = item14.cast$count_Total
+                           ,"Count.RGT22"     = item14.cast$count_RGT22
 )
 
 
@@ -1486,20 +1475,19 @@ item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item14.cast$Percent_R0
                            ,"SE.R0"           = item14.cast$SE_R0
-                           ,"Count.R0"            = item14.cast$Count_R0
+                           ,"Count.R0"        = item14.cast$Count_R0
                            ,"Percent.R1.R10"  = item14.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item14.cast$SE_R1.R10
-                           ,"Count.R1.R10"        = item14.cast$Count_R1.R10
+                           ,"Count.R1.R10"    = item14.cast$Count_R1.R10
                            ,"Percent.R11.R16" = item14.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item14.cast$SE_R11.R16
-                           ,"Count.R11.R16"       = item14.cast$Count_R11.R16
+                           ,"Count.R11.R16"   = item14.cast$Count_R11.R16
                            ,"Percent.R17.R22" = item14.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item14.cast$SE_R17.R22
-                           ,"Count.R17.R22"       = item14.cast$Count_R17.R22
+                           ,"Count.R17.R22"   = item14.cast$Count_R17.R22
                            ,"Percent.RGT22"   = item14.cast$Percent_RGT22
                            ,"SE.RGT22"        = item14.cast$SE_RGT22
-                           ,"Count.RGT22"         = item14.cast$Count_RGT22
-                           # ,"SampleSize"      = item14.cast$Count_Total
+                           ,"Count.RGT22"     = item14.cast$Count_RGT22
 )
 
 
@@ -1570,20 +1558,19 @@ item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item15.cast$w.percent_R0
                            ,"SE.R0"           = item15.cast$w.SE_R0
-                           ,"Count.R0"            = item15.cast$count_R0
+                           ,"Count.R0"        = item15.cast$count_R0
                            ,"Percent.R1.R10"  = item15.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item15.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"        = item15.cast$count_R1.R10
+                           ,"Count.R1.R10"    = item15.cast$count_R1.R10
                            ,"Percent.R11.R16" = item15.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item15.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"       = item15.cast$count_R11.R16
+                           ,"Count.R11.R16"   = item15.cast$count_R11.R16
                            ,"Percent.R17.R22" = item15.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item15.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"       = item15.cast$count_R17.R22
+                           ,"Count.R17.R22"   = item15.cast$count_R17.R22
                            ,"Percent.RGT22"   = item15.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item15.cast$w.SE_RGT22
-                           ,"Count.RGT22"         = item15.cast$count_RGT22
-                           # ,"SampleSize"      = item15.cast$count_Total
+                           ,"Count.RGT22"     = item15.cast$count_RGT22
 )
 
 
@@ -1646,20 +1633,19 @@ item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item15.cast$Percent_R0
                            ,"SE.R0"           = item15.cast$SE_R0
-                           ,"Count.R0"            = item15.cast$Count_R0
+                           ,"Count.R0"        = item15.cast$Count_R0
                            ,"Percent.R1.R10"  = item15.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item15.cast$SE_R1.R10
-                           ,"Count.R1.R10"        = item15.cast$Count_R1.R10
+                           ,"Count.R1.R10"    = item15.cast$Count_R1.R10
                            ,"Percent.R11.R16" = item15.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item15.cast$SE_R11.R16
-                           ,"Count.R11.R16"       = item15.cast$Count_R11.R16
+                           ,"Count.R11.R16"   = item15.cast$Count_R11.R16
                            ,"Percent.R17.R22" = item15.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item15.cast$SE_R17.R22
-                           ,"Count.R17.R22"       = item15.cast$Count_R17.R22
+                           ,"Count.R17.R22"   = item15.cast$Count_R17.R22
                            ,"Percent.RGT22"   = item15.cast$Percent_RGT22
                            ,"SE.RGT22"        = item15.cast$SE_RGT22
-                           ,"Count.RGT22"         = item15.cast$Count_RGT22
-                           # ,"SampleSize"      = item15.cast$Count_Total
+                           ,"Count.RGT22"     = item15.cast$Count_RGT22
 )
 
 
@@ -1732,20 +1718,19 @@ item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item16.cast$w.percent_R0
                            ,"SE.R0"           = item16.cast$w.SE_R0
-                           ,"Count.R0"            = item16.cast$count_R0
+                           ,"Count.R0"        = item16.cast$count_R0
                            ,"Percent.R1.R10"  = item16.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item16.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"        = item16.cast$count_R1.R10
+                           ,"Count.R1.R10"    = item16.cast$count_R1.R10
                            ,"Percent.R11.R16" = item16.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item16.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"       = item16.cast$count_R11.R16
+                           ,"Count.R11.R16"   = item16.cast$count_R11.R16
                            ,"Percent.R17.R22" = item16.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item16.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"       = item16.cast$count_R17.R22
+                           ,"Count.R17.R22"   = item16.cast$count_R17.R22
                            ,"Percent.RGT22"   = item16.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item16.cast$w.SE_RGT22
-                           ,"Count.RGT22"         = item16.cast$count_RGT22
-                           # ,"SampleSize"      = item16.cast$count_Total
+                           ,"Count.RGT22"     = item16.cast$count_RGT22
 )
 
 
@@ -1808,20 +1793,19 @@ item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item16.cast$Percent_R0
                            ,"SE.R0"           = item16.cast$SE_R0
-                           ,"Count.R0"            = item16.cast$Count_R0
+                           ,"Count.R0"        = item16.cast$Count_R0
                            ,"Percent.R1.R10"  = item16.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item16.cast$SE_R1.R10
-                           ,"Count.R1.R10"        = item16.cast$Count_R1.R10
+                           ,"Count.R1.R10"    = item16.cast$Count_R1.R10
                            ,"Percent.R11.R16" = item16.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item16.cast$SE_R11.R16
-                           ,"Count.R11.R16"       = item16.cast$Count_R11.R16
+                           ,"Count.R11.R16"   = item16.cast$Count_R11.R16
                            ,"Percent.R17.R22" = item16.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item16.cast$SE_R17.R22
-                           ,"Count.R17.R22"       = item16.cast$Count_R17.R22
+                           ,"Count.R17.R22"   = item16.cast$Count_R17.R22
                            ,"Percent.RGT22"   = item16.cast$Percent_RGT22
                            ,"SE.RGT22"        = item16.cast$SE_RGT22
-                           ,"Count.RGT22"         = item16.cast$Count_RGT22
-                           # ,"SampleSize"      = item16.cast$Count_Total
+                           ,"Count.RGT22"     = item16.cast$Count_RGT22
 )
 
 
@@ -1919,9 +1903,9 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Percent_2_inch"    = item18.cast$w.percent_2
                            ,"SE_2_inch"         = item18.cast$w.SE_2
                            ,"Count_2_inch"      = item18.cast$count_2
-                           # ,"Percent_2.5_inch"    = item18.cast$w.percent_2.5
-                           # ,"SE_2.5_inch"         = item18.cast$w.SE_2.5
-                           # ,"Count_2.5_inch"      = item18.cast$count_2.5
+                           # ,"Percent_2.5_inch"  = item18.cast$w.percent_2.5
+                           # ,"SE_2.5_inch"       = item18.cast$w.SE_2.5
+                           # ,"Count_2.5_inch"    = item18.cast$count_2.5
                            ,"Percent_3_inch"    = item18.cast$w.percent_3
                            ,"SE_3_inch"         = item18.cast$w.SE_3
                            ,"Count_3_inch"      = item18.cast$count_3
@@ -1975,24 +1959,24 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Percent_0.25_inch" = item18.cast$Percent_0.25
                            ,"SE_0.25_inch"      = item18.cast$SE_0.25
                            ,"Count_0.25_inch"   = item18.cast$Count_0.25
-                           ,"Percent_0.5_inch" = item18.cast$Percent_0.5
-                           ,"SE_0.5_inch"      = item18.cast$SE_0.5
-                           ,"Count_0.5_inch"   = item18.cast$Count_0.5
+                           ,"Percent_0.5_inch"  = item18.cast$Percent_0.5
+                           ,"SE_0.5_inch"       = item18.cast$SE_0.5
+                           ,"Count_0.5_inch"    = item18.cast$Count_0.5
                            ,"Percent_0.75_inch" = item18.cast$Percent_0.75
                            ,"SE_0.75_inch"      = item18.cast$SE_0.75
                            ,"Count_0.75_inch"   = item18.cast$Count_0.75
                            ,"Percent_1_inch"    = item18.cast$Percent_1
                            ,"SE_1_inch"         = item18.cast$SE_1
                            ,"Count_1_inch"      = item18.cast$Count_1
-                           ,"Percent_1.5_inch"    = item18.cast$Percent_1.5
-                           ,"SE_1.5_inch"         = item18.cast$SE_1.5
-                           ,"Count_1.5_inch"      = item18.cast$Count_1.5
+                           ,"Percent_1.5_inch"  = item18.cast$Percent_1.5
+                           ,"SE_1.5_inch"       = item18.cast$SE_1.5
+                           ,"Count_1.5_inch"    = item18.cast$Count_1.5
                            ,"Percent_2_inch"    = item18.cast$Percent_2
                            ,"SE_2_inch"         = item18.cast$SE_2
                            ,"Count_2_inch"      = item18.cast$Count_2
-                           # ,"Percent_2.5_inch"    = item18.cast$Percent_2.5
-                           # ,"SE_2.5_inch"         = item18.cast$SE_2.5
-                           # ,"Count_2.5_inch"      = item18.cast$Count_2.5
+                           # ,"Percent_2.5_inch"  = item18.cast$Percent_2.5
+                           # ,"SE_2.5_inch"       = item18.cast$SE_2.5
+                           # ,"Count_2.5_inch"    = item18.cast$Count_2.5
                            ,"Percent_3_inch"    = item18.cast$Percent_3
                            ,"SE_3_inch"         = item18.cast$SE_3
                            ,"Count_3_inch"      = item18.cast$Count_3
