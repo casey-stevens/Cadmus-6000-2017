@@ -101,7 +101,7 @@ unique(prep.dat1.2$Wall.Exterior.Insulation.Condition.3)
 
 
 #remove unneccesary wall types
-prep.dat2 <- prep.dat1.2[which(prep.dat1.2$Wall.Type %notin% c("Masonry","Masonry (Basement)","Log","Adiabatic", "Knee Wall", "Other")),]
+prep.dat2 <- prep.dat1.2[which(prep.dat1.2$Wall.Type %notin% c("Masonry","Masonry (Basement)","Log","Adiabatic", "Knee Wall", "Other", "ICF", "SIP")),]
 unique(prep.dat2$Wall.Type)
 
 #create "Alternative" category
@@ -519,7 +519,7 @@ item10.summary <- proportionRowsAndColumns1(CustomerLevelData     = item10.data
 item10.summary <- item10.summary[which(item10.summary$Wall.Type != "All Frame Types"),]
 
 ## Summary only for "All Frame Types"
-item10.all.frame.types <- proportions_one_group(item10.data
+item10.all.frame.types <- proportions_one_group(CustomerLevelData     = item10.data
                                                 ,valueVariable    = "count"
                                                 ,groupingVariable = "rvalue.bins"
                                                 ,total.name       = "All Frame Types"
@@ -529,7 +529,7 @@ item10.all.frame.types <- proportions_one_group(item10.data
 )
 
 ## Summary for only "All Insulation Levels"
-item10.all.insul.levels <-  proportions_one_group(item10.data
+item10.all.insul.levels <-  proportions_one_group(CustomerLevelData     = item10.data
                                                   ,valueVariable    = "count"
                                                   ,groupingVariable = "Wall.Type"
                                                   ,total.name       = "All Insulation Levels"

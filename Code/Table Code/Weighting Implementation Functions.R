@@ -589,24 +589,24 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"Territory"
                                                                           ,"N.h"
                                                                           ,"n.h"))])
-      # columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType"),summarise
-      #                                      ,columnVar.N.h = sum(N.h)
-      #                                      ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+      columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType"),summarise
+                                           ,columnVar.N.h = sum(N.h)
+                                           ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
       
       
       #join strata data with weights by column grouping variable 
-      # StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
+      StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
       
       
       #summarise by column variable
       #summary of both grouping variables
-      ColumnProportionsByGroup <- data.frame(ddply(StrataData
+      ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                    , c("BuildingType", groupingVariable), summarise
-                                                   ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
-                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(unique(N.h))
+                                                   ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
+                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
                                                    ,count     = sum(count)
-                                                   ,N         = sum(unique(N.h))
-                                                   ,n         = sum(unique(n.h))), stringsAsFactors = F)
+                                                   ,N         = unique(columnVar.N.h)
+                                                   ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
