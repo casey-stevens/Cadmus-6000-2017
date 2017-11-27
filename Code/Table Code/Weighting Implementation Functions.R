@@ -77,7 +77,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   # test.data <- item.strata[which(item.strata$BuildingType == "Single Family" & item.strata$Clean.Type == "Grow Room"),]
   
   # customerleveldata.2 <- left_join(CustomerLevelData, item.strata)
-  # customerleveldata.2 put into the data spot for ddply in line 72
+  # customerleveldata.2 put into the data spot for ddply below
   if(byVariable == "BuildingType"){
     item.final <- data.frame(ddply(item.strata, c("BuildingType"), summarise
                                    # ,Numerator   = sum(N_h / n_h * DomainSum)
@@ -90,8 +90,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                    # ,EB = SE * 1.645
                                    
                                    ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                   ,n      = sum(count_hj)
-                                   # ,n      = sum(unique(n_hj))
+                                   ,n      = sum(n_hj)
                                    ,n_h    = unique(n_h)
                                    ,N_h    = unique(N_h)), stringsAsFactors = F)
 
@@ -107,8 +106,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                            # ,EB = SE * 1.645
                            
                            ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                           ,n      = sum(count_hj)
-                           # ,n      = sum(unique(n_hj))
+                           ,n      = sum(n_hj)
                            ,n_h    = (unique(n_h))
                            ,N_h    = (unique(N_h))), stringsAsFactors = F)
     
@@ -116,8 +114,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                     ,byRow  = aggregateRow
                                     ,Mean   = sum(N_h * strataMean) / sum(N_h)
                                     ,SE     = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                    ,n      = sum(count_hj)
-                                    # ,n      = sum(unique(n_hj))
+                                    ,n      = length(unique(CustomerLevelData$CK_Cadmus_ID))
                                     ,n_h    = unique((n_h))
                                     ,N_h    = unique((N_h))
     )
@@ -210,53 +207,41 @@ mean_two_groups <- function(CustomerLevelData
   # Using customer level data, Summarise data up to strata level
   # Treat summarise differently depending if either the column or row varaible is state
   ######################################################
+  StrataPopCounts <- data.frame(ddply(CustomerLevelData
+                                        , c("BuildingType", "State", "Region", "Territory"), summarise
+                                        ,N_h   = sum(unique(N.h))
+                                        ,n_h   = sum(unique(n.h))), stringsAsFactors = F)
   if (byVariableRow == 'State') {
-    item.strata <- data.frame(ddply(CustomerLevelData
-                         , c("BuildingType", "State", "Region", "Territory", byVariableColumn), summarise
-                             ,n_h        = unique(n.h)
-                             ,N_h        = unique(N.h)
-                             ,strataMean = mean(get(valueVariable), na.rm = T)
-                             ,strataSD   = sd(get(valueVariable), na.rm = T)
-                             ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-  item.strata$strataSD[which(item.strata$strataSD == "NaN")] <- 0
+    item.strata.group <- data.frame(ddply(CustomerLevelData
+                                          , c("BuildingType", "State", "Region", "Territory", byVariableColumn), summarise
+                                          ,strataMean = mean(get(valueVariable), na.rm = T)
+                                          ,strataSD   = sd(get(valueVariable), na.rm = T)
+                                          ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    item.strata$strataSD[which(item.strata$strataSD == "NaN")] <- 0
   } 
   
   if (byVariableColumn == 'State') {
-    StrataPopCounts <- data.frame(ddply(CustomerLevelData
-                                        , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N_h   = sum(unique(N.h))
-                                        ,n_h   = sum(unique(n.h))), stringsAsFactors = F)
     item.strata.group <- data.frame(ddply(CustomerLevelData
-                         , c("BuildingType", "State", "Region", "Territory", byVariableRow), summarise
-                             ,strataMean = mean(get(valueVariable), na.rm = T)
-                             ,strataSD   = sd(get(valueVariable), na.rm = T)
-                             ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+                                          , c("BuildingType", "State", "Region", "Territory", byVariableRow), summarise
+                                          ,strataMean = mean(get(valueVariable), na.rm = T)
+                                          ,strataSD   = sd(get(valueVariable), na.rm = T)
+                                          ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
     item.strata.group$strataSD[which(item.strata.group$strataSD == "NaN")] <- 0
-    
-    item.strata <- left_join(item.strata.group, StrataPopCounts)
   }
   
   if (byVariableRow != 'State' & byVariableColumn != 'State') {
-    StrataPopCounts <- data.frame(ddply(CustomerLevelData
-                                        , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N_h   = sum(unique(N.h))
-                                        ,n_h   = sum(unique(n.h))), stringsAsFactors = F)
-    
     item.strata.group <- data.frame(ddply(CustomerLevelData
-                         , c("BuildingType", "State", "Region", "Territory", byVariableRow, byVariableColumn), summarise
-                             ,n_h        = unique(n.h)
-                             ,N_h        = unique(N.h)
-                             ,fpc        = (1 - n_h / N_h)
-                             ,w_h        = n_h / N_h
-                             ,strataMean = mean(get(valueVariable), na.rm = T)
-                             ,strataSD   = sd(get(valueVariable), na.rm = T)
-                             ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+                                          , c("BuildingType", "State", "Region", "Territory", byVariableRow, byVariableColumn), summarise
+                                          ,strataMean = mean(get(valueVariable), na.rm = T)
+                                          ,strataSD   = sd(get(valueVariable), na.rm = T)
+                                          ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
     item.strata.group$strataSD[which(item.strata.group$strataSD == "NaN")] <- 0
-    
-    item.strata <- left_join(item.strata.group, StrataPopCounts)
-    }
-
+  }
+  
+  item.strata <- left_join(item.strata.group, StrataPopCounts)
+  
   stopifnot(item.strata$n <= item.strata$n_h)
+  
   ######################################################
   # Get sample sizes, means, and SEs by both grouping variables
   ######################################################
@@ -280,7 +265,7 @@ mean_two_groups <- function(CustomerLevelData
                                ,byRow      = rowAggregate
                                ,Mean       = sum(N_h * strataMean) / sum(N_h)
                                ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                               ,n          = sum(unique(n_h))
+                               ,n          = sum(n)
                                ,N          = sum(unique(N_h))), stringsAsFactors = F)
     #Rename column byrow
     item.group.rowAgg <- ConvertColName(item.group.rowAgg,
@@ -288,13 +273,13 @@ mean_two_groups <- function(CustomerLevelData
                                         byVariableRow)
     item.group.rowFinal <- rbind.data.frame(item.group.all, item.group.rowAgg, stringsAsFactors = F)
   }
-  
+
   if (!is.na(columnAggregate)) {
     item.group.colAgg1 <- data.frame(ddply(item.strata, c("BuildingType", byVariableRow), summarise
                                 ,byCol = columnAggregate
                                 ,Mean  = sum(N_h * strataMean) / sum(N_h)
                                 ,SE    = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                ,n     = sum(unique(n_h))
+                                ,n     = sum(n)
                                 ,N     = sum(unique(N_h))), stringsAsFactors = F)
     #rename column byCol
     item.group.colAgg1 <- ConvertColName(item.group.colAgg1, "byCol",
@@ -306,7 +291,7 @@ mean_two_groups <- function(CustomerLevelData
                                   ,byRow = rowAggregate
                                   ,Mean  = sum(N_h * strataMean) / sum(N_h)
                                   ,SE    = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                                  ,n     = sum(unique(n_h))
+                                  ,n     = sum(n)
                                   ,N     = sum(unique(N_h))), stringsAsFactors = F)
       #rename columns byCol and by Row
       item.group.colAgg2 <- ConvertColName(item.group.colAgg2, "byRow",byVariableRow)
@@ -534,37 +519,37 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"Territory"
                                                                           ,"N.h"
                                                                           ,"n.h"))])
-      columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", groupingVariable),summarise
-                                           ,columnVar.N.h = sum(N.h)
-                                           ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
-      
-      columnTotalWeights <- data.frame(ddply(StrataData, "BuildingType", summarise
-                                             ,columnTot.N.h = sum(unique(N.h))
-                                             ,columnTot.n.h = sum(unique(n.h))), stringsAsFactors = F)
+      # columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", groupingVariable),summarise
+      #                                      ,columnVar.N.h = sum(N.h)
+      #                                      ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+      # 
+      # columnTotalWeights <- data.frame(ddply(StrataData, "BuildingType", summarise
+      #                                        ,columnTot.N.h = sum(unique(N.h))
+      #                                        ,columnTot.n.h = sum(unique(n.h))), stringsAsFactors = F)
       
       #join strata data with weights by column grouping variable 
-      StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", "State"))
-      StrataDataWeights <- left_join(StrataDataWeights, columnTotalWeights, by = "BuildingType")
+      # StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", "State"))
+      # StrataDataWeights <- left_join(StrataDataWeights, columnTotalWeights, by = "BuildingType")
       
       
       #summarise by column variable
       #summary of both grouping variables
-      ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+      ColumnProportionsByGroup <- data.frame(ddply(StrataData #was StrataDataWeights
                                                    , c("BuildingType", groupingVariable), summarise
-                                                   ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
-                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
+                                                   ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(unique(N.h))
                                                    ,count     = sum(count)
-                                                   ,N         = unique(columnVar.N.h)
-                                                   ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
+                                                   ,N         = sum(unique(N.h))
+                                                   ,n         = sum(unique(n.h))), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
                                        ,rowTotal  = total.name
-                                       ,w.percent = sum(N.h * p.h) / unique(columnTot.N.h)
-                                       ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnTot.N.h)
+                                       ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                       ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(unique(N.h))
                                        ,count     = sum(count)
-                                       ,N         = unique(columnTot.N.h)
-                                       ,n         = unique(columnTot.n.h)), stringsAsFactors = F) 
+                                       ,N         = sum(unique(N.h))
+                                       ,n         = sum(unique(n.h))), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
@@ -604,24 +589,24 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"Territory"
                                                                           ,"N.h"
                                                                           ,"n.h"))])
-      columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType"),summarise
-                                           ,columnVar.N.h = sum(N.h)
-                                           ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+      # columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType"),summarise
+      #                                      ,columnVar.N.h = sum(N.h)
+      #                                      ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
       
       
       #join strata data with weights by column grouping variable 
-      StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
+      # StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
       
       
       #summarise by column variable
       #summary of both grouping variables
-      ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+      ColumnProportionsByGroup <- data.frame(ddply(StrataData
                                                    , c("BuildingType", groupingVariable), summarise
-                                                   ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
-                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
+                                                   ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(unique(N.h))
                                                    ,count     = sum(count)
-                                                   ,N         = unique(columnVar.N.h)
-                                                   ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
+                                                   ,N         = sum(unique(N.h))
+                                                   ,n         = sum(unique(n.h))), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
@@ -629,8 +614,8 @@ proportions_one_group <- function(CustomerLevelData
                                        ,w.percent      = sum(w.percent)
                                        ,w.SE           = NA
                                        ,count          = sum(count, na.rm = T)
-                                       ,n              = sum(unique(n), na.rm = T)
-                                       ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
+                                       ,n              = sum((n), na.rm = T)
+                                       ,N              = sum((N), na.rm = T)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       

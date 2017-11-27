@@ -27,7 +27,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
-appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
+appliances.dat$CK_Cadmus_ID <- as.character(trimws(toupper(appliances.dat$CK_Cadmus_ID)))
 #subset to columns provided by Rietz -- this includes columns for all three items (302-304)
 appliances.dat1 <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                         ,"CK_SiteID"
@@ -105,8 +105,17 @@ item302.final <- mean_one_group(CustomerLevelData = item302.data
                                 ,valueVariable = 'TV.Wattage'
                                 ,byVariable = 'Age.Cat'
                                 ,aggregateRow = "All Vintages")
-
-
+item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType","n_h"))]
+exportTable(item302.final, "MF", "Table 96", weighted = TRUE)
+######################
+# unweighted analysis
+######################
+item302.final <- mean_one_group_unweighted(CustomerLevelData = item302.data
+                                ,valueVariable = 'TV.Wattage'
+                                ,byVariable = 'Age.Cat'
+                                ,aggregateRow = "All Vintages")
+item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType","n_h"))]
+exportTable(item302.final, "MF", "Table 96", weighted = FALSE)
 
 
 
@@ -136,53 +145,110 @@ unique(item303.dat2$Age.Cat)
 
 ###### create TV screen type categories accoring to previous RBSA table (CRT and other)
 item303.dat2$TV.Screen.Cat <- NA
-item303.dat2$TV.Screen.Cat[grep("CRT|crt|Crt", item303.dat2$TV.Screen.Type)] <- "CRT"
+item303.dat2$TV.Screen.Cat[grep("crt", item303.dat2$TV.Screen.Type, ignore.case = T)] <- "CRT"
 item303.dat2$TV.Screen.Cat[which(is.na(item303.dat2$TV.Screen.Cat))] <- "Other"
 
-#create counter
-item303.dat2$count <- 1
+names(item303.dat2)
 
-#summarise by vintages
-item303.sum1 <- summarise(group_by(item303.dat2, Age.Cat, TV.Screen.Cat)
-                          ,Count = sum(count))
-item303.tot.count1 <- summarise(group_by(item303.dat2, Age.Cat)
-                                ,Total.Count = sum(count)
-                                ,SampleSize = length(unique(CK_Cadmus_ID)))
-item303.vintage1 <- left_join(item303.sum1, item303.tot.count1, by = "Age.Cat")
+item303.dat3 <- item303.dat2[which(!is.na(item303.dat2$Age.Cat)),]
 
-#summarise across vintages
-item303.sum2 <- summarise(group_by(item303.dat2, TV.Screen.Cat)
-                          ,Age.Cat = "All Vintages"
-                          ,Count = sum(count))
-item303.tot.count2 <- summarise(group_by(item303.dat2)
-                                ,Age.Cat = "All Vintages"
-                                ,Total.Count = sum(count)
-                                ,SampleSize = length(unique(CK_Cadmus_ID)))
-item303.vintage2 <- left_join(item303.sum2, item303.tot.count2, by = "Age.Cat")
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item303.data <- weightedData(item303.dat3[which(colnames(item303.dat3) %notin% c("CK_SiteID"
+                                                                                 ,"Type"
+                                                                                 ,"Age"                
+                                                                                 ,"TV.Screen.Type"
+                                                                                 ,"TV.Wattage"
+                                                                                 ,"Room"
+                                                                                 ,"Clean.Room"
+                                                                                 ,"Age.Cat"
+                                                                                 ,"TV.Screen.Cat"))])
 
-#row bind by and across vintage information 
-item303.final <- rbind.data.frame(item303.vintage1, item303.vintage2)
+item303.data <- left_join(item303.data, item303.dat3[which(colnames(item303.dat3) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"Type"
+                                                                                         ,"Age"                
+                                                                                         ,"TV.Screen.Type"
+                                                                                         ,"TV.Wattage"
+                                                                                         ,"Room"
+                                                                                         ,"Clean.Room"
+                                                                                         ,"Age.Cat"
+                                                                                         ,"TV.Screen.Cat"))])
+item303.data$count <- 1
 
-#calculate percent and SE of percent
-item303.final$Percent <- item303.final$Count / item303.final$Total.Count
-item303.final$SE <- sqrt(item303.final$Percent * (1 - item303.final$Percent) / item303.final$SampleSize)
 
-#cast data by screen type
+######################
+# weighted analysis
+######################
+item303.summary <- proportionRowsAndColumns1(CustomerLevelData = item303.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'Age.Cat'
+                                             ,rowVariable = 'TV.Screen.Cat'
+                                             ,aggregateColumnName = "All Vintages")
+item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
+item303.summary <- item303.summary[which(item303.summary$Age.Cat != "All Vintages"),]
+
+item303.all.vintages <- proportions_one_group_MF(CustomerLevelData = item303.data
+                                                 ,valueVariable = 'count'
+                                                 ,groupingVariable = 'TV.Screen.Cat'
+                                                 ,total.name = "All Vintages"
+                                                 ,columnName = "Age.Cat"
+                                                 ,weighted = TRUE
+                                                 ,two.prop.total = TRUE)
+
+item303.final <- rbind.data.frame(item303.summary, item303.all.vintages, stringsAsFactors = F)
+
 item303.cast <- dcast(setDT(item303.final)
-                      ,formula = Age.Cat + SampleSize ~ TV.Screen.Cat
-                      ,value.var = c("Percent", "SE"))
+                      ,formula = Age.Cat ~ TV.Screen.Cat
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 #put into correct table format
 item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
-                            ,"CRT_Percent" = item303.cast$Percent_CRT
-                            ,"CRT_SE" = item303.cast$SE_CRT
-                            ,"Other_Percent"= item303.cast$Percent_Other
-                            ,"Other_SE" = item303.cast$SE_Other
-                            ,"SampleSize" = item303.cast$SampleSize)
+                            ,"CRT_Percent"      = item303.cast$w.percent_CRT
+                            ,"CRT_SE"           = item303.cast$w.SE_CRT
+                            ,"CRT_n"            = item303.cast$count_CRT
+                            ,"Other_Percent"    = item303.cast$w.percent_Other
+                            ,"Other_SE"         = item303.cast$w.SE_Other
+                            ,"Other_n"          = item303.cast$count_Other)
+exportTable(item303.table, "MF", "Table 97", weighted = TRUE)
 
 
 
+######################
+# weighted analysis
+######################
+item303.summary <- proportions_two_groups_unweighted(CustomerLevelData = item303.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'Age.Cat'
+                                             ,rowVariable = 'TV.Screen.Cat'
+                                             ,aggregateColumnName = "All Vintages")
+item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
+item303.summary <- item303.summary[which(item303.summary$Age.Cat != "All Vintages"),]
 
+item303.all.vintages <- proportions_one_group_MF(CustomerLevelData = item303.data
+                                                 ,valueVariable = 'count'
+                                                 ,groupingVariable = 'TV.Screen.Cat'
+                                                 ,total.name = "All Vintages"
+                                                 ,columnName = "Age.Cat"
+                                                 ,weighted = FALSE
+                                                 ,two.prop.total = TRUE)
+
+item303.final <- rbind.data.frame(item303.summary, item303.all.vintages, stringsAsFactors = F)
+
+item303.cast <- dcast(setDT(item303.final)
+                      ,formula = Age.Cat ~ TV.Screen.Cat
+                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+
+#put into correct table format
+item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
+                            ,"CRT_Percent"      = item303.cast$Percent_CRT
+                            ,"CRT_SE"           = item303.cast$SE_CRT
+                            ,"CRT_n"            = item303.cast$Count_CRT
+                            ,"Other_Percent"    = item303.cast$Percent_Other
+                            ,"Other_SE"         = item303.cast$SE_Other
+                            ,"Other_n"          = item303.cast$Count_Other)
+exportTable(item303.table, "MF", "Table 97", weighted = FALSE)
 
 
 
@@ -195,33 +261,47 @@ item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
 #subset to only televisions
 item304.dat <- rbsa.app.MF[which(rbsa.app.MF$Type == "Television"),]
 
-#add counter
-item304.dat$count <- 1
-
 #subset to remove any missing room types
 item304.dat1 <- item304.dat[which(!(is.na(item304.dat$Clean.Room))),]
 
-#summarise by clean room type
-item304.sum1 <- summarise(group_by(item304.dat1, Clean.Room)
-                          ,Count = sum(count)
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
-#get total count (sum of count across room types)
-item304.sum1$Total.Count <- sum(item304.sum1$Count)
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item304.data <- weightedData(item304.dat1[which(colnames(item304.dat1) %notin% c("CK_SiteID"
+                                                                                 ,"Type"
+                                                                                 ,"Age"                
+                                                                                 ,"TV.Screen.Type"
+                                                                                 ,"TV.Wattage"
+                                                                                 ,"Room"
+                                                                                 ,"Clean.Room"))])
 
-#calculate percent and SE of percent
-item304.sum1$Percent <- item304.sum1$Count / item304.sum1$Total.Count
-item304.sum1$SE <- sqrt(item304.sum1$Percent * (1 - item304.sum1$Percent) / item304.sum1$SampleSize)
-
-#put in table format
-item304.table <- data.frame("Room_Type" = item304.sum1$Clean.Room
-                            ,"Percent" = item304.sum1$Percent
-                            ,"SE" = item304.sum1$SE
-                            ,"SampleSize" = item304.sum1$SampleSize)
-
-
-
-
-
-
+item304.data <- left_join(item304.data, item304.dat1[which(colnames(item304.dat1) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_SiteID"
+                                                                                         ,"Type"
+                                                                                         ,"Age"                
+                                                                                         ,"TV.Screen.Type"
+                                                                                         ,"TV.Wattage"
+                                                                                         ,"Room"
+                                                                                         ,"Clean.Room"))])
+item304.data$count <- 1
 
 
+######################
+# weighted analysis
+######################
+item304.final <- proportions_one_group_MF(CustomerLevelData = item304.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Clean.Room'
+                                          ,total.name = "All Room Types"
+                                          ,weighted = TRUE)
+exportTable(item304.final, "MF", "Table 98", weighted = TRUE)
+
+######################
+# unweighted analysis
+######################
+item304.final <- proportions_one_group_MF(CustomerLevelData = item304.data
+                                          ,valueVariable = 'count'
+                                          ,groupingVariable = 'Clean.Room'
+                                          ,total.name = "All Room Types"
+                                          ,weighted = FALSE)
+exportTable(item304.final, "MF", "Table 98", weighted = FALSE)

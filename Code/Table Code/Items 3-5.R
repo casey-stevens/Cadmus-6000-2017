@@ -293,14 +293,15 @@ env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
 
 #merge
 item5.dat <- left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
-length(unique(item5.dat$CK_Cadmus_ID)) #601
+length(unique(item5.dat$CK_Cadmus_ID))
 
 item5.dat1 <- item5.dat[which(item5.dat$BuildingType != "Multifamily"),]
 item5.dat2 <- item5.dat1[which(!is.na(item5.dat1$ConditionedArea)),]
+item5.dat2 <- item5.dat2[which(item5.dat2$ConditionedArea != 0),]
 item5.dat3 <- item5.dat2[which(!is.na(item5.dat2$HomeYearBuilt)),]
 
 
-item5.data <- weightedData(item5.dat3[-which(colnames(item5.dat3) %in% c("BldgLevel_Area_SqFt"
+item5.data <- weightedData(item5.dat3[which(colnames(item5.dat3) %notin% c("BldgLevel_Area_SqFt"
                                                                          ,"ConditionedArea"))])
 item5.data <- left_join(item5.data, item5.dat3[which(colnames(item5.dat3) %in% c("CK_Cadmus_ID"
                                                                                  , "BldgLevel_Area_SqFt"
@@ -365,6 +366,8 @@ exportTable(item5.table.SF, "SF", "Table 12"
             , weighted = TRUE)
 exportTable(item5.table.MH, "MH", "Table 11"
             , weighted = TRUE)
+exportTable(item5.table.SF, "SF", "Table 12"
+            , weighted = TRUE, final = TRUE)
 
 
 

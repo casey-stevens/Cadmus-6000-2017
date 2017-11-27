@@ -13,8 +13,8 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item223.dat2[which(colnames(item223.dat2) %notin% c("Nonres.Area"
-#                                                                 ,"Ind"))]
+# itemData <- item5.dat3[which(colnames(item5.dat3) %notin% c("BldgLevel_Area_SqFt"
+#                                                 ,"ConditionedArea"))]
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -52,7 +52,7 @@ weightedData <- function(itemData){
   length(unique(cleanRBSA.dat1$CK_Cadmus_ID))  
   
   # Import ID and ZIP data
-  cadmus.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1)
+  cadmus.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, meter.export), sheet=1, startRow = 2)
   cadmus.dat$CK_Cadmus_ID <- trimws(toupper(cadmus.dat$Cadmus.ID))
   length(unique(cadmus.dat$CK_Cadmus_ID)) 
   

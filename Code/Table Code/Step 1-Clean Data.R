@@ -32,15 +32,15 @@ source(file.path(SourcePath, "SourceCode.R"))
 #############################################################################################
 
 # Import site data
-one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary")
-one.line.dat1 <- data.frame("CK_Cadmus_ID" = one.line.dat$Cadmus.ID
-                            ,"CK_Building_ID"  = one.line.dat$CK_BuildingID
-                               , "BuildingTypeXX"  = one.line.dat$`Home.Type.-.FMP.Detailed`
-                               , "BuildingType"    = one.line.dat$`Home.Type.-.Final`
-                               , "HomeYearBuilt"   = one.line.dat$Year.Built
-                               , "State"           = one.line.dat$State
-                               , "ZIP"             = one.line.dat$Zip
-                               , stringsAsFactors  = F)
+one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary", startRow = 2)
+one.line.dat1 <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
+                            ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
+                            , "BuildingTypeXX"  = one.line.dat$`Home.Type.-.FMP.Detailed`
+                            , "BuildingType"    = one.line.dat$`Home.Type.-.Final`
+                            , "HomeYearBuilt"   = one.line.dat$Year.Built
+                            , "State"           = one.line.dat$State
+                            , "ZIP"             = one.line.dat$Zip
+                            , stringsAsFactors  = F)
 site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                         , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
