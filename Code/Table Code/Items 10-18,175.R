@@ -2422,3 +2422,75 @@ item17.table.SF <- item17.table[which(item17.table$BuildingType == "Single Famil
 exportTable(item17.table.SF, "SF", "Table 24"
             , weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 175: DISTRIBUTION OF WALL U-VALUE BY STATE  (MH table 17)
+#############################################################################################
+## Note: For this table, you must run up to prep.dat7 for the cleaned data
+item175.dat <- prep.dat7
+
+item175.dat1 <- item175.dat
+
+############################################################################################################
+# Apply weights
+############################################################################################################
+item175.dat1$count <- 1
+colnames(item175.dat1)
+
+item175.merge <- left_join(rbsa.dat, item175.dat1)
+item175.merge <- item175.merge[which(!is.na(item175.merge$count)),]
+
+item175.data <- weightedData(unique(item175.merge[-which(colnames(item175.merge) %in% c("Wall.Type"
+                                                                                     ,"aveUval"
+                                                                                     ,"aveRval"
+                                                                                     ,"count"))]))
+item175.data <- left_join(item175.data, item175.merge[which(colnames(item175.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Wall.Type"
+                                                                                       ,"aveUval"
+                                                                                       ,"aveRval"
+                                                                                       ,"count"))])
+
+
+############################################################################################################
+# Weighted Analysis - Manufactured
+############################################################################################################
+item175.final <- mean_one_group(CustomerLevelData = item175.data
+                                ,valueVariable = 'aveUval'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+
+item175.table.MH <- item175.final[which(item175.final$BuildingType == "Manufactured"),-1]
+item175.table.MH$n[which(item175.table.MH$State == "Region")] <- item175.table.MH$n_h[which(item175.table.MH$State == "Region")]
+#export table to correct workbook using exporting function
+exportTable(item175.table.MH, "MH", "Table 17", weighted = TRUE)
+
+
+############################################################################################################
+# Unweighted Analysis - Manufactured
+############################################################################################################
+item175.final <- mean_one_group_unweighted(CustomerLevelData = item175.data
+                                ,valueVariable = 'aveUval'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+
+item175.table.MH <- item175.final[which(item175.final$BuildingType == "Manufactured"),-1]
+#export table to correct workbook using exporting function
+exportTable(item175.table.MH, "MH", "Table 17", weighted = FALSE)
