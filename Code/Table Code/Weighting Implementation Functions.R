@@ -35,18 +35,24 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     
     item.strata <- data.frame(ddply(CustomerLevelData
                                     , c("BuildingType", "State", "Region", "Territory"), summarise
-                              ,n_h        = unique(n.h)
-                              ,N_h        = unique(N.h)
+                              # ,n_h        = unique(n.h)
+                              # ,N_h        = unique(N.h)
                               ,strataMean = mean(get(valueVariable), na.rm = T)
                               ,strataSD   = sd(get(valueVariable), na.rm = T)
-                              ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    PopandSampleSizes <- data.frame(ddply(item.strata
+                              ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    PopandSampleSizes <- data.frame(ddply(CustomerLevelData
+                                          , c("BuildingType", "State", "Region", "Territory"), summarise
+                                          ,n_h        = unique(n.h)
+                                          ,N_h        = unique(N.h)), stringsAsFactors = F)
+    PopandSampleSizes <- data.frame(ddply(PopandSampleSizes
                                           , c("BuildingType"), summarise
                                           ,n_h        = sum(n_h)
                                           ,N_h        = sum(N_h)), stringsAsFactors = F)
     
+    
     #QAQC
-    stopifnot(item.strata$n == item.strata$n_h)
+    stopifnot(item.strata$n_hj == item.strata$n_h)
+    item.strata <- left_join(item.strata, PopandSampleSizes)
   }else {
     PopandSampleSizes0 <- data.frame(ddply(CustomerLevelData
                                     , c("BuildingType", "State", "Region", "Territory"), summarise

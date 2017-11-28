@@ -151,6 +151,21 @@ rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
     rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
     unique(rbsa.dat$HomeYearBuilt_bins3)
     
+    # Convert home year built to specific bins
+    rbsa.dat$HomeYearBuilt_bins4 <- as.numeric(as.character(rbsa.dat$HomeYearBuilt))
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt < 1951)] <- "Pre 1951"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1951 & rbsa.dat$HomeYearBuilt < 1961)] <- "1951-1960"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1961 & rbsa.dat$HomeYearBuilt < 1971)] <- "1961-1970"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1971 & rbsa.dat$HomeYearBuilt < 1981)] <- "1971-1980"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1986)] <- "1981-1985"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1986 & rbsa.dat$HomeYearBuilt < 1991)] <- "1986-1990"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 1996)] <- "1991-1995"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 1996 & rbsa.dat$HomeYearBuilt < 2001)] <- "1996-2000"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 2001 & rbsa.dat$HomeYearBuilt < 2006)] <- "2001-2005"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 2006 & rbsa.dat$HomeYearBuilt < 2011)] <- "2006-2010"
+    rbsa.dat$HomeYearBuilt_bins4[which(rbsa.dat$HomeYearBuilt >= 2011)] <- "Post 2010"
+    unique(rbsa.dat$HomeYearBuilt_bins4)
+
     # Convert home year built to specific bins for multifamily
     rbsa.dat$HomeYearBuilt_MF <- as.numeric(as.character(rbsa.dat$HomeYearBuilt))
     rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt < 1955)] <- "Pre 1955"
@@ -160,7 +175,8 @@ rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
     rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
     rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
     unique(rbsa.dat$HomeYearBuilt_MF)
-
+    
+    
     
         #QAQC - stop if there are NA in any Home Year Built category
         # stopifnot(all(!(is.na(c(rbsa.dat$HomeYearBuilt_bins, rbsa.dat$HomeYearBuilt_bins4, rbsa.dat$HomeYearBuilt_MF)))))

@@ -199,6 +199,7 @@ weightedData <- function(itemData){
                             ,"HomeYearBuilt_bins1"
                             ,"HomeYearBuilt_bins2"
                             ,"HomeYearBuilt_bins3"
+                            ,"HomeYearBuilt_bins4"
                             ,"HomeYearBuilt_bins_MF"
                             ,"BuildingHeight"
                             ,"ZIPCode"
