@@ -2494,3 +2494,18 @@ item175.final <- mean_one_group_unweighted(CustomerLevelData = item175.data
 item175.table.MH <- item175.final[which(item175.final$BuildingType == "Manufactured"),-1]
 #export table to correct workbook using exporting function
 exportTable(item175.table.MH, "MH", "Table 17", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Item 235: DISTRIBUTION OF WALL INSULATION BY WALL TYPE  (MF table 27)
+#############################################################################################

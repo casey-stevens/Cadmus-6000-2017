@@ -433,6 +433,12 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 #
 #
 ###################################################################################################################
+
+
+
+############################################################################################################
+# ITEM 23: DISTRIBUTION OF FLOOR INSULATION BY HOME VINTAGE (SF Table 30, MH Table 18)
+############################################################################################################
 item23.dat <- prep.dat7
 
 item23.dat1 <- item23.dat[which(!(is.na(item23.dat$HomeYearBuilt_bins3))),]
@@ -459,9 +465,9 @@ item23.dat1$rvalue.bins.MH[which(item23.dat1$aveRval >= 31)]  <- "R31.R40"
 unique(item23.dat1$rvalue.bins.MH)
 
 
-############################################################################################################
+######################
 # Apply weights
-############################################################################################################
+######################
 item23.dat1$count <- 1
 colnames(item23.dat1)
 
@@ -483,9 +489,9 @@ item23.data <- left_join(item23.data, item23.merge[which(colnames(item23.merge) 
                                                                                        ,"rvalue.bins.MH"
                                                                                        ,"count"
                                                                                        ,"Floor.Type"))])
-############################################################################################################
+######################
 # Weighted - Single Family
-############################################################################################################
+######################
 item23.summary <- proportionRowsAndColumns1(CustomerLevelData     = item23.data
                                             , valueVariable       = 'count'
                                             , columnVariable      = 'HomeYearBuilt_bins3'
@@ -564,9 +570,9 @@ item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Famil
 exportTable(item23.table.SF, "SF", "Table 30"
             , weighted = TRUE)
 
-############################################################################################################
+######################
 # Unweighted - Single Family
-############################################################################################################
+######################
 item23.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item23.data
                                             , valueVariable       = 'count'
                                             , columnVariable      = 'HomeYearBuilt_bins3'
@@ -649,9 +655,9 @@ exportTable(item23.table.SF, "SF", "Table 30"
 
 
 
-############################################################################################################
+######################
 # Weighted - Manufactured
-############################################################################################################
+######################
 item23.summary <- proportionRowsAndColumns1(CustomerLevelData     = item23.data
                                             , valueVariable       = 'count'
                                             , columnVariable      = 'HomeYearBuilt_bins3'
@@ -721,9 +727,9 @@ item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured
 exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
 
 
-############################################################################################################
+######################
 # Unweighted - Manufactured
-############################################################################################################
+######################
 item23.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item23.data
                                             , valueVariable       = 'count'
                                             , columnVariable      = 'HomeYearBuilt_bins3'
@@ -792,3 +798,91 @@ item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured
 #export table to correct workbook using exporting function
 exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+# ITEM 176: DISTRIBUTION OF FLOOR U-VALUE BY STATE (MH Table 19)
+############################################################################################################
+item176.dat1 <- prep.dat7
+
+######################
+# Apply weights
+######################
+item176.dat1$count <- 1
+colnames(item176.dat1)
+
+item176.merge <- left_join(rbsa.dat, item176.dat1)
+item176.merge <- item176.merge[which(!is.na(item176.merge$count)),]
+
+item176.data <- weightedData(unique(item176.merge[which(colnames(item176.merge) %notin% c("aveUval"
+                                                                                          ,"aveRval"
+                                                                                          ,"count"
+                                                                                          ,"Floor.Type"))]))
+item176.data <- left_join(item176.data, item176.merge[which(colnames(item176.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"aveUval"
+                                                                                           ,"aveRval"
+                                                                                           ,"count"
+                                                                                           ,"Floor.Type"))])
+######################
+# Weighted - MH
+######################
+item176.final <- mean_one_group(CustomerLevelData = item176.data
+                                ,valueVariable = 'aveUval'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+
+item176.table.MH <- item176.final[which(item176.final$BuildingType == "Manufactured"),-1]
+item176.table.MH$n[which(item176.table.MH$State == "Region")] <- item176.table.MH$n_h[which(item176.table.MH$State == "Region")]
+#export table to correct workbook using exporting function
+exportTable(item176.table.MH, "MH", "Table 19", weighted = TRUE)
+
+
+######################
+# Unweighted - MH
+######################
+item176.final <- mean_one_group_unweighted(CustomerLevelData = item176.data
+                                           ,valueVariable = 'aveUval'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = "Region")
+
+item176.table.MH <- item176.final[which(item176.final$BuildingType == "Manufactured"),-1]
+#export table to correct workbook using exporting function
+exportTable(item176.table.MH, "MH", "Table 19", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+# ITEM 239: DISTRIBUTION OF FLOOR INSULATION LEVELS BY FLOOR TYPE (MF Table 31)
+############################################################################################################

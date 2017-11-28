@@ -512,3 +512,280 @@ item31.final <- proportions_one_group(CustomerLevelData = item31.data
 item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
                                 , -which(colnames(item31.final) %in% c("BuildingType"))]
 exportTable(item31.final.SF, "SF", "Table 38", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 177: DISTRIBUTION OF CEILING INSULATION (MH TABLE 20)
+#############################################################################################
+item177.dat <- prep.dat7[which(prep.dat7$BuildingType == "Manufactured"),]
+
+#Bin R values -- SF only
+item177.dat$rvalue.bins <- "Unknown"
+item177.dat$rvalue.bins[which(item177.dat$aveRval >= 0  & item177.dat$aveRval < 9) ]  <- "R0.R8"
+item177.dat$rvalue.bins[which(item177.dat$aveRval >= 9  & item177.dat$aveRval < 15)]  <- "R9.R14"
+item177.dat$rvalue.bins[which(item177.dat$aveRval >= 15 & item177.dat$aveRval < 22)]  <- "R15.R21"
+item177.dat$rvalue.bins[which(item177.dat$aveRval >= 22 & item177.dat$aveRval < 31)]  <- "R22.R30"
+item177.dat$rvalue.bins[which(item177.dat$aveRval >= 31)]  <- "R31.R40"
+unique(item177.dat$rvalue.bins)
+
+item177.merge <- left_join(rbsa.dat, item177.dat)
+item177.merge <- item177.merge[which(!is.na(item177.merge$rvalue.bins)),]
+item177.merge <- item177.merge[which(!is.na(item177.merge$HomeYearBuilt_bins2)),]
+
+
+##########################################
+# add pop and sample sizes by strata
+##########################################
+item177.data <- weightedData(item177.merge[-which(colnames(item177.merge) %in% c("Ceiling.Type"
+                                                                                 ,"aveUval"
+                                                                                 ,"aveRval"
+                                                                                 ,"rvalue.bins"))])
+item177.data <- left_join(item177.data, item177.merge[which(colnames(item177.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ceiling.Type"
+                                                                                           ,"aveUval"
+                                                                                           ,"aveRval"
+                                                                                           ,"rvalue.bins"))])
+item177.data$count <- 1
+##############################
+# Weighted Analysis
+##############################
+item177.summary <- proportionRowsAndColumns1(CustomerLevelData     = item177.data
+                                             , valueVariable       = 'count'
+                                             , columnVariable      = 'HomeYearBuilt_bins2'
+                                             , rowVariable         = 'rvalue.bins'
+                                             , aggregateColumnName = "All Housing Vintages"
+)
+item177.summary <- item177.summary[which(item177.summary$rvalue.bins != "Total"),]
+item177.summary <- item177.summary[which(item177.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
+
+## Summary only for "All Vintages"
+item177.all.vintages <- proportions_one_group(item177.data
+                                              ,valueVariable    = "count"
+                                              ,groupingVariable = "rvalue.bins"
+                                              ,total.name       = "All Housing Vintages"
+                                              ,columnName       = "HomeYearBuilt_bins2"
+                                              ,weighted = TRUE
+                                              ,two.prop.total = TRUE)
+item177.all.vintages$rvalue.bins[which(item177.all.vintages$rvalue.bins == "Total")] <- "All Ceilings"
+
+## Summary for only "All Ceilings"
+item177.all.ceilings <-  proportions_one_group(item177.data
+                                               ,valueVariable    = "count"
+                                               ,groupingVariable = "HomeYearBuilt_bins2"
+                                               ,total.name       = "All Ceilings"
+                                               ,columnName       = "rvalue.bins"
+                                               ,weighted = TRUE
+                                               ,two.prop.total = TRUE)
+item177.all.ceilings <-  item177.all.ceilings[which(item177.all.ceilings$HomeYearBuilt_bins2 != "Total"),]
+
+
+#merge together!
+item177.final <- rbind.data.frame(item177.summary
+                                  , item177.all.ceilings
+                                  , item177.all.vintages
+                                  , stringsAsFactors = F)
+
+item177.cast <- dcast(setDT(item177.final),
+                      formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins,
+                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
+                            ,"Housing.Vintage"      = item177.cast$HomeYearBuilt_bins2
+                            ,"Percent.R0.R8"        = item177.cast$w.percent_R0.R8
+                            ,"SE.R0.R8"             = item177.cast$w.SE_R0.R8
+                            ,"n.R0.R8"              = item177.cast$n_R0.R8
+                            ,"Count.R0.R8"          = item177.cast$count_R0.R8
+                            ,"Percent.R9.R14"       = item177.cast$w.percent_R9.R14
+                            ,"SE.R9.R14"            = item177.cast$w.SE_R9.R14
+                            ,"n.R9.R14"             = item177.cast$n_R9.R14
+                            ,"Count.R9.R14"          = item177.cast$count_R9.R14
+                            ,"Percent.R15.R21"      = item177.cast$w.percent_R15.R21
+                            ,"SE.R15.R21"           = item177.cast$w.SE_R15.R21
+                            ,"n.R15.R21"            = item177.cast$n_R15.R21
+                            ,"Count.R15.R21"          = item177.cast$count_R15.R21
+                            ,"Percent.R22.R30"      = item177.cast$w.percent_R22.R30
+                            ,"SE.R22.R30"           = item177.cast$w.SE_R22.R30
+                            ,"n.R22.R30"            = item177.cast$n_R22.R30
+                            ,"Count.R22.R30"          = item177.cast$count_R22.R30
+                            ,"Percent.R31.R40"      = item177.cast$w.percent_R31.R40
+                            ,"SE.R31.R40"           = item177.cast$w.SE_R31.R40
+                            ,"n.R31.R40"            = item177.cast$n_R31.R40
+                            ,"Count.R31.R40"          = item177.cast$count_R31.R40
+                            ,"Percent.All.Ceilings" = item177.cast$`w.percent_All Ceilings`
+                            ,"SE.All.Ceilings"      = item177.cast$`w.SE_All Ceilings`
+                            ,"SampleSize"           = item177.cast$`n_All Ceilings`
+                            ,"Count.All.Ceilings"   = item177.cast$`count_All Ceilings`)
+
+
+
+item177.table.MH <- item177.table[which(item177.table$BuildingType == "Manufactured"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item177.table.MH, "MH", "Table 20", weighted = TRUE)
+
+############################################################################################################
+# Unweighted - Manufactured
+############################################################################################################
+item177.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item177.data
+                                                     , valueVariable       = 'count'
+                                                     , columnVariable      = 'HomeYearBuilt_bins2'
+                                                     , rowVariable         = 'rvalue.bins'
+                                                     , aggregateColumnName = "All Housing Vintages"
+)
+item177.summary <- item177.summary[which(item177.summary$rvalue.bins != "Total"),]
+item177.summary <- item177.summary[which(item177.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
+
+## Summary only for "All Vintages"
+item177.all.vintages <- proportions_one_group(item177.data
+                                              ,valueVariable    = "count"
+                                              ,groupingVariable = "rvalue.bins"
+                                              ,total.name       = "All Housing Vintages"
+                                              ,columnName       = "HomeYearBuilt_bins2"
+                                              ,weighted = TRUE
+                                              ,two.prop.total = FALSE)
+item177.all.vintages$rvalue.bins[which(item177.all.vintages$rvalue.bins == "Total")] <- "All Ceilings"
+
+## Summary for only "All Ceilings"
+item177.all.ceilings <-  proportions_one_group(item177.data
+                                               ,valueVariable    = "count"
+                                               ,groupingVariable = "HomeYearBuilt_bins2"
+                                               ,total.name       = "All Ceilings"
+                                               ,columnName       = "rvalue.bins"
+                                               ,weighted = FALSE
+                                               ,two.prop.total = TRUE)
+item177.all.ceilings <-  item177.all.ceilings[which(item177.all.ceilings$HomeYearBuilt_bins2 != "Total"),]
+
+
+#merge together!
+item177.final <- rbind.data.frame(item177.summary
+                                  , item177.all.ceilings
+                                  , item177.all.vintages
+                                  , stringsAsFactors = F)
+
+item177.cast <- dcast(setDT(item177.final),
+                      formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins,
+                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
+                            ,"Housing.Vintage"      = item177.cast$HomeYearBuilt_bins2
+                            ,"Percent.R0.R8"        = item177.cast$w.percent_R0.R8
+                            ,"SE.R0.R8"             = item177.cast$w.SE_R0.R8
+                            ,"n.R0.R8"              = item177.cast$n_R0.R8
+                            ,"Count.R0.R8"          = item177.cast$count_R0.R8
+                            ,"Percent.R9.R14"       = item177.cast$w.percent_R9.R14
+                            ,"SE.R9.R14"            = item177.cast$w.SE_R9.R14
+                            ,"n.R9.R14"             = item177.cast$n_R9.R14
+                            ,"Count.R9.R14"          = item177.cast$count_R9.R14
+                            ,"Percent.R15.R21"      = item177.cast$w.percent_R15.R21
+                            ,"SE.R15.R21"           = item177.cast$w.SE_R15.R21
+                            ,"n.R15.R21"            = item177.cast$n_R15.R21
+                            ,"Count.R15.R21"          = item177.cast$count_R15.R21
+                            ,"Percent.R22.R30"      = item177.cast$w.percent_R22.R30
+                            ,"SE.R22.R30"           = item177.cast$w.SE_R22.R30
+                            ,"n.R22.R30"            = item177.cast$n_R22.R30
+                            ,"Count.R22.R30"          = item177.cast$count_R22.R30
+                            ,"Percent.R31.R40"      = item177.cast$w.percent_R31.R40
+                            ,"SE.R31.R40"           = item177.cast$w.SE_R31.R40
+                            ,"n.R31.R40"            = item177.cast$n_R31.R40
+                            ,"Count.R31.R40"          = item177.cast$count_R31.R40
+                            ,"Percent.All.Ceilings" = item177.cast$`w.percent_All Ceilings`
+                            ,"SE.All.Ceilings"      = item177.cast$`w.SE_All Ceilings`
+                            ,"SampleSize"           = item177.cast$`n_All Ceilings`
+                            ,"Count.All.Ceilings"   = item177.cast$`count_All Ceilings`)
+
+
+
+item177.table.MH <- item177.table[which(item177.table$BuildingType == "Manufactured"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(item177.table.MH, "MH", "Table 20", weighted = FALSE)
+
+
+
+
+
+
+
+#############################################################################################
+#Item 178: DISTRIBUTION OF CEILING U-VALUE BY STATE (MH TABLE 21)
+#############################################################################################
+item178.dat <- prep.dat7[which(prep.dat7$BuildingType == "Manufactured"),]
+
+#merge weighted u values onto cleaned RBSA data
+item178.merge <- left_join(rbsa.dat, item178.dat)
+item178.merge <- item178.merge[which(!(is.na(item178.merge$aveUval))),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item178.data <- weightedData(item178.merge[-which(colnames(item178.merge) %in% c("Ceiling.Type"
+                                                                                 ,"aveUval"
+                                                                                 ,"aveRval"))])
+item178.data <- left_join(item178.data, item178.merge[which(colnames(item178.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ceiling.Type"
+                                                                                           ,"aveUval"
+                                                                                           ,"aveRval"))])
+
+#######################
+# Weighted Analysis
+#######################
+item178.final <- mean_one_group(item178.data
+                                ,valueVariable = 'aveUval'
+                                ,byVariable = 'State'
+                                ,aggregateRow = 'Region')
+
+item178.final.MH <- item178.final[which(item178.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item178.final) %in% c("BuildingType"))]
+
+exportTable(item178.final.MH, "MH", "Table 21", weighted = TRUE)
+
+
+
+#######################
+# Unweighted Analysis
+#######################
+item178.final <- mean_one_group_unweighted(item178.data
+                                           ,valueVariable = 'aveUval'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = 'Region')
+
+item178.final.MH <- item178.final[which(item178.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item178.final) %in% c("BuildingType"))]
+
+exportTable(item178.final.MH, "MH", "Table 21", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 237: DISTRIBUTION OF CEILING INSULATION BY CEILING TYPE (MF TABLE 29)
+#############################################################################################
+
