@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 # Mechanical
@@ -35,11 +46,8 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 item62.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
                                                                    ,"Generic"
                                                                    ,"System.Type"
-                                                                   ,""
-                                                                   ,""
-                                                                   ,""
-                                                                   ,""
-                                                                   ,""
-                                                                   ,""
-                                                                   ,""))]
-item62.dat$count <- 1
+                                                                   ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                   ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                   ,"MECH_TrueFLow_NSOP"
+                                                                   ,"MECH_TrueFLow_TFSOP"))]
+item62.dat1 <- left_join(rbsa.dat, item62.dat)

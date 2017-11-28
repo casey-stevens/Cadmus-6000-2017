@@ -620,8 +620,8 @@ proportions_one_group <- function(CustomerLevelData
                                        ,w.percent      = sum(w.percent)
                                        ,w.SE           = NA
                                        ,count          = sum(count, na.rm = T)
-                                       ,n              = sum((n), na.rm = T)
-                                       ,N              = sum((N), na.rm = T)), stringsAsFactors = F) 
+                                       ,n              = sum(unique(n), na.rm = T)
+                                       ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
