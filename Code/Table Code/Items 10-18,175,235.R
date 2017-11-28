@@ -2509,3 +2509,4 @@ exportTable(item175.table.MH, "MH", "Table 17", weighted = FALSE)
 #############################################################################################
 # Item 235: DISTRIBUTION OF WALL INSULATION BY WALL TYPE  (MF table 27)
 #############################################################################################
+item235.dat <- prep.dat7[which(prep.dat7$BuildingType == "Multifamily"),]

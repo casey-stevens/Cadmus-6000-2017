@@ -108,11 +108,11 @@ item35.windows2 <- summarise(group_by(item35.windows1, CK_Cadmus_ID)
 #FOR SINGLE FAMILY
 #############################################################################################
 
-floor.dat <- item35.ENV[which(!(is.na(item35.ENV$Floor_Area))),]
+floor.dat <- item35.ENV#[which(!(is.na(item35.ENV$Floor_Area))),]
 length(unique(floor.dat$CK_Cadmus_ID)) 
 
 #convert to numeric
-floor.dat$Floor_Area <- as.numeric(as.character(floor.dat$Floor_Area))
+floor.dat$Floor_Area <- as.numeric(as.character(floor.dat$Conditioned.Area))
 
 #keep only Floor area greater than zero
 floor.dat1 <- floor.dat[which(floor.dat$Floor_Area > 0),]
@@ -123,7 +123,7 @@ floor.dat2 <- floor.dat1[which(floor.dat1$BuildingType == "Single Family"),]
 #summarize data by cadmus ID and building type
 floor.sum <- summarise(group_by(floor.dat2, CK_Cadmus_ID)
                        ,BasementInd = sum(unique(BasementInd))
-                       ,FloorArea_Site = sum(Floor_Area))
+                       ,FloorArea_Site = unique(Floor_Area))
 
 
 ##########################################
