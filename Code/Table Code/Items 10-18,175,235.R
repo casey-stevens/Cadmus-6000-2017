@@ -67,7 +67,11 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Wall.Exterior.Insulation.Condition.2"
                                                                , "Wall.Exterior.Insulation.Type.3"                                                  
                                                                , "Wall.Exterior.Insulation.Thickness.3"
-                                                               , "Wall.Exterior.Insulation.Condition.3"))]
+                                                               , "Wall.Exterior.Insulation.Condition.3"
+                                                             ,"Furred.Wall?"
+                                                             ,"Furred.Wall.Insulated?"
+                                                             ,"Furred.Wall.Insulation.Type"                                   
+                                                             ,"Furred.Wall.Insulation.Thickness" ))]
 prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
 prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
 prep.dat0.1 <- prep.dat0[which(!(is.na(prep.dat0$Wall.Area))),]
@@ -98,14 +102,14 @@ unique(prep.dat1.2$Wall.Cavity.Insulation.Condition.3)
 unique(prep.dat1.2$Wall.Exterior.Insulation.Condition.1)
 unique(prep.dat1.2$Wall.Exterior.Insulation.Condition.2)
 unique(prep.dat1.2$Wall.Exterior.Insulation.Condition.3)
-
+unique(prep.dat1.2$Wall.Type)
 
 #remove unneccesary wall types
-prep.dat2 <- prep.dat1.2[which(prep.dat1.2$Wall.Type %notin% c("Masonry","Masonry (Basement)","Log","Adiabatic", "Knee Wall", "Other", "ICF", "SIP")),]
+prep.dat2 <- prep.dat1.2[which(prep.dat1.2$Wall.Type %notin% c("Adiabatic", "Knee Wall")),] #"Masonry","Masonry (Basement)","ICF","Other","SIP","Log"
 unique(prep.dat2$Wall.Type)
 
 #create "Alternative" category
-prep.dat2$Wall.Type[grep("alternative",prep.dat2$Wall.Type,ignore.case = T)] <- "Alternative"
+prep.dat2$Wall.Type[grep("alternative|other",prep.dat2$Wall.Type,ignore.case = T)] <- "Alternative"
 length(unique(prep.dat2$CK_Cadmus_ID))
 unique(prep.dat2$Wall.Type)
 
@@ -400,6 +404,7 @@ prep.dat4.9 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               ,prep.condition.sub2
                                 , stringsAsFactors = F)
+prep.dat4.9$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat4.9$Wall.Cavity.Insulation.Condition.1))] <- 1
 prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Type)),]
 
 ###########################
@@ -428,7 +433,7 @@ prep.dat5$uvalue    <- as.numeric(as.character(prep.dat5$uvalue))
 prep.dat5$Wall.Area <- as.numeric(as.character(prep.dat5$Wall.Area))
 
 #weight the u factor per home -- where weights are the wall area within home
-weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Wall.Type)
+weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
                        ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 

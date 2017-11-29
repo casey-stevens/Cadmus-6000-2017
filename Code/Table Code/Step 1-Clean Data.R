@@ -43,6 +43,7 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
                             , "ZIP"             = one.line.dat$Zip
                             , "Conditioned.Area"   = one.line.dat$Conditioned.Area
                             , "Conditioned.Volume" = one.line.dat$Conditioned.Volume
+                            , "Cooling.Zone"       = one.line.dat$Cooling.Zone
                             , stringsAsFactors  = F)
 site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID

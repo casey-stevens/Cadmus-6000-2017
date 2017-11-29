@@ -196,6 +196,7 @@ weightedData <- function(itemData){
                             ,"Detailed.Region"
                             ,"Conditioned.Area"
                             ,"Conditioned.Volume"
+                            ,"Cooling.Zone"
                             ,"HomeYearBuilt_bins1"
                             ,"HomeYearBuilt_bins2"
                             ,"HomeYearBuilt_bins3"
