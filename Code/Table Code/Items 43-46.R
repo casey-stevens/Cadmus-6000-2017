@@ -17,10 +17,11 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
+"%notin%" <- Negate("%in%")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
@@ -66,11 +67,12 @@ item43.dat5 <- item43.dat4[which(item43.dat4$Primary_Secondary == "Primary Heati
 length(unique(item43.dat5$CK_Cadmus_ID))
 item43.dat5$count <- 1
 
+item43.dat6 <- item43.dat5[which(!is.na(item43.dat5$Heating_Type)),]
 
-item43.data <- weightedData(item43.dat5[-which(colnames(item43.dat5) %in% c("Heating_Type"
+item43.data <- weightedData(item43.dat6[-which(colnames(item43.dat6) %in% c("Heating_Type"
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
-item43.data <- left_join(item43.data, item43.dat5[which(colnames(item43.dat5) %in% c("CK_Cadmus_ID"
+item43.data <- left_join(item43.data, item43.dat6[which(colnames(item43.dat6) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Primary_Secondary"
                                                                                      ,"count"))])
@@ -135,18 +137,15 @@ unique(item44.dat2$Primary.Heating.System)
 item44.dat2$Heating.System.Ind <- item44.dat2$Primary.Heating.System
 item44.dat2$Heating.System.Ind[which(item44.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
 item44.dat2$Heating.System.Ind[which(item44.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
-item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Natural gas")] <- "Natural Gas"
-
+item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Natural gas")]    <- "Natural Gas"
+item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
+item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Wood (cord)")]    <- "Wood"
+unique(item44.dat2$Heating.Fuel)
 
 item44.dat3 <- unique(data.frame("CK_Cadmus_ID" = item44.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item44.dat2$Generic
                                  ,"Heating_Fuel" = item44.dat2$Heating.Fuel
                                  ,"Primary_Secondary" = item44.dat2$Heating.System.Ind))
-
-### Clean heating type
-unique(item44.dat3$Heating_Type)
-item44.dat3$Heating_Type[grep("geo|Geo|GEO", item44.dat3$Heating_Type)] <- "Geothermal Heat Pump"
-
 
 item44.dat4 <- left_join(rbsa.dat, item44.dat3, by = "CK_Cadmus_ID")
 
@@ -154,11 +153,22 @@ item44.dat5 <- item44.dat4[which(item44.dat4$Primary_Secondary == "Primary Heati
 length(unique(item44.dat5$CK_Cadmus_ID))
 item44.dat5$count <- 1
 
+unique(item44.dat5$Heating_Fuel)
+item44.dat5$Heating_Fuel[which(item44.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
+item44.dat5$Heating_Fuel[which(item44.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
+
 # Remove entries with missing fuel types
 item44.dat6 <- item44.dat5 %>%
                 filter(!is.na(Heating_Fuel))
+
+unique(item44.dat6$Heating_Fuel)
+
 item44.dat7 <- item44.dat6 %>%
-  filter(Heating_Fuel != "Unknown")
+  filter(Heating_Fuel %notin% c("Unknown"
+                                , "Can't Determine"
+                                , "Hydronic Gas-Water Fan Heater"
+                                , "Hot Water from Water Heater"
+                                , "Other"))
 
 
 item44.data <- weightedData(item44.dat7[-which(colnames(item44.dat7) %in% c("Heating_Type"
@@ -289,15 +299,10 @@ item45.dat3 <- unique(data.frame("CK_Cadmus_ID" = item45.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item45.dat2$Generic
                                  ,"Primary_Secondary" = item45.dat2$Heating.System.Ind))
 
-### Clean heating type
-unique(item45.dat3$Heating_Type)
-item45.dat3$Heating_Type[grep("geo|Geo|GEO", item45.dat3$Heating_Type)] <- "Geothermal Heat Pump"
-
-
 item45.dat4 <- left_join(rbsa.dat, item45.dat3, by = "CK_Cadmus_ID")
 
 item45.dat5 <- item45.dat4[which(item45.dat4$Primary_Secondary == "Secondary Heating System"),]
-length(unique(item45.dat5$CK_Cadmus_ID)) #311
+length(unique(item45.dat5$CK_Cadmus_ID))
 item45.dat5$count <- 1
 
 
@@ -374,7 +379,9 @@ unique(item46.dat2$Primary.Heating.System)
 item46.dat2$Heating.System.Ind <- item46.dat2$Primary.Heating.System
 item46.dat2$Heating.System.Ind[which(item46.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
 item46.dat2$Heating.System.Ind[which(item46.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
-item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural gas")] <- "Natural Gas"
+item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural gas")]       <- "Natural Gas"
+item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural Gas")]       <- "Gas"
+item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Fuel oil/kerosene")] <- "Oil"
 
 
 item46.dat3 <- unique(data.frame("CK_Cadmus_ID" = item46.dat2$CK_Cadmus_ID
@@ -382,22 +389,25 @@ item46.dat3 <- unique(data.frame("CK_Cadmus_ID" = item46.dat2$CK_Cadmus_ID
                                  ,"Heating_Fuel" = item46.dat2$Heating.Fuel
                                  ,"Primary_Secondary" = item46.dat2$Heating.System.Ind))
 
-### Clean heating type
+# Check heating type
 unique(item46.dat3$Heating_Type)
-item46.dat3$Heating_Type[grep("geo|Geo|GEO", item46.dat3$Heating_Type)] <- "Geothermal Heat Pump"
-
 
 item46.dat4 <- left_join(rbsa.dat, item46.dat3, by = "CK_Cadmus_ID")
 
 item46.dat5 <- item46.dat4[which(item46.dat4$Primary_Secondary == "Secondary Heating System"),]
-length(unique(item46.dat5$CK_Cadmus_ID)) #311
+length(unique(item46.dat5$CK_Cadmus_ID))
 item46.dat5$count <- 1
 
 # Remove entries with missing fuel types
+unique(item46.dat5$Heating_Fuel)
 item46.dat6 <- item46.dat5 %>%
   filter(!is.na(Heating_Fuel))
 item46.dat7 <- item46.dat6 %>%
-  filter(Heating_Fuel != "Unknown")
+  filter(Heating_Fuel %notin% c("Unknown"
+                                , "Can't Determine"
+                                , "Hydronic Gas-Water Fan Heater"
+                                , "Hot Water from Water Heater"
+                                , "Other"))
 
 
 item46.data <- weightedData(item46.dat7[-which(colnames(item46.dat7) %in% c("Heating_Type"

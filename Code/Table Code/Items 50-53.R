@@ -133,7 +133,7 @@ item50.table <- data.frame("BuildingType"       = item50.final$BuildingType
 
 #subset to only the relevant building types for this item
 item50.table.SF <- item50.table[which(item50.table$BuildingType == "Single Family"),-which(colnames(item50.table) %in% c("BuildingType"))]
-item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured"), -which(colnames(item50.table) %in% c("BuildingType"))]
+item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
 
 
 exportTable(item50.table.SF, "SF", "Table 57", weighted = TRUE)

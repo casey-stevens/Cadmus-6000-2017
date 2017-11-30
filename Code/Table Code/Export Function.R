@@ -25,20 +25,20 @@ exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weig
     }else{
       library(openxlsx)
       Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-      workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY.xlsx", sep = ""), sep="/"))
+      workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY 2017 11 29.xlsx", sep = ""), sep="/"))
       
       writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 40)
       
-      saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY.xlsx", sep = ""), sep="/"), overwrite = T)
+      saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY 2017 11 29.xlsx", sep = ""), sep="/"), overwrite = T)
     }
   }else{
     library(openxlsx)
     Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-    workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY.xlsx", sep = ""), sep="/"))
+    workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY 2017 11 29.xlsx", sep = ""), sep="/"))
     
     writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 20)
     
-    saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY.xlsx", sep = ""), sep="/"), overwrite = T)
+    saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY 2017 11 29.xlsx", sep = ""), sep="/"), overwrite = T)
   }
   
   
