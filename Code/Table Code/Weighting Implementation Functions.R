@@ -40,11 +40,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                               ,strataMean = mean(get(valueVariable), na.rm = T)
                               ,strataSD   = sd(get(valueVariable), na.rm = T)
                               ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    PopandSampleSizes <- data.frame(ddply(CustomerLevelData
+    Popandns <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory"), summarise
                                           ,n_h        = unique(n.h)
                                           ,N_h        = unique(N.h)), stringsAsFactors = F)
-    PopandSampleSizes <- data.frame(ddply(PopandSampleSizes
+    Popandns <- data.frame(ddply(Popandns
                                           , c("BuildingType"), summarise
                                           ,n_h        = sum(n_h)
                                           ,N_h        = sum(N_h)), stringsAsFactors = F)
@@ -52,13 +52,13 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     
     #QAQC
     stopifnot(item.strata$n_hj == item.strata$n_h)
-    item.strata <- left_join(item.strata, PopandSampleSizes)
+    item.strata <- left_join(item.strata, Popandns)
   }else {
-    PopandSampleSizes0 <- data.frame(ddply(CustomerLevelData
+    Popandns0 <- data.frame(ddply(CustomerLevelData
                                     , c("BuildingType", "State", "Region", "Territory"), summarise
                                     ,n_h        = unique(n.h)
                                     ,N_h        = unique(N.h)), stringsAsFactors = F)
-    PopandSampleSizes <- data.frame(ddply(PopandSampleSizes0
+    Popandns <- data.frame(ddply(Popandns0
                                           , c("BuildingType"), summarise
                                           ,n_h        = sum(n_h)
                                           ,N_h        = sum(N_h)), stringsAsFactors = F)
@@ -70,7 +70,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                     ,strataSD   = sd(get(valueVariable), na.rm = T)## needs updated per cluster SE
                                     ,count_hj   = sum(count)
                                     ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata <- left_join(DomainCounts, PopandSampleSizes) #replaced item.strata.group with DomainCounts
+    item.strata <- left_join(DomainCounts, Popandns) #replaced item.strata.group with DomainCounts
     
     #QAQC
     stopifnot(item.strata$n <= item.strata$n_h)
@@ -655,13 +655,13 @@ proportions_one_group <- function(CustomerLevelData
     ###### For Unweighted ###########
   } else {
     item.tmp1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
-                                  ,SampleSize = length(unique(CK_Cadmus_ID))
+                                  ,n = length(unique(CK_Cadmus_ID))
                                   ,Count       = sum(get(valueVariable))), stringsAsFactors = F)
     
     
     item.tmp2 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
                                   ,Total = "Total"
-                                  ,SampleSize = length(unique(CK_Cadmus_ID))
+                                  ,n = length(unique(CK_Cadmus_ID))
                                   ,Count   = sum(get(valueVariable))), stringsAsFactors = F)
     
     # Convert column name
@@ -716,13 +716,13 @@ proportions_one_group <- function(CustomerLevelData
         item.final$Percent[which(is.na(item.final$Percent))] <- item.final$Count[which(is.na(item.final$Percent))] / item.final$Total.Count[which(is.na(item.final$Percent))]
         
       }else {
-        item.final$Percent <- item.final$Count / item.final$SampleSize
+        item.final$Percent <- item.final$Count / item.final$n
       }
     }else{
       item.final$Percent <- item.final$Count / item.final$Total.Count
     }
     
-    item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSize)
+    item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$n)
     
     item.final <- item.final[which(colnames(item.final) != "Total.Count")]
     return(item.final)
@@ -984,13 +984,13 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
   #count and sample size by building types and both grouping variables
   item.unweighted1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", columnVariable, rowVariable), summarise
                                        ,Count      = sum(get(valueVariable))
-                                       ,SampleSize = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+                                       ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
   
   #count and sample size by building type and column variable (total across rows)
   item.unweighted2 <- data.frame(ddply(CustomerLevelData, c("BuildingType", columnVariable), summarise
                                        ,rowTotal = "Total"
                                        ,Count = sum(get(valueVariable))
-                                       ,SampleSize = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+                                       ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
   #rename column
   item.unweighted2 <- ConvertColName(item.unweighted2,'rowTotal',rowVariable)
   
@@ -998,7 +998,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
   item.unweighted3 <- data.frame(ddply(CustomerLevelData, c("BuildingType", rowVariable), summarise
                                        ,colTotal = aggregateColumnName
                                        ,Count = sum(get(valueVariable))
-                                       ,SampleSize = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+                                       ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
   #rename column
   item.unweighted3 <- ConvertColName(item.unweighted3,'colTotal',columnVariable)
   
@@ -1007,7 +1007,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
                                        ,colTotal = aggregateColumnName
                                        ,rowTotal = "Total"
                                        ,Count = sum(get(valueVariable))
-                                       ,SampleSize = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+                                       ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
   #rename columns
   item.unweighted4 <- ConvertColName(item.unweighted4,'rowTotal',rowVariable)
   item.unweighted4 <- ConvertColName(item.unweighted4,'colTotal',columnVariable)
@@ -1038,7 +1038,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
     item.final$Percent <- item.final$Count / item.final$Total.Count
   }
   
-  item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSize)
+  item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$n)
   
   item.final <- item.final[which(colnames(item.final) != "Total.Count")]
   
@@ -1284,13 +1284,13 @@ proportions_one_group_MF <- function(CustomerLevelData
     ###### For Unweighted ###########
   } else {
     item.tmp1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
-                                  ,SampleSize = length(unique(CK_Cadmus_ID))
+                                  ,n = length(unique(CK_Cadmus_ID))
                                   ,Count       = sum(get(valueVariable))), stringsAsFactors = F)
     
     
     item.tmp2 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
                                   ,Total = "Total"
-                                  ,SampleSize = length(unique(CK_Cadmus_ID))
+                                  ,n = length(unique(CK_Cadmus_ID))
                                   ,Count   = sum(get(valueVariable))), stringsAsFactors = F)
     
     # Convert column name
@@ -1338,13 +1338,13 @@ proportions_one_group_MF <- function(CustomerLevelData
         item.final$Percent[which(is.na(item.final$Percent))] <- item.final$Count[which(is.na(item.final$Percent))] / item.final$Total.Count[which(is.na(item.final$Percent))]
         
       }else{
-        item.final$Percent <- item.final$Count / item.final$SampleSize
+        item.final$Percent <- item.final$Count / item.final$n
       }
     }else{
       item.final$Percent <- item.final$Count / item.final$Total.Count
     }
     
-    item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$SampleSize)
+    item.final$SE      <- sqrt(item.final$Percent * (1 - item.final$Percent) / item.final$n)
     
     item.final <- item.final[which(colnames(item.final) != "Total.Count")]
     return(item.final)
