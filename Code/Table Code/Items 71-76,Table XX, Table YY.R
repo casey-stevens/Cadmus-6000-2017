@@ -25,10 +25,10 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -46,7 +46,7 @@ item71.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item71.dat$count <- 1
 
 item71.dat0 <- item71.dat[which(item71.dat$Lamp.Category == "Compact Fluorescent"),]
-item71.dat0.1 <- item71.dat0[which(!(item71.dat0$Clean.Room %in% c("Basement", "Storage"))),]
+item71.dat0.1 <- item71.dat0[which(!(item71.dat0$Clean.Room %in% c("Storage"))),]
 
 item71.dat1 <- left_join(item71.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
@@ -65,7 +65,7 @@ item71.customer <- summarise(group_by(item71.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item71.merge <- left_join(rbsa.dat, item71.customer)
-item71.merge <- item71.merge[which(!is.na(item71.merge$Lamps)),]
+item71.merge$Lamps[which(is.na(item71.merge$Lamps))] <- 0
 
 
 ################################################
@@ -113,6 +113,85 @@ exportTable(item71.final.MH, "MH", "Table 57", weighted = FALSE)
 
 
 
+#############################################################################################
+#Table XX: AVERAGE NUMBER OF LEDS INSTALLED PER HOME BY STATE (SF table 78, MH table 57)
+#############################################################################################
+#subset to columns needed for analysis
+tableXX.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Fixture.Qty"
+                                                               ,"LIGHTING_BulbsPerFixture"
+                                                               ,"CK_SiteID"
+                                                               ,"Lamp.Category"
+                                                               ,"Clean.Room"))]
+tableXX.dat$count <- 1
+
+tableXX.dat0 <- tableXX.dat[which(tableXX.dat$Lamp.Category == "Light Emitting Diode"),]
+tableXX.dat0.1 <- tableXX.dat0[which(!(tableXX.dat0$Clean.Room %in% c("Storage"))),]
+
+tableXX.dat1 <- left_join(tableXX.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
+
+tableXX.dat2 <- tableXX.dat1[grep("SITE", tableXX.dat1$CK_SiteID),]
+
+#clean fixture and bulbs per fixture
+tableXX.dat2$Fixture.Qty <- as.numeric(as.character(tableXX.dat2$Fixture.Qty))
+tableXX.dat2$LIGHTING_BulbsPerFixture <- as.numeric(as.character(tableXX.dat2$LIGHTING_BulbsPerFixture))
+
+tableXX.dat2$Lamps <- tableXX.dat2$Fixture.Qty * tableXX.dat2$LIGHTING_BulbsPerFixture
+unique(tableXX.dat2$Lamps)
+
+tableXX.dat3 <- tableXX.dat2[which(!(is.na(tableXX.dat2$Lamps))),]
+
+tableXX.customer <- summarise(group_by(tableXX.dat3, CK_Cadmus_ID)
+                             ,Lamps = sum(Lamps))
+
+tableXX.merge <- left_join(rbsa.dat, tableXX.customer)
+tableXX.merge$Lamps[which(is.na(tableXX.merge$Lamps))] <- 0
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableXX.data <- weightedData(tableXX.merge[-which(colnames(tableXX.merge) %in% c("Lamps"))])
+tableXX.data <- left_join(tableXX.data, tableXX.merge[which(colnames(tableXX.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Lamps"))])
+tableXX.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableXX.final <- mean_one_group(CustomerLevelData = tableXX.data
+                               ,valueVariable    = 'Lamps'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
+
+tableXX.final.SF <- tableXX.final[which(tableXX.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableXX.final) %in% c("BuildingType"))]
+tableXX.final.MH <- tableXX.final[which(tableXX.final$BuildingType == "Manufactured")
+                                ,-which(colnames(tableXX.final) %in% c("BuildingType"))]
+
+exportTable(tableXX.final.SF, "SF", "Table XX", weighted = TRUE)
+exportTable(tableXX.final.MH, "MH", "Table XX", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableXX.final <- mean_one_group_unweighted(CustomerLevelData = tableXX.data
+                                          ,valueVariable    = 'Lamps'
+                                          ,byVariable       = 'State'
+                                          ,aggregateRow     = 'Region')
+
+tableXX.final.SF <- tableXX.final[which(tableXX.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableXX.final) %in% c("BuildingType"))]
+tableXX.final.MH <- tableXX.final[which(tableXX.final$BuildingType == "Manufactured")
+                                ,-which(colnames(tableXX.final) %in% c("BuildingType"))]
+
+exportTable(tableXX.final.SF, "SF", "Table XX", weighted = FALSE)
+exportTable(tableXX.final.MH, "MH", "Table XX", weighted = FALSE)
+
+
+
+
 
 
 #############################################################################################
@@ -128,7 +207,7 @@ item72.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item72.dat$count <- 1
 
 item72.dat0 <- item72.dat[which(item72.dat$Lamp.Category == "Halogen"),]
-item72.dat0.1 <- item72.dat0[which(!(item72.dat0$Clean.Room %in% c("Basement", "Storage"))),]
+item72.dat0.1 <- item72.dat0[which(!(item72.dat0$Clean.Room %in% c("Storage"))),]
 
 item72.dat1 <- left_join(item72.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
@@ -148,7 +227,7 @@ item72.customer <- summarise(group_by(item72.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item72.merge <- left_join(rbsa.dat, item72.customer)
-item72.merge <- item72.merge[which(!is.na(item72.merge$Lamps)),]
+item72.merge$Lamps[which(is.na(item72.merge$Lamps))] <- 0 
 
 
 ################################################
@@ -214,7 +293,7 @@ item73.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item73.dat$count <- 1
 
 item73.dat0 <- item73.dat[which(item73.dat$Lamp.Category == "Incandescent"),]
-item73.dat0.1 <- item73.dat0[which(!(item73.dat0$Clean.Room %in% c("Basement", "Storage"))),]
+item73.dat0.1 <- item73.dat0[which(!(item73.dat0$Clean.Room %in% c("Storage"))),]
 
 item73.dat1 <- left_join(item73.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
@@ -235,7 +314,7 @@ item73.customer <- summarise(group_by(item73.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item73.merge <- left_join(rbsa.dat, item73.customer)
-item73.merge <- item73.merge[which(!is.na(item73.merge$Lamps)),]
+item73.merge$Lamps[which(is.na(item73.merge$Lamps))] <- 0 
 
 
 ################################################
@@ -298,7 +377,7 @@ item74.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item74.dat$count <- 1
 
 item74.dat0 <- item74.dat[which(item74.dat$Lamp.Category == "Linear Fluorescent"),]
-item74.dat0.1 <- item74.dat0[which(!(item74.dat0$Clean.Room %in% c("Basement", "Storage"))),]
+item74.dat0.1 <- item74.dat0[which(!(item74.dat0$Clean.Room %in% c("Storage"))),]
 
 item74.dat1 <- left_join(item74.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
@@ -319,7 +398,7 @@ item74.customer <- summarise(group_by(item74.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item74.merge <- left_join(rbsa.dat, item74.customer)
-item74.merge <- item74.merge[which(!is.na(item74.merge$Lamps)),]
+item74.merge$Lamps[which(is.na(item74.merge$Lamps))] <- 0 
 
 
 ################################################
@@ -386,7 +465,7 @@ item75.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item75.dat$count <- 1
 
 item75.dat0 <- item75.dat[which(item75.dat$Lamp.Category == "Other"),]
-item75.dat0.1 <- item75.dat0[which(!(item75.dat0$Clean.Room %in% c("Basement", "Storage"))),]
+item75.dat0.1 <- item75.dat0[which(!(item75.dat0$Clean.Room %in% c("Storage"))),]
 
 item75.dat1 <- left_join(item75.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
@@ -407,7 +486,7 @@ item75.customer <- summarise(group_by(item75.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item75.merge <- left_join(rbsa.dat, item75.customer)
-item75.merge <- item75.merge[which(!is.na(item75.merge$Lamps)),]
+item75.merge$Lamps[which(is.na(item75.merge$Lamps))] <- 0 
 
 
 ################################################
@@ -475,7 +554,7 @@ item76.dat0.1 <- item76.dat0[which(item76.dat$Lamp.Category == "Compact Fluoresc
 
 item76.dat1 <- left_join(item76.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
-# item76.dat2 <- item76.dat1[-grep("BLDG", item76.dat1$CK_SiteID),]
+# item76.dat2 <- item76.dat1[grep("SITE", item76.dat1$CK_SiteID),]
 item76.dat2 <- item76.dat1
 
 #clean fixture and bulbs per fixture
@@ -492,7 +571,7 @@ item76.customer <- summarise(group_by(item76.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item76.merge <- left_join(rbsa.dat, item76.customer)
-item76.merge <- item76.merge[which(!is.na(item76.merge$Lamps)),]
+item76.merge$Lamps[which(is.na(item76.merge$Lamps))] <- 0 
 
 
 ################################################
@@ -535,3 +614,88 @@ item76.final.MH <- item76.final[which(item76.final$BuildingType == "Manufactured
 
 exportTable(item76.final.SF, "SF", "Table 83", weighted = FALSE)
 exportTable(item76.final.MH, "MH", "Table 62", weighted = FALSE)
+
+
+
+
+
+
+
+#############################################################################################
+#Table YY: Average number of Stored LED lamps by state
+#############################################################################################
+#subset to columns needed for analysis
+tableYY.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Fixture.Qty"
+                                                               ,"LIGHTING_BulbsPerFixture"
+                                                               ,"CK_SiteID"
+                                                               ,"Lamp.Category"
+                                                               ,"Clean.Room"))]
+tableYY.dat$count <- 1
+
+tableYY.dat0 <- tableYY.dat[which(tableYY.dat$Clean.Room == "Storage"),]
+tableYY.dat0.1 <- tableYY.dat0[which(tableYY.dat$Lamp.Category == "Light Emitting Diode"),]
+
+tableYY.dat1 <- left_join(tableYY.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
+
+# tableYY.dat2 <- tableYY.dat1[grep("SITE", tableYY.dat1$CK_SiteID),]
+tableYY.dat2 <- tableYY.dat1
+
+#clean fixture and bulbs per fixture
+tableYY.dat2$Fixture.Qty <- as.numeric(as.character(tableYY.dat2$Fixture.Qty))
+tableYY.dat2$LIGHTING_BulbsPerFixture <- as.numeric(as.character(tableYY.dat2$LIGHTING_BulbsPerFixture))
+
+tableYY.dat2$Lamps <- tableYY.dat2$Fixture.Qty * tableYY.dat2$LIGHTING_BulbsPerFixture
+unique(tableYY.dat2$Lamps)
+
+tableYY.dat3 <- tableYY.dat2[which(!(is.na(tableYY.dat2$Lamps))),]
+
+
+tableYY.customer <- summarise(group_by(tableYY.dat3, CK_Cadmus_ID)
+                             ,Lamps = sum(Lamps))
+
+tableYY.merge <- left_join(rbsa.dat, tableYY.customer)
+tableYY.merge$Lamps[which(is.na(tableYY.merge$Lamps))] <- 0 
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableYY.data <- weightedData(tableYY.merge[-which(colnames(tableYY.merge) %in% c("Lamps"))])
+tableYY.data <- left_join(tableYY.data, tableYY.merge[which(colnames(tableYY.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Lamps"))])
+tableYY.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableYY.final <- mean_one_group(CustomerLevelData = tableYY.data
+                               ,valueVariable    = 'Lamps'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
+
+tableYY.final.SF <- tableYY.final[which(tableYY.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableYY.final) %in% c("BuildingType"))]
+tableYY.final.MH <- tableYY.final[which(tableYY.final$BuildingType == "Manufactured")
+                                ,-which(colnames(tableYY.final) %in% c("BuildingType"))]
+
+exportTable(tableYY.final.SF, "SF", "Table YY", weighted = TRUE)
+exportTable(tableYY.final.MH, "MH", "Table YY", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableYY.final <- mean_one_group_unweighted(CustomerLevelData = tableYY.data
+                                          ,valueVariable    = 'Lamps'
+                                          ,byVariable       = 'State'
+                                          ,aggregateRow     = 'Region')
+
+tableYY.final.SF <- tableYY.final[which(tableYY.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableYY.final) %in% c("BuildingType"))]
+tableYY.final.MH <- tableYY.final[which(tableYY.final$BuildingType == "Manufactured")
+                                ,-which(colnames(tableYY.final) %in% c("BuildingType"))]
+
+exportTable(tableYY.final.SF, "SF", "Table YY", weighted = FALSE)
+exportTable(tableYY.final.MH, "MH", "Table YY", weighted = FALSE)
+

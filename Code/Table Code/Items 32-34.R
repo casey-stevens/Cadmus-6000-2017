@@ -46,29 +46,37 @@ item32.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cad
                                                                          ,"Frame./.Body.Type"
                                                                          ,"Glazing.Type"))]
 item32.dat1 <- left_join(rbsa.dat, item32.dat, by = "CK_Cadmus_ID")
-length(unique(item32.dat1$CK_Cadmus_ID)) #601 yay!
+length(unique(item32.dat1$CK_Cadmus_ID)) 
 
 #subset to only doors
 item32.dat2 <- item32.dat1[which(item32.dat1$Type == "Door"),]
 
 #clean up frame/body type
 item32.dat2$Frame.Type <- trimws(item32.dat2$`Frame./.Body.Type`)
-item32.dat2$Frame.Type[grep("Wood", item32.dat2$Frame.Type)] <- "Wood"
+item32.dat2$Frame.Type[grep("wood", item32.dat2$Frame.Type, ignore.case = T)] <- "Wood"
+item32.dat2$Frame.Type[grep("metal|aluminum", item32.dat2$Frame.Type, ignore.case = T)] <- "Metal"
+item32.dat2$Frame.Type[grep("glass", item32.dat2$Frame.Type, ignore.case = T)] <- "Glass"
+item32.dat2$Frame.Type[grep("plastic|other", item32.dat2$Frame.Type, ignore.case = T)] <- "Other"
+item32.dat2$Frame.Type[grep("vinyl", item32.dat2$Frame.Type, ignore.case = T)] <- "Vinyl"
+unique(item32.dat2$Frame.Type)
 
 #clean up glazing types
 item32.dat2$Glazing <- trimws(item32.dat2$Glazing.Type)
+unique(item32.dat2$Glazing)
 item32.dat2$Glazing[which(item32.dat2$Glazing %in% c("Decorative window (arch, etc.)"
                                                      ,"Half window"
                                                      ,"Double"
-                                                     ,"French door"
-                                                     ,"Single"))] <- "Glazed"
+                                                     ,"Single"))] <- "with Glazing"
 item32.dat2$Framing.Categories <- paste(item32.dat2$Frame.Type, item32.dat2$Glazing, sep = " ")
+unique(item32.dat2$Framing.Categories)
 
 item32.dat2$count <- 1
 item32.dat2 <- item32.dat2[-grep("Unknown|NA", item32.dat2$Framing.Categories),]
 
-item32.dat2$Framing.Categories <- gsub("glass", "Glass", item32.dat2$Framing.Categories)
-item32.dat2$Framing.Categories <- gsub("None", "Other", item32.dat2$Framing.Categories)
+item32.dat2$Framing.Categories <- gsub(" None", "", item32.dat2$Framing.Categories)
+item32.dat2$Framing.Categories <- gsub("Metal with Glazing", "Metal Insulated", item32.dat2$Framing.Categories)
+item32.dat2$Framing.Categories <- gsub("Glass with Glazing|Glass Other", "Glass", item32.dat2$Framing.Categories)
+unique(item32.dat2$Framing.Categories)
 
 
 item32.data <- weightedData(item32.dat2[-which(colnames(item32.dat2) %in% c("Type"
@@ -347,6 +355,7 @@ item34.data <- left_join(item34.data, item34.merge[which(colnames(item34.merge) 
                                                                                      ,"Frame./.Body.Type"
                                                                                      ,"Glazing.Type"
                                                                                      ,"Ind"))])
+item34.data$Count <- 1
 
 ###############################
 # Weighted Analysis

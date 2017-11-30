@@ -20,7 +20,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
@@ -203,7 +203,7 @@ item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"Percent_Region" = item60.cast$w.percent_Region
                            ,"SE_Region"      = item60.cast$w.SE_Region
                            ,"Count_Region"   = item60.cast$count_Region
-                           # ,"SampleSize"     = item60.cast$SampleSize_Region
+                           # ,"n"     = item60.cast$n_Region
 )
 
 
@@ -228,7 +228,7 @@ item60.final <- proportions_two_groups_unweighted(CustomerLevelData = item60.dat
 
 item60.cast <- dcast(setDT(item60.final)
                      , formula = BuildingType + UnconditionedBins ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
@@ -248,7 +248,7 @@ item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"Percent_Region" = item60.cast$Percent_Region
                            ,"SE_Region"      = item60.cast$SE_Region
                            ,"Count_Region"   = item60.cast$Count_Region
-                           # ,"SampleSize"     = item60.cast$SampleSize_Region
+                           # ,"n"     = item60.cast$n_Region
 )
 
 

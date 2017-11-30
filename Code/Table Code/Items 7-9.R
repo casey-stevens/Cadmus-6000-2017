@@ -20,7 +20,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 room.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
@@ -217,6 +217,17 @@ item9.dat1 <- item9.dat[which(!is.na(item9.dat$Area)),]
 item9.merge <- left_join(rbsa.dat, item9.dat1)
 item9.merge <- item9.merge[which(!is.na(item9.merge$Area)),]
 
+#clean room types
+unique(item9.merge$Clean.Type)
+item9.merge$Clean.Type[which(item9.merge$Clean.Type %in% c("Attic"
+                                                           ,"Basement"
+                                                           ,"Crawlspace"
+                                                           ,"Crawl Space"
+                                                           ,"Mechanical"
+                                                           ,"Grow Room"))] <- "Other"
+
+unique(item9.merge$Clean.Type)
+
 # apply weights to the subset of the data
 item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("Site_Area"
                                                                            ,"Clean.Type"
@@ -263,7 +274,7 @@ exportTable(item9.final.MH, "MH", "Table 14"
 # Unweighted Analysis
 ################################
 item9.final <- mean_one_group_unweighted(CustomerLevelData = item9.data
-                              , valueVariable = 'Site_Area'
+                              , valueVariable = 'Area'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 

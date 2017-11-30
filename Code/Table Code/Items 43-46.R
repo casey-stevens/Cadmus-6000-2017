@@ -479,7 +479,7 @@ item46.final <- proportions_two_groups_unweighted(CustomerLevelData = item46.dat
 
 item46.cast <- dcast(setDT(item46.final)
                      , formula = BuildingType + Heating_Fuel ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
                            ,"Heating.Fuel"   = item46.cast$Heating_Fuel

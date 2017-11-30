@@ -17,9 +17,11 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
+"%notin%" <- Negate("%in%")
+
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
@@ -43,16 +45,29 @@ mechanical.dat1$Heating.Fuel[which(mechanical.dat1$Heating.Fuel == "Natural gas"
 item47.dat <- mechanical.dat1
 
 item47.dat1 <- item47.dat[which(item47.dat$Generic == "Furnace"),]
+item47.dat1 <- unique(item47.dat1)
+item47.dat2 <- left_join(rbsa.dat, item47.dat1, by = "CK_Cadmus_ID")
+item47.dat3 <- item47.dat2[which(!is.na(item47.dat2$Generic)),]
 
-item47.dat2 <- left_join(item47.dat1, rbsa.dat, by = "CK_Cadmus_ID")
-item47.dat2$count <- 1
+unique(item47.dat3$Heating.Fuel)
+item47.dat3$Heating.Fuel[grep("gas|kerosene", item47.dat3$Heating.Fuel, ignore.case = T)] <- "Gas"
+unique(item47.dat3$Heating.Fuel)
+
+item47.dat4 <- item47.dat3[which(item47.dat3$Heating.Fuel %notin% c("Other"
+                                                                    ,"Unknown"
+                                                                    ,"Can't Determine"
+                                                                    ,NA
+                                                                    ,"Wood (cord)")),]
+unique(item47.dat4$Heating.Fuel)
+
+item47.dat4$count <- 1
 
 # Weighting function
-item47.data <- weightedData(item47.dat2[-which(colnames(item47.dat2) %in% c("Generic"
+item47.data <- weightedData(item47.dat4[-which(colnames(item47.dat4) %in% c("Generic"
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item47.data <- left_join(item47.data, item47.dat2[which(colnames(item47.dat2) %in% c("CK_Cadmus_ID"
+item47.data <- left_join(item47.data, item47.dat4[which(colnames(item47.dat4) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Sub-Type"
                                                                                      ,"Heating.Fuel"
@@ -181,18 +196,24 @@ item49.dat <- mechanical.dat1
 
 unique(item49.dat$`System.Sub-Type`)
 item49.dat1 <- item49.dat[which(item49.dat$`System.Sub-Type` == "Space Heating Stove"),]
-
+# item49.dat1 <- unique(item49.dat1)
 item49.dat2 <- left_join(item49.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 item49.dat2$count <- 1
 
 item49.dat3 <- item49.dat2[which(item49.dat2$BuildingType %in% c("Single Family", "Manufactured")),]
 
+item49.dat4 <- item49.dat3[which(item49.dat3$Heating.Fuel != "Electric"),]
+item49.dat4$Heating.Fuel[grep("cord",item49.dat4$Heating.Fuel, ignore.case = T)] <- "Wood"
+item49.dat4$Heating.Fuel[grep("pellets",item49.dat4$Heating.Fuel, ignore.case = T)] <- "Pellets"
+item49.dat4$Heating.Fuel[grep("gas",item49.dat4$Heating.Fuel, ignore.case = T)] <- "Gas"
+unique(item49.dat4$Heating.Fuel)
+
 # Weighting function
-item49.data <- weightedData(item49.dat3[-which(colnames(item49.dat3) %in% c("Generic"
+item49.data <- weightedData(item49.dat4[-which(colnames(item49.dat4) %in% c("Generic"
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item49.data <- left_join(item49.data, item49.dat3[which(colnames(item49.dat3) %in% c("CK_Cadmus_ID"
+item49.data <- left_join(item49.data, item49.dat4[which(colnames(item49.dat4) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Sub-Type"
                                                                                      ,"Heating.Fuel"

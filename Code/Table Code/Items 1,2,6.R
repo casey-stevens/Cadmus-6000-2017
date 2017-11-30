@@ -261,7 +261,12 @@ exportTable(item2.table.MH, "MH", "Table 8"
 #
 #############################################################################################
 item6.dat <- weightedData(rbsa.dat[which(!is.na(rbsa.dat$BuildingHeight)),])
-
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.0))] <- "1 Story"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.5))] <- "1.5 Stories"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.0))] <- "2 Stories"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.5))] <- "2.5 Stories"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(3.0,4.0))] <- "3+ Stories"
+unique(item6.dat$BuildingHeight)
 item6.dat$count <- 1
 
 

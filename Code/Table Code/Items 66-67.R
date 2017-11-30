@@ -28,7 +28,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -40,7 +40,8 @@ lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 item66.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Fixture.Qty"
                                                                ,"LIGHTING_BulbsPerFixture"
-                                                               ,"CK_SiteID"))]
+                                                               ,"CK_SiteID"
+                                                               ,"Clean.Room"))]
 item66.dat$count <- 1
 
 item66.dat1 <- left_join(rbsa.dat, item66.dat, by = "CK_Cadmus_ID")
@@ -55,8 +56,9 @@ item66.dat2$Lamps <- item66.dat2$Fixture.Qty * item66.dat2$LIGHTING_BulbsPerFixt
 unique(item66.dat2$Lamps)
 
 item66.dat3 <- item66.dat2[which(!(is.na(item66.dat2$Lamps))),]
+item66.dat4 <- item66.dat3[which(item66.dat3$Clean.Room != "Storage"),]
 
-item66.customer <- summarise(group_by(item66.dat3, CK_Cadmus_ID)
+item66.customer <- summarise(group_by(item66.dat4, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item66.merge <- left_join(rbsa.dat, item66.customer)

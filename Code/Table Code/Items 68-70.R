@@ -115,6 +115,7 @@ unique(item69.dat3$Lamp.Category)
 
 item69.merge <- left_join(rbsa.dat, item69.dat3)
 item69.merge <- item69.merge[which(!is.na(item69.merge$Lamp.Category)),]
+item69.merge <- item69.merge[which(!is.na(item69.merge$Lamps)),]
 
 
 ################################################
@@ -139,13 +140,13 @@ item69.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
-item69.final <- proportionRowsAndColumns1(CustomerLevelData = item69.data
-                                          ,valueVariable    = 'count'
+item69.summary <- proportionRowsAndColumns1(CustomerLevelData = item69.data
+                                          ,valueVariable    = 'Lamps'
                                           ,columnVariable   = 'State'
                                           ,rowVariable      = 'Lamp.Category'
                                           ,aggregateColumnName = "Region")
 
-item69.cast <- dcast(setDT(item69.final)
+item69.cast <- dcast(setDT(item69.summary)
                      , formula = BuildingType + Lamp.Category ~ State
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
@@ -185,15 +186,15 @@ exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
 #######################
 # Unweighted Analysis
 #######################
-item69.final <- proportions_two_groups_unweighted(CustomerLevelData = item69.data
-                                          ,valueVariable    = 'count'
+item69.summary <- proportions_two_groups_unweighted(CustomerLevelData = item69.data
+                                          ,valueVariable    = 'Lamps'
                                           ,columnVariable   = 'State'
                                           ,rowVariable      = 'Lamp.Category'
                                           ,aggregateColumnName = "Region")
 
-item69.cast <- dcast(setDT(item69.final)
+item69.cast <- dcast(setDT(item69.summary)
                      , formula = BuildingType + Lamp.Category ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
@@ -270,6 +271,17 @@ item70.dat4 <- item70.dat3[which(item70.dat3$Lamp.Category != "Unknown"),]
 
 item70.merge <- left_join(rbsa.dat, item70.dat4)
 item70.merge <- item70.merge[which(!is.na(item70.merge$Lamp.Category)),]
+item70.merge <- item70.merge[which(!is.na(item70.merge$Lamps)),]
+#clean room types
+unique(item70.merge$Clean.Room)
+item70.merge$Clean.Room[which(item70.merge$Clean.Room %in% c("Attic"
+                                                           ,"Basement"
+                                                           ,"Crawlspace"
+                                                           ,"Crawl Space"
+                                                           ,"Mechanical"
+                                                           ,"Grow Room"))] <- "Other"
+
+unique(item70.merge$Clean.Room)
 
 
 ################################################
@@ -295,24 +307,25 @@ item70.data <- left_join(item70.data, item70.merge[which(colnames(item70.merge) 
 #######################
 # Weighted Analysis
 #######################
-item70.final <- proportionRowsAndColumns1(CustomerLevelData = item70.data
-                                          ,valueVariable    = 'count'
+item70.summary <- proportionRowsAndColumns1(CustomerLevelData = item70.data
+                                          ,valueVariable    = 'Lamps'
                                           ,columnVariable   = 'Clean.Room'
                                           ,rowVariable      = 'Lamp.Category'
                                           ,aggregateColumnName = "All Room Types")
-item70.final <- item70.final[which(item70.final$Clean.Room != "All Room Types"),]
+item70.summary <- item70.summary[which(item70.summary$Clean.Room != "All Room Types"),]
 
 
 item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
-                                               ,valueVariable = 'count'
+                                               ,valueVariable = 'Lamps'
                                                ,groupingVariable = "Lamp.Category"
                                                ,total.name = "All Room Types"
                                                ,columnName = "Clean.Room"
-                                               ,weighted = TRUE)
-item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
+                                               ,weighted = TRUE
+                                               ,two.prop.total = TRUE)
+# item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
 
 
-item70.final <- rbind.data.frame(item70.final, item70.all.room.types, stringsAsFactors = F)
+item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, stringsAsFactors = F)
 
 item70.cast <- dcast(setDT(item70.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
@@ -363,12 +376,12 @@ exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
 #######################
 # Unweighted Analysis
 #######################
-item70.final <- proportions_two_groups_unweighted(CustomerLevelData = item70.data
+item70.summary <- proportions_two_groups_unweighted(CustomerLevelData = item70.data
                                           ,valueVariable    = 'count'
                                           ,columnVariable   = 'Clean.Room'
                                           ,rowVariable      = 'Lamp.Category'
                                           ,aggregateColumnName = "All Room Types")
-item70.final <- item70.final[which(item70.final$Clean.Room != "All Room Types"),]
+item70.summary <- item70.summary[which(item70.summary$Clean.Room != "All Room Types"),]
 
 
 item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
@@ -380,11 +393,11 @@ item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
 item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
 
 
-item70.final <- rbind.data.frame(item70.final, item70.all.room.types, stringsAsFactors = F)
+item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, stringsAsFactors = F)
 
 item70.cast <- dcast(setDT(item70.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 item70.table <- data.frame("BuildingType"                  = item70.cast$BuildingType
                            ,"Room.Type"                    = item70.cast$Clean.Room

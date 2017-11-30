@@ -239,7 +239,7 @@ item51.table <- data.frame("BuildingType"    = item51.cast$BuildingType
                            ,"Count_WA"       = item51.cast$count_WA
                            ,"Percent_Region" = item51.cast$w.percent_Region
                            ,"SE_Region"      = item51.cast$w.SE_Region
-                           ,"SampleSize"     = item51.cast$count_Region)
+                           ,"Count_Region"     = item51.cast$count_Region)
 
 
 
@@ -260,7 +260,7 @@ item51.final <- proportions_two_groups_unweighted(CustomerLevelData = item51.dat
 #cast data into correct table format
 item51.cast <- dcast(setDT(item51.final)
                      , formula = BuildingType + Efficiency_bins ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 #subset to only the columns needed for the final RBSA table
 item51.table <- data.frame("BuildingType"    = item51.cast$BuildingType
@@ -475,7 +475,7 @@ item53.final <- proportions_two_groups_unweighted(CustomerLevelData    = item53.
 #cast data into correct table format
 item53.cast <- dcast(setDT(item53.final)
                      , formula   = BuildingType + HSPF_bins ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 #subset to only the columns needed for the final RBSA table
 item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
