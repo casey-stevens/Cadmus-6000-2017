@@ -36,24 +36,26 @@ sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus
 #############################################################################################
 #subset to columns needed for analysis
 item89.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                             ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
-                                                                             ,""))])
+                                                                                    ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
+                                                                                    ,""))])
 colnames(item89.dat) <- c("CK_Cadmus_ID", "Clothes.Washes.Per.Week")
 item89.dat$count <- 1
 
-item89.dat0 <- item89.dat[which(item89.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item89.dat0 <- unique(item89.dat)
 
 item89.dat1 <- left_join(rbsa.dat, item89.dat0, by = "CK_Cadmus_ID")
+item89.dat1$CK_Cadmus_ID[which(duplicated(item89.dat1$CK_Cadmus_ID))]
 
-item89.dat2 <- item89.dat1[which(item89.dat1$Clothes.Washes.Per.Week != "No Washing Machine"),]
-item89.dat2$Clothes.Washes.Per.Week <- as.numeric(as.character(item89.dat2$Clothes.Washes.Per.Week))
+unique(item89.dat1$Clothes.Washes.Per.Week)
+item89.dat1$Clothes.Washes.Per.Week[which(item89.dat1$Clothes.Washes.Per.Week %in% c("No Washing Machine", NA))] <- 0
+item89.dat1$Clothes.Washes.Per.Week <- as.numeric(as.character(item89.dat1$Clothes.Washes.Per.Week))
 
 
 # Weighting
-item89.data <- weightedData(item89.dat2[-which(colnames(item89.dat2) %in% c("Clothes.Washes.Per.Week"
+item89.data <- weightedData(item89.dat1[-which(colnames(item89.dat1) %in% c("Clothes.Washes.Per.Week"
                                                                             ,"count"))])
 
-item89.data <- left_join(item89.data, item89.dat2[which(colnames(item89.dat2) %in% c("CK_Cadmus_ID"
+item89.data <- left_join(item89.data, item89.dat1[which(colnames(item89.dat1) %in% c("CK_Cadmus_ID"
                                                                                      ,"Clothes.Washes.Per.Week"
                                                                                      ,"count"))])
 
@@ -79,9 +81,9 @@ exportTable(item89.final.MH, "MH", "Table 77", weighted = TRUE)
 ###############################
 
 item89.final <- mean_one_group_unweighted(CustomerLevelData = item89.data
-                               ,valueVariable = 'Clothes.Washes.Per.Week' 
-                               ,byVariable    = 'State'
-                               ,aggregateRow  = "Region")
+                                          ,valueVariable = 'Clothes.Washes.Per.Week' 
+                                          ,byVariable    = 'State'
+                                          ,aggregateRow  = "Region")
 
 # Export table
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
@@ -127,7 +129,7 @@ item91.data <- weightedData(item91.dat3[-which(colnames(item91.dat3) %in% c("Clo
                                                                             ,"Dryer.Loads.Per.Week"
                                                                             ,"Dryer.Loads.Per.Wash"))])
 item91.data <- left_join(item91.data, item91.dat3[which(colnames(item91.dat3) %in% c("CK_Cadmus_ID"
-                                                                                      ,"Clothes.Washes.Per.Week"
+                                                                                     ,"Clothes.Washes.Per.Week"
                                                                                      ,"Percent.Loads.Go.In.Dryer"
                                                                                      ,"count"
                                                                                      ,"Dryer.Loads.Per.Week"

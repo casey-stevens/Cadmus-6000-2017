@@ -27,8 +27,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
-                            , sheet = "Sheet1")
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -59,8 +58,9 @@ item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 1980 & item90.dat3$Age < 
 item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 1990 & item90.dat3$Age < 1995)] <- "1990-1994"
 item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 1995 & item90.dat3$Age < 2000)] <- "1995-1999"
 item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2000 & item90.dat3$Age < 2005)] <- "2000-2004"
-item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2005 & item90.dat3$Age < 2009)] <- "2005-2009"
-item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2009)] <- "Post 2009"
+item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2005 & item90.dat3$Age < 2010)] <- "2005-2009"
+item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2010 & item90.dat3$Age < 2015)] <- "2010-2014"
+item90.dat3$EquipVintage_bins[which(item90.dat3$Age >= 2015)] <- "Post 2014"
 #check uniques
 unique(item90.dat3$EquipVintage_bins)
 
@@ -87,15 +87,26 @@ item90.data$count <- 1
 item90.final <- proportions_one_group(CustomerLevelData = item90.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'EquipVintage_bins'
-                                      ,total.name       = 'All Vintages'
-                                      ,columnName       = 'Remove')
+                                      ,total.name       = 'All Vintages')
 
-item90.final.SF <- item90.final[which(item90.final$BuildingType == "Single Family")
-                                ,-which(colnames(item90.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
-item90.final.MH <- item90.final[which(item90.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item90.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+unique(item90.final$EquipVintage_bins)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+item90.table <- item90.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item90.table <- data.frame(item90.table)
+
+
+item90.final.SF <- item90.table[which(item90.table$BuildingType == "Single Family")
+                                ,-which(colnames(item90.table) %in% c("BuildingType"))]
+item90.final.MH <- item90.table[which(item90.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item90.table) %in% c("BuildingType"))]
 
 exportTable(item90.final.SF, "SF", "Table 97", weighted = TRUE)
 exportTable(item90.final.MH, "MH", "Table 78", weighted = TRUE)
@@ -108,17 +119,26 @@ item90.final <- proportions_one_group(CustomerLevelData = item90.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'EquipVintage_bins'
                                       ,total.name       = 'All Vintages'
-                                      ,columnName       = 'Remove'
                                       ,weighted         = FALSE)
 
-item90.final.SF <- item90.final[which(item90.final$BuildingType == "Single Family")
-                                ,-which(colnames(item90.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
-item90.final.MH <- item90.final[which(item90.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item90.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+unique(item90.final$EquipVintage_bins)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+item90.table <- item90.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item90.table <- data.frame(item90.table)
+
+
+item90.final.SF <- item90.table[which(item90.table$BuildingType == "Single Family")
+                                ,-which(colnames(item90.table) %in% c("BuildingType","Total.Count"))]
+item90.final.MH <- item90.table[which(item90.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item90.table) %in% c("BuildingType","Total.Count"))]
 
 exportTable(item90.final.SF, "SF", "Table 97", weighted = FALSE)
 exportTable(item90.final.MH, "MH", "Table 78", weighted = FALSE)
@@ -154,8 +174,9 @@ item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 1980 & item92.dat3$Age < 
 item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 1990 & item92.dat3$Age < 1995)] <- "1990-1994"
 item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 1995 & item92.dat3$Age < 2000)] <- "1995-1999"
 item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2000 & item92.dat3$Age < 2005)] <- "2000-2004"
-item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2005 & item92.dat3$Age < 2009)] <- "2005-2009"
-item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2009)] <- "Post 2009"
+item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2005 & item92.dat3$Age < 2010)] <- "2005-2009"
+item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2010 & item92.dat3$Age < 2015)] <- "2010-2014"
+item92.dat3$EquipVintage_bins[which(item92.dat3$Age >= 2015)] <- "Post 2014"
 #check uniques
 unique(item92.dat3$EquipVintage_bins)
 
@@ -182,15 +203,27 @@ item92.data$count <- 1
 item92.final <- proportions_one_group(CustomerLevelData = item92.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'EquipVintage_bins'
-                                      ,total.name       = 'All Vintages'
-                                      ,columnName       = 'Remove')
+                                      ,total.name       = 'All Vintages')
 
-item92.final.SF <- item92.final[which(item92.final$BuildingType == "Single Family")
-                                ,-which(colnames(item92.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
-item92.final.MH <- item92.final[which(item92.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item92.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+unique(item92.final$EquipVintage_bins)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+
+item92.table <- item92.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item92.table <- data.frame(item92.table)
+
+
+item92.final.SF <- item92.table[which(item92.table$BuildingType == "Single Family")
+                                ,-which(colnames(item92.table) %in% c("BuildingType"))]
+item92.final.MH <- item92.table[which(item92.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item92.table) %in% c("BuildingType"))]
 
 exportTable(item92.final.SF, "SF", "Table 99", weighted = TRUE)
 exportTable(item92.final.MH, "MH", "Table 80", weighted = TRUE)
@@ -203,17 +236,27 @@ item92.final <- proportions_one_group(CustomerLevelData = item92.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'EquipVintage_bins'
                                       ,total.name       = 'All Vintages'
-                                      ,columnName       = 'Remove'
                                       ,weighted         = FALSE)
 
-item92.final.SF <- item92.final[which(item92.final$BuildingType == "Single Family")
-                                ,-which(colnames(item92.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
-item92.final.MH <- item92.final[which(item92.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item92.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+unique(item92.final$EquipVintage_bins)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+
+item92.table <- item92.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item92.table <- data.frame(item92.table)
+
+
+item92.final.SF <- item92.table[which(item92.table$BuildingType == "Single Family")
+                                ,-which(colnames(item92.table) %in% c("BuildingType"))]
+item92.final.MH <- item92.table[which(item92.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item92.table) %in% c("BuildingType"))]
 
 exportTable(item92.final.SF, "SF", "Table 99", weighted = FALSE)
 exportTable(item92.final.MH, "MH", "Table 80", weighted = FALSE)

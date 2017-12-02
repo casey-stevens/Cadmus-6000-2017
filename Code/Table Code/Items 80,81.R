@@ -25,11 +25,10 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
-                                       , sheet = "Sheet1")
+appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
                              ,stringsAsFactors = FALSE)
                                                          
 #clean cadmus IDs
@@ -86,17 +85,37 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
                           ,Count = sum(TotalQty))
   
 # Row bind water heater and appliance counts
-  item80.merge <- rbind.data.frame(item80.site, item80.sum)
+item80.merge <- rbind.data.frame(item80.site, item80.sum)
   
 item80.tmp <- left_join(rbsa.dat, item80.merge)
 item80.tmp$Count[which(is.na(item80.tmp$Count))] <- 0
 
+item80.cast <- dcast(setDT(item80.tmp)
+                     ,formula = CK_Cadmus_ID ~ Type
+                     ,value.var = c("Count"))
+item80.cast[is.na(item80.cast),] <- 0
+
+item80.melt <- melt(item80.cast, id.vars = "CK_Cadmus_ID")
+names(item80.melt) <- c("CK_Cadmus_ID", "Type", "Count")
+
+item80.merge <- left_join(rbsa.dat, item80.melt)
+item80.merge$Type <- as.character(item80.merge$Type)
+
+unique(item80.merge$Type)
+item80.merge <- item80.merge[which(item80.merge$Type %in% c("Dishwasher"
+                                                            ,"Dryer"
+                                                            ,"Freezer"
+                                                            ,"Refrigerator"
+                                                            ,"Washer"
+                                                            ,"Water Heater")),]
+
+
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item80.data <- weightedData(item80.tmp[-which(colnames(item80.tmp) %in% c("Count"
+item80.data <- weightedData(item80.merge[-which(colnames(item80.merge) %in% c("Count"
                                                                               ,"Type"))])
-item80.data <- left_join(item80.data, item80.tmp[which(colnames(item80.tmp) %in% c("CK_Cadmus_ID"
+item80.data <- left_join(item80.data, item80.merge[which(colnames(item80.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"Count"
                                                                                        ,"Type"))])
 item80.data$count <- 1
@@ -107,14 +126,9 @@ item80.data$count <- 1
 item80.final <- mean_one_group(CustomerLevelData = item80.data
                                ,valueVariable    = 'Count'
                                ,byVariable       = 'Type'
-                               ,aggregateRow     = FALSE)
+                               ,aggregateRow = "Total")
+item80.final <- item80.final[which(item80.final$Type != "Total"),]
 
-item80.final <- item80.final[which(item80.final$Type %in% c("Dishwasher"
-                                                            ,"Dryer"
-                                                            ,"Freezer"
-                                                            ,"Refrigerator"
-                                                            ,"Washer"
-                                                            ,"Water Heater")),]
 
 item80.final.SF <- item80.final[which(item80.final$BuildingType == "Single Family")
                                 ,-which(colnames(item80.final) %in% c("BuildingType"))]
@@ -129,9 +143,10 @@ exportTable(item80.final.MH, "MH", "Table 68", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item80.final <- mean_one_group_unweighted(CustomerLevelData = item80.data
-                               ,valueVariable    = 'Count'
-                               ,byVariable       = 'Type'
-                               ,aggregateRow     = FALSE)
+                                          ,valueVariable    = 'Count'
+                                          ,byVariable       = 'Type'
+                                          ,aggregateRow = "Total")
+item80.final <- item80.final[which(item80.final$Type != "Total"),]
 
 item80.final <- item80.final[which(item80.final$Type %in% c("Dishwasher"
                                                             ,"Dryer"
@@ -168,7 +183,7 @@ item81.dat0 <- item81.dat[which(item81.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 item81.dat1 <- left_join(item81.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
-item81.dat2 <- item81.dat1[which(item81.dat1$Type == "Refrigerator"),]
+item81.dat2 <- item81.dat1[which(item81.dat1$Type %in% c("Refrigerator", "Freezer")),]
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
 item81.dat2$EquipVintage_bins <- as.numeric(as.character(item81.dat2$Age))
@@ -179,8 +194,9 @@ item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 1980 & item81.dat3$Age < 
 item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 1990 & item81.dat3$Age < 1995)] <- "1990-1994"
 item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 1995 & item81.dat3$Age < 2000)] <- "1995-1999"
 item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 2000 & item81.dat3$Age < 2005)] <- "2000-2004"
-item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 2005 & item81.dat3$Age < 2009)] <- "2005-2009"
-item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 2009)] <- "Post 2009"
+item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 2005 & item81.dat3$Age < 2010)] <- "2005-2009"
+item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 2010 & item81.dat3$Age < 2015)] <- "2010-2014"
+item81.dat3$EquipVintage_bins[which(item81.dat3$Age >= 2015)] <- "Post 2014"
 #check uniques
 unique(item81.dat3$EquipVintage_bins)
 

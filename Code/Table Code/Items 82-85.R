@@ -146,9 +146,9 @@ exportTable(item83.final.SF, "SF", "Table 90", weighted = TRUE)
 # unweighted analysis
 ######################
 item83.final <- mean_one_group_unweighted(CustomerLevelData = item83.data
-                               ,valueVariable = 'Refrigerator/Freezer.Size'
-                               ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
-                               ,aggregateRow = "All Refrigerator Types")
+                                          ,valueVariable = 'Refrigerator/Freezer.Size'
+                                          ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
+                                          ,aggregateRow = "All Refrigerator Types")
 
 item83.final.SF <- item83.final[which(item83.final$BuildingType == "Single Family")
                                 ,which(colnames(item83.final) %notin% c("BuildingType"))]
@@ -220,13 +220,13 @@ item85.dat1 <- item85.dat[-grep("unknown",item85.dat$`Refrigerator/Freezer.Size`
 #Pop and Sample Sizes for weights
 ######################################
 item85.data <- weightedData(item85.dat1[which(colnames(item85.dat1) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
-                                                                            ,"Type"
-                                                                            ,"Refrigerator/Freezer.Size"))])
+                                                                              ,"Type"
+                                                                              ,"Refrigerator/Freezer.Size"))])
 
 item85.data <- left_join(item85.data, item85.dat1[which(colnames(item85.dat1) %in% c("CK_Cadmus_ID"
-                                                                                   ,"APPLIANCE_FRIDGE_FREEZER_Type"
-                                                                                   ,"Type"
-                                                                                   ,"Refrigerator/Freezer.Size"))])
+                                                                                     ,"APPLIANCE_FRIDGE_FREEZER_Type"
+                                                                                     ,"Type"
+                                                                                     ,"Refrigerator/Freezer.Size"))])
 item85.data$count <- 1
 
 item85.data$`Refrigerator/Freezer.Size` <- gsub(" cu ft", "", item85.data$`Refrigerator/Freezer.Size`)

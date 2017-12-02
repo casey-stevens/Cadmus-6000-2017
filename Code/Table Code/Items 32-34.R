@@ -53,11 +53,9 @@ item32.dat2 <- item32.dat1[which(item32.dat1$Type == "Door"),]
 
 #clean up frame/body type
 item32.dat2$Frame.Type <- trimws(item32.dat2$`Frame./.Body.Type`)
-item32.dat2$Frame.Type[grep("wood", item32.dat2$Frame.Type, ignore.case = T)] <- "Wood"
+item32.dat2$Frame.Type[grep("wood|fiberglass", item32.dat2$Frame.Type, ignore.case = T)] <- "Wood/Fiberglass"
 item32.dat2$Frame.Type[grep("metal|aluminum", item32.dat2$Frame.Type, ignore.case = T)] <- "Metal"
-item32.dat2$Frame.Type[grep("glass", item32.dat2$Frame.Type, ignore.case = T)] <- "Glass"
-item32.dat2$Frame.Type[grep("plastic|other", item32.dat2$Frame.Type, ignore.case = T)] <- "Other"
-item32.dat2$Frame.Type[grep("vinyl", item32.dat2$Frame.Type, ignore.case = T)] <- "Vinyl"
+item32.dat2$Frame.Type[grep("plastic|other|vinyl", item32.dat2$Frame.Type, ignore.case = T)] <- "Other"
 unique(item32.dat2$Frame.Type)
 
 #clean up glazing types
@@ -66,12 +64,14 @@ unique(item32.dat2$Glazing)
 item32.dat2$Glazing[which(item32.dat2$Glazing %in% c("Decorative window (arch, etc.)"
                                                      ,"Half window"
                                                      ,"Double"
-                                                     ,"Single"))] <- "with Glazing"
+                                                     ,"Single"
+                                                     ,"French door"
+                                                     ,"Glazing Unknown"))] <- "with Glazing"
 item32.dat2$Framing.Categories <- paste(item32.dat2$Frame.Type, item32.dat2$Glazing, sep = " ")
 unique(item32.dat2$Framing.Categories)
 
 item32.dat2$count <- 1
-item32.dat2 <- item32.dat2[-grep("Unknown|NA", item32.dat2$Framing.Categories),]
+item32.dat2 <- item32.dat2[-grep("Unknown|NA", item32.dat2$Framing.Categories, ignore.case = T),]
 
 item32.dat2$Framing.Categories <- gsub(" None", "", item32.dat2$Framing.Categories)
 item32.dat2$Framing.Categories <- gsub("Metal with Glazing", "Metal Insulated", item32.dat2$Framing.Categories)
@@ -91,15 +91,15 @@ item32.data <- weightedData(item32.dat2[-which(colnames(item32.dat2) %in% c("Typ
                                                                             ,"count"))])
 item32.data <- left_join(item32.data, item32.dat2[which(colnames(item32.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"Type"
-                                                                                      ,"Sub-Type"
-                                                                                      ,"Area"
-                                                                                      ,"Quantity"
-                                                                                      ,"Frame./.Body.Type"
-                                                                                      ,"Glazing.Type"
-                                                                                      ,"Frame.Type"
-                                                                                      ,"Glazing"
-                                                                                      ,"Framing.Categories"
-                                                                                      ,"count"))])
+                                                                                     ,"Sub-Type"
+                                                                                     ,"Area"
+                                                                                     ,"Quantity"
+                                                                                     ,"Frame./.Body.Type"
+                                                                                     ,"Glazing.Type"
+                                                                                     ,"Frame.Type"
+                                                                                     ,"Glazing"
+                                                                                     ,"Framing.Categories"
+                                                                                     ,"count"))])
 
 item32.data$Quantity <- as.numeric(as.character(item32.data$Quantity))
 
@@ -109,10 +109,10 @@ item32.data$Quantity <- as.numeric(as.character(item32.data$Quantity))
 # Weighted Analysis
 #################################
 item32.final <- proportions_one_group(CustomerLevelData    = item32.data
-                                        , valueVariable    = 'Quantity'
-                                        , groupingVariable = 'Framing.Categories'
-                                        , total.name       = "Total"
-                                        , columnName       = "Door.Type"
+                                      , valueVariable    = 'Quantity'
+                                      , groupingVariable = 'Framing.Categories'
+                                      , total.name       = "Total"
+                                      , columnName       = "Door.Type"
                                       , weighted = TRUE)
 
 item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family"),-1]
@@ -133,8 +133,8 @@ item32.final <- proportions_one_group(CustomerLevelData    = item32.data
 
 item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family")
                                 ,-which(colnames(item32.final) %in% c("Total.Count"
-                                                                         ,"Door.Type"
-                                                                         ,"BuildingType"))]
+                                                                      ,"Door.Type"
+                                                                      ,"BuildingType"))]
 
 exportTable(item32.final.SF, "SF", "Table 39", weighted = FALSE)
 

@@ -120,7 +120,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                     ,byRow  = aggregateRow
                                     ,Mean   = sum(N_h * strataMean) / sum(N_h)
                                     ,SE     = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                    ,n      = length(unique(CustomerLevelData$CK_Cadmus_ID))
+                                    ,n      = unique((n_h))
                                     ,n_h    = unique((n_h))
                                     ,N_h    = unique((N_h))
     )
