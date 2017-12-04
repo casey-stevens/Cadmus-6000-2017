@@ -358,10 +358,10 @@ item88.data <- left_join(item88.data, item88.merge[which(colnames(item88.merge) 
 # Weighted Analysis
 #######################
 item88.summary <- proportionRowsAndColumns1(CustomerLevelData = item88.data
-                                          ,valueVariable    = 'count'
-                                          ,columnVariable   = 'Washer.Type'
-                                          ,rowVariable      = 'EquipVintage_bins'
-                                          ,aggregateColumnName = "Remove")
+                                            ,valueVariable    = 'count'
+                                            ,columnVariable   = 'Washer.Type'
+                                            ,rowVariable      = 'EquipVintage_bins'
+                                            ,aggregateColumnName = "Remove")
 item88.summary <- item88.summary[which(item88.summary$Washer.Type %notin% c("Remove", "Total")),]
 item88.summary <- item88.summary[which(item88.summary$EquipVintage_bins %notin% c("Remove", "Total")),]
 
@@ -432,10 +432,10 @@ exportTable(item88.final.MH, "MH", "Table 76", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item88.summary <- proportions_two_groups_unweighted(CustomerLevelData = item88.data
-                                          ,valueVariable    = 'count'
-                                          ,columnVariable   = 'Washer.Type'
-                                          ,rowVariable      = 'EquipVintage_bins'
-                                          ,aggregateColumnName = "Remove")
+                                                    ,valueVariable    = 'count'
+                                                    ,columnVariable   = 'Washer.Type'
+                                                    ,rowVariable      = 'EquipVintage_bins'
+                                                    ,aggregateColumnName = "Remove")
 item88.summary <- item88.summary[which(item88.summary$Washer.Type %notin% c("Remove", "Total")),]
 item88.summary <- item88.summary[which(item88.summary$EquipVintage_bins %notin% c("Remove", "Total")),]
 

@@ -66,20 +66,17 @@ item32.dat2$Glazing[which(item32.dat2$Glazing %in% c("Decorative window (arch, e
                                                      ,"Double"
                                                      ,"Single"
                                                      ,"French door"
-                                                     ,"Glazing Unknown"))] <- "with Glazing"
+                                                     ,"Type unknown"))] <- "with Glazing"
 item32.dat2$Framing.Categories <- paste(item32.dat2$Frame.Type, item32.dat2$Glazing, sep = " ")
 unique(item32.dat2$Framing.Categories)
 
 item32.dat2$count <- 1
-item32.dat2 <- item32.dat2[-grep("Unknown|NA", item32.dat2$Framing.Categories, ignore.case = T),]
-
-item32.dat2$Framing.Categories <- gsub(" None", "", item32.dat2$Framing.Categories)
-item32.dat2$Framing.Categories <- gsub("Metal with Glazing", "Metal Insulated", item32.dat2$Framing.Categories)
-item32.dat2$Framing.Categories <- gsub("Glass with Glazing|Glass Other", "Glass", item32.dat2$Framing.Categories)
-unique(item32.dat2$Framing.Categories)
+item32.dat3 <- item32.dat2[-grep("Unknown|NA", item32.dat2$Framing.Categories, ignore.case = T),]
+item32.dat3$Framing.Categories <- gsub(" None", "", item32.dat3$Framing.Categories)
+unique(item32.dat3$Framing.Categories)
 
 
-item32.data <- weightedData(item32.dat2[-which(colnames(item32.dat2) %in% c("Type"
+item32.data <- weightedData(item32.dat3[-which(colnames(item32.dat3) %in% c("Type"
                                                                             ,"Sub-Type"
                                                                             ,"Area"
                                                                             ,"Quantity"
@@ -89,7 +86,7 @@ item32.data <- weightedData(item32.dat2[-which(colnames(item32.dat2) %in% c("Typ
                                                                             ,"Glazing"
                                                                             ,"Framing.Categories"
                                                                             ,"count"))])
-item32.data <- left_join(item32.data, item32.dat2[which(colnames(item32.dat2) %in% c("CK_Cadmus_ID"
+item32.data <- left_join(item32.data, item32.dat3[which(colnames(item32.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"Type"
                                                                                      ,"Sub-Type"
                                                                                      ,"Area"
@@ -233,28 +230,28 @@ colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.catego
 item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
 
 item33.cast <- dcast(setDT(item33.final)
-                      , formula = BuildingType + Framing.Categories ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n"))
+                     , formula = BuildingType + Framing.Categories ~ State
+                     , value.var = c("w.percent", "w.SE", "count", "n"))
 
 item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
-                            ,"Framing.Categories" = item33.cast$Framing.Categories
-                            ,"Percent_ID"         = item33.cast$w.percent_ID
-                            ,"SE_ID"              = item33.cast$w.SE_ID
-                            ,"Count_ID"           = item33.cast$count_ID
-                            ,"Percent_MT"         = item33.cast$w.percent_MT
-                            ,"SE_MT"              = item33.cast$w.SE_MT
-                            ,"Count_MT"           = item33.cast$count_MT
-                            ,"Percent_OR"         = item33.cast$w.percent_OR
-                            ,"SE_OR"              = item33.cast$w.SE_OR
-                            ,"Count_OR"           = item33.cast$count_OR
-                            ,"Percent_WA"         = item33.cast$w.percent_WA
-                            ,"SE_WA"              = item33.cast$w.SE_WA
-                            ,"Count_WA"           = item33.cast$count_WA
-                            ,"Percent_Region"     = item33.cast$w.percent_Region
-                            ,"SE_Region"          = item33.cast$w.SE_Region
-                            ,"Count_Region"       = item33.cast$count_Region
-                            # ,"SampleSize"         = item33.cast$SampleSize_Region
-                            )
+                           ,"Framing.Categories" = item33.cast$Framing.Categories
+                           ,"Percent_ID"         = item33.cast$w.percent_ID
+                           ,"SE_ID"              = item33.cast$w.SE_ID
+                           ,"Count_ID"           = item33.cast$count_ID
+                           ,"Percent_MT"         = item33.cast$w.percent_MT
+                           ,"SE_MT"              = item33.cast$w.SE_MT
+                           ,"Count_MT"           = item33.cast$count_MT
+                           ,"Percent_OR"         = item33.cast$w.percent_OR
+                           ,"SE_OR"              = item33.cast$w.SE_OR
+                           ,"Count_OR"           = item33.cast$count_OR
+                           ,"Percent_WA"         = item33.cast$w.percent_WA
+                           ,"SE_WA"              = item33.cast$w.SE_WA
+                           ,"Count_WA"           = item33.cast$count_WA
+                           ,"Percent_Region"     = item33.cast$w.percent_Region
+                           ,"SE_Region"          = item33.cast$w.SE_Region
+                           ,"Count_Region"       = item33.cast$count_Region
+                           # ,"SampleSize"         = item33.cast$SampleSize_Region
+)
 
 item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family"),-which(colnames(item33.table) %in% c("BuildingType"))]
 
@@ -265,10 +262,10 @@ exportTable(item33.final.SF, "SF", "Table 40", weighted = TRUE)
 # Unweighted Analysis
 #################################
 item33.final <- proportions_two_groups_unweighted(CustomerLevelData     = item33.data
-                                          , valueVariable       = 'Quantity'
-                                          , columnVariable      = 'State'
-                                          , rowVariable         = 'Framing.Categories'
-                                          , aggregateColumnName = 'Region')
+                                                  , valueVariable       = 'Quantity'
+                                                  , columnVariable      = 'State'
+                                                  , rowVariable         = 'Framing.Categories'
+                                                  , aggregateColumnName = 'Region')
 item33.final <- item33.final[which(item33.final$Framing.Categories != "Total"),]
 
 item33.data$State.x <- item33.data$State

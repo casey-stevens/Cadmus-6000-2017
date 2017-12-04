@@ -9,7 +9,7 @@ names(item80.melt) <- c("CK_Cadmus_ID", "Type", "Count")
 
 
 # row ordering example code
-unique(item87.table$Washer.Type)
+levels(item87.table$Washer.Type)
 rowOrder <- c("Combined Washer/Dryer in one drum"
               ,"Horizontal Axis"
               ,"Stacked Washer/Dryer"

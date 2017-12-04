@@ -70,7 +70,7 @@ item139.merge <- item139.merge[which(!is.na(item139.merge$Ind)),]
 item139.data <- weightedData(item139.merge[-which(colnames(item139.merge) %in% c("Ind"))])
 item139.data <- left_join(item139.data, item139.merge[which(colnames(item139.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"))])
-item139.data$count <- 1
+item139.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -140,7 +140,7 @@ item140.merge <- item140.merge[which(!is.na(item140.merge$Ind)),]
 item140.data <- weightedData(item140.merge[-which(colnames(item140.merge) %in% c("Ind"))])
 item140.data <- left_join(item140.data, item140.merge[which(colnames(item140.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"))])
-item140.data$count <- 1
+item140.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -213,7 +213,7 @@ item141.merge <- item141.merge[which(!is.na(item141.merge$Ind)),]
 item141.data <- weightedData(item141.merge[-which(colnames(item141.merge) %in% c("Ind"))])
 item141.data <- left_join(item141.data, item141.merge[which(colnames(item141.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"))])
-item141.data$count <- 1
+item141.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -283,7 +283,7 @@ item142.merge <- item142.merge[which(!is.na(item142.merge$Ind)),]
 item142.data <- weightedData(item142.merge[-which(colnames(item142.merge) %in% c("Ind"))])
 item142.data <- left_join(item142.data, item142.merge[which(colnames(item142.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"))])
-item142.data$count <- 1
+item142.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################

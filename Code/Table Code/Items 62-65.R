@@ -50,4 +50,9 @@ item62.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID
                                                                    ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                    ,"MECH_TrueFLow_NSOP"
                                                                    ,"MECH_TrueFLow_TFSOP"))]
+str(item62.dat)
 item62.dat1 <- left_join(rbsa.dat, item62.dat)
+
+item62.dat1$Flow <- sqrt(item62.dat1$MECH_TrueFLow_TFSOP / item62.dat1$MECH_TrueFLow_NSOP) * ((115 * sqrt(item62.dat1$MECH_TrueFLow_Plate14_PressureDifference)) + 
+                                                                                                (154 * sqrt(item62.dat1$MECH_TrueFLow_Plate20_PressureDifference)))
+unique(item62.dat1$Flow)

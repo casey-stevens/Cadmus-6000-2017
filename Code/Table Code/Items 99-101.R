@@ -55,17 +55,17 @@ item99.dat3 <- item99.dat2
 unique(item99.dat3$DHW.Location)
 unique(item99.dat2$Primary.Heating.System)
 
-item99.ind2 <- item99.dat1$CK_Cadmus_ID[grep("Yes|yes",item99.dat1$Primary.Heating.System)]
+item99.ind2 <- item99.dat1$CK_Cadmus_ID[grep("Yes",item99.dat1$Primary.Heating.System, ignore.case = T)]
 item99.dat3 <- item99.dat2[which(item99.dat2$CK_Cadmus_ID %in% item99.ind2),]
 
 #clean heating fuel type
 unique(item99.dat3$Heating.Fuel)
-item99.dat3$Heating.Fuel[grep("Gas|gas",item99.dat3$Heating.Fuel)] <- "Gas"
-item99.dat3$Heating.Fuel[grep("unk|Unk|N/A|Other|from",item99.dat3$Heating.Fuel)] <- NA
-item99.dat3$Heating.Fuel[grep("oil|Oil|kero|Kero",item99.dat3$Heating.Fuel)] <- "Oil"
-item99.dat3$Heating.Fuel[grep("Elect|elect",item99.dat3$Heating.Fuel)] <- "Electric"
-item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
-item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (cord)")] <- "Wood"
+item99.dat3$Heating.Fuel[grep("Gas",item99.dat3$Heating.Fuel, ignore.case = T)]                      <- "Gas"
+item99.dat3$Heating.Fuel[grep("unk|N/A|Other|from|can't",item99.dat3$Heating.Fuel, ignore.case = T)] <- NA
+item99.dat3$Heating.Fuel[grep("oil|kero",item99.dat3$Heating.Fuel, ignore.case = T)]                 <- "Oil"
+item99.dat3$Heating.Fuel[grep("Elect",item99.dat3$Heating.Fuel, ignore.case = T)]                    <- "Electric"
+item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (pellets)")]                        <- "Pellets"
+item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (cord)")]                           <- "Wood"
 
 item99.dat4 <- item99.dat3[which(!is.na(item99.dat3$Heating.Fuel)),]
 
@@ -73,27 +73,24 @@ unique(item99.dat4$Primary.Heating.System)
 
 #summarise for primary heating system
 item99.heat <- item99.dat4[which(item99.dat4$Primary.Heating.System == "Yes"),]
+
 item99.sum1 <- summarise(group_by(item99.heat, CK_Cadmus_ID, BuildingType, Heating.Fuel)
                          ,Count = sum(count))
 
 item99.sum1$Count <- 1
 unique(item99.sum1$Heating.Fuel)
 
-dup.ind <- item99.sum1$CK_Cadmus_ID[which(duplicated(item99.sum1$CK_Cadmus_ID))]
-IDs.remove <- item99.sum1[which(item99.sum1$CK_Cadmus_ID %in% dup.ind & item99.sum1$Heating.Fuel == "Electric"),]
+#manual heating fuel types for sites with only zonal heat
+item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
+item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
 
-item99.sum2 <- item99.sum1[which(!(item99.sum1$CK_Cadmus_ID %in% IDs.remove$CK_Cadmus_ID & item99.sum1$Heating.Fuel %in% IDs.remove$Heating.Fuel)),]
-item99.sum2$CK_Cadmus_ID[which(duplicated(item99.sum2$CK_Cadmus_ID))]
+item99.unique <- unique(item99.sum1)
 
-## correct duplicated fuel types
-item99.sum2$Heating.Fuel[which(item99.sum2$CK_Cadmus_ID == "BPS22084 OS BPA")] <- "Gas"
-item99.sum2$Heating.Fuel[which(item99.sum2$CK_Cadmus_ID == "MS0435")] <- "Propane"
-item99.sum2$Heating.Fuel[which(item99.sum2$CK_Cadmus_ID == "MS1998")] <- "Propane"
-item99.sum2$Heating.Fuel[which(item99.sum2$CK_Cadmus_ID == "MS3167")] <- "Propane"
-item99.sum2$Heating.Fuel[which(item99.sum2$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
-item99.sum2$Heating.Fuel[which(item99.sum2$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
+#find duplicates of 
+unique(item99.unique$CK_Cadmus_ID[which(duplicated(item99.unique$CK_Cadmus_ID))])
 
-item99.heat.final <- unique(item99.sum2)
+
+item99.heat.final <- item99.unique
 #qc
 stopifnot(nrow(item99.heat.final) == length(unique(item99.heat.final$CK_Cadmus_ID)))
 
@@ -118,9 +115,9 @@ item99.join1$DHW.Location[grep("Crawl",item99.join1$DHW.Location)] <- "Crawlspac
 item99.join1$DHW.Location[grep("In building",item99.join1$DHW.Location)] <- "Main House"
 
 item99.join1$DHW.Location[which(item99.join1$DHW.Location %notin% c("Crawlspace"
-                                                                  ,"Basement"
-                                                                  ,"Garage"
-                                                                  ,"Main House"))] <- "Other"
+                                                                    ,"Basement"
+                                                                    ,"Garage"
+                                                                    ,"Main House"))] <- "Other"
 
 
 
@@ -128,14 +125,14 @@ item99.join1$DHW.Location[which(item99.join1$DHW.Location %notin% c("Crawlspace"
 # Adding pop and sample sizes for weights
 ################################################
 item99.data <- weightedData(item99.join1[-which(colnames(item99.join1) %in% c("Heating.Fuel"               
-                                                                            ,"DHW.Count"
-                                                                            ,"DHW.Location"
-                                                                            ,"Heat.Count"))])
+                                                                              ,"DHW.Count"
+                                                                              ,"DHW.Location"
+                                                                              ,"Heat.Count"))])
 item99.data <- left_join(item99.data, item99.join1[which(colnames(item99.join1) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Heating.Fuel"               
-                                                                                     ,"DHW.Count"
-                                                                                     ,"DHW.Location"
-                                                                                     ,"Heat.Count"))])
+                                                                                       ,"Heating.Fuel"               
+                                                                                       ,"DHW.Count"
+                                                                                       ,"DHW.Location"
+                                                                                       ,"Heat.Count"))])
 #######################
 # Weighted Analysis
 #######################
@@ -157,8 +154,8 @@ item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
 item99.final <- rbind.data.frame(item99.final, item99.all.fuels)
 
 item99.cast <- dcast(setDT(item99.final)
-                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     ,formula = BuildingType + DHW.Location ~ Heating.Fuel
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
                            ,"DHW.Location"        = item99.cast$DHW.Location
@@ -198,10 +195,10 @@ exportTable(item99.final.MH, "MH", "Table 86", weighted = TRUE)
 # Weighted Analysis
 #######################
 item99.final <- proportions_two_groups_unweighted(CustomerLevelData = item99.data
-                                          ,valueVariable    = 'DHW.Count'
-                                          ,columnVariable   = 'Heating.Fuel'
-                                          ,rowVariable      = 'DHW.Location'
-                                          ,aggregateColumnName = "Remove")
+                                                  ,valueVariable    = 'DHW.Count'
+                                                  ,columnVariable   = 'Heating.Fuel'
+                                                  ,rowVariable      = 'DHW.Location'
+                                                  ,aggregateColumnName = "Remove")
 item99.final <- item99.final[which(item99.final$Heating.Fuel != "Remove"),]
 
 item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
@@ -261,11 +258,11 @@ exportTable(item99.final.MH, "MH", "Table 86", weighted = FALSE)
 #############################################################################################
 #subset to columns needed for analysis
 item100.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
-                                                                   ,"Generic"
-                                                                   ,"DHW.Fuel"
-                                                                   ,"DHW.Location"
-                                                                   ,"Primary.Heating.System"
-                                                                   ,"Heating.Fuel"))]
+                                                                    ,"Generic"
+                                                                    ,"DHW.Fuel"
+                                                                    ,"DHW.Location"
+                                                                    ,"Primary.Heating.System"
+                                                                    ,"Heating.Fuel"))]
 item100.dat$count <- 1
 
 item100.dat0 <- item100.dat[which(item100.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -298,7 +295,7 @@ unique(item100.dat4$Primary.Heating.System)
 #summarise for primary heating system
 item100.heat <- item100.dat4[which(item100.dat4$Primary.Heating.System == "Yes"),]
 item100.sum1 <- summarise(group_by(item100.heat, CK_Cadmus_ID, BuildingType, Heating.Fuel)
-                         ,Count = sum(count))
+                          ,Count = sum(count))
 
 item100.sum1$Count <- 1
 unique(item100.sum1$Heating.Fuel)

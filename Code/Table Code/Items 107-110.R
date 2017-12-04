@@ -26,8 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
-                            , sheet = "Sheet1")
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -136,8 +135,9 @@ item108.dat4$EquipVintage_bins[which(item108.dat4$Age <  1990)] <- "Pre 1990"
 item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 1990 & item108.dat4$Age < 1995)] <- "1990-1994"
 item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 1995 & item108.dat4$Age < 2000)] <- "1995-1999"
 item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 2000 & item108.dat4$Age < 2005)] <- "2000-2004"
-item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 2005 & item108.dat4$Age <= 2009)] <- "2005-2009"
-item108.dat4$EquipVintage_bins[which(item108.dat4$Age >  2009)] <- "Post 2010"
+item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 2005 & item108.dat4$Age < 2010)] <- "2005-2009"
+item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 2010 & item108.dat4$Age < 2015)] <- "2010-2014"
+item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 2015)] <- "Post 2014"
 #check uniques
 unique(item108.dat4$EquipVintage_bins)
 
@@ -169,11 +169,24 @@ item108.final    <- mean_one_group(item108.data
                                    ,byVariable    = 'EquipVintage_bins'
                                    ,aggregateRow  = "All Vintages")
 
-item108.final.SF <- item108.final[which(item108.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+unique(item108.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item108.table <- item108.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item108.table <- data.frame(item108.table)
+
+
+item108.final.SF <- item108.table[which(item108.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item108.table) %in% c("BuildingType"
                                                                          ,"Count"))]
-item108.final.MH <- item108.final[which(item108.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+item108.final.MH <- item108.table[which(item108.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item108.table) %in% c("BuildingType"
                                                                          ,"Count"))]
 
 
@@ -189,12 +202,26 @@ item108.final    <- mean_one_group_unweighted(item108.data
                                    ,byVariable    = 'EquipVintage_bins'
                                    ,aggregateRow  = "All Vintages")
 
-item108.final.SF <- item108.final[which(item108.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+unique(item108.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item108.table <- item108.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item108.table <- data.frame(item108.table)
+
+
+item108.final.SF <- item108.table[which(item108.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item108.table) %in% c("BuildingType"
                                                                          ,"Count"))]
-item108.final.MH <- item108.final[which(item108.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item108.final) %in% c("BuildingType"
+item108.final.MH <- item108.table[which(item108.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item108.table) %in% c("BuildingType"
                                                                          ,"Count"))]
+
 
 exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
 exportTable(item108.final.MH, "MH", "Table 90", weighted = FALSE)
@@ -225,7 +252,7 @@ item109.dat3 <- item109.dat2[which(!(is.na(item109.dat2$TV.Screen.Type))),]
 item109.dat4 <- item109.dat3[which(!(item109.dat3$TV.Screen.Type %in% c("Unknown"))),]
 
 item109.dat4$TV.Screen.Type[grep("Tube",item109.dat4$TV.Screen.Type)] <- "CRT"
-item109.dat4$TV.Screen.Type[which(item109.dat4$TV.Screen.Type != "CRT")] <- "Other"
+item109.dat4$TV.Screen.Type[which(item109.dat4$TV.Screen.Type %in% c("Other", "Projector (Non-CRT)", "DLP"))] <- "Other"
 unique(item109.dat4$TV.Screen.Type)
 
 
@@ -241,8 +268,9 @@ item109.dat5$EquipVintage_bins[which(item109.dat5$Age < 1990)] <- "Pre 1990"
 item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 1990 & item109.dat5$Age < 1995)] <- "1990-1994"
 item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 1995 & item109.dat5$Age < 2000)] <- "1995-1999"
 item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 2000 & item109.dat5$Age < 2005)] <- "2000-2004"
-item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 2005 & item109.dat5$Age <= 2009)] <- "2005-2009"
-item109.dat5$EquipVintage_bins[which(item109.dat5$Age > 2009)] <- "Post 2010"
+item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 2005 & item109.dat5$Age < 2010)] <- "2005-2009"
+item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 2010 & item109.dat5$Age < 2015)] <- "2010-2014"
+item109.dat5$EquipVintage_bins[which(item109.dat5$Age >= 2015)] <- "Post 2014"
 #check uniques
 unique(item109.dat5$EquipVintage_bins)
 
@@ -268,23 +296,24 @@ item109.data <- left_join(item109.data, item109.customer[which(colnames(item109.
 #####################
 # Weighted analysis
 #####################
-item109.final    <- proportionRowsAndColumns1(item109.data
+item109.summary    <- proportionRowsAndColumns1(item109.data
                                               ,valueVariable       = 'count'
                                               ,columnVariable      = "EquipVintage_bins"
                                               ,rowVariable         = "TV.Screen.Type"
                                               ,aggregateColumnName = "Remove")
-item109.final <- item109.final[which(item109.final$EquipVintage_bins != "Remove"),]
+item109.summary <- item109.summary[which(item109.summary$EquipVintage_bins != "Remove"),]
 
 item109.all.vintages <- proportions_one_group(CustomerLevelData = item109.data
                                               ,valueVariable = 'count'
                                               ,groupingVariable = 'TV.Screen.Type'
                                               ,total.name = "All Vintages"
                                               ,columnName = "EquipVintage_bins"
-                                              ,weighted = TRUE)
+                                              ,weighted = TRUE
+                                              ,two.prop.total = TRUE)
 item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
 
 
-item109.final <- rbind.data.frame(item109.final, item109.all.vintages, stringsAsFactors = F)
+item109.final <- rbind.data.frame(item109.summary, item109.all.vintages, stringsAsFactors = F)
 
 item109.cast <- dcast(setDT(item109.final)
                       ,BuildingType + EquipVintage_bins ~ TV.Screen.Type
@@ -295,10 +324,35 @@ item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Percent_CRT"    = item109.cast$w.percent_CRT
                             ,"SE_CRT"         = item109.cast$w.SE_CRT
                             ,"Count_CRT"      = item109.cast$count_CRT
+                            ,"Percent_LED"    = item109.cast$w.percent_LED
+                            ,"SE_LED"         = item109.cast$w.SE_LED
+                            ,"Count_LED"      = item109.cast$count_LED
+                            ,"Percent_LCD"    = item109.cast$w.percent_LCD
+                            ,"SE_LCD"         = item109.cast$w.SE_LCD
+                            ,"Count_LCD"      = item109.cast$count_LCD
+                            ,"Percent_LED.LCD"= item109.cast$`w.percent_LED LCD`
+                            ,"SE_LED.LCD"     = item109.cast$`w.SE_LED LCD`
+                            ,"Count_LED.LCD"  = item109.cast$`count_LED LCD`
+                            ,"Percent_Plasma" = item109.cast$w.percent_Plasma
+                            ,"SE_Plasma"      = item109.cast$w.SE_Plasma
+                            ,"Count_Plasma"   = item109.cast$count_Plasma
                             ,"Percent_Other"  = item109.cast$w.percent_Other
                             ,"SE_Other"       = item109.cast$w.SE_Other
                             ,"Count_Other"    = item109.cast$count_Other
-                            ,"SampleSize"     = item109.cast$n_Total)
+                            # ,"n"     = item109.cast$n_Total
+                            )
+
+unique(item109.table$Vintage)
+rowOrder <- c("Pre 1990"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item109.table <- item109.table %>% mutate(Vintage = factor(Vintage, levels = rowOrder)) %>% arrange(Vintage)  
+item109.table <- data.frame(item109.table)
 
 
 item109.final.SF <- item109.table[which(item109.table$BuildingType == "Single Family")
@@ -311,11 +365,8 @@ exportTable(item109.final.SF, "SF", "Table 116", weighted = TRUE)
 exportTable(item109.final.MH, "MH", "Table 91", weighted = TRUE)
 
 
-##############
-# Unweighted
-##############
 #####################
-# Weighted analysis
+# Uneighted analysis
 #####################
 item109.final    <- proportions_two_groups_unweighted(item109.data
                                               ,valueVariable       = 'count'
@@ -329,7 +380,8 @@ item109.all.vintages <- proportions_one_group(CustomerLevelData = item109.data
                                               ,groupingVariable = 'TV.Screen.Type'
                                               ,total.name = "All Vintages"
                                               ,columnName = "EquipVintage_bins"
-                                              ,weighted = FALSE)
+                                              ,weighted = FALSE
+                                              ,two.prop.total = TRUE)
 item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
 
 
@@ -337,17 +389,43 @@ item109.final <- rbind.data.frame(item109.final, item109.all.vintages, stringsAs
 
 item109.cast <- dcast(setDT(item109.final)
                       ,BuildingType + EquipVintage_bins ~ TV.Screen.Type
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Vintage"        = item109.cast$EquipVintage_bins
                             ,"Percent_CRT"    = item109.cast$Percent_CRT
                             ,"SE_CRT"         = item109.cast$SE_CRT
                             ,"Count_CRT"      = item109.cast$Count_CRT
+                            ,"Percent_LED"    = item109.cast$Percent_LED
+                            ,"SE_LED"         = item109.cast$SE_LED
+                            ,"Count_LED"      = item109.cast$Count_LED
+                            ,"Percent_LCD"    = item109.cast$Percent_LCD
+                            ,"SE_LCD"         = item109.cast$SE_LCD
+                            ,"Count_LCD"      = item109.cast$Count_LCD
+                            ,"Percent_LED.LCD"= item109.cast$`Percent_LED LCD`
+                            ,"SE_LED.LCD"     = item109.cast$`SE_LED LCD`
+                            ,"Count_LED.LCD"  = item109.cast$`Count_LED LCD`
+                            ,"Percent_Plasma" = item109.cast$Percent_Plasma
+                            ,"SE_Plasma"      = item109.cast$SE_Plasma
+                            ,"Count_Plasma"   = item109.cast$Count_Plasma
                             ,"Percent_Other"  = item109.cast$Percent_Other
                             ,"SE_Other"       = item109.cast$SE_Other
                             ,"Count_Other"    = item109.cast$Count_Other
-                            ,"SampleSize"     = item109.cast$SampleSize_Total)
+                            # ,"n"     = item109.cast$n_Total
+                            )
+
+
+unique(item109.table$Vintage)
+rowOrder <- c("Pre 1990"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item109.table <- item109.table %>% mutate(Vintage = factor(Vintage, levels = rowOrder)) %>% arrange(Vintage)  
+item109.table <- data.frame(item109.table)
 
 
 item109.final.SF <- item109.table[which(item109.table$BuildingType == "Single Family")
@@ -431,7 +509,7 @@ item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Fa
                                   ,-which(colnames(item110.final) %in% c("BuildingType"
                                                                          ,"Room"
                                                                          ,"Total.Count"))]
-exportTable(item110.final.SF, "SF", "Table 115", weighted = FALSE)
+exportTable(item110.final.SF, "SF", "Table 117", weighted = FALSE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"

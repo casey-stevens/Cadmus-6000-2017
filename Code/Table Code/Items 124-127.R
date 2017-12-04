@@ -95,13 +95,13 @@ item124.table <- data.frame("BuildingType"    = item124.cast$BuildingType
 )
 #QAQC
 stopifnot(sum(item124.table[which(item124.table$BuildingType == "Single Family")
-                           ,grep("Percent",colnames(item124.table))], na.rm = T) == 10)
+                            ,grep("Percent",colnames(item124.table))], na.rm = T) == 10)
 
 
 item124.final.SF <- item124.table[which(item124.table$BuildingType == "Single Family")
-                                ,-which(colnames(item124.table) %in% c("BuildingType"))]
+                                  ,-which(colnames(item124.table) %in% c("BuildingType"))]
 item124.final.MH <- item124.table[which(item124.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item124.table) %in% c("BuildingType"))]
+                                  ,-which(colnames(item124.table) %in% c("BuildingType"))]
 
 exportTable(item124.final.SF, "SF", "Table 131", weighted = TRUE)
 exportTable(item124.final.MH, "MH", "Table 106", weighted = TRUE)
@@ -111,43 +111,43 @@ exportTable(item124.final.MH, "MH", "Table 106", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item124.final <- proportions_two_groups_unweighted(CustomerLevelData = item124.data
-                                                  ,valueVariable    = 'count'
-                                                  ,columnVariable   = 'State'
-                                                  ,rowVariable      = 'Ownership.Type'
-                                                  ,aggregateColumnName = "Region")
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'Ownership.Type'
+                                                   ,aggregateColumnName = "Region")
 
 item124.cast <- dcast(setDT(item124.final)
-                     , formula = BuildingType + Ownership.Type ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , formula = BuildingType + Ownership.Type ~ State
+                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
 
 
 item124.table <- data.frame("BuildingType"    = item124.cast$BuildingType
-                           ,"Ownership.Type"      = item124.cast$Ownership.Type
-                           ,"Percent_ID"     = item124.cast$Percent_ID
-                           ,"SE_ID"          = item124.cast$SE_ID
-                           ,"Count_ID"       = item124.cast$Count_ID
-                           ,"Percent_MT"     = item124.cast$Percent_MT
-                           ,"SE_MT"          = item124.cast$SE_MT
-                           ,"Count_MT"       = item124.cast$Count_MT
-                           ,"Percent_OR"     = item124.cast$Percent_OR
-                           ,"SE_OR"          = item124.cast$SE_OR
-                           ,"Count_OR"       = item124.cast$Count_OR
-                           ,"Percent_WA"     = item124.cast$Percent_WA
-                           ,"SE_WA"          = item124.cast$SE_WA
-                           ,"Count_WA"       = item124.cast$Count_WA
-                           ,"Percent_Region" = item124.cast$Percent_Region
-                           ,"SE_Region"      = item124.cast$SE_Region
-                           ,"Count_Region"   = item124.cast$Count_Region
-                           # ,"SampleSize"     = item124.cast$SampleSize_Region
+                            ,"Ownership.Type"      = item124.cast$Ownership.Type
+                            ,"Percent_ID"     = item124.cast$Percent_ID
+                            ,"SE_ID"          = item124.cast$SE_ID
+                            ,"Count_ID"       = item124.cast$Count_ID
+                            ,"Percent_MT"     = item124.cast$Percent_MT
+                            ,"SE_MT"          = item124.cast$SE_MT
+                            ,"Count_MT"       = item124.cast$Count_MT
+                            ,"Percent_OR"     = item124.cast$Percent_OR
+                            ,"SE_OR"          = item124.cast$SE_OR
+                            ,"Count_OR"       = item124.cast$Count_OR
+                            ,"Percent_WA"     = item124.cast$Percent_WA
+                            ,"SE_WA"          = item124.cast$SE_WA
+                            ,"Count_WA"       = item124.cast$Count_WA
+                            ,"Percent_Region" = item124.cast$Percent_Region
+                            ,"SE_Region"      = item124.cast$SE_Region
+                            ,"Count_Region"   = item124.cast$Count_Region
+                            # ,"SampleSize"     = item124.cast$SampleSize_Region
 )
 stopifnot(sum(item124.table[which(item124.table$BuildingType == "Single Family")
-                           ,grep("Percent",colnames(item124.table))], na.rm = T) == 10)
+                            ,grep("Percent",colnames(item124.table))], na.rm = T) == 10)
 
 
 item124.final.SF <- item124.table[which(item124.table$BuildingType == "Single Family")
-                                ,-which(colnames(item124.table) %in% c("BuildingType"))]
+                                  ,-which(colnames(item124.table) %in% c("BuildingType"))]
 item124.final.MH <- item124.table[which(item124.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item124.table) %in% c("BuildingType"))]
+                                  ,-which(colnames(item124.table) %in% c("BuildingType"))]
 
 exportTable(item124.final.SF, "SF", "Table 131", weighted = FALSE)
 exportTable(item124.final.MH, "MH", "Table 106", weighted = FALSE)
@@ -279,13 +279,14 @@ item127.dat1$Percent.Assistance[which(item127.dat1$Financial.Assistance == "No")
 unique(item127.dat1$Percent.Assistance)
 
 item127.dat2 <- item127.dat1[which(!(is.na(item127.dat1$Percent.Assistance))),]
-
+item127.dat3 <- item127.dat2[which(item127.dat2$Percent.Assistance %notin% c("Don't know"
+                                                                             ,"Prefer not to say")),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item127.data <- weightedData(item127.dat2[-which(colnames(item127.dat2) %in% c("Financial.Assistance"
+item127.data <- weightedData(item127.dat3[-which(colnames(item127.dat3) %in% c("Financial.Assistance"
                                                                                ,"Percent.Assistance"))])
-item127.data <- left_join(item127.data, item127.dat2[which(colnames(item127.dat2) %in% c("CK_Cadmus_ID"
+item127.data <- left_join(item127.data, item127.dat3[which(colnames(item127.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"Financial.Assistance"
                                                                                          ,"Percent.Assistance"))])
 item127.data$count <- 1
@@ -322,6 +323,16 @@ item127.table <- data.frame("BuildingType"    = item127.cast$BuildingType
                             # ,"SampleSize"     = item127.cast$SampleSize_Region
 )
 
+# row ordering example code
+unique(item127.table$Percent.Assistance)
+rowOrder <- c("Less than 25%"
+              ,"Between 26% and 50%"
+              ,"Between 51% and 75%"
+              ,"Between 76% and 100%"
+              ,"No Utility Bill Assistance"
+              ,"Total")
+item127.table <- item127.table %>% mutate(Percent.Assistance = factor(Percent.Assistance, levels = rowOrder)) %>% arrange(Percent.Assistance)  
+item127.table <- data.frame(item127.table)
 
 item127.final.SF <- item127.table[which(item127.table$BuildingType == "Single Family")
                                   ,-which(colnames(item127.table) %in% c("BuildingType"))]
@@ -366,6 +377,16 @@ item127.table <- data.frame("BuildingType"    = item127.cast$BuildingType
                             # ,"SampleSize"     = item127.cast$SampleSize_Region
 )
 
+# row ordering example code
+unique(item127.table$Percent.Assistance)
+rowOrder <- c("Less than 25%"
+              ,"Between 26% and 50%"
+              ,"Between 51% and 75%"
+              ,"Between 76% and 100%"
+              ,"No Utility Bill Assistance"
+              ,"Total")
+item127.table <- item127.table %>% mutate(Percent.Assistance = factor(Percent.Assistance, levels = rowOrder)) %>% arrange(Percent.Assistance)  
+item127.table <- data.frame(item127.table)
 
 item127.final.SF <- item127.table[which(item127.table$BuildingType == "Single Family")
                                   ,-which(colnames(item127.table) %in% c("BuildingType"))]

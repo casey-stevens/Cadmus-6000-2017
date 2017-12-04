@@ -52,13 +52,14 @@ item128.dat1$Percent.Assistance[which(item128.dat1$Financial.Assistance == "No")
 unique(item128.dat1$Percent.Assistance)
 
 item128.dat2 <- item128.dat1[which(!(is.na(item128.dat1$Percent.Assistance))),]
-
+item128.dat3 <- item128.dat2[which(item128.dat2$Percent.Assistance %notin% c("Don't know"
+                                                                             ,"Prefer not to say")),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item128.data <- weightedData(item128.dat2[-which(colnames(item128.dat2) %in% c("Financial.Assistance"
+item128.data <- weightedData(item128.dat3[-which(colnames(item128.dat3) %in% c("Financial.Assistance"
                                                                                ,"Percent.Assistance"))])
-item128.data <- left_join(item128.data, item128.dat2[which(colnames(item128.dat2) %in% c("CK_Cadmus_ID"
+item128.data <- left_join(item128.data, item128.dat3[which(colnames(item128.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"Financial.Assistance"
                                                                                          ,"Percent.Assistance"))])
 item128.data$count <- 1
@@ -98,6 +99,17 @@ item128.table <- data.frame("BuildingType"    = item128.cast$BuildingType
                             ,"Count_Region"   = item128.cast$count_Region
                             ,"n_Region"       = item128.cast$n_Region
 )
+
+# row ordering example code
+unique(item128.table$Percent.Assistance)
+rowOrder <- c("Less than 25%"
+              ,"Between 26% and 50%"
+              ,"Between 51% and 75%"
+              ,"Between 76% and 100%"
+              ,"No Utility Bill Assistance"
+              ,"Total")
+item128.table <- item128.table %>% mutate(Percent.Assistance = factor(Percent.Assistance, levels = rowOrder)) %>% arrange(Percent.Assistance)  
+item128.table <- data.frame(item128.table)
 
 
 item128.final.SF <- item128.table[which(item128.table$BuildingType == "Single Family")
@@ -276,6 +288,7 @@ item130.data <- weightedData(item130.merge[-which(colnames(item130.merge) %in% c
 item130.data <- left_join(item130.data, item130.merge[which(colnames(item130.merge) %in% c("CK_Cadmus_ID"
                                                                                          ,"Ind"))])
 item130.data$count <- 1
+item130.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################

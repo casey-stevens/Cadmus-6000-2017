@@ -25,11 +25,15 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
+
+#Read in data for analysis
+mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
@@ -480,7 +484,7 @@ item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >  0  & item163.dat1$aveR
 item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 4  & item163.dat1$aveRval  < 11)]  <- "R4.R10"
 item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 11 & item163.dat1$aveRval  < 16)]  <- "R11.R15"
 item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 16 & item163.dat1$aveRval  < 163)]  <- "R16.R22"
-item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 163 & item163.dat1$aveRval  < 28)]  <- "R163.R27"
+item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 23 & item163.dat1$aveRval  < 28)]  <- "R23.R27"
 item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 28 & item163.dat1$aveRval  < 36)]  <- "R28.R35"
 item163.dat1$rvalue.bins.SF[which(item163.dat1$aveRval >= 36)] <- "RGT36"
 unique(item163.dat1$rvalue.bins.SF)
@@ -546,7 +550,7 @@ item163.all.frame.types <- proportions_one_group(item163.data
 item163.all.insul.levels <-  proportions_one_group(item163.data
                                                   ,valueVariable    = "count"
                                                   ,groupingVariable = "HomeYearBuilt_bins3"
-                                                  ,total.name       = "All Housing Vintages"
+                                                  ,total.name       = "All Insulation Levels"
                                                   ,columnName       = "rvalue.bins.SF"
                                                   ,weighted = TRUE
                                                   ,two.prop.total = TRUE)
@@ -569,30 +573,40 @@ item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"Housing.Vintage" = item163.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item163.cast$w.percent_None
                            ,"SE.None"         = item163.cast$w.SE_None
-                           ,"Count.None"          = item163.cast$count_None
+                           ,"Count.None"      = item163.cast$count_None
                            ,"Percent.R1.R3"   = item163.cast$w.percent_R1.R3  
                            ,"SE.R1.R3"        = item163.cast$w.SE_R1.R3
-                           ,"Count.R1.R3"         = item163.cast$count_R1.R3
+                           ,"Count.R1.R3"     = item163.cast$count_R1.R3
                            ,"Percent.R4.R10"  = item163.cast$w.percent_R4.R10  
                            ,"SE.R4.R10"       = item163.cast$w.SE_R4.R10
-                           ,"Count.R4.R10"        = item163.cast$count_R4.R10
+                           ,"Count.R4.R10"    = item163.cast$count_R4.R10
                            ,"Percent.R11.R15" = item163.cast$w.percent_R11.R15
                            ,"SE.R11.R15"      = item163.cast$w.SE_R11.R15
-                           ,"Count.R11.R15"       = item163.cast$count_R11.R15
+                           ,"Count.R11.R15"   = item163.cast$count_R11.R15
                            ,"Percent.R16.R22" = item163.cast$w.percent_R16.R22
                            ,"SE.R16.R22"      = item163.cast$w.SE_R16.R22
-                           ,"Count.R16.R22"       = item163.cast$count_R16.R22
-                           ,"Percent.R163.R27" = NA #item163.cast$w.percent_R163.R27
-                           ,"SE.R163.R27"      = NA #item163.cast$w.SE_R163.R27
-                           ,"Count.R163.R27"       = NA #item163.cast$count_R163.R27
+                           ,"Count.R16.R22"   = item163.cast$count_R16.R22
+                           ,"Percent.R23.R27" = item163.cast$w.percent_R23.R27
+                           ,"SE.R23.R27"      = item163.cast$w.SE_R23.R27
+                           ,"Count.R23.R27"   = item163.cast$count_R23.R27
                            ,"Percent.R28.R35" = item163.cast$w.percent_R28.R35
                            ,"SE.R28.R35"      = item163.cast$w.SE_R28.R35
-                           ,"Count.R28.R35"       = item163.cast$count_R28.R35
+                           ,"Count.R28.R35"   = item163.cast$count_R28.R35
                            ,"Percent.RGT36"   = item163.cast$w.percent_RGT36
                            ,"SE.RGT36"        = item163.cast$w.SE_RGT36
-                           ,"Count.RGT36"         = item163.cast$count_RGT36
-                           # ,"SampleSize"      = item163.cast$count_Total
+                           ,"Count.RGT36"     = item163.cast$count_RGT36
 )
+
+# row ordering example code
+levels(item163.table$Housing.Vintage)
+rowOrder <- c("Pre 1981"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+item163.table <- item163.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item163.table <- data.frame(item163.table)
 
 
 item163.table.SF <- item163.table[which(item163.table$BuildingType == "Single Family"),-1]
@@ -643,7 +657,7 @@ item163.final$HomeYearBuilt_bins3[which(item163.final$HomeYearBuilt_bins3 == "To
 
 item163.cast <- dcast(setDT(item163.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     value.var = c("Percent", "SE", "Count", "n"))
 
 item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"Housing.Vintage" = item163.cast$HomeYearBuilt_bins3
@@ -662,18 +676,27 @@ item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"Percent.R16.R22" = item163.cast$Percent_R16.R22
                            ,"SE.R16.R22"      = item163.cast$SE_R16.R22
                            ,"Count.R16.R22"   = item163.cast$Count_R16.R22
-                           ,"Percent.R163.R27" = NA #item163.cast$Percent_R163.R27
-                           ,"SE.R163.R27"      = NA #item163.cast$SE_R163.R27
-                           ,"Count.R163.R27"   = NA #item163.cast$Count_R163.R27
+                           ,"Percent.R23.R27" = item163.cast$Percent_R23.R27
+                           ,"SE.R23.R27"      = item163.cast$SE_R23.R27
+                           ,"Count.R23.R27"   = item163.cast$Count_R23.R27
                            ,"Percent.R28.R35" = item163.cast$Percent_R28.R35
                            ,"SE.R28.R35"      = item163.cast$SE_R28.R35
                            ,"Count.R28.R35"   = item163.cast$Count_R28.R35
                            ,"Percent.RGT36"   = item163.cast$Percent_RGT36
                            ,"SE.RGT36"        = item163.cast$SE_RGT36
                            ,"Count.RGT36"     = item163.cast$Count_RGT36
-                           # ,"SampleSize"      = item163.cast$Count_Total
 )
 
+# row ordering example code
+levels(item163.table$Housing.Vintage)
+rowOrder <- c("Pre 1981"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+item163.table <- item163.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item163.table <- data.frame(item163.table)
 
 item163.table.SF <- item163.table[which(item163.table$BuildingType == "Single Family"),-1]
 

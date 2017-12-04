@@ -141,7 +141,8 @@ rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
     rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1971 & rbsa.dat$HomeYearBuilt < 1981)] <- "1971-1980"
     rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1991)] <- "1981-1990"
     rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
-    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 2001 & rbsa.dat$HomeYearBuilt < 2011)] <- "2001-2010"
+    rbsa.dat$HomeYearBuilt_bins2[which(rbsa.dat$HomeYearBuilt >= 2011)] <- "Post 2010"
     unique(rbsa.dat$HomeYearBuilt_bins2)
     
     # Convert home year built to specific bins (4 categories)
@@ -149,7 +150,8 @@ rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
     rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt < 1981)] <- "Pre 1981"
     rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1991)] <- "1981-1990"
     rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
-    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
+    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 2001 & rbsa.dat$HomeYearBuilt < 2011)] <- "2001-2010"
+    rbsa.dat$HomeYearBuilt_bins3[which(rbsa.dat$HomeYearBuilt >= 2011)] <- "Post 2010"
     unique(rbsa.dat$HomeYearBuilt_bins3)
     
     # Convert home year built to specific bins
@@ -174,7 +176,8 @@ rbsa.dat$HomeYearBuilt[which(duplicated(rbsa.dat$CK_Cadmus_ID))]
     rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1971 & rbsa.dat$HomeYearBuilt < 1981)] <- "1971-1980"
     rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1981 & rbsa.dat$HomeYearBuilt < 1991)] <- "1981-1990"
     rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 1991 & rbsa.dat$HomeYearBuilt < 2001)] <- "1991-2000"
-    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 2001)] <- "Post 2000"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 2001 & rbsa.dat$HomeYearBuilt < 2011)] <- "2001-2010"
+    rbsa.dat$HomeYearBuilt_MF[which(rbsa.dat$HomeYearBuilt >= 2011)] <- "Post 2010"
     unique(rbsa.dat$HomeYearBuilt_MF)
     
     

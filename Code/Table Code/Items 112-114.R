@@ -26,8 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
-                            , sheet = "Sheet1")
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -56,7 +55,7 @@ item112.customer <- summarise(group_by(item112.dat2, CK_Cadmus_ID)
                           ,Site.Count = sum(count))
 
 item112.merge <- left_join(rbsa.dat, item112.customer)
-item112.merge <- item112.merge[which(!is.na(item112.merge$Site.Count)),]
+item112.merge$Site.Count[which(is.na(item112.merge$Site.Count))] <- 0
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -189,6 +188,9 @@ exportTable(item113.final.MH, "MH", "Table 95", weighted = FALSE)
 
 
 
+
+
+
 #############################################################################################
 #Item 114: PERCENTAGE OF SET-TOP BOXES WITH DVR CAPABILITY BY STATE (SF table 121, MH table 96)
 #############################################################################################
@@ -205,6 +207,7 @@ item114.dat0 <- item114.dat[which(item114.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item114.dat1 <- left_join(item114.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 #subset to set.top.box not NA
+unique(item114.dat1$TV.Set.Top.Box)
 item114.dat2 <- item114.dat1[which(item114.dat1$TV.Set.Top.Box == "Yes"),]
 
 #remove unknown or DP not asked for
@@ -241,17 +244,12 @@ item114.final <- proportions_one_group(CustomerLevelData = item114.data
                                        ,valueVariable = 'STB.Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
-                                       ,columnName = "Remove"
                                        ,weighted = TRUE)
 
 item114.final.SF <- item114.final[which(item114.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item114.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"))]
 item114.final.MH <- item114.final[which(item114.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item114.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"))]
 exportTable(item114.final.SF, "SF", "Table 121", weighted = TRUE)
 exportTable(item114.final.MH, "MH", "Table 96", weighted = TRUE)
 
@@ -263,16 +261,11 @@ item114.final <- proportions_one_group(CustomerLevelData = item114.data
                                        ,valueVariable = 'STB.Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
-                                       ,columnName = "Remove"
                                        ,weighted = FALSE)
 
 item114.final.SF <- item114.final[which(item114.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item114.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"))]
 item114.final.MH <- item114.final[which(item114.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item114.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item114.final) %in% c("BuildingType"))]
 exportTable(item114.final.SF, "SF", "Table 121", weighted = FALSE)
 exportTable(item114.final.MH, "MH", "Table 96", weighted = FALSE)

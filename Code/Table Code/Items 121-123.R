@@ -63,8 +63,8 @@ item121.dat1 <- left_join(item121.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 #############################################################################################
 #subset to columns needed for analysis
 item122.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                              ,"Qty.Occupants"
-                                                                              ,""))])
+                                                                                     ,"Qty.Occupants"
+                                                                                     ,""))])
 item122.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -188,20 +188,21 @@ item123.merge <- item123.merge[which(!is.na(item123.merge$Occupants)),]
 # Adding pop and sample sizes for weights
 ################################################
 item123.data <- weightedData(item123.merge[-which(colnames(item123.merge) %in% c("Age.Category"               
-                                                                               ,"Occupants"))])
+                                                                                 ,"Occupants"))])
 item123.data <- left_join(item123.data, item123.merge[which(colnames(item123.merge) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Age.Category"               
-                                                                                         ,"Occupants"))])
+                                                                                           ,"Age.Category"               
+                                                                                           ,"Occupants"))])
 item123.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
 item123.cast <- mean_two_groups(CustomerLevelData = item123.data
-                                 ,valueVariable    = 'Occupants'
-                                 ,byVariableRow    = 'Age.Category'
-                                 ,byVariableColumn = 'State'
-                                 ,columnAggregate  = "Region"
-                                 ,rowAggregate     = "All_Ages")
+                                ,valueVariable    = 'Occupants'
+                                ,byVariableRow    = 'Age.Category'
+                                ,byVariableColumn = 'State'
+                                ,columnAggregate  = "Region"
+                                ,rowAggregate     = "Remove")
+item123.cast <- item123.cast[which(item123.cast$Age.Category != "Remove"),]
 
 item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
                             ,"Age.Category"   = item123.cast$Age.Category
@@ -235,11 +236,12 @@ exportTable(item123.final.MH, "MH", "Table 105", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item123.cast <-  mean_two_groups_unweighted(CustomerLevelData = item123.data
-                                             ,valueVariable    = 'Occupants'
-                                             ,byVariableRow    = 'Age.Category'
-                                             ,byVariableColumn = 'State'
-                                             ,columnAggregate  = "Region"
-                                             ,rowAggregate     = "All_Ages")
+                                            ,valueVariable    = 'Occupants'
+                                            ,byVariableRow    = 'Age.Category'
+                                            ,byVariableColumn = 'State'
+                                            ,columnAggregate  = "Region"
+                                            ,rowAggregate     = "Remove")
+item123.cast <- item123.cast[which(item123.cast$Age.Category != "Remove"),]
 
 item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
                             ,"Age.Category"   = item123.cast$Age.Category

@@ -312,16 +312,18 @@ item137.dat1 <- summarise(group_by(item137.dat0, CK_Cadmus_ID)
                           ,QTY = sum(QTY, na.rm = T))
 
 item137.dat2 <- left_join(rbsa.dat, item137.dat1, by = "CK_Cadmus_ID")
-item137.dat2 <- item137.dat2[which(!is.na(item137.dat2$QTY)),]
+item137.dat2$QTY[which(is.na(item137.dat2$QTY))] <- 0
+
+item137.dat2$QTY <- as.numeric(as.character(item137.dat2$QTY))
 
 item137.dat2$QTY_bins <- item137.dat2$QTY
 item137.dat2$QTY_bins[which(item137.dat2$QTY == 0)] <- "None"
-item137.dat2$QTY_bins[which(item137.dat2$QTY < 100)] <- "< 100 Gallons"
+item137.dat2$QTY_bins[which(item137.dat2$QTY >  0   & item137.dat2$QTY < 100)] <- "< 100 Gallons"
 item137.dat2$QTY_bins[which(item137.dat2$QTY >= 100 & item137.dat2$QTY < 251)] <- "100-250 Gallons"
 item137.dat2$QTY_bins[which(item137.dat2$QTY >= 250 & item137.dat2$QTY < 501)] <- "250-500 Gallons"
 item137.dat2$QTY_bins[which(item137.dat2$QTY >= 500 & item137.dat2$QTY < 1001)] <- "500-1000 Gallons"
 item137.dat2$QTY_bins[which(item137.dat2$QTY > 1000)] <- "> 1000 Gallons"
-
+unique(item137.dat2$QTY_bins)
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -346,7 +348,7 @@ item137.cast <- dcast(setDT(item137.final)
                       , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item137.table <- data.frame("BuildingType"   = item137.cast$BuildingType
-                            ,"Annual.Wood.Use"= item137.cast$QTY_bins
+                            ,"Annual.Oil.Fuel.Use"= item137.cast$QTY_bins
                             ,"Percent_ID"     = item137.cast$w.percent_ID
                             ,"SE_ID"          = item137.cast$w.SE_ID
                             ,"Count_ID"       = item137.cast$count_ID
@@ -367,6 +369,18 @@ item137.table <- data.frame("BuildingType"   = item137.cast$BuildingType
 #QAQC
 stopifnot(sum(item137.table[which(item137.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item137.table))], na.rm = T) == 10)
+
+# row ordering example code
+unique(item137.table$Annual.Oil.Fuel.Use)
+rowOrder <- c("< 100 Gallons"
+              ,"100-250 Gallons"
+              ,"250-500 Gallons"
+              ,"500-1000 Gallons"
+              ,"> 1000 Gallons"
+              ,"None"
+              ,"Total")
+item137.table <- item137.table %>% mutate(Annual.Oil.Fuel.Use = factor(Annual.Oil.Fuel.Use, levels = rowOrder)) %>% arrange(Annual.Oil.Fuel.Use)  
+item137.table <- data.frame(item137.table)
 
 
 item137.final.SF <- item137.table[which(item137.table$BuildingType == "Single Family")
@@ -393,7 +407,7 @@ item137.cast <- dcast(setDT(item137.final)
 
 
 item137.table <- data.frame("BuildingType"   = item137.cast$BuildingType
-                            ,"Annual.Wood.Use"= item137.cast$QTY_bins
+                            ,"Annual.Oil.Fuel.Use"= item137.cast$QTY_bins
                             ,"Percent_ID"     = item137.cast$Percent_ID
                             ,"SE_ID"          = item137.cast$SE_ID
                             ,"Count_ID"       = item137.cast$Count_ID
@@ -413,6 +427,18 @@ item137.table <- data.frame("BuildingType"   = item137.cast$BuildingType
 )
 stopifnot(sum(item137.table[which(item137.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item137.table))], na.rm = T) == 10)
+
+# row ordering example code
+unique(item137.table$Annual.Oil.Fuel.Use)
+rowOrder <- c("< 100 Gallons"
+              ,"100-250 Gallons"
+              ,"250-500 Gallons"
+              ,"500-1000 Gallons"
+              ,"> 1000 Gallons"
+              ,"None"
+              ,"Total")
+item137.table <- item137.table %>% mutate(Annual.Oil.Fuel.Use = factor(Annual.Oil.Fuel.Use, levels = rowOrder)) %>% arrange(Annual.Oil.Fuel.Use)  
+item137.table <- data.frame(item137.table)
 
 
 item137.final.SF <- item137.table[which(item137.table$BuildingType == "Single Family")
@@ -447,8 +473,8 @@ item138.dat2 <- item138.dat2[which(!is.na(item138.dat2$QTY)),]
 
 item138.dat2$QTY_bins <- item138.dat2$QTY
 item138.dat2$QTY_bins[which(item138.dat2$QTY == 0)] <- "None"
-item138.dat2$QTY_bins[which(item138.dat2$QTY < 50)] <- "< 50 Gallons"
-item138.dat2$QTY_bins[which(item138.dat2$QTY >= 50 & item138.dat2$QTY < 251)] <- "50-250 Gallons"
+item138.dat2$QTY_bins[which(item138.dat2$QTY >  0   & item138.dat2$QTY < 50)] <- "< 50 Gallons"
+item138.dat2$QTY_bins[which(item138.dat2$QTY >= 50  & item138.dat2$QTY < 251)] <- "50-250 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >= 250 & item138.dat2$QTY < 501)] <- "250-500 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >= 500 & item138.dat2$QTY < 1001)] <- "500-1000 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY > 1000)] <- "> 1000 Gallons"
@@ -478,7 +504,7 @@ item138.cast <- dcast(setDT(item138.final)
                       , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item138.table <- data.frame("BuildingType"   = item138.cast$BuildingType
-                            ,"Annual.Wood.Use"= item138.cast$QTY_bins
+                            ,"Annual.Propane.Fuel.Use"= item138.cast$QTY_bins
                             ,"Percent_ID"     = item138.cast$w.percent_ID
                             ,"SE_ID"          = item138.cast$w.SE_ID
                             ,"Count_ID"       = item138.cast$count_ID
@@ -499,6 +525,18 @@ item138.table <- data.frame("BuildingType"   = item138.cast$BuildingType
 #QAQC
 stopifnot(sum(item138.table[which(item138.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item138.table))], na.rm = T) == 10)
+
+# row ordering example code
+unique(item138.table$Annual.Propane.Fuel.Use)
+rowOrder <- c("< 50 Gallons"
+              ,"50-250 Gallons"
+              ,"250-500 Gallons"
+              ,"500-1000 Gallons"
+              ,"> 1000 Gallons"
+              ,"None"
+              ,"Total")
+item138.table <- item138.table %>% mutate(Annual.Propane.Fuel.Use = factor(Annual.Propane.Fuel.Use, levels = rowOrder)) %>% arrange(Annual.Propane.Fuel.Use)  
+item138.table <- data.frame(item138.table)
 
 
 item138.final.SF <- item138.table[which(item138.table$BuildingType == "Single Family")
@@ -525,7 +563,7 @@ item138.cast <- dcast(setDT(item138.final)
 
 
 item138.table <- data.frame("BuildingType"   = item138.cast$BuildingType
-                            ,"Annual.Wood.Use"= item138.cast$QTY_bins
+                            ,"Annual.Propane.Fuel.Use"= item138.cast$QTY_bins
                             ,"Percent_ID"     = item138.cast$Percent_ID
                             ,"SE_ID"          = item138.cast$SE_ID
                             ,"Count_ID"       = item138.cast$Count_ID

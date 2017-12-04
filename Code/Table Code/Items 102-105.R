@@ -83,21 +83,22 @@ item102.data <- left_join(item102.data, item102.merge[which(colnames(item102.mer
 #######################
 # Weighted Analysis
 #######################
-item102.final <- proportionRowsAndColumns1(CustomerLevelData = item102.data
+item102.summary <- proportionRowsAndColumns1(CustomerLevelData = item102.data
                                           ,valueVariable    = 'count'
                                           ,columnVariable   = 'DHW.Fuel'
                                           ,rowVariable      = 'Gallon_bins'
                                           ,aggregateColumnName = "Remove")
-item102.final <- item102.final[which(item102.final$DHW.Fuel != "Remove"),]
+item102.summary <- item102.summary[which(item102.summary$DHW.Fuel != "Remove"),]
 
 item102.all.fuels <- proportions_one_group(CustomerLevelData = item102.data
                                           ,valueVariable = "count"
                                           ,groupingVariable = "Gallon_bins"
-                                          ,total.name = "All Fuel Type"
+                                          ,total.name = "All Fuel Types"
                                           ,columnName = "DHW.Fuel"
-                                          ,weighted = TRUE)
+                                          ,weighted = TRUE
+                                          ,two.prop.total = TRUE)
 
-item102.final <- rbind.data.frame(item102.final, item102.all.fuels)
+item102.final <- rbind.data.frame(item102.summary, item102.all.fuels)
 
 item102.cast <- dcast(setDT(item102.final)
                      ,formula = BuildingType + DHW.Fuel ~ Gallon_bins
@@ -114,6 +115,18 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
                             )
+
+# row ordering example code
+unique(item102.table$DHW.Fuel)
+rowOrder <- c("Electric"
+              ,"Natural Gas"
+              ,"Oil"
+              ,"Propane"
+              ,"Unknown"
+              ,"All Fuel Types")
+item102.table <- item102.table %>% mutate(DHW.Fuel = factor(DHW.Fuel, levels = rowOrder)) %>% arrange(DHW.Fuel)  
+item102.table <- data.frame(item102.table)
+
 
 item102.table.SF <- item102.table[which(item102.table$BuildingType == "Single Family"),
                                   -which(colnames(item102.table) %in% c("BuildingType"))]
@@ -134,9 +147,10 @@ item102.final <- item102.final[which(item102.final$DHW.Fuel != "Remove"),]
 item102.all.fuels <- proportions_one_group(CustomerLevelData = item102.data
                                            ,valueVariable = "count"
                                            ,groupingVariable = "Gallon_bins"
-                                           ,total.name = "All Fuel Type"
+                                           ,total.name = "All Fuel Types"
                                            ,columnName = "DHW.Fuel"
-                                           ,weighted = FALSE)
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
 
 item102.final <- rbind.data.frame(item102.final, item102.all.fuels)
 
@@ -155,6 +169,18 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
 )
+
+# row ordering example code
+unique(item102.table$DHW.Fuel)
+rowOrder <- c("Electric"
+              ,"Natural Gas"
+              ,"Oil"
+              ,"Propane"
+              ,"Unknown"
+              ,"All Fuel Types")
+item102.table <- item102.table %>% mutate(DHW.Fuel = factor(DHW.Fuel, levels = rowOrder)) %>% arrange(DHW.Fuel)  
+item102.table <- data.frame(item102.table)
+
 
 item102.table.SF <- item102.table[which(item102.table$BuildingType == "Single Family"),
                                   -which(colnames(item102.table) %in% c("BuildingType"))]
@@ -238,9 +264,10 @@ item103.final <- item103.final[which(item103.final$DHW.Location != "Remove"),]
 item103.all.fuels <- proportions_one_group(CustomerLevelData = item103.data
                                            ,valueVariable = "count"
                                            ,groupingVariable = "Gallon_bins"
-                                           ,total.name = "All Fuel Type"
+                                           ,total.name = "All Locations"
                                            ,columnName = "DHW.Location"
-                                           ,weighted = TRUE)
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
 
 item103.final <- rbind.data.frame(item103.final, item103.all.fuels)
 
@@ -259,6 +286,19 @@ item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
                             ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
 )
+
+# row ordering example code
+unique(item103.table$DHW.Location)
+rowOrder <- c("Basement"
+              ,"Crawlspace"
+              ,"Garage"
+              ,"Main House"
+              ,"Other"
+              ,"All Locations")
+item103.table <- item103.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
+item103.table <- data.frame(item103.table)
+
+
 
 item103.table.SF <- item103.table[which(item103.table$BuildingType == "Single Family"),
                                   -which(colnames(item103.table) %in% c("BuildingType"))]
@@ -279,9 +319,10 @@ item103.final <- item103.final[which(item103.final$DHW.Location != "Remove"),]
 item103.all.fuels <- proportions_one_group(CustomerLevelData = item103.data
                                            ,valueVariable = "count"
                                            ,groupingVariable = "Gallon_bins"
-                                           ,total.name = "All Fuel Type"
+                                           ,total.name = "All Locations"
                                            ,columnName = "DHW.Location"
-                                           ,weighted = FALSE)
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
 
 item103.final <- rbind.data.frame(item103.final, item103.all.fuels)
 
@@ -300,6 +341,18 @@ item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
                             ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
 )
+
+# row ordering example code
+unique(item103.table$DHW.Location)
+rowOrder <- c("Basement"
+              ,"Crawlspace"
+              ,"Garage"
+              ,"Main House"
+              ,"Other"
+              ,"All Locations")
+item103.table <- item103.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
+item103.table <- data.frame(item103.table)
+
 
 item103.table.SF <- item103.table[which(item103.table$BuildingType == "Single Family"),
                                   -which(colnames(item103.table) %in% c("BuildingType"))]
@@ -383,9 +436,11 @@ item104.final <- item104.final[which(item104.final$DHW.Location != "Remove"),]
 item104.all.fuels <- proportions_one_group(CustomerLevelData = item104.data
                                            ,valueVariable = "count"
                                            ,groupingVariable = "Gallon_bins"
-                                           ,total.name = "All Fuel Type"
+                                           ,total.name = "All Locations"
                                            ,columnName = "DHW.Location"
-                                           ,weighted = TRUE)
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+
 
 item104.final <- rbind.data.frame(item104.final, item104.all.fuels)
 
@@ -404,6 +459,18 @@ item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
                             ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
 )
+
+# row ordering example code
+unique(item104.table$DHW.Location)
+rowOrder <- c("Basement"
+              ,"Crawlspace"
+              ,"Garage"
+              ,"Main House"
+              ,"Other"
+              ,"All Locations")
+item104.table <- item104.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
+item104.table <- data.frame(item104.table)
+
 
 item104.table.SF <- item104.table[which(item104.table$BuildingType == "Single Family"),
                                   -which(colnames(item104.table) %in% c("BuildingType"))]
@@ -424,9 +491,10 @@ item104.final <- item104.final[which(item104.final$DHW.Location != "Remove"),]
 item104.all.fuels <- proportions_one_group(CustomerLevelData = item104.data
                                            ,valueVariable = "count"
                                            ,groupingVariable = "Gallon_bins"
-                                           ,total.name = "All Fuel Type"
+                                           ,total.name = "All Locations"
                                            ,columnName = "DHW.Location"
-                                           ,weighted = FALSE)
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
 
 item104.final <- rbind.data.frame(item104.final, item104.all.fuels)
 
@@ -445,6 +513,18 @@ item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
                             ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
 )
+
+# row ordering example code
+unique(item104.table$DHW.Location)
+rowOrder <- c("Basement"
+              ,"Crawlspace"
+              ,"Garage"
+              ,"Main House"
+              ,"Other"
+              ,"All Locations")
+item104.table <- item104.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
+item104.table <- data.frame(item104.table)
+
 
 item104.table.SF <- item104.table[which(item104.table$BuildingType == "Single Family"),
                                   -which(colnames(item104.table) %in% c("BuildingType"))]
@@ -483,8 +563,9 @@ item105.dat3$EquipVintage_bins <- as.numeric(as.character(item105.dat3$DHW.Year.
 item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured < 1990)] <- "Pre 1990"
 item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 1990 & item105.dat3$DHW.Year.Manufactured < 2000)] <- "1990-1999"
 item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2000 & item105.dat3$DHW.Year.Manufactured < 2005)] <- "2000-2004"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2005 & item105.dat3$DHW.Year.Manufactured < 2009)] <- "2005-2009"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2009)] <- "Post 2009"
+item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2005 & item105.dat3$DHW.Year.Manufactured < 2010)] <- "2005-2009"
+item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2010 & item105.dat3$DHW.Year.Manufactured < 2015)] <- "2010-2014"
+item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2015)] <- "Post 2014"
 #check uniques
 unique(item105.dat3$EquipVintage_bins)
 
@@ -514,16 +595,27 @@ item105.data <- left_join(item105.data, item105.dat3[which(colnames(item105.dat3
 item105.final <- proportions_one_group(CustomerLevelData  = item105.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'EquipVintage_bins'
-                                      , total.name       = "Total"
-                                      , columnName       = "Water Heaters")
+                                      , total.name       = "Total")
+
+unique(item105.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+item105.table <- item105.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item105.table <- data.frame(item105.table)
+
 
 # SF = Table 112, MH = Table 87
 # Export table
-item105.final.SF <- item105.final[which(item105.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item105.final) %in% c("BuildingType"
+item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"
                                                                          ,"Water.Heaters"))]
-item105.final.MH <- item105.final[which(item105.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item105.final) %in% c("BuildingType"
+item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"
                                                                          ,"Water.Heaters"))]
 
 exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
@@ -536,17 +628,27 @@ item105.final <- proportions_one_group(CustomerLevelData  = item105.data
                                        , valueVariable    = 'count'
                                        , groupingVariable = 'EquipVintage_bins'
                                        , total.name       = "Total"
-                                       , columnName       = "Water Heaters"
                                        , weighted         = FALSE)
+unique(item105.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+item105.table <- item105.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item105.table <- data.frame(item105.table)
+
 
 # SF = Table 112, MH = Table 87
 # Export table
-item105.final.SF <- item105.final[which(item105.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item105.final) %in% c("BuildingType"
+item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"
                                                                          ,"Water.Heaters"
                                                                          ,"Total.Count"))]
-item105.final.MH <- item105.final[which(item105.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item105.final) %in% c("BuildingType"
+item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"
                                                                          ,"Water.Heaters"
                                                                          ,"Total.Count"))]
 

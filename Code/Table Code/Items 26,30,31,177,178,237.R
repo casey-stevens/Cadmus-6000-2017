@@ -454,6 +454,8 @@ item30.final <- proportions_one_group(CustomerLevelData = item30.data
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,weighted         = FALSE)
+
+
 item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
                                 ,-which(colnames(item30.final) %in% c("BuildingType"))]
 exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
