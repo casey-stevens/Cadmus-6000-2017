@@ -28,7 +28,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis -- Item 77 and table ZZ
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 3)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -161,10 +161,10 @@ unique(tableZZ.dat2$Lamps)
 
 tableZZ.dat3 <- tableZZ.dat2[which(!(is.na(tableZZ.dat2$Lamps))),]
 
-tableZZ.cfl.sum <- summarise(group_by(tableZZ.dat3, CK_Cadmus_ID)
+tableZZ.led.sum <- summarise(group_by(tableZZ.dat3, CK_Cadmus_ID)
                             ,TotalBulbs = sum(Lamps))
 
-tableZZ.merge1 <- left_join(rbsa.dat, tableZZ.cfl.sum)
+tableZZ.merge1 <- left_join(rbsa.dat, tableZZ.led.sum)
 
 ## subset to only storage bulbs
 tableZZ.storage <- tableZZ.dat3[which(tableZZ.dat3$Clean.Room == "Storage"),]

@@ -176,30 +176,28 @@ item55.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID
                                                                    ,"Primary.Cooling.System"
                                                                    ,"System.Type"))]
 item55.dat1 <- unique(item55.dat[grep("yes",item55.dat$Primary.Cooling.System, ignore.case = T),])
-item55.dat1$CK_Cadmus_ID[which(duplicated(item55.dat1$CK_Cadmus_ID))]
+unique(item55.dat1$CK_Cadmus_ID[which(duplicated(item55.dat1$CK_Cadmus_ID))])
 
-#fix duplicate primary cooling systems
-#Manual fixes:
-item55.dat1$System.Type[which(item55.dat1$CK_Cadmus_ID == "RBS56461 OS BPA")] <- "Air Source Heat Pump"
-item55.dat1$System.Type[which(item55.dat1$CK_Cadmus_ID == "WS30180 CORE")]    <- "Mini-split HP"
-item55.dat1.1 <- unique(item55.dat1)
+# #fix duplicate primary cooling systems
+# #Manual fixes:
+# item55.dat1$System.Type[which(item55.dat1$CK_Cadmus_ID == "RBS56461 OS BPA")] <- "Air Source Heat Pump"
+# item55.dat1$System.Type[which(item55.dat1$CK_Cadmus_ID == "WS30180 CORE")]    <- "Mini-split HP"
+# item55.dat1.1 <- unique(item55.dat1)
+# 
+# dup.ind <- item55.dat1.1$CK_Cadmus_ID[which(duplicated(item55.dat1.1$CK_Cadmus_ID))]
+# item55.dat1.1$System.Type[which(item55.dat1.1$CK_Cadmus_ID %in% dup.ind)] <- "Central AC"
+# 
+# item55.dat1.2 <- unique(item55.dat1.1)
+# item55.dat1.2$CK_Cadmus_ID[which(duplicated(item55.dat1.2$CK_Cadmus_ID))]
 
-dup.ind <- item55.dat1.1$CK_Cadmus_ID[which(duplicated(item55.dat1.1$CK_Cadmus_ID))]
-item55.dat1.1$System.Type[which(item55.dat1.1$CK_Cadmus_ID %in% dup.ind)] <- "Central AC"
-
-item55.dat1.2 <- unique(item55.dat1.1)
-item55.dat1.2$CK_Cadmus_ID[which(duplicated(item55.dat1.2$CK_Cadmus_ID))]
-
-item55.dat2 <- left_join(rbsa.dat, item55.dat1.2)
+item55.dat2 <- left_join(rbsa.dat, item55.dat1) #item55.dat1.2
 
 item55.dat2$Dist.Ind <- 0
 item55.dat2$Dist.Ind[which(!is.na(item55.dat2$Primary.Cooling.System))] <- 1
-item55.dat2$Dist.Ind[which(item55.dat2$System.Type == "Stove/Fireplace")] <- 0
 unique(item55.dat2$Dist.Ind)
 unique(item55.dat2$System.Type)
 
 item55.dat3 <- item55.dat2[which(!is.na(item55.dat2$System.Type)),]
-item55.dat3 <- item55.dat3[which(item55.dat3$System.Type != "Stove/Fireplace"),]
 
 ##########################################
 # add pop and sample sizes by strata
@@ -320,12 +318,12 @@ rowOrder <- c("Packaged AC"
               ,"Packaged HP"
               ,"Central AC"
               ,"Evaporative Cooling"
+              ,"GeoThermal Heat Pump"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
               ,"Mini-split HP"
               ,"Mini-split AC"
               ,"Furnace"
-              ,"GeoThermal Heat Pump"
               ,"Total")
 item55.table <- item55.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item55.table <- data.frame(item55.table)

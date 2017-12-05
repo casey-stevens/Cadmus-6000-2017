@@ -502,6 +502,7 @@ proportions_one_group <- function(CustomerLevelData
         # obtain count and proportion by strata and row grouping variable
         StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                      , c("BuildingType", "State", "Region", "Territory"), summarise
+                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
                                                      ,count       = sum(get(valueVariable))
                                                      ,total.count = sum(TotalBulbs)
                                                      ,p.h = count / total.count), stringsAsFactors = F)
@@ -509,6 +510,7 @@ proportions_one_group <- function(CustomerLevelData
         # obtain count and proportion by strata and row grouping variable
         StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                      , c("BuildingType", "State", "Region", "Territory"), summarise
+                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
                                                      ,count       = sum(get(valueVariable))
                                                      ,total.count = sum(Count)
                                                      ,p.h = count / total.count), stringsAsFactors = F)
@@ -516,6 +518,7 @@ proportions_one_group <- function(CustomerLevelData
         # obtain count and proportion by strata and row grouping variable
         StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                      , c("BuildingType", "State", "Region", "Territory"), summarise
+                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
                                                      ,count = sum(get(valueVariable))
                                                      ,total.count = length(unique(CK_Cadmus_ID))
                                                      ,p.h = count / total.count), stringsAsFactors = F)
@@ -553,7 +556,7 @@ proportions_one_group <- function(CustomerLevelData
                                                    ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
                                                    ,count     = sum(count)
                                                    ,N         = unique(columnVar.N.h)
-                                                   ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
+                                                   ,n         = sum(n_hj)), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
@@ -562,7 +565,7 @@ proportions_one_group <- function(CustomerLevelData
                                        ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)), na.rm = T)) / unique(columnTot.N.h)
                                        ,count     = sum(count)
                                        ,N         = unique(columnTot.N.h)
-                                       ,n         = unique(columnTot.n.h)), stringsAsFactors = F) 
+                                       ,n         = sum(n_hj)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
@@ -583,6 +586,7 @@ proportions_one_group <- function(CustomerLevelData
       # obtain count and proportion by strata and row grouping variable
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
+                                                   ,n_hj = length(unique(CK_Cadmus_ID))
                                                    ,count = sum(get(valueVariable))), stringsAsFactors = F)
       
       
@@ -623,7 +627,7 @@ proportions_one_group <- function(CustomerLevelData
                                                    ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
                                                    ,count     = sum(count)
                                                    ,N         = unique(columnVar.N.h)
-                                                   ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
+                                                   ,n         = sum(n_hj)), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise

@@ -139,21 +139,21 @@ item212.final <- rbind.data.frame(item212.summary, item212.all.vintages, item212
 
 item212.cast <- dcast(setDT(item212.final)
                       ,formula = HomeYearBuilt_bins_MF ~ HomeType
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item212.table <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_bins_MF
                             ,"Low-Rise.(1-3)" = item212.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low-Rise.SE"    = item212.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low-Rise.n"     = item212.cast$`SampleSize_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid-Rise.(4-6)" = item212.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid-Rise.SE"    = item212.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid-Rise.n"     = item212.cast$`SampleSize_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High-Rise.(7+)" = item212.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High-Rise.SE"   = item212.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High-Rise.n"    = item212.cast$`SampleSize_Apartment Building (More than 6 floors)`
+                            ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"      = item212.cast$`Percent_All Sizes`
                             ,"All.Sizes.SE"   = item212.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"    = item212.cast$`SampleSize_All Sizes`)
+                            ,"All.Sizes.n"    = item212.cast$`n_All Sizes`)
 
 exportTable(item212.table, "MF", "Table 4", weighted = FALSE)
 
@@ -300,7 +300,7 @@ item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
                             ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area)
 
 exportTable(item216.table, "MF", "Table 8", weighted = TRUE)
-
+exportTable(item216.table, "MF", "Table 13", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -328,18 +328,19 @@ item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsF
 
 item216.cast <- dcast(setDT(item216.final)
                       ,formula = BuildingType + HomeType ~ Area.Type
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
                             ,"HomeType"    = item216.cast$HomeType
                             ,"Percent_Common.Area" = item216.cast$Percent_Common.Area
                             ,"SE_Common.Area"      = item216.cast$SE_Common.Area
-                            ,"n_Common.Area"       = item216.cast$SampleSize_Common.Area
+                            ,"n_Common.Area"       = item216.cast$n_Common.Area
                             ,"Percent_Non-Residential.Area" = item216.cast$Percent_Total.Nonres.Floor.Area
                             ,"SE_Non-Residential.Area"      = item216.cast$SE_Total.Nonres.Floor.Area
-                            ,"n_Non-Residential.Area"       = item216.cast$SampleSize_Total.Nonres.Floor.Area
+                            ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
                             ,"Percent_Residential.Area"     = item216.cast$Percent_Total.Residential.Floor.Area
                             ,"SE_Residential.Area"          = item216.cast$SE_Total.Residential.Floor.Area
-                            ,"n_Residential.Area"           = item216.cast$SampleSize_Total.Residential.Floor.Area)
+                            ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area)
 
 exportTable(item216.table, "MF", "Table 8", weighted = FALSE)
+exportTable(item216.table, "MF", "Table 13", weighted = FALSE)

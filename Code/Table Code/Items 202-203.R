@@ -28,7 +28,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 3)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -218,7 +218,7 @@ item203.final <- mean_one_group(item203.data
 item203.final.MH <- item203.final[which(item203.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item203.final) %in% c("BuildingType"))]
 
-exportTable(item203.final.MH, "MH", "Table 66", weighted = TRUE)
+exportTable(item203.final.MH, "MH", "Table 67", weighted = TRUE)
 
 
 
@@ -233,4 +233,4 @@ item203.final <- mean_one_group_unweighted(item203.data
 item203.final.MH <- item203.final[which(item203.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item203.final) %in% c("BuildingType"))]
 
-exportTable(item203.final.MH, "MH", "Table 66", weighted = FALSE)
+exportTable(item203.final.MH, "MH", "Table 67", weighted = FALSE)
