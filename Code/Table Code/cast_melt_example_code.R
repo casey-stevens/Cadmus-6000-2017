@@ -19,3 +19,11 @@ rowOrder <- c("Combined Washer/Dryer in one drum"
               ,"Total")
 item87.table <- item87.table %>% mutate(Washer.Type = factor(Washer.Type, levels = rowOrder)) %>% arrange(Washer.Type)  
 item87.table <- data.frame(item87.table)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
