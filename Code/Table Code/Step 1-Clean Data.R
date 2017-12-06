@@ -33,18 +33,28 @@ source(file.path(SourcePath, "SourceCode.R"))
 
 # Import site data
 one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary", startRow = 2)
-one.line.dat1 <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
-                            ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
-                            , "BuildingTypeXX"  = one.line.dat$`Home.Type.-.FMP.Detailed`
-                            , "BuildingType"    = one.line.dat$`Home.Type.-.Final`
-                            , "HomeYearBuilt"   = one.line.dat$Year.Built
-                            , "State"           = one.line.dat$State
-                            , "Detailed.Region" = one.line.dat$Region
-                            , "ZIP"             = one.line.dat$Zip
+one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
+                            , "BuildingTypeXX"     = one.line.dat$`Home.Type.-.FMP.Detailed`
+                            , "BuildingType"       = one.line.dat$`Home.Type.-.Final`
+                            , "HomeYearBuilt"      = one.line.dat$Year.Built
+                            , "State"              = one.line.dat$State
+                            , "Detailed.Region"    = one.line.dat$Region
                             , "Conditioned.Area"   = one.line.dat$Conditioned.Area
                             , "Conditioned.Volume" = one.line.dat$Conditioned.Volume
                             , "Cooling.Zone"       = one.line.dat$Cooling.Zone
-                            , stringsAsFactors  = F)
+                            , "ZIP"                = one.line.dat$Zip
+                            , stringsAsFactors     = F)
+building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
+                              ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
+                              ,"CK_SiteID"        = one.line.dat$PK_SiteID
+                              , stringsAsFactors  = F)
+building.id.dat <- melt(building.id.dat, id.vars = "CK_Cadmus_ID")
+names(building.id.dat) <- c("CK_Cadmus_ID", "Remove", "CK_Building_ID")
+building.id.dat <- building.id.dat[which(!is.na(building.id.dat$CK_Building_ID)),which(colnames(building.id.dat) != "Remove")]
+
+one.line.dat1 <- left_join(building.id.dat, one.line.dat1)
+names(one.line.dat1)
+
 site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
                         , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
@@ -264,10 +274,10 @@ rbsa.dat6 <- unique(rbsa.dat5[which(!(is.na(rbsa.dat5$BuildingType))),])
     rbsa.dat6$State[which(rbsa.dat6$CK_Cadmus_ID == "SG0200 OS SCL")]   <- "WA"
 
 
-rbsa.dat7 <- unique(rbsa.dat6[which(!(duplicated(rbsa.dat6$CK_Cadmus_ID))),])
+rbsa.dat7 <- unique(rbsa.dat6)
 
   #QAQC - are the number of unique IDs equal to the number of rows in the dataset?
-  stopifnot(length(unique(rbsa.dat7$CK_Cadmus_ID)) == nrow(rbsa.dat7))
+  # stopifnot(length(unique(rbsa.dat7$CK_Cadmus_ID)) == nrow(rbsa.dat7))
   stopifnot(length(unique(site.dat1$CK_Cadmus_ID)) == length(unique(rbsa.dat7$CK_Cadmus_ID)))
 
 #############################################################################################

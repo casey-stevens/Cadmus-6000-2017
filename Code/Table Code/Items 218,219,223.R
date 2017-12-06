@@ -159,13 +159,14 @@ exportTable(item218.table, "MF", "Table 10", weighted = FALSE)
 
 
 
+
+
 #############################################################################################
 # Item 219: PERCENTAGE BUILDINGS WITH CONDITIONED COMMON AREA BY BUILDING SIZE (MF table 11)
 #############################################################################################
 
 item219.dat <- unique(buildings.dat.clean[which(colnames(buildings.dat.clean) %in% c("CK_Building_ID", 
-                                                                          'SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround', 
-                                                                          'SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea'))])
+                                                                                     'SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea'))])
 #merge together analysis data with cleaned RBSA data
 item219.dat1 <- left_join(rbsa.dat, item219.dat)
 
@@ -180,29 +181,27 @@ item219.dat2 <- item219.dat1[which(item219.dat1$BuildingType == "Multifamily"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item219.data <- weightedData(item219.dat2[which(colnames(item219.dat2) %notin% c("SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
-                                                                                 ,"SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround"                                             
+item219.data <- weightedData(item219.dat2[which(colnames(item219.dat2) %notin% c("SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"                                          
                                                                                  ,"CommonFloorFlag"))])
 item219.data <- left_join(item219.data, item219.dat2[which(colnames(item219.dat2) %in% c("CK_Cadmus_ID"
-                                                                                         ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
-                                                                                         ,"SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround"                                         
+                                                                                         ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"                                     
                                                                                          ,"CommonFloorFlag"))])
 item219.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
-item219.final <- proportions_one_group(CustomerLevelData = item219.data
+item219.final <- proportions_one_group_MF(CustomerLevelData = item219.data
                                        ,valueVariable = 'CommonFloorFlag'
                                        ,groupingVariable = 'HomeType'
                                        ,total.name = "All Sizes"
                                        ,weighted = TRUE)
-item219.final <- item219.final[which(item219.final != "Total"),]
+exportTable(item219.final, "MF", "Table 11", weighted = TRUE)
 
 
 #######################
 # Unweighted Analysis
 #######################
-item219.final <- proportions_one_group(CustomerLevelData = item219.data
+item219.final <- proportions_one_group_MF(CustomerLevelData = item219.data
                                        ,valueVariable = 'CommonFloorFlag'
                                        ,groupingVariable = 'HomeType'
                                        ,total.name = "All Sizes"
@@ -262,17 +261,17 @@ item223.final <- proportions_one_group_MF(CustomerLevelData = item223.data
                                        ,groupingVariable = 'HomeType'
                                        ,total.name       = "All Sizes"
                                        ,weighted         = TRUE)
-item223.final <- item223.final[which(item223.final != "Total"),]
+exportTable(item223.final, "MF", "Table 15", weighted = TRUE)
 
 
 #######################
 # Unweighted Analysis
 #######################
-item223.final <- proportions_one_group(CustomerLevelData = item223.data
+item223.final <- proportions_one_group_MF(CustomerLevelData = item223.data
                                        ,valueVariable    = 'Ind'
                                        ,groupingVariable = 'HomeType'
                                        ,total.name       = "All Sizes"
                                        ,weighted         = FALSE)
-exportTable(item223.final, "MF", "Table 11", weighted = FALSE)
+exportTable(item223.final, "MF", "Table 15", weighted = FALSE)
 
   

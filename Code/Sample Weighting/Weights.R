@@ -75,7 +75,7 @@ weightedData <- function(itemData){
   # clean and count Cadmus IDs, clean utility and meter type
   cadmus.dat1$CK_Cadmus_ID <- trimws(toupper(cadmus.dat1$CK_Cadmus_ID))
   cadmus.dat1$Utility      <- trimws(toupper(cadmus.dat1$Utility))
-  length(unique(cadmus.dat1$CK_Cadmus_ID))  ## 601 unique respondent ID's
+  length(unique(cadmus.dat1$CK_Cadmus_ID))
   
   which(duplicated(cadmus.dat1$CK_Cadmus_ID))
   cadmus.dat2   <- cadmus.dat1#[which(!(duplicated(cadmus.dat1$CK_Cadmus_ID))),]
@@ -211,27 +211,11 @@ weightedData <- function(itemData){
   
   samp.dat.1 <- unique(samp.dat.1)
   
-  # samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by = c("ZIPCode", "Utility", "State"))
-  
-  # samp.dat.1 <- samp.dat.1[which(!is.na(samp.dat.1$State)),]
-  samp.dat.1$BPA_vs_IOU[which(is.na(samp.dat.1$BPA_vs_IOU))] <- "BPA"
-  
-  unique(samp.dat.1$Region)
-  samp.dat.1$Region[which(is.na(samp.dat.1$Region) & samp.dat.1$State == "ID")] <- "-"
-  samp.dat.1$Region[which(is.na(samp.dat.1$Region) & samp.dat.1$State == "MT")] <- "W"
-  
-  samp.dat.2 <- samp.dat.1[which(!is.na(samp.dat.1$Region)),]
-  
-  # export <- samp.dat.1[which(is.na(samp.dat.1$Region)),]
-  # ##  Write out confidence/precision info
-  # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-  # write.xlsx(export, paste(analysisFolder, "Missing From Population.xlsx", sep="/"),
-  #            append = T, row.names = F, showNA = F)
-  
+  samp.dat.2       <- left_join(samp.dat.0, zipMap.dat1, by = c("ZIPCode", "Utility", "State"))
   
   
   #QAQC: check that no rows in the dataset are duplicates
-  # stopifnot(length(which(duplicated(samp.dat.1))) == 0)
+  stopifnot(length(which(duplicated(samp.dat.1))) == 0)
   
   ########################################################################################
   ##                                                                                    
@@ -269,112 +253,29 @@ weightedData <- function(itemData){
   ##  Cust ID's with duplicates
   dupCustIDs <- unique(samp.dat.2$CK_Cadmus_ID[which(duplicated(samp.dat.2$CK_Cadmus_ID))])
   dupData    <- samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% dupCustIDs),]
-  
-  
-  # # Initialize counter and output vector
-  # cntr              <- 1
-  # dupData$Utility <- rep("MISSING", nrow(dupData))
-  # 
-  # 
-  # 
-  # ##  For loops to assign utility as per above logic
-  # ##  STEP 2 - if the utility zip map has more than a single utility and customer data has more than one, flag for manual fix
-  # cntr = 1
-  # for(cntr in 1:length(dupCustIDs)) {
-  #   if("TRUE" %in% duplicated(dupData$Utility.ZIP.map[which(dupData$CK_Cadmus_ID == dupCustIDs[cntr])])) {
-  #         dupData$Utility[which(dupData$CK_Cadmus_ID == dupCustIDs[cntr])] <- "MANUAL FIX"
-  #     }
-  # }
-  # 
-  # ##  STEP 3 - if the utility zip map has more than a single utility and customer data has only one utility - use customer data
-  # for(cntr in 1:length(dupCustIDs)) {
-  #   if("TRUE" %notin% duplicated(dupData$Utility.ZIP.map[which(dupData$CK_Cadmus_ID == dupCustIDs[cntr])])) {
-  #       dupData$Utility[which(dupData$CK_Cadmus_ID == dupCustIDs[cntr])] <-
-  #         dupData$Utility.Customer.Data[which(dupData$CK_Cadmus_ID == dupCustIDs[cntr])]
-  #     }
-  # }
-  # 
-  # ##  Subset to ID and Utility column and merge back into sample data
-  # names(dupData)
-# dupData.1  <- unique(dupData[which(colnames(dupData) %in% c("CK_Cadmus_ID", "Utility"))])
-# names(dupData.1)
-# samp.dat.3 <- left_join(samp.dat.2, dupData.1, by = "CK_Cadmus_ID")
-# 
-# ##  For non-duplicates, use cust data
-# samp.dat.3$Utility[which(samp.dat.3$CK_Cadmus_ID %notin% dupCustIDs)] <-
-#   samp.dat.3$Utility.Customer.Data[which(samp.dat.3$CK_Cadmus_ID %notin% dupCustIDs)]
-# 
-# ## Give to Rietz
-# samp.dat.3[which(is.na(samp.dat.3$BPA_vs_IOU)),]
+   #this is okay, any MF building with a SITE and BUILDING ID will have a duplicated CK_Cadmus_ID
 
-
-##########################################
-##                                      ##
-##  MANUAL FIXES FOR MISSING UTILITIES  ##
-##                                      ##
-##########################################
-
-# ##  Fix BPA vs IOU
-# samp.dat.3$BPA_vs_IOU[which(samp.dat.3$Utility == "SEATTLE CITY LIGHT")]     <- "BPA"
-# samp.dat.3$BPA_vs_IOU[which(samp.dat.3$Utility == "SNOHOMISH PUD")]          <- "BPA"
-# samp.dat.3$BPA_vs_IOU[which(samp.dat.3$Utility == "PUGET SOUND ENERGY")]     <- "IOU"
-# samp.dat.3$BPA_vs_IOU[which(samp.dat.3$Utility == "NORTHWESTERN ENERGY")]    <- "IOU"
-# samp.dat.3$BPA_vs_IOU[which(samp.dat.3$Utility == "MISSION VALLEY POWER")]   <- "BPA"
-# samp.dat.3$BPA_vs_IOU[which(samp.dat.3$Utility == "MISSOULA ELECTRIC COOP")] <- "BPA"
-
-#if State is missing, but utility data state is not missing, replace customer state with utility state
-# samp.dat.3$State[which(is.na(samp.dat.3$State))] <-
-#   samp.dat.3$Utility.Data.State[which(is.na(samp.dat.3$State))]
-
-
-      # ##  Manual updates early (using partial data)
-      # samp.dat.3$State[which(samp.dat.3$CK_Cadmus_ID  =="SE2257 OS SCL")] <- "WA"
-      # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID =="SE2257 OS SCL")] <- "PS"
-      # samp.dat.3$State[which(samp.dat.3$CK_Cadmus_ID  =="SG0200 OS SCL")] <- "WA"
-      # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID =="SG0200 OS SCL")] <- "PS"
-      # samp.dat.3$State[which(samp.dat.3$CK_Cadmus_ID  =="SL0418 OS SCL")] <- "WA"
-      # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID =="SL0418 OS SCL")] <- "PS"
-      # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID =="SL2263 OS SCL")] <- "PS"
-
-##  Find remaining missing states and regions in full data
+##  Find  missing states and regions in full data
 #     NOTE: there are cases where zip codes found in our data collection did not show up in the population data from ACS.
 #     Make sure this gets written in weighting section of report
 missing.region <- samp.dat.2$CK_Cadmus_ID[which(is.na(samp.dat.2$Region))]
-#if region is missing in MT or ID, then replace with correct region
-# otherwise export CK_Cadmus_ID, send to Rietz to get correct region information
-  # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State == "MT")] <- "W"
-  # samp.dat.3$Region[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State == "ID")] <- "-"
 #print this: send to Rietz (MF does not need region)
 samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.region & samp.dat.2$State %in% c("WA", "OR") & samp.dat.2$BuildingType != "Multifamily"),]
 
 
-
-
-##  Remove old utility columns and duplicate rows
-samp.dat.4 <- samp.dat.2#unique(samp.dat.3[-which(samp.dat.3$CK_Cadmus_ID %in% missing.region),-which(names(samp.dat.3) %in% c("Utility.Customer.Data", "Utility.Data.State"))])
-# stopifnot(length(which(duplicated(samp.dat.4$CK_Cadmus_ID))) == 0)
-
-dup.ind <- samp.dat.4$CK_Cadmus_ID[which(duplicated(samp.dat.4$CK_Cadmus_ID))]
-dup.data.2 <- samp.dat.4[which(samp.dat.4$CK_Cadmus_ID %in% dup.ind),]
-
+##  Reassign Data
+samp.dat.4 <- samp.dat.2
 
 #########################################
 # All of this needs to be reviewed
 # when the final data comes in
 #########################################
-
-# ## Fix issues with BPA/IOU
-# samp.dat.4$BPA_vs_IOU[which(samp.dat.4$CK_Cadmus_ID == "PNM20364 OS PSE")] <- "IOU"
-# samp.dat.4$BPA_vs_IOU[which(samp.dat.4$CK_Cadmus_ID == "PSM26731 CORE")]   <- "BPA"
-# samp.dat.4$BPA_vs_IOU[which(samp.dat.4$CK_Cadmus_ID == "PSM35054 CORE")]   <- "BPA"
-# samp.dat.4$BPA_vs_IOU[which(samp.dat.4$CK_Cadmus_ID == "BPS26690 OS BPA")] <- "BPA"
-
 samp.dat.5 <- unique(samp.dat.4)
 
 ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-# stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.5$Utility)] == "BPA"))
-# stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.5$Utility)]    == "BPA"))
-# stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.5$Utility)]    == "IOU"))
+stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SEATTLE CITY LIGHT", samp.dat.5$Utility)] == "BPA"))
+stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("SNOHOMISH",       samp.dat.5$Utility)]    == "BPA"))
+stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.5$Utility)]    == "IOU"))
 
 # Subset and define Territory
 # Initialize the vector for strata names
@@ -393,6 +294,8 @@ unique(samp.dat.5$Territory)
 
 ##incorrect territory: If WA and PS territory cannot be Non-BPA.Non-PSE
 territory.ind <- samp.dat.5$CK_Cadmus_ID[which(samp.dat.5$State == "WA" & samp.dat.5$Region == "PS" & samp.dat.5$Territory == "Non-BPA.Non-PSE")]
+
+# If there are any territory issues, uncomment the following:
   # incorrect.territory <- samp.dat.5$CK_Cadmus_ID[which(samp.dat.5$CK_Cadmus_ID %in% territory.ind)]
   # # incorrect.territory1 <- samp.dat.5[which(samp.dat.5$CK_Cadmus_ID %in% territory.ind),]
   # pse.territory       <- samp.dat.5$CK_Cadmus_ID[grep ("PSE",samp.dat.5$CK_Cadmus_ID)]
@@ -421,13 +324,16 @@ samp.dat.6$tally <- 1
 # Get sample sizes in each strata
 sampCounts.SF <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Single Family"),], 
                                    BuildingType, State, Region, Territory)
-                          , n.h = sum(tally))
+                          , n.h = length(unique(CK_Cadmus_ID)))
+sum(sampCounts.SF$n.h)
 sampCounts.MH <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactured"),], 
                                     BuildingType, State, Region, Territory)
-                           ,n.h = sum(tally))
+                           ,n.h = length(unique(CK_Cadmus_ID)))
+sum(sampCounts.MH$n.h)
 sampCounts.MF <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),], 
                                     BuildingType, State, Region, Territory)
-                           ,n.h = sum(tally))
+                           ,n.h = length(unique(CK_Cadmus_ID)))
+sum(sampCounts.MF$n.h)
 
 #############################################################################################
 # Count population sizes
@@ -444,16 +350,9 @@ popCounts.0 <- summarise(group_by(zipMap.dat, State, Region, Utility, BPA_vs_IOU
 # Initialize the vector for Territory names
 popCounts.0$Territory <- rep("MISSING", nrow(popCounts.0))
 
-      ##  QA/QC: Make sure oversample utilities are in expected BPA territory
-      # stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SEATTLE CITY", popCounts.0$Utility)] == "BPA"))
-      # stopifnot(all(popCounts.0$BPA_vs_IOU[grep("SNOHOMISH",    popCounts.0$Utility)] == "BPA"))
-      # stopifnot(all(popCounts.0$BPA_vs_IOU[grep("PUGET SOUND",  popCounts.0$Utility)] == "IOU"))
-
 # Assign Territory
 popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
-popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "IOU")]    <- "Non-BPA.Non-PSE"
-popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "NOT BPA")]<- "Non-BPA.Non-PSE"
-popCounts.0$Territory[which(is.na(popCounts.0$BPA_vs_IOU))]      <- "Non-BPA.Non-PSE"
+popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU %in% c("IOU", "NOT BPA", NA))]    <- "Non-BPA.Non-PSE"
 popCounts.0$Territory[grep("SNOHOMISH",    popCounts.0$Utility)] <- "SnoPUD"
 popCounts.0$Territory[grep("PUGET SOUND",  popCounts.0$Utility)] <- "PSE"
 popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL"
@@ -472,7 +371,7 @@ popCounts.MH <- summarise(group_by(popCounts.0,
 popCounts.MF <- summarise(group_by(popCounts.0, 
                                    State, Region, Territory)
                           ,BuildingType = "Multifamily"
-                          ,N.h = sum(MH.pop))
+                          ,N.h = sum(MF.pop))
 
 
 
@@ -520,17 +419,6 @@ missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat
 # samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.ind),]
 
 return(samp.dat.final)
-# return(final.counts)
-# ##  Export clean data merged with weights
-# write.xlsx(samp.dat.final, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
-# 
-# ##  Export 
-# write.xlsx(final.counts, paste(filepathCleanData, paste("weights.data", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
-
-# write.xlsx(missing.data, paste(analysisFolder, paste("Missing Population Data", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
 
 }
 

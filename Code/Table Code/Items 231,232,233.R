@@ -54,13 +54,13 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"CK_SiteID"
                                                                   ,"Wall.Area"
-                                                                  ,"Floor.Area" #was "Floor.Area"
+                                                                  ,"Floor.Area"
                                                                   ,"Category"
                                                                   ,"Area"
                                                                   ,"Fenestration"))]
 envelope.dat1$Window.Count <- as.numeric(as.character(gsub("N = ", "", envelope.dat1$Fenestration)))
 
-envelope.dat2 <- left_join(rbsa.dat, envelope.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
+envelope.dat2 <- left_join(rbsa.dat, envelope.dat1)
 length(unique(envelope.dat2$CK_Cadmus_ID)) 
 envelope.dat.MF <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType),]
 
@@ -75,7 +75,7 @@ envelope.dat.MF <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType)
 ##########################################
 # Clean up window data
 ##########################################
-item231.dat <- windows.dat.MF
+item231.dat <- envelope.dat.MF
 
 #clean up frame/body type
 unique(item231.dat$`Frame./.Body.Type`)

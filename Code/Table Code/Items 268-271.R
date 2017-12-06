@@ -25,11 +25,9 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
-                            , sheet = "Sheet1")
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
-appliances.dat$CK_Building_ID <- trimws(toupper(appliances.dat$Iteration))
 
 
 
@@ -44,48 +42,45 @@ appliances.dat$CK_Building_ID <- trimws(toupper(appliances.dat$Iteration))
 
 #subset to columns needed for analysis
 item268.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                    ,"CK_Building_ID"
+                                                                    ,"CK_SiteID"
                                                                     ,"Age"
                                                                     ,"Type"
                                                                     ,"Washer.Type"
-                                                                    ,"Iteration"
+                                                                    ,""
                                                                     ,""
                                                                     ,""))]
 
 #join clean rbsa data onto appliances analysis data
-item268.dat0 <- left_join(rbsa.dat, item268.dat, by = "CK_Cadmus_ID")
-
-#remove missing vintage info
-item268.dat1 <- item268.dat0[which(!(is.na(item268.dat0$HomeYearBuilt_MF))),]
+item268.dat1 <- left_join(rbsa.dat, item268.dat, by = c("CK_Building_ID" = "CK_SiteID"))
 
 #subset to only MF
 item268.dat2 <- item268.dat1[grep("Multifamily", item268.dat1$BuildingType),]
 
 item268.dat3 <- item268.dat2[which(item268.dat2$Type %in% c("Washer", "Dryer")),]
 
-item268.dat3$Laundry.Location <- item268.dat3$Iteration
-item268.dat3$Laundry.Location[grep("BLDG", item268.dat3$Iteration)] <- "Common"
-item268.dat3$Laundry.Location[grep("SITE", item268.dat3$Iteration)] <- "In.Unit"
-
+item268.dat3$Laundry.Location <- item268.dat3$CK_Building_ID
+item268.dat3$Laundry.Location[grep("BLDG", item268.dat3$CK_Building_ID)] <- "Common"
+item268.dat3$Laundry.Location[grep("SITE", item268.dat3$CK_Building_ID)] <- "In.Unit"
 unique(item268.dat3$Laundry.Location)
+
+item268.dat4 <- item268.dat3[which(!is.na(item268.dat3$CK_Building_ID)),]
+
+
 
 
 #############################################################################################
 #Merging normalized data to RBSA data to create "None" category
 #############################################################################################
 
-item268.sub <- unique(data.frame("CK_Cadmus_ID" = item268.dat3$CK_Cadmus_ID
-                                 , "Laundry.Location" = item268.dat3$Laundry.Location, stringsAsFactors = F))
+item268.sub <- unique(data.frame("CK_Cadmus_ID" = item268.dat4$CK_Cadmus_ID.x
+                                 , "Laundry.Location" = item268.dat4$Laundry.Location, stringsAsFactors = F))
 dup.ind <- unique(item268.sub$CK_Cadmus_ID[which(duplicated(item268.sub$CK_Cadmus_ID))])
 item268.sub$Laundry.Location[which(item268.sub$CK_Cadmus_ID %in% dup.ind)] <- "In.Unit.and.Common"
 
 item268.dat4 <- left_join(rbsa.dat, item268.sub, by = "CK_Cadmus_ID")
 
-#remove missing vintage info
-item268.dat5 <- item268.dat4[which(!(is.na(item268.dat4$HomeYearBuilt_MF))),]
-
 #subset to only MF
-item268.merge <- item268.dat5[grep("Multifamily", item268.dat5$BuildingType),]
+item268.merge <- item268.dat4[grep("Multifamily", item268.dat4$BuildingType),]
 
 item268.merge$Laundry.Location[which(is.na(item268.merge$Laundry.Location))] <- "None"
 item268.merge$count <- 1

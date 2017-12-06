@@ -6,12 +6,25 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
 mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
@@ -29,11 +42,13 @@ item252.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
                                                                     ,"System.Type"
                                                                     ,"Serves.Common.Areas?"
                                                                     ,"Serves.Residences?"))]
-item252.dat$count <- 1
 
-item252.dat0 <- item252.dat[which(item252.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+unique(item252.dat$`Serves.Common.Areas?`)
+unique(item252.dat$`Serves.Residences?`)
 
-item252.dat1 <- left_join(item252.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item252.dat1 <- item252.dat[which(item252.dat$`Serves.Common.Areas?` == "Yes" | item252.dat$`Serves.Residences?` == "Yes"),]
+
+item252.dat1 <- left_join(rbsa.dat, item252.dat0,by = "CK_Cadmus_ID")
 
 #Subset to Multifamily
 item252.dat2 <- item252.dat1[grep("Multifamily", item252.dat1$BuildingType),]
@@ -43,12 +58,6 @@ item252.dat3$DHW.Location <- item252.dat3$CK_SiteID
 item252.dat3$DHW.Location[grep("BLDG",item252.dat3$CK_SiteID)] <- "Central Water Heater"
 item252.dat3$DHW.Location[grep("SITE",item252.dat3$CK_SiteID)] <- "In-Unit Water Heater"
 unique(item252.dat3$DHW.Location)
-
-
-
-
-
-
 
 
 
@@ -79,19 +88,18 @@ item253.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
                                                                     ,"DHW.HPWH.Ducting"                                                                
                                                                     ,"DHW.Location"                                                                    
                                                                     ,"DHW.Serves.Whole.House?"))]
-item253.dat$count <- 1
 
-item253.dat0 <- item253.dat[which(item253.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-
-item253.dat1 <- left_join(item253.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item253.dat1 <- left_join(rbsa.dat, item253.dat, by = "CK_Cadmus_ID")
 
 #Subset to Multifamily
 item253.dat2 <- item253.dat1[grep("Multifamily", item253.dat1$BuildingType),]
 
-item253.dat3 <- item253.dat2[grep("Water Heat|Multiple|Boiler|Tank|Other", item253.dat2$System.Type),]
+item253.dat3 <- item253.dat2[grep("Water Heat|Multiple|Boiler|Tank|Other", item253.dat2$System.Type, ignore.case = T),]
+unique(item253.dat3$)
+
 item253.dat3$DHW.Location <- item253.dat3$CK_SiteID
-item253.dat3$DHW.Location[grep("BLDG",item253.dat3$CK_SiteID)] <- "Central Water Heater"
-item253.dat3$DHW.Location[grep("SITE",item253.dat3$CK_SiteID)] <- "In-Unit Water Heater"
+item253.dat3$DHW.Location[grep("BLDG",item253.dat3$CK_SiteID, ignore.case = T)] <- "Central Water Heater"
+item253.dat3$DHW.Location[grep("SITE",item253.dat3$CK_SiteID, ignore.case = T)] <- "In-Unit Water Heater"
 unique(item253.dat3$DHW.Location)
 
 item253.dat4 <- item253.dat3[which(item253.dat3$DHW.Location == "Central Water Heater"),]
@@ -147,11 +155,8 @@ item254.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
                                                                     ,"DHW.HPWH.Ducting"                                                                
                                                                     ,"DHW.Location"                                                                    
                                                                     ,"DHW.Serves.Whole.House?"))]
-item254.dat$count <- 1
 
-item254.dat0 <- item254.dat[which(item254.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-
-item254.dat1 <- left_join(item254.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item254.dat1 <- left_join(rbsa.dat, item254.dat, by = "CK_Cadmus_ID")
 
 #Subset to Multifamily
 item254.dat2 <- item254.dat1[grep("Multifamily", item254.dat1$BuildingType),]
@@ -162,4 +167,4 @@ item254.dat3$DHW.Location[grep("BLDG",item254.dat3$CK_SiteID)] <- "Central Water
 item254.dat3$DHW.Location[grep("SITE",item254.dat3$CK_SiteID)] <- "In-Unit Water Heater"
 unique(item254.dat3$DHW.Location)
 
-item254.dat4 <- item254.dat3[which(item254.dat3$DHW.Location == "In-Unit Water Heater"),]
+item254.dat4 <- item254.dat3[which(item254.dat3$DHW.Location == "Central Water Heater"),]
