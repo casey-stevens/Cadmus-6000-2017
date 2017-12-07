@@ -13,7 +13,10 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat7
+# itemData <- item274.dat5[which(colnames(item274.dat5) %notin% c("SITES_Pool_POOL_HOT_TUB_PoolLocation"
+#                                                                 ,"SITES_Pool_POOL_HOT_TUB_PoolType"
+#                                                                 ,"Ind"
+#                                                                 ,"count"))]
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -209,13 +212,10 @@ weightedData <- function(itemData){
                             ,"BPA_vs_IOU"
                             ,"tally")
   
-  samp.dat.1 <- unique(samp.dat.1)
-  
-  samp.dat.2       <- left_join(samp.dat.0, zipMap.dat1, by = c("ZIPCode", "Utility", "State"))
-  
+  samp.dat.2 <- unique(samp.dat.1)
   
   #QAQC: check that no rows in the dataset are duplicates
-  stopifnot(length(which(duplicated(samp.dat.1))) == 0)
+  stopifnot(length(which(duplicated(samp.dat.2))) == 0)
   
   ########################################################################################
   ##                                                                                    

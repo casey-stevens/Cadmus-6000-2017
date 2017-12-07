@@ -538,6 +538,7 @@ proportions_one_group <- function(CustomerLevelData
       
       StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
       StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
+      StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
     }
       
       #join strata counts with summary of grouping variable within strata
@@ -558,7 +559,7 @@ proportions_one_group <- function(CustomerLevelData
       
       #join strata data with weights by column grouping variable 
       StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
-      StrataDataWeights <- StrataDataWeights[which(StrataDataWeights$p.h != "NaN"),]
+      # StrataDataWeights <- StrataDataWeights[which(StrataDataWeights$p.h != "NaN"),]
       
       #summarise by column variable
       #summary of both grouping variables
@@ -748,7 +749,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
     # Analysis for any column variable that is not state should include columnVariable as a grouping variable
-  }else if(columnVariable == "Cooling.Zone" & valueVariable == "Ind"){
+  }else if(columnVariable %in% c("Cooling.Zone") & valueVariable == "Ind"){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -756,6 +757,20 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , n_hj = length(unique(CK_Cadmus_ID))
                                                  , total.count = sum(Count)
                                                  , p.h = count / total.count), stringsAsFactors = F)
+    
+  }else if(columnVariable %in% c("HomeType") & valueVariable == "Ind"){
+    StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                 , summarise
+                                                 , count = sum(get(valueVariable))
+                                                 , n_hj = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    StrataProportion         <- data.frame(ddply(CustomerLevelData
+                                                 , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                                 , summarise
+                                                 , total.count = sum(Count)), stringsAsFactors = F)
+    
+    StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
+    StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
   }else if(columnVariable %in% c("System.Type", "TankSize", "Washer.Age")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
@@ -1109,32 +1124,33 @@ proportions_one_group_MF <- function(CustomerLevelData
       StrataDataWeights <- left_join(StrataData, columnVarWeights)
       StrataDataWeights <- left_join(StrataDataWeights, columnTotalWeights)
       
-      
       #summarise by column variable
       #summary of both grouping variables
       ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                    , c("BuildingType", groupingVariable), summarise
-                                                   ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                                   ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
                                                    ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(unique(N.h))
                                                    ,count     = sum(count)
-                                                   ,N         = unique(columnVar.N.h)
-                                                   ,n         = sum(n_hj)), stringsAsFactors = F)
+                                                   ,n         = sum(n_hj)
+                                                   ,N         = unique(columnTot.N.h)), stringsAsFactors = F)
+      
       
       #summarise across home types (total level)
-      ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
-                                       ,rowTotal  = total.name
-                                       ,w.percent = sum(N.h * p.h) / sum((N.h))
-                                       ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum((N.h))
-                                       ,count     = sum(count)
-                                       ,N         = unique(columnVar.N.h)
-                                       ,n         = sum(n_hj)), stringsAsFactors = F) 
+      ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
+                                       ,rowTotal       = "Total"
+                                       ,w.percent      = sum(w.percent)
+                                       ,w.SE           = NA
+                                       ,count          = sum(count, na.rm = T)
+                                       ,n              = sum(n)
+                                       ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
       
       
       #join total information onto summary by grouping variables
-      AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, ColumnTotals, stringsAsFactors = F)
+      AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
+                                        ColumnTotals, stringsAsFactors = F)
       
       if(!is.na(two.prop.total)){
         AllRowsFinal$tmp.total <- total.name
@@ -1248,9 +1264,9 @@ proportions_one_group_MF <- function(CustomerLevelData
       
       item.full <- data.frame(AllRowsFinal, stringsAsFactors = F)
       item.full <- item.full[which(colnames(item.full) != "Total.Count")]
-      return(item.full)
+      
     }
-    
+    return(item.full)
     ###### For Unweighted ###########
   } else {
     item.tmp1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
@@ -1363,35 +1379,20 @@ proportions_one_group_within_row <- function(CustomerLevelData
                                         ,N.h   = unique(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
     
-    if(groupingVariable == "State"){
+    if(groupingVariable == "Washer.Type"){
+      StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                   , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
+                                                   ,count = sum(get(valueVariable))
+                                                   ,n_hj  = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
       
-      # this if statement is specifically to calculate the denominator for tables
-      # where we want to know the percent of stored bulbs by bulb type
-      if(valueVariable == "StorageBulbs"){
-        # obtain count and proportion by strata and row grouping variable
-        StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
-                                                     , c("BuildingType", "State", "Region", "Territory"), summarise
-                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
-                                                     ,count       = sum(get(valueVariable))
-                                                     ,total.count = sum(TotalBulbs)
-                                                     ,p.h = count / total.count), stringsAsFactors = F)
-      }else if(valueVariable == "Ind"){
-        # obtain count and proportion by strata and row grouping variable
-        StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
-                                                     , c("BuildingType", "State", "Region", "Territory"), summarise
-                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
-                                                     ,count       = sum(get(valueVariable))
-                                                     ,total.count = sum(Count)
-                                                     ,p.h = count / total.count), stringsAsFactors = F)
-      }else{
-        # obtain count and proportion by strata and row grouping variable
-        StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
-                                                     , c("BuildingType", "State", "Region", "Territory"), summarise
-                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
-                                                     ,count = sum(get(valueVariable))
-                                                     ,total.count = length(unique(CK_Cadmus_ID))
-                                                     ,p.h = count / total.count), stringsAsFactors = F)
-      }
+      
+      StrataProportion <- data.frame(ddply(StrataGroupedProportions
+                                           , c("BuildingType", "State", "Region", "Territory"), summarise
+                                           ,total.count = sum(count)), stringsAsFactors = F)
+      
+      StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
+      StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
+      
     }else{
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
@@ -1404,15 +1405,16 @@ proportions_one_group_within_row <- function(CustomerLevelData
       
       StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
       StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
+      
+      Strata_n <- data.frame(ddply(CustomerLevelData
+                                   , c("BuildingType")
+                                   , summarise
+                                   , n_hj = length(unique(CK_Cadmus_ID))
+      ))
+      
+      StrataGroupedProportions <- left_join(StrataGroupedProportions, Strata_n)
     }
     
-    Strata_n <- data.frame(ddply(CustomerLevelData
-                                 , c("BuildingType")
-                                 , summarise
-                                 , n_hj = length(unique(CK_Cadmus_ID))
-    ))
-    
-    StrataGroupedProportions <- left_join(StrataGroupedProportions, Strata_n)
     
     #join strata counts with summary of grouping variable within strata
     StrataData <- left_join(StrataPopCounts, StrataGroupedProportions)
@@ -1434,26 +1436,45 @@ proportions_one_group_within_row <- function(CustomerLevelData
     
     #summarise by column variable
     #summary of both grouping variables
-    ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
-                                                 , c("BuildingType", groupingVariable), summarise
-                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
-                                                 ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
-                                                 ,count     = sum(count)
-                                                 ,N         = unique(columnVar.N.h)
-                                                 ,n         = unique(n_hj)), stringsAsFactors = F)
-    
-    #summarise across home types (total level)
-    ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
-                                     ,rowTotal       = "Total"
-                                     ,w.percent      = sum(w.percent)
-                                     ,w.SE           = NA
-                                     ,count          = sum(count, na.rm = T)
-                                     ,n              = unique(n)
-                                     ,N              = unique(N)), stringsAsFactors = F) 
-    #rename column
-    ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
-    
-    
+    if(groupingVariable == "Washer.Type"){
+      ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+                                                   , c("BuildingType", groupingVariable), summarise
+                                                   ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
+                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
+                                                   ,count     = sum(count)
+                                                   ,N         = unique(columnVar.N.h)
+                                                   ,n         = sum(n_hj)), stringsAsFactors = F)
+      
+      #summarise across home types (total level)
+      ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
+                                       ,rowTotal       = "Total"
+                                       ,w.percent      = sum(w.percent)
+                                       ,w.SE           = NA
+                                       ,count          = sum(count, na.rm = T)
+                                       ,n              = sum(unique(n))
+                                       ,N              = unique(N)), stringsAsFactors = F) 
+      #rename column
+      ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
+    }else{
+      ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+                                                   , c("BuildingType", groupingVariable), summarise
+                                                   ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
+                                                   ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)
+                                                   ,count     = sum(count)
+                                                   ,N         = unique(columnVar.N.h)
+                                                   ,n         = unique(n_hj)), stringsAsFactors = F)
+      
+      #summarise across home types (total level)
+      ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
+                                       ,rowTotal       = "Total"
+                                       ,w.percent      = sum(w.percent)
+                                       ,w.SE           = NA
+                                       ,count          = sum(count, na.rm = T)
+                                       ,n              = unique(n)
+                                       ,N              = unique(N)), stringsAsFactors = F) 
+      #rename column
+      ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
+    }
     
     #join total information onto summary by grouping variables
     AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
