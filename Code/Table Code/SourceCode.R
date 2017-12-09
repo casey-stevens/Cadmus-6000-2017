@@ -36,8 +36,6 @@ outputFolder          <- file.path(analysisFolder, "Tables from Previous RBSA Re
 
 stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
 
-input.date <- "2017.06.16"
-
 #File Names
 appliances.export          <- "Appliances.xlsx"
 buildings.interview.export <- "Buildings Interview.xlsx"
@@ -52,3 +50,4 @@ water.export               <- "Water.xlsx"
 windows.export             <- "Windows.xlsx"
 survey.export              <- "Participant Survey.xlsx"
 one.line.export            <- "One Line Summary.xlsm"
+one.line.bldg.export       <- "One Line Summary - BLDG.xlsm"

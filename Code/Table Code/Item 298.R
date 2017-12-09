@@ -7,11 +7,22 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -43,32 +54,60 @@ item298.dat1 <- unique(item298.dat[which(!(is.na(item298.dat$Clothes.Washer.Load
 which(duplicated(item298.dat1$CK_Cadmus_ID))
 
 #join cleaned RBSA data onto subsetted data for item
-item298.dat2 <- left_join(item298.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+item298.dat2 <- left_join(rbsa.dat, item298.dat1, by = "CK_Cadmus_ID")
 
 #subset to only multifamily units
 item298.dat3 <- item298.dat2[grep("Multifamily", item298.dat2$BuildingType),]
 #view unique values of clothes washers
 unique(item298.dat3$Clothes.Washer.Loads.per.Week)
+unique(item298.dat3$Dryer.Loads.per.Washer.Load)
 
 #remove any sites that do not have clothes washers
 item298.dat4 <- item298.dat3[which(item298.dat3$Clothes.Washer.Loads.per.Week != "No Washing Machine"),]
 item298.dat4$Clothes.Washer.Loads.per.Week <- as.numeric(as.character(item298.dat4$Clothes.Washer.Loads.per.Week))
-item298.dat4$Dryer.Loads.per.Washer.Load <- as.numeric(as.character(item298.dat4$Dryer.Loads.per.Washer.Load))
+item298.dat4$Dryer.Loads.per.Washer.Load   <- as.numeric(as.character(item298.dat4$Dryer.Loads.per.Washer.Load)) / 100
 
-#Summarise to obtain the average number of washer loads per week
-item298.sum1 <- summarise(item298.dat4
-                          ,Category = "Clothes Washer Loads per Week" 
-                          ,Mean = mean(Clothes.Washer.Loads.per.Week)
-                          ,SE = sd(Clothes.Washer.Loads.per.Week) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item298.data <- weightedData(item298.dat4[-which(colnames(item298.dat4) %in% c("CK_Site_ID"
+                                                                              ,"Clothes.Washer.Loads.per.Week"
+                                                                              ,"Dryer.Loads.per.Washer.Load"))])
+item298.data <- left_join(item298.data, item298.dat4[which(colnames(item298.dat4) %in% c("CK_Cadmus_ID"
+                                                                                       ,"CK_Site_ID"
+                                                                                       ,"Clothes.Washer.Loads.per.Week"
+                                                                                       ,"Dryer.Loads.per.Washer.Load"))])
+item298.data$count <- 1
+colnames(item298.data)
 
-# summarise the percent of those loads that go into the dryer
-item298.sum2 <- summarise(item298.dat4
-                          ,Category = "Dryer Loads per Washer Load"
-                          ,Mean = mean(Dryer.Loads.per.Washer.Load/100) #make dryer loads into percent
-                          ,SE = sd(Dryer.Loads.per.Washer.Load/100) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,SampleSize = length(unique(CK_Cadmus_ID)))
+#######################
+# Weighted Analysis
+#######################
+item298.washer.loads <- mean_one_group(CustomerLevelData = item298.data
+                                       ,valueVariable = 'Clothes.Washer.Loads.per.Week'
+                                       ,byVariable = "BuildingType"
+                                       ,aggregateRow = "Remove")
+item298.dryer.loads <- mean_one_group(CustomerLevelData = item298.data
+                                      ,valueVariable = "Dryer.Loads.per.Washer.Load"
+                                      ,byVariable = 'BuildingType'
+                                      ,aggregateRow = "Remove")
+item298.final <- rbind.data.frame(item298.washer.loads, item298.dryer.loads, stringsAsFactors = F)
+item298.final.MF <- item298.final[which(colnames(item298.final) %notin% c("BuildingType"))]
 
-#combine into one table
-item298.final <- rbind.data.frame(item298.sum1, item298.sum2, stringsAsFactors = F)
+exportTable(item298.final.MF, "MF", "Table 92", weighted = TRUE)
 
+#######################
+# unweighted Analysis
+#######################
+item298.washer.loads <- mean_one_group_unweighted(CustomerLevelData = item298.data
+                                       ,valueVariable = 'Clothes.Washer.Loads.per.Week'
+                                       ,byVariable = "BuildingType"
+                                       ,aggregateRow = "Remove")
+item298.dryer.loads <- mean_one_group_unweighted(CustomerLevelData = item298.data
+                                      ,valueVariable = "Dryer.Loads.per.Washer.Load"
+                                      ,byVariable = 'BuildingType'
+                                      ,aggregateRow = "Remove")
+item298.final <- rbind.data.frame(item298.washer.loads, item298.dryer.loads, stringsAsFactors = F)
+item298.final.MF <- item298.final[which(colnames(item298.final) %notin% c("BuildingType"))]
+
+exportTable(item298.final.MF, "MF", "Table 92", weighted = FALSE)

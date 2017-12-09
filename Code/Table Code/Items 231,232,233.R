@@ -25,6 +25,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
+rbsa.dat.MF <- rbsa.dat.MF[grep("BLDG", rbsa.dat.MF$CK_Building_ID),]
 
 # #Read in data for analysis
 # # Windows
@@ -53,14 +54,37 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"CK_SiteID"
-                                                                  ,"Wall.Area"
-                                                                  ,"Floor.Area"
+                                                                  # ,"Wall.Area"
+                                                                  # ,"Floor.Area"
                                                                   ,"Category"
-                                                                  ,"Area"
-                                                                  ,"Fenestration"))]
-envelope.dat1$Window.Count <- as.numeric(as.character(gsub("N = ", "", envelope.dat1$Fenestration)))
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorth"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingNortheast"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorthwest"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouth"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingSoutheast"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouthwest"
+                                                                  ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest"
+                                                                  ))]
+envelope.dat2 <- envelope.dat1[which(!is.na(envelope.dat1$ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast)),]
+envelope.dat2$Window.Count <- (envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorth +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNortheast +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorthwest +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouth +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSoutheast +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouthwest +
+                                 envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest)
 
-envelope.dat2 <- left_join(rbsa.dat, envelope.dat1)
+
+one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export))
+one.line.bldg.dat$CK_Cadmus_ID <- trimws(toupper(one.line.bldg.dat$CK_Cadmus_ID))
+
+
+
+
+
+envelope.merge <- left_join(rbsa.dat, envelope.dat1)
 length(unique(envelope.dat2$CK_Cadmus_ID)) 
 envelope.dat.MF <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType),]
 
@@ -292,7 +316,7 @@ exportTable(item232.final[which(colnames(item232.final) %notin% c("BulidingType"
 item233.windows1 <- item231.merge
 item233.windows1$Window_Area <- as.numeric(as.character(item233.windows1$Window_Area))
 
-item233.envelope <- envelope.dat.MF[which(envelope.dat.MF$)]
+# item233.envelope <- envelope.dat.MF[which(envelope.dat.MF$)]
 item233.envelope$Wall.Area <- as.numeric(as.character(item233.envelope$Wall.Area))
 item233.envelope$NumWindows <- as.numeric(as.character(item233.envelope$NumWindows))
 

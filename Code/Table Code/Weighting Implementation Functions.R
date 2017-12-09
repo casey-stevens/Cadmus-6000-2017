@@ -31,7 +31,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   }
   
 
-  if(byVariable == "State"){
+  if(byVariable %in% c("State","BuildingType")){
     
     item.strata <- data.frame(ddply(CustomerLevelData
                                     , c("BuildingType", "State", "Region", "Territory"), summarise
@@ -99,6 +99,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                    ,n      = sum(n_hj)
                                    ,n_h    = unique(n_h)
                                    ,N_h    = unique(N_h)), stringsAsFactors = F)
+    
+    Category <- valueVariable
+    item.final <- data.frame("Category" = Category
+                             ,item.final
+                             ,stringsAsFactors = F)
 
   }else{
     item.group <- data.frame(ddply(item.strata, c("BuildingType", byVariable), summarise
@@ -151,6 +156,8 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
     colnames(data)[which(colnames(data) == currentColName)] <- newColName
     return(data)
   }
+  
+  
 
     ######################################################
     # means and SEs by grouping variables
@@ -159,6 +166,7 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
                               ,n     = length(unique(CK_Cadmus_ID))
                               ,Mean  = mean(get(valueVariable), na.rm = T)
                               ,SE    = sd(get(valueVariable), na.rm = T) / sqrt(n)), stringsAsFactors = F)
+    
     
     ######################################################
     # means and SEs across grouping variables
@@ -171,7 +179,14 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
     
     item.all <- data.frame(ConvertColName(item.all,'All',byVariable),stringsAsFactors = F)
     
-    item.final <- rbind.data.frame(item.byGroup, item.all, stringsAsFactors = F)
+    
+    if (byVariable == "BuildingType"){
+      item.final <- item.byGroup
+      item.final$Category <- valueVariable
+    }else{
+      item.final <- rbind.data.frame(item.byGroup, item.all, stringsAsFactors = F)
+    }
+    
     
     return(item.final)
 }
@@ -494,7 +509,7 @@ proportions_one_group <- function(CustomerLevelData
                                         ,N.h   = unique(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
     
-    if(groupingVariable == "State"){
+    if(groupingVariable %in% c("State","BuildingType")){
       
       # this if statement is specifically to calculate the denominator for tables
       # where we want to know the percent of stored bulbs by bulb type

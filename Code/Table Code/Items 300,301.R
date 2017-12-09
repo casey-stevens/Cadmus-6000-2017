@@ -7,19 +7,31 @@
 #############################################################################################
 
 ##  Clear variables
-# rm(list=ls())
+rm(list = ls())
+rundate <-  format(Sys.time(), "%d%b%y")
+options(scipen = 999)
+
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
+source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
+
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
+
 #subset to columns provided by Rietz -- this includes columns for both items 300 and 301
 appliances.dat1 <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                        ,"Iteration"
+                                                                        ,"CK_SiteID"
                                                                         ,"Type"
                                                                         ,"Stove.Fuel"
                                                                         ,"Oven.Fuel"
@@ -55,7 +67,7 @@ rbsa.appliances <- left_join(appliances.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 #subset to only MF units
 rbsa.appliances1 <- rbsa.appliances[grep("Multifamily",rbsa.appliances$BuildingType),]
 #remove any BLDG info
-rbsa.appliances2 <- rbsa.appliances1[-grep("BLDG", rbsa.appliances1$Iteration),]
+rbsa.appliances2 <- rbsa.appliances1[-grep("BLDG", rbsa.appliances1$CK_Building_ID),]
 
 
 
@@ -172,7 +184,7 @@ item301.tv1 <- unique(left_join(rbsa.dat, item301.tv, by = "CK_Cadmus_ID"))
 #subset to only MF
 item301.tv2 <- item301.tv1[grep("Multifamily",item301.tv1$BuildingType),]
 #remove BLDG info
-item301.tv3 <- item301.tv2[-grep("BLDG", item301.tv2$Iteration),]
+item301.tv3 <- item301.tv2[-grep("BLDG", item301.tv2$CK_SiteID),]
 
 #add count of TV, where if NA, count is 0
 item301.tv3$count <- 0
