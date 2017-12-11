@@ -109,7 +109,6 @@ item32.final <- proportions_one_group(CustomerLevelData    = item32.data
                                       , valueVariable    = 'Quantity'
                                       , groupingVariable = 'Framing.Categories'
                                       , total.name       = "Total"
-                                      , columnName       = "Door.Type"
                                       , weighted = TRUE)
 
 item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family"),-1]
@@ -125,7 +124,6 @@ item32.final <- proportions_one_group(CustomerLevelData    = item32.data
                                       , valueVariable    = 'Quantity'
                                       , groupingVariable = 'Framing.Categories'
                                       , total.name       = "Total"
-                                      , columnName       = "Door.Type"
                                       , weighted = FALSE)
 
 item32.final.SF <- item32.final[which(item32.final$BuildingType == "Single Family")
@@ -224,7 +222,8 @@ item33.all.framing.categories <- proportions_one_group(CustomerLevelData = item3
                                                        ,groupingVariable = 'State.x'
                                                        ,total.name       = "All Framing Categories"
                                                        ,columnName       = "Framing.Categories"
-                                                       ,weighted         = TRUE)
+                                                       ,weighted         = TRUE
+                                                       ,two.prop.total   = TRUE)
 colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.categories) == "State.x")] <- "State"
 
 item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
@@ -237,20 +236,19 @@ item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
                            ,"Framing.Categories" = item33.cast$Framing.Categories
                            ,"Percent_ID"         = item33.cast$w.percent_ID
                            ,"SE_ID"              = item33.cast$w.SE_ID
-                           ,"Count_ID"           = item33.cast$count_ID
+                           ,"n_ID"               = item33.cast$n_ID
                            ,"Percent_MT"         = item33.cast$w.percent_MT
                            ,"SE_MT"              = item33.cast$w.SE_MT
-                           ,"Count_MT"           = item33.cast$count_MT
+                           ,"n_MT"               = item33.cast$n_MT
                            ,"Percent_OR"         = item33.cast$w.percent_OR
                            ,"SE_OR"              = item33.cast$w.SE_OR
-                           ,"Count_OR"           = item33.cast$count_OR
+                           ,"n_OR"               = item33.cast$n_OR
                            ,"Percent_WA"         = item33.cast$w.percent_WA
                            ,"SE_WA"              = item33.cast$w.SE_WA
-                           ,"Count_WA"           = item33.cast$count_WA
+                           ,"n_WA"               = item33.cast$n_WA
                            ,"Percent_Region"     = item33.cast$w.percent_Region
                            ,"SE_Region"          = item33.cast$w.SE_Region
-                           ,"Count_Region"       = item33.cast$count_Region
-                           # ,"SampleSize"         = item33.cast$SampleSize_Region
+                           ,"n_Region"           = item33.cast$n_Region
 )
 
 item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family"),-which(colnames(item33.table) %in% c("BuildingType"))]
@@ -274,37 +272,36 @@ item33.all.framing.categories <- proportions_one_group(CustomerLevelData = item3
                                                        ,groupingVariable = 'State.x'
                                                        ,total.name       = "All Framing Categories"
                                                        ,columnName       = "Framing.Categories"
-                                                       ,weighted         = FALSE)
+                                                       ,weighted         = FALSE
+                                                       ,two.prop.total   = TRUE)
 colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.categories) == "State.x")] <- "State"
 
 item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
 item33.cast <- dcast(setDT(item33.final)
                      , formula = BuildingType + Framing.Categories ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
                            ,"Framing.Categories" = item33.cast$Framing.Categories
                            ,"Percent_ID"         = item33.cast$Percent_ID
                            ,"SE_ID"              = item33.cast$SE_ID
-                           ,"Count_ID"           = item33.cast$Count_ID
+                           ,"n_ID"               = item33.cast$n_ID
                            ,"Percent_MT"         = item33.cast$Percent_MT
                            ,"SE_MT"              = item33.cast$SE_MT
-                           ,"Count_MT"           = item33.cast$Count_MT
+                           ,"n_MT"               = item33.cast$n_MT
                            ,"Percent_OR"         = item33.cast$Percent_OR
                            ,"SE_OR"              = item33.cast$SE_OR
-                           ,"Count_OR"           = item33.cast$Count_OR
+                           ,"n_OR"               = item33.cast$n_OR
                            ,"Percent_WA"         = item33.cast$Percent_WA
                            ,"SE_WA"              = item33.cast$SE_WA
-                           ,"Count_WA"           = item33.cast$Count_WA
+                           ,"n_WA"               = item33.cast$n_WA
                            ,"Percent_Region"     = item33.cast$Percent_Region
                            ,"SE_Region"          = item33.cast$SE_Region
-                           ,"Count_Region"       = item33.cast$Count_Region
-                           # ,"SampleSize"         = item33.cast$SampleSize_Region
+                           ,"n_Region"           = item33.cast$n_Region
 )
 
 item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family")
-                                ,-which(colnames(item33.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item33.table) %in% c("BuildingType"))]
 
 exportTable(item33.final.SF, "SF", "Table 40", weighted = FALSE)
 
@@ -361,7 +358,6 @@ item34.final <- proportions_one_group(CustomerLevelData  = item34.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Remove"
                                       , weighted = TRUE)
 
 item34.final.SF <- item34.final[which(item34.final$BuildingType == "Single Family"),-1]
@@ -375,12 +371,9 @@ item34.final <- proportions_one_group(CustomerLevelData  = item34.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Remove"
                                       , weighted = FALSE)
 
 item34.final.SF <- item34.final[which(item34.final$BuildingType == "Single Family")
-                                ,-which(colnames(item34.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item34.final) %in% c("BuildingType"))]
 
 exportTable(item34.final.SF, "SF", "Table 41", weighted = FALSE)

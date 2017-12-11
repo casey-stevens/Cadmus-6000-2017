@@ -194,35 +194,30 @@ item44.cast <- dcast(setDT(item44.final)
                       , formula = BuildingType + Heating_Fuel ~ State
                       , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item44.table <- data.frame("BuildingType"     = item44.cast$BuildingType
+item44.table <- data.frame("BuildingType"    = item44.cast$BuildingType
                            ,"Heating.Fuel"   = item44.cast$Heating_Fuel
                            ,"Percent_ID"     = item44.cast$w.percent_ID
                            ,"SE_ID"          = item44.cast$w.SE_ID
-                           ,"Count_ID"       = item44.cast$count_ID
+                           ,"n_ID"           = item44.cast$n_ID
                            ,"Percent_MT"     = item44.cast$w.percent_MT
                            ,"SE_MT"          = item44.cast$w.SE_MT
-                           ,"Count_MT"       = item44.cast$count_MT
+                           ,"n_MT"           = item44.cast$n_MT
                            ,"Percent_OR"     = item44.cast$w.percent_OR
                            ,"SE_OR"          = item44.cast$w.SE_OR
-                           ,"Count_OR"       = item44.cast$count_OR
+                           ,"n_OR"           = item44.cast$n_OR
                            ,"Percent_WA"     = item44.cast$w.percent_WA
                            ,"SE_WA"          = item44.cast$w.SE_WA
-                           ,"Count_WA"       = item44.cast$count_WA
+                           ,"n_WA"           = item44.cast$n_WA
                            ,"Percent_Region" = item44.cast$w.percent_Region
                            ,"SE_Region"      = item44.cast$w.SE_Region
-                           ,"Count_Region"   = item44.cast$count_Region
-                           # ,"SampleSize"     = item44.cast$SampleSize_Region
+                           ,"n_Region"       = item44.cast$n_Region
 )
 
 
 item44.final.SF <- item44.table[which(item44.table$BuildingType == "Single Family")
-                                ,-which(colnames(item44.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item44.table) %in% c("BuildingType"))]
 item44.final.MH <- item44.table[which(item44.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item44.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item44.table) %in% c("BuildingType"))]
 
 exportTable(item44.final.SF, "SF", "Table 51", weighted = TRUE)
 exportTable(item44.final.MH, "MH", "Table 33", weighted = TRUE)
@@ -241,37 +236,33 @@ item44.final <- proportions_two_groups_unweighted(CustomerLevelData = item44.dat
 
 item44.cast <- dcast(setDT(item44.final)
                      , formula = BuildingType + Heating_Fuel ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 
-item44.table <- data.frame("BuildingType"     = item44.cast$BuildingType
+item44.table <- data.frame("BuildingType"    = item44.cast$BuildingType
                            ,"Heating.Fuel"   = item44.cast$Heating_Fuel
                            ,"Percent_ID"     = item44.cast$Percent_ID
                            ,"SE_ID"          = item44.cast$SE_ID
-                           ,"Count_ID"       = item44.cast$Count_ID
+                           ,"n_ID"           = item44.cast$n_ID
                            ,"Percent_MT"     = item44.cast$Percent_MT
                            ,"SE_MT"          = item44.cast$SE_MT
-                           ,"Count_MT"       = item44.cast$Count_MT
+                           ,"n_MT"           = item44.cast$n_MT
                            ,"Percent_OR"     = item44.cast$Percent_OR
                            ,"SE_OR"          = item44.cast$SE_OR
-                           ,"Count_OR"       = item44.cast$Count_OR
+                           ,"n_OR"           = item44.cast$n_OR
                            ,"Percent_WA"     = item44.cast$Percent_WA
                            ,"SE_WA"          = item44.cast$SE_WA
-                           ,"Count_WA"       = item44.cast$Count_WA
+                           ,"n_WA"           = item44.cast$n_WA
                            ,"Percent_Region" = item44.cast$Percent_Region
                            ,"SE_Region"      = item44.cast$SE_Region
-                           ,"Count_Region"   = item44.cast$Count_Region
-                           # ,"SampleSize"     = item44.cast$SampleSize_Region
+                           ,"n_Region"       = item44.cast$n_Region
 )
 
 
 item44.final.SF <- item44.table[which(item44.table$BuildingType == "Single Family")
-                                ,-which(colnames(item44.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item44.table) %in% c("BuildingType"))]
 item44.final.MH <- item44.table[which(item44.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item44.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item44.table) %in% c("BuildingType"))]
 
 exportTable(item44.final.SF, "SF", "Table 51", weighted = FALSE)
 exportTable(item44.final.MH, "MH", "Table 33", weighted = FALSE)
@@ -326,13 +317,9 @@ item45.final <- proportions_one_group(CustomerLevelData  = item45.data
                                       , weighted = TRUE)
 
 item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Family")
-                                ,-which(colnames(item45.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item45.final) %in% c("BuildingType"))]
 item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item45.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item45.final) %in% c("BuildingType"))]
 
 exportTable(item45.final.SF, "SF", "Table 52", weighted = TRUE)
 exportTable(item45.final.MH, "MH", "Table 34", weighted = TRUE)
@@ -350,13 +337,9 @@ item45.final <- proportions_one_group(CustomerLevelData  = item45.data
                                       , weighted = FALSE)
 
 item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Family")
-                                ,-which(colnames(item45.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item45.final) %in% c("BuildingType"))]
 item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item45.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item45.final) %in% c("BuildingType"))]
 
 exportTable(item45.final.SF, "SF", "Table 52", weighted = FALSE)
 exportTable(item45.final.MH, "MH", "Table 34", weighted = FALSE)
@@ -422,7 +405,7 @@ item46.data <- left_join(item46.data, item46.dat7[which(colnames(item46.dat7) %i
                                                                                      ,"count"))])
 
 ################################
-# Unweighted Analysis
+# weighted Analysis
 ################################
 item46.final <- proportionRowsAndColumns1(CustomerLevelData = item46.data
                                           , valueVariable       = 'count'
@@ -438,31 +421,26 @@ item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
                            ,"Heating.Fuel"   = item46.cast$Heating_Fuel
                            ,"Percent_ID"     = item46.cast$w.percent_ID
                            ,"SE_ID"          = item46.cast$w.SE_ID
-                           ,"Count_ID"       = item46.cast$count_ID
+                           ,"n_ID"           = item46.cast$n_ID
                            ,"Percent_MT"     = item46.cast$w.percent_MT
                            ,"SE_MT"          = item46.cast$w.SE_MT
-                           ,"Count_MT"       = item46.cast$count_MT
+                           ,"n_MT"           = item46.cast$n_MT
                            ,"Percent_OR"     = item46.cast$w.percent_OR
                            ,"SE_OR"          = item46.cast$w.SE_OR
-                           ,"Count_OR"       = item46.cast$count_OR
+                           ,"n_OR"           = item46.cast$n_OR
                            ,"Percent_WA"     = item46.cast$w.percent_WA
                            ,"SE_WA"          = item46.cast$w.SE_WA
-                           ,"Count_WA"       = item46.cast$count_WA
+                           ,"n_WA"           = item46.cast$n_WA
                            ,"Percent_Region" = item46.cast$w.percent_Region
                            ,"SE_Region"      = item46.cast$w.SE_Region
-                           ,"Count_Region"   = item46.cast$count_Region
-                           # ,"SampleSize"     = item46.cast$SampleSize_Region
+                           ,"n_Region"       = item46.cast$n_Region
 )
 
 
 item46.final.SF <- item46.table[which(item46.table$BuildingType == "Single Family")
-                                ,-which(colnames(item46.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item46.table) %in% c("BuildingType"))]
 item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item46.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item46.table) %in% c("BuildingType"))]
 
 exportTable(item46.final.SF, "SF", "Table 53", weighted = TRUE)
 exportTable(item46.final.MH, "MH", "Table 35", weighted = TRUE)
@@ -485,31 +463,26 @@ item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
                            ,"Heating.Fuel"   = item46.cast$Heating_Fuel
                            ,"Percent_ID"     = item46.cast$Percent_ID
                            ,"SE_ID"          = item46.cast$SE_ID
-                           ,"Count_ID"       = item46.cast$Count_ID
+                           ,"n_ID"           = item46.cast$n_ID
                            ,"Percent_MT"     = item46.cast$Percent_MT
                            ,"SE_MT"          = item46.cast$SE_MT
-                           ,"Count_MT"       = item46.cast$Count_MT
+                           ,"n_MT"           = item46.cast$n_MT
                            ,"Percent_OR"     = item46.cast$Percent_OR
                            ,"SE_OR"          = item46.cast$SE_OR
-                           ,"Count_OR"       = item46.cast$Count_OR
+                           ,"n_OR"           = item46.cast$n_OR
                            ,"Percent_WA"     = item46.cast$Percent_WA
                            ,"SE_WA"          = item46.cast$SE_WA
-                           ,"Count_WA"       = item46.cast$Count_WA
+                           ,"n_WA"           = item46.cast$n_WA
                            ,"Percent_Region" = item46.cast$Percent_Region
                            ,"SE_Region"      = item46.cast$SE_Region
-                           ,"Count_Region"   = item46.cast$Count_Region
-                           # ,"SampleSize"     = item46.cast$SampleSize_Region
+                           ,"n_Region"       = item46.cast$n_Region
 )
 
 
 item46.final.SF <- item46.table[which(item46.table$BuildingType == "Single Family")
-                                ,-which(colnames(item46.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item46.table) %in% c("BuildingType"))]
 item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured")
-                                ,-which(colnames(item46.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item46.table) %in% c("BuildingType"))]
 
 exportTable(item46.final.SF, "SF", "Table 53", weighted = FALSE)
 exportTable(item46.final.MH, "MH", "Table 35", weighted = FALSE)

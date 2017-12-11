@@ -46,8 +46,10 @@ mechanical.dat3 <- mechanical.dat2[which(!(is.na(mechanical.dat2$Component.1.Yea
 mechanical.dat3$EquipVintage_bins <- as.numeric(as.character(mechanical.dat3$`Component.1.Year.of.Manufacture`))
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` < 1990)] <- "Pre 1990"
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 1990 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2000)] <- "1990-1999"
-mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2006)] <- "2000-2006"
-mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2006)] <- "Post 2006"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2006)] <- "2000-2005"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2006 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2010)] <- "2006-2009"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2010 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2015)] <- "2010-2014"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2015)] <- "Post 2014"
 #check uniques
 unique(mechanical.dat3$EquipVintage_bins)
 
@@ -227,19 +229,19 @@ item51.table <- data.frame("BuildingType"    = item51.cast$BuildingType
                            ,"Efficiency"     = item51.cast$Efficiency_bins
                            ,"Percent_ID"     = item51.cast$w.percent_ID
                            ,"SE_ID"          = item51.cast$w.SE_ID
-                           ,"Count_ID"       = item51.cast$count_ID
+                           ,"n_ID"           = item51.cast$n_ID
                            ,"Percent_MT"     = item51.cast$w.percent_MT
                            ,"SE_MT"          = item51.cast$w.SE_MT
-                           ,"Count_MT"       = item51.cast$count_MT
+                           ,"n_MT"           = item51.cast$n_MT
                            ,"Percent_OR"     = item51.cast$w.percent_OR
                            ,"SE_OR"          = item51.cast$w.SE_OR
-                           ,"Count_OR"       = item51.cast$count_OR
+                           ,"n_OR"           = item51.cast$n_OR
                            ,"Percent_WA"     = item51.cast$w.percent_WA
                            ,"SE_WA"          = item51.cast$w.SE_WA
-                           ,"Count_WA"       = item51.cast$count_WA
+                           ,"n_WA"           = item51.cast$n_WA
                            ,"Percent_Region" = item51.cast$w.percent_Region
                            ,"SE_Region"      = item51.cast$w.SE_Region
-                           ,"Count_Region"     = item51.cast$count_Region)
+                           ,"n_Region"       = item51.cast$n_Region)
 
 
 
@@ -267,19 +269,19 @@ item51.table <- data.frame("BuildingType"    = item51.cast$BuildingType
                            ,"Efficiency"     = item51.cast$Efficiency_bins
                            ,"Percent_ID"     = item51.cast$Percent_ID
                            ,"SE_ID"          = item51.cast$SE_ID
-                           ,"Count_ID"       = item51.cast$Count_ID
+                           ,"n_ID"           = item51.cast$n_ID
                            ,"Percent_MT"     = item51.cast$Percent_MT
                            ,"SE_MT"          = item51.cast$SE_MT
-                           ,"Count_MT"       = item51.cast$Count_MT
+                           ,"n_MT"           = item51.cast$n_MT
                            ,"Percent_OR"     = item51.cast$Percent_OR
                            ,"SE_OR"          = item51.cast$SE_OR
-                           ,"Count_OR"       = item51.cast$Count_OR
+                           ,"n_OR"           = item51.cast$n_OR
                            ,"Percent_WA"     = item51.cast$Percent_WA
                            ,"SE_WA"          = item51.cast$SE_WA
-                           ,"Count_WA"       = item51.cast$Count_WA
+                           ,"n_WA"           = item51.cast$n_WA
                            ,"Percent_Region" = item51.cast$Percent_Region
                            ,"SE_Region"      = item51.cast$SE_Region
-                           ,"Count_Region"     = item51.cast$Count_Region
+                           ,"n_Region"       = item51.cast$n_Region
                            )
 
 
@@ -332,7 +334,7 @@ item52.data <- left_join(item52.data, item52.dat5[which(colnames(item52.dat5) %i
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"HSPF"
                                                                                      ,"EquipVintage_bins"))])
-
+item52.data$count <- 1
 ###############################
 # Weighted Analysis
 ###############################
@@ -340,6 +342,17 @@ item52.final <- mean_one_group(CustomerLevelData = item52.data
                                ,valueVariable = 'HSPF' 
                                ,byVariable    = 'EquipVintage_bins'
                                ,aggregateRow  = "All Vintages")
+# row ordering example code
+unique(item52.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2005"
+              ,"2006-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item52.final <- item52.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item52.final <- data.frame(item52.final)
 
 # Export table
 # SF = Table 59, MH = Table 39
@@ -358,6 +371,17 @@ item52.final <- mean_one_group_unweighted(CustomerLevelData = item52.data
                                ,valueVariable = 'HSPF' 
                                ,byVariable    = 'EquipVintage_bins'
                                ,aggregateRow  = "All Vintages")
+# row ordering example code
+unique(item52.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2005"
+              ,"2006-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item52.final <- item52.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item52.final <- data.frame(item52.final)
 
 # Export table
 # SF = Table 59, MH = Table 39
@@ -419,7 +443,7 @@ item53.data <- left_join(item53.data, item53.dat4[which(colnames(item53.dat4) %i
                                                                                       ,"EquipVintage_bins"
                                                                                       ,"HSPF_bins"                      
                                                                                       ,"count"))])
-
+item53.data$count <- 1
 ########################
 # Weighted Analysis
 ########################
@@ -440,19 +464,19 @@ item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
                            ,"HSPF"           = item53.cast$HSPF_bins
                            ,"Percent_ID"     = item53.cast$w.percent_ID
                            ,"SE_ID"          = item53.cast$w.SE_ID
-                           ,"count_ID"       = item53.cast$count_ID
+                           ,"n_ID"           = item53.cast$n_ID
                            ,"Percent_MT"     = item53.cast$w.percent_MT
                            ,"SE_MT"          = item53.cast$w.SE_MT
-                           ,"count_MT"       = item53.cast$count_MT
+                           ,"n_MT"           = item53.cast$n_MT
                            ,"Percent_OR"     = item53.cast$w.percent_OR
                            ,"SE_OR"          = item53.cast$w.SE_OR
-                           ,"count_OR"       = item53.cast$count_OR
+                           ,"n_OR"           = item53.cast$n_OR
                            ,"Percent_WA"     = item53.cast$w.percent_WA
                            ,"SE_WA"          = item53.cast$w.SE_WA
-                           ,"count_WA"       = item53.cast$count_WA
+                           ,"n_WA"           = item53.cast$n_WA
                            ,"Percent_Region" = item53.cast$w.percent_Region
                            ,"SE_Region"      = item53.cast$w.SE_Region
-                           ,"count_Region"   = item53.cast$count_Region)
+                           ,"n_Region"       = item53.cast$n_Region)
 
 #subset to only the relevant building types for this item
 item53.table.SF <- item53.table[which(item53.table$BuildingType %in% c("Single Family")),-1]
@@ -482,19 +506,19 @@ item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
                            ,"HSPF"           = item53.cast$HSPF_bins
                            ,"Percent_ID"     = item53.cast$Percent_ID
                            ,"SE_ID"          = item53.cast$SE_ID
-                           ,"Count_ID"       = item53.cast$Count_ID
+                           ,"n_ID"           = item53.cast$n_ID
                            ,"Percent_MT"     = item53.cast$Percent_MT
                            ,"SE_MT"          = item53.cast$SE_MT
-                           ,"Count_MT"       = item53.cast$Count_MT
+                           ,"n_MT"           = item53.cast$n_MT
                            ,"Percent_OR"     = item53.cast$Percent_OR
                            ,"SE_OR"          = item53.cast$SE_OR
-                           ,"Count_OR"       = item53.cast$Count_OR
+                           ,"n_OR"           = item53.cast$n_OR
                            ,"Percent_WA"     = item53.cast$Percent_WA
                            ,"SE_WA"          = item53.cast$SE_WA
-                           ,"Count_WA"       = item53.cast$Count_WA
+                           ,"n_WA"           = item53.cast$n_WA
                            ,"Percent_Region" = item53.cast$Percent_Region
                            ,"SE_Region"      = item53.cast$SE_Region
-                           ,"Count_Region"   = item53.cast$Count_Region)
+                           ,"n_Region"       = item53.cast$n_Region)
 
 #subset to only the relevant building types for this item
 item53.table.SF <- item53.table[which(item53.table$BuildingType %in% c("Single Family")),-1]

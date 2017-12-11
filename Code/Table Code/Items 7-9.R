@@ -20,6 +20,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
@@ -264,10 +265,6 @@ exportTable(item9.final.SF, "SF", "Table 16"
             , weighted = TRUE)
 exportTable(item9.final.MH, "MH", "Table 14"
             , weighted = TRUE)
-
-
-
-
 
 
 ################################

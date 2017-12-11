@@ -23,6 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 
@@ -69,7 +70,7 @@ item3.dat$GroundContact <- trimws(item3.dat$GroundContact)
 unique(item3.dat$GroundContact)
 
 # Remove unwanted ground contact types
-item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA)),]
+item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA, 0)),]
 
 #subset to only single family for item 3
 item3.dat2 <- item3.dat1[which(item3.dat1$BuildingType == "Single Family"),]
@@ -89,10 +90,10 @@ colnames(item3.data)
 ##############################
 # Weighted Analysis
 ##############################
-item3.final <- proportionRowsAndColumns1(item3.data
-                                         , valueVariable = 'count'
-                                         , columnVariable = 'State'
-                                         , rowVariable = 'GroundContact'
+item3.final <- proportionRowsAndColumns1(CustomerLevelData     = item3.data
+                                         , valueVariable       = 'count'
+                                         , columnVariable      = 'State'
+                                         , rowVariable         = 'GroundContact'
                                          , aggregateColumnName = "Region")
 
 colnames(item3.final) <- c("BuildingType"
@@ -102,29 +103,29 @@ colnames(item3.final) <- c("BuildingType"
                            , "SE"
                            , "Count"
                            , "PopSize"
-                           , "SampleSize")
+                           , "n")
 
 item3.cast <- dcast(setDT(item3.final)
                     ,formula = BuildingType + GroundContact ~ State
-                    ,value.var = c("Percent", "SE", "SampleSize", "Count", "PopSize"))
+                    ,value.var = c("Percent", "SE", "n", "Count", "PopSize"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
                           ,"Percent_ID"     = item3.cast$Percent_ID
                           ,"SE_ID"          = item3.cast$SE_ID
-                          ,"n_ID"           = item3.cast$Count_ID
+                          ,"n_ID"           = item3.cast$n_ID
                           ,"Percent_MT"     = item3.cast$Percent_MT
                           ,"SE_MT"          = item3.cast$SE_MT
-                          ,"n_MT"           = item3.cast$Count_MT
+                          ,"n_MT"           = item3.cast$n_MT
                           ,"Percent_OR"     = item3.cast$Percent_OR
                           ,"SE_OR"          = item3.cast$SE_OR
-                          ,"n_OR"           = item3.cast$Count_OR
+                          ,"n_OR"           = item3.cast$n_OR
                           ,"Percent_WA"     = item3.cast$Percent_WA
                           ,"SE_WA"          = item3.cast$SE_WA
-                          ,"n_WA"           = item3.cast$Count_WA
+                          ,"n_WA"           = item3.cast$n_WA
                           ,"Percent_Region" = item3.cast$Percent_Region
                           ,"SE_Region"      = item3.cast$SE_Region
-                          ,"SampleSize"     = item3.cast$Count_Region)
+                          ,"n_Region"       = item3.cast$n_Region)
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
@@ -137,7 +138,7 @@ exportTable(item3.table.SF, "SF", "Table 10"
 ##############################
 # Unweighted Analysis
 ##############################
-item3.final <- proportions_two_groups_unweighted(item3.data
+item3.final <- proportions_two_groups_unweighted(CustomerLevelData = item3.data
                                          , valueVariable = 'count'
                                          , columnVariable = 'State'
                                          , rowVariable = 'GroundContact'
@@ -148,8 +149,6 @@ colnames(item3.final) <- c("BuildingType"
                            , "GroundContact"
                            , "Count"
                            , "n"
-                           , "Total.Count"
-                           , "Denom"
                            , "Percent"
                            , "SE")
 
@@ -161,20 +160,19 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
                           ,"Percent_ID"     = item3.cast$Percent_ID
                           ,"SE_ID"          = item3.cast$SE_ID
-                          ,"n_ID"           = item3.cast$Count_ID
+                          ,"n_ID"           = item3.cast$n_ID
                           ,"Percent_MT"     = item3.cast$Percent_MT
                           ,"SE_MT"          = item3.cast$SE_MT
-                          ,"n_MT"           = item3.cast$Count_MT
+                          ,"n_MT"           = item3.cast$n_MT
                           ,"Percent_OR"     = item3.cast$Percent_OR
                           ,"SE_OR"          = item3.cast$SE_OR
-                          ,"n_OR"           = item3.cast$Count_OR
+                          ,"n_OR"           = item3.cast$n_OR
                           ,"Percent_WA"     = item3.cast$Percent_WA
                           ,"SE_WA"          = item3.cast$SE_WA
-                          ,"n_WA"           = item3.cast$Count_WA
+                          ,"n_WA"           = item3.cast$n_WA
                           ,"Percent_Region" = item3.cast$Percent_Region
                           ,"SE_Region"      = item3.cast$SE_Region
-                          ,"n_Region"       = item3.cast$Count_Region
-                          ,"SampleSize"     = item3.cast$n_Region)
+                          ,"n_Region"       = item3.cast$n_Region)
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
@@ -253,11 +251,10 @@ exportTable(item4.table.MH, "MH", "Table 10"
 ##############################
 # Unweighted Analysis
 ##############################
-item4.final <- mean_one_group(CustomerLevelData = item4.customer
-                              , valueVariable = 'siteAreaConditioned'
-                              , byVariable    = 'State'
-                              , aggregateRow  = 'Region'
-                              , weighted = FALSE)
+item4.final <- mean_one_group_unweighted(CustomerLevelData = item4.data
+                                         , valueVariable = 'siteAreaConditioned'
+                                         , byVariable    = 'State'
+                                         , aggregateRow  = 'Region')
 
 
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
@@ -343,21 +340,34 @@ item5.table <- data.frame("BuildingType"     = item5.final$BuildingType
                           ,"HousingVintage"  = item5.final$HomeYearBuilt_bins2
                           ,"Mean_ID"         = item5.final$Mean_ID
                           ,"SE_ID"           = item5.final$SE_ID
-                          # ,"n_ID"            = item5.final$n_ID
+                          ,"n_ID"            = item5.final$n_ID
                           ,"Mean_MT"         = item5.final$Mean_MT
                           ,"SE_MT"           = item5.final$SE_MT
-                          # ,"n_MT"            = item5.final$n_MT
+                          ,"n_MT"            = item5.final$n_MT
                           ,"Mean_OR"         = item5.final$Mean_OR
                           ,"SE_OR"           = item5.final$SE_OR
-                          # ,"n_OR"            = item5.final$n_OR
+                          ,"n_OR"            = item5.final$n_OR
                           ,"Mean_WA"         = item5.final$Mean_WA
                           ,"SE_WA"           = item5.final$SE_WA
-                          # ,"n_WA"            = item5.final$n_WA
+                          ,"n_WA"            = item5.final$n_WA
                           ,"Mean_Region"     = item5.final$Mean_Region
                           ,"SE_Region"       = item5.final$SE_Region
                           ,"n_Region"        = item5.final$n_Region
                           )
 
+# row ordering example code
+levels(item5.table$HousingVintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item5.table <- item5.table %>% mutate(HousingVintage = factor(HousingVintage, levels = rowOrder)) %>% arrange(HousingVintage)  
+item5.table <- data.frame(item5.table)
 
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
@@ -366,8 +376,8 @@ exportTable(item5.table.SF, "SF", "Table 12"
             , weighted = TRUE)
 exportTable(item5.table.MH, "MH", "Table 11"
             , weighted = TRUE)
-exportTable(item5.table.SF, "SF", "Table 12"
-            , weighted = TRUE, final = TRUE)
+# exportTable(item5.table.SF, "SF", "Table 12"
+#             , weighted = TRUE, final = TRUE)
 
 
 
@@ -399,6 +409,19 @@ item5.table <- data.frame("BuildingType"     = item5.final$BuildingType
                           ,"SE_Region"       = item5.final$SE_Region
                           ,"n_Region"        = item5.final$n_Region)
 
+# row ordering example code
+levels(item5.table$HousingVintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item5.table <- item5.table %>% mutate(HousingVintage = factor(HousingVintage, levels = rowOrder)) %>% arrange(HousingVintage)  
+item5.table <- data.frame(item5.table)
 
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]

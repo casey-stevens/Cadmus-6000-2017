@@ -27,3 +27,20 @@ rowOrder <- c("Pre 1955"
               ,"2001-2010"
               ,"Post 2010"
               ,"All Vintages")
+
+
+# row ordering example code
+levels(item1.table$Home.Type)
+rowOrder <- c("Single Family Detached"
+              ,"Duplex, Triplex, or Fourplex"
+              ,"Townhome or Rowhome"
+              ,"Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"Single Wide"
+              ,"Double Wide"
+              ,"Triple Wide"
+              ,"Modular / Prefab"
+              ,"Total")
+item1.table <- item1.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item1.table <- data.frame(item1.table)

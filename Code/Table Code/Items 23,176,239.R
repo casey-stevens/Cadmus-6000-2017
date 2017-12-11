@@ -533,36 +533,46 @@ item23.final$HomeYearBuilt_bins3[which(item23.final$HomeYearBuilt_bins3 == "Tota
 item23.cast <- dcast(setDT(item23.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3~ rvalue.bins.SF,
                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
-
+names(item23.cast)
 item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item23.cast$w.percent_None
                            ,"SE.None"         = item23.cast$w.SE_None
-                           ,"Count.None"          = item23.cast$count_None
+                           # ,"n.None"          = item23.cast$n_None
                            ,"Percent.R1.R3"   = item23.cast$w.percent_R1.R3  
                            ,"SE.R1.R3"        = item23.cast$w.SE_R1.R3
-                           ,"Count.R1.R3"         = item23.cast$count_R1.R3
+                           # ,"n.R1.R3"         = item23.cast$n_R1.R3
                            ,"Percent.R4.R10"  = item23.cast$w.percent_R4.R10  
                            ,"SE.R4.R10"       = item23.cast$w.SE_R4.R10
-                           ,"Count.R4.R10"        = item23.cast$count_R4.R10
+                           # ,"n.R4.R10"        = item23.cast$n_R4.R10
                            ,"Percent.R11.R15" = item23.cast$w.percent_R11.R15
                            ,"SE.R11.R15"      = item23.cast$w.SE_R11.R15
-                           ,"Count.R11.R15"       = item23.cast$count_R11.R15
+                           # ,"n.R11.R15"       = item23.cast$n_R11.R15
                            ,"Percent.R16.R22" = item23.cast$w.percent_R16.R22
                            ,"SE.R16.R22"      = item23.cast$w.SE_R16.R22
-                           ,"Count.R16.R22"       = item23.cast$count_R16.R22
-                           ,"Percent.R23.R27" = NA #item23.cast$w.percent_R23.R27
-                           ,"SE.R23.R27"      = NA #item23.cast$w.SE_R23.R27
-                           ,"Count.R23.R27"       = NA #item23.cast$count_R23.R27
+                           # ,"n.R16.R22"       = item23.cast$n_R16.R22
+                           ,"Percent.R23.R27" = item23.cast$w.percent_R23.R27
+                           ,"SE.R23.R27"      = item23.cast$w.SE_R23.R27
+                           # ,"n.R23.R27"       = NA #item23.cast$n_R23.R27
                            ,"Percent.R28.R35" = item23.cast$w.percent_R28.R35
                            ,"SE.R28.R35"      = item23.cast$w.SE_R28.R35
-                           ,"Count.R28.R35"       = item23.cast$count_R28.R35
+                           # ,"n.R28.R35"       = item23.cast$n_R28.R35
                            ,"Percent.RGT36"   = item23.cast$w.percent_RGT36
                            ,"SE.RGT36"        = item23.cast$w.SE_RGT36
-                           ,"Count.RGT36"         = item23.cast$count_RGT36
-                           # ,"SampleSize"      = item23.cast$count_Total
+                           # ,"n.RGT36"         = item23.cast$n_RGT36
+                           ,"n"                 = item23.cast$`n_All Housing Vintages`
                            )
+# row ordering example code
+levels(item23.table$Housing.Vintage)
+rowOrder <- c("Pre 1981"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
 
+item23.table <- item23.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item23.table <- data.frame(item23.table)
 
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
@@ -613,37 +623,48 @@ item23.final$HomeYearBuilt_bins3[which(item23.final$HomeYearBuilt_bins3 == "Tota
 
 item23.cast <- dcast(setDT(item23.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     value.var = c("Percent", "SE", "Count", "n"))
 
 item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item23.cast$Percent_None
                            ,"SE.None"         = item23.cast$SE_None
-                           ,"Count.None"      = item23.cast$Count_None
+                           # ,"Count.None"      = item23.cast$Count_None
                            ,"Percent.R1.R3"   = item23.cast$Percent_R1.R3  
                            ,"SE.R1.R3"        = item23.cast$SE_R1.R3
-                           ,"Count.R1.R3"     = item23.cast$Count_R1.R3
+                           # ,"Count.R1.R3"     = item23.cast$Count_R1.R3
                            ,"Percent.R4.R10"  = item23.cast$Percent_R4.R10  
                            ,"SE.R4.R10"       = item23.cast$SE_R4.R10
-                           ,"Count.R4.R10"    = item23.cast$Count_R4.R10
+                           # ,"Count.R4.R10"    = item23.cast$Count_R4.R10
                            ,"Percent.R11.R15" = item23.cast$Percent_R11.R15
                            ,"SE.R11.R15"      = item23.cast$SE_R11.R15
-                           ,"Count.R11.R15"   = item23.cast$Count_R11.R15
+                           # ,"Count.R11.R15"   = item23.cast$Count_R11.R15
                            ,"Percent.R16.R22" = item23.cast$Percent_R16.R22
                            ,"SE.R16.R22"      = item23.cast$SE_R16.R22
-                           ,"Count.R16.R22"   = item23.cast$Count_R16.R22
-                           ,"Percent.R23.R27" = NA #item23.cast$Percent_R23.R27
-                           ,"SE.R23.R27"      = NA #item23.cast$SE_R23.R27
-                           ,"Count.R23.R27"   = NA #item23.cast$Count_R23.R27
+                           # ,"Count.R16.R22"   = item23.cast$Count_R16.R22
+                           ,"Percent.R23.R27" = item23.cast$Percent_R23.R27
+                           ,"SE.R23.R27"      = item23.cast$SE_R23.R27
+                           # ,"Count.R23.R27"   = NA #item23.cast$Count_R23.R27
                            ,"Percent.R28.R35" = item23.cast$Percent_R28.R35
                            ,"SE.R28.R35"      = item23.cast$SE_R28.R35
-                           ,"Count.R28.R35"   = item23.cast$Count_R28.R35
+                           # ,"Count.R28.R35"   = item23.cast$Count_R28.R35
                            ,"Percent.RGT36"   = item23.cast$Percent_RGT36
                            ,"SE.RGT36"        = item23.cast$SE_RGT36
-                           ,"Count.RGT36"     = item23.cast$Count_RGT36
-                           # ,"SampleSize"      = item23.cast$Count_Total
+                           # ,"Count.RGT36"     = item23.cast$Count_RGT36
+                           ,"n"               = item23.cast$`n_All Housing Vintages`
 )
 
+# row ordering example code
+levels(item23.table$Housing.Vintage)
+rowOrder <- c("Pre 1981"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+
+item23.table <- item23.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item23.table <- data.frame(item23.table)
 
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
@@ -660,18 +681,18 @@ exportTable(item23.table.SF, "SF", "Table 30"
 ######################
 item23.summary <- proportionRowsAndColumns1(CustomerLevelData     = item23.data
                                             , valueVariable       = 'count'
-                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , columnVariable      = 'HomeYearBuilt_bins2'
                                             , rowVariable         = 'rvalue.bins.MH'
                                             , aggregateColumnName = "All Housing Vintages"
 )
-item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
 
 ## Summary only for "All Frame Types"
 item23.all.frame.types <- proportions_one_group(item23.data
                                                 ,valueVariable    = "count"
                                                 ,groupingVariable = "rvalue.bins.MH"
                                                 ,total.name       = "All Housing Vintages"
-                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,columnName       = "HomeYearBuilt_bins2"
                                                 ,weighted = TRUE
                                                 ,two.prop.total = TRUE
 )
@@ -679,7 +700,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
 ## Summary for only "All Insulation Levels"
 item23.all.insul.levels <-  proportions_one_group(item23.data
                                                   ,valueVariable    = "count"
-                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,groupingVariable = "HomeYearBuilt_bins2"
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.MH"
                                                   ,weighted = TRUE
@@ -693,33 +714,47 @@ item23.final <- rbind.data.frame(item23.summary
                                  , item23.all.insul.levels
                                  , stringsAsFactors = F)
 item23.final <- item23.final[which(item23.final$rvalue.bins.MH != "Total"),]
-item23.final$HomeYearBuilt_bins3[which(item23.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
+item23.final$HomeYearBuilt_bins2[which(item23.final$HomeYearBuilt_bins2 == "Total")] <- "All Housing Vintages"
 
 
 item23.cast <- dcast(setDT(item23.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.MH,
+                     formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins.MH,
                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
-                           ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins3
+                           ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins2
                            ,"Percent.R0.R8"   = item23.cast$w.percent_R0.R8  
                            ,"SE.R0.R8"        = item23.cast$w.SE_R0.R8
-                           ,"Count.R0.R8"     = item23.cast$count_R0.R8
+                           # ,"Count.R0.R8"     = item23.cast$count_R0.R8
                            ,"Percent.R9.R14"  = item23.cast$w.percent_R9.R14  
                            ,"SE.R9.R14"       = item23.cast$w.SE_R9.R14
-                           ,"Count.R9.R14"    = item23.cast$count_R9.R14
+                           # ,"Count.R9.R14"    = item23.cast$count_R9.R14
                            ,"Percent.R15.R21" = item23.cast$w.percent_R15.R21
                            ,"SE.R15.R21"      = item23.cast$w.SE_R15.R21
-                           ,"Count.R15.R21"   = item23.cast$count_R15.R21
+                           # ,"Count.R15.R21"   = item23.cast$count_R15.R21
                            ,"Percent.R22.R30" = item23.cast$w.percent_R22.R30
                            ,"SE.R22.R30"      = item23.cast$w.SE_R22.R30
-                           ,"Count.R22.R30"   = item23.cast$count_R22.R30
+                           # ,"Count.R22.R30"   = item23.cast$count_R22.R30
                            ,"Percent.R31.R40" = item23.cast$w.percent_R31.R40
                            ,"SE.R31.R40"      = item23.cast$w.SE_R31.R40
-                           ,"Count.R31.R40"   = item23.cast$count_R31.R40
-                           # ,"SampleSize"      = item23.cast$count_Total
+                           # ,"Count.R31.R40"   = item23.cast$count_R31.R40
+                           ,"n"               = item23.cast$`n_All Housing Vintages`
                            )
 
+# row ordering example code
+levels(item23.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+
+item23.table <- item23.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item23.table <- data.frame(item23.table)
 
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
@@ -732,18 +767,18 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
 ######################
 item23.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item23.data
                                             , valueVariable       = 'count'
-                                            , columnVariable      = 'HomeYearBuilt_bins3'
+                                            , columnVariable      = 'HomeYearBuilt_bins2'
                                             , rowVariable         = 'rvalue.bins.MH'
                                             , aggregateColumnName = "All Housing Vintages"
 )
-item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
+item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
 
 ## Summary only for "All Frame Types"
 item23.all.frame.types <- proportions_one_group(item23.data
                                                 ,valueVariable    = "count"
                                                 ,groupingVariable = "rvalue.bins.MH"
                                                 ,total.name       = "All Housing Vintages"
-                                                ,columnName       = "HomeYearBuilt_bins3"
+                                                ,columnName       = "HomeYearBuilt_bins2"
                                                 ,weighted = FALSE
                                                 ,two.prop.total = TRUE
 )
@@ -751,7 +786,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
 ## Summary for only "All Insulation Levels"
 item23.all.insul.levels <-  proportions_one_group(item23.data
                                                   ,valueVariable    = "count"
-                                                  ,groupingVariable = "HomeYearBuilt_bins3"
+                                                  ,groupingVariable = "HomeYearBuilt_bins2"
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.MH"
                                                   ,weighted = FALSE
@@ -765,33 +800,47 @@ item23.final <- rbind.data.frame(item23.summary
                                  , item23.all.insul.levels
                                  , stringsAsFactors = F)
 item23.final <- item23.final[which(item23.final$rvalue.bins.MH != "Total"),]
-item23.final$HomeYearBuilt_bins3[which(item23.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
+item23.final$HomeYearBuilt_bins2[which(item23.final$HomeYearBuilt_bins2 == "Total")] <- "All Housing Vintages"
 
 
 item23.cast <- dcast(setDT(item23.final),
-                     formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.MH,
-                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins.MH,
+                     value.var = c("Percent", "SE", "Count", "n"))
 
 item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
-                           ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins3
+                           ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins2
                            ,"Percent.R0.R8"   = item23.cast$Percent_R0.R8  
                            ,"SE.R0.R8"        = item23.cast$SE_R0.R8
-                           ,"Count.R0.R8"     = item23.cast$Count_R0.R8
+                           # ,"Count.R0.R8"     = item23.cast$Count_R0.R8
                            ,"Percent.R9.R14"  = item23.cast$Percent_R9.R14  
                            ,"SE.R9.R14"       = item23.cast$SE_R9.R14
-                           ,"Count.R9.R14"    = item23.cast$Count_R9.R14
+                           # ,"Count.R9.R14"    = item23.cast$Count_R9.R14
                            ,"Percent.R15.R21" = item23.cast$Percent_R15.R21
                            ,"SE.R15.R21"      = item23.cast$SE_R15.R21
-                           ,"Count.R15.R21"   = item23.cast$Count_R15.R21
+                           # ,"Count.R15.R21"   = item23.cast$Count_R15.R21
                            ,"Percent.R22.R30" = item23.cast$Percent_R22.R30
                            ,"SE.R22.R30"      = item23.cast$SE_R22.R30
-                           ,"Count.R22.R30"   = item23.cast$Count_R22.R30
+                           # ,"Count.R22.R30"   = item23.cast$Count_R22.R30
                            ,"Percent.R31.R40" = item23.cast$Percent_R31.R40
                            ,"SE.R31.R40"      = item23.cast$SE_R31.R40
-                           ,"Count.R31.R40"   = item23.cast$Count_R31.R40
-                           # ,"SampleSize"      = item23.cast$Count_Total
+                           # ,"Count.R31.R40"   = item23.cast$Count_R31.R40
+                           ,"n"               = item23.cast$`n_All Housing Vintages`
 )
 
+# row ordering example code
+levels(item23.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+
+item23.table <- item23.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item23.table <- data.frame(item23.table)
 
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 

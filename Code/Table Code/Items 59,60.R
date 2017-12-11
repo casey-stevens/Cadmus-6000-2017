@@ -63,9 +63,11 @@ which(duplicated(item59.dat2$CK_Cadmus_ID))
 
 item59.customer <- summarise(group_by(item59.dat2, CK_Cadmus_ID)
                              ,Ind = sum(unique(Ind)))
+item59.customer$Ind[which(item59.customer$Ind > 0)] <- 1
 
 item59.merge <- left_join(rbsa.dat, item59.customer)
-
+item59.merge <- item59.merge[which(!is.na(item59.merge$Ind)),]
+item59.merge <- item59.merge[grep("site",item59.merge$CK_Building_ID, ignore.case = T),]
 
 # Weighting function
 item59.data <- weightedData(item59.merge[-which(colnames(item59.merge) %in% c("Generic"
@@ -76,6 +78,8 @@ item59.data <- left_join(item59.data, item59.merge[which(colnames(item59.merge) 
                                                                                      ,"Generic"
                                                                                      ,"System.Type"
                                                                                      ,"Ind"))])
+item59.data$Count <- 1
+item59.data$count <- 1
 
 #############################
 # Weighted Analysis
@@ -84,7 +88,6 @@ item59.final <- proportions_one_group(CustomerLevelData  = item59.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Homes with Ducts"
                                       , weighted = TRUE)
 
 # SF = Table 66
@@ -102,15 +105,12 @@ item59.final <- proportions_one_group(CustomerLevelData  = item59.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Remove"
                                       , weighted = FALSE)
 
 # SF = Table 66
 # Export table
 item59.final.SF <- item59.final[which(item59.final$BuildingType == "Single Family")
-                                ,-which(colnames(item59.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item59.final) %in% c("BuildingType"))]
 
 exportTable(item59.final.SF, "SF", "Table 66", weighted = FALSE)
 
@@ -187,30 +187,27 @@ item60.cast <- dcast(setDT(item60.final)
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
-                           ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.cast$UnconditionedBins
+                           ,"Percentage.of.Ducts.in.Unconditioned.Space" = item60.cast$UnconditionedBins
                            ,"Percent_ID"     = item60.cast$w.percent_ID
                            ,"SE_ID"          = item60.cast$w.SE_ID
-                           ,"Count_ID"       = item60.cast$count_ID
+                           ,"n_ID"           = item60.cast$n_ID
                            ,"Percent_MT"     = item60.cast$w.percent_MT
                            ,"SE_MT"          = item60.cast$w.SE_MT
-                           ,"Count_MT"       = item60.cast$count_MT
+                           ,"n_MT"           = item60.cast$n_MT
                            ,"Percent_OR"     = item60.cast$w.percent_OR
                            ,"SE_OR"          = item60.cast$w.SE_OR
-                           ,"Count_OR"       = item60.cast$count_OR
+                           ,"n_OR"           = item60.cast$n_OR
                            ,"Percent_WA"     = item60.cast$w.percent_WA
                            ,"SE_WA"          = item60.cast$w.SE_WA
-                           ,"Count_WA"       = item60.cast$count_WA
+                           ,"n_WA"           = item60.cast$n_WA
                            ,"Percent_Region" = item60.cast$w.percent_Region
                            ,"SE_Region"      = item60.cast$w.SE_Region
-                           ,"Count_Region"   = item60.cast$count_Region
-                           # ,"n"     = item60.cast$n_Region
+                           ,"n_Region"       = item60.cast$n_Region
 )
 
 
 item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
-                                ,-which(colnames(item60.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item60.table) %in% c("BuildingType"))]
 
 exportTable(item60.final.SF, "SF", "Table 67", weighted = TRUE)
 
@@ -235,26 +232,23 @@ item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.cast$UnconditionedBins
                            ,"Percent_ID"     = item60.cast$Percent_ID
                            ,"SE_ID"          = item60.cast$SE_ID
-                           ,"Count_ID"       = item60.cast$Count_ID
+                           ,"n_ID"           = item60.cast$n_ID
                            ,"Percent_MT"     = item60.cast$Percent_MT
                            ,"SE_MT"          = item60.cast$SE_MT
-                           ,"Count_MT"       = item60.cast$Count_MT
+                           ,"n_MT"           = item60.cast$n_MT
                            ,"Percent_OR"     = item60.cast$Percent_OR
                            ,"SE_OR"          = item60.cast$SE_OR
-                           ,"Count_OR"       = item60.cast$Count_OR
+                           ,"n_OR"           = item60.cast$n_OR
                            ,"Percent_WA"     = item60.cast$Percent_WA
                            ,"SE_WA"          = item60.cast$SE_WA
-                           ,"Count_WA"       = item60.cast$Count_WA
+                           ,"n_WA"           = item60.cast$n_WA
                            ,"Percent_Region" = item60.cast$Percent_Region
                            ,"SE_Region"      = item60.cast$SE_Region
-                           ,"Count_Region"   = item60.cast$Count_Region
-                           # ,"n"     = item60.cast$n_Region
+                           ,"n_Region"       = item60.cast$n_Region
 )
 
 
 item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
-                                ,-which(colnames(item60.table) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item60.table) %in% c("BuildingType"))]
 
 exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)

@@ -86,12 +86,13 @@ item24.data <- left_join(item24.data, item24.dat2[which(colnames(item24.dat2) %i
                                                                                       ,"Crawlspace.Wall.Exterior.Insulation.Condition.2"
                                                                                       ,"count"
                                                                                       ,"crawl.ins.ind"))])
-
+item24.data$Ind <- item24.data$crawl.ins.ind
+item24.data$Count <- 1
 ##################################
 # Weighted - Single Family
 ##################################
 item24.final <- proportions_one_group(CustomerLevelData  = item24.data
-                                      , valueVariable    = 'crawl.ins.ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
                                       , columnName       = "Insulated Crawlspace Walls"
@@ -106,9 +107,9 @@ exportTable(item24.final.SF, "SF", "Table 31", weighted = TRUE)
 # Unweighted - Single Family
 ##################################
 item24.final <- proportions_one_group(CustomerLevelData  = item24.data
-                                      , valueVariable    = 'crawl.ins.ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
-                                      , total.name       = "Total"
+                                      , total.name       = "Region"
                                       , columnName       = "Insulated Crawlspace Walls"
                                       , weighted = FALSE)
 
@@ -145,12 +146,13 @@ item25.data <- weightedData(item25.merge[-which(colnames(item25.merge) %in% c("C
 # Should see 'Joining, by = "CK_Cadmus_ID"'
 item25.data <- left_join(item25.data, item25.merge[which(colnames(item25.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"Ceiling.Ind"))])
-
+item25.data$Ind <- item25.data$Ceiling.Ind
+item25.data$Count <- 1
 ##################################
 # Weighted
 ##################################
 item25.final <- proportions_one_group(CustomerLevelData  = item25.data
-                                      , valueVariable    = 'Ceiling.Ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
                                       , columnName       = "Homes with Attics"
@@ -164,7 +166,7 @@ exportTable(item25.final.SF, "SF", "Table 32", weighted = TRUE)
 # Unweighted
 ##################################
 item25.final <- proportions_one_group(CustomerLevelData  = item25.data
-                                      , valueVariable    = 'Ceiling.Ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
                                       , columnName       = "Homes with Attics"
@@ -202,15 +204,15 @@ item28.data <- weightedData(item28.merge[-which(colnames(item28.merge) %in% c("C
 # Should see 'Joining, by = "CK_Cadmus_ID"'
 item28.data <- left_join(item28.data, item28.merge[which(colnames(item28.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"Ceiling.Ind"))])
-
+item28.data$Ind <- item28.data$Ceiling.Ind
+item28.data$Count <- 1
 ##################################
 # Weighted
 ##################################
 item28.final <- proportions_one_group(CustomerLevelData  = item28.data
-                                      , valueVariable    = 'Ceiling.Ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Remove"
                                       , weighted = TRUE)
 
 item28.final.SF <- item28.final[which(item28.final$BuildingType == "Single Family"),-1]
@@ -221,10 +223,9 @@ exportTable(item28.final.SF, "SF", "Table 35", weighted = TRUE)
 # Unweighted
 ##################################
 item28.final <- proportions_one_group(CustomerLevelData  = item28.data
-                                      , valueVariable    = 'Ceiling.Ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Remove"
                                       , weighted = FALSE)
 
 item28.final.SF <- item28.final[which(item28.final$BuildingType == "Single Family")
@@ -260,15 +261,15 @@ item29.data <- weightedData(item29.merge[-which(colnames(item29.merge) %in% c("C
 item29.data <- left_join(item29.data, item29.merge[which(colnames(item29.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"Ceiling.Ind"))])
 
-
+item29.data$Ind <- item29.data$Ceiling.Ind
+item29.data$Count <- 1
 ##################################
 # Weighted
 ##################################
 item29.final <- proportions_one_group(CustomerLevelData  = item29.data
-                                      , valueVariable    = 'Ceiling.Ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
-                                      , total.name       = "Total"
-                                      , columnName       = "Remove"
+                                      , total.name       = "Region"
                                       , weighted = TRUE)
 
 item29.final.SF <- item29.final[which(item29.final$BuildingType == "Single Family"),-1]
@@ -280,14 +281,13 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = TRUE)
 # Unweighted
 ##################################
 item29.final <- proportions_one_group(CustomerLevelData  = item29.data
-                                      , valueVariable    = 'Ceiling.Ind'
+                                      , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
-                                      , total.name       = "Total"
-                                      , columnName       = "Remove"
+                                      , total.name       = "Region"
                                       , weighted = FALSE)
 
 item29.final.SF <- item29.final[which(item29.final$BuildingType == "Single Family")
-                                ,-which(colnames(item25.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
+                                ,-which(colnames(item25.final) %in% c("BuildingType"))]
 
 
 exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)

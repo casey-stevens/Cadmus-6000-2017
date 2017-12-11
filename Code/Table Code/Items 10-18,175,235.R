@@ -25,6 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
@@ -581,7 +582,7 @@ item10.summary <- item10.summary[which(item10.summary$Wall.Type != "All Frame Ty
 item10.summary <- item10.summary[which(item10.summary$rvalue.bins != "Total"),]
 
 ## Summary only for "All Frame Types"
-item10.all.frame.types <- proportions_one_group(CustomerLevelData     = item10.data
+item10.all.frame.types <- proportions_one_group(CustomerLevelData = item10.data
                                                 ,valueVariable    = "count"
                                                 ,groupingVariable = "rvalue.bins"
                                                 ,total.name       = "All Frame Types"
@@ -591,7 +592,7 @@ item10.all.frame.types <- proportions_one_group(CustomerLevelData     = item10.d
 )
 
 ## Summary for only "All Insulation Levels"
-item10.all.insul.levels <-  proportions_one_group(CustomerLevelData     = item10.data
+item10.all.insul.levels <-  proportions_one_group(CustomerLevelData = item10.data
                                                   ,valueVariable    = "count"
                                                   ,groupingVariable = "Wall.Type"
                                                   ,total.name       = "All Insulation Levels"
@@ -619,22 +620,22 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Wall.Type"       = item10.cast$Wall.Type
                            ,"Percent.R0"      = item10.cast$w.percent_R0
                            ,"SE.R0"           = item10.cast$w.SE_R0
-                           ,"count.R0"        = item10.cast$count_R0
+                           ,"n.R0"            = item10.cast$n_R0
                            ,"Percent.R1.R10"  = item10.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item10.cast$w.SE_R1.R10
-                           ,"count.R1.R10"    = item10.cast$count_R1.R10
+                           ,"n.R1.R10"        = item10.cast$n_R1.R10
                            ,"Percent.R11.R16" = item10.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item10.cast$w.SE_R11.R16
-                           ,"count.R11.R16"   = item10.cast$count_R11.R16
+                           ,"n.R11.R16"       = item10.cast$n_R11.R16
                            ,"Percent.R17.R22" = item10.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item10.cast$w.SE_R17.R22
-                           ,"count.R17.R22"   = item10.cast$count_R17.R22
+                           ,"n.R17.R22"       = item10.cast$n_R17.R22
                            ,"Percent.RGT22"   = item10.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item10.cast$w.SE_RGT22
-                           ,"count.RGT22"     = item10.cast$count_RGT22
+                           ,"n.RGT22"         = item10.cast$n_RGT22
                            ,"Percent_All Insulation Levels" = item10.cast$`w.percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`w.SE_All Insulation Levels`
-                           ,"count.All Insulation Levels"   = item10.cast$`count_All Insulation Levels`
+                           ,"n.All Insulation Levels"       = item10.cast$`n_All Insulation Levels`
                            )
 
 # row ordering example code
@@ -710,22 +711,22 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Wall.Type"       = item10.cast$Wall.Type
                            ,"Percent.R0"      = item10.cast$Percent_R0
                            ,"SE.R0"           = item10.cast$SE_R0
-                           ,"Count.R0"        = item10.cast$Count_R0
+                           ,"n.R0"            = item10.cast$n_R0
                            ,"Percent.R1.R10"  = item10.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item10.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item10.cast$Count_R1.R10
+                           ,"n.R1.R10"        = item10.cast$n_R1.R10
                            ,"Percent.R11.R16" = item10.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item10.cast$SE_R11.R16
-                           ,"Count.R11.R16"   = item10.cast$Count_R11.R16
+                           ,"n.R11.R16"       = item10.cast$n_R11.R16
                            ,"Percent.R17.R22" = item10.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item10.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item10.cast$Count_R17.R22
+                           ,"n.R17.R22"       = item10.cast$n_R17.R22
                            ,"Percent.RGT22"   = item10.cast$Percent_RGT22
                            ,"SE.RGT22"        = item10.cast$SE_RGT22
-                           ,"Count.RGT22"     = item10.cast$Count_RGT22
+                           ,"n.RGT22"         = item10.cast$n_RGT22
                            ,"Percent_All Insulation Levels" = item10.cast$`Percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`SE_All Insulation Levels`
-                           ,"Count.All Insulation Levels"   = item10.cast$`Count_All Insulation Levels`
+                           ,"n.All Insulation Levels"       = item10.cast$`n_All Insulation Levels`
                            )
 
 # row ordering example code
@@ -824,27 +825,21 @@ item11.cast <- dcast(setDT(item11.final),
 
 item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
-                           # ,"Percent_2x2"     = item11.cast$`w.percent_Framed 2x2`
-                           # ,"SE_2x2"          = item11.cast$`w.SE_Framed 2x2`
-                           # ,"Count_2x2"       = item11.cast$`count_Framed 2x2`
-                           # ,"Percent_2x3"     = item11.cast$`w.percent_Framed 2x3`
-                           # ,"SE_2x3"          = item11.cast$`w.SE_Framed 2x3`
-                           # ,"Count_2x3"       = item11.cast$`count_Framed 2x3`
                            ,"Percent_2x4"     = item11.cast$`w.percent_Framed 2x4`
                            ,"SE_2x4"          = item11.cast$`w.SE_Framed 2x4`
-                           ,"Count_2x4"       = item11.cast$`count_Framed 2x4`
+                           ,"n_2x4"           = item11.cast$`n_Framed 2x4`
                            ,"Percent_2x6"     = item11.cast$`w.percent_Framed 2x6`
                            ,"SE_2x6"          = item11.cast$`w.SE_Framed 2x6`
-                           ,"Count_2x6"       = item11.cast$`count_Framed 2x6`
+                           ,"n_2x6"           = item11.cast$`n_Framed 2x6`
                            ,"Percent_2x8"     = item11.cast$`w.percent_Framed 2x8`
                            ,"SE_2x8"          = item11.cast$`w.SE_Framed 2x8`
-                           ,"Count_2x8"       = item11.cast$`count_Framed 2x8`
+                           ,"n_2x8"           = item11.cast$`n_Framed 2x8`
                            ,"Percent_ALT"     = item11.cast$w.percent_Alternative
                            ,"SE_ALT"          = item11.cast$w.SE_Alternative
-                           ,"Count_ALT"       = item11.cast$count_Alternative
+                           ,"n_ALT"           = item11.cast$n_Alternative
                            ,"Percent_Unknown" = item11.cast$`w.percent_Framed (Unknown)`
                            ,"SE_Unknown"      = item11.cast$`w.SE_Framed (Unknown)`
-                           ,"Count_Unknown"   = item11.cast$`count_Framed (Unknown)`
+                           ,"n_Unknown"       = item11.cast$`n_Framed (Unknown)`
                            )
 
 # row ordering example code
@@ -901,27 +896,21 @@ item11.cast <- dcast(setDT(item11.final),
 
 item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
-                           # ,"Percent_2x2"     = item11.cast$`Percent_Framed 2x2`
-                           # ,"SE_2x2"          = item11.cast$`SE_Framed 2x2`
-                           # ,"Count_2x2"       = item11.cast$`Count_Framed 2x2`
-                           # ,"Percent_2x3"     = item11.cast$`Percent_Framed 2x3`
-                           # ,"SE_2x3"          = item11.cast$`SE_Framed 2x3`
-                           # ,"Count_2x3"       = item11.cast$`Count_Framed 2x3`
                            ,"Percent_2x4"     = item11.cast$`Percent_Framed 2x4`
                            ,"SE_2x4"          = item11.cast$`SE_Framed 2x4`
-                           ,"Count_2x4"       = item11.cast$`Count_Framed 2x4`
+                           ,"n_2x4"           = item11.cast$`n_Framed 2x4`
                            ,"Percent_2x6"     = item11.cast$`Percent_Framed 2x6`
                            ,"SE_2x6"          = item11.cast$`SE_Framed 2x6`
-                           ,"Count_2x6"       = item11.cast$`Count_Framed 2x6`
+                           ,"n_2x6"           = item11.cast$`n_Framed 2x6`
                            ,"Percent_2x8"     = item11.cast$`Percent_Framed 2x8`
                            ,"SE_2x8"          = item11.cast$`SE_Framed 2x8`
-                           ,"Count_2x8"       = item11.cast$`Count_Framed 2x8`
+                           ,"n_2x8"           = item11.cast$`n_Framed 2x8`
                            ,"Percent_ALT"     = item11.cast$Percent_Alternative
                            ,"SE_ALT"          = item11.cast$SE_Alternative
-                           ,"Count_ALT"       = item11.cast$Count_Alternative
+                           ,"n_ALT"           = item11.cast$n_Alternative
                            ,"Percent_Unknown" = item11.cast$`Percent_Framed (Unknown)`
                            ,"SE_Unknown"      = item11.cast$`SE_Framed (Unknown)`
-                           ,"Count_Unknown"   = item11.cast$`Count_Framed (Unknown)`
+                           ,"n_Unknown"       = item11.cast$`n_Framed (Unknown)`
 )
 
 # row ordering example code
@@ -1044,19 +1033,19 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item12.cast$w.percent_R0
                            ,"SE.R0"           = item12.cast$w.SE_R0
-                           ,"Count.R0"        = item12.cast$count_R0
+                           ,"n.R0"            = item12.cast$n_R0
                            ,"Percent.R1.R10"  = item12.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item12.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"    = item12.cast$count_R1.R10
+                           ,"n.R1.R10"        = item12.cast$n_R1.R10
                            ,"Percent.R11.R16" = item12.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item12.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"   = item12.cast$count_R11.R16
+                           ,"n.R11.R16"       = item12.cast$n_R11.R16
                            ,"Percent.R17.R22" = item12.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item12.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"   = item12.cast$count_R17.R22
+                           ,"n.R17.R22"       = item12.cast$n_R17.R22
                            ,"Percent.RGT22"   = item12.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item12.cast$w.SE_RGT22
-                           ,"Count.RGT22"     = item12.cast$count_RGT22
+                           ,"n.RGT22"         = item12.cast$n_RGT22
                            )
 
 # row ordering example code
@@ -1129,19 +1118,19 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item12.cast$Percent_R0
                            ,"SE.R0"           = item12.cast$SE_R0
-                           ,"Count.R0"        = item12.cast$Count_R0
+                           ,"n.R0"            = item12.cast$n_R0
                            ,"Percent.R1.R10"  = item12.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item12.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item12.cast$Count_R1.R10
+                           ,"n.R1.R10"        = item12.cast$n_R1.R10
                            ,"Percent.R11.R16" = item12.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item12.cast$SE_R11.R16
-                           ,"Count.R11.R16"   = item12.cast$Count_R11.R16
+                           ,"n.R11.R16"       = item12.cast$n_R11.R16
                            ,"Percent.R17.R22" = item12.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item12.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item12.cast$Count_R17.R22
+                           ,"n.R17.R22"       = item12.cast$n_R17.R22
                            ,"Percent.RGT22"   = item12.cast$Percent_RGT22
                            ,"SE.RGT22"        = item12.cast$SE_RGT22
-                           ,"Count.RGT22"     = item12.cast$Count_RGT22
+                           ,"n.RGT22"         = item12.cast$n_RGT22
                            )
 
 # row ordering example code
@@ -1215,16 +1204,16 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins2
                            ,"Percent.R0.R8"   = item12.cast$w.percent_R0.R8
                            ,"SE.R0.R8"        = item12.cast$w.SE_R0.R8
-                           ,"n.R0.R8"         = item12.cast$count_R0.R8
+                           ,"n.R0.R8"         = item12.cast$n_R0.R8
                            ,"Percent.R9.R14"  = item12.cast$w.percent_R9.R14
                            ,"SE.R9.R14"       = item12.cast$w.SE_R9.R14
-                           ,"n.R9.R14"        = item12.cast$count_R9.R14
+                           ,"n.R9.R14"        = item12.cast$n_R9.R14
                            ,"Percent.R15.R21" = item12.cast$w.percent_R15.R21
                            ,"SE.R15.R21"      = item12.cast$w.SE_R15.R21
-                           ,"n.R15.R21"       = item12.cast$count_R15.R21
+                           ,"n.R15.R21"       = item12.cast$n_R15.R21
                            ,"Percent.R22.R30" = item12.cast$w.percent_R22.R30
                            ,"SE.R22.R30"      = item12.cast$w.SE_R22.R30
-                           ,"n.R22.R30"       = item12.cast$count_R22.R30
+                           ,"n.R22.R30"       = item12.cast$n_R22.R30
                            )
 
 # row ordering example code
@@ -1296,16 +1285,16 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins2
                            ,"Percent.R0.R8"   = item12.cast$Percent_R0.R8
                            ,"SE.R0.R8"        = item12.cast$SE_R0.R8
-                           ,"Count.R0.R8"     = item12.cast$Count_R0.R8
+                           ,"n.R0.R8"         = item12.cast$n_R0.R8
                            ,"Percent.R9.R14"  = item12.cast$Percent_R9.R14
                            ,"SE.R9.R14"       = item12.cast$SE_R9.R14
-                           ,"Count.R9.R14"    = item12.cast$Count_R9.R14
+                           ,"n.R9.R14"        = item12.cast$n_R9.R14
                            ,"Percent.R15.R21" = item12.cast$Percent_R15.R21
                            ,"SE.R15.R21"      = item12.cast$SE_R15.R21
-                           ,"Count.R15.R21"   = item12.cast$Count_R15.R21
+                           ,"n.R15.R21"       = item12.cast$n_R15.R21
                            ,"Percent.R22.R30" = item12.cast$Percent_R22.R30
                            ,"SE.R22.R30"      = item12.cast$SE_R22.R30
-                           ,"Count.R22.R30"   = item12.cast$Count_R22.R30
+                           ,"n.R22.R30"       = item12.cast$n_R22.R30
 )
 
 # row ordering example code
@@ -1390,19 +1379,19 @@ item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item13.cast$w.percent_R0
                            ,"SE.R0"           = item13.cast$w.SE_R0
-                           ,"Count.R0"        = item13.cast$count_R0
+                           ,"n.R0"            = item13.cast$n_R0
                            ,"Percent.R1.R10"  = item13.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item13.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"    = item13.cast$count_R1.R10
+                           ,"n.R1.R10"        = item13.cast$n_R1.R10
                            ,"Percent.R11.R16" = item13.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item13.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"   = item13.cast$count_R11.R16
+                           ,"n.R11.R16"       = item13.cast$n_R11.R16
                            ,"Percent.R17.R22" = item13.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item13.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"   = item13.cast$count_R17.R22
+                           ,"n.R17.R22"       = item13.cast$n_R17.R22
                            ,"Percent.RGT22"   = item13.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item13.cast$w.SE_RGT22
-                           ,"Count.RGT22"     = item13.cast$count_RGT22
+                           ,"n.RGT22"         = item13.cast$n_RGT22
 )
 
 # row ordering example code
@@ -1475,19 +1464,19 @@ item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item13.cast$Percent_R0
                            ,"SE.R0"           = item13.cast$SE_R0
-                           ,"Count.R0"        = item13.cast$Count_R0
+                           ,"n.R0"            = item13.cast$n_R0
                            ,"Percent.R1.R10"  = item13.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item13.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item13.cast$Count_R1.R10
+                           ,"n.R1.R10"        = item13.cast$n_R1.R10
                            ,"Percent.R11.R16" = item13.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item13.cast$SE_R11.R16
-                           ,"Count.R11.R16"   = item13.cast$Count_R11.R16
+                           ,"n.R11.R16"       = item13.cast$n_R11.R16
                            ,"Percent.R17.R22" = item13.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item13.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item13.cast$Count_R17.R22
+                           ,"n.R17.R22"       = item13.cast$n_R17.R22
                            ,"Percent.RGT22"   = item13.cast$Percent_RGT22
                            ,"SE.RGT22"        = item13.cast$SE_RGT22
-                           ,"Count.RGT22"     = item13.cast$Count_RGT22
+                           ,"n.RGT22"         = item13.cast$n_RGT22
 )
 
 # row ordering example code
@@ -1571,19 +1560,19 @@ item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item14.cast$w.percent_R0
                            ,"SE.R0"           = item14.cast$w.SE_R0
-                           ,"Count.R0"        = item14.cast$count_R0
+                           ,"n.R0"            = item14.cast$n_R0
                            ,"Percent.R1.R10"  = item14.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item14.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"    = item14.cast$count_R1.R10
+                           ,"n.R1.R10"        = item14.cast$n_R1.R10
                            ,"Percent.R11.R16" = item14.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item14.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"   = item14.cast$count_R11.R16
+                           ,"n.R11.R16"       = item14.cast$n_R11.R16
                            ,"Percent.R17.R22" = item14.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item14.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"   = item14.cast$count_R17.R22
+                           ,"n.R17.R22"       = item14.cast$n_R17.R22
                            ,"Percent.RGT22"   = item14.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item14.cast$w.SE_RGT22
-                           ,"Count.RGT22"     = item14.cast$count_RGT22
+                           ,"n.RGT22"         = item14.cast$n_RGT22
 )
 
 # row ordering example code
@@ -1656,19 +1645,19 @@ item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item14.cast$Percent_R0
                            ,"SE.R0"           = item14.cast$SE_R0
-                           ,"Count.R0"        = item14.cast$Count_R0
+                           ,"n.R0"            = item14.cast$n_R0
                            ,"Percent.R1.R10"  = item14.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item14.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item14.cast$Count_R1.R10
+                           ,"n.R1.R10"        = item14.cast$n_R1.R10
                            ,"Percent.R11.R16" = item14.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item14.cast$SE_R11.R16
-                           ,"Count.R11.R16"   = item14.cast$Count_R11.R16
+                           ,"n.R11.R16"       = item14.cast$n_R11.R16
                            ,"Percent.R17.R22" = item14.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item14.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item14.cast$Count_R17.R22
+                           ,"n.R17.R22"       = item14.cast$n_R17.R22
                            ,"Percent.RGT22"   = item14.cast$Percent_RGT22
                            ,"SE.RGT22"        = item14.cast$SE_RGT22
-                           ,"Count.RGT22"     = item14.cast$Count_RGT22
+                           ,"n.RGT22"         = item14.cast$n_RGT22
 )
 
 # row ordering example code
@@ -1750,19 +1739,19 @@ item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item15.cast$w.percent_R0
                            ,"SE.R0"           = item15.cast$w.SE_R0
-                           ,"Count.R0"        = item15.cast$count_R0
+                           ,"n.R0"            = item15.cast$n_R0
                            ,"Percent.R1.R10"  = item15.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item15.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"    = item15.cast$count_R1.R10
+                           ,"n.R1.R10"        = item15.cast$n_R1.R10
                            ,"Percent.R11.R16" = item15.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item15.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"   = item15.cast$count_R11.R16
+                           ,"n.R11.R16"       = item15.cast$n_R11.R16
                            ,"Percent.R17.R22" = item15.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item15.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"   = item15.cast$count_R17.R22
+                           ,"n.R17.R22"       = item15.cast$n_R17.R22
                            ,"Percent.RGT22"   = item15.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item15.cast$w.SE_RGT22
-                           ,"Count.RGT22"     = item15.cast$count_RGT22
+                           ,"n.RGT22"         = item15.cast$n_RGT22
 )
 
 # row ordering example code
@@ -1835,19 +1824,19 @@ item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item15.cast$Percent_R0
                            ,"SE.R0"           = item15.cast$SE_R0
-                           ,"Count.R0"        = item15.cast$Count_R0
+                           ,"n.R0"            = item15.cast$n_R0
                            ,"Percent.R1.R10"  = item15.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item15.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item15.cast$Count_R1.R10
+                           ,"n.R1.R10"        = item15.cast$n_R1.R10
                            ,"Percent.R11.R16" = item15.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item15.cast$SE_R11.R16
-                           ,"Count.R11.R16"   = item15.cast$Count_R11.R16
+                           ,"n.R11.R16"       = item15.cast$n_R11.R16
                            ,"Percent.R17.R22" = item15.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item15.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item15.cast$Count_R17.R22
+                           ,"n.R17.R22"       = item15.cast$n_R17.R22
                            ,"Percent.RGT22"   = item15.cast$Percent_RGT22
                            ,"SE.RGT22"        = item15.cast$SE_RGT22
-                           ,"Count.RGT22"     = item15.cast$Count_RGT22
+                           ,"n.RGT22"         = item15.cast$n_RGT22
 )
 
 # row ordering example code
@@ -1930,19 +1919,19 @@ item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item16.cast$w.percent_R0
                            ,"SE.R0"           = item16.cast$w.SE_R0
-                           ,"Count.R0"        = item16.cast$count_R0
+                           ,"n.R0"            = item16.cast$n_R0
                            ,"Percent.R1.R10"  = item16.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item16.cast$w.SE_R1.R10
-                           ,"Count.R1.R10"    = item16.cast$count_R1.R10
+                           ,"n.R1.R10"        = item16.cast$n_R1.R10
                            ,"Percent.R11.R16" = item16.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item16.cast$w.SE_R11.R16
-                           ,"Count.R11.R16"   = item16.cast$count_R11.R16
+                           ,"n.R11.R16"       = item16.cast$n_R11.R16
                            ,"Percent.R17.R22" = item16.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item16.cast$w.SE_R17.R22
-                           ,"Count.R17.R22"   = item16.cast$count_R17.R22
+                           ,"n.R17.R22"       = item16.cast$n_R17.R22
                            ,"Percent.RGT22"   = item16.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item16.cast$w.SE_RGT22
-                           ,"Count.RGT22"     = item16.cast$count_RGT22
+                           ,"n.RGT22"         = item16.cast$n_RGT22
 )
 
 # row ordering example code
@@ -2015,19 +2004,19 @@ item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
                            ,"Percent.R0"      = item16.cast$Percent_R0
                            ,"SE.R0"           = item16.cast$SE_R0
-                           ,"Count.R0"        = item16.cast$Count_R0
+                           ,"n.R0"            = item16.cast$n_R0
                            ,"Percent.R1.R10"  = item16.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item16.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item16.cast$Count_R1.R10
+                           ,"n.R1.R10"        = item16.cast$n_R1.R10
                            ,"Percent.R11.R16" = item16.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item16.cast$SE_R11.R16
-                           ,"Count.R11.R16"   = item16.cast$Count_R11.R16
+                           ,"n.R11.R16"       = item16.cast$n_R11.R16
                            ,"Percent.R17.R22" = item16.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item16.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item16.cast$Count_R17.R22
+                           ,"n.R17.R22"       = item16.cast$n_R17.R22
                            ,"Percent.RGT22"   = item16.cast$Percent_RGT22
                            ,"SE.RGT22"        = item16.cast$SE_RGT22
-                           ,"Count.RGT22"     = item16.cast$Count_RGT22
+                           ,"n.RGT22"         = item16.cast$n_RGT22
 )
 
 # row ordering example code
@@ -2111,7 +2100,7 @@ item18.final <- item18.final[which(item18.final$Wall.Type != "Remove"),]
 
 
 item18.cast <- dcast(setDT(item18.final),
-                     formula   = BuildingType +  Wall.Type ~ insulation.levels, sum,
+                     formula   = BuildingType +  Wall.Type ~ insulation.levels,
                      value.var = c("w.percent", "w.SE", "count","n","N"))
 names(item18.cast)
 
@@ -2120,32 +2109,35 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Wall.Type"         = item18.cast$Wall.Type
                            ,"Percent_0.25_inch" = item18.cast$w.percent_0.25
                            ,"SE_0.25_inch"      = item18.cast$w.SE_0.25
-                           ,"Count_0.25_inch"   = item18.cast$count_0.25
+                           # ,"n_0.25_inch"       = item18.cast$n_0.25
                            ,"Percent_0.5_inch"  = item18.cast$w.percent_0.5
                            ,"SE_0.5_inch"       = item18.cast$w.SE_0.5
-                           ,"Count_0.5_inch"    = item18.cast$count_0.5
+                           # ,"n_0.5_inch"        = item18.cast$n_0.5
                            ,"Percent_0.75_inch" = item18.cast$w.percent_0.75
                            ,"SE_0.75_inch"      = item18.cast$w.SE_0.75
-                           ,"Count_0.75_inch"   = item18.cast$count_0.75
+                           # ,"n_0.75_inch"       = item18.cast$n_0.75
                            ,"Percent_1_inch"    = item18.cast$w.percent_1
                            ,"SE_1_inch"         = item18.cast$w.SE_1
-                           ,"Count_1_inch"      = item18.cast$count_1
+                           # ,"n_1_inch"          = item18.cast$n_1
                            ,"Percent_1.5_inch"  = item18.cast$w.percent_1.5
                            ,"SE_1.5_inch"       = item18.cast$w.SE_1.5
-                           ,"Count_1.5_inch"    = item18.cast$count_1.5
+                           # ,"n_1.5_inch"        = item18.cast$n_1.5
                            ,"Percent_2_inch"    = item18.cast$w.percent_2
                            ,"SE_2_inch"         = item18.cast$w.SE_2
-                           ,"Count_2_inch"      = item18.cast$count_2
-                           # ,"Percent_2.5_inch"  = item18.cast$w.percent_2.5
-                           # ,"SE_2.5_inch"       = item18.cast$w.SE_2.5
-                           # ,"Count_2.5_inch"    = item18.cast$count_2.5
+                           # ,"n_2_inch"          = item18.cast$n_2
                            ,"Percent_3_inch"    = item18.cast$w.percent_3
                            ,"SE_3_inch"         = item18.cast$w.SE_3
-                           ,"Count_3_inch"      = item18.cast$count_3
+                           # ,"n_3_inch"          = item18.cast$n_3
+                           ,"Percent_4_inch"    = item18.cast$w.percent_4
+                           ,"SE_4_inch"         = item18.cast$w.SE_4
+                           # ,"n_4_inch"          = item18.cast$n_4
+                           ,"Percent_5.5_inch"  = item18.cast$w.percent_5.5
+                           ,"SE_5.5_inch"       = item18.cast$w.SE_5.5
+                           # ,"n_5.5_inch"        = item18.cast$n_5.5
                            ,"Percent_None"      = item18.cast$w.percent_None
                            ,"SE_None"           = item18.cast$w.SE_None
-                           ,"Count_None"        = item18.cast$count_None
-                           # ,"n"        = item18.cast$count_Total
+                           # ,"n_None"            = item18.cast$n_None
+                           ,"n"                 = item18.cast$n_Total
 )
 
 # row ordering example code
@@ -2206,35 +2198,38 @@ item18.cast <- dcast(setDT(item18.final),
 
 
 item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
-                           ,"Wall.Type"   = item18.cast$Wall.Type
+                           ,"Wall.Type"         = item18.cast$Wall.Type
                            ,"Percent_0.25_inch" = item18.cast$Percent_0.25
                            ,"SE_0.25_inch"      = item18.cast$SE_0.25
-                           ,"Count_0.25_inch"   = item18.cast$Count_0.25
+                           # ,"n_0.25_inch"       = item18.cast$n_0.25
                            ,"Percent_0.5_inch"  = item18.cast$Percent_0.5
                            ,"SE_0.5_inch"       = item18.cast$SE_0.5
-                           ,"Count_0.5_inch"    = item18.cast$Count_0.5
+                           # ,"n_0.5_inch"        = item18.cast$n_0.5
                            ,"Percent_0.75_inch" = item18.cast$Percent_0.75
                            ,"SE_0.75_inch"      = item18.cast$SE_0.75
-                           ,"Count_0.75_inch"   = item18.cast$Count_0.75
+                           # ,"n_0.75_inch"       = item18.cast$n_0.75
                            ,"Percent_1_inch"    = item18.cast$Percent_1
                            ,"SE_1_inch"         = item18.cast$SE_1
-                           ,"Count_1_inch"      = item18.cast$Count_1
+                           # ,"n_1_inch"          = item18.cast$n_1
                            ,"Percent_1.5_inch"  = item18.cast$Percent_1.5
                            ,"SE_1.5_inch"       = item18.cast$SE_1.5
-                           ,"Count_1.5_inch"    = item18.cast$Count_1.5
+                           # ,"n_1.5_inch"        = item18.cast$n_1.5
                            ,"Percent_2_inch"    = item18.cast$Percent_2
                            ,"SE_2_inch"         = item18.cast$SE_2
-                           ,"Count_2_inch"      = item18.cast$Count_2
-                           # ,"Percent_2.5_inch"  = item18.cast$Percent_2.5
-                           # ,"SE_2.5_inch"       = item18.cast$SE_2.5
-                           # ,"Count_2.5_inch"    = item18.cast$Count_2.5
+                           # ,"n_2_inch"          = item18.cast$n_2
                            ,"Percent_3_inch"    = item18.cast$Percent_3
                            ,"SE_3_inch"         = item18.cast$SE_3
-                           ,"Count_3_inch"      = item18.cast$Count_3
+                           # ,"n_3_inch"          = item18.cast$n_3
+                           ,"Percent_4_inch"    = item18.cast$Percent_4
+                           ,"SE_4_inch"         = item18.cast$SE_4
+                           # ,"n_4_inch"          = item18.cast$n_4
+                           ,"Percent_5.5_inch"  = item18.cast$Percent_5.5
+                           ,"SE_5.5_inch"       = item18.cast$SE_5.5
+                           # ,"n_5.5_inch"        = item18.cast$n_5.5
                            ,"Percent_None"      = item18.cast$Percent_None
                            ,"SE_None"           = item18.cast$SE_None
-                           ,"Count_None"        = item18.cast$Count_None
-                           # ,"n"        = item18.cast$Count_Total
+                           # ,"n_None"            = item18.cast$n_None
+                           ,"n"                 = item18.cast$n_Total
 )
 
 # row ordering example code
@@ -2371,19 +2366,20 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
                            ,"Housing.Vintage" = item17.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item17.cast$w.percent_None
                            ,"SE.None"         = item17.cast$w.SE_None
-                           ,"Count.None"      = item17.cast$count_None
+                           # ,"n.None"          = item17.cast$n_None
                            ,"Percent.R1.R9"   = item17.cast$w.percent_R1.R9
                            ,"SE.R1.R9"        = item17.cast$w.SE_R1.R9
-                           ,"Count.R1.R9"     = item17.cast$count_R1.R9
+                           # ,"n.R1.R9"         = item17.cast$n_R1.R9
                            ,"Percent.R10.R15" = item17.cast$w.percent_R10.R15
                            ,"SE.R10.R15"      = item17.cast$w.SE_R10.R15
-                           ,"Count.R10.R15"   = item17.cast$count_R10.R15
+                           # ,"n.R10.R15"       = item17.cast$n_R10.R15
                            ,"Percent.R16.R20" = item17.cast$w.percent_R16.R20
                            ,"SE.R16.R20"      = item17.cast$w.SE_R16.R20
-                           ,"Count.R16.R20"   = item17.cast$count_R16.R20
+                           # ,"n.R16.R20"       = item17.cast$n_R16.R20
                            ,"Percent.RGT21"   = item17.cast$w.percent_RGT21
                            ,"SE.RGT21"        = item17.cast$w.SE_RGT21
-                           ,"Count.RGT21"     = item17.cast$count_RGT21
+                           # ,"n.RGT21"         = item17.cast$n_RGT21
+                           ,"n"               = item17.cast$`n_All Housing Vintages`
                            )
 
 # row ordering example code
@@ -2454,19 +2450,20 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
                            ,"Housing.Vintage" = item17.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item17.cast$Percent_None
                            ,"SE.None"         = item17.cast$SE_None
-                           ,"Count.None"      = item17.cast$Count_None
+                           # ,"n.None"          = item17.cast$n_None
                            ,"Percent.R1.R9"   = item17.cast$Percent_R1.R9
                            ,"SE.R1.R9"        = item17.cast$SE_R1.R9
-                           ,"Count.R1.R9"     = item17.cast$Count_R1.R9
+                           # ,"n.R1.R9"         = item17.cast$n_R1.R9
                            ,"Percent.R10.R15" = item17.cast$Percent_R10.R15
                            ,"SE.R10.R15"      = item17.cast$SE_R10.R15
-                           ,"Count.R10.R15"   = item17.cast$Count_R10.R15
+                           # ,"n.R10.R15"       = item17.cast$n_R10.R15
                            ,"Percent.R16.R20" = item17.cast$Percent_R16.R20
                            ,"SE.R16.R20"      = item17.cast$SE_R16.R20
-                           ,"Count.R16.R20"   = item17.cast$Count_R16.R20
+                           # ,"n.R16.R20"       = item17.cast$n_R16.R20
                            ,"Percent.RGT21"   = item17.cast$Percent_RGT21
                            ,"SE.RGT21"        = item17.cast$SE_RGT21
-                           ,"Count.RGT21"     = item17.cast$Count_RGT21
+                           # ,"n.RGT21"         = item17.cast$n_RGT21
+                           ,"n"               = item17.cast$`n_All Housing Vintages`
 )
 
 # row ordering example code

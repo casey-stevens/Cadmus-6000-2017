@@ -163,6 +163,7 @@ item35.data <- left_join(item35.data, item35.merge[which(colnames(item35.merge) 
                                                                                        ,"FloorArea_Site"
                                                                                        ,"WindowToFloorArea"
                                                                                        ,"Basement"))])
+item35.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
