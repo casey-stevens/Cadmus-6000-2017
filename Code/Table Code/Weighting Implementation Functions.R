@@ -586,6 +586,7 @@ proportions_one_group <- function(CustomerLevelData
                                                    ,N         = unique(columnVar.N.h)
                                                    ,n         = sum(n_hj)), stringsAsFactors = F)
       
+      
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
                                        ,rowTotal       = "Total"
@@ -598,10 +599,14 @@ proportions_one_group <- function(CustomerLevelData
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
       
+      if(groupingVariable == "BuildingType"){
+        AllRowsFinal <- ColumnProportionsByGroup
+      } else {
+        #join total information onto summary by grouping variables
+        AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
+                                          ColumnTotals, stringsAsFactors = F)
+      }
       
-      #join total information onto summary by grouping variables
-      AllRowsFinal  <- rbind.data.frame(ColumnProportionsByGroup, 
-                                        ColumnTotals, stringsAsFactors = F)
       
       if(!is.na(two.prop.total)){
         AllRowsFinal$tmp.total <- total.name

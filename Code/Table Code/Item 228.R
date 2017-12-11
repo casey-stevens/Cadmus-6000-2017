@@ -63,49 +63,47 @@ item228.data <- left_join(item228.data, item228.dat4[which(colnames(item228.dat4
 
 
 item228.data$PercentUnoccupied <- item228.data$PercentUnoccupied / 100
-
+item228.data$count <- 1
 #######################
 # weighted analysis
 #######################
-item228.final <- mean_one_group(CustomerLevelData = item228.data
-                                ,valueVariable = 'PercentUnoccupied'
-                                ,byVariable = 'HomeYearBuilt_bins_MF'
-                                ,aggregateRow = "All Vintages")
-exportTable(item228.final, "MF", "Table 20", weighted = TRUE)
+item228.table <- mean_one_group(CustomerLevelData = item228.data
+                                ,valueVariable    = 'PercentUnoccupied'
+                                ,byVariable       = 'HomeYearBuilt_bins_MF'
+                                ,aggregateRow     = "All Vintages")
+# row ordering example code
+unique(item228.table$HomeYearBuilt_bins_MF)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item228.table <- item228.table %>% mutate(HomeYearBuilt_bins_MF = factor(HomeYearBuilt_bins_MF, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins_MF)  
+item228.table <- data.frame(item228.table)
+
+exportTable(item228.table, "MF", "Table 20", weighted = TRUE)
 
 #######################
 # unweighted analysis
 #######################
-item228.final <- mean_one_group_unweighted(CustomerLevelData = item228.data
-                                ,valueVariable = 'PercentUnoccupied'
-                                ,byVariable = 'HomeYearBuilt_bins_MF'
-                                ,aggregateRow = "All Vintages")
-exportTable(item228.final, "MF", "Table 20", weighted = FALSE)
+item228.table <- mean_one_group_unweighted(CustomerLevelData = item228.data
+                                           ,valueVariable    = 'PercentUnoccupied'
+                                           ,byVariable       = 'HomeYearBuilt_bins_MF'
+                                           ,aggregateRow     = "All Vintages")
+# row ordering example code
+unique(item228.table$HomeYearBuilt_bins_MF)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item228.table <- item228.table %>% mutate(HomeYearBuilt_bins_MF = factor(HomeYearBuilt_bins_MF, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins_MF)  
+item228.table <- data.frame(item228.table)
 
-
-# #Will remove NA's from this analysis since it appears zeros are legitamte averages
-# 
-# item228.dat3 <- item228.dat2[which(!is.na(item228.dat2$PercentUnoccupied)
-#                                      & !is.na(item228.dat2$HomeYearBuilt_MF)),]
-# 
-# #summarise by vintage
-# item228.vintage <- summarise(group_by(item228.dat3, HomeYearBuilt_MF)
-#                            ,SampleSize = length(unique(CK_Cadmus_ID))
-#                            ,Mean = mean(PercentUnoccupied)
-#                            ,SE = sd(PercentUnoccupied) / sqrt(SampleSize))
-# 
-# item228.vintageAll <- summarise(item228.dat3
-#                              ,SampleSize = length(unique(CK_Cadmus_ID))
-#                              ,HomeYearBuilt_MF = "All Vintages"
-#                              ,Mean = mean(PercentUnoccupied)
-#                              ,SE = sd(PercentUnoccupied) / sqrt(SampleSize))
-# 
-# item228.table <- rbind.data.frame(item228.vintage,item228.vintageAll,stringsAsFactors = F)
-# 
-# item228.final <- data.frame("Vintage" = item228.table$HomeYearBuilt_MF
-#                             ,"Percent" = item228.table$Mean
-#                             ,"SE" = item228.table$SE
-#                             ,"SampleSize" = item228.table$SampleSize
-#                             ,stringsAsFactors = F)
-
-
+exportTable(item228.table, "MF", "Table 20", weighted = FALSE)
