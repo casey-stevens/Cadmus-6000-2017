@@ -49,13 +49,16 @@ rbsa.dat.MF <- rbsa.dat.MF[grep("BLDG", rbsa.dat.MF$CK_Building_ID),]
 ######################################################################################################################
 # Note: Windows data for MF moved to the envelope export
 
+buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
+
+
 #read in Envelope data for MF table
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"CK_SiteID"
                                                                   ,"Wall.Area"
-                                                                  ,"Floor.Area"
                                                                   ,"Category"
                                                                   ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast"
                                                                   ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorth"
@@ -290,11 +293,11 @@ item232.dat1 <- item232.dat[which(item232.dat$WallArea > 0 &
 item232.dat1$WindowToWallArea <- item232.dat1$WindowArea / item232.dat1$WallArea
 summary(item232.dat1$WindowToWallArea)
 
-item232.dat2 <- item232.dat1[which(item232.dat1$WindowToWallArea <= 1),]
+item232.dat2 <- item232.dat1#[which(item232.dat1$WindowToWallArea <= 1),]
 
 item232.merge <- left_join(rbsa.dat, item232.dat2)
 item232.merge <- item232.merge[which(!is.na(item232.merge$WindowToWallArea)),]
-
+item232.merge <- item232.merge[which(item232.merge$BuildingTypeXX == "Apartment Building (3 or fewer floors)"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -308,6 +311,8 @@ item232.data <- left_join(item232.data, item232.merge[which(colnames(item232.mer
 
 item232.data$WindowToWallArea <- as.numeric(as.character(item232.data$WindowToWallArea))
 item232.data$count <- 1
+
+export.item232 <- item232.data[which(item232.data$WindowToWallArea > .3), which(names(item232.data) %in% c("CK_Cadmus_ID","WindowArea","WallArea","WindowToWallArea"))]
 #######################
 # Weighted Analysis
 #######################

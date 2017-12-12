@@ -224,18 +224,14 @@ item81.data$count <- 1
 item81.final <- proportions_one_group(CustomerLevelData = item81.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'EquipVintage_bins'
-                                      ,total.name       = 'All Vintages'
-                                      ,columnName       = 'Remove')
+                                      ,total.name       = 'All Vintages')
 
 item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 
 exportTable(item81.final.SF, "SF", "Table 88", weighted = TRUE)
 exportTable(item81.final.MH, "MH", "Table 69", weighted = TRUE)
@@ -249,20 +245,14 @@ item81.final <- proportions_one_group(CustomerLevelData = item81.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'EquipVintage_bins'
                                       ,total.name       = 'All Vintages'
-                                      ,columnName       = 'Remove'
                                       ,weighted         = FALSE)
 
 item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 
 exportTable(item81.final.SF, "SF", "Table 88", weighted = FALSE)
 exportTable(item81.final.MH, "MH", "Table 69", weighted = FALSE)

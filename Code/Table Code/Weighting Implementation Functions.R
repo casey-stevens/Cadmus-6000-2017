@@ -606,14 +606,26 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,count     = sum(count)
                                                      ,N         = unique(columnVar.N.h)
                                                      ,n         = sum(n_hj)), stringsAsFactors = F)
-        #summarise across home types (total level)
-        ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
-                                         ,rowTotal       = "Total"
-                                         ,w.percent      = sum(w.percent)
-                                         ,w.SE           = NA
-                                         ,count          = sum(count, na.rm = T)
-                                         ,n              = sum(n)
-                                         ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
+        if(groupingVariable == "Lamp.Category"){
+          #summarise across home types (total level)
+          ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
+                                           ,rowTotal       = "Total"
+                                           ,w.percent      = 1 #sum(w.percent)
+                                           ,w.SE           = NA
+                                           ,count     = sum(count)
+                                           ,N         = sum(unique(columnVar.N.h))
+                                           ,n         = sum(unique(columnVar.n.h))), stringsAsFactors = F)
+        }else {
+          #summarise across home types (total level)
+          ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
+                                           ,rowTotal       = "Total"
+                                           ,w.percent      = sum(w.percent)
+                                           ,w.SE           = NA
+                                           ,count          = sum(count, na.rm = T)
+                                           ,n              = sum(n)
+                                           ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
+        }
+
         
       }
       #rename column
@@ -861,20 +873,40 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #################################################################################
   #obtain the total population size for the strata and columnVariable combination
   #################################################################################
-  StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
-                                                                      ,"State"
-                                                                      ,"Region"
-                                                                      ,"Territory"
-                                                                      ,columnVariable
-                                                                      ,"N.h"
-                                                                      ,"n.h"))])
-  columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", columnVariable)
-                                       ,summarise
-                                       ,columnVar.N.h = sum(N.h)
-                                       ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
-  
-  #join strata data with weights by column grouping variable 
-  StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable))
+  if(columnVariable == "Clean.Room"){
+    StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                        ,"State"
+                                                                        ,"Region"
+                                                                        ,"Territory"
+                                                                        ,columnVariable
+                                                                        ,rowVariable
+                                                                        ,"N.h"
+                                                                        ,"n.h"))])
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", columnVariable, rowVariable)
+                                         ,summarise
+                                         ,columnVar.N.h = sum(N.h)
+                                         ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+    
+    #join strata data with weights by column grouping variable 
+    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable, rowVariable))
+    
+  }else{
+    StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                        ,"State"
+                                                                        ,"Region"
+                                                                        ,"Territory"
+                                                                        ,columnVariable
+                                                                        ,"N.h"
+                                                                        ,"n.h"))])
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", columnVariable)
+                                         ,summarise
+                                         ,columnVar.N.h = sum(N.h)
+                                         ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+    #join strata data with weights by column grouping variable 
+    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable))
+    
+  }
+
   
   
   ####################################################################################################
@@ -889,7 +921,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                                        (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
                                                ,count     = sum(count)
                                                ,N         = unique(columnVar.N.h)
-                                               ,n         = sum(n_hj)), stringsAsFactors = F)
+                                               # ,n_hj      = sum(n_hj)
+                                               ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
   if (columnVariable == "Cooling.Zone" & valueVariable == "Ind"){
     # calculate column totals
     ColumnTotals <- data.frame(ddply(StrataDataWeights
@@ -912,7 +945,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,w.percent      = sum(w.percent)
                                      ,w.SE           = NA
                                      ,count          = sum(count, na.rm = T)
-                                     ,n              = sum((n), na.rm = T)
+                                     # ,n_hj           = sum(n_hj, na.rm = T)
+                                     ,n              = sum(unique(n), na.rm = T)
                                      ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
   }
   
@@ -949,7 +983,9 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                              ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(aggregate.N.h)
                              ,count     = sum(count)
                              ,N         = unique(aggregate.N.h)
-                             ,n         = sum(n_hj))
+                             # ,n_hj      = sum(n_hj)
+                             ,n         = unique(aggregate.n.h)
+                             )
   #rename column
   colnames(item.agg.weighted)[which(colnames(item.agg.weighted) == 'aggregateName')] <- columnVariable
   
@@ -959,7 +995,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                         ,w.percent = sum(w.percent)
                         ,w.SE      = NA
                         ,count     = sum(count, na.rm = T)
-                        ,n         = sum((n), na.rm = T)
+                        # ,n_hj      = sum((n_hj), na.rm = T)
+                        ,n         = sum(unique(n), na.rm = T)
                         ,N         = sum(unique(N), na.rm = T))
   #rename column
   colnames(item.agg.tot)[which(colnames(item.agg.tot) == 'rowTotal')]   <- rowVariable

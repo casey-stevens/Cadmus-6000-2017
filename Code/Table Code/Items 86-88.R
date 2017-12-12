@@ -201,23 +201,22 @@ item87.cast <- dcast(setDT(item87.final)
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item87.table <- data.frame("BuildingType"    = item87.cast$BuildingType
-                           ,"Washer.Type"      = item87.cast$Washer.Type
+                           ,"Washer.Type"    = item87.cast$Washer.Type
                            ,"Percent_ID"     = item87.cast$w.percent_ID
                            ,"SE_ID"          = item87.cast$w.SE_ID
-                           ,"Count_ID"       = item87.cast$count_ID
+                           ,"n_ID"           = item87.cast$n_ID
                            ,"Percent_MT"     = item87.cast$w.percent_MT
                            ,"SE_MT"          = item87.cast$w.SE_MT
-                           ,"Count_MT"       = item87.cast$count_MT
+                           ,"n_MT"           = item87.cast$n_MT
                            ,"Percent_OR"     = item87.cast$w.percent_OR
                            ,"SE_OR"          = item87.cast$w.SE_OR
-                           ,"Count_OR"       = item87.cast$count_OR
+                           ,"n_OR"           = item87.cast$n_OR
                            ,"Percent_WA"     = item87.cast$w.percent_WA
                            ,"SE_WA"          = item87.cast$w.SE_WA
-                           ,"Count_WA"       = item87.cast$count_WA
+                           ,"n_WA"           = item87.cast$n_WA
                            ,"Percent_Region" = item87.cast$w.percent_Region
                            ,"SE_Region"      = item87.cast$w.SE_Region
-                           ,"Count_Region"   = item87.cast$count_Region
-                           # ,"n"     = item87.cast$n_Region
+                           ,"n_Region"       = item87.cast$n_Region
 )
 stopifnot(sum(item87.table[which(item87.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item87.table))], na.rm = T) == 10)
@@ -257,23 +256,22 @@ item87.cast <- dcast(setDT(item87.final)
 
 
 item87.table <- data.frame("BuildingType"    = item87.cast$BuildingType
-                           ,"Washer.Type"      = item87.cast$Washer.Type
+                           ,"Washer.Type"    = item87.cast$Washer.Type
                            ,"Percent_ID"     = item87.cast$Percent_ID
                            ,"SE_ID"          = item87.cast$SE_ID
-                           ,"Count_ID"       = item87.cast$Count_ID
+                           ,"n_ID"           = item87.cast$n_ID
                            ,"Percent_MT"     = item87.cast$Percent_MT
                            ,"SE_MT"          = item87.cast$SE_MT
-                           ,"Count_MT"       = item87.cast$Count_MT
+                           ,"n_MT"           = item87.cast$n_MT
                            ,"Percent_OR"     = item87.cast$Percent_OR
                            ,"SE_OR"          = item87.cast$SE_OR
-                           ,"Count_OR"       = item87.cast$Count_OR
+                           ,"n_OR"           = item87.cast$n_OR
                            ,"Percent_WA"     = item87.cast$Percent_WA
                            ,"SE_WA"          = item87.cast$SE_WA
-                           ,"Count_WA"       = item87.cast$Count_WA
+                           ,"n_WA"           = item87.cast$n_WA
                            ,"Percent_Region" = item87.cast$Percent_Region
                            ,"SE_Region"      = item87.cast$SE_Region
-                           ,"Count_Region"   = item87.cast$Count_Region
-                           # ,"n"     = item87.cast$n_Region
+                           ,"n_Region"       = item87.cast$n_Region
 )
 stopifnot(sum(item87.table[which(item87.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item87.table))], na.rm = T) == 10)
@@ -385,26 +383,25 @@ item88.table <- data.frame("BuildingType"           = item88.cast$BuildingType
                            ,"Washer.Type"           = item88.cast$Washer.Type
                            ,"Percent_Pre.1990"      = item88.cast$`w.percent_Pre 1990`
                            ,"SE_Pre.1990"           = item88.cast$`w.SE_Pre 1990`
-                           ,"Count_Pre.1990"        = item88.cast$`count_Pre 1990`
+                           ,"n_Pre.1990"            = item88.cast$`n_Pre 1990`
                            ,"Percent_1990.1994"     = item88.cast$`w.percent_1990-1994`
                            ,"SE_1990.1994"          = item88.cast$`w.SE_1990-1994`
-                           ,"Count_1990.1994"       = item88.cast$`count_1990-1994`
+                           ,"n_1990.1994"           = item88.cast$`n_1990-1994`
                            ,"Percent_1995.1999"     = item88.cast$`w.percent_1995-1999`
                            ,"SE_1995.1999"          = item88.cast$`w.SE_1995-1999`
-                           ,"Count_1995.1999"       = item88.cast$`count_1995-1999`
+                           ,"n_1995.1999"           = item88.cast$`n_1995-1999`
                            ,"Percent_2000.2004"     = item88.cast$`w.percent_2000-2004`
                            ,"SE_2000.2004"          = item88.cast$`w.SE_2000-2004`
-                           ,"Count_2000.2004"       = item88.cast$`count_2000-2004`
+                           ,"n_2000.2004"           = item88.cast$`n_2000-2004`
                            ,"Percent_2005.2009"     = item88.cast$`w.percent_2005-2009`
                            ,"SE_2005.2009"          = item88.cast$`w.SE_2005-2009`
-                           ,"Count_2005.2009"       = item88.cast$`count_2005-2009`
+                           ,"n_2005.2009"           = item88.cast$`n_2005-2009`
                            ,"Percent_2010.2014"     = item88.cast$`w.percent_2010-2014`
                            ,"SE_2010.2014"          = item88.cast$`w.SE_2010-2014`
-                           ,"Count_2010.2014"       = item88.cast$`count_2010-2014`
+                           ,"n_2010.2014"           = item88.cast$`n_2010-2014`
                            ,"Percent_Post.2014"     = item88.cast$`w.percent_Post 2014`
                            ,"SE_Post.2014"          = item88.cast$`w.SE_Post 2014`
-                           ,"Count_Post.2014"       = item88.cast$`count_Post 2014`
-                           # ,"n"     = item88.cast$n_Region
+                           ,"n_Post.2014"           = item88.cast$`n_Post 2014`
 )
 
 unique(item88.table$Washer.Type)
@@ -459,26 +456,25 @@ item88.table <- data.frame("BuildingType"           = item88.cast$BuildingType
                            ,"Washer.Type"           = item88.cast$Washer.Type
                            ,"Percent_Pre.1990"      = item88.cast$`Percent_Pre 1990`
                            ,"SE_Pre.1990"           = item88.cast$`SE_Pre 1990`
-                           ,"Count_Pre.1990"        = item88.cast$`Count_Pre 1990`
+                           ,"n_Pre.1990"            = item88.cast$`n_Pre 1990`
                            ,"Percent_1990.1994"     = item88.cast$`Percent_1990-1994`
                            ,"SE_1990.1994"          = item88.cast$`SE_1990-1994`
-                           ,"Count_1990.1994"       = item88.cast$`Count_1990-1994`
+                           ,"n_1990.1994"           = item88.cast$`n_1990-1994`
                            ,"Percent_1995.1999"     = item88.cast$`Percent_1995-1999`
                            ,"SE_1995.1999"          = item88.cast$`SE_1995-1999`
-                           ,"Count_1995.1999"       = item88.cast$`Count_1995-1999`
+                           ,"n_1995.1999"           = item88.cast$`n_1995-1999`
                            ,"Percent_2000.2004"     = item88.cast$`Percent_2000-2004`
                            ,"SE_2000.2004"          = item88.cast$`SE_2000-2004`
-                           ,"Count_2000.2004"       = item88.cast$`Count_2000-2004`
+                           ,"n_2000.2004"           = item88.cast$`n_2000-2004`
                            ,"Percent_2005.2009"     = item88.cast$`Percent_2005-2009`
                            ,"SE_2005.2009"          = item88.cast$`SE_2005-2009`
-                           ,"Count_2005.2009"       = item88.cast$`Count_2005-2009`
+                           ,"n_2005.2009"           = item88.cast$`n_2005-2009`
                            ,"Percent_2010.2014"     = item88.cast$`Percent_2010-2014`
                            ,"SE_2010.2014"          = item88.cast$`SE_2010-2014`
-                           ,"Count_2010.2014"       = item88.cast$`Count_2010-2014`
+                           ,"n_2010.2014"           = item88.cast$`n_2010-2014`
                            ,"Percent_Post.2014"     = item88.cast$`Percent_Post 2014`
                            ,"SE_Post.2014"          = item88.cast$`SE_Post 2014`
-                           ,"Count_Post.2014"       = item88.cast$`Count_Post 2014`
-                           # ,"n"     = item88.cast$n_Region
+                           ,"n_Post.2014"           = item88.cast$`n_Post 2014`
 )
 
 unique(item88.table$Washer.Type)

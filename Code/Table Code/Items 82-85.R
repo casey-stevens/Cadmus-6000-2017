@@ -166,11 +166,11 @@ item84.dat <- item82.dat2[which(item82.dat2$Type == "Freezer"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
-item84.data <- weightedData(item84.dat1[which(colnames(item84.dat1) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
+item84.data <- weightedData(item84.dat[which(colnames(item84.dat) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                               ,"Type"
                                                                               ,"Refrigerator/Freezer.Size"))])
 
-item84.data <- left_join(item84.data, item84.dat1[which(colnames(item84.dat1) %in% c("CK_Cadmus_ID"
+item84.data <- left_join(item84.data, item84.dat[which(colnames(item84.dat) %in% c("CK_Cadmus_ID"
                                                                                      ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                      ,"Type"
                                                                                      ,"Refrigerator/Freezer.Size"))])
@@ -199,11 +199,6 @@ item84.final <- proportions_one_group(CustomerLevelData = item84.data
 item84.final.SF <- item84.final[which(item84.final$BuildingType == "Single Family")
                                 ,which(colnames(item84.final) %notin% c("BuildingType"))]
 exportTable(item84.final.SF, "SF", "Table 91", weighted = FALSE)
-
-
-
-
-
 
 
 

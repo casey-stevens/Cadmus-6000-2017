@@ -154,20 +154,19 @@ item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
                            ,"Lamp.Type"      = item69.cast$Lamp.Category
                            ,"Percent_ID"     = item69.cast$w.percent_ID
                            ,"SE_ID"          = item69.cast$w.SE_ID
-                           ,"Count_ID"       = item69.cast$count_ID
+                           ,"n_ID"           = item69.cast$n_ID
                            ,"Percent_MT"     = item69.cast$w.percent_MT
                            ,"SE_MT"          = item69.cast$w.SE_MT
-                           ,"Count_MT"       = item69.cast$count_MT
+                           ,"n_MT"           = item69.cast$n_MT
                            ,"Percent_OR"     = item69.cast$w.percent_OR
                            ,"SE_OR"          = item69.cast$w.SE_OR
-                           ,"Count_OR"       = item69.cast$count_OR
+                           ,"n_OR"           = item69.cast$n_OR
                            ,"Percent_WA"     = item69.cast$w.percent_WA
                            ,"SE_WA"          = item69.cast$w.SE_WA
-                           ,"Count_WA"       = item69.cast$count_WA
+                           ,"n_WA"           = item69.cast$n_WA
                            ,"Percent_Region" = item69.cast$w.percent_Region
                            ,"SE_Region"      = item69.cast$w.SE_Region
-                           ,"Count_Region"   = item69.cast$count_Region
-                           # ,"SampleSize"     = item69.cast$SampleSize_Region
+                           ,"n_Region"       = item69.cast$n_Region
 )
 
 
@@ -201,20 +200,19 @@ item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
                            ,"Lamp.Type"      = item69.cast$Lamp.Category
                            ,"Percent_ID"     = item69.cast$Percent_ID
                            ,"SE_ID"          = item69.cast$SE_ID
-                           ,"Count_ID"       = item69.cast$Count_ID
+                           ,"n_ID"           = item69.cast$n_ID
                            ,"Percent_MT"     = item69.cast$Percent_MT
                            ,"SE_MT"          = item69.cast$SE_MT
-                           ,"Count_MT"       = item69.cast$Count_MT
+                           ,"n_MT"           = item69.cast$n_MT
                            ,"Percent_OR"     = item69.cast$Percent_OR
                            ,"SE_OR"          = item69.cast$SE_OR
-                           ,"Count_OR"       = item69.cast$Count_OR
+                           ,"n_OR"           = item69.cast$n_OR
                            ,"Percent_WA"     = item69.cast$Percent_WA
                            ,"SE_WA"          = item69.cast$SE_WA
-                           ,"Count_WA"       = item69.cast$Count_WA
+                           ,"n_WA"           = item69.cast$n_WA
                            ,"Percent_Region" = item69.cast$Percent_Region
                            ,"SE_Region"      = item69.cast$SE_Region
-                           ,"Count_Region"   = item69.cast$Count_Region
-                           # ,"SampleSize"     = item69.cast$SampleSize_Region
+                           ,"n_Region"       = item69.cast$n_Region
 )
 
 item69.final.SF <- item69.table[which(item69.table$BuildingType == "Single Family")
@@ -249,8 +247,12 @@ item70.dat$count <- 1
 item70.dat1 <- left_join(rbsa.dat, item70.dat, by = "CK_Cadmus_ID")
 
 item70.dat1.1 <- item70.dat1[which(!(item70.dat1$Clean.Room %in% c("Basement","Storage"))),]
-item70.dat1.1$Clean.Room[which(item70.dat1.1$Clean.Room == "Mechanical")] <- "Other"
-#remove building info
+item70.dat1.1$Clean.Room[which(item70.dat1.1$Clean.Room %in% c("Attic"
+                                                               ,"Basement"
+                                                               ,"Crawlspace"
+                                                               ,"Crawl Space"
+                                                               ,"Mechanical"
+                                                               ,"Grow Room"))] <- "Other"
 item70.dat2 <- item70.dat1.1[grep("SITE", item70.dat1.1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
@@ -313,7 +315,8 @@ item70.summary <- proportionRowsAndColumns1(CustomerLevelData = item70.data
                                           ,rowVariable      = 'Lamp.Category'
                                           ,aggregateColumnName = "All Room Types")
 item70.summary <- item70.summary[which(item70.summary$Clean.Room != "All Room Types"),]
-
+# item70.summary <- item70.summary[which(colnames(item70.summary)     != "n")]
+# colnames(item70.summary)[which(colnames(item70.summary) == "n_hj")] <- "n"
 
 item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
                                                ,valueVariable = 'Lamps'
@@ -322,10 +325,18 @@ item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
                                                ,columnName = "Clean.Room"
                                                ,weighted = TRUE
                                                ,two.prop.total = TRUE)
-# item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
+item70.all.room.types$Lamp.Category[which(item70.all.room.types$Lamp.Category == "Total")] <- "All Categories"
 
+item70.samplesize <- proportions_one_group(CustomerLevelData = item70.data
+                                           ,valueVariable = 'Lamps'
+                                           ,groupingVariable = 'Clean.Room'
+                                           ,total.name = 'All Categories'
+                                           ,columnName = 'Lamp.Category'
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+item70.samplesize <- item70.samplesize[which(item70.samplesize$Clean.Room != "Total"),]
 
-item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, stringsAsFactors = F)
+item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, item70.samplesize, stringsAsFactors = F)
 
 item70.cast <- dcast(setDT(item70.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
@@ -335,29 +346,26 @@ item70.table <- data.frame("BuildingType"                  = item70.cast$Buildin
                            ,"Room.Type"                    = item70.cast$Clean.Room
                            ,"Percent_CFL"                  = item70.cast$`w.percent_Compact Fluorescent`
                            ,"SE_CFL"                       = item70.cast$`w.SE_Compact Fluorescent`
-                           ,"Count_CFL"                    = item70.cast$`count_Compact Fluorescent`
+                           # ,"n_CFL"                        = item70.cast$`n_Compact Fluorescent`
                            ,"Percent_Halogen"              = item70.cast$w.percent_Halogen
                            ,"SE_Halogen"                   = item70.cast$w.SE_Halogen
-                           ,"Count_Halogen"                = item70.cast$count_Halogen
+                           # ,"n_Halogen"                    = item70.cast$n_Halogen
                            ,"Percent_Incandescent"         = item70.cast$w.percent_Incandescent
                            ,"SE_Incandescent"              = item70.cast$w.SE_Incandescent
-                           ,"Count_Incandescent"           = item70.cast$count_Incandescent
+                           # ,"n_Incandescent"               = item70.cast$n_Incandescent
                            ,"Percent_Incandescent.Halogen" = item70.cast$`w.percent_Incandescent / Halogen`
                            ,"SE_Incandescent.Halogen"      = item70.cast$`w.SE_Incandescent / Halogen`
-                           ,"Count_Incandescent.Halogen"   = item70.cast$`count_Incandescent / Halogen`
+                           # ,"n_Incandescent.Halogen"       = item70.cast$`n_Incandescent / Halogen`
                            ,"Percent_LED"                  = item70.cast$`w.percent_Light Emitting Diode`
                            ,"SE_LED"                       = item70.cast$`w.SE_Light Emitting Diode`
-                           ,"Count_LED"                    = item70.cast$`count_Light Emitting Diode`
+                           # ,"n_LED"                        = item70.cast$`n_Light Emitting Diode`
                            ,"Percent_LF"                   = item70.cast$`w.percent_Linear Fluorescent`
                            ,"SE_LF"                        = item70.cast$`w.SE_Linear Fluorescent`
-                           ,"Count_LF"                     = item70.cast$`count_Linear Fluorescent`
+                           # ,"n_LF"                         = item70.cast$`n_Linear Fluorescent`
                            ,"Percent_Other"                = item70.cast$w.percent_Other
                            ,"SE_Other"                     = item70.cast$w.SE_Other
-                           ,"Count_Other"                  = item70.cast$count_Other
-                           # ,"Percent_Total"                = item70.cast$w.percent_Total
-                           # ,"SE_Total"                     = item70.cast$w.SE_Total
-                           ,"Count_Total"                  = item70.cast$count_Total
-                           # ,"SampleSize"     = item70.cast$SampleSize_Region
+                           # ,"n_Other"                      = item70.cast$n_Other
+                           ,"n"                            = item70.cast$`n_All Categories`
 )
 
 
@@ -385,15 +393,24 @@ item70.summary <- item70.summary[which(item70.summary$Clean.Room != "All Room Ty
 
 
 item70.all.room.types <- proportions_one_group(CustomerLevelData = item70.data
-                                               ,valueVariable = 'count'
+                                               ,valueVariable = 'Lamps'
                                                ,groupingVariable = "Lamp.Category"
                                                ,total.name = "All Room Types"
                                                ,columnName = "Clean.Room"
-                                               ,weighted = FALSE)
-item70.all.room.types <- item70.all.room.types[which(item70.all.room.types$Lamp.Category != "Total"),]
+                                               ,weighted = FALSE
+                                               ,two.prop.total = TRUE)
+item70.all.room.types$Lamp.Category[which(item70.all.room.types$Lamp.Category == "Total")] <- "All Categories"
 
+item70.samplesize <- proportions_one_group(CustomerLevelData = item70.data
+                                           ,valueVariable = 'Lamps'
+                                           ,groupingVariable = 'Clean.Room'
+                                           ,total.name = 'All Categories'
+                                           ,columnName = 'Lamp.Category'
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
+item70.samplesize <- item70.samplesize[which(item70.samplesize$Clean.Room != "Total"),]
 
-item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, stringsAsFactors = F)
+item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, item70.samplesize, stringsAsFactors = F)
 
 item70.cast <- dcast(setDT(item70.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
@@ -403,29 +420,26 @@ item70.table <- data.frame("BuildingType"                  = item70.cast$Buildin
                            ,"Room.Type"                    = item70.cast$Clean.Room
                            ,"Percent_CFL"                  = item70.cast$`Percent_Compact Fluorescent`
                            ,"SE_CFL"                       = item70.cast$`SE_Compact Fluorescent`
-                           ,"Count_CFL"                    = item70.cast$`Count_Compact Fluorescent`
+                           # ,"n_CFL"                        = item70.cast$`n_Compact Fluorescent`
                            ,"Percent_Halogen"              = item70.cast$Percent_Halogen
                            ,"SE_Halogen"                   = item70.cast$SE_Halogen
-                           ,"Count_Halogen"                = item70.cast$Count_Halogen
+                           # ,"n_Halogen"                    = item70.cast$n_Halogen
                            ,"Percent_Incandescent"         = item70.cast$Percent_Incandescent
                            ,"SE_Incandescent"              = item70.cast$SE_Incandescent
-                           ,"Count_Incandescent"           = item70.cast$Count_Incandescent
+                           # ,"n_Incandescent"               = item70.cast$n_Incandescent
                            ,"Percent_Incandescent.Halogen" = item70.cast$`Percent_Incandescent / Halogen`
                            ,"SE_Incandescent.Halogen"      = item70.cast$`SE_Incandescent / Halogen`
-                           ,"Count_Incandescent.Halogen"   = item70.cast$`Count_Incandescent / Halogen`
+                           # ,"n_Incandescent.Halogen"       = item70.cast$`n_Incandescent / Halogen`
                            ,"Percent_LED"                  = item70.cast$`Percent_Light Emitting Diode`
                            ,"SE_LED"                       = item70.cast$`SE_Light Emitting Diode`
-                           ,"Count_LED"                    = item70.cast$`Count_Light Emitting Diode`
+                           # ,"n_LED"                        = item70.cast$`n_Light Emitting Diode`
                            ,"Percent_LF"                   = item70.cast$`Percent_Linear Fluorescent`
                            ,"SE_LF"                        = item70.cast$`SE_Linear Fluorescent`
-                           ,"Count_LF"                     = item70.cast$`Count_Linear Fluorescent`
+                           # ,"n_LF"                         = item70.cast$`n_Linear Fluorescent`
                            ,"Percent_Other"                = item70.cast$Percent_Other
                            ,"SE_Other"                     = item70.cast$SE_Other
-                           ,"Count_Other"                  = item70.cast$Count_Other
-                           # ,"Percent_Total"                = item70.cast$Percent_Total
-                           # ,"SE_Total"                     = item70.cast$SE_Total
-                           ,"Count_Total"                  = item70.cast$Count_Total
-                           # ,"SampleSize"     = item70.cast$SampleSize_Region
+                           # ,"n_Other"                      = item70.cast$n_Other
+                           ,"n"                            = item70.cast$`n_All Categories`
 )
 
 
