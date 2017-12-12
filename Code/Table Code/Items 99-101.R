@@ -80,9 +80,9 @@ item99.sum1 <- summarise(group_by(item99.heat, CK_Cadmus_ID, BuildingType, Heati
 item99.sum1$Count <- 1
 unique(item99.sum1$Heating.Fuel)
 
-#manual heating fuel types for sites with only zonal heat
-item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
-item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
+# #manual heating fuel types for sites with only zonal heat
+# item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
+# item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
 
 item99.unique <- unique(item99.sum1)
 
@@ -141,7 +141,8 @@ item99.final <- proportionRowsAndColumns1(CustomerLevelData = item99.data
                                           ,columnVariable   = 'Heating.Fuel'
                                           ,rowVariable      = 'DHW.Location'
                                           ,aggregateColumnName = "Remove")
-item99.final <- item99.final[which(item99.final$Heating.Fuel != "Remove"),]
+item99.final <- item99.final[which(item99.final$Heating.Fuel %notin% c("Remove")),]
+item99.final <- item99.final[which(item99.final$DHW.Location %notin% c("Remove", "Total")),]
 
 item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
                                           ,valueVariable = "DHW.Count"
@@ -150,6 +151,7 @@ item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
                                           ,columnName = "Heating.Fuel"
                                           ,weighted = TRUE
                                           ,two.prop.total = TRUE)
+item99.all.fuels <- item99.all.fuels[which(item99.all.fuels$DHW.Location != "Total"),]
 
 item99.final <- rbind.data.frame(item99.final, item99.all.fuels)
 
@@ -200,6 +202,7 @@ item99.final <- proportions_two_groups_unweighted(CustomerLevelData = item99.dat
                                                   ,rowVariable      = 'DHW.Location'
                                                   ,aggregateColumnName = "Remove")
 item99.final <- item99.final[which(item99.final$Heating.Fuel != "Remove"),]
+item99.final <- item99.final[which(item99.final$DHW.Location %notin% c("Remove", "Total")),]
 
 item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
                                           ,valueVariable = "DHW.Count"
@@ -208,36 +211,37 @@ item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
                                           ,columnName = "Heating.Fuel"
                                           ,weighted = FALSE
                                           ,two.prop.total = TRUE)
+item99.all.fuels <- item99.all.fuels[which(item99.all.fuels$DHW.Location != "Total"),]
 
 item99.final <- rbind.data.frame(item99.final, item99.all.fuels)
 
 item99.cast <- dcast(setDT(item99.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                     ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     ,value.var = c("Percent", "SE", "Count", "n"))
 
 item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
                            ,"DHW.Location"        = item99.cast$DHW.Location
                            ,"Percent.Electric"    = item99.cast$Percent_Electric
                            ,"SE.Electric"         = item99.cast$SE_Electric
-                           ,"Count.Electric"      = item99.cast$Count_Electric
+                           ,"n.Electric"          = item99.cast$n_Electric
                            ,"Percent.Natural.Gas" = item99.cast$Percent_Gas
                            ,"SE.Natural.Gas"      = item99.cast$SE_Gas
-                           ,"Count.Gas"           = item99.cast$Count_Gas
+                           ,"n.Gas"               = item99.cast$n_Gas
                            ,"Percent.Oil"         = item99.cast$Percent_Oil
                            ,"SE.Oil"              = item99.cast$SE_Oil
-                           ,"Count.Oil"           = item99.cast$Count_Oil
+                           ,"n.Oil"               = item99.cast$n_Oil
                            ,"Percent.Pellets"     = item99.cast$Percent_Pellets
                            ,"SE.Pellets"          = item99.cast$SE_Pellets
-                           ,"Count.Pellets"       = item99.cast$Count_Pellets
+                           ,"n.Pellets"           = item99.cast$n_Pellets
                            ,"Percent.Propane"     = item99.cast$Percent_Propane
                            ,"SE.Propane"          = item99.cast$SE_Propane
-                           ,"Count.Propane"       = item99.cast$Count_Propane
+                           ,"n.Propane"           = item99.cast$n_Propane
                            ,"Percent.Wood"        = item99.cast$Percent_Wood
                            ,"SE.Wood"             = item99.cast$SE_Wood
-                           ,"Count.Wood"          = item99.cast$Count_Wood
+                           ,"n.Wood"              = item99.cast$n_Wood
                            ,"Percent.All.Heating.Fuel.Types" = item99.cast$`Percent_All Fuels`
                            ,"SE.All.Heating.Fuel.Types"      = item99.cast$`SE_All Fuels`
-                           ,"Count_All.Heating.Fuel.Types"   = item99.cast$`Count_All Fuels`)
+                           ,"n_All.Heating.Fuel.Types"       = item99.cast$`n_All Fuels`)
 
 item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Family")
                                 ,-which(colnames(item99.table) %in% c("BuildingType"))]
@@ -306,14 +310,14 @@ IDs.remove <- item100.sum1[which(item100.sum1$CK_Cadmus_ID %in% dup.ind & item10
 item100.sum2 <- item100.sum1[which(!(item100.sum1$CK_Cadmus_ID %in% IDs.remove$CK_Cadmus_ID & item100.sum1$Heating.Fuel %in% IDs.remove$Heating.Fuel)),]
 item100.sum2$CK_Cadmus_ID[which(duplicated(item100.sum2$CK_Cadmus_ID))]
 
-## correct duplicated fuel types
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "BPS22084 OS BPA")] <- "Gas"
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS0435")] <- "Propane"
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS11008")] <- "Propane"
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS3167")] <- "Propane"
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
-item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS1998")] <- "Propane"
+# ## correct duplicated fuel types
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "BPS22084 OS BPA")] <- "Gas"
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS0435")] <- "Propane"
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS11008")] <- "Propane"
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS3167")] <- "Propane"
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
+# item100.sum2$Heating.Fuel[which(item100.sum2$CK_Cadmus_ID == "MS1998")] <- "Propane"
 
 item100.heat.final <- unique(item100.sum2)
 which(duplicated(item100.heat.final$CK_Cadmus_ID))
@@ -383,29 +387,29 @@ item100.cast <- dcast(setDT(item100.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item100.table <- data.frame("BuildingType"         = item100.cast$BuildingType
+item100.table <- data.frame("BuildingType"        = item100.cast$BuildingType
                            ,"DHW.Location"        = item100.cast$DHW.Location
                            ,"Percent.Electric"    = item100.cast$w.percent_Electric
                            ,"SE.Electric"         = item100.cast$w.SE_Electric
-                           ,"Count.Electric"          = item100.cast$count_Electric
+                           ,"n.Electric"          = item100.cast$n_Electric
                            ,"Percent.Natural.Gas" = item100.cast$w.percent_Gas
                            ,"SE.Natural.Gas"      = item100.cast$w.SE_Gas
-                           ,"Count.Gas"               = item100.cast$count_Gas
+                           ,"n.Gas"               = item100.cast$n_Gas
                            ,"Percent.Oil"         = item100.cast$w.percent_Oil
                            ,"SE.Oil"              = item100.cast$w.SE_Oil
-                           ,"Count.Oil"               = item100.cast$count_Oil
+                           ,"n.Oil"               = item100.cast$n_Oil
                            ,"Percent.Pellets"     = item100.cast$w.percent_Pellets
                            ,"SE.Pellets"          = item100.cast$w.SE_Pellets
-                           ,"Count.Pellets"           = item100.cast$count_Pellets
+                           ,"n.Pellets"           = item100.cast$n_Pellets
                            ,"Percent.Propane"     = item100.cast$w.percent_Propane
                            ,"SE.Propane"          = item100.cast$w.SE_Propane
-                           ,"Count.Propane"           = item100.cast$count_Propane
+                           ,"n.Propane"           = item100.cast$n_Propane
                            ,"Percent.Wood"        = item100.cast$w.percent_Wood
                            ,"SE.Wood"             = item100.cast$w.SE_Wood
-                           ,"Count.Wood"              = item100.cast$count_Wood
+                           ,"n.Wood"              = item100.cast$n_Wood
                            ,"Percent.All.Heating.Fuel.Types" = item100.cast$`w.percent_All Fuels`
                            ,"SE.All.Heating.Fuel.Types"      = item100.cast$`w.SE_All Fuels`
-                           ,"Count.All.Heating.Fuel.Types"       = item100.cast$`count_All Fuels`)
+                           ,"n.All.Heating.Fuel.Types"       = item100.cast$`n_All Fuels`)
 
 item100.final.SF <- item100.table[which(item100.table$BuildingType == "Single Family")
                                 ,-which(colnames(item100.table) %in% c("BuildingType"))]
@@ -436,31 +440,31 @@ item100.final <- rbind.data.frame(item100.final, item100.all.fuels)
 
 item100.cast <- dcast(setDT(item100.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                     ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     ,value.var = c("Percent", "SE", "Count", "n"))
 
 item100.table <- data.frame("BuildingType"         = item100.cast$BuildingType
                            ,"DHW.Location"        = item100.cast$DHW.Location
                            ,"Percent.Electric"    = item100.cast$Percent_Electric
                            ,"SE.Electric"         = item100.cast$SE_Electric
-                           ,"Count.Electric"      = item100.cast$Count_Electric
+                           ,"n.Electric"          = item100.cast$n_Electric
                            ,"Percent.Natural.Gas" = item100.cast$Percent_Gas
                            ,"SE.Natural.Gas"      = item100.cast$SE_Gas
-                           ,"Count.Gas"           = item100.cast$Count_Gas
+                           ,"n.Gas"               = item100.cast$n_Gas
                            ,"Percent.Oil"         = item100.cast$Percent_Oil
                            ,"SE.Oil"              = item100.cast$SE_Oil
-                           ,"Count.Oil"           = item100.cast$Count_Oil
+                           ,"n.Oil"               = item100.cast$n_Oil
                            ,"Percent.Pellets"     = item100.cast$Percent_Pellets
                            ,"SE.Pellets"          = item100.cast$SE_Pellets
-                           ,"Count.Pellets"       = item100.cast$Count_Pellets
+                           ,"n.Pellets"           = item100.cast$n_Pellets
                            ,"Percent.Propane"     = item100.cast$Percent_Propane
                            ,"SE.Propane"          = item100.cast$SE_Propane
-                           ,"Count.Propane"       = item100.cast$Count_Propane
+                           ,"n.Propane"           = item100.cast$n_Propane
                            ,"Percent.Wood"        = item100.cast$Percent_Wood
                            ,"SE.Wood"             = item100.cast$SE_Wood
-                           ,"Count.Wood"          = item100.cast$Count_Wood
+                           ,"n.Wood"              = item100.cast$n_Wood
                            ,"Percent.All.Heating.Fuel.Types" = item100.cast$`Percent_All Fuels`
                            ,"SE.All.Heating.Fuel.Types"      = item100.cast$`SE_All Fuels`
-                           ,"Count_All.Heating.Fuel.Types"   = item100.cast$`Count_All Fuels`)
+                           ,"n_All.Heating.Fuel.Types"       = item100.cast$`n_All Fuels`)
 
 item100.final.SF <- item100.table[which(item100.table$BuildingType == "Single Family")
                                 ,-which(colnames(item100.table) %in% c("BuildingType"))]
@@ -512,30 +516,30 @@ item101.final <- rbind.data.frame(item101.final, item101.all.fuels)
 item101.cast <- dcast(setDT(item101.final)
                       ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
-
+names(item101.cast)
 item101.table <- data.frame("BuildingType"         = item101.cast$BuildingType
                             ,"DHW.Location"        = item101.cast$DHW.Location
                             ,"Percent.Electric"    = item101.cast$w.percent_Electric
                             ,"SE.Electric"         = item101.cast$w.SE_Electric
-                            ,"Count.Electric"          = item101.cast$count_Electric
+                            ,"n.Electric"          = item101.cast$n_Electric
                             ,"Percent.Natural.Gas" = item101.cast$w.percent_Gas
                             ,"SE.Natural.Gas"      = item101.cast$w.SE_Gas
-                            ,"Count.Gas"               = item101.cast$count_Gas
+                            ,"n.Gas"               = item101.cast$n_Gas
                             # ,"Percent.Oil"         = item101.cast$w.percent_Oil
                             # ,"SE.Oil"              = item101.cast$w.SE_Oil
-                            # ,"Count.Oil"               = item101.cast$count_Oil
+                            # ,"n.Oil"               = item101.cast$n_Oil
                             ,"Percent.Pellets"     = item101.cast$w.percent_Pellets
                             ,"SE.Pellets"          = item101.cast$w.SE_Pellets
-                            ,"Count.Pellets"           = item101.cast$count_Pellets
+                            ,"n.Pellets"           = item101.cast$n_Pellets
                             # ,"Percent.Propane"     = item101.cast$w.percent_Propane
                             # ,"SE.Propane"          = item101.cast$w.SE_Propane
-                            # ,"Count.Propane"           = item101.cast$count_Propane
+                            # ,"n.Propane"           = item101.cast$n_Propane
                             ,"Percent.Wood"        = item101.cast$w.percent_Wood
                             ,"SE.Wood"             = item101.cast$w.SE_Wood
-                            ,"Count.Wood"              = item101.cast$count_Wood
+                            ,"n.Wood"              = item101.cast$n_Wood
                             ,"Percent.All.Heating.Fuel.Types" = item101.cast$`w.percent_All Fuels`
                             ,"SE.All.Heating.Fuel.Types"      = item101.cast$`w.SE_All Fuels`
-                            ,"Count.All.Heating.Fuel.Types"       = item101.cast$`count_All Fuels`)
+                            ,"n.All.Heating.Fuel.Types"       = item101.cast$`n_All Fuels`)
 
 item101.final.SF <- item101.table[which(item101.table$BuildingType == "Single Family")
                                   ,-which(colnames(item101.table) %in% c("BuildingType"))]
@@ -566,31 +570,31 @@ item101.final <- rbind.data.frame(item101.final, item101.all.fuels)
 
 item101.cast <- dcast(setDT(item101.final)
                       ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item101.table <- data.frame("BuildingType"         = item101.cast$BuildingType
                             ,"DHW.Location"        = item101.cast$DHW.Location
                             ,"Percent.Electric"    = item101.cast$Percent_Electric
                             ,"SE.Electric"         = item101.cast$SE_Electric
-                            ,"Count.Electric"      = item101.cast$Count_Electric
+                            ,"n.Electric"          = item101.cast$n_Electric
                             ,"Percent.Natural.Gas" = item101.cast$Percent_Gas
                             ,"SE.Natural.Gas"      = item101.cast$SE_Gas
-                            ,"Count.Gas"           = item101.cast$Count_Gas
+                            ,"n.Gas"               = item101.cast$n_Gas
                             # ,"Percent.Oil"         = item101.cast$Percent_Oil
                             # ,"SE.Oil"              = item101.cast$SE_Oil
-                            # ,"Count.Oil"           = item101.cast$Count_Oil
+                            # ,"n.Oil"               = item101.cast$n_Oil
                             ,"Percent.Pellets"     = item101.cast$Percent_Pellets
                             ,"SE.Pellets"          = item101.cast$SE_Pellets
-                            ,"Count.Pellets"       = item101.cast$Count_Pellets
+                            ,"n.Pellets"           = item101.cast$n_Pellets
                             # ,"Percent.Propane"     = item101.cast$Percent_Propane
                             # ,"SE.Propane"          = item101.cast$SE_Propane
-                            # ,"Count.Propane"       = item101.cast$Count_Propane
+                            # ,"n.Propane"           = item101.cast$n_Propane
                             ,"Percent.Wood"        = item101.cast$Percent_Wood
                             ,"SE.Wood"             = item101.cast$SE_Wood
-                            ,"Count.Wood"          = item101.cast$Count_Wood
+                            ,"n.Wood"              = item101.cast$n_Wood
                             ,"Percent.All.Heating.Fuel.Types" = item101.cast$`Percent_All Fuels`
                             ,"SE.All.Heating.Fuel.Types"      = item101.cast$`SE_All Fuels`
-                            ,"Count_All.Heating.Fuel.Types"   = item101.cast$`Count_All Fuels`)
+                            ,"n_All.Heating.Fuel.Types"       = item101.cast$`n_All Fuels`)
 
 item101.final.SF <- item101.table[which(item101.table$BuildingType == "Single Family")
                                   ,-which(colnames(item101.table) %in% c("BuildingType"))]

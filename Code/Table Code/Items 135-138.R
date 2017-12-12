@@ -86,20 +86,19 @@ item135.table <- data.frame("BuildingType"   = item135.cast$BuildingType
                             ,"Annual.Wood.Use"= item135.cast$QTY_bins
                             ,"Percent_ID"     = item135.cast$w.percent_ID
                             ,"SE_ID"          = item135.cast$w.SE_ID
-                            ,"Count_ID"       = item135.cast$count_ID
+                            ,"n_ID"           = item135.cast$n_ID
                             ,"Percent_MT"     = item135.cast$w.percent_MT
                             ,"SE_MT"          = item135.cast$w.SE_MT
-                            ,"Count_MT"       = item135.cast$count_MT
+                            ,"n_MT"           = item135.cast$n_MT
                             ,"Percent_OR"     = item135.cast$w.percent_OR
                             ,"SE_OR"          = item135.cast$w.SE_OR
-                            ,"Count_OR"       = item135.cast$count_OR
+                            ,"n_OR"           = item135.cast$n_OR
                             ,"Percent_WA"     = item135.cast$w.percent_WA
                             ,"SE_WA"          = item135.cast$w.SE_WA
-                            ,"Count_WA"       = item135.cast$count_WA
+                            ,"n_WA"           = item135.cast$n_WA
                             ,"Percent_Region" = item135.cast$w.percent_Region
                             ,"SE_Region"      = item135.cast$w.SE_Region
-                            ,"Count_Region"   = item135.cast$count_Region
-                            # ,"SampleSize"     = item135.cast$SampleSize_Region
+                            ,"n_Region"       = item135.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item135.table[which(item135.table$BuildingType == "Single Family")
@@ -126,27 +125,26 @@ item135.final <- proportions_two_groups_unweighted(CustomerLevelData = item135.d
 
 item135.cast <- dcast(setDT(item135.final)
                       , formula = BuildingType + QTY_bins ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item135.table <- data.frame("BuildingType"   = item135.cast$BuildingType
                             ,"Annual.Wood.Use"= item135.cast$QTY_bins
                             ,"Percent_ID"     = item135.cast$Percent_ID
                            ,"SE_ID"          = item135.cast$SE_ID
-                           ,"Count_ID"       = item135.cast$Count_ID
+                           ,"n_ID"           = item135.cast$n_ID
                            ,"Percent_MT"     = item135.cast$Percent_MT
                            ,"SE_MT"          = item135.cast$SE_MT
-                           ,"Count_MT"       = item135.cast$Count_MT
+                           ,"n_MT"           = item135.cast$n_MT
                            ,"Percent_OR"     = item135.cast$Percent_OR
                            ,"SE_OR"          = item135.cast$SE_OR
-                           ,"Count_OR"       = item135.cast$Count_OR
+                           ,"n_OR"           = item135.cast$n_OR
                            ,"Percent_WA"     = item135.cast$Percent_WA
                            ,"SE_WA"          = item135.cast$SE_WA
-                           ,"Count_WA"       = item135.cast$Count_WA
+                           ,"n_WA"           = item135.cast$n_WA
                            ,"Percent_Region" = item135.cast$Percent_Region
                            ,"SE_Region"      = item135.cast$SE_Region
-                           ,"Count_Region"   = item135.cast$Count_Region
-                           # ,"SampleSize"     = item135.cast$SampleSize_Region
+                           ,"n_Region"       = item135.cast$n_Region
 )
 stopifnot(sum(item135.table[which(item135.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item135.table))], na.rm = T) == 10)
@@ -216,20 +214,19 @@ item136.table <- data.frame("BuildingType"   = item136.cast$BuildingType
                             ,"Annual.Wood.Use"= item136.cast$QTY_bins
                             ,"Percent_ID"     = item136.cast$w.percent_ID
                             ,"SE_ID"          = item136.cast$w.SE_ID
-                            ,"Count_ID"       = item136.cast$count_ID
+                            ,"n_ID"           = item136.cast$n_ID
                             ,"Percent_MT"     = item136.cast$w.percent_MT
                             ,"SE_MT"          = item136.cast$w.SE_MT
-                            ,"Count_MT"       = item136.cast$count_MT
+                            ,"n_MT"           = item136.cast$n_MT
                             ,"Percent_OR"     = item136.cast$w.percent_OR
                             ,"SE_OR"          = item136.cast$w.SE_OR
-                            ,"Count_OR"       = item136.cast$count_OR
+                            ,"n_OR"           = item136.cast$n_OR
                             ,"Percent_WA"     = item136.cast$w.percent_WA
                             ,"SE_WA"          = item136.cast$w.SE_WA
-                            ,"Count_WA"       = item136.cast$count_WA
+                            ,"n_WA"           = item136.cast$n_WA
                             ,"Percent_Region" = item136.cast$w.percent_Region
                             ,"SE_Region"      = item136.cast$w.SE_Region
-                            ,"Count_Region"   = item136.cast$count_Region
-                            # ,"SampleSize"     = item136.cast$SampleSize_Region
+                            ,"n_Region"       = item136.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item136.table[which(item136.table$BuildingType == "Single Family")
@@ -256,27 +253,26 @@ item136.final <- proportions_two_groups_unweighted(CustomerLevelData = item136.d
 
 item136.cast <- dcast(setDT(item136.final)
                       , formula = BuildingType + QTY_bins ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item136.table <- data.frame("BuildingType"   = item136.cast$BuildingType
                             ,"Annual.Wood.Use"= item136.cast$QTY_bins
                             ,"Percent_ID"     = item136.cast$Percent_ID
                             ,"SE_ID"          = item136.cast$SE_ID
-                            ,"Count_ID"       = item136.cast$Count_ID
+                            ,"n_ID"           = item136.cast$n_ID
                             ,"Percent_MT"     = item136.cast$Percent_MT
                             ,"SE_MT"          = item136.cast$SE_MT
-                            ,"Count_MT"       = item136.cast$Count_MT
+                            ,"n_MT"           = item136.cast$n_MT
                             ,"Percent_OR"     = item136.cast$Percent_OR
                             ,"SE_OR"          = item136.cast$SE_OR
-                            ,"Count_OR"       = item136.cast$Count_OR
+                            ,"n_OR"           = item136.cast$n_OR
                             ,"Percent_WA"     = item136.cast$Percent_WA
                             ,"SE_WA"          = item136.cast$SE_WA
-                            ,"Count_WA"       = item136.cast$Count_WA
+                            ,"n_WA"           = item136.cast$n_WA
                             ,"Percent_Region" = item136.cast$Percent_Region
                             ,"SE_Region"      = item136.cast$SE_Region
-                            ,"Count_Region"   = item136.cast$Count_Region
-                            # ,"SampleSize"     = item136.cast$SampleSize_Region
+                            ,"n_Region"       = item136.cast$n_Region
 )
 stopifnot(sum(item136.table[which(item136.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item136.table))], na.rm = T) == 10)
@@ -351,20 +347,19 @@ item137.table <- data.frame("BuildingType"   = item137.cast$BuildingType
                             ,"Annual.Oil.Fuel.Use"= item137.cast$QTY_bins
                             ,"Percent_ID"     = item137.cast$w.percent_ID
                             ,"SE_ID"          = item137.cast$w.SE_ID
-                            ,"Count_ID"       = item137.cast$count_ID
+                            ,"n_ID"           = item137.cast$n_ID
                             ,"Percent_MT"     = item137.cast$w.percent_MT
                             ,"SE_MT"          = item137.cast$w.SE_MT
-                            ,"Count_MT"       = item137.cast$count_MT
+                            ,"n_MT"           = item137.cast$n_MT
                             ,"Percent_OR"     = item137.cast$w.percent_OR
                             ,"SE_OR"          = item137.cast$w.SE_OR
-                            ,"Count_OR"       = item137.cast$count_OR
+                            ,"n_OR"           = item137.cast$n_OR
                             ,"Percent_WA"     = item137.cast$w.percent_WA
                             ,"SE_WA"          = item137.cast$w.SE_WA
-                            ,"Count_WA"       = item137.cast$count_WA
+                            ,"n_WA"           = item137.cast$n_WA
                             ,"Percent_Region" = item137.cast$w.percent_Region
                             ,"SE_Region"      = item137.cast$w.SE_Region
-                            ,"Count_Region"   = item137.cast$count_Region
-                            # ,"SampleSize"     = item137.cast$SampleSize_Region
+                            ,"n_Region"       = item137.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item137.table[which(item137.table$BuildingType == "Single Family")
@@ -403,27 +398,26 @@ item137.final <- proportions_two_groups_unweighted(CustomerLevelData = item137.d
 
 item137.cast <- dcast(setDT(item137.final)
                       , formula = BuildingType + QTY_bins ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item137.table <- data.frame("BuildingType"   = item137.cast$BuildingType
                             ,"Annual.Oil.Fuel.Use"= item137.cast$QTY_bins
                             ,"Percent_ID"     = item137.cast$Percent_ID
                             ,"SE_ID"          = item137.cast$SE_ID
-                            ,"Count_ID"       = item137.cast$Count_ID
+                            ,"n_ID"           = item137.cast$n_ID
                             ,"Percent_MT"     = item137.cast$Percent_MT
                             ,"SE_MT"          = item137.cast$SE_MT
-                            ,"Count_MT"       = item137.cast$Count_MT
+                            ,"n_MT"           = item137.cast$n_MT
                             ,"Percent_OR"     = item137.cast$Percent_OR
                             ,"SE_OR"          = item137.cast$SE_OR
-                            ,"Count_OR"       = item137.cast$Count_OR
+                            ,"n_OR"           = item137.cast$n_OR
                             ,"Percent_WA"     = item137.cast$Percent_WA
                             ,"SE_WA"          = item137.cast$SE_WA
-                            ,"Count_WA"       = item137.cast$Count_WA
+                            ,"n_WA"           = item137.cast$n_WA
                             ,"Percent_Region" = item137.cast$Percent_Region
                             ,"SE_Region"      = item137.cast$SE_Region
-                            ,"Count_Region"   = item137.cast$Count_Region
-                            # ,"SampleSize"     = item137.cast$SampleSize_Region
+                            ,"n_Region"       = item137.cast$n_Region
 )
 stopifnot(sum(item137.table[which(item137.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item137.table))], na.rm = T) == 10)
@@ -507,20 +501,19 @@ item138.table <- data.frame("BuildingType"   = item138.cast$BuildingType
                             ,"Annual.Propane.Fuel.Use"= item138.cast$QTY_bins
                             ,"Percent_ID"     = item138.cast$w.percent_ID
                             ,"SE_ID"          = item138.cast$w.SE_ID
-                            ,"Count_ID"       = item138.cast$count_ID
+                            ,"n_ID"           = item138.cast$n_ID
                             ,"Percent_MT"     = item138.cast$w.percent_MT
                             ,"SE_MT"          = item138.cast$w.SE_MT
-                            ,"Count_MT"       = item138.cast$count_MT
+                            ,"n_MT"           = item138.cast$n_MT
                             ,"Percent_OR"     = item138.cast$w.percent_OR
                             ,"SE_OR"          = item138.cast$w.SE_OR
-                            ,"Count_OR"       = item138.cast$count_OR
+                            ,"n_OR"           = item138.cast$n_OR
                             ,"Percent_WA"     = item138.cast$w.percent_WA
                             ,"SE_WA"          = item138.cast$w.SE_WA
-                            ,"Count_WA"       = item138.cast$count_WA
+                            ,"n_WA"           = item138.cast$n_WA
                             ,"Percent_Region" = item138.cast$w.percent_Region
                             ,"SE_Region"      = item138.cast$w.SE_Region
-                            ,"Count_Region"   = item138.cast$count_Region
-                            # ,"SampleSize"     = item138.cast$SampleSize_Region
+                            ,"n_Region"       = item138.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item138.table[which(item138.table$BuildingType == "Single Family")
@@ -559,27 +552,26 @@ item138.final <- proportions_two_groups_unweighted(CustomerLevelData = item138.d
 
 item138.cast <- dcast(setDT(item138.final)
                       , formula = BuildingType + QTY_bins ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item138.table <- data.frame("BuildingType"   = item138.cast$BuildingType
                             ,"Annual.Propane.Fuel.Use"= item138.cast$QTY_bins
                             ,"Percent_ID"     = item138.cast$Percent_ID
                             ,"SE_ID"          = item138.cast$SE_ID
-                            ,"Count_ID"       = item138.cast$Count_ID
+                            ,"n_ID"           = item138.cast$n_ID
                             ,"Percent_MT"     = item138.cast$Percent_MT
                             ,"SE_MT"          = item138.cast$SE_MT
-                            ,"Count_MT"       = item138.cast$Count_MT
+                            ,"n_MT"           = item138.cast$n_MT
                             ,"Percent_OR"     = item138.cast$Percent_OR
                             ,"SE_OR"          = item138.cast$SE_OR
-                            ,"Count_OR"       = item138.cast$Count_OR
+                            ,"n_OR"           = item138.cast$n_OR
                             ,"Percent_WA"     = item138.cast$Percent_WA
                             ,"SE_WA"          = item138.cast$SE_WA
-                            ,"Count_WA"       = item138.cast$Count_WA
+                            ,"n_WA"           = item138.cast$n_WA
                             ,"Percent_Region" = item138.cast$Percent_Region
                             ,"SE_Region"      = item138.cast$SE_Region
-                            ,"Count_Region"   = item138.cast$Count_Region
-                            # ,"SampleSize"     = item138.cast$SampleSize_Region
+                            ,"n_Region"       = item138.cast$n_Region
 )
 stopifnot(sum(item138.table[which(item138.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item138.table))], na.rm = T) == 10)

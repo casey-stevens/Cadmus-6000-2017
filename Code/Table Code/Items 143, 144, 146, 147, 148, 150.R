@@ -8,17 +8,23 @@
 
 
 ##  Clear variables
-rm(list=ls())
+rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
-options(scipen=999)
+options(scipen = 999)
 
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
+# Source codes
 source("Code/Table Code/SourceCode.R")
+source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Sample Weighting/Weights.R")
+source("Code/Table Code/Export Function.R")
 
-#########################
 
-## Imported Weighted RBSA data- this file currentyl has fake usages maybe wont in future
+# Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 ### Clean data to only the necessary fields for all of the folowing items 
 # 143, 144, 146, 147, 148, 150
@@ -34,13 +40,13 @@ item143.customer <- rbsa.dat
 #   Summarise data up to strata level
 ######################################################
 item143.strata <- summarise(group_by(item143.customer, BuildingType, State, Region, Territory)
-                          ,n_h        = unique(n.h)
-                          ,N_h        = unique(N.h)
-                          ,fpc        = (1 - n_h / N_h)
-                          ,w_h        = n_h / N_h
-                          ,strataKwh = sum(kWh_usage_fake) / n_h
-                          ,strataSD   = sd(kWh_usage_fake)
-                          ,n          = length(unique(CK_Cadmus_ID))
+                            ,n_h        = unique(n.h)
+                            ,N_h        = unique(N.h)
+                            ,fpc        = (1 - n_h / N_h)
+                            ,w_h        = n_h / N_h
+                            ,strataKwh = sum(kWh_usage_fake) / n_h
+                            ,strataSD   = sd(kWh_usage_fake)
+                            ,n          = length(unique(CK_Cadmus_ID))
 )
 
 item143.strata$strataSD[which(item143.strata$strataSD == "NaN")] <- 0
@@ -60,10 +66,10 @@ item143.state <- summarise(group_by(item143.strata, BuildingType, State)
 #   Perform region level analysis
 ######################################################
 item143.region <- summarise(group_by(item143.strata, BuildingType)
-                          ,State      = "Region"
-                          ,Mean       = sum(N_h * strataKwh) / sum(N_h)
-                          ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                          ,SampleSize = sum(unique(n)))
+                            ,State      = "Region"
+                            ,Mean       = sum(N_h * strataKwh) / sum(N_h)
+                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                            ,SampleSize = sum(unique(n)))
 
 ######################################################
 # Step 4: Combine results into correct table format,

@@ -108,12 +108,13 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"DHW.Fuel"             = item102.cast$DHW.Fuel
                             ,"Percent_0.50.Gallons" = item102.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item102.cast$`w.SE_0-55 Gallons`
-                            ,"Count_0.50.Gallons"   = item102.cast$`count_0-55 Gallons`
+                            # ,"Count_0.50.Gallons"   = item102.cast$`count_0-55 Gallons`
                             # ,"n_0.50.Gallons"       = item102.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item102.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item102.cast$`w.SE_>55 Gallons`
-                            ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
+                            # ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
+                            ,n = item102.cast$n_Total
                             )
 
 # row ordering example code
@@ -162,12 +163,13 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"DHW.Fuel"             = item102.cast$DHW.Fuel
                             ,"Percent_0.50.Gallons" = item102.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item102.cast$`w.SE_0-55 Gallons`
-                            ,"Count_0.50.Gallons"   = item102.cast$`count_0-55 Gallons`
+                            # ,"Count_0.50.Gallons"   = item102.cast$`count_0-55 Gallons`
                             # ,"n_0.50.Gallons"       = item102.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item102.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item102.cast$`w.SE_>55 Gallons`
-                            ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
+                            # ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
+                            ,"n" = item102.cast$n_Total
 )
 
 # row ordering example code
@@ -276,15 +278,16 @@ item103.cast <- dcast(setDT(item103.final)
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
-                            ,"DHW.Location"             = item103.cast$DHW.Location
+                            ,"DHW.Location"         = item103.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item103.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item103.cast$`w.SE_0-55 Gallons`
-                            ,"Count_0.50.Gallons"   = item103.cast$`count_0-55 Gallons`
+                            # ,"Count_0.50.Gallons"   = item103.cast$`count_0-55 Gallons`
                             # ,"n_0.50.Gallons"       = item103.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item103.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item103.cast$`w.SE_>55 Gallons`
-                            ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
+                            # ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
+                            ,"n" = item103.cast$n_Total
 )
 
 # row ordering example code
@@ -331,15 +334,16 @@ item103.cast <- dcast(setDT(item103.final)
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
-                            ,"DHW.Location"             = item103.cast$DHW.Location
+                            ,"DHW.Location"         = item103.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item103.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item103.cast$`w.SE_0-55 Gallons`
-                            ,"Count_0.50.Gallons"   = item103.cast$`count_0-55 Gallons`
+                            # ,"Count_0.50.Gallons"   = item103.cast$`count_0-55 Gallons`
                             # ,"n_0.50.Gallons"       = item103.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item103.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item103.cast$`w.SE_>55 Gallons`
-                            ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
+                            # ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
+                            ,"n" = item103.cast$n_Total
 )
 
 # row ordering example code
@@ -449,15 +453,16 @@ item104.cast <- dcast(setDT(item104.final)
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
-                            ,"DHW.Location"             = item104.cast$DHW.Location
+                            ,"DHW.Location"         = item104.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item104.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item104.cast$`w.SE_0-55 Gallons`
-                            ,"Count_0.50.Gallons"   = item104.cast$`count_0-55 Gallons`
+                            # ,"Count_0.50.Gallons"   = item104.cast$`count_0-55 Gallons`
                             # ,"n_0.50.Gallons"       = item104.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item104.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item104.cast$`w.SE_>55 Gallons`
-                            ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
+                            # ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
+                            ,"n" = item104.cast$n_Total
 )
 
 # row ordering example code
@@ -503,15 +508,16 @@ item104.cast <- dcast(setDT(item104.final)
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
-                            ,"DHW.Location"             = item104.cast$DHW.Location
+                            ,"DHW.Location"         = item104.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item104.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item104.cast$`w.SE_0-55 Gallons`
-                            ,"Count_0.50.Gallons"   = item104.cast$`count_0-55 Gallons`
+                            # ,"Count_0.50.Gallons"   = item104.cast$`count_0-55 Gallons`
                             # ,"n_0.50.Gallons"       = item104.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item104.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item104.cast$`w.SE_>55 Gallons`
-                            ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
+                            # ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
+                            ,"n" = item104.cast$n_Total
 )
 
 # row ordering example code

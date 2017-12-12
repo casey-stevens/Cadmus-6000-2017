@@ -25,8 +25,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, "Appliances_CS.xlsx")
-                            , sheet = "Sheet1")
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -68,15 +67,12 @@ item94.data$count <- 1
 item94.final <- proportions_one_group(CustomerLevelData = item94.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Stove.Fuel'
-                                      ,total.name       = 'Total'
-                                      ,columnName       = 'Remove')
+                                      ,total.name       = 'Total')
 
 item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Family")
-                                ,-which(colnames(item94.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item94.final) %in% c("BuildingType"))]
 item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item94.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item94.final) %in% c("BuildingType"))]
 
 exportTable(item94.final.SF, "SF", "Table 101", weighted = TRUE)
 exportTable(item94.final.MH, "MH", "Table 82", weighted = TRUE)
@@ -89,17 +85,12 @@ item94.final <- proportions_one_group(CustomerLevelData = item94.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Stove.Fuel'
                                       ,total.name       = 'Total'
-                                      ,columnName       = 'Remove'
                                       ,weighted         = FALSE)
 
 item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Family")
-                                ,-which(colnames(item94.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item94.final) %in% c("BuildingType"))]
 item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item94.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item94.final) %in% c("BuildingType"))]
 
 exportTable(item94.final.SF, "SF", "Table 101", weighted = FALSE)
 exportTable(item94.final.MH, "MH", "Table 82", weighted = FALSE)
@@ -145,15 +136,12 @@ item95.data$count <- 1
 item95.final <- proportions_one_group(CustomerLevelData = item95.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Oven.Fuel'
-                                      ,total.name       = 'Total'
-                                      ,columnName       = 'Remove')
+                                      ,total.name       = 'Total')
 
 item95.final.SF <- item95.final[which(item95.final$BuildingType == "Single Family")
-                                ,-which(colnames(item95.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item95.final) %in% c("BuildingType"))]
 item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item95.final) %in% c("BuildingType"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item95.final) %in% c("BuildingType"))]
 
 exportTable(item95.final.SF, "SF", "Table 102", weighted = TRUE)
 exportTable(item95.final.MH, "MH", "Table 83", weighted = TRUE)
@@ -166,17 +154,12 @@ item95.final <- proportions_one_group(CustomerLevelData = item95.data
                                       ,valueVariable    = 'count'
                                       ,groupingVariable = 'Oven.Fuel'
                                       ,total.name       = 'Total'
-                                      ,columnName       = 'Remove'
                                       ,weighted         = FALSE)
 
 item95.final.SF <- item95.final[which(item95.final$BuildingType == "Single Family")
-                                ,-which(colnames(item95.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item95.final) %in% c("BuildingType"))]
 item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item95.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item95.final) %in% c("BuildingType"))]
 
 exportTable(item95.final.SF, "SF", "Table 102", weighted = FALSE)
 exportTable(item95.final.MH, "MH", "Table 83", weighted = FALSE)

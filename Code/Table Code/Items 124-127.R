@@ -74,24 +74,23 @@ item124.cast <- dcast(setDT(item124.final)
                      , formula = BuildingType + Ownership.Type ~ State
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item124.table <- data.frame("BuildingType"    = item124.cast$BuildingType
-                           ,"Ownership.Type"      = item124.cast$Ownership.Type
+item124.table <- data.frame("BuildingType"   = item124.cast$BuildingType
+                           ,"Ownership.Type" = item124.cast$Ownership.Type
                            ,"Percent_ID"     = item124.cast$w.percent_ID
                            ,"SE_ID"          = item124.cast$w.SE_ID
-                           ,"Count_ID"       = item124.cast$count_ID
+                           ,"n_ID"           = item124.cast$n_ID
                            ,"Percent_MT"     = item124.cast$w.percent_MT
                            ,"SE_MT"          = item124.cast$w.SE_MT
-                           ,"Count_MT"       = item124.cast$count_MT
+                           ,"n_MT"           = item124.cast$n_MT
                            ,"Percent_OR"     = item124.cast$w.percent_OR
                            ,"SE_OR"          = item124.cast$w.SE_OR
-                           ,"Count_OR"       = item124.cast$count_OR
+                           ,"n_OR"           = item124.cast$n_OR
                            ,"Percent_WA"     = item124.cast$w.percent_WA
                            ,"SE_WA"          = item124.cast$w.SE_WA
-                           ,"Count_WA"       = item124.cast$count_WA
+                           ,"n_WA"           = item124.cast$n_WA
                            ,"Percent_Region" = item124.cast$w.percent_Region
                            ,"SE_Region"      = item124.cast$w.SE_Region
-                           ,"Count_Region"   = item124.cast$count_Region
-                           # ,"SampleSize"     = item124.cast$SampleSize_Region
+                           ,"n_Region"       = item124.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item124.table[which(item124.table$BuildingType == "Single Family")
@@ -118,27 +117,26 @@ item124.final <- proportions_two_groups_unweighted(CustomerLevelData = item124.d
 
 item124.cast <- dcast(setDT(item124.final)
                       , formula = BuildingType + Ownership.Type ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item124.table <- data.frame("BuildingType"    = item124.cast$BuildingType
-                            ,"Ownership.Type"      = item124.cast$Ownership.Type
+                            ,"Ownership.Type" = item124.cast$Ownership.Type
                             ,"Percent_ID"     = item124.cast$Percent_ID
                             ,"SE_ID"          = item124.cast$SE_ID
-                            ,"Count_ID"       = item124.cast$Count_ID
+                            ,"n_ID"           = item124.cast$n_ID
                             ,"Percent_MT"     = item124.cast$Percent_MT
                             ,"SE_MT"          = item124.cast$SE_MT
-                            ,"Count_MT"       = item124.cast$Count_MT
+                            ,"n_MT"           = item124.cast$n_MT
                             ,"Percent_OR"     = item124.cast$Percent_OR
                             ,"SE_OR"          = item124.cast$SE_OR
-                            ,"Count_OR"       = item124.cast$Count_OR
+                            ,"n_OR"           = item124.cast$n_OR
                             ,"Percent_WA"     = item124.cast$Percent_WA
                             ,"SE_WA"          = item124.cast$SE_WA
-                            ,"Count_WA"       = item124.cast$Count_WA
+                            ,"n_WA"           = item124.cast$n_WA
                             ,"Percent_Region" = item124.cast$Percent_Region
                             ,"SE_Region"      = item124.cast$SE_Region
-                            ,"Count_Region"   = item124.cast$Count_Region
-                            # ,"SampleSize"     = item124.cast$SampleSize_Region
+                            ,"n_Region"       = item124.cast$n_Region
 )
 stopifnot(sum(item124.table[which(item124.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(item124.table))], na.rm = T) == 10)
@@ -303,24 +301,23 @@ item127.cast <- dcast(setDT(item127.final)
                       , formula = BuildingType + Percent.Assistance ~ State
                       , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item127.table <- data.frame("BuildingType"    = item127.cast$BuildingType
-                            ,"Percent.Assistance"      = item127.cast$Percent.Assistance
-                            ,"Percent_ID"     = item127.cast$w.percent_ID
-                            ,"SE_ID"          = item127.cast$w.SE_ID
-                            ,"Count_ID"       = item127.cast$count_ID
-                            ,"Percent_MT"     = item127.cast$w.percent_MT
-                            ,"SE_MT"          = item127.cast$w.SE_MT
-                            ,"Count_MT"       = item127.cast$count_MT
-                            ,"Percent_OR"     = item127.cast$w.percent_OR
-                            ,"SE_OR"          = item127.cast$w.SE_OR
-                            ,"Count_OR"       = item127.cast$count_OR
-                            ,"Percent_WA"     = item127.cast$w.percent_WA
-                            ,"SE_WA"          = item127.cast$w.SE_WA
-                            ,"Count_WA"       = item127.cast$count_WA
-                            ,"Percent_Region" = item127.cast$w.percent_Region
-                            ,"SE_Region"      = item127.cast$w.SE_Region
-                            ,"Count_Region"   = item127.cast$count_Region
-                            # ,"SampleSize"     = item127.cast$SampleSize_Region
+item127.table <- data.frame("BuildingType"        = item127.cast$BuildingType
+                            ,"Percent.Assistance" = item127.cast$Percent.Assistance
+                            ,"Percent_ID"         = item127.cast$w.percent_ID
+                            ,"SE_ID"              = item127.cast$w.SE_ID
+                            ,"n_ID"               = item127.cast$n_ID
+                            ,"Percent_MT"         = item127.cast$w.percent_MT
+                            ,"SE_MT"              = item127.cast$w.SE_MT
+                            ,"n_MT"               = item127.cast$n_MT
+                            ,"Percent_OR"         = item127.cast$w.percent_OR
+                            ,"SE_OR"              = item127.cast$w.SE_OR
+                            ,"n_OR"               = item127.cast$n_OR
+                            ,"Percent_WA"         = item127.cast$w.percent_WA
+                            ,"SE_WA"              = item127.cast$w.SE_WA
+                            ,"n_WA"               = item127.cast$n_WA
+                            ,"Percent_Region"     = item127.cast$w.percent_Region
+                            ,"SE_Region"          = item127.cast$w.SE_Region
+                            ,"n_Region"           = item127.cast$n_Region
 )
 
 # row ordering example code
@@ -354,27 +351,26 @@ item127.final <- proportions_two_groups_unweighted(CustomerLevelData = item127.d
 
 item127.cast <- dcast(setDT(item127.final)
                       , formula = BuildingType + Percent.Assistance ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
-item127.table <- data.frame("BuildingType"    = item127.cast$BuildingType
-                            ,"Percent.Assistance"      = item127.cast$Percent.Assistance
-                            ,"Percent_ID"     = item127.cast$Percent_ID
-                            ,"SE_ID"          = item127.cast$SE_ID
-                            ,"Count_ID"       = item127.cast$Count_ID
-                            ,"Percent_MT"     = item127.cast$Percent_MT
-                            ,"SE_MT"          = item127.cast$SE_MT
-                            ,"Count_MT"       = item127.cast$Count_MT
-                            ,"Percent_OR"     = item127.cast$Percent_OR
-                            ,"SE_OR"          = item127.cast$SE_OR
-                            ,"Count_OR"       = item127.cast$Count_OR
-                            ,"Percent_WA"     = item127.cast$Percent_WA
-                            ,"SE_WA"          = item127.cast$SE_WA
-                            ,"Count_WA"       = item127.cast$Count_WA
-                            ,"Percent_Region" = item127.cast$Percent_Region
-                            ,"SE_Region"      = item127.cast$SE_Region
-                            ,"Count_Region"   = item127.cast$Count_Region
-                            # ,"SampleSize"     = item127.cast$SampleSize_Region
+item127.table <- data.frame("BuildingType"        = item127.cast$BuildingType
+                            ,"Percent.Assistance" = item127.cast$Percent.Assistance
+                            ,"Percent_ID"         = item127.cast$Percent_ID
+                            ,"SE_ID"              = item127.cast$SE_ID
+                            ,"n_ID"               = item127.cast$n_ID
+                            ,"Percent_MT"         = item127.cast$Percent_MT
+                            ,"SE_MT"              = item127.cast$SE_MT
+                            ,"n_MT"               = item127.cast$n_MT
+                            ,"Percent_OR"         = item127.cast$Percent_OR
+                            ,"SE_OR"              = item127.cast$SE_OR
+                            ,"n_OR"               = item127.cast$n_OR
+                            ,"Percent_WA"         = item127.cast$Percent_WA
+                            ,"SE_WA"              = item127.cast$SE_WA
+                            ,"n_WA"               = item127.cast$n_WA
+                            ,"Percent_Region"     = item127.cast$Percent_Region
+                            ,"SE_Region"          = item127.cast$SE_Region
+                            ,"n_Region"           = item127.cast$n_Region
 )
 
 # row ordering example code

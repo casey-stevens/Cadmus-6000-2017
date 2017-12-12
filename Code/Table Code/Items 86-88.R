@@ -370,7 +370,7 @@ item88.all.washer.types <- proportions_one_group(CustomerLevelData = item88.data
                                                  ,columnName = "Washer.Type"
                                                  ,weighted = TRUE
                                                  ,two.prop.total = TRUE)
-item88.all.washer.types <- item88.all.washer.types[which(item88.all.washer.types$EquipVintage_bins != "Total"),]
+item88.all.washer.types$EquipVintage_bins[which(item88.all.washer.types$EquipVintage_bins == "Total")] <- "All Clothes Washer Types"
 
 
 item88.final <- rbind.data.frame(item88.summary, item88.all.washer.types, stringsAsFactors = F)
@@ -383,25 +383,26 @@ item88.table <- data.frame("BuildingType"           = item88.cast$BuildingType
                            ,"Washer.Type"           = item88.cast$Washer.Type
                            ,"Percent_Pre.1990"      = item88.cast$`w.percent_Pre 1990`
                            ,"SE_Pre.1990"           = item88.cast$`w.SE_Pre 1990`
-                           ,"n_Pre.1990"            = item88.cast$`n_Pre 1990`
+                           # ,"n_Pre.1990"            = item88.cast$`n_Pre 1990`
                            ,"Percent_1990.1994"     = item88.cast$`w.percent_1990-1994`
                            ,"SE_1990.1994"          = item88.cast$`w.SE_1990-1994`
-                           ,"n_1990.1994"           = item88.cast$`n_1990-1994`
+                           # ,"n_1990.1994"           = item88.cast$`n_1990-1994`
                            ,"Percent_1995.1999"     = item88.cast$`w.percent_1995-1999`
                            ,"SE_1995.1999"          = item88.cast$`w.SE_1995-1999`
-                           ,"n_1995.1999"           = item88.cast$`n_1995-1999`
+                           # ,"n_1995.1999"           = item88.cast$`n_1995-1999`
                            ,"Percent_2000.2004"     = item88.cast$`w.percent_2000-2004`
                            ,"SE_2000.2004"          = item88.cast$`w.SE_2000-2004`
-                           ,"n_2000.2004"           = item88.cast$`n_2000-2004`
+                           # ,"n_2000.2004"           = item88.cast$`n_2000-2004`
                            ,"Percent_2005.2009"     = item88.cast$`w.percent_2005-2009`
                            ,"SE_2005.2009"          = item88.cast$`w.SE_2005-2009`
-                           ,"n_2005.2009"           = item88.cast$`n_2005-2009`
+                           # ,"n_2005.2009"           = item88.cast$`n_2005-2009`
                            ,"Percent_2010.2014"     = item88.cast$`w.percent_2010-2014`
                            ,"SE_2010.2014"          = item88.cast$`w.SE_2010-2014`
-                           ,"n_2010.2014"           = item88.cast$`n_2010-2014`
+                           # ,"n_2010.2014"           = item88.cast$`n_2010-2014`
                            ,"Percent_Post.2014"     = item88.cast$`w.percent_Post 2014`
                            ,"SE_Post.2014"          = item88.cast$`w.SE_Post 2014`
-                           ,"n_Post.2014"           = item88.cast$`n_Post 2014`
+                           # ,"n_Post.2014"           = item88.cast$`n_Post 2014`
+                           ,"n"                     = item88.cast$`n_All Clothes Washer Types`
 )
 
 unique(item88.table$Washer.Type)

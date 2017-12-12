@@ -123,11 +123,11 @@ item113.dat1 <- left_join(item113.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 #subset to set.top.box not NA
 item113.dat2 <- item113.dat1[which(item113.dat1$TV.Set.Top.Box == "Yes"),]
-item113.dat2$STB.Ind <- 1
+item113.dat2$Ind <- 1
 
 item113.merge <- unique(left_join(rbsa.dat, item113.dat2))
-item113.merge$STB.Ind[which(is.na(item113.merge$STB.Ind))] <- 0
-unique(item113.merge$STB.Ind)
+item113.merge$Ind[which(is.na(item113.merge$Ind))] <- 0
+unique(item113.merge$Ind)
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -135,18 +135,18 @@ unique(item113.merge$STB.Ind)
 item113.data <- weightedData(item113.merge[-which(colnames(item113.merge) %in% c("TV.Set.Top.Box"
                                                                                  ,"STB.Records?"
                                                                                  ,"count"
-                                                                                 ,"STB.Ind"))])
+                                                                                 ,"Ind"))])
 item113.data <- left_join(item113.data, item113.merge[which(colnames(item113.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"TV.Set.Top.Box"
                                                                                            ,"STB.Records?"
                                                                                            ,"count"
-                                                                                           ,"STB.Ind"))])
+                                                                                           ,"Ind"))])
 item113.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
 item113.final <- proportions_one_group(CustomerLevelData = item113.data
-                                       ,valueVariable = 'STB.Ind'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
                                        ,columnName = "Remove"
@@ -168,7 +168,7 @@ exportTable(item113.final.MH, "MH", "Table 95", weighted = TRUE)
 # Weighted Analysis
 #######################
 item113.final <- proportions_one_group(CustomerLevelData = item113.data
-                                       ,valueVariable = 'STB.Ind'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
                                        ,columnName = "Remove"
@@ -217,9 +217,9 @@ item114.dat3 <- item114.dat2[which(item114.dat2$`STB.Records?` %in% c("Yes", "No
 item114.merge <- left_join(rbsa.dat, item114.dat3)
 item114.merge <- item114.merge[which(!is.na(item114.merge$`STB.Records?`)),]
 
-item114.merge$STB.Ind <- item114.merge$`STB.Records?`
-item114.merge$STB.Ind[which(item114.merge$`STB.Records?` == "Yes")]  <- 1
-item114.merge$STB.Ind[which(item114.merge$`STB.Records?` == "No")]   <- 0
+item114.merge$Ind <- item114.merge$`STB.Records?`
+item114.merge$Ind[which(item114.merge$`STB.Records?` == "Yes")]  <- 1
+item114.merge$Ind[which(item114.merge$`STB.Records?` == "No")]   <- 0
 
 
 
@@ -229,19 +229,19 @@ item114.merge$STB.Ind[which(item114.merge$`STB.Records?` == "No")]   <- 0
 item114.data <- weightedData(item114.merge[-which(colnames(item114.merge) %in% c("TV.Set.Top.Box"
                                                                                  ,"STB.Records?"
                                                                                  ,"count"
-                                                                                 ,"STB.Ind"))])
+                                                                                 ,"Ind"))])
 item114.data <- left_join(item114.data, item114.merge[which(colnames(item114.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"TV.Set.Top.Box"
                                                                                            ,"STB.Records?"
                                                                                            ,"count"
-                                                                                           ,"STB.Ind"))])
+                                                                                           ,"Ind"))])
 item114.data$count <- 1
-item114.data$STB.Ind <- as.numeric(as.character(item114.data$STB.Ind))
+item114.data$Ind <- as.numeric(as.character(item114.data$Ind))
 #######################
 # Weighted Analysis
 #######################
 item114.final <- proportions_one_group(CustomerLevelData = item114.data
-                                       ,valueVariable = 'STB.Ind'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
                                        ,weighted = TRUE)
@@ -258,7 +258,7 @@ exportTable(item114.final.MH, "MH", "Table 96", weighted = TRUE)
 # Weighted Analysis
 #######################
 item114.final <- proportions_one_group(CustomerLevelData = item114.data
-                                       ,valueVariable = 'STB.Ind'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
                                        ,weighted = FALSE)

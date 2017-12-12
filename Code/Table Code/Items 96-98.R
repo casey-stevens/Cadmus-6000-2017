@@ -74,24 +74,23 @@ item96.cast <- dcast(setDT(item96.final)
                      , formula = BuildingType + DHW.Fuel ~ State
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item96.table <- data.frame("BuildingType"    = item96.cast$BuildingType
-                           ,"Water.Heater.Fuel"      = item96.cast$DHW.Fuel
-                           ,"Percent_ID"     = item96.cast$w.percent_ID
-                           ,"SE_ID"          = item96.cast$w.SE_ID
-                           ,"Count_ID"       = item96.cast$count_ID
-                           ,"Percent_MT"     = item96.cast$w.percent_MT
-                           ,"SE_MT"          = item96.cast$w.SE_MT
-                           ,"Count_MT"       = item96.cast$count_MT
-                           ,"Percent_OR"     = item96.cast$w.percent_OR
-                           ,"SE_OR"          = item96.cast$w.SE_OR
-                           ,"Count_OR"       = item96.cast$count_OR
-                           ,"Percent_WA"     = item96.cast$w.percent_WA
-                           ,"SE_WA"          = item96.cast$w.SE_WA
-                           ,"Count_WA"       = item96.cast$count_WA
-                           ,"Percent_Region" = item96.cast$w.percent_Region
-                           ,"SE_Region"      = item96.cast$w.SE_Region
-                           ,"Count_Region"   = item96.cast$count_Region
-                           # ,"SampleSize"     = item96.cast$SampleSize_Region
+item96.table <- data.frame("BuildingType"       = item96.cast$BuildingType
+                           ,"Water.Heater.Fuel" = item96.cast$DHW.Fuel
+                           ,"Percent_ID"        = item96.cast$w.percent_ID
+                           ,"SE_ID"             = item96.cast$w.SE_ID
+                           ,"n_ID"              = item96.cast$n_ID
+                           ,"Percent_MT"        = item96.cast$w.percent_MT
+                           ,"SE_MT"             = item96.cast$w.SE_MT
+                           ,"n_MT"              = item96.cast$n_MT
+                           ,"Percent_OR"        = item96.cast$w.percent_OR
+                           ,"SE_OR"             = item96.cast$w.SE_OR
+                           ,"n_OR"              = item96.cast$n_OR
+                           ,"Percent_WA"        = item96.cast$w.percent_WA
+                           ,"SE_WA"             = item96.cast$w.SE_WA
+                           ,"n_WA"              = item96.cast$n_WA
+                           ,"Percent_Region"    = item96.cast$w.percent_Region
+                           ,"SE_Region"         = item96.cast$w.SE_Region
+                           ,"n_Region"          = item96.cast$n_Region
 )
     #QAQC
     stopifnot(sum(item96.table[which(item96.table$BuildingType == "Single Family")
@@ -118,27 +117,26 @@ item96.final <- proportions_two_groups_unweighted(CustomerLevelData = item96.dat
 
 item96.cast <- dcast(setDT(item96.final)
                      , formula = BuildingType + DHW.Fuel ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 
-item96.table <- data.frame("BuildingType"    = item96.cast$BuildingType
-                           ,"Water.Heater.Fuel"      = item96.cast$DHW.Fuel
-                           ,"Percent_ID"     = item96.cast$Percent_ID
-                           ,"SE_ID"          = item96.cast$SE_ID
-                           ,"Count_ID"       = item96.cast$Count_ID
-                           ,"Percent_MT"     = item96.cast$Percent_MT
-                           ,"SE_MT"          = item96.cast$SE_MT
-                           ,"Count_MT"       = item96.cast$Count_MT
-                           ,"Percent_OR"     = item96.cast$Percent_OR
-                           ,"SE_OR"          = item96.cast$SE_OR
-                           ,"Count_OR"       = item96.cast$Count_OR
-                           ,"Percent_WA"     = item96.cast$Percent_WA
-                           ,"SE_WA"          = item96.cast$SE_WA
-                           ,"Count_WA"       = item96.cast$Count_WA
-                           ,"Percent_Region" = item96.cast$Percent_Region
-                           ,"SE_Region"      = item96.cast$SE_Region
-                           ,"Count_Region"   = item96.cast$Count_Region
-                           # ,"SampleSize"     = item96.cast$SampleSize_Region
+item96.table <- data.frame("BuildingType"       = item96.cast$BuildingType
+                           ,"Water.Heater.Fuel" = item96.cast$DHW.Fuel
+                           ,"Percent_ID"        = item96.cast$Percent_ID
+                           ,"SE_ID"             = item96.cast$SE_ID
+                           ,"n_ID"              = item96.cast$n_ID
+                           ,"Percent_MT"        = item96.cast$Percent_MT
+                           ,"SE_MT"             = item96.cast$SE_MT
+                           ,"n_MT"              = item96.cast$n_MT
+                           ,"Percent_OR"        = item96.cast$Percent_OR
+                           ,"SE_OR"             = item96.cast$SE_OR
+                           ,"n_OR"              = item96.cast$n_OR
+                           ,"Percent_WA"        = item96.cast$Percent_WA
+                           ,"SE_WA"             = item96.cast$SE_WA
+                           ,"n_WA"              = item96.cast$n_WA
+                           ,"Percent_Region"    = item96.cast$Percent_Region
+                           ,"SE_Region"         = item96.cast$SE_Region
+                           ,"n_Region"          = item96.cast$n_Region
 )
 stopifnot(sum(item96.table[which(item96.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item96.table))], na.rm = T) == 10)
@@ -278,24 +276,23 @@ item98.cast <- dcast(setDT(item98.final)
                      , formula = BuildingType + DHW.Location ~ State
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item98.table <- data.frame("BuildingType"    = item98.cast$BuildingType
-                           ,"Water.Heater.Location"      = item98.cast$DHW.Location
-                           ,"Percent_ID"     = item98.cast$w.percent_ID
-                           ,"SE_ID"          = item98.cast$w.SE_ID
-                           ,"Count_ID"       = item98.cast$count_ID
-                           ,"Percent_MT"     = item98.cast$w.percent_MT
-                           ,"SE_MT"          = item98.cast$w.SE_MT
-                           ,"Count_MT"       = item98.cast$count_MT
-                           ,"Percent_OR"     = item98.cast$w.percent_OR
-                           ,"SE_OR"          = item98.cast$w.SE_OR
-                           ,"Count_OR"       = item98.cast$count_OR
-                           ,"Percent_WA"     = item98.cast$w.percent_WA
-                           ,"SE_WA"          = item98.cast$w.SE_WA
-                           ,"Count_WA"       = item98.cast$count_WA
-                           ,"Percent_Region" = item98.cast$w.percent_Region
-                           ,"SE_Region"      = item98.cast$w.SE_Region
-                           ,"Count_Region"   = item98.cast$count_Region
-                           # ,"SampleSize"     = item98.cast$SampleSize_Region
+item98.table <- data.frame("BuildingType"           = item98.cast$BuildingType
+                           ,"Water.Heater.Location" = item98.cast$DHW.Location
+                           ,"Percent_ID"            = item98.cast$w.percent_ID
+                           ,"SE_ID"                 = item98.cast$w.SE_ID
+                           ,"n_ID"                  = item98.cast$n_ID
+                           ,"Percent_MT"            = item98.cast$w.percent_MT
+                           ,"SE_MT"                 = item98.cast$w.SE_MT
+                           ,"n_MT"                  = item98.cast$n_MT
+                           ,"Percent_OR"            = item98.cast$w.percent_OR
+                           ,"SE_OR"                 = item98.cast$w.SE_OR
+                           ,"n_OR"                  = item98.cast$n_OR
+                           ,"Percent_WA"            = item98.cast$w.percent_WA
+                           ,"SE_WA"                 = item98.cast$w.SE_WA
+                           ,"n_WA"                  = item98.cast$n_WA
+                           ,"Percent_Region"        = item98.cast$w.percent_Region
+                           ,"SE_Region"             = item98.cast$w.SE_Region
+                           ,"n_Region"              = item98.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item98.table[which(item98.table$BuildingType == "Single Family")
@@ -322,27 +319,26 @@ item98.final <- proportions_two_groups_unweighted(CustomerLevelData = item98.dat
 
 item98.cast <- dcast(setDT(item98.final)
                      , formula = BuildingType + DHW.Location ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 
-item98.table <- data.frame("BuildingType"    = item98.cast$BuildingType
-                           ,"Water.Heater.Location"      = item98.cast$DHW.Location
-                           ,"Percent_ID"     = item98.cast$Percent_ID
-                           ,"SE_ID"          = item98.cast$SE_ID
-                           ,"Count_ID"       = item98.cast$Count_ID
-                           ,"Percent_MT"     = item98.cast$Percent_MT
-                           ,"SE_MT"          = item98.cast$SE_MT
-                           ,"Count_MT"       = item98.cast$Count_MT
-                           ,"Percent_OR"     = item98.cast$Percent_OR
-                           ,"SE_OR"          = item98.cast$SE_OR
-                           ,"Count_OR"       = item98.cast$Count_OR
-                           ,"Percent_WA"     = item98.cast$Percent_WA
-                           ,"SE_WA"          = item98.cast$SE_WA
-                           ,"Count_WA"       = item98.cast$Count_WA
-                           ,"Percent_Region" = item98.cast$Percent_Region
-                           ,"SE_Region"      = item98.cast$SE_Region
-                           ,"Count_Region"   = item98.cast$Count_Region
-                           # ,"SampleSize"     = item98.cast$SampleSize_Region
+item98.table <- data.frame("BuildingType"           = item98.cast$BuildingType
+                           ,"Water.Heater.Location" = item98.cast$DHW.Location
+                           ,"Percent_ID"            = item98.cast$Percent_ID
+                           ,"SE_ID"                 = item98.cast$SE_ID
+                           ,"n_ID"                  = item98.cast$n_ID
+                           ,"Percent_MT"            = item98.cast$Percent_MT
+                           ,"SE_MT"                 = item98.cast$SE_MT
+                           ,"n_MT"                  = item98.cast$n_MT
+                           ,"Percent_OR"            = item98.cast$Percent_OR
+                           ,"SE_OR"                 = item98.cast$SE_OR
+                           ,"n_OR"                  = item98.cast$n_OR
+                           ,"Percent_WA"            = item98.cast$Percent_WA
+                           ,"SE_WA"                 = item98.cast$SE_WA
+                           ,"n_WA"                  = item98.cast$n_WA
+                           ,"Percent_Region"        = item98.cast$Percent_Region
+                           ,"SE_Region"             = item98.cast$SE_Region
+                           ,"n_Region"              = item98.cast$n_Region
 )
 stopifnot(sum(item98.table[which(item98.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item98.table))], na.rm = T) == 10)

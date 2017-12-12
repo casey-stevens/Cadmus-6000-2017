@@ -132,7 +132,7 @@ item156.final <- proportions_two_groups_unweighted(CustomerLevelData = item156.d
 
 item156.cast <- dcast(setDT(item156.final)
                       , formula = BuildingType + HomeYearBuilt_bins2 ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item156.table <- data.frame("BuildingType"    = item156.cast$BuildingType
@@ -140,23 +140,23 @@ item156.table <- data.frame("BuildingType"    = item156.cast$BuildingType
                             ,"Percent_ID"     = item156.cast$Percent_ID
                             ,"SE_ID"          = item156.cast$SE_ID
                             ,"Count_ID"       = item156.cast$Count_ID
-                            ,"n_ID"           = item156.cast$SampleSize_ID
+                            ,"n_ID"           = item156.cast$n_ID
                             ,"Percent_MT"     = item156.cast$Percent_MT
                             ,"SE_MT"          = item156.cast$SE_MT
                             ,"Count_MT"       = item156.cast$Count_MT
-                            ,"n_MT"           = item156.cast$SampleSize_MT
+                            ,"n_MT"           = item156.cast$n_MT
                             ,"Percent_OR"     = item156.cast$Percent_OR
                             ,"SE_OR"          = item156.cast$SE_OR
                             ,"Count_OR"       = item156.cast$Count_OR
-                            ,"n_OR"           = item156.cast$SampleSize_OR
+                            ,"n_OR"           = item156.cast$n_OR
                             ,"Percent_WA"     = item156.cast$Percent_WA
                             ,"SE_WA"          = item156.cast$SE_WA
                             ,"Count_WA"       = item156.cast$Count_WA
-                            ,"n_WA"           = item156.cast$SampleSize_WA
+                            ,"n_WA"           = item156.cast$n_WA
                             ,"Percent_Region" = item156.cast$Percent_Region
                             ,"SE_Region"      = item156.cast$SE_Region
                             ,"Count_Region"   = item156.cast$Count_Region
-                            ,"n_Region"       = item156.cast$SampleSize_Region
+                            ,"n_Region"       = item156.cast$n_Region
 )
 
 

@@ -91,24 +91,23 @@ item106.cast <- dcast(setDT(item106.final)
                      , formula = BuildingType + GPM_bins ~ State
                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
-item106.table <- data.frame("BuildingType"    = item106.cast$BuildingType
-                           ,"Flow.Rate.GPM"      = item106.cast$GPM_bins
+item106.table <- data.frame("BuildingType"   = item106.cast$BuildingType
+                           ,"Flow.Rate.GPM"  = item106.cast$GPM_bins
                            ,"Percent_ID"     = item106.cast$w.percent_ID
                            ,"SE_ID"          = item106.cast$w.SE_ID
-                           ,"Count_ID"       = item106.cast$count_ID
+                           ,"n_ID"           = item106.cast$n_ID
                            ,"Percent_MT"     = item106.cast$w.percent_MT
                            ,"SE_MT"          = item106.cast$w.SE_MT
-                           ,"Count_MT"       = item106.cast$count_MT
+                           ,"n_MT"           = item106.cast$n_MT
                            ,"Percent_OR"     = item106.cast$w.percent_OR
                            ,"SE_OR"          = item106.cast$w.SE_OR
-                           ,"Count_OR"       = item106.cast$count_OR
+                           ,"n_OR"           = item106.cast$n_OR
                            ,"Percent_WA"     = item106.cast$w.percent_WA
                            ,"SE_WA"          = item106.cast$w.SE_WA
-                           ,"Count_WA"       = item106.cast$count_WA
+                           ,"n_WA"           = item106.cast$n_WA
                            ,"Percent_Region" = item106.cast$w.percent_Region
                            ,"SE_Region"      = item106.cast$w.SE_Region
-                           ,"Count_Region"   = item106.cast$count_Region
-                           # ,"SampleSize"     = item106.cast$SampleSize_Region
+                           ,"n_Region"       = item106.cast$n_Region
 )
 #QAQC
 stopifnot(sum(item106.table[which(item106.table$BuildingType == "Single Family")
@@ -138,27 +137,26 @@ item106.final <- proportions_two_groups_unweighted(CustomerLevelData = item106.d
 
 item106.cast <- dcast(setDT(item106.final)
                      , formula = BuildingType + GPM_bins ~ State
-                     , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item106.table <- data.frame("BuildingType"   = item106.cast$BuildingType
                            ,"Flow.Rate.GPM"  = item106.cast$GPM_bins
                            ,"Percent_ID"     = item106.cast$Percent_ID
                            ,"SE_ID"          = item106.cast$SE_ID
-                           ,"Count_ID"       = item106.cast$Count_ID
+                           ,"n_ID"           = item106.cast$n_ID
                            ,"Percent_MT"     = item106.cast$Percent_MT
                            ,"SE_MT"          = item106.cast$SE_MT
-                           ,"Count_MT"       = item106.cast$Count_MT
+                           ,"n_MT"           = item106.cast$n_MT
                            ,"Percent_OR"     = item106.cast$Percent_OR
                            ,"SE_OR"          = item106.cast$SE_OR
-                           ,"Count_OR"       = item106.cast$Count_OR
+                           ,"n_OR"           = item106.cast$n_OR
                            ,"Percent_WA"     = item106.cast$Percent_WA
                            ,"SE_WA"          = item106.cast$SE_WA
-                           ,"Count_WA"       = item106.cast$Count_WA
+                           ,"n_WA"           = item106.cast$n_WA
                            ,"Percent_Region" = item106.cast$Percent_Region
                            ,"SE_Region"      = item106.cast$SE_Region
-                           ,"Count_Region"   = item106.cast$Count_Region
-                           # ,"SampleSize"     = item106.cast$SampleSize_Region
+                           ,"n_Region"       = item106.cast$n_Region
 )
 stopifnot(sum(item106.table[which(item106.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item106.table))], na.rm = T) == 10)

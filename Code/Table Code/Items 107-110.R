@@ -323,23 +323,23 @@ item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Vintage"        = item109.cast$EquipVintage_bins
                             ,"Percent_CRT"    = item109.cast$w.percent_CRT
                             ,"SE_CRT"         = item109.cast$w.SE_CRT
-                            ,"Count_CRT"      = item109.cast$count_CRT
+                            # ,"n_CRT"          = item109.cast$n_CRT
                             ,"Percent_LED"    = item109.cast$w.percent_LED
                             ,"SE_LED"         = item109.cast$w.SE_LED
-                            ,"Count_LED"      = item109.cast$count_LED
+                            # ,"n_LED"          = item109.cast$n_LED
                             ,"Percent_LCD"    = item109.cast$w.percent_LCD
                             ,"SE_LCD"         = item109.cast$w.SE_LCD
-                            ,"Count_LCD"      = item109.cast$count_LCD
+                            # ,"n_LCD"          = item109.cast$n_LCD
                             ,"Percent_LED.LCD"= item109.cast$`w.percent_LED LCD`
                             ,"SE_LED.LCD"     = item109.cast$`w.SE_LED LCD`
-                            ,"Count_LED.LCD"  = item109.cast$`count_LED LCD`
+                            # ,"n_LED.LCD"      = item109.cast$`n_LED LCD`
                             ,"Percent_Plasma" = item109.cast$w.percent_Plasma
                             ,"SE_Plasma"      = item109.cast$w.SE_Plasma
-                            ,"Count_Plasma"   = item109.cast$count_Plasma
+                            # ,"n_Plasma"       = item109.cast$n_Plasma
                             ,"Percent_Other"  = item109.cast$w.percent_Other
                             ,"SE_Other"       = item109.cast$w.SE_Other
-                            ,"Count_Other"    = item109.cast$count_Other
-                            # ,"n"     = item109.cast$n_Total
+                            # ,"n_Other"        = item109.cast$n_Other
+                            ,"n"     = item109.cast$n_Total
                             )
 
 unique(item109.table$Vintage)
@@ -395,23 +395,23 @@ item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Vintage"        = item109.cast$EquipVintage_bins
                             ,"Percent_CRT"    = item109.cast$Percent_CRT
                             ,"SE_CRT"         = item109.cast$SE_CRT
-                            ,"Count_CRT"      = item109.cast$Count_CRT
+                            # ,"Count_CRT"      = item109.cast$Count_CRT
                             ,"Percent_LED"    = item109.cast$Percent_LED
                             ,"SE_LED"         = item109.cast$SE_LED
-                            ,"Count_LED"      = item109.cast$Count_LED
+                            # ,"Count_LED"      = item109.cast$Count_LED
                             ,"Percent_LCD"    = item109.cast$Percent_LCD
                             ,"SE_LCD"         = item109.cast$SE_LCD
-                            ,"Count_LCD"      = item109.cast$Count_LCD
+                            # ,"Count_LCD"      = item109.cast$Count_LCD
                             ,"Percent_LED.LCD"= item109.cast$`Percent_LED LCD`
                             ,"SE_LED.LCD"     = item109.cast$`SE_LED LCD`
-                            ,"Count_LED.LCD"  = item109.cast$`Count_LED LCD`
+                            # ,"Count_LED.LCD"  = item109.cast$`Count_LED LCD`
                             ,"Percent_Plasma" = item109.cast$Percent_Plasma
                             ,"SE_Plasma"      = item109.cast$SE_Plasma
-                            ,"Count_Plasma"   = item109.cast$Count_Plasma
+                            # ,"Count_Plasma"   = item109.cast$Count_Plasma
                             ,"Percent_Other"  = item109.cast$Percent_Other
                             ,"SE_Other"       = item109.cast$SE_Other
-                            ,"Count_Other"    = item109.cast$Count_Other
-                            # ,"n"     = item109.cast$n_Total
+                            # ,"Count_Other"    = item109.cast$Count_Other
+                            ,"n"     = item109.cast$n_Total
                             )
 
 
@@ -483,16 +483,13 @@ item110.final    <- proportions_one_group(item110.data
                                    ,valueVariable    = 'count'
                                    ,groupingVariable = 'Clean.Room'
                                    ,total.name       = "Total"
-                                   ,columnName       = "Room"
                                    ,weighted         = TRUE)
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item110.final) %in% c("BuildingType"
-                                                                         ,"Room"))]
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"))]
 exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item110.final) %in% c("BuildingType"
-                                                                         ,"Room"))]
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"))]
 exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
 
 

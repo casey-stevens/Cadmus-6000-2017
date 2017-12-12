@@ -77,26 +77,21 @@ item128.cast <- dcast(setDT(item128.final)
                       , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item128.table <- data.frame("BuildingType"    = item128.cast$BuildingType
-                            ,"Percent.Assistance"      = item128.cast$Percent.Assistance
+                            ,"Percent.Assistance" = item128.cast$Percent.Assistance
                             ,"Percent_ID"     = item128.cast$w.percent_ID
                             ,"SE_ID"          = item128.cast$w.SE_ID
-                            ,"Count_ID"       = item128.cast$count_ID
                             ,"n_ID"           = item128.cast$n_ID
                             ,"Percent_MT"     = item128.cast$w.percent_MT
                             ,"SE_MT"          = item128.cast$w.SE_MT
-                            ,"Count_MT"       = item128.cast$count_MT
                             ,"n_MT"           = item128.cast$n_MT
                             ,"Percent_OR"     = item128.cast$w.percent_OR
                             ,"SE_OR"          = item128.cast$w.SE_OR
-                            ,"Count_OR"       = item128.cast$count_OR
                             ,"n_OR"           = item128.cast$n_OR
                             ,"Percent_WA"     = item128.cast$w.percent_WA
                             ,"SE_WA"          = item128.cast$w.SE_WA
-                            ,"Count_WA"       = item128.cast$count_WA
                             ,"n_WA"           = item128.cast$n_WA
                             ,"Percent_Region" = item128.cast$w.percent_Region
                             ,"SE_Region"      = item128.cast$w.SE_Region
-                            ,"Count_Region"   = item128.cast$count_Region
                             ,"n_Region"       = item128.cast$n_Region
 )
 
@@ -132,31 +127,26 @@ item128.final <- proportions_two_groups_unweighted(CustomerLevelData = item128.d
 
 item128.cast <- dcast(setDT(item128.final)
                       , formula = BuildingType + Percent.Assistance ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item128.table <- data.frame("BuildingType"    = item128.cast$BuildingType
                             ,"Percent.Assistance"      = item128.cast$Percent.Assistance
                             ,"Percent_ID"     = item128.cast$Percent_ID
                             ,"SE_ID"          = item128.cast$SE_ID
-                            ,"Count_ID"       = item128.cast$Count_ID
-                            ,"n_ID"           = item128.cast$SampleSize_ID
+                            ,"n_ID"           = item128.cast$n_ID
                             ,"Percent_MT"     = item128.cast$Percent_MT
                             ,"SE_MT"          = item128.cast$SE_MT
-                            ,"Count_MT"       = item128.cast$Count_MT
-                            ,"n_MT"           = item128.cast$SampleSize_MT
+                            ,"n_MT"           = item128.cast$n_MT
                             ,"Percent_OR"     = item128.cast$Percent_OR
                             ,"SE_OR"          = item128.cast$SE_OR
-                            ,"Count_OR"       = item128.cast$Count_OR
-                            ,"n_OR"           = item128.cast$SampleSize_OR
+                            ,"n_OR"           = item128.cast$n_OR
                             ,"Percent_WA"     = item128.cast$Percent_WA
                             ,"SE_WA"          = item128.cast$SE_WA
-                            ,"Count_WA"       = item128.cast$Count_WA
-                            ,"n_WA"           = item128.cast$SampleSize_WA
+                            ,"n_WA"           = item128.cast$n_WA
                             ,"Percent_Region" = item128.cast$Percent_Region
                             ,"SE_Region"      = item128.cast$SE_Region
-                            ,"Count_Region"   = item128.cast$Count_Region
-                            ,"n_Region"       = item128.cast$SampleSize_Region
+                            ,"n_Region"       = item128.cast$n_Region
 )
 
 

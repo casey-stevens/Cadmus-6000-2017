@@ -921,8 +921,9 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                                        (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
                                                ,count     = sum(count)
                                                ,N         = unique(columnVar.N.h)
-                                               # ,n_hj      = sum(n_hj)
-                                               ,n         = unique(columnVar.n.h)), stringsAsFactors = F)
+                                               ,n         = sum(n_hj)
+                                               # ,n         = unique(columnVar.n.h)
+                                               ), stringsAsFactors = F)
   if (columnVariable == "Cooling.Zone" & valueVariable == "Ind"){
     # calculate column totals
     ColumnTotals <- data.frame(ddply(StrataDataWeights
@@ -945,7 +946,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,w.percent      = sum(w.percent)
                                      ,w.SE           = NA
                                      ,count          = sum(count, na.rm = T)
-                                     # ,n_hj           = sum(n_hj, na.rm = T)
+                                     # ,n              = sum(n_hj, na.rm = T)
                                      ,n              = sum(unique(n), na.rm = T)
                                      ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
   }
@@ -983,8 +984,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                              ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(aggregate.N.h)
                              ,count     = sum(count)
                              ,N         = unique(aggregate.N.h)
-                             # ,n_hj      = sum(n_hj)
-                             ,n         = unique(aggregate.n.h)
+                             ,n         = sum(n_hj)
+                             # ,n         = unique(aggregate.n.h)
                              )
   #rename column
   colnames(item.agg.weighted)[which(colnames(item.agg.weighted) == 'aggregateName')] <- columnVariable
@@ -995,7 +996,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                         ,w.percent = sum(w.percent)
                         ,w.SE      = NA
                         ,count     = sum(count, na.rm = T)
-                        # ,n_hj      = sum((n_hj), na.rm = T)
+                        # ,n         = sum((n), na.rm = T)
                         ,n         = sum(unique(n), na.rm = T)
                         ,N         = sum(unique(N), na.rm = T))
   #rename column

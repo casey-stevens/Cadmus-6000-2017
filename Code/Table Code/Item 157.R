@@ -165,23 +165,23 @@ item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
                             ,"GroundContact"= item157.cast$GroundContact
                             ,"Percent_ID"     = item157.cast$w.percent_ID
                             ,"SE_ID"          = item157.cast$w.SE_ID
-                            ,"Count_ID"       = item157.cast$count_ID
+                            ,"n_ID"       = item157.cast$n_ID
                             ,"n_ID"           = item157.cast$n_ID
                             ,"Percent_MT"     = item157.cast$w.percent_MT
                             ,"SE_MT"          = item157.cast$w.SE_MT
-                            ,"Count_MT"       = item157.cast$count_MT
+                            ,"n_MT"       = item157.cast$n_MT
                             ,"n_MT"           = item157.cast$n_MT
                             ,"Percent_OR"     = item157.cast$w.percent_OR
                             ,"SE_OR"          = item157.cast$w.SE_OR
-                            ,"Count_OR"       = item157.cast$count_OR
+                            ,"n_OR"       = item157.cast$n_OR
                             ,"n_OR"           = item157.cast$n_OR
                             ,"Percent_WA"     = item157.cast$w.percent_WA
                             ,"SE_WA"          = item157.cast$w.SE_WA
-                            ,"Count_WA"       = item157.cast$count_WA
+                            ,"n_WA"       = item157.cast$n_WA
                             ,"n_WA"           = item157.cast$n_WA
                             ,"Percent_Region" = item157.cast$w.percent_Region
                             ,"SE_Region"      = item157.cast$w.SE_Region
-                            ,"Count_Region"   = item157.cast$count_Region
+                            ,"n_Region"   = item157.cast$n_Region
                             ,"n_Region"       = item157.cast$n_Region
 )
 
@@ -203,26 +203,26 @@ item157.final <- proportions_two_groups_unweighted(CustomerLevelData = item157.d
 
 item157.cast <- dcast(setDT(item157.final)
                       , formula = BuildingType + GroundContact ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
                             ,"GroundContact"  = item157.cast$GroundContact
                             ,"Percent_ID"     = item157.cast$Percent_ID
                             ,"SE_ID"          = item157.cast$SE_ID
-                            ,"Count_ID"       = item157.cast$Count_ID
+                            ,"n_ID"       = item157.cast$n_ID
                             ,"Percent_MT"     = item157.cast$Percent_MT
                             ,"SE_MT"          = item157.cast$SE_MT
-                            ,"Count_MT"       = item157.cast$Count_MT
+                            ,"n_MT"       = item157.cast$n_MT
                             ,"Percent_OR"     = item157.cast$Percent_OR
                             ,"SE_OR"          = item157.cast$SE_OR
-                            ,"Count_OR"       = item157.cast$Count_OR
+                            ,"n_OR"       = item157.cast$n_OR
                             ,"Percent_WA"     = item157.cast$Percent_WA
                             ,"SE_WA"          = item157.cast$SE_WA
-                            ,"Count_WA"       = item157.cast$Count_WA
+                            ,"n_WA"       = item157.cast$n_WA
                             ,"Percent_Region" = item157.cast$Percent_Region
                             ,"SE_Region"      = item157.cast$SE_Region
-                            ,"Count_Region"   = item157.cast$Count_Region
+                            ,"n_Region"   = item157.cast$n_Region
 )
 
 

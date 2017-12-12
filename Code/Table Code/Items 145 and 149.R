@@ -107,17 +107,6 @@ item145.dat$EUI <- item145.dat$kWh_NAC_fake/item145.dat$SqFt
 #   Summarise data up to strata level
 ######################################################
 item145.strata.fuel <- summarise(group_by(item145.dat, BuildingType, State, Region, Territory, FuelType)
-                            ,n_h        = unique(n.h)
-                            ,N_h        = unique(N.h)
-                            ,fpc        = (1 - n_h / N_h)
-                            ,w_h        = n_h / N_h
-                            ,strataEUI = sum(EUI) / n_h
-                            ,strataSD   = sd(EUI)
-                            ,n          = length(unique(CK_Cadmus_ID))
-)
-
-item145.strata.all <- summarise(group_by(item145.dat, BuildingType, State, Region, Territory)
-                                 ,FuelType = "All Homes"
                                  ,n_h        = unique(n.h)
                                  ,N_h        = unique(N.h)
                                  ,fpc        = (1 - n_h / N_h)
@@ -127,52 +116,63 @@ item145.strata.all <- summarise(group_by(item145.dat, BuildingType, State, Regio
                                  ,n          = length(unique(CK_Cadmus_ID))
 )
 
+item145.strata.all <- summarise(group_by(item145.dat, BuildingType, State, Region, Territory)
+                                ,FuelType = "All Homes"
+                                ,n_h        = unique(n.h)
+                                ,N_h        = unique(N.h)
+                                ,fpc        = (1 - n_h / N_h)
+                                ,w_h        = n_h / N_h
+                                ,strataEUI = sum(EUI) / n_h
+                                ,strataSD   = sd(EUI)
+                                ,n          = length(unique(CK_Cadmus_ID))
+)
+
 ######################################################
 # Step 2: Using strata level data,
 #   Perform state level analysis
 ######################################################
 
 item145.state.fuel <- summarise(group_by(item145.strata.fuel, BuildingType, State, FuelType)
-                           ,Mean       = sum(N_h * strataEUI) / sum(N_h)
-                           ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                           ,SampleSize = sum(unique(n))
-)
-item145.state.all <- summarise(group_by(item145.strata.all, BuildingType, State)
-                                ,FuelType = "All Homes"
                                 ,Mean       = sum(N_h * strataEUI) / sum(N_h)
                                 ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                                 ,SampleSize = sum(unique(n))
+)
+item145.state.all <- summarise(group_by(item145.strata.all, BuildingType, State)
+                               ,FuelType = "All Homes"
+                               ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                               ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                               ,SampleSize = sum(unique(n))
 )
 
 item145.state <- rbind.data.frame(item145.state.fuel, item145.state.all,
                                   stringsAsFactors = F)
 
 item145.state.table <- dcast(setDT(item145.state)
-                       ,formula = BuildingType + State ~ FuelType
-                       ,value.var = c("Mean", "SE", "SampleSize"))
+                             ,formula = BuildingType + State ~ FuelType
+                             ,value.var = c("Mean", "SE", "SampleSize"))
 
 ######################################################
 # Step 3: Using strata level data,
 #   Perform region level analysis
 ######################################################
 item145.region.fuel <- summarise(group_by(item145.strata.fuel, BuildingType, FuelType)
-                            ,State      = "Region"
-                            ,Mean       = sum(N_h * strataEUI) / sum(N_h)
-                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                            ,SampleSize = sum(unique(n)))
-item145.region.all <- summarise(group_by(item145.strata.all, BuildingType)
-                                 ,FuelType = "All Homes"
                                  ,State      = "Region"
                                  ,Mean       = sum(N_h * strataEUI) / sum(N_h)
                                  ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
                                  ,SampleSize = sum(unique(n)))
+item145.region.all <- summarise(group_by(item145.strata.all, BuildingType)
+                                ,FuelType = "All Homes"
+                                ,State      = "Region"
+                                ,Mean       = sum(N_h * strataEUI) / sum(N_h)
+                                ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                                ,SampleSize = sum(unique(n)))
 
 item145.region <- rbind.data.frame(item145.region.fuel, 
                                    item145.region.all, stringsAsFactors = F)
 
 item145.region.table <- dcast(setDT(item145.region)
-                             ,formula = BuildingType + State ~ FuelType
-                             ,value.var = c("Mean", "SE", "SampleSize"))
+                              ,formula = BuildingType + State ~ FuelType
+                              ,value.var = c("Mean", "SE", "SampleSize"))
 
 ######################################################
 # Step 4: Combine results into correct table format,
