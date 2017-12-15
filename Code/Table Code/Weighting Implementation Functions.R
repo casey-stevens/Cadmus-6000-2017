@@ -686,6 +686,13 @@ proportions_one_group <- function(CustomerLevelData
                                      ,HomeType = "Total"
                                      ,Total.Count = sum(Count)), stringsAsFactors = F)
       item.tmp3 <- rbind.data.frame(item.tmpyy, item.tmpxx, stringsAsFactors = F)
+    }else if(groupingVariable == "State" & valueVariable == "Ind"){
+      item.tmpyy <- data.frame(ddply(CustomerLevelData, c("BuildingType", "State"), summarise
+                                     ,Total.Count   = sum(Count)), stringsAsFactors = F)
+      item.tmpxx <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
+                                     ,State = "Total"
+                                     ,Total.Count = sum(Count)), stringsAsFactors = F)
+      item.tmp3 <- rbind.data.frame(item.tmpyy, item.tmpxx, stringsAsFactors = F)
     }else{
       item.tmp3 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
                                     ,Total.Count   = sum(get(valueVariable))), stringsAsFactors = F)
@@ -716,7 +723,9 @@ proportions_one_group <- function(CustomerLevelData
         #calculate percent
         item.final$Percent[which(is.na(item.final$Percent))] <- item.final$Count[which(is.na(item.final$Percent))] / item.final$Total.Count[which(is.na(item.final$Percent))]
         
-      }else {
+      }else if(valueVariable == "Ind"){
+        item.final$Percent <- item.final$Count / item.final$Total.Count
+      }else{
         item.final$Percent <- item.final$Count / item.final$n
       }
     }else{
@@ -947,7 +956,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,w.SE           = NA
                                      ,count          = sum(count, na.rm = T)
                                      # ,n              = sum(n_hj, na.rm = T)
-                                     ,n              = sum(unique(n), na.rm = T)
+                                     ,n              = sum((n), na.rm = T)
                                      ,N              = sum(unique(N), na.rm = T)), stringsAsFactors = F) 
   }
   
@@ -997,7 +1006,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                         ,w.SE      = NA
                         ,count     = sum(count, na.rm = T)
                         # ,n         = sum((n), na.rm = T)
-                        ,n         = sum(unique(n), na.rm = T)
+                        ,n         = sum((n), na.rm = T)
                         ,N         = sum(unique(N), na.rm = T))
   #rename column
   colnames(item.agg.tot)[which(colnames(item.agg.tot) == 'rowTotal')]   <- rowVariable

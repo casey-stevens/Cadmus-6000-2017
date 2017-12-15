@@ -20,9 +20,10 @@ rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
 
-SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
-source(file.path(SourcePath, "SourceCode.R"))
+# SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
+# source(file.path(SourcePath, "SourceCode.R"))
 
+source("Code/Table Code/SourceCode.R")
 
 
 
@@ -105,18 +106,18 @@ rbsa.dat <- site.dat1
 
 # Convert building types to what we want
 rbsa.dat$BuildingType[grep("Multifamily",rbsa.dat$BuildingType, ignore.case = T)] <- "Multifamily"
-rbsa.dat$BuildingType[grep("Single fam",rbsa.dat$BuildingType, ignore.case = T)]      <- "Single Family"
+rbsa.dat$BuildingType[grep("Single fam",rbsa.dat$BuildingType, ignore.case = T)]  <- "Single Family"
 rbsa.dat$BuildingType[grep("Manufa",rbsa.dat$BuildingType, ignore.case = T)]      <- "Manufactured"
 
 
-rbsa.dat$BuildingType[grep("Apartment",rbsa.dat$BuildingTypeXX, ignore.case = T)]          <- "Multifamily"
-rbsa.dat$BuildingType[grep("Single family|Town|Duplex",rbsa.dat$BuildingTypeXX, ignore.case = T)] <- "Single Family"
-rbsa.dat$BuildingType[grep("Wide|Modular",rbsa.dat$BuildingTypeXX, ignore.case = T)]       <- "Manufactured"
+# rbsa.dat$BuildingType[grep("Apartment",rbsa.dat$BuildingTypeXX, ignore.case = T)]          <- "Multifamily"
+# rbsa.dat$BuildingType[grep("Single family|Town|Duplex",rbsa.dat$BuildingTypeXX, ignore.case = T)] <- "Single Family"
+# rbsa.dat$BuildingType[grep("Wide|Modular",rbsa.dat$BuildingTypeXX, ignore.case = T)]       <- "Manufactured"
 
 unique(rbsa.dat$BuildingType)
 
 
-rbsa.dat$BuildingTypeXX[grep("single wide",rbsa.dat$BuildingTypeXX, ignore.case = T)]       <- "Single Wide"
+# rbsa.dat$BuildingTypeXX[grep("single wide",rbsa.dat$BuildingTypeXX, ignore.case = T)]       <- "Single Wide"
 
 
 #############################################################################################
@@ -273,9 +274,9 @@ rbsa.dat6 <- unique(rbsa.dat5[which(!(is.na(rbsa.dat5$BuildingType))),])
     rbsa.dat6[which(rbsa.dat6$CK_Cadmus_ID %in% dup.ind1),]
     
     #For Site ID SE0872, the disrepancy occurs in home type
-    rbsa.dat6$BuildingTypeXX[which(rbsa.dat6$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Single Family Detached"
-    #For Site ID SG0200, the disrepancy occurs in State
-    rbsa.dat6$State[which(rbsa.dat6$CK_Cadmus_ID == "SG0200 OS SCL")]   <- "WA"
+    # rbsa.dat6$BuildingTypeXX[which(rbsa.dat6$CK_Cadmus_ID == "SE0872 OS SCL")]   <- "Single Family Detached"
+    # #For Site ID SG0200, the disrepancy occurs in State
+    # rbsa.dat6$State[which(rbsa.dat6$CK_Cadmus_ID == "SG0200 OS SCL")]   <- "WA"
 
 
 rbsa.dat7 <- unique(rbsa.dat6)
@@ -284,13 +285,15 @@ rbsa.dat7 <- unique(rbsa.dat6)
   # stopifnot(length(unique(rbsa.dat7$CK_Cadmus_ID)) == nrow(rbsa.dat7))
   stopifnot(length(unique(site.dat1$CK_Cadmus_ID)) == length(unique(rbsa.dat7$CK_Cadmus_ID)))
 
+  rbsa.dat8 <- rbsa.dat7[-grep("bldg", rbsa.dat7$CK_Building_ID[which(rbsa.dat7$BuildingType == "Single Family")], ignore.case = T),]
+  
 #############################################################################################
 # Write out cleaned building type information
 #############################################################################################
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat7, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+write.xlsx(rbsa.dat8, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
 
