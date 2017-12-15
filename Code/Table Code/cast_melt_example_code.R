@@ -27,6 +27,10 @@ rowOrder <- c("Pre 1955"
               ,"2001-2010"
               ,"Post 2010"
               ,"All Vintages")
+rowOrder <- c("Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"All Sizes")
 
 
 # row ordering example code

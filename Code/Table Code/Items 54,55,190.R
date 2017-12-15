@@ -79,6 +79,7 @@ item54.all.cooling.zones <- proportions_one_group(CustomerLevelData = item54.dat
                                                   ,columnName = 'Cooling.Zone'
                                                   ,weighted = TRUE
                                                   ,two.prop.total = TRUE)
+item54.all.cooling.zones$State[which(item54.all.cooling.zones$State == "Total")] <- "Region"
 
 item54.final <- rbind.data.frame(item54.summary, item54.all.cooling.zones, stringsAsFactors = F)
 

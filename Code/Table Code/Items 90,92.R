@@ -30,6 +30,19 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
+names(appliances.dat) 
+#Dryer.Vented
+#
+colnames(appliances.dat)[grep("wifi", colnames(appliances.dat), ignore.case = T)]
+#  "Thermostat.Wifi"
+# ,"STB.Wifi"
+# ,"TV.Wifi"
+# ,"Computer.Wifi"
+# ,"Large.Unusual.Load.Wifi.Enabled"
+# ,"Wifi.Enabled"
+
+
+#for distribution of dryer fuel types by state: keep unknowns
 
 
 #############################################################################################

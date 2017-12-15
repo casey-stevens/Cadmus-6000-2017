@@ -39,12 +39,20 @@ mechanical.dat2 <- mechanical.dat1[which(mechanical.dat1$Component.1.Year.of.Man
 mechanical.dat3 <- mechanical.dat2[which(!(is.na(mechanical.dat2$Component.1.Year.of.Manufacture))),]
 
 
-# Bin equipment vintages for items 50 and 52 (4 categories)
+# # Bin equipment vintages for items 50 and 52 (4 categories)
+# mechanical.dat3$EquipVintage_bins <- as.numeric(as.character(mechanical.dat3$`Component.1.Year.of.Manufacture`))
+# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` < 1990)] <- "Pre 1990"
+# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 1990 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2000)] <- "1990-1999"
+# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2006)] <- "2000-2006"
+# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2006)] <- "Post 2006"
+
 mechanical.dat3$EquipVintage_bins <- as.numeric(as.character(mechanical.dat3$`Component.1.Year.of.Manufacture`))
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` < 1990)] <- "Pre 1990"
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 1990 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2000)] <- "1990-1999"
-mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2006)] <- "2000-2006"
-mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2006)] <- "Post 2006"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2007)] <- "2000-2006"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2007 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2015)] <- "2007-2014"
+mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2015)] <- "Post 2014"
+
 #check uniques
 unique(mechanical.dat3$EquipVintage_bins)
 
@@ -188,6 +196,17 @@ item57.final <- mean_one_group(CustomerLevelData = item57.data
                                ,byVariable       = 'EquipVintage_bins'
                                ,aggregateRow     = 'All Vintages')
 
+# row ordering example code
+levels(item57.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2006"
+              ,"2007-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item57.final <- item57.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item57.final <- data.frame(item57.final)
+
 
 # Export table
 # SF = Table 64, MH = Table 44
@@ -206,6 +225,16 @@ item57.final <- mean_one_group_unweighted(CustomerLevelData = item57.data
                                ,byVariable       = 'EquipVintage_bins'
                                ,aggregateRow     = 'All Vintages')
 
+# row ordering example code
+levels(item57.final$EquipVintage_bins)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2006"
+              ,"2007-2014"
+              ,"Post 2014"
+              ,"All Vintages")
+item57.final <- item57.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item57.final <- data.frame(item57.final)
 
 # Export table
 # SF = Table 64, MH = Table 44

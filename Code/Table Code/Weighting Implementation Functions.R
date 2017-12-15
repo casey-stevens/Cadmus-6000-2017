@@ -921,19 +921,20 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   ####################################################################################################
   #calculate weighted percent and weighted standard errors grouping by both column and row variables
   ####################################################################################################
-  ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
-                                               , c("BuildingType", columnVariable, rowVariable)
-                                               , summarise
-                                               ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h) #sum(unique(N.h))
-                                               ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
-                                                                       (N.h^2 / n.h) * 
-                                                                       (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
-                                               ,count     = sum(count)
-                                               ,N         = unique(columnVar.N.h)
-                                               ,n         = sum(n_hj)
-                                               # ,n         = unique(columnVar.n.h)
-                                               ), stringsAsFactors = F)
+  
   if (columnVariable == "Cooling.Zone" & valueVariable == "Ind"){
+    ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+                                                 , c("BuildingType", columnVariable, rowVariable)
+                                                 , summarise
+                                                 ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                                 ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
+                                                                         (N.h^2 / n.h) * 
+                                                                         (p.h * (1 - p.h)), na.rm = T)) / sum(unique(N.h))
+                                                 ,count     = sum(count)
+                                                 ,N         = sum(unique(N.h))
+                                                 ,n         = sum(n_hj)
+    ), stringsAsFactors = F)
+    
     # calculate column totals
     ColumnTotals <- data.frame(ddply(StrataDataWeights
                                      , c("BuildingType", columnVariable)
@@ -947,6 +948,20 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,N         = unique(columnVar.N.h)
                                      ,n         = sum(n_hj)), stringsAsFactors = F) 
   }else {
+    
+    ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+                                                 , c("BuildingType", columnVariable, rowVariable)
+                                                 , summarise
+                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h) #sum(unique(N.h))
+                                                 ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
+                                                                         (N.h^2 / n.h) * 
+                                                                         (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
+                                                 ,count     = sum(count)
+                                                 ,N         = unique(columnVar.N.h)
+                                                 ,n         = sum(n_hj)
+                                                 # ,n         = unique(columnVar.n.h)
+    ), stringsAsFactors = F)
+    
     # calculate column totals
     ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup
                                      , c("BuildingType", columnVariable)

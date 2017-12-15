@@ -237,6 +237,7 @@ exportTable(tableZZ.final.MH, "MH", "Table ZZ", weighted = FALSE)
 #############################################################################################
 item78.area1 <- summarise(group_by(rbsa.dat, CK_Cadmus_ID)
                           ,SiteArea = sum(Conditioned.Area, na.rm = T))
+item78.area1$SiteArea <- as.numeric(as.character(item78.area1$SiteArea))
 item78.area2 <- item78.area1[which(item78.area1$SiteArea %notin% c(0, 1, 4,"Unknown")),]
 
 #subset to columns needed for analysis
@@ -268,11 +269,11 @@ item78.dat4$Total.Wattage <- as.numeric(as.character(item78.dat4$Fixture.Qty)) *
 item78.dat5 <- item78.dat4[which(!(is.na(item78.dat4$Total.Wattage))),]
 
 
-item78.dat6 <- summarise(group_by(item78.dat5, CK_Cadmus_ID, BuildingType, State)
+item78.dat6 <- summarise(group_by(item78.dat5, CK_Cadmus_ID)
                          ,Total.Wattage = sum(Total.Wattage, na.rm = T))
 
 #merge on area information
-item78.dat7 <- left_join(item78.dat6, item78.area1, by = c("CK_Cadmus_ID"))
+item78.dat7 <- left_join(item78.dat6, item78.area2, by = c("CK_Cadmus_ID"))
 
 item78.dat7$LPD <- item78.dat7$Total.Wattage / item78.dat7$SiteArea
 
@@ -339,6 +340,14 @@ colnames(item79.rooms) <- c("CK_Cadmus_ID","Clean.Room","Area")
 item79.area <- item79.rooms[which(!(item79.rooms$Area %in% c("0", "Unknown", NA, "-- Datapoint not asked for --"))),]
 unique(item79.area$Area)
 item79.area$Area <- as.numeric(as.character(item79.area$Area))
+
+item79.area$Clean.Room[which(item79.area$Clean.Room %in% c("Attic"
+                                                           ,"Basement"
+                                                           ,"Crawlspace"
+                                                           ,"Crawl Space"
+                                                           ,"Mechanical"
+                                                           ,"Grow Room"))] <- "Other"
+
 
 item79.area1 <- summarise(group_by(item79.area, CK_Cadmus_ID, Clean.Room)
                           ,SiteArea = sum(Area))

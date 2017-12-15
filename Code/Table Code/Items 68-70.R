@@ -246,7 +246,7 @@ item70.dat$count <- 1
 #join clean rbsa data onto lighting analysis data
 item70.dat1 <- left_join(rbsa.dat, item70.dat, by = "CK_Cadmus_ID")
 
-item70.dat1.1 <- item70.dat1[which(!(item70.dat1$Clean.Room %in% c("Basement","Storage"))),]
+item70.dat1.1 <- item70.dat1[which(!(item70.dat1$Clean.Room %in% c("Storage"))),]
 item70.dat1.1$Clean.Room[which(item70.dat1.1$Clean.Room %in% c("Attic"
                                                                ,"Basement"
                                                                ,"Crawlspace"

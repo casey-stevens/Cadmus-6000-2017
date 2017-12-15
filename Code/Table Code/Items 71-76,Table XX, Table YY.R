@@ -32,6 +32,8 @@ lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
+#connected lighting: Column called "Switch.Type" -> select only "App Control"
+
 
 #############################################################################################
 #Item 71: AVERAGE NUMBER OF CFLS INSTALLED PER HOME BY STATE (SF table 78, MH table 57)

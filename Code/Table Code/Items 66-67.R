@@ -25,6 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[-grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
@@ -62,6 +63,9 @@ item66.customer <- summarise(group_by(item66.dat4, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
 item66.merge <- left_join(rbsa.dat, item66.customer)
+unique(item66.merge$Lamps)
+
+
 item66.merge <- item66.merge[which(!is.na(item66.merge$Lamps)),]
 
 
@@ -118,7 +122,8 @@ item67.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Fixture.Qty"
                                                                ,"LIGHTING_BulbsPerFixture"
                                                                ,"CK_SiteID"
-                                                               ,"CK_LightingDetail_ID"))]
+                                                               ,"CK_LightingDetail_ID"
+                                                               ,"Clean.Room"))]
 item67.dat$count <- 1
 
 item67.dat1 <- left_join(rbsa.dat, item67.dat, by = "CK_Cadmus_ID")
@@ -133,13 +138,17 @@ item67.dat2$Lamps <- item67.dat2$Fixture.Qty * item67.dat2$LIGHTING_BulbsPerFixt
 unique(item67.dat2$Lamps)
 
 item67.dat3 <- item67.dat2[which(!(is.na(item67.dat2$Fixture.Qty))),]
+item67.dat4 <- item67.dat3[which(item67.dat3$Clean.Room != "Storage"),]
 
 ##total fixtures per home
-item67.fixtures <- summarise(group_by(item67.dat3, CK_Cadmus_ID)
+item67.fixtures <- summarise(group_by(item67.dat4, CK_Cadmus_ID)
                           ,Fixtures = sum(Fixture.Qty))
 
 
 item67.merge <- left_join(rbsa.dat, item67.fixtures)
+unique(item67.merge$Fixtures)
+
+
 item67.merge <- item67.merge[which(!is.na(item67.merge$Fixtures)),]
 
 
