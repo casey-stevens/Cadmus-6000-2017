@@ -191,6 +191,7 @@ item125.data <- left_join(item125.data, item125.dat2[which(colnames(item125.dat2
                                                                                          ,"Primary_Home"
                                                                                          ,"Ind"))])
 item125.data$count <- 1
+item125.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -198,7 +199,6 @@ item125.final <- proportions_one_group(CustomerLevelData = item125.data
                                        ,valueVariable = 'Ind'
                                        ,groupingVariable = 'State'
                                        ,total.name = "Region"
-                                       ,columnName = "Remove"
                                        ,weighted = TRUE)
 
 item125.final.SF <- item125.final[which(item125.final$BuildingType == "Single Family")
@@ -216,17 +216,12 @@ item125.final <- proportions_one_group(CustomerLevelData = item125.data
                                        ,valueVariable = 'Ind'
                                        ,groupingVariable = 'State'
                                        ,total.name = "Region"
-                                       ,columnName = "Remove"
                                        ,weighted = FALSE)
 
 item125.final.SF <- item125.final[which(item125.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item125.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item125.final) %in% c("BuildingType"))]
 item125.final.MH <- item125.final[which(item125.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item125.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item125.final) %in% c("BuildingType"))]
 
 exportTable(item125.final.SF, "SF", "Table 132", weighted = FALSE)
 exportTable(item125.final.MH, "MH", "Table 107", weighted = FALSE)

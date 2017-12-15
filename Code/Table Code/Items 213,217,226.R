@@ -113,13 +113,13 @@ item213.table <- data.frame("BuildingType"     = item213.cast$BuildingType
                             ,"Housing.Vintage" = item213.cast$HomeYearBuilt_bins_MF
                             ,"Low.Rise.1.3"    = item213.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.SE"     = item213.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.n"      = item213.cast$`count_Apartment Building (3 or fewer floors)`
+                            # ,"Low.Rise.n"      = item213.cast$`count_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"    = item213.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.SE"     = item213.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.n"      = item213.cast$`count_Apartment Building (4 to 6 floors)`
+                            # ,"Mid.Rise.n"      = item213.cast$`count_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.7.Plus"= NA #item213.cast$
                             ,"High.Rise.SE"    = NA #item213.cast$
-                            ,"High.Rise.n"     = NA #item213.cast$
+                            # ,"High.Rise.n"     = NA #item213.cast$
                             ,"n"               = item213.cast$n
                             )
 # row ordering example code
@@ -321,7 +321,7 @@ item217.final <- rbind.data.frame(item217.summary, item217.all.vintages, strings
 
 item217.cast <- dcast(setDT(item217.final)
                       ,formula = BuildingType + HomeYearBuilt_bins_MF ~ Number.of.Units
-                      ,value.var = c("Percent","SE","Count"))
+                      ,value.var = c("Percent","SE","Count", "n"))
 
 item217.table <- data.frame("BuildingType" = item217.cast$BuildingType
                             ,"Housing.Vintage" = item217.cast$HomeYearBuilt_bins_MF
@@ -335,7 +335,7 @@ item217.table <- data.frame("BuildingType" = item217.cast$BuildingType
                             ,"SE.Three.Bedroom"      = item217.cast$SE_Number.of.3.Bedroom.Units
                             ,"Percent.Four.Plus.Bedrooms"  = item217.cast$Percent_Number.of.4.Plus.Bedroom.Units
                             ,"SE.Four.Plus.Bedrooms"       = item217.cast$SE_Number.of.4.Plus.Bedroom.Units
-                            # ,"n"                           = item217.cast$n
+                            ,"n"                           = item217.cast$n_Total
                             )
 # row ordering example code
 levels(item217.table$Housing.Vintage)
@@ -361,7 +361,7 @@ exportTable(item217.table.MF, "MF", "Table 9", weighted = FALSE)
 
 
 #############################################################################################
-#Item 226: DISTRIBUTION OF UNIT TYPES BY VINTAGE (MF Table 9)
+#Item 226: DISTRIBUTION OF UNITS BY TENANT TYPE AND INCOME RESTRICTION (MF Table 18)
 #############################################################################################
 #subset to columns needed for analysis
 #from buildings interview data:
@@ -372,27 +372,39 @@ names(item226.dat) <- c("Senior.Tenants"
                         ,"Low.Income.Tenants"
                         ,"CK_Building_ID")
 
-# item226.dat1 <- item226.dat[which(!is.na(item226.dat$Number.of.Studio.Units)),]
-# item226.melt <- melt(item226.dat1, id.vars = "CK_Building_ID")
-# names(item226.melt) <- c("CK_Building_ID", "Number.of.Units", "Count")
-# 
-# item226.merge <- left_join(rbsa.dat, item226.melt)
-# item226.merge <- item226.merge[which(!is.na(item226.merge$Number.of.Units)),]
-# item226.merge <- item226.merge[which(!is.na(item226.merge$Count)),]
-# item226.merge <- item226.merge[which(!is.na(item226.merge$HomeYearBuilt)),]
+item226.dat1 <- item226.dat[which(item226.dat$Low.Income.Tenants %in% c("Yes", "No")),]
+item226.dat2 <- item226.dat1[which(item226.dat1$Senior.Tenants %in% c("Yes", "No")),]
+
+
+item226.dat2$Income.Restriction <- "No Income Restrictions"
+item226.dat2$Income.Restriction[which(item226.dat2$Income.Restriction == "Yes")] <- "Low Income Only"
+
+item226.dat2$Tenant.Type <- "No Demographic Restrictions"
+item226.dat2$Tenant.Type[which(item226.dat2$Senior.Tenants == "Yes")] <- "Senior Housing"
+
+item226.merge <- left_join(rbsa.dat, item226.dat2)
+item226.merge <- item226.merge[which(!is.na(item226.merge$Tenant.Type)),]
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item226.data <- weightedData(item226.merge[-which(colnames(item226.merge) %in% c(""
-                                                                                 ,""))])
+item226.data <- weightedData(item226.merge[-which(colnames(item226.merge) %in% c("Senior.Tenants"
+                                                                                 ,"Low.Income.Tenants"
+                                                                                 ,"Income.Restriction"
+                                                                                 ,"Tenant.Type"))])
 item226.data <- left_join(item226.data, item226.merge[which(colnames(item226.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,""
-                                                                                           ,""))])
+                                                                                           ,"Senior.Tenants"
+                                                                                           ,"Low.Income.Tenants"
+                                                                                           ,"Income.Restriction"
+                                                                                           ,"Tenant.Type"))])
 item226.data$count <- 1
 colnames(item226.data)
 
 #######################
 # Weighted Analysis
 #######################
+
+item226.summary <- proportionRowsAndColumns1(CustomerLevelData = item226.data
+                                             ,valueVariable  = 'count'
+                                             ,columnVariable = )

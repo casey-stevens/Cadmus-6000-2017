@@ -152,6 +152,7 @@ item133.data <- weightedData(item133.merge[-which(colnames(item133.merge) %in% c
 item133.data <- left_join(item133.data, item133.merge[which(colnames(item133.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"))])
 item133.data$count <- 1
+item133.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################

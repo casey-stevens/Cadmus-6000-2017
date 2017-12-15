@@ -92,14 +92,14 @@ item161.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Floor.Type"
                                                                ,"Floor.Sub-Type"))]
 
-item161.dat$Basement.Ind <- 0
-item161.dat$Basement.Ind[which(item161.dat$Floor.Type == "Basement")] <- 1
+item161.dat$Ind <- 0
+item161.dat$Ind[which(item161.dat$Floor.Type == "Basement")] <- 1
 
-item161.dat1 <- unique(item161.dat[which(item161.dat$Basement.Ind == 1),])
+item161.dat1 <- unique(item161.dat[which(item161.dat$Ind == 1),])
 which(duplicated(item161.dat3$CK_Cadmus_ID))
 
 item161.merge <- left_join(rbsa.dat, item161.dat1)
-item161.merge$Basement.Ind[which(is.na(item161.merge$Basement.Ind))] <- 0
+item161.merge$Ind[which(is.na(item161.merge$Ind))] <- 0
 
 
 
@@ -125,19 +125,19 @@ item161.data <- weightedData(item161.merge[-which(colnames(item161.merge) %in% c
                                                                                  ,"Site.SQFT"
                                                                                  ,"Floor.Type"
                                                                                  ,"Floor.Sub-Type"
-                                                                                 ,"Basement.Ind"))])
+                                                                                 ,"Ind"))])
 item161.data <- left_join(item161.data, item161.merge[which(colnames(item161.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Heating.Fuel"
                                                                                            ,"Count"
                                                                                            ,"Site.SQFT"
                                                                                            ,"Floor.Type"
                                                                                            ,"Floor.Sub-Type"
-                                                                                           ,"Basement.Ind"))])
+                                                                                           ,"Ind"))])
 #######################
 # Weighted Analysis
 #######################
 item161.final <- proportions_one_group(CustomerLevelData = item161.data
-                                       ,valueVariable = 'Basement.Ind'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = 'State'
                                        ,total.name = "Region"
                                        ,weighted = TRUE
@@ -152,7 +152,7 @@ exportTable(item161.final.SF, "SF", "Table B-6", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item161.final <- proportions_one_group(CustomerLevelData = item161.data
-                                       ,valueVariable = 'Basement.Ind'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = 'State'
                                        ,total.name = "Region"
                                        ,weighted = FALSE

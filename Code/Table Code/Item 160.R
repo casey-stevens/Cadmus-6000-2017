@@ -25,9 +25,9 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
-#Read in data for analysis
+# Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 #clean cadmus IDs
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
@@ -584,23 +584,23 @@ item160.table <- data.frame("BuildingType"    = item160.cast$BuildingType
                            ,"Wall.Type"       = item160.cast$Wall.Type
                            ,"Percent.R0"      = item160.cast$w.percent_R0
                            ,"SE.R0"           = item160.cast$w.SE_R0
-                           ,"count.R0"        = item160.cast$count_R0
+                           # ,"count.R0"        = item160.cast$count_R0
                            ,"Percent.R1.R10"  = item160.cast$w.percent_R1.R10
                            ,"SE.R1.R10"       = item160.cast$w.SE_R1.R10
-                           ,"count.R1.R10"    = item160.cast$count_R1.R10
+                           # ,"count.R1.R10"    = item160.cast$count_R1.R10
                            ,"Percent.R11.R16" = item160.cast$w.percent_R11.R16
                            ,"SE.R11.R16"      = item160.cast$w.SE_R11.R16
-                           ,"count.R11.R16"   = item160.cast$count_R11.R16
+                           # ,"count.R11.R16"   = item160.cast$count_R11.R16
                            ,"Percent.R17.R22" = item160.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item160.cast$w.SE_R17.R22
-                           ,"count.R17.R22"   = item160.cast$count_R17.R22
+                           # ,"count.R17.R22"   = item160.cast$count_R17.R22
                            ,"Percent.RGT22"   = item160.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item160.cast$w.SE_RGT22
-                           ,"count.RGT22"     = item160.cast$count_RGT22
+                           # ,"count.RGT22"     = item160.cast$count_RGT22
                            ,"Percent_All Insulation Levels" = item160.cast$`w.percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item160.cast$`w.SE_All Insulation Levels`
-                           ,"count.All Insulation Levels"   = item160.cast$`count_All Insulation Levels`
-                           ,"SampleSize"                    = item160.cast$`n_All Insulation Levels`
+                           # ,"count.All Insulation Levels"   = item160.cast$`count_All Insulation Levels`
+                           ,"n"                    = item160.cast$`n_All Insulation Levels`
 )
 
 item160.table.SF <- item160.table[which(item160.table$BuildingType == "Single Family"),-1]
@@ -652,30 +652,30 @@ item160.final$Wall.Type[which(item160.final$Wall.Type == "Total")] <- "All Frame
 ##cast data
 item160.cast <- dcast(setDT(item160.final),
                      formula   = BuildingType + Wall.Type ~ rvalue.bins,
-                     value.var = c("Percent", "SE", "Count", "SampleSize"))
+                     value.var = c("Percent", "SE", "Count", "n"))
 
 #join all insulation levels onto rvalue summary
 item160.table <- data.frame("BuildingType"     = item160.cast$BuildingType
                            ,"Wall.Type"       = item160.cast$Wall.Type
                            ,"Percent.R0"      = item160.cast$Percent_R0
                            ,"SE.R0"           = item160.cast$SE_R0
-                           ,"Count.R0"        = item160.cast$Count_R0
+                           # ,"Count.R0"        = item160.cast$Count_R0
                            ,"Percent.R1.R10"  = item160.cast$Percent_R1.R10
                            ,"SE.R1.R10"       = item160.cast$SE_R1.R10
-                           ,"Count.R1.R10"    = item160.cast$Count_R1.R10
+                           # ,"Count.R1.R10"    = item160.cast$Count_R1.R10
                            ,"Percent.R11.R16" = item160.cast$Percent_R11.R16
                            ,"SE.R11.R16"      = item160.cast$SE_R11.R16
                            ,"Count.R11.R16"   = item160.cast$Count_R11.R16
                            ,"Percent.R17.R22" = item160.cast$Percent_R17.R22
                            ,"SE.R17.R22"      = item160.cast$SE_R17.R22
-                           ,"Count.R17.R22"   = item160.cast$Count_R17.R22
+                           # ,"Count.R17.R22"   = item160.cast$Count_R17.R22
                            ,"Percent.RGT22"   = item160.cast$Percent_RGT22
                            ,"SE.RGT22"        = item160.cast$SE_RGT22
-                           ,"Count.RGT22"     = item160.cast$Count_RGT22
+                           # ,"Count.RGT22"     = item160.cast$Count_RGT22
                            ,"Percent_All Insulation Levels" = item160.cast$`Percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item160.cast$`SE_All Insulation Levels`
-                           ,"Count.All Insulation Levels"   = item160.cast$`Count_All Insulation Levels`
-                           # ,"SampleSize"                    = item160.cast$`SampleSize_All Insulation Levels`
+                           # ,"Count.All Insulation Levels"   = item160.cast$`Count_All Insulation Levels`
+                           ,"n"                    = item160.cast$`n_All Insulation Levels`
 )
 
 item160.table.SF <- item160.table[which(item160.table$BuildingType == "Single Family"),-1]

@@ -162,26 +162,26 @@ item157.cast <- dcast(setDT(item157.final)
                       , value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
-                            ,"GroundContact"= item157.cast$GroundContact
+                            ,"GroundContact"  = item157.cast$GroundContact
                             ,"Percent_ID"     = item157.cast$w.percent_ID
                             ,"SE_ID"          = item157.cast$w.SE_ID
-                            ,"n_ID"       = item157.cast$n_ID
+                            ,"n_ID"           = item157.cast$n_ID
                             ,"n_ID"           = item157.cast$n_ID
                             ,"Percent_MT"     = item157.cast$w.percent_MT
                             ,"SE_MT"          = item157.cast$w.SE_MT
-                            ,"n_MT"       = item157.cast$n_MT
+                            ,"n_MT"           = item157.cast$n_MT
                             ,"n_MT"           = item157.cast$n_MT
                             ,"Percent_OR"     = item157.cast$w.percent_OR
                             ,"SE_OR"          = item157.cast$w.SE_OR
-                            ,"n_OR"       = item157.cast$n_OR
+                            ,"n_OR"           = item157.cast$n_OR
                             ,"n_OR"           = item157.cast$n_OR
                             ,"Percent_WA"     = item157.cast$w.percent_WA
                             ,"SE_WA"          = item157.cast$w.SE_WA
-                            ,"n_WA"       = item157.cast$n_WA
+                            ,"n_WA"           = item157.cast$n_WA
                             ,"n_WA"           = item157.cast$n_WA
                             ,"Percent_Region" = item157.cast$w.percent_Region
                             ,"SE_Region"      = item157.cast$w.SE_Region
-                            ,"n_Region"   = item157.cast$n_Region
+                            ,"n_Region"       = item157.cast$n_Region
                             ,"n_Region"       = item157.cast$n_Region
 )
 
@@ -210,19 +210,19 @@ item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
                             ,"GroundContact"  = item157.cast$GroundContact
                             ,"Percent_ID"     = item157.cast$Percent_ID
                             ,"SE_ID"          = item157.cast$SE_ID
-                            ,"n_ID"       = item157.cast$n_ID
+                            ,"n_ID"           = item157.cast$n_ID
                             ,"Percent_MT"     = item157.cast$Percent_MT
                             ,"SE_MT"          = item157.cast$SE_MT
-                            ,"n_MT"       = item157.cast$n_MT
+                            ,"n_MT"           = item157.cast$n_MT
                             ,"Percent_OR"     = item157.cast$Percent_OR
                             ,"SE_OR"          = item157.cast$SE_OR
-                            ,"n_OR"       = item157.cast$n_OR
+                            ,"n_OR"           = item157.cast$n_OR
                             ,"Percent_WA"     = item157.cast$Percent_WA
                             ,"SE_WA"          = item157.cast$SE_WA
-                            ,"n_WA"       = item157.cast$n_WA
+                            ,"n_WA"           = item157.cast$n_WA
                             ,"Percent_Region" = item157.cast$Percent_Region
                             ,"SE_Region"      = item157.cast$SE_Region
-                            ,"n_Region"   = item157.cast$n_Region
+                            ,"n_Region"       = item157.cast$n_Region
 )
 
 

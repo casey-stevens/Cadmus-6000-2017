@@ -52,6 +52,9 @@ rbsa.dat.MF <- rbsa.dat.MF[grep("BLDG", rbsa.dat.MF$CK_Building_ID),]
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 
+sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
+buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
+
 
 #read in Envelope data for MF table
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))

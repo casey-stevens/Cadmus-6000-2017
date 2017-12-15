@@ -573,28 +573,29 @@ item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"Housing.Vintage" = item163.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item163.cast$w.percent_None
                            ,"SE.None"         = item163.cast$w.SE_None
-                           ,"Count.None"      = item163.cast$count_None
+                           # ,"Count.None"      = item163.cast$count_None
                            ,"Percent.R1.R3"   = item163.cast$w.percent_R1.R3  
                            ,"SE.R1.R3"        = item163.cast$w.SE_R1.R3
-                           ,"Count.R1.R3"     = item163.cast$count_R1.R3
+                           # ,"Count.R1.R3"     = item163.cast$count_R1.R3
                            ,"Percent.R4.R10"  = item163.cast$w.percent_R4.R10  
                            ,"SE.R4.R10"       = item163.cast$w.SE_R4.R10
-                           ,"Count.R4.R10"    = item163.cast$count_R4.R10
+                           # ,"Count.R4.R10"    = item163.cast$count_R4.R10
                            ,"Percent.R11.R15" = item163.cast$w.percent_R11.R15
                            ,"SE.R11.R15"      = item163.cast$w.SE_R11.R15
-                           ,"Count.R11.R15"   = item163.cast$count_R11.R15
+                           # ,"Count.R11.R15"   = item163.cast$count_R11.R15
                            ,"Percent.R16.R22" = item163.cast$w.percent_R16.R22
                            ,"SE.R16.R22"      = item163.cast$w.SE_R16.R22
-                           ,"Count.R16.R22"   = item163.cast$count_R16.R22
+                           # ,"Count.R16.R22"   = item163.cast$count_R16.R22
                            ,"Percent.R23.R27" = item163.cast$w.percent_R23.R27
                            ,"SE.R23.R27"      = item163.cast$w.SE_R23.R27
-                           ,"Count.R23.R27"   = item163.cast$count_R23.R27
+                           # ,"Count.R23.R27"   = item163.cast$count_R23.R27
                            ,"Percent.R28.R35" = item163.cast$w.percent_R28.R35
                            ,"SE.R28.R35"      = item163.cast$w.SE_R28.R35
-                           ,"Count.R28.R35"   = item163.cast$count_R28.R35
+                           # ,"Count.R28.R35"   = item163.cast$count_R28.R35
                            ,"Percent.RGT36"   = item163.cast$w.percent_RGT36
                            ,"SE.RGT36"        = item163.cast$w.SE_RGT36
-                           ,"Count.RGT36"     = item163.cast$count_RGT36
+                           # ,"Count.RGT36"     = item163.cast$count_RGT36
+                           ,"n" = item163.cast$`n_All Insulation Levels`
 )
 
 # row ordering example code
@@ -639,7 +640,7 @@ item163.all.frame.types <- proportions_one_group(item163.data
 item163.all.insul.levels <-  proportions_one_group(item163.data
                                                   ,valueVariable    = "count"
                                                   ,groupingVariable = "HomeYearBuilt_bins3"
-                                                  ,total.name       = "All Housing Vintages"
+                                                  ,total.name       = "All Insulation Levels"
                                                   ,columnName       = "rvalue.bins.SF"
                                                   ,weighted = FALSE
                                                   ,two.prop.total = TRUE
@@ -663,28 +664,29 @@ item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"Housing.Vintage" = item163.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item163.cast$Percent_None
                            ,"SE.None"         = item163.cast$SE_None
-                           ,"Count.None"      = item163.cast$Count_None
+                           # ,"Count.None"      = item163.cast$Count_None
                            ,"Percent.R1.R3"   = item163.cast$Percent_R1.R3  
                            ,"SE.R1.R3"        = item163.cast$SE_R1.R3
-                           ,"Count.R1.R3"     = item163.cast$Count_R1.R3
+                           # ,"Count.R1.R3"     = item163.cast$Count_R1.R3
                            ,"Percent.R4.R10"  = item163.cast$Percent_R4.R10  
                            ,"SE.R4.R10"       = item163.cast$SE_R4.R10
-                           ,"Count.R4.R10"    = item163.cast$Count_R4.R10
+                           # ,"Count.R4.R10"    = item163.cast$Count_R4.R10
                            ,"Percent.R11.R15" = item163.cast$Percent_R11.R15
                            ,"SE.R11.R15"      = item163.cast$SE_R11.R15
-                           ,"Count.R11.R15"   = item163.cast$Count_R11.R15
+                           # ,"Count.R11.R15"   = item163.cast$Count_R11.R15
                            ,"Percent.R16.R22" = item163.cast$Percent_R16.R22
                            ,"SE.R16.R22"      = item163.cast$SE_R16.R22
-                           ,"Count.R16.R22"   = item163.cast$Count_R16.R22
+                           # ,"Count.R16.R22"   = item163.cast$Count_R16.R22
                            ,"Percent.R23.R27" = item163.cast$Percent_R23.R27
                            ,"SE.R23.R27"      = item163.cast$SE_R23.R27
-                           ,"Count.R23.R27"   = item163.cast$Count_R23.R27
+                           # ,"Count.R23.R27"   = item163.cast$Count_R23.R27
                            ,"Percent.R28.R35" = item163.cast$Percent_R28.R35
                            ,"SE.R28.R35"      = item163.cast$SE_R28.R35
-                           ,"Count.R28.R35"   = item163.cast$Count_R28.R35
+                           # ,"Count.R28.R35"   = item163.cast$Count_R28.R35
                            ,"Percent.RGT36"   = item163.cast$Percent_RGT36
                            ,"SE.RGT36"        = item163.cast$SE_RGT36
-                           ,"Count.RGT36"     = item163.cast$Count_RGT36
+                           # ,"Count.RGT36"     = item163.cast$Count_RGT36
+                           ,"n" = item163.cast$`n_All Insulation Levels`
 )
 
 # row ordering example code

@@ -52,14 +52,14 @@ item179.dat1 <- left_join(rbsa.dat, item179.dat0, by = "CK_Cadmus_ID")
 unique(item179.dat1$Replacement_Windows)
 item179.dat2 <- item179.dat1
 
-item179.dat2$Replaced_Window_ind <- item179.dat2$Replacement_Windows
-item179.dat2$Replaced_Window_ind[which(item179.dat2$Replacement_Windows == "Yes")] <- 1
-item179.dat2$Replaced_Window_ind[which(item179.dat2$Replacement_Windows != "Yes")] <- 0
-item179.dat2$Replaced_Window_ind[which(is.na(item179.dat2$Replaced_Window_ind))] <- 0
+item179.dat2$Ind <- item179.dat2$Replacement_Windows
+item179.dat2$Ind[which(item179.dat2$Replacement_Windows == "Yes")] <- 1
+item179.dat2$Ind[which(item179.dat2$Replacement_Windows != "Yes")] <- 0
+item179.dat2$Ind[which(is.na(item179.dat2$Ind))] <- 0
 
-unique(item179.dat2$Replaced_Window_ind)
+unique(item179.dat2$Ind)
 
-item179.dat2$Replaced_Window_ind <- as.numeric(as.character(item179.dat2$Replaced_Window_ind))
+item179.dat2$Ind <- as.numeric(as.character(item179.dat2$Ind))
 
 item179.dat2$count <- 1
 
@@ -68,17 +68,18 @@ item179.dat2$count <- 1
 # add pop and sample sizes by strata
 ##########################################
 item179.data <- weightedData(item179.dat2[-which(colnames(item179.dat2) %in% c("Replacement_Windows"
-                                                                               ,"Replaced_Window_ind"
+                                                                               ,"Ind"
                                                                                ,"count"))])
 item179.data <- left_join(item179.data, item179.dat2[which(colnames(item179.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Replacement_Windows"
-                                                                                         ,"Replaced_Window_ind"
+                                                                                         ,"Ind"
                                                                                          ,"count"))])
+item179.data$Count <- 1
 ##############################
 # Weighted Analysis
 ##############################
 item179.final <- proportions_one_group(CustomerLevelData = item179.data
-                                       ,valueVariable    = 'Replaced_Window_ind'
+                                       ,valueVariable    = 'Ind'
                                        ,groupingVariable = 'State'
                                        ,total.name       = "Region"
                                        ,weighted         = TRUE)
@@ -90,7 +91,7 @@ exportTable(item179.final.MH, "MH", "Table 22", weighted = TRUE)
 # Unweighted Analysis
 ##############################
 item179.final <- proportions_one_group(CustomerLevelData = item179.data
-                                       ,valueVariable    = 'Replaced_Window_ind'
+                                       ,valueVariable    = 'Ind'
                                        ,groupingVariable = 'State'
                                        ,total.name       = "Region"
                                        ,weighted         = FALSE)

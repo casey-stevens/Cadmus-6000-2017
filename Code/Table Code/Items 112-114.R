@@ -236,6 +236,7 @@ item114.data <- left_join(item114.data, item114.merge[which(colnames(item114.mer
                                                                                            ,"count"
                                                                                            ,"Ind"))])
 item114.data$count <- 1
+item114.data$Count <- 1
 item114.data$Ind <- as.numeric(as.character(item114.data$Ind))
 #######################
 # Weighted Analysis
@@ -255,7 +256,7 @@ exportTable(item114.final.MH, "MH", "Table 96", weighted = TRUE)
 
 
 #######################
-# Weighted Analysis
+# unweighted Analysis
 #######################
 item114.final <- proportions_one_group(CustomerLevelData = item114.data
                                        ,valueVariable = 'Ind'
@@ -269,3 +270,4 @@ item114.final.MH <- item114.final[which(item114.final$BuildingType == "Manufactu
                                   ,-which(colnames(item114.final) %in% c("BuildingType"))]
 exportTable(item114.final.SF, "SF", "Table 121", weighted = FALSE)
 exportTable(item114.final.MH, "MH", "Table 96", weighted = FALSE)
+

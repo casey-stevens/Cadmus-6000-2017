@@ -86,7 +86,7 @@ item19.final <- proportions_one_group(CustomerLevelData  = item19.data
                                      , weighted = TRUE)
 
 #subset by home type
-item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Family"),]
+item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Family"),-which(colnames(item19.final) %in% c("BuildingType"))]
 
 
 #export data
@@ -109,7 +109,7 @@ item19.final <- proportions_one_group(CustomerLevelData  = item19.data
 item19.final$State[which(item19.final$State == "Total")] <- "Region"
 
 #subset by home type
-item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Family"),-which(colnames(item19.final) %in% c("Homes.with.Basements", "BuildingType"))]
+item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Family"),-which(colnames(item19.final) %in% c("BuildingType"))]
 
 
 #export data

@@ -200,7 +200,7 @@ item171.data <- left_join(item171.data, item171.merge[which(colnames(item171.mer
                                                                                            ,"Ind"
                                                                                            ,"Heating.Fuel"
                                                                                            ,"Count"))])
-
+item171.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################

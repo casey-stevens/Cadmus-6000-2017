@@ -99,7 +99,7 @@ for (ii in 1:length(item38.dat1$Flow.Exponent)){
 }
 
 item38.dat1$CFM50 <- item38.dat1$P50_CFM * (50 / abs(item38.dat1$P50_HousePressure)) ^ item38.dat1$Flow.Exponent
-
+item38.dat2 <- item38.dat1[grep("site", item38.dat1$CK_Building_ID, ignore.case = T),]
 # ##  Write out confidence/precision info
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(item38.dat1, paste(filepathCleaningDocs, "Insulation Exports", paste("blower.door.flow.exponents ", rundate, ".xlsx", sep = ""), sep="/"),
@@ -109,7 +109,7 @@ item38.dat1$CFM50 <- item38.dat1$P50_CFM * (50 / abs(item38.dat1$P50_HousePressu
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
-item38.data <- weightedData(item38.dat1[which(colnames(item38.dat1) %notin% c("MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+item38.data <- weightedData(item38.dat2[which(colnames(item38.dat2) %notin% c("MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
                                                                               ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
                                                                               ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
                                                                               ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
@@ -126,7 +126,7 @@ item38.data <- weightedData(item38.dat1[which(colnames(item38.dat1) %notin% c("M
                                                                               ,"P50_HousePressure"
                                                                               ,"CFM50"))])
 
-item38.data <- left_join(item38.data, item38.dat1[which(colnames(item38.dat1) %in% c("CK_Cadmus_ID"
+item38.data <- left_join(item38.data, item38.dat2[which(colnames(item38.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
                                                                                      ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
                                                                                      ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
@@ -145,6 +145,10 @@ item38.data <- left_join(item38.data, item38.dat1[which(colnames(item38.dat1) %i
                                                                                      ,"CFM50"))])
 item38.data$count <- 1
 
+##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(item38.data, paste(filepathCleaningDocs, "Insulation Exports", paste("blower.door.calcs ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 ######################
 # weighted analysis

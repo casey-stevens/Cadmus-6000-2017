@@ -462,7 +462,13 @@ item110.dat3 <- item110.dat2[which(!(is.na(item110.dat2$Clean.Room))),]
 
 
 item110.customer <- left_join(item110.dat3, rbsa.dat)
-
+item110.customer$Clean.Room[which(item110.customer$Clean.Room %in% c("Attic"
+                                                           ,"Basement"
+                                                           ,"Crawlspace"
+                                                           ,"Crawl Space"
+                                                           ,"Mechanical"
+                                                           ,"Grow Room"))] <- "Other"
+unique(item110.customer$Clean.Room[which(item110.customer$BuildingType == "Single Family")])
 
 ###########################################
 # add pop and sample sizes for weighting

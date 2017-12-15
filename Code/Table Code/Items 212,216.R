@@ -50,6 +50,7 @@ item212.dat2 <- item212.dat1[which(!(is.na(item212.dat1$HomeYearBuilt))),]
 ################################################
 item212.data <- weightedData(item212.dat2)
 item212.data$count <- 1
+item212.data$Count <- 1
 
 #######################
 # Weighted Analysis
@@ -91,16 +92,29 @@ item212.cast <- dcast(setDT(item212.final)
 item212.table <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_bins_MF
                             ,"Low-Rise.(1-3)" = item212.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low-Rise.SE"    = item212.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
+                            # ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid-Rise.(4-6)" = item212.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid-Rise.SE"    = item212.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
+                            # ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High-Rise.(7+)" = item212.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High-Rise.SE"   = item212.cast$`w.SE_Apartment Building (More than 6 floors)`
-                            ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
+                            # ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"      = item212.cast$`w.percent_All Sizes`
                             ,"All.Sizes.SE"   = item212.cast$`w.SE_All Sizes`
-                            ,"All.Sizes.n"    = item212.cast$`n_All Sizes`)
+                            ,"n"    = item212.cast$`n_All Sizes`)
+
+# row ordering example code
+levels(item212.table$Housing.Vintage)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item212.table <- item212.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item212.table <- data.frame(item212.table)
 
 exportTable(item212.table, "MF", "Table 4", weighted = TRUE)
 
@@ -144,16 +158,28 @@ item212.cast <- dcast(setDT(item212.final)
 item212.table <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_bins_MF
                             ,"Low-Rise.(1-3)" = item212.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low-Rise.SE"    = item212.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
+                            # ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid-Rise.(4-6)" = item212.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid-Rise.SE"    = item212.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
+                            # ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High-Rise.(7+)" = item212.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High-Rise.SE"   = item212.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
+                            # ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"      = item212.cast$`Percent_All Sizes`
                             ,"All.Sizes.SE"   = item212.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"    = item212.cast$`n_All Sizes`)
+                            ,"n"    = item212.cast$`n_All Sizes`)
+# row ordering example code
+levels(item212.table$Housing.Vintage)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item212.table <- item212.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item212.table <- data.frame(item212.table)
 
 exportTable(item212.table, "MF", "Table 4", weighted = FALSE)
 
@@ -258,7 +284,7 @@ colnames(item216.melt) <- c("CK_Cadmus_ID"
                             ,"Floor.Area")
 
 item216.merge <- left_join(item216.data, item216.melt)
-
+item216.merge$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -279,8 +305,17 @@ item216.all.sizes <- proportions_one_group(CustomerLevelData = item216.merge
                                            ,two.prop.total = TRUE)
 item216.all.sizes <- item216.all.sizes[which(item216.all.sizes$Area.Type != "Total"),]
 
+item216.sample.sizes <- proportions_one_group(CustomerLevelData = item216.merge
+                                           ,valueVariable = 'Floor.Area'
+                                           ,groupingVariable = 'HomeType'
+                                           ,total.name = 'Total'
+                                           ,columnName = "Area.Type"
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+item216.sample.sizes$HomeType[which(item216.sample.sizes$HomeType == "Total")] <- "All Sizes"
 
-item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsFactors = F)
+
+item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, item216.sample.sizes, stringsAsFactors = F)
 
 
 item216.cast <- dcast(setDT(item216.final)
@@ -291,13 +326,24 @@ item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
                             ,"HomeType"    = item216.cast$HomeType
                             ,"Percent_Common.Area" = item216.cast$w.percent_Common.Area
                             ,"SE_Common.Area"      = item216.cast$w.SE_Common.Area
-                            ,"n_Common.Area"       = item216.cast$n_Common.Area
+                            # ,"n_Common.Area"       = item216.cast$n_Common.Area
                             ,"Percent_Non-Residential.Area" = item216.cast$w.percent_Total.Nonres.Floor.Area
                             ,"SE_Non-Residential.Area"      = item216.cast$w.SE_Total.Nonres.Floor.Area
-                            ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
+                            # ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
                             ,"Percent_Residential.Area"     = item216.cast$w.percent_Total.Residential.Floor.Area
                             ,"SE_Residential.Area"          = item216.cast$w.SE_Total.Residential.Floor.Area
-                            ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area)
+                            # ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area
+                            ,"n" = item216.cast$n_Total
+                            )
+
+# row ordering example code
+levels(item216.table$HomeType)
+rowOrder <- c("Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"All Sizes")
+item216.table <- item216.table %>% mutate(HomeType = factor(HomeType, levels = rowOrder)) %>% arrange(HomeType)  
+item216.table <- data.frame(item216.table)
 
 exportTable(item216.table, "MF", "Table 8", weighted = TRUE)
 exportTable(item216.table, "MF", "Table 13", weighted = TRUE)
@@ -323,7 +369,17 @@ item216.all.sizes <- proportions_one_group(CustomerLevelData = item216.merge
 item216.all.sizes <- item216.all.sizes[which(item216.all.sizes$Area.Type != "Total"),]
 
 
-item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsFactors = F)
+item216.sample.sizes <- proportions_one_group(CustomerLevelData = item216.merge
+                                              ,valueVariable = 'Floor.Area'
+                                              ,groupingVariable = 'HomeType'
+                                              ,total.name = 'Total'
+                                              ,columnName = "Area.Type"
+                                              ,weighted = FALSE
+                                              ,two.prop.total = TRUE)
+item216.sample.sizes$HomeType[which(item216.sample.sizes$HomeType == "Total")] <- "All Sizes"
+
+
+item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, item216.sample.sizes, stringsAsFactors = F)
 
 
 item216.cast <- dcast(setDT(item216.final)
@@ -334,13 +390,25 @@ item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
                             ,"HomeType"    = item216.cast$HomeType
                             ,"Percent_Common.Area" = item216.cast$Percent_Common.Area
                             ,"SE_Common.Area"      = item216.cast$SE_Common.Area
-                            ,"n_Common.Area"       = item216.cast$n_Common.Area
+                            # ,"n_Common.Area"       = item216.cast$n_Common.Area
                             ,"Percent_Non-Residential.Area" = item216.cast$Percent_Total.Nonres.Floor.Area
                             ,"SE_Non-Residential.Area"      = item216.cast$SE_Total.Nonres.Floor.Area
-                            ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
+                            # ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
                             ,"Percent_Residential.Area"     = item216.cast$Percent_Total.Residential.Floor.Area
                             ,"SE_Residential.Area"          = item216.cast$SE_Total.Residential.Floor.Area
-                            ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area)
+                            # ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area
+                            ,"n" = item216.cast$n_Total
+                            )
+
+# row ordering example code
+levels(item216.table$HomeType)
+rowOrder <- c("Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"All Sizes")
+item216.table <- item216.table %>% mutate(HomeType = factor(HomeType, levels = rowOrder)) %>% arrange(HomeType)  
+item216.table <- data.frame(item216.table)
+
 
 exportTable(item216.table, "MF", "Table 8", weighted = FALSE)
 exportTable(item216.table, "MF", "Table 13", weighted = FALSE)

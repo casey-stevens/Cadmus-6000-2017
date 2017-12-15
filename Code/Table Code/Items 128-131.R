@@ -308,11 +308,9 @@ item130.final <- proportions_one_group(CustomerLevelData = item130.data
                                        ,two.prop.total = NA)
 
 item130.final.SF <- item130.final[which(item130.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item130.final) %in% c("BuildingType"
-                                                                         ,"Remove"))]
+                                  ,-which(colnames(item130.final) %in% c("BuildingType"))]
 item130.final.MH <- item130.final[which(item130.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item130.final) %in% c("BuildingType"
-                                                                         ,"Remove"))]
+                                  ,-which(colnames(item130.final) %in% c("BuildingType"))]
 
 exportTable(item130.final.SF, "SF", "Table 137", weighted = FALSE)
 exportTable(item130.final.MH, "MH", "Table 112", weighted = FALSE)
@@ -369,11 +367,9 @@ item131.final <- mean_one_group(item131.data
                                 ,aggregateRow = 'Region')
 
 item131.final.SF <- item131.final[which(item131.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item131.final) %in% c("BuildingType"
-                                                                         ,"Count"))]
+                                  ,-which(colnames(item131.final) %in% c("BuildingType"))]
 item131.final.MH <- item131.final[which(item131.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item131.final) %in% c("BuildingType"
-                                                                         ,"Count"))]
+                                  ,-which(colnames(item131.final) %in% c("BuildingType"))]
 
 exportTable(item131.final.SF, "SF", "Table 138", weighted = TRUE)
 exportTable(item131.final.MH, "MH", "Table 113", weighted = TRUE)

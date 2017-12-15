@@ -178,23 +178,23 @@ item166.table <- data.frame("BuildingType"    = item166.cast$BuildingType
                             ,"Framing.Categories"= item166.cast$Framing.Categories
                             ,"Percent_ID"     = item166.cast$w.percent_ID
                             ,"SE_ID"          = item166.cast$w.SE_ID
-                            ,"Count_ID"       = item166.cast$count_ID
+                            # ,"Count_ID"       = item166.cast$count_ID
                             ,"n_ID"           = item166.cast$n_ID
                             ,"Percent_MT"     = item166.cast$w.percent_MT
                             ,"SE_MT"          = item166.cast$w.SE_MT
-                            ,"Count_MT"       = item166.cast$count_MT
+                            # ,"Count_MT"       = item166.cast$count_MT
                             ,"n_MT"           = item166.cast$n_MT
                             ,"Percent_OR"     = item166.cast$w.percent_OR
                             ,"SE_OR"          = item166.cast$w.SE_OR
-                            ,"Count_OR"       = item166.cast$count_OR
+                            # ,"Count_OR"       = item166.cast$count_OR
                             ,"n_OR"           = item166.cast$n_OR
                             ,"Percent_WA"     = item166.cast$w.percent_WA
                             ,"SE_WA"          = item166.cast$w.SE_WA
-                            ,"Count_WA"       = item166.cast$count_WA
+                            # ,"Count_WA"       = item166.cast$count_WA
                             ,"n_WA"           = item166.cast$n_WA
                             ,"Percent_Region" = item166.cast$w.percent_Region
                             ,"SE_Region"      = item166.cast$w.SE_Region
-                            ,"Count_Region"   = item166.cast$count_Region
+                            # ,"Count_Region"   = item166.cast$count_Region
                             ,"n_Region"       = item166.cast$n_Region
 )
 
@@ -218,26 +218,26 @@ item166.final$Framing.Categories[which(item166.final$Framing.Categories == "Tota
 
 item166.cast <- dcast(setDT(item166.final)
                       , formula = BuildingType + Framing.Categories ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
 item166.table <- data.frame("BuildingType"    = item166.cast$BuildingType
                             ,"Framing.Categories"= item166.cast$Framing.Categories
                             ,"Percent_ID"     = item166.cast$Percent_ID
                             ,"SE_ID"          = item166.cast$SE_ID
-                            ,"Count_ID"       = item166.cast$Count_ID
+                            ,"n_ID"       = item166.cast$n_ID
                             ,"Percent_MT"     = item166.cast$Percent_MT
                             ,"SE_MT"          = item166.cast$SE_MT
-                            ,"Count_MT"       = item166.cast$Count_MT
+                            ,"n_MT"       = item166.cast$n_MT
                             ,"Percent_OR"     = item166.cast$Percent_OR
                             ,"SE_OR"          = item166.cast$SE_OR
-                            ,"Count_OR"       = item166.cast$Count_OR
+                            ,"n_OR"       = item166.cast$n_OR
                             ,"Percent_WA"     = item166.cast$Percent_WA
                             ,"SE_WA"          = item166.cast$SE_WA
-                            ,"Count_WA"       = item166.cast$Count_WA
+                            ,"n_WA"       = item166.cast$n_WA
                             ,"Percent_Region" = item166.cast$Percent_Region
                             ,"SE_Region"      = item166.cast$SE_Region
-                            ,"Count_Region"   = item166.cast$Count_Region
+                            ,"n_Region"   = item166.cast$n_Region
 )
 
 

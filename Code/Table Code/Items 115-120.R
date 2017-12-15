@@ -466,7 +466,7 @@ item120.sum <- summarise(group_by(item120.dat2, CK_Cadmus_ID, Type, `Sub-Type`)
                          ,Ind = sum(Ind))
 
 item120.merge <- left_join(rbsa.dat, item120.sum)
-item120.merge <- item120.merge[which(!is.na(item120.merge$Ind)),]
+item120.merge$Ind[which(!is.na(item120.merge$Ind))] <- 0
 
 
 
