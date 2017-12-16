@@ -64,6 +64,7 @@ item112.data <- weightedData(item112.merge[-which(colnames(item112.merge) %in% c
 item112.data <- left_join(item112.data, item112.merge[which(colnames(item112.merge) %in% c("CK_Cadmus_ID"
                                                                                                  ,"Site.Count"))])
 item112.data$count <- 1
+item112.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -142,6 +143,7 @@ item113.data <- left_join(item113.data, item113.merge[which(colnames(item113.mer
                                                                                            ,"count"
                                                                                            ,"Ind"))])
 item113.data$count <- 1
+item113.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -149,17 +151,12 @@ item113.final <- proportions_one_group(CustomerLevelData = item113.data
                                        ,valueVariable = 'Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
-                                       ,columnName = "Remove"
                                        ,weighted = TRUE)
 
 item113.final.SF <- item113.final[which(item113.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item113.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"))]
 item113.final.MH <- item113.final[which(item113.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item113.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"))]
 exportTable(item113.final.SF, "SF", "Table 120", weighted = TRUE)
 exportTable(item113.final.MH, "MH", "Table 95", weighted = TRUE)
 

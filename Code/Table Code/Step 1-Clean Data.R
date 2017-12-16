@@ -285,8 +285,11 @@ rbsa.dat7 <- unique(rbsa.dat6)
   # stopifnot(length(unique(rbsa.dat7$CK_Cadmus_ID)) == nrow(rbsa.dat7))
   stopifnot(length(unique(site.dat1$CK_Cadmus_ID)) == length(unique(rbsa.dat7$CK_Cadmus_ID)))
 
-  rbsa.dat8 <- rbsa.dat7[-grep("bldg", rbsa.dat7$CK_Building_ID[which(rbsa.dat7$BuildingType == "Single Family")], ignore.case = T),]
-  
+  rbsa.dat.sf.mh <- rbsa.dat7[grep("site", rbsa.dat7$CK_Building_ID, ignore.case = T),]
+  rbsa.dat.sf.mh <- rbsa.dat.sf.mh[which(rbsa.dat.sf.mh$BuildingType != "Multifamily"),]
+  rbsa.dat.mf <- rbsa.dat7[which(rbsa.dat7$BuildingType == "Multifamily"),]
+
+rbsa.dat8 <- rbind.data.frame(rbsa.dat.sf.mh, rbsa.dat.mf, stringsAsFactors = F)
 #############################################################################################
 # Write out cleaned building type information
 #############################################################################################

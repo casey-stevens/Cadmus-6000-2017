@@ -371,30 +371,32 @@ item119.dat$count <- 1
 item119.dat0 <- item119.dat[which(item119.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item119.dat1 <- left_join(item119.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item119.dat1 <- left_join(rbsa.dat, item119.dat0, by = "CK_Cadmus_ID")
 
-unique(item119.dat1$Type)
-#subset to only Game COnsoles
+item119.cast <- dcast(setDT(item119.dat1)
+                      ,formula = CK_Cadmus_ID ~ Type,sum
+                      ,value.var = "count")
+item119.cast <- data.frame(item119.cast, stringsAsFactors = F)
+item119.cast <- item119.cast[which(colnames(item119.cast) %in% c("CK_Cadmus_ID","Audio.Equipment"))]
 
-item119.dat2 <- item119.dat1[which(item119.dat1$Type %in% c("Audio Equipment")),]
-item119.dat2$Ind <- 1
+item119.melt <- melt(item119.cast, id.vars = "CK_Cadmus_ID")
+names(item119.melt) <- c("CK_Cadmus_ID", "Type","Ind")
 
-item119.sum <- summarise(group_by(item119.dat2, CK_Cadmus_ID)
-                         ,Ind = sum(Ind))
+unique(item119.melt$Type)
 
-item119.merge <- left_join(rbsa.dat, item119.sum)
-item119.merge <- item119.merge[which(!is.na(item119.merge$Ind)),]
+item119.merge <- left_join(rbsa.dat, item119.melt)
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item119.data <- weightedData(item119.merge[-which(colnames(item119.merge) %in% c("Ind"))])
+item119.data <- weightedData(item119.merge[-which(colnames(item119.merge) %in% c("Type","Ind"))])
 item119.data <- left_join(item119.data, item119.merge[which(colnames(item119.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))])
+                                                                                           ,"Ind"
+                                                                                           ,"Type"))])
 
 item119.data$count <- 1
-item115.data$Count <- 1
+item119.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -445,47 +447,62 @@ exportTable(item119.final.MH, "MH", "Table 101", weighted = FALSE)
 #Item 120: AVERAGE NUMBER OF SUBWOOFERS PER HOME BY TYPE (SF table 127, MH table 102)
 #############################################################################################
 #subset to columns needed for analysis
-item120.dat <- appliances.dat[c(which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+item120.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                       ,"Type"
                                                                       ,"Sub-Type"
-                                                                      ,"Contains.Suboofer")), grep("subwoofer", colnames(appliances.dat), ignore.case = T))]
+                                                                      ,"Contains.Suboofer"
+                                                                      ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"))]
 item120.dat$count <- 1
 
 #remove any repeat header rows from exporting
 item120.dat0 <- item120.dat[which(item120.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item120.dat1 <- left_join(item120.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item120.dat1 <- left_join(rbsa.dat, item120.dat0, by = "CK_Cadmus_ID")
 
 unique(item120.dat1$Type)
 
 item120.dat2 <- item120.dat1[which(item120.dat1$Contains.Suboofer %in% c("Yes")),]
-item120.dat2$Ind <- 1
+unique(item120.dat2$Does.Subwoofer.have.indicator.light.or.warm.to.touch)
+item120.dat3 <- item120.dat2[which(item120.dat2$Does.Subwoofer.have.indicator.light.or.warm.to.touch != "Unknown"),]
 
-item120.sum <- summarise(group_by(item120.dat2, CK_Cadmus_ID, Type, `Sub-Type`)
-                         ,Ind = sum(Ind))
-
-item120.merge <- left_join(rbsa.dat, item120.sum)
-item120.merge$Ind[which(!is.na(item120.merge$Ind))] <- 0
+item120.dat3$Subwoofer.Type <- "Passive"
+item120.dat3$Subwoofer.Type[which(item120.dat3$Does.Subwoofer.have.indicator.light.or.warm.to.touch == "Yes")] <- "Powered"
 
 
+item120.merge <- left_join(rbsa.dat, item120.dat3)
+
+
+item120.cast <- dcast(setDT(item120.merge)
+                      ,formula = CK_Cadmus_ID~Subwoofer.Type,sum
+                      ,value.var = "count")
+item120.cast <- data.frame(item120.cast, stringsAsFactors = F)
+item120.cast <- item120.cast[which(colnames(item120.cast) %in% c("CK_Cadmus_ID","Passive","Powered"))]
+
+
+item120.melt <- melt(item120.cast,id.vars = "CK_Cadmus_ID")
+names(item120.melt) <- c("CK_Cadmus_ID", "Subwoofer.Type","Subwoofer.Count")
+
+item120.merge <- left_join(rbsa.dat, item120.melt)
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item120.data <- weightedData(item120.merge[-which(colnames(item120.merge) %in% c("Ind"))])
+item120.data <- weightedData(item120.merge[-which(colnames(item120.merge) %in% c("Subwoofer.Type"
+                                                                                 ,"Subwoofer.Count"))])
 item120.data <- left_join(item120.data, item120.merge[which(colnames(item120.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))])
+                                                                                           ,"Subwoofer.Type"
+                                                                                           ,"Subwoofer.Count"))])
 
 item120.data$count <- 1
-item115.data$Count <- 1
+item120.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
 item120.final <- mean_one_group(item120.data
-                                ,valueVariable = 'Ind'
-                                ,byVariable = 'State'
-                                ,aggregateRow = 'Region')
+                                ,valueVariable = 'Subwoofer.Count'
+                                ,byVariable = 'Subwoofer.Type'
+                                ,aggregateRow = 'All Subwoofers')
 
 item120.final.SF <- item120.final[which(item120.final$BuildingType == "Single Family")
                                   ,-which(colnames(item120.final) %in% c("BuildingType"
@@ -503,9 +520,9 @@ exportTable(item120.final.MH, "MH", "Table 102", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item120.final <- mean_one_group_unweighted(item120.data
-                                           ,valueVariable = 'Ind'
-                                           ,byVariable = 'State'
-                                           ,aggregateRow = 'Region')
+                                ,valueVariable = 'Subwoofer.Count'
+                                ,byVariable = 'Subwoofer.Type'
+                                ,aggregateRow = 'All Subwoofers')
 
 item120.final.SF <- item120.final[which(item120.final$BuildingType == "Single Family")
                                   ,-which(colnames(item120.final) %in% c("BuildingType"
