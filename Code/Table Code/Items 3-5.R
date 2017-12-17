@@ -107,7 +107,7 @@ colnames(item3.final) <- c("BuildingType"
 
 item3.cast <- dcast(setDT(item3.final)
                     ,formula = BuildingType + GroundContact ~ State
-                    ,value.var = c("Percent", "SE", "n", "Count", "PopSize"))
+                    ,value.var = c("Percent", "SE", "n", "Count", "N"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact

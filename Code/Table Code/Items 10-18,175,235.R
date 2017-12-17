@@ -682,7 +682,7 @@ item10.all.frame.types <- proportions_one_group(CustomerLevelData =  item10.data
 )
 
 ## Summary for only "All Insulation Levels"
-item10.all.insul.levels <-  proportions_one_group(item10.data
+item10.all.insul.levels <-  proportions_one_group(CustomerLevelData = item10.data
                                                   ,valueVariable    = "count"
                                                   ,groupingVariable = "Wall.Type"
                                                   ,total.name       = "All Insulation Levels"
@@ -790,26 +790,28 @@ item11.data <- left_join(item11.data, item11.merge[which(colnames(item11.merge) 
                                                                                        ,"Wall.Type"
                                                                                        ,"count"))])
 
-
+item11.data$Ind <- 1
 
 #############################
 # Weighted Analysis
 #############################
-item11.by.vinage <- proportionRowsAndColumns1(item11.data
-                                          , valueVariable       = 'count'
+item11.by.vinage <- proportionRowsAndColumns1(CustomerLevelData = item11.data
+                                          , valueVariable       = 'Ind'
                                           , columnVariable      = 'HomeYearBuilt_bins3'
                                           , rowVariable         = 'Wall.Type'
                                           , aggregateColumnName = "Remove"
 )
 # summarise for all housing vintages
-item11.across.vintages <- proportions_one_group(item11.data
-                                                , valueVariable    = 'count'
+item11.across.vintages <- proportions_one_group(CustomerLevelData = item11.data
+                                                , valueVariable    = 'Ind'
                                                 , groupingVariable = 'Wall.Type'
                                                 , total.name       = 'All Housing Vintages'
                                                 , columnName       = 'HomeYearBuilt_bins3'
                                                 , weighted = TRUE
                                                 ,two.prop.total = TRUE
                                                 )
+
+
 # row bind summaries
 item11.final <- rbind.data.frame(item11.by.vinage, item11.across.vintages, stringsAsFactors = F)
 # remove incorrect all housing vintage rows (labelled "Remove")

@@ -36,9 +36,11 @@ lighting.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"LIGHTING_BulbsPerFixture"
                                                                ,"CK_SiteID"
                                                                ,"Lamp.Category"
-                                                               ,"Clean.Room"))]
+                                                               ,"Clean.Room"
+                                                               ,"Switch.Type"))]
 lighting.dat.LED <- lighting.dat[which(lighting.dat$Lamp.Category == "Light Emitting Diode"),]
 lighting.dat.CFL <- lighting.dat[which(lighting.dat$Lamp.Category == "Compact Fluorescent"),]
+lighting.dat.connected <- lighting.dat[grep("control",lighting.dat$Switch.Type, ignore.case = T),]
 
 #Read in data for analysis
 survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated")
@@ -474,4 +476,73 @@ exportTable(tableOO.table.MH, "MH", "Table OO", weighted = FALSE)
 # 
 # exportTable(tableQQ.table.SF, "SF", "Table QQ", weighted = FALSE)
 # exportTable(tableQQ.table.MH, "MH", "Table QQ", weighted = FALSE)
-# 
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Table RR: Percentage of homes with LEDs by state
+#############################################################################################
+tableRR.dat <- left_join(rbsa.dat, lighting.dat)
+tableRR.dat$Ind <- 0
+tableRR.dat$Ind[which(tableRR.dat$Lamp.Category == "Light Emitting Diode")] <- 1
+
+tableRR.sum <- summarise(group_by(tableRR.dat, CK_Cadmus_ID)
+                         ,Ind = sum(unique((Ind))))
+
+tableRR.merge <- left_join(rbsa.dat, tableRR.sum)
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableRR.data <- weightedData(tableRR.merge[-which(colnames(tableRR.merge) %in% c("Ind"))])
+tableRR.data <- left_join(tableRR.data, tableRR.merge[which(colnames(tableRR.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+tableRR.data$count <- 1
+tableRR.data$Count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableRR.table <- proportions_one_group(CustomerLevelData = tableRR.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE)
+tableRR.table.SF <- tableRR.table[which(tableRR.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableRR.table) %notin% c("BuildingType"))]
+tableRR.table.MH <- tableRR.table[which(tableRR.table$BuildingType == "Manufactured")
+                                  ,which(colnames(tableRR.table) %notin% c("BuildingType"))]
+
+exportTable(tableRR.table.SF, "SF", "Table OO", weighted = TRUE)
+exportTable(tableRR.table.MH, "MH", "Table OO", weighted = TRUE)
+
+
+#######################
+# unweighted Analysis
+#######################
+tableRR.table <- proportions_one_group(CustomerLevelData = tableRR.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE)
+tableRR.table.SF <- tableRR.table[which(tableRR.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableRR.table) %notin% c("BuildingType"))]
+tableRR.table.MH <- tableRR.table[which(tableRR.table$BuildingType == "Manufactured")
+                                  ,which(colnames(tableRR.table) %notin% c("BuildingType"))]
+
+exportTable(tableRR.table.SF, "SF", "Table RR", weighted = FALSE)
+exportTable(tableRR.table.MH, "MH", "Table RR", weighted = FALSE)
+
+
+
+
+

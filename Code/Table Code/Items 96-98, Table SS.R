@@ -352,3 +352,136 @@ item98.final.MH <- item98.table[which(item98.table$BuildingType == "Manufactured
 exportTable(item98.final.SF, "SF", "Table 105", weighted = FALSE)
 exportTable(item98.final.MH, "MH", "Table 85", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+#############################################################################################
+# Table SS: Average DWH Energy Factor by Fuel Type and State
+#############################################################################################
+#subset to columns needed for analysis
+tableSS.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Generic"
+                                                                   ,"DHW.Fuel"
+                                                                   ,"DHW.Energy.Factor"))]
+
+tableSS.dat0 <- tableSS.dat[which(tableSS.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+tableSS.dat1 <- left_join(rbsa.dat, tableSS.dat0, by = "CK_Cadmus_ID")
+
+unique(tableSS.dat1$DHW.Fuel)
+tableSS.dat2 <- tableSS.dat1[which(tableSS.dat1$DHW.Fuel %in% c("Electric"
+                                                             , "Natural Gas"
+                                                             , "Propane")),]
+unique(tableSS.dat2$DHW.Energy.Factor)
+tableSS.dat2$DHW.Energy.Factor <- as.numeric(as.character(tableSS.dat2$DHW.Energy.Factor))
+tableSS.dat3 <- tableSS.dat2[which(!is.na(tableSS.dat2$DHW.Energy.Factor)),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableSS.data <- weightedData(tableSS.dat3[-which(colnames(tableSS.dat3) %in% c("Generic"               
+                                                                            ,"DHW.Fuel"
+                                                                            ,"DHW.Energy.Factor"))])
+tableSS.data <- left_join(tableSS.data, tableSS.dat3[which(colnames(tableSS.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"               
+                                                                                     ,"DHW.Fuel"
+                                                                                     ,"DHW.Energy.Factor"))])
+tableSS.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+tableSS.cast <- mean_two_groups(CustomerLevelData = tableSS.data
+                                ,valueVariable = "DHW.Energy.Factor"
+                                ,byVariableRow = "DHW.Fuel"
+                                ,byVariableColumn = "State"
+                                ,columnAggregate = "Region"
+                                ,rowAggregate = "All Fuel Types")
+
+tableSS.table <- data.frame("BuildingType"       = tableSS.cast$BuildingType
+                           ,"Water.Heater.Fuel" = tableSS.cast$DHW.Fuel
+                           ,"Mean_ID"           = tableSS.cast$Mean_ID
+                           ,"SE_ID"             = tableSS.cast$SE_ID
+                           ,"n_ID"              = tableSS.cast$n_ID
+                           ,"Mean_MT"           = tableSS.cast$Mean_MT
+                           ,"SE_MT"             = tableSS.cast$SE_MT
+                           ,"n_MT"              = tableSS.cast$n_MT
+                           ,"Mean_OR"           = tableSS.cast$Mean_OR
+                           ,"SE_OR"             = tableSS.cast$SE_OR
+                           ,"n_OR"              = tableSS.cast$n_OR
+                           ,"Mean_WA"           = tableSS.cast$Mean_WA
+                           ,"SE_WA"             = tableSS.cast$SE_WA
+                           ,"n_WA"              = tableSS.cast$n_WA
+                           ,"Mean_Region"       = tableSS.cast$Mean_Region
+                           ,"SE_Region"         = tableSS.cast$SE_Region
+                           ,"n_Region"          = tableSS.cast$n_Region
+)
+
+# row ordering example code
+levels(tableSS.table$Water.Heater.Fuel)
+rowOrder <- c("Electric"
+              ,"Natural Gas"
+              ,"Propane"
+              ,"All Fuel Types")
+tableSS.table <- tableSS.table %>% mutate(Water.Heater.Fuel = factor(Water.Heater.Fuel, levels = rowOrder)) %>% arrange(Water.Heater.Fuel)  
+tableSS.table <- data.frame(tableSS.table)
+
+tableSS.final.SF <- tableSS.table[which(tableSS.table$BuildingType == "Single Family")
+                                ,-which(colnames(tableSS.table) %in% c("BuildingType"))]
+tableSS.final.MH <- tableSS.table[which(tableSS.table$BuildingType == "Manufactured")
+                                ,-which(colnames(tableSS.table) %in% c("BuildingType"))]
+
+exportTable(tableSS.final.SF, "SF", "Table SS", weighted = TRUE)
+exportTable(tableSS.final.MH, "MH", "Table SS", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableSS.final <- mean_two_groups_unweighted(CustomerLevelData = tableSS.data
+                                            ,valueVariable = "DHW.Energy.Factor"
+                                            ,byVariableRow = "DHW.Fuel"
+                                            ,byVariableColumn = "State"
+                                            ,columnAggregate = "Region"
+                                            ,rowAggregate = "All Fuel Types")
+
+tableSS.table <- data.frame("BuildingType"       = tableSS.cast$BuildingType
+                            ,"Water.Heater.Fuel" = tableSS.cast$DHW.Fuel
+                            ,"Mean_ID"           = tableSS.cast$Mean_ID
+                            ,"SE_ID"             = tableSS.cast$SE_ID
+                            ,"n_ID"              = tableSS.cast$n_ID
+                            ,"Mean_MT"           = tableSS.cast$Mean_MT
+                            ,"SE_MT"             = tableSS.cast$SE_MT
+                            ,"n_MT"              = tableSS.cast$n_MT
+                            ,"Mean_OR"           = tableSS.cast$Mean_OR
+                            ,"SE_OR"             = tableSS.cast$SE_OR
+                            ,"n_OR"              = tableSS.cast$n_OR
+                            ,"Mean_WA"           = tableSS.cast$Mean_WA
+                            ,"SE_WA"             = tableSS.cast$SE_WA
+                            ,"n_WA"              = tableSS.cast$n_WA
+                            ,"Mean_Region"       = tableSS.cast$Mean_Region
+                            ,"SE_Region"         = tableSS.cast$SE_Region
+                            ,"n_Region"          = tableSS.cast$n_Region
+)
+
+# row ordering example code
+levels(tableSS.table$Water.Heater.Fuel)
+rowOrder <- c("Electric"
+              ,"Natural Gas"
+              ,"Propane"
+              ,"All Fuel Types")
+tableSS.table <- tableSS.table %>% mutate(Water.Heater.Fuel = factor(Water.Heater.Fuel, levels = rowOrder)) %>% arrange(Water.Heater.Fuel)  
+tableSS.table <- data.frame(tableSS.table)
+
+tableSS.final.SF <- tableSS.table[which(tableSS.table$BuildingType == "Single Family")
+                                ,-which(colnames(tableSS.table) %in% c("BuildingType"))]
+tableSS.final.MH <- tableSS.table[which(tableSS.table$BuildingType == "Manufactured")
+                                ,-which(colnames(tableSS.table) %in% c("BuildingType"))]
+
+exportTable(tableSS.final.SF, "SF", "Table SS", weighted = FALSE)
+exportTable(tableSS.final.MH, "MH", "Table SS", weighted = FALSE)
