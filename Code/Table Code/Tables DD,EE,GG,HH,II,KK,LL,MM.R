@@ -735,3 +735,68 @@ exportTable(tableLL.table.MH, "MH", "Table LL", weighted = FALSE)
 
 
 
+
+
+
+
+#############################################################################################
+# Table GG: Distribution of Vented Dryers by State
+#############################################################################################
+#For everything else
+tableGG.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","TV.Size"))]
+
+tableGG.dat0 <- tableGG.dat[grep("television",tableGG.dat$Type, ignore.case = T),]
+unique(tableGG.dat0$TV.Size)
+tableGG.dat0$TV.Size <- as.numeric(as.character(tableGG.dat0$TV.Size))
+
+tableGG.dat1 <- tableGG.dat0[which(!is.na(tableGG.dat0$TV.Size)),]
+
+tableGG.merge <- left_join(rbsa.dat, tableGG.dat1, by = "CK_Cadmus_ID")
+
+tableGG.merge <- tableGG.merge[which(!is.na(tableGG.merge$TV.Size)),]
+
+tableGG.mean <- summarise(group_by(tableGG.merge, CK_Cadmus_ID)
+                         ,TV.Size = mean(TV.Size))
+
+tableGG.merge <- left_join(rbsa.dat, tableGG.mean, by = "CK_Cadmus_ID")
+tableGG.merge <- tableGG.merge[which(!is.na(tableGG.merge$TV.Size)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableGG.data <- weightedData(tableGG.merge[-which(colnames(tableGG.merge) %in% c("TV.Size"))])
+tableGG.data <- left_join(tableGG.data, tableGG.merge[which(colnames(tableGG.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"TV.Size"))])
+tableGG.data$Count <- 1
+tableGG.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+tableGG.table <- mean_one_group(CustomerLevelData = tableGG.data
+                                ,valueVariable = "TV.Size"
+                                ,byVariable = "State"
+                                ,aggregateRow = "Region")
+
+tableGG.table.SF <- tableGG.table[which(tableGG.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableGG.table) %notin% c("BuildingType"))]
+tableGG.table.MH <- tableGG.table[which(tableGG.table$BuildingType == "Manufactured")
+                                  ,which(colnames(tableGG.table) %notin% c("BuildingType"))]
+
+exportTable(tableGG.table.SF, "SF", "Table GG", weighted = TRUE)
+exportTable(tableGG.table.MH, "MH", "Table GG", weighted = TRUE)
+
+#######################
+# Weighted Analysis
+#######################
+tableGG.table <- mean_one_group_unweighted(CustomerLevelData = tableGG.data
+                                           ,valueVariable = "TV.Size"
+                                           ,byVariable = "State"
+                                           ,aggregateRow = "Region")
+
+tableGG.table.SF <- tableGG.table[which(tableGG.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableGG.table) %notin% c("BuildingType"))]
+tableGG.table.MH <- tableGG.table[which(tableGG.table$BuildingType == "Manufactured")
+                                  ,which(colnames(tableGG.table) %notin% c("BuildingType"))]
+
+exportTable(tableGG.table.SF, "SF", "Table GG", weighted = FALSE)
+exportTable(tableGG.table.MH, "MH", "Table GG", weighted = FALSE)

@@ -264,3 +264,94 @@ item134.final.MH <- item134.final[which(item134.final$BuildingType == "Manufactu
 
 exportTable(item134.final.SF, "SF", "Table 141", weighted = FALSE)
 exportTable(item134.final.MH, "MH", "Table 116", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Table TT: Percentage of homes reporting Having electric vehicles by state
+#############################################################################################
+#subset to columns needed for analysis
+tableTT.dat <- unique(survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,""))])
+colnames(tableTT.dat) <- c("CK_Cadmus_ID", "", "")
+tableTT.dat$count <- 1
+
+# #remove any repeat header rows from exporting
+# tableTT.dat0 <- tableTT.dat[which(tableTT.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+# 
+# #merge together analysis data with cleaned RBSA data
+# tableTT.dat1 <- left_join(tableTT.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+# 
+# tableTT.dat2.0 <- tableTT.dat1[which(!(is.na(tableTT.dat1$Thermostat_Setpoint))),]
+# tableTT.dat2 <- tableTT.dat2.0[which(tableTT.dat2.0$Thermostat_Setpoint != 0),]
+# unique(tableTT.dat2$Thermostat_Setpoint)
+# unique(tableTT.dat2$Nighttime_Cooling)
+# 
+# tableTT.dat3.0 <- tableTT.dat2[which(!(is.na(tableTT.dat2$Nighttime_Cooling))),]
+# tableTT.dat3 <- tableTT.dat3.0[which(tableTT.dat3.0$Nighttime_Cooling != 0),]
+# 
+# tableTT.dat3$Cooling.Setup <- 0
+# tableTT.dat3$Cooling.Setup[which(tableTT.dat3$Nighttime_Cooling > tableTT.dat3$Thermostat_Setpoint)] <- 1
+# 
+# tableTT.sum <- summarise(group_by(tableTT.dat3, CK_Cadmus_ID)
+#                          ,Ind = sum(Cooling.Setup))
+# 
+# tableTT.merge <- left_join(rbsa.dat, tableTT.sum)
+# tableTT.merge <- tableTT.merge[which(!is.na(tableTT.merge$Ind)),]
+# 
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableTT.data <- weightedData(tableTT.merge[-which(colnames(tableTT.merge) %in% c("Ind"))])
+# tableTT.data <- left_join(tableTT.data, tableTT.merge[which(colnames(tableTT.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Ind"))])
+# tableTT.data$count <- 1
+# tableTT.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableTT.final <- proportions_one_group(CustomerLevelData = tableTT.data
+#                                        ,valueVariable = 'Ind'
+#                                        ,groupingVariable = 'State'
+#                                        ,total.name = "Region"
+#                                        ,weighted = TRUE
+#                                        ,two.prop.total = NA)
+# 
+# tableTT.final.SF <- tableTT.final[which(tableTT.final$BuildingType == "Single Family")
+#                                   ,-which(colnames(tableTT.final) %in% c("BuildingType"))]
+# tableTT.final.MH <- tableTT.final[which(tableTT.final$BuildingType == "Manufactured")
+#                                   ,-which(colnames(tableTT.final) %in% c("BuildingType"))]
+# 
+# exportTable(tableTT.final.SF, "SF", "Table 140", weighted = TRUE)
+# exportTable(tableTT.final.MH, "MH", "Table 115", weighted = TRUE)
+# 
+# #######################
+# # Unweighted Analysis
+# #######################
+# tableTT.final <- proportions_one_group(CustomerLevelData = tableTT.data
+#                                        ,valueVariable = 'Ind'
+#                                        ,groupingVariable = 'State'
+#                                        ,total.name = "Region"
+#                                        ,weighted = FALSE
+#                                        ,two.prop.total = NA)
+# 
+# tableTT.final.SF <- tableTT.final[which(tableTT.final$BuildingType == "Single Family")
+#                                   ,-which(colnames(tableTT.final) %in% c("BuildingType"
+#                                                                          ,"Remove"))]
+# tableTT.final.MH <- tableTT.final[which(tableTT.final$BuildingType == "Manufactured")
+#                                   ,-which(colnames(tableTT.final) %in% c("BuildingType"
+#                                                                          ,"Remove"))]
+# 
+# exportTable(tableTT.final.SF, "SF", "Table 140", weighted = FALSE)
+# exportTable(tableTT.final.MH, "MH", "Table 115", weighted = FALSE)
+

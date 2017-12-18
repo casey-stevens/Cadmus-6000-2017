@@ -172,3 +172,88 @@ item106.final.MF <- item106.table[which(item106.table$BuildingType == "Multifami
 exportTable(item106.final.SF, "SF", "Table 113", weighted = FALSE)
 exportTable(item106.final.MH, "MH", "Table 88", weighted = FALSE)
 exportTable(item106.final.MF, "MF", "Table 80", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Table FF: PERCENTAGE OF HOMES WITH SHOWERHEADS ABOVE 2.0 GPM BY STATE
+#############################################################################################
+#subset to columns needed for analysis
+tableFF.dat <- water.dat[which(colnames(water.dat) %in% c("CK_Cadmus_ID"
+                                                          ,"GPM_Measured"
+                                                          ,"Fixture.Type"))]
+tableFF.dat$count <- 1
+
+tableFF.dat0 <- tableFF.dat[which(tableFF.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+tableFF.dat1 <- left_join(rbsa.dat, tableFF.dat0, by = "CK_Cadmus_ID")
+
+tableFF.dat1$GPM_Measured <- as.numeric(as.character(tableFF.dat1$GPM_Measured))
+tableFF.dat2 <- tableFF.dat1[which(!(is.na(tableFF.dat1$GPM_Measured))),]
+unique(tableFF.dat2$GPM_Measured)
+
+tableFF.dat3 <- tableFF.dat2[grep("shower|Shower",tableFF.dat2$Fixture.Type),]
+
+tableFF.dat4 <- summarise(group_by(tableFF.dat3, CK_Cadmus_ID)
+                          ,GPM.Measured.Site = mean(GPM_Measured))
+
+tableFF.dat4$Ind <- 0
+tableFF.dat4$Ind[which(tableFF.dat4$GPM.Measured.Site > 2)] <- 1
+
+
+tableFF.merge <- left_join(rbsa.dat, tableFF.dat4)
+tableFF.merge <- tableFF.merge[which(!is.na(tableFF.merge$Ind)),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableFF.data <- weightedData(tableFF.merge[-which(colnames(tableFF.merge) %in% c("GPM.Measured.Site"
+                                                                                 ,"Ind"))])
+tableFF.data <- left_join(tableFF.data, tableFF.merge[which(colnames(tableFF.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"GPM.Measured.Site"
+                                                                                           ,"Ind"))])
+tableFF.data$count <- 1
+tableFF.data$Count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableFF.table <- proportions_one_group(CustomerLevelData = tableFF.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,weighted = TRUE)
+
+tableFF.final.SF <- tableFF.table[which(tableFF.table$BuildingType == "Single Family")
+                                  ,-which(colnames(tableFF.table) %in% c("BuildingType"))]
+tableFF.final.MH <- tableFF.table[which(tableFF.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableFF.table) %in% c("BuildingType"))]
+
+exportTable(tableFF.final.SF, "SF", "Table FF", weighted = TRUE)
+exportTable(tableFF.final.MH, "MH", "Table FF", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableFF.table <- proportions_one_group(CustomerLevelData = tableFF.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE)
+
+tableFF.final.SF <- tableFF.table[which(tableFF.table$BuildingType == "Single Family")
+                                  ,-which(colnames(tableFF.table) %in% c("BuildingType"))]
+tableFF.final.MH <- tableFF.table[which(tableFF.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableFF.table) %in% c("BuildingType"))]
+
+exportTable(tableFF.final.SF, "SF", "Table FF", weighted = FALSE)
+exportTable(tableFF.final.MH, "MH", "Table FF", weighted = FALSE)

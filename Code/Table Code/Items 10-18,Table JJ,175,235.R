@@ -2578,3 +2578,91 @@ exportTable(item175.table.MH, "MH", "Table 17", weighted = FALSE)
 # Item 235: DISTRIBUTION OF WALL INSULATION BY WALL TYPE  (MF table 27)
 #############################################################################################
 item235.dat <- prep.dat7[which(prep.dat7$BuildingType == "Multifamily"),]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Table JJ: all the insulation info
+#############################################################################################
+tableJJ.dat <- prep.dat7
+
+tableJJ.2by6.dat <- item10.merge[which(item10.merge$Wall.Type == "Framed 2x6"),]
+
+############################
+# Apply weights
+############################
+tableJJ.data <- weightedData(unique(tableJJ.dat[-which(colnames(tableJJ.dat) %in% c("aveUval"
+                                                                                    ,"aveRval"))]))
+tableJJ.data <- left_join(tableJJ.data, tableJJ.dat[which(colnames(tableJJ.dat) %in% c("CK_Cadmus_ID"
+                                                                                       ,"aveUval"
+                                                                                       ,"aveRval"))])
+
+tableJJ.data$count <- 1
+
+
+tableJJ.2x6.data <- weightedData(unique(tableJJ.2by6.dat[-which(colnames(tableJJ.2by6.dat) %in% c("aveUval"
+                                                                                                  ,"aveRval"
+                                                                                                  ,"Wall.Type"
+                                                                                                  ,"rvalue.bins"
+                                                                                                  ,"count"))]))
+tableJJ.2x6.data <- left_join(tableJJ.2x6.data, tableJJ.2by6.dat[which(colnames(tableJJ.2by6.dat) %in% c("CK_Cadmus_ID"
+                                                                                                         ,"aveUval"
+                                                                                                         ,"aveRval"
+                                                                                                         ,"Wall.Type"
+                                                                                                         ,"rvalue.bins"
+                                                                                                         ,"count"))])
+
+tableJJ.2x6.data$count <- 1
+##############################
+# Weighted Analysis
+##############################
+tableJJ.wall.R <- mean_one_group(CustomerLevelData = tableJJ.data
+                                ,valueVariable = 'aveRval'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+tableJJ.wall.R$Category <- "Wall R Value"
+
+tableJJ.2by6.R <- mean_one_group(CustomerLevelData = tableJJ.2x6.data
+                                 ,valueVariable = "aveRval"
+                                 ,byVariable = "State"
+                                 ,aggregateRow = "Region")
+tableJJ.2by6.R$Category <- "2x6 Framed Wall R Value"
+
+wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFactors = F)
+
+
+
+##############################
+# Unweighted Analysis
+##############################
+tableJJ.wall.R <- mean_one_group_unweighted(CustomerLevelData = tableJJ.data
+                                 ,valueVariable = 'aveRval'
+                                 ,byVariable = 'State'
+                                 ,aggregateRow = "Region")
+tableJJ.wall.R$Category <- "Wall R Value"
+
+tableJJ.2by6.R <- mean_one_group_unweighted(CustomerLevelData = tableJJ.2x6.data
+                                 ,valueVariable = "aveRval"
+                                 ,byVariable = "State"
+                                 ,aggregateRow = "Region")
+tableJJ.2by6.R$Category <- "2x6 Framed Wall R Value"
+
+wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFactors = F)

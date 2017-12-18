@@ -400,6 +400,19 @@ exportTable(item26.final.SF, "SF", "Table 33", weighted = FALSE)
 
 
 
+######## Weighted
+tableJJ.attic <- mean_one_group(CustomerLevelData = item26.data
+                                ,valueVariable = "aveRval"
+                                ,byVariable = "State"
+                                ,aggregateRow = "Region")
+
+######## Unweighted
+tableJJ.attic <- mean_one_group_unweighted(CustomerLevelData = item26.data
+                                ,valueVariable = "aveRval"
+                                ,byVariable = "State"
+                                ,aggregateRow = "Region")
+
+
 
 
 
