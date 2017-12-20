@@ -56,3 +56,29 @@ rowOrder <- c("Single Family Detached"
               ,"Total")
 item1.table <- item1.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
 item1.table <- data.frame(item1.table)
+
+
+
+# Some more row orderings
+rowOrder <- c("Metal Single Glazed"
+              ,"Metal Double Glazed"
+              ,"Metal Triple Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+              ,"Other Double Glazed" 
+              ,"All Framing Categories"
+)
+
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1985"
+              ,"1986-1990"
+              ,"1991-1995"
+              ,"1996-2000"
+              ,"2001-2005"
+              ,"2006-2010"
+              ,"Post 2010"
+              ,"All Vintages")
