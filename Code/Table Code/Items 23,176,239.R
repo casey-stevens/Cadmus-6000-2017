@@ -450,13 +450,13 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 
 
-rbsa.floor <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
-floor.merge <- left_join(rbsa.floor, prep.dat5)
-#########export rvalues
-##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(floor.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Floor Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# rbsa.floor <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
+# floor.merge <- left_join(rbsa.floor, prep.dat5)
+# #########export rvalues
+# ##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(floor.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Floor Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 
@@ -590,6 +590,7 @@ item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            # ,"n.RGT36"         = item23.cast$n_RGT36
                            ,"n"                 = item23.cast$`n_All Housing Vintages`
                            )
+
 # row ordering example code
 levels(item23.table$Housing.Vintage)
 rowOrder <- c("Pre 1981"
@@ -598,9 +599,9 @@ rowOrder <- c("Pre 1981"
               ,"2001-2010"
               ,"Post 2010"
               ,"All Housing Vintages")
-
 item23.table <- item23.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 item23.table <- data.frame(item23.table)
+
 
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 

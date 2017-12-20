@@ -9,6 +9,10 @@ names(item80.melt) <- c("CK_Cadmus_ID", "Type", "Count")
 
 
 # row ordering example code
+####################################
+# Update this code Row Variable = Washer.Type in this example (all Washer.Type will need to be updated)
+# Update row order to make match with previous or at least have total row at bottom
+# If final table have <NA> something was named incorrectly
 levels(item87.table$Washer.Type)
 rowOrder <- c("Combined Washer/Dryer in one drum"
               ,"Horizontal Axis"
@@ -19,6 +23,8 @@ rowOrder <- c("Combined Washer/Dryer in one drum"
               ,"Total")
 item87.table <- item87.table %>% mutate(Washer.Type = factor(Washer.Type, levels = rowOrder)) %>% arrange(Washer.Type)  
 item87.table <- data.frame(item87.table)
+
+
 rowOrder <- c("Pre 1955"
               ,"1955-1970"
               ,"1971-1980"
@@ -27,6 +33,8 @@ rowOrder <- c("Pre 1955"
               ,"2001-2010"
               ,"Post 2010"
               ,"All Vintages")
+
+
 rowOrder <- c("Apartment Building (3 or fewer floors)"
               ,"Apartment Building (4 to 6 floors)"
               ,"Apartment Building (More than 6 floors)"
