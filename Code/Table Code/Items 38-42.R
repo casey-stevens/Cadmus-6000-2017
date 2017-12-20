@@ -299,6 +299,22 @@ item40.final <- mean_one_group(CustomerLevelData = item40.dat1
                                ,byVariable = 'HomeYearBuilt_bins4'
                                ,aggregateRow = "All Vintages")
 
+unique(item40.final$HomeYearBuilt_bins4)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1985"
+              ,"1986-1990"
+              ,"1991-1995"
+              ,"1996-2000"
+              ,"2001-2005"
+              ,"2006-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item40.final <- item40.final %>% mutate(HomeYearBuilt_bins4 = factor(HomeYearBuilt_bins4, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins4)  
+item40.final <- data.frame(item40.final)
+
 item40.final.SF <- item40.final[which(item40.final$BuildingType == "Single Family")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
 exportTable(item40.final.SF, "SF", "Table 47", weighted = TRUE)
@@ -310,6 +326,22 @@ item40.final <- mean_one_group_unweighted(CustomerLevelData = item40.dat1
                                           ,valueVariable = 'ACH50'
                                           ,byVariable = 'HomeYearBuilt_bins4'
                                           ,aggregateRow = "All Vintages")
+
+unique(item40.final$HomeYearBuilt_bins4)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1985"
+              ,"1986-1990"
+              ,"1991-1995"
+              ,"1996-2000"
+              ,"2001-2005"
+              ,"2006-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item40.final <- item40.final %>% mutate(HomeYearBuilt_bins4 = factor(HomeYearBuilt_bins4, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins4)  
+item40.final <- data.frame(item40.final)
 
 item40.final.SF <- item40.final[which(item40.final$BuildingType == "Single Family")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
@@ -327,6 +359,20 @@ item40.final <- mean_one_group(CustomerLevelData = item40.dat1
                                ,byVariable = 'HomeYearBuilt_bins2'
                                ,aggregateRow = "All Vintages")
 
+unique(item40.final$HomeYearBuilt_bins2)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item40.final <- item40.final %>% mutate(HomeYearBuilt_bins2 = factor(HomeYearBuilt_bins2, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins2)  
+item40.final <- data.frame(item40.final)
+
+
 item40.final.MH <- item40.final[which(item40.final$BuildingType == "Manufactured")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
 exportTable(item40.final.MH, "MH", "Table 29", weighted = TRUE)
@@ -338,6 +384,19 @@ item40.final <- mean_one_group_unweighted(CustomerLevelData = item40.dat1
                                           ,valueVariable = 'ACH50'
                                           ,byVariable = 'HomeYearBuilt_bins2'
                                           ,aggregateRow = "All Vintages")
+
+unique(item40.final$HomeYearBuilt_bins2)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item40.final <- item40.final %>% mutate(HomeYearBuilt_bins2 = factor(HomeYearBuilt_bins2, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins2)  
+item40.final <- data.frame(item40.final)
 
 item40.final.MH <- item40.final[which(item40.final$BuildingType == "Manufactured")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
