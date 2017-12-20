@@ -319,12 +319,11 @@ rowOrder <- c("Packaged AC"
               ,"Packaged HP"
               ,"Central AC"
               ,"Evaporative Cooling"
-              ,"GeoThermal Heat Pump"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
               ,"Mini-split HP"
               ,"Mini-split AC"
-              ,"Furnace"
+              ,"GeoThermal Heat Pump"
               ,"Total")
 item55.table <- item55.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item55.table <- data.frame(item55.table)
