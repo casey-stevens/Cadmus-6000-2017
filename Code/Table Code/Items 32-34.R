@@ -251,6 +251,21 @@ item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
                            ,"n_Region"           = item33.cast$n_Region
 )
 
+
+levels(item33.table$Framing.Categories)
+rowOrder <- c("Metal Single Glazed"
+              ,"Metal Double Glazed"
+              ,"Metal Triple Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+              ,"Other Double Glazed" 
+              ,"All Framing Categories"
+)
+item33.table <- item33.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
+item33.table <- data.frame(item33.table)
+
+
 item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family"),-which(colnames(item33.table) %in% c("BuildingType"))]
 
 exportTable(item33.final.SF, "SF", "Table 40", weighted = TRUE)
@@ -299,6 +314,20 @@ item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
                            ,"SE_Region"          = item33.cast$SE_Region
                            ,"n_Region"           = item33.cast$n_Region
 )
+
+levels(item33.table$Framing.Categories)
+rowOrder <- c("Metal Single Glazed"
+              ,"Metal Double Glazed"
+              ,"Metal Triple Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+              ,"Other Double Glazed" 
+              ,"All Framing Categories"
+)
+item33.table <- item33.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
+item33.table <- data.frame(item33.table)
+
 
 item33.final.SF <- item33.table[which(item33.table$BuildingType == "Single Family")
                                 ,-which(colnames(item33.table) %in% c("BuildingType"))]
