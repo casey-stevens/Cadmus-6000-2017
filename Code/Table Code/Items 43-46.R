@@ -59,7 +59,7 @@ item43.dat3 <- unique(data.frame("CK_Cadmus_ID" = item43.dat2$CK_Cadmus_ID
                           ,"Primary_Secondary"  = item43.dat2$Heating.System.Ind))
 ### Clean heating type
 unique(item43.dat3$Heating_Type)
-item43.dat3$Heating_Type[grep("geo|Geo|GEO", item43.dat3$Heating_Type)] <- "Geothermal Heat Pump"
+# item43.dat3$Heating_Type[grep("geo", item43.dat3$Heating_Type, ignore.case = T)] <- "Geothermal Heat Pump"
 
 item43.dat4 <- left_join(rbsa.dat, item43.dat3, by = "CK_Cadmus_ID")
 

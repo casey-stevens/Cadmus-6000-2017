@@ -49,6 +49,12 @@ tableDD.dat0 <- tableDD.dat[which(tableDD.dat$Type == "Thermostat"),]
 tableDD.merge <- left_join(rbsa.dat, tableDD.dat0, by = "CK_Cadmus_ID")
 tableDD.merge <- tableDD.merge[which(!is.na(tableDD.merge$Thermostat.Type)),]
 
+unique(tableDD.merge$Thermostat.Type)
+tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual thermostat - Digital"
+tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable thermostat"
+tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual thermostat - Analog"
+
+
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -76,7 +82,7 @@ tableDD.cast <- dcast(setDT(tableDD.summary)
                       ,value.var = c("w.percent","w.SE","count","n", "N"))
 
 tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
-                            ,"Thermostat.Type" = tableDD.cast$Thermostat.Type
+                            ,"Thermostat.Type"= tableDD.cast$Thermostat.Type
                             ,"ID"             = tableDD.cast$w.percent_ID
                             ,"ID.SE"          = tableDD.cast$w.SE_ID
                             ,"ID.n"           = tableDD.cast$n_ID
@@ -95,8 +101,7 @@ tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
 )
 
 levels(tableDD.table$Thermostat.Type)
-rowOrder <- c("Hand remote"
-              ,"Manual thermostat - Analog"
+rowOrder <- c("Manual thermostat - Analog"
               ,"Manual thermostat - Digital"
               ,"Programmable thermostat"
               ,"Smart thermostat"
@@ -253,7 +258,7 @@ tableHH.sum <- summarise(group_by(tableHH.merge, CK_Cadmus_ID)
 tableHH.sum$Ind[which(tableHH.sum$Ind > 0)] <- 1
 
 tableHH.merge <- left_join(rbsa.dat, tableHH.sum, by = "CK_Cadmus_ID")
-tableHH.merge <- tableHH.merge[which(!is.na(tableHH.merge$Ind)),]
+tableHH.merge$Ind[which(is.na(tableHH.merge$Ind))] <- 0
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -589,13 +594,13 @@ exportTable(tableMM.table.MH, "MH", "Table MM", weighted = FALSE)
 #For everything else
 tableLL.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"Type"
-                                                                    ,"Thermostat.Wifi"
-                                                                    ,"STB.Wifi"
-                                                                    ,"TV.Wifi"
-                                                                    ,"Audio.Wifi.Enabled"
-                                                                    ,"Game.System.Wifi"
-                                                                    ,"Computer.Wifi"
-                                                                    ,"Large.Unusual.Load.Wifi.Enabled"
+                                                                    # ,"Thermostat.Wifi"
+                                                                    # ,"STB.Wifi"
+                                                                    # ,"TV.Wifi"
+                                                                    # ,"Audio.Wifi.Enabled"
+                                                                    # ,"Game.System.Wifi"
+                                                                    # ,"Computer.Wifi"
+                                                                    # ,"Large.Unusual.Load.Wifi.Enabled"
                                                                     ,"Wifi.Enabled"))]
 names(tableLL.dat)
 
@@ -607,32 +612,35 @@ names(tableLL.melt) <- c("CK_Cadmus_ID","Type","Type.Wifi","Wifi.Connected")
 
 tableLL.melt$Ind <- 0
 tableLL.melt$Ind[which(tableLL.melt$Wifi.Connected == "Yes")] <- 1
+unique(tableLL.melt$Type)
 
-tableLL.merge <- left_join(rbsa.dat, tableLL.melt, by = "CK_Cadmus_ID")
-tableLL.merge <- tableLL.merge[which(!is.na(tableLL.merge$Type.Wifi)),]
+tableLL.sum <- summarise(group_by(tableLL.melt, CK_Cadmus_ID, Type)
+                         ,Site.Count = sum(Ind))
+
+
+tableLL.sub <- tableLL.sum[which(tableLL.sum$Type %in% c("Dryer","Washer","Refrigerator","Freezer","Stove/Oven")),]
+
+tableLL.merge <- left_join(rbsa.dat, tableLL.sub)
+tableLL.merge <- tableLL.merge[which(!is.na(tableLL.merge$Type)),]
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 tableLL.data <- weightedData(tableLL.merge[-which(colnames(tableLL.merge) %in% c("Type"
-                                                                                 ,"Type.Wifi"
-                                                                                 ,"Wifi.Connected"
-                                                                                 ,"Ind"))])
+                                                                                 ,"Site.Count"))])
 tableLL.data <- left_join(tableLL.data, tableLL.merge[which(colnames(tableLL.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Type"
-                                                                                           ,"Type.Wifi"
-                                                                                           ,"Wifi.Connected"
-                                                                                           ,"Ind"))])
+                                                                                           ,"Site.Count"))])
 tableLL.data$Count <- 1
-tableLL.data$Type.Wifi <- gsub(".Wifi","",tableLL.data$Type.Wifi)
-tableLL.data$Type.Wifi <- gsub("Wifi.","",tableLL.data$Type.Wifi)
-tableLL.data$Type.Wifi <- gsub(".Enabled","",tableLL.data$Type.Wifi)
-tableLL.data$Type.Wifi[which(tableLL.data$Type.Wifi == "Enabled")] <- tableLL.data$Type[which(tableLL.data$Type.Wifi == "Enabled")]
-tableLL.data$Type.Wifi <- gsub("Desktop","Computer",tableLL.data$Type.Wifi)
-unique(tableLL.data$Type.Wifi)
+# tableLL.data$Type.Wifi <- gsub(".Wifi","",tableLL.data$Type.Wifi)
+# tableLL.data$Type.Wifi <- gsub("Wifi.","",tableLL.data$Type.Wifi)
+# tableLL.data$Type.Wifi <- gsub(".Enabled","",tableLL.data$Type.Wifi)
+# tableLL.data$Type.Wifi[which(tableLL.data$Type.Wifi == "Enabled")] <- tableLL.data$Type[which(tableLL.data$Type.Wifi == "Enabled")]
+# tableLL.data$Type.Wifi <- gsub("Desktop","Computer",tableLL.data$Type.Wifi)
+# unique(tableLL.data$Type.Wifi)
 
-tableLL.data$Wifi.Ind <- tableLL.data$Ind
+tableLL.data$Wifi.Ind <- tableLL.data$Site.Count
 
 
 #######################
@@ -641,16 +649,16 @@ tableLL.data$Wifi.Ind <- tableLL.data$Ind
 tableLL.summary <- proportionRowsAndColumns1(CustomerLevelData = tableLL.data
                                              ,valueVariable = "Wifi.Ind"
                                              ,columnVariable = "State"
-                                             ,rowVariable = "Type.Wifi"
+                                             ,rowVariable = "Type"
                                              ,aggregateColumnName = "Region")
-tableLL.summary <- tableLL.summary[which(tableLL.summary$Type.Wifi != "Total"),]
+tableLL.summary <- tableLL.summary[which(tableLL.summary$Type != "Total"),]
 
 tableLL.cast <- dcast(setDT(tableLL.summary)
-                      ,formula = BuildingType + Type.Wifi ~ State
+                      ,formula = BuildingType + Type ~ State
                       ,value.var = c("w.percent","w.SE","count","n","N"))
 
 tableLL.table <- data.frame("BuildingType"    = tableLL.cast$BuildingType
-                            ,"Type.Wifi"      = tableLL.cast$Type.Wifi
+                            ,"Type"           = tableLL.cast$Type
                             ,"ID"             = tableLL.cast$w.percent_ID
                             ,"ID.SE"          = tableLL.cast$w.SE_ID
                             ,"ID.n"           = tableLL.cast$n_ID
@@ -666,14 +674,6 @@ tableLL.table <- data.frame("BuildingType"    = tableLL.cast$BuildingType
                             ,"Region"         = tableLL.cast$w.percent_Region
                             ,"Region.SE"      = tableLL.cast$w.SE_Region
                             ,"Region.n"       = tableLL.cast$n_Region)
-
-tableLL.table <- tableLL.table[which(tableLL.table$Type.Wifi %in% c("Audio"
-                                                                    ,"Computer"
-                                                                    ,"Game Console"
-                                                                    ,"Large Unusual Load"
-                                                                    ,"STB"
-                                                                    ,"TV"
-                                                                    ,"Thermostat")),]
 
 tableLL.table.SF <- tableLL.table[which(tableLL.table$BuildingType == "Single Family")
                                   ,which(colnames(tableLL.table) %notin% c("BuildingType"))]
@@ -715,14 +715,6 @@ tableLL.table <- data.frame("BuildingType"    = tableLL.cast$BuildingType
                             ,"Region"         = tableLL.cast$Percent_Region
                             ,"Region.SE"      = tableLL.cast$SE_Region
                             ,"Region.n"       = tableLL.cast$n_Region)
-
-tableLL.table <- tableLL.table[which(tableLL.table$Type.Wifi %in% c("Audio"
-                                                                    ,"Computer"
-                                                                    ,"Game Console"
-                                                                    ,"Large Unusual Load"
-                                                                    ,"STB"
-                                                                    ,"TV"
-                                                                    ,"Thermostat")),]
 
 tableLL.table.SF <- tableLL.table[which(tableLL.table$BuildingType == "Single Family")
                                   ,which(colnames(tableLL.table) %notin% c("BuildingType"))]

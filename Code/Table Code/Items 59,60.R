@@ -53,20 +53,23 @@ item59.dat0 <- left_join(rbsa.dat, item59.dat00, by = "CK_Cadmus_ID")
 #subset to only Generic = Ducting
 item59.dat1 <- unique(item59.dat0[which(item59.dat0$Generic == "Ducting"),])
 length(unique(item59.dat1$CK_Cadmus_ID))
+unique(item59.dat1$System.Type)
+
+item59.dat2 <- item59.dat1[-grep("not present|presence unknown|not asked for", item59.dat1$System.Type,ignore.case = T),]
+unique(item59.dat2$System.Type)
 
 # Add count var
-item59.dat1$Ind <- 1
+item59.dat2$Ind <- 1
 
-item59.dat2 <- left_join(rbsa.dat, item59.dat1)
-item59.dat2$Ind[which(is.na(item59.dat2$Ind))] <- 0
-which(duplicated(item59.dat2$CK_Cadmus_ID))
+item59.dat3 <- left_join(rbsa.dat, item59.dat2)
+item59.dat3$Ind[which(is.na(item59.dat3$Ind))] <- 0
+which(duplicated(item59.dat3$CK_Cadmus_ID))
 
-item59.customer <- summarise(group_by(item59.dat2, CK_Cadmus_ID)
+item59.customer <- summarise(group_by(item59.dat3, CK_Cadmus_ID)
                              ,Ind = sum(unique(Ind)))
 item59.customer$Ind[which(item59.customer$Ind > 0)] <- 1
 
 item59.merge <- left_join(rbsa.dat, item59.customer)
-item59.merge <- item59.merge[which(!is.na(item59.merge$Ind)),]
 item59.merge <- item59.merge[grep("site",item59.merge$CK_Building_ID, ignore.case = T),]
 
 # Weighting function

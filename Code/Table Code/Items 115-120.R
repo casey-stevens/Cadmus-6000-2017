@@ -145,7 +145,7 @@ item116.sum <- summarise(group_by(item116.dat2, CK_Cadmus_ID)
                          ,Ind = sum(Ind))
 
 item116.merge <- left_join(rbsa.dat, item116.sum)
-item116.merge <- item116.merge[which(!is.na(item116.merge$Ind)),]
+item116.merge$Ind[which(is.na(item116.merge$Ind))] <- 0
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -228,7 +228,7 @@ item117.sum <- summarise(group_by(item117.dat2, CK_Cadmus_ID)
                          ,Site.Count = sum(Ind, na.rm = T))
 
 item117.merge <- left_join(rbsa.dat, item117.sum)
-item117.merge <- item117.merge[which(!is.na(item117.merge$Site.Count)),]
+item117.merge$Site.Count[which(is.na(item117.merge$Site.Count))] <- 0
 
 
 ################################################

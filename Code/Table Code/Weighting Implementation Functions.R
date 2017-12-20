@@ -584,7 +584,7 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"N.h"
                                                                           ,"n.h"))])
       columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType"),summarise
-                                           ,columnVar.N.h = sum(N.h)
+                                           ,columnVar.N.h = sum(unique(N.h))
                                            ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
       
       
@@ -1174,6 +1174,8 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Washer.Type == "Total" & item.final$Washer.Age == "All Vintages")])
   }else if(columnVariable == "Cooling.Zone" & rowVariable == "State"){
     item.final$Percent <- item.final$Count / item.final$n
+  }else if(columnVariable == "State" & rowVariable == "Ownership.Type" & valueVariable == "count"){
+    item.final$Percent <- item.final$Count / item.final$Total.Count
   }else if(columnVariable == "State" & rowVariable == "Ownership.Type"){
     item.final$Percent <- item.final$Count / item.final$n
   }else {

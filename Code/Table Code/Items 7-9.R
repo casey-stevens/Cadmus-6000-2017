@@ -57,7 +57,7 @@ item7.customer <- summarise(group_by(item7.dat2
                             ,CountRooms = sum(count))
 
 item7.merge <- left_join(rbsa.dat, item7.customer)
-item7.merge <- item7.merge[which(!is.na(item7.merge$CountRooms)),]
+item7.merge$CountRooms[which(is.na(item7.merge$CountRooms))] <- 0
 
 # apply weights to the subset of the data
 item7.data <- weightedData(item7.merge[-which(colnames(item7.merge) == "CountRooms")])
@@ -136,7 +136,7 @@ item8.customer <- summarise(group_by(item8.dat2
                             ,CountRooms = sum(count))
 
 item8.merge <- left_join(rbsa.dat, item8.customer)
-item8.merge <- item8.merge[which(!is.na(item8.merge$CountRooms)),]
+item8.merge$CountRooms[which(is.na(item8.merge$CountRooms))] <- 0
 
 # apply weights to the subset of the data
 item8.data <- weightedData(item8.merge[-which(colnames(item8.merge) == "CountRooms")])

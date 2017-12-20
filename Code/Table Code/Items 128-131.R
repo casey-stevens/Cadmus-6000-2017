@@ -149,6 +149,16 @@ item128.table <- data.frame("BuildingType"    = item128.cast$BuildingType
                             ,"n_Region"       = item128.cast$n_Region
 )
 
+# row ordering example code
+unique(item128.table$Percent.Assistance)
+rowOrder <- c("Less than 25%"
+              ,"Between 26% and 50%"
+              ,"Between 51% and 75%"
+              ,"Between 76% and 100%"
+              ,"No Utility Bill Assistance"
+              ,"Total")
+item128.table <- item128.table %>% mutate(Percent.Assistance = factor(Percent.Assistance, levels = rowOrder)) %>% arrange(Percent.Assistance)  
+item128.table <- data.frame(item128.table)
 
 item128.final.SF <- item128.table[which(item128.table$BuildingType == "Single Family")
                                   ,-which(colnames(item128.table) %in% c("BuildingType"))]

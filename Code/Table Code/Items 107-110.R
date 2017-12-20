@@ -45,13 +45,12 @@ item107.dat0 <- item107.dat[which(item107.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 
 item107.dat1 <- item107.dat0[which(item107.dat0$Type == "Television"),]
-item107.merge <- left_join(item107.dat1, rbsa.dat)
 
-item107.customer <- summarise(group_by(item107.merge, CK_Cadmus_ID, BuildingType, State)
+item107.customer <- summarise(group_by(item107.dat1, CK_Cadmus_ID)
                               ,Site.Count = sum(count))
 
 item107.customer <- left_join(rbsa.dat, item107.customer)
-item107.customer <- item107.customer[which(!is.na(item107.customer$Site.Count)),]
+item107.customer$Site.Count[which(is.na(item107.customer$Site.Count))] <- 0
 
 ################################################
 # Adding pop and sample sizes for weights

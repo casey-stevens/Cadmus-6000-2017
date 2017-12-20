@@ -43,6 +43,18 @@ mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.exp
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 
+# sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+# sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
+# 
+# 
+# sites.interview.dat1 <- sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID", "INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"))]
+# sites.interview.dat1 <- sites.interview.dat1[which(!is.na(sites.interview.dat1$INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek)),]
+# 
+# rbsa.dat.sf <- rbsa.dat[which(rbsa.dat$BuildingType == "Single Family"),]
+# 
+# rbsa.merge <- left_join(rbsa.dat.sf, sites.interview.dat1)
+# rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek)),]
+
 #############################################################################################
 #Item 80: AVERAGE NUMBER OF APPLIANCES PER HOME BY TYPE (SF table 87, MH table 68)
 #############################################################################################
@@ -67,7 +79,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
   item80.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Type"
                                                                ,"Large.Unusual.Load.Quantity"
-                                                               ,""
+                                                               ,"Age"
                                                                ,""
                                                                ,""))]
   item80.dat$count <- 1
@@ -85,15 +97,30 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
   item80.sum <- summarise(group_by(item80.dat1, CK_Cadmus_ID, Type)
                           ,Count = sum(TotalQty))
   
+  
+  
+  
 # Row bind water heater and appliance counts
 item80.merge <- rbind.data.frame(item80.site, item80.sum)
   
-item80.tmp <- left_join(rbsa.dat, item80.merge)
-item80.tmp$Count[which(is.na(item80.tmp$Count))] <- 0
+item80.merge <- left_join(rbsa.dat, item80.merge) #switch RBSA.dat to rbsa.merge to get more info on washers/dryers
 
-item80.cast <- dcast(setDT(item80.tmp)
+item80.merge <- item80.merge[which(!is.na(item80.merge$Type)),]
+item80.merge$Count[which(is.na(item80.merge$Count))] <- 0
+
+item80.cast <- dcast(setDT(item80.merge)
                      ,formula = CK_Cadmus_ID ~ Type
                      ,value.var = c("Count"))
+
+
+
+# item80.missing.washer <- item80.cast[which(is.na(item80.cast$Washer)),]
+# item80.missing.washer <- left_join(item80.missing.washer, rbsa.dat)
+# item80.washer.sf <- item80.missing.washer[which(item80.missing.washer$BuildingType == "Single Family"),]
+# 
+# item80.washer.sf.merge <- left_join(item80.washer.sf, sites.interview.dat1)
+
+
 item80.cast[is.na(item80.cast),] <- 0
 
 item80.melt <- melt(item80.cast, id.vars = "CK_Cadmus_ID")
@@ -115,10 +142,12 @@ item80.merge <- item80.merge[which(item80.merge$Type %in% c("Dishwasher"
 # Adding pop and sample sizes for weights
 ################################################
 item80.data <- weightedData(item80.merge[-which(colnames(item80.merge) %in% c("Count"
-                                                                              ,"Type"))])
+                                                                              ,"Type"
+                                                                              ,"Age"))])
 item80.data <- left_join(item80.data, item80.merge[which(colnames(item80.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"Count"
-                                                                                       ,"Type"))])
+                                                                                       ,"Type"
+                                                                                       ,"Age"))])
 item80.data$count <- 1
 
 #######################
@@ -164,6 +193,177 @@ item80.final.MH <- item80.final[which(item80.final$BuildingType == "Manufactured
 
 exportTable(item80.final.SF, "SF", "Table 87", weighted = FALSE)
 exportTable(item80.final.MH, "MH", "Table 68", weighted = FALSE)
+
+
+
+#############################################################################################
+#Table AB: Average Age of Appliance Equipment by Type
+#############################################################################################
+tableAB.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Type"
+                                                                   ,"Age"
+                                                                   ,""
+                                                                   ,""))]
+tableAB.dat$count <- 1
+
+tableAB.dat$Age <- as.numeric(as.character(tableAB.dat$Age))
+tableAB.dat0 <- tableAB.dat[which(tableAB.dat$Age > 0),]
+
+tableAB.merge <- left_join(rbsa.dat, tableAB.dat0, by = "CK_Cadmus_ID")
+tableAB.merge <- tableAB.merge[which(tableAB.merge$Age > 0),]
+
+unique(tableAB.merge$Type)
+tableAB.merge <- tableAB.merge[which(tableAB.merge$Type %in% c("Dishwasher"
+                                                            ,"Dryer"
+                                                            ,"Freezer"
+                                                            ,"Refrigerator"
+                                                            ,"Washer")),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAB.data <- weightedData(tableAB.merge[-which(colnames(tableAB.merge) %in% c("count"
+                                                                              ,"Type"
+                                                                              ,"Age"))])
+tableAB.data <- left_join(tableAB.data, tableAB.merge[which(colnames(tableAB.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"count"
+                                                                                       ,"Type"
+                                                                                       ,"Age"))])
+tableAB.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableAB.final <- mean_one_group(CustomerLevelData = tableAB.data
+                               ,valueVariable    = 'Age'
+                               ,byVariable       = 'Type'
+                               ,aggregateRow = "Total")
+# tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
+
+
+tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
+tableAB.final.MH <- tableAB.final[which(tableAB.final$BuildingType == "Manufactured")
+                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
+
+exportTable(tableAB.final.SF, "SF", "Table AB", weighted = TRUE)
+exportTable(tableAB.final.MH, "MH", "Table AB", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAB.final <- mean_one_group_unweighted(CustomerLevelData = tableAB.data
+                                          ,valueVariable    = 'Age'
+                                          ,byVariable       = 'Type'
+                                          ,aggregateRow = "Total")
+# tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
+
+tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
+tableAB.final.MH <- tableAB.final[which(tableAB.final$BuildingType == "Manufactured")
+                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
+
+exportTable(tableAB.final.SF, "SF", "Table AB", weighted = FALSE)
+exportTable(tableAB.final.MH, "MH", "Table AB", weighted = FALSE)
+
+
+
+
+#############################################################################################
+#Table AC: Percent of Appliance Equipment above measure life by Type
+#############################################################################################
+tableAC.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                    ,"Type"
+                                                                    ,"Age"
+                                                                    ,""
+                                                                    ,""))]
+tableAC.dat$count <- 1
+
+tableAC.dat$Age <- as.numeric(as.character(tableAC.dat$Age))
+tableAC.dat0 <- tableAC.dat[which(tableAC.dat$Age > 0),]
+
+tableAC.merge <- left_join(rbsa.dat, tableAC.dat0, by = "CK_Cadmus_ID")
+tableAC.merge <- tableAC.merge[which(tableAC.merge$Age > 0),]
+
+unique(tableAC.merge$Type)
+tableAC.merge <- tableAC.merge[which(tableAC.merge$Type %in% c("Dishwasher"
+                                                               ,"Dryer"
+                                                               ,"Freezer"
+                                                               ,"Refrigerator"
+                                                               ,"Washer")),]
+
+tableAC.merge$MeasureMap <- 0
+tableAC.merge$MeasureMap[which(tableAC.merge$Type == "Refrigerator")] <- 15
+tableAC.merge$MeasureMap[which(tableAC.merge$Type == "Freezer")] <- 22
+tableAC.merge$MeasureMap[which(tableAC.merge$Type == "Washer")] <- 14
+tableAC.merge$MeasureMap[which(tableAC.merge$Type == "Dryer")] <- 12
+tableAC.merge$MeasureMap[which(tableAC.merge$Type == "Dishwasher")] <- 12
+
+tableAC.merge$Age.Diff <- 2017 - tableAC.merge$Age
+
+tableAC.merge$Above.Measure.Life <- "No"
+tableAC.merge$Above.Measure.Life[which(tableAC.merge$Age.Diff > tableAC.merge$MeasureMap)] <- "Yes"
+
+tableAC.merge$Ind <- 0
+tableAC.merge$Ind[which(tableAC.merge$Age.Diff > tableAC.merge$MeasureMap)] <- 1
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAC.data <- weightedData(tableAC.merge[-which(colnames(tableAC.merge) %in% c("Type"
+                                                                                 ,"Age"
+                                                                                 ,"count"
+                                                                                 ,"MeasureMap"
+                                                                                 ,"Above.Measure.Life"
+                                                                                 ,"Age.Diff"
+                                                                                 ,"Ind"))])
+tableAC.data <- left_join(tableAC.data, tableAC.merge[which(colnames(tableAC.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Type"
+                                                                                           ,"Age"
+                                                                                           ,"count"
+                                                                                           ,"MeasureMap"
+                                                                                           ,"Above.Measure.Life"
+                                                                                           ,"Age.Diff"
+                                                                                           ,"Ind"))])
+tableAC.data$count <- 1
+tableAC.data$Count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region")
+tableAC.final$State[which(tableAC.final$State == "Total")] <- "Region"
+
+tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
+tableAC.final.MH <- tableAC.final[which(tableAC.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
+
+exportTable(tableAC.final.SF, "SF", "Table AC", weighted = TRUE)
+exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region")
+tableAC.final$State[which(tableAC.final$State == "Total")] <- "Region"
+
+tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
+tableAC.final.MH <- tableAC.final[which(tableAC.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
+
+exportTable(tableAC.final.SF, "SF", "Table AC", weighted = FALSE)
+exportTable(tableAC.final.MH, "MH", "Table AC", weighted = FALSE)
 
 
 

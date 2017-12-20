@@ -219,8 +219,8 @@ item51.data <- item50.data
 # Create heating efficiency bins
 item51.data$Efficiency_bins <- as.numeric(as.character(item51.data$`Heating.Efficiency.-.High`))
 item51.data$Efficiency_bins[which(item51.data$`Heating.Efficiency.-.High` < .80)] <- "< 80%"
-item51.data$Efficiency_bins[which(item51.data$`Heating.Efficiency.-.High` >= .80 & item51.data$`Heating.Efficiency.-.High` < 90)] <- "80-89%"
-item51.data$Efficiency_bins[which(item51.data$`Heating.Efficiency.-.High` >= .90 & item51.data$`Heating.Efficiency.-.High` < 94)] <- "90-94%"
+item51.data$Efficiency_bins[which(item51.data$`Heating.Efficiency.-.High` >= .80 & item51.data$`Heating.Efficiency.-.High` < .90)] <- "80-89%"
+item51.data$Efficiency_bins[which(item51.data$`Heating.Efficiency.-.High` >= .90 & item51.data$`Heating.Efficiency.-.High` < .95)] <- "90-94%"
 item51.data$Efficiency_bins[which(item51.data$`Heating.Efficiency.-.High` >= .94)] <- "> 94%"
 #check that efficiency bins are what we expect/want
 unique(item51.data$Efficiency_bins)

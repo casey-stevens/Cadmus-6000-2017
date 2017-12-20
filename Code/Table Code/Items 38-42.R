@@ -145,7 +145,7 @@ item38.data <- left_join(item38.data, item38.dat2[which(colnames(item38.dat2) %i
                                                                                      ,"CFM50"))])
 item38.data$count <- 1
 
-##  Write out confidence/precision info
+#  Write out
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(item38.data, paste(filepathCleaningDocs, "Insulation Exports", paste("blower.door.calcs ", rundate, ".xlsx", sep = ""), sep="/"),
 #            append = T, row.names = F, showNA = F)

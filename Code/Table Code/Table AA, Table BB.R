@@ -43,44 +43,51 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 #Item 62: AVERAGE DUCT LEAKAGE TOTAL FLOW BY STATE  (SF table 69)
 #############################################################################################
 #subset to columns needed for analysis
-item62.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+tableAA.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
                                                                    ,"System.Type"
                                                                    ,"MECH_TrueFLow_Plate14_PressureDifference"
                                                                    ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                    ,"MECH_TrueFLow_NSOP"
                                                                    ,"MECH_TrueFLow_TFSOP"
                                                                    ,"MECH_TrueFLow_SOP_NoFilter"))]
-str(item62.dat)
-item62.dat1 <- item62.dat[which(!is.na(item62.dat$MECH_TrueFLow_NSOP)),]
-item62.dat2 <- item62.dat1[which(!is.na(item62.dat1$MECH_TrueFLow_SOP_NoFilter)),]
+str(tableAA.dat)
+tableAA.dat1 <- tableAA.dat[which(!is.na(tableAA.dat$MECH_TrueFLow_NSOP)),]
+tableAA.dat2 <- tableAA.dat1[which(!is.na(tableAA.dat1$MECH_TrueFLow_SOP_NoFilter)),]
 ii=145
-for(ii in 1:nrow(item62.dat2)){
-  if(!is.na(item62.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])){
-    item62.dat2$Flow[ii] <- sqrt(item62.dat2$MECH_TrueFLow_NSOP[ii] / item62.dat2$MECH_TrueFLow_SOP_NoFilter[ii]) * (115 * sqrt(abs(item62.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])))
+for(ii in 1:nrow(tableAA.dat2)){
+  if(!is.na(tableAA.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])){
+    tableAA.dat2$Flow[ii] <- sqrt(tableAA.dat2$MECH_TrueFLow_NSOP[ii] / tableAA.dat2$MECH_TrueFLow_SOP_NoFilter[ii]) * (115 * sqrt(abs(tableAA.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])))
   }else{
-    item62.dat2$Flow[ii] <- sqrt(item62.dat2$MECH_TrueFLow_NSOP[ii] / item62.dat2$MECH_TrueFLow_SOP_NoFilter[ii]) * (154 * sqrt(abs(item62.dat2$MECH_TrueFLow_Plate20_PressureDifference[ii])))
+    tableAA.dat2$Flow[ii] <- sqrt(tableAA.dat2$MECH_TrueFLow_NSOP[ii] / tableAA.dat2$MECH_TrueFLow_SOP_NoFilter[ii]) * (154 * sqrt(abs(tableAA.dat2$MECH_TrueFLow_Plate20_PressureDifference[ii])))
   }
 }
 
-unique(item62.dat2$Flow)
-item62.dat3 <- item62.dat2[which(item62.dat2$Flow %notin% c("NaN",NA)),]
-item62.dat3 <- item62.dat3[which(item62.dat3$Flow < 2000),]
+unique(tableAA.dat2$Flow)
+tableAA.dat3 <- tableAA.dat2[which(tableAA.dat2$Flow %notin% c("NaN",NA)),]
 
-item62.merge <- left_join(rbsa.dat, item62.dat3)
-item62.merge <- item62.merge[which(!is.na(item62.merge$Flow)),]
+#  Write out
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(tableAA.dat3, paste(filepathCleaningDocs, "Insulation Exports", paste("true.flow.calcs ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
+
+
+# tableAA.dat3 <- tableAA.dat3[which(tableAA.dat3$Flow < 2000),]
+
+tableAA.merge <- left_join(rbsa.dat, tableAA.dat3)
+tableAA.merge <- tableAA.merge[which(!is.na(tableAA.merge$Flow)),]
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item62.data <- weightedData(item62.merge[-which(colnames(item62.merge) %in% c("MECH_TrueFLow_NSOP"
+tableAA.data <- weightedData(tableAA.merge[-which(colnames(tableAA.merge) %in% c("MECH_TrueFLow_NSOP"
                                                                               ,"MECH_TrueFLow_Plate14_PressureDifference"
                                                                               ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                               ,"MECH_TrueFLow_SOP_NoFilter"
                                                                               ,"MECH_TrueFLow_TFSOP"
                                                                               ,"System.Type"
                                                                               ,"Flow" ))])
-item62.data <- left_join(item62.data, item62.merge[which(colnames(item62.merge) %in% c("CK_Cadmus_ID"
+tableAA.data <- left_join(tableAA.data, tableAA.merge[which(colnames(tableAA.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"MECH_TrueFLow_NSOP"
                                                                                        ,"MECH_TrueFLow_Plate14_PressureDifference"
                                                                                        ,"MECH_TrueFLow_Plate20_PressureDifference"
@@ -88,42 +95,42 @@ item62.data <- left_join(item62.data, item62.merge[which(colnames(item62.merge) 
                                                                                        ,"MECH_TrueFLow_TFSOP"
                                                                                        ,"System.Type"
                                                                                        ,"Flow"))])
-item62.data$count <- 1
-colnames(item62.data)
+tableAA.data$count <- 1
+colnames(tableAA.data)
 #######################
 # Weighted Analysis
 #######################
-item62.final <- mean_one_group(CustomerLevelData = item62.data
+tableAA.final <- mean_one_group(CustomerLevelData = tableAA.data
                                ,valueVariable = 'Flow'
                                ,byVariable = 'State'
                                ,aggregateRow = 'Region')
-item62.final.SF <- item62.final[which(item62.final$BuildingType == "Single Family")
-                                ,which(colnames(item62.final) %notin% c("BuildingType"))]
-exportTable(item62.final.SF, "SF", "Table AA", weighted = TRUE)
+tableAA.final.SF <- tableAA.final[which(tableAA.final$BuildingType == "Single Family")
+                                ,which(colnames(tableAA.final) %notin% c("BuildingType"))]
+exportTable(tableAA.final.SF, "SF", "Table AA", weighted = TRUE)
 
 #######################
 # unweighted Analysis
 #######################
-item62.final <- mean_one_group_unweighted(CustomerLevelData = item62.data
+tableAA.final <- mean_one_group_unweighted(CustomerLevelData = tableAA.data
                                ,valueVariable = 'Flow'
                                ,byVariable = 'State'
                                ,aggregateRow = 'Region')
-item62.final.SF <- item62.final[which(item62.final$BuildingType == "Single Family")
-                                ,which(colnames(item62.final) %notin% c("BuildingType"))]
-exportTable(item62.final.SF, "SF", "Table AA", weighted = FALSE)
+tableAA.final.SF <- tableAA.final[which(tableAA.final$BuildingType == "Single Family")
+                                ,which(colnames(tableAA.final) %notin% c("BuildingType"))]
+exportTable(tableAA.final.SF, "SF", "Table AA", weighted = FALSE)
 
 
 #############################################################################################
 #Item 63: AVERAGE DUCT LEAKAGE TOTAL FLOW (NORMALIZED BY HOUSE AREA) BY STATE (SF table 70)
 #############################################################################################
-item63.dat <- item62.merge
-item63.dat$Normalized.Flow <- item63.dat$Flow / item63.dat$Conditioned.Area
-item63.dat1 <- item63.dat[which(!is.na(item63.dat$Normalized.Flow)),]
+tableBB.dat <- tableAA.merge
+tableBB.dat$Normalized.Flow <- tableBB.dat$Flow / tableBB.dat$Conditioned.Area
+tableBB.dat1 <- tableBB.dat[which(!is.na(tableBB.dat$Normalized.Flow)),]
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item63.data <- weightedData(item63.dat1[-which(colnames(item63.dat1) %in% c("MECH_TrueFLow_NSOP"
+tableBB.data <- weightedData(tableBB.dat1[-which(colnames(tableBB.dat1) %in% c("MECH_TrueFLow_NSOP"
                                                                               ,"MECH_TrueFLow_Plate14_PressureDifference"
                                                                               ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                               ,"MECH_TrueFLow_SOP_NoFilter"
@@ -131,7 +138,7 @@ item63.data <- weightedData(item63.dat1[-which(colnames(item63.dat1) %in% c("MEC
                                                                               ,"System.Type"
                                                                               ,"Flow"
                                                                               ,"Normalized.Flow"))])
-item63.data <- left_join(item63.data, item63.dat1[which(colnames(item63.dat1) %in% c("CK_Cadmus_ID"
+tableBB.data <- left_join(tableBB.data, tableBB.dat1[which(colnames(tableBB.dat1) %in% c("CK_Cadmus_ID"
                                                                                        ,"MECH_TrueFLow_NSOP"
                                                                                        ,"MECH_TrueFLow_Plate14_PressureDifference"
                                                                                        ,"MECH_TrueFLow_Plate20_PressureDifference"
@@ -140,28 +147,28 @@ item63.data <- left_join(item63.data, item63.dat1[which(colnames(item63.dat1) %i
                                                                                        ,"System.Type"
                                                                                        ,"Flow"
                                                                                        ,"Normalized.Flow"))])
-item63.data$count <- 1
-colnames(item63.data)
+tableBB.data$count <- 1
+colnames(tableBB.data)
 
 #######################
 # Weighted Analysis
 #######################
-item63.final <- mean_one_group(CustomerLevelData = item63.data
+tableBB.final <- mean_one_group(CustomerLevelData = tableBB.data
                                ,valueVariable = 'Normalized.Flow'
                                ,byVariable = 'State'
                                ,aggregateRow = 'Region')
-item63.final.SF <- item63.final[which(item63.final$BuildingType == "Single Family")
-                                ,which(colnames(item63.final) %notin% c("BuildingType"))]
-exportTable(item63.final.SF, "SF", "Table BB", weighted = TRUE)
+tableBB.final.SF <- tableBB.final[which(tableBB.final$BuildingType == "Single Family")
+                                ,which(colnames(tableBB.final) %notin% c("BuildingType"))]
+exportTable(tableBB.final.SF, "SF", "Table BB", weighted = TRUE)
 
 #######################
 # unweighted Analysis
 #######################
-item63.final <- mean_one_group_unweighted(CustomerLevelData = item63.data
+tableBB.final <- mean_one_group_unweighted(CustomerLevelData = tableBB.data
                                           ,valueVariable = 'Normalized.Flow'
                                           ,byVariable = 'State'
                                           ,aggregateRow = 'Region')
-item63.final.SF <- item63.final[which(item63.final$BuildingType == "Single Family")
-                                ,which(colnames(item63.final) %notin% c("BuildingType"))]
-exportTable(item63.final.SF, "SF", "Table BB", weighted = FALSE)
+tableBB.final.SF <- tableBB.final[which(tableBB.final$BuildingType == "Single Family")
+                                ,which(colnames(tableBB.final) %notin% c("BuildingType"))]
+exportTable(tableBB.final.SF, "SF", "Table BB", weighted = FALSE)
 

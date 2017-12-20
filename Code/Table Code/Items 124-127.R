@@ -387,3 +387,78 @@ item127.final.MH <- item127.table[which(item127.table$BuildingType == "Manufactu
 exportTable(item127.final.SF, "SF", "Table 134", weighted = FALSE)
 exportTable(item127.final.MH, "MH", "Table 109", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 127: DISTRIBUTION OF HOMES WITH ELECTRIC FUEL ASSISTANCE BY PERCENTAGE OF ASSISTANCE AND STATE 
+# (SF table 134, MH table 109)
+#############################################################################################
+#subset to columns needed for analysis
+tableAD.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+                                                            ,"Has.your.household.completed.a.home.energy.audit.in.the.past.2.years?"))]
+colnames(tableAD.dat) <- c("Energy.Audit", "CK_Cadmus_ID")
+
+#merge together analysis data with cleaned RBSA data
+tableAD.dat1 <- left_join(rbsa.dat, tableAD.dat, by = "CK_Cadmus_ID")
+tableAD.dat2 <- tableAD.dat1[which(tableAD.dat1$Energy.Audit %in% c("Yes","No")),]
+unique(tableAD.dat2$Energy.Audit)
+
+tableAD.dat2$Ind <- 0
+tableAD.dat2$Ind[which(tableAD.dat2$Energy.Audit == "Yes")] <- 1
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAD.data <- weightedData(tableAD.dat2[-which(colnames(tableAD.dat2) %in% c("Energy.Audit"
+                                                                               ,"Ind"))])
+tableAD.data <- left_join(tableAD.data, tableAD.dat2[which(colnames(tableAD.dat2) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Energy.Audit"
+                                                                                         ,"Ind"))])
+tableAD.data$count <- 1
+tableAD.data$Count <- 1
+#######################
+# Weighted Analysis
+#######################
+tableAD.final <- proportions_one_group(CustomerLevelData = tableAD.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region")
+tableAD.final$State[which(tableAD.final$State == "Total")] <- "Region"
+
+
+tableAD.final.SF <- tableAD.final[which(tableAD.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAD.final) %in% c("BuildingType"))]
+tableAD.final.MH <- tableAD.final[which(tableAD.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAD.final) %in% c("BuildingType"))]
+
+exportTable(tableAD.final.SF, "SF", "Table AD", weighted = TRUE)
+exportTable(tableAD.final.MH, "MH", "Table AD", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAD.final <- proportions_one_group(CustomerLevelData = tableAD.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE)
+tableAD.final$State[which(tableAD.final$State == "Total")] <- "Region"
+
+
+tableAD.final.SF <- tableAD.final[which(tableAD.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAD.final) %in% c("BuildingType"))]
+tableAD.final.MH <- tableAD.final[which(tableAD.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAD.final) %in% c("BuildingType"))]
+
+exportTable(tableAD.final.SF, "SF", "Table AD", weighted = FALSE)
+exportTable(tableAD.final.MH, "MH", "Table AD", weighted = FALSE)
+

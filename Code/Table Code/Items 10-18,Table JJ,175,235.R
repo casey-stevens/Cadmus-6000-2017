@@ -421,14 +421,20 @@ prep.dat4.5$Wall.Cavity.Insulation.Condition.1   <- prep.dat4.5$Wall.Cavity.Insu
 prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- prep.dat4.5$Wall.Exterior.Insulation.Condition.1 / 100
 
 
-# clean up condition information
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Wall.Cavity.Insulation.Condition.1 %notin% c(1, NA)),]
+# clean up condition information - 
+# this creates a line item for any condition less than 100%, 
+# making R value for 100% - cativty% = 0
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Wall.Cavity.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub1$Wall.Cavity.Insulation.Condition.1 <- 1 - prep.condition.sub1$Wall.Cavity.Insulation.Condition.1
+prep.condition.sub1$cavity.rvalues1 <- 0
 prep.condition.sub1$total.r.val <- NA
 
 # clean up condition information
-prep.condition.sub2 <- prep.dat4.5[which(prep.dat4.5$Wall.Exterior.Insulation.Condition.1 %notin% c(1, NA)),]
+# this creates a line item for any condition less than 100%, 
+# making R value for 100% - exterior% = 0
+prep.condition.sub2 <- prep.dat4.5[which(prep.dat4.5$Wall.Exterior.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub2$Wall.Exterior.Insulation.Condition.1 <- 1 - prep.condition.sub2$Wall.Exterior.Insulation.Condition.1
+prep.condition.sub2$exterior.rvalues1 <- 0
 prep.condition.sub2$total.r.val <- NA
 
 
@@ -456,7 +462,7 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$cavity.rvalues1[na.ind] * prep.dat5$
 
 #check -- NOTE -- NONE SHOULD BE NA
 unique(prep.dat5$total.r.val)
-prep.dat5$total.r.val[which(prep.dat5$Wall.Type == "ICF")]
+# prep.dat5$total.r.val[which(prep.dat5$Wall.Type == "ICF")]
 
 #caluclate u factors = inverse of Rvalue
 prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
@@ -495,12 +501,12 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 #
 ###################################################################################################################
 
-
-
-#########export rvalues
-##  Write out confidence/precision info
+# rbsa.wall <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
+# wall.merge <- left_join(rbsa.wall, prep.dat5)
+# #########export rvalues
+# ##  Write out confidence/precision info
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(prep.dat5, paste(filepathCleaningDocs, "Insulation Exports", paste("all.insulation.values ", rundate, ".xlsx", sep = ""), sep="/"),
+# write.xlsx(wall.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Wall Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
 #            append = T, row.names = F, showNA = F)
 # write.xlsx(prep.dat7, paste(filepathCleaningDocs, "Insulation Exports", paste("one.line.insulation ", rundate, ".xlsx", sep = ""), sep="/"),
 #            append = T, row.names = F, showNA = F)

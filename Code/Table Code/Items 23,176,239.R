@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID)) #601
+length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -370,11 +370,23 @@ unique(prep.dat4.5$slab.rvalues2)
 unique(prep.dat4.5$slab.rvalues3)
 
 prep.dat4.5$Floor.Insulation.Condition.1 <- prep.dat4.5$Floor.Insulation.Condition.1 / 100
+prep.dat4.5$Slab.Insulation.Condition.1  <- prep.dat4.5$Slab.Insulation.Condition.1 / 100
 
 # clean up condition information
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Floor.Insulation.Condition.1 %notin% c(1, NA)),]
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Floor.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub1$Floor.Insulation.Condition.1 <- 1 - prep.condition.sub1$Floor.Insulation.Condition.1
+prep.condition.sub1$floor.rvalues1 <- 0
+prep.condition.sub1$floor.rvalues2 <- 0
+prep.condition.sub1$floor.rvalues3 <- 0
 prep.condition.sub1$total.r.val <- NA
+
+# clean up condition information
+prep.condition.sub2 <- prep.dat4.5[which(prep.dat4.5$Slab.Insulation.Condition.1 %notin% c(1, NA, 0)),]
+# prep.condition.sub2$Slab.Insulation.Condition.1 <- 1 - prep.condition.sub2$Slab.Insulation.Condition.1
+# prep.condition.sub2$slab.rvalues1 <- 0
+# prep.condition.sub2$slab.rvalues2 <- 0
+# prep.condition.sub2$slab.rvalues3 <- 0
+# prep.condition.sub2$total.r.val <- NA
 
 prep.dat5 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
@@ -433,6 +445,22 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 #
 #
 ###################################################################################################################
+
+
+
+
+
+rbsa.floor <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
+floor.merge <- left_join(rbsa.floor, prep.dat5)
+#########export rvalues
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(floor.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Floor Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
+
+
+
+
 
 
 
