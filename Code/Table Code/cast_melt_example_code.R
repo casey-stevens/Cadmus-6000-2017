@@ -70,6 +70,7 @@ rowOrder <- c("Metal Single Glazed"
               ,"All Framing Categories"
 )
 
+
 rowOrder <- c("Pre 1951"
               ,"1951-1960"
               ,"1961-1970"
@@ -82,3 +83,26 @@ rowOrder <- c("Pre 1951"
               ,"2006-2010"
               ,"Post 2010"
               ,"All Vintages")
+
+
+rowOrder <- c("1-50%"
+              ,"51-99%"
+              ,"100%"
+              ,"None"
+              ,"Total")
+
+
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
