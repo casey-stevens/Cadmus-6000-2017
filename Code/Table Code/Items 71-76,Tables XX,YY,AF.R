@@ -699,3 +699,166 @@ tableYY.final.MH <- tableYY.final[which(tableYY.final$BuildingType == "Manufactu
 exportTable(tableYY.final.SF, "SF", "Table YY", weighted = FALSE)
 exportTable(tableYY.final.MH, "MH", "Table YY", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Table AF: Average number of Stored lamps by lamp type and state
+#############################################################################################
+#subset to columns needed for analysis
+tableAF.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                                ,"Fixture.Qty"
+                                                                ,"LIGHTING_BulbsPerFixture"
+                                                                ,"CK_SiteID"
+                                                                ,"Lamp.Category"
+                                                                ,"Clean.Room"))]
+tableAF.dat$count <- 1
+
+tableAF.dat0 <- tableAF.dat[which(tableAF.dat$Clean.Room == "Storage"),]
+
+tableAF.dat1 <- left_join(tableAF.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+
+tableAF.dat2 <- tableAF.dat1[which(tableAF.dat1$Lamp.Category %notin% c("Unknown",NA)),]
+
+#clean fixture and bulbs per fixture
+tableAF.dat2$Fixture.Qty <- as.numeric(as.character(tableAF.dat2$Fixture.Qty))
+tableAF.dat2$LIGHTING_BulbsPerFixture <- as.numeric(as.character(tableAF.dat2$LIGHTING_BulbsPerFixture))
+
+tableAF.dat2$Lamps <- tableAF.dat2$Fixture.Qty * tableAF.dat2$LIGHTING_BulbsPerFixture
+unique(tableAF.dat2$Lamps)
+
+tableAF.dat3 <- tableAF.dat2[which(!(is.na(tableAF.dat2$Lamps))),]
+
+
+tableAF.customer <- summarise(group_by(tableAF.dat3, CK_Cadmus_ID, Lamp.Category)
+                              ,Lamps = sum(Lamps))
+unique(tableAF.customer$Lamp.Category)
+
+tableAF.merge <- left_join(rbsa.dat, tableAF.customer)
+tableAF.merge <- tableAF.merge[which(!is.na(tableAF.merge$Lamp.Category)),]
+tableAF.merge$Lamps[which(is.na(tableAF.merge$Lamps))] <- 0 
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAF.data <- weightedData(tableAF.merge[-which(colnames(tableAF.merge) %in% c("Lamps"
+                                                                                 ,"Lamp.Category"))])
+tableAF.data <- left_join(tableAF.data, tableAF.merge[which(colnames(tableAF.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Lamps"
+                                                                                           ,"Lamp.Category"))])
+tableAF.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableAF.final <- mean_two_groups(CustomerLevelData = tableAF.data
+                                 ,valueVariable = "Lamps"
+                                 ,byVariableRow = "Lamp.Category"
+                                 ,byVariableColumn = "State"
+                                 ,columnAggregate = "Region"
+                                 ,rowAggregate = "All Categories")
+tableAF.cast <- data.frame(tableAF.final, stringsAsFactors = F)
+
+tableAF.table <- data.frame("BuildingType"    = tableAF.cast$BuildingType
+                            ,"Lamp.Category"  = tableAF.cast$Lamp.Category
+                            ,"ID"             = tableAF.cast$Mean_ID
+                            ,"ID.SE"          = tableAF.cast$SE_ID
+                            ,"ID.n"           = tableAF.cast$n_ID
+                            ,"MT"             = tableAF.cast$Mean_MT
+                            ,"MT.SE"          = tableAF.cast$SE_MT
+                            ,"MT.n"           = tableAF.cast$n_MT
+                            ,"OR"             = tableAF.cast$Mean_OR
+                            ,"OR.SE"          = tableAF.cast$SE_OR
+                            ,"OR.n"           = tableAF.cast$n_OR
+                            ,"WA"             = tableAF.cast$Mean_WA
+                            ,"WA.SE"          = tableAF.cast$SE_WA
+                            ,"WA.n"           = tableAF.cast$n_WA
+                            ,"Region"         = tableAF.cast$Mean_Region
+                            ,"Region.SE"      = tableAF.cast$SE_Region
+                            ,"Region.n"       = tableAF.cast$n_Region
+)
+
+levels(tableAF.table$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"All Categories")
+tableAF.table <- tableAF.table %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAF.table <- data.frame(tableAF.table)
+
+tableAF.final.SF <- tableAF.table[which(tableAF.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableAF.table) %notin% c("BuildingType"))]
+tableAF.final.SF <- tableAF.final.SF[which(tableAF.final.SF$Lamp.Category != "All Categories"),]
+tableAF.final.MH <- tableAF.table[which(tableAF.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAF.table) %in% c("BuildingType"))]
+tableAF.final.MH <- tableAF.final.MH[which(tableAF.final.MH$Lamp.Category != "All Categories"),]
+
+exportTable(tableAF.final.SF, "SF", "Table AF", weighted = TRUE)
+exportTable(tableAF.final.MH, "MH", "Table AF", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAF.final <- mean_two_groups_unweighted(CustomerLevelData = tableAF.data
+                                 ,valueVariable = "Lamps"
+                                 ,byVariableRow = "Lamp.Category"
+                                 ,byVariableColumn = "State"
+                                 ,columnAggregate = "Region"
+                                 ,rowAggregate = "All Categories")
+tableAF.cast <- data.frame(tableAF.final, stringsAsFactors = F)
+
+tableAF.table <- data.frame("BuildingType"    = tableAF.cast$BuildingType
+                            ,"Lamp.Category"  = tableAF.cast$Lamp.Category
+                            ,"ID"             = tableAF.cast$Mean_ID
+                            ,"ID.SE"          = tableAF.cast$SE_ID
+                            ,"ID.n"           = tableAF.cast$n_ID
+                            ,"MT"             = tableAF.cast$Mean_MT
+                            ,"MT.SE"          = tableAF.cast$SE_MT
+                            ,"MT.n"           = tableAF.cast$n_MT
+                            ,"OR"             = tableAF.cast$Mean_OR
+                            ,"OR.SE"          = tableAF.cast$SE_OR
+                            ,"OR.n"           = tableAF.cast$n_OR
+                            ,"WA"             = tableAF.cast$Mean_WA
+                            ,"WA.SE"          = tableAF.cast$SE_WA
+                            ,"WA.n"           = tableAF.cast$n_WA
+                            ,"Region"         = tableAF.cast$Mean_Region
+                            ,"Region.SE"      = tableAF.cast$SE_Region
+                            ,"Region.n"       = tableAF.cast$n_Region
+)
+
+levels(tableAF.table$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"All Categories")
+tableAF.table <- tableAF.table %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAF.table <- data.frame(tableAF.table)
+
+tableAF.final.SF <- tableAF.table[which(tableAF.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableAF.table) %notin% c("BuildingType"))]
+tableAF.final.SF <- tableAF.final.SF[which(tableAF.final.SF$Lamp.Category != "All Categories"),]
+tableAF.final.MH <- tableAF.table[which(tableAF.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAF.table) %in% c("BuildingType"))]
+tableAF.final.MH <- tableAF.final.MH[which(tableAF.final.MH$Lamp.Category != "All Categories"),]
+
+exportTable(tableAF.final.SF, "SF", "Table AF", weighted = FALSE)
+exportTable(tableAF.final.MH, "MH", "Table AF", weighted = FALSE)
+
