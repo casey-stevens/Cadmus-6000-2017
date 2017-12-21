@@ -394,6 +394,25 @@ item79.final <- mean_one_group(CustomerLevelData = item79.data
                                ,byVariable       = 'Clean.Room'
                                ,aggregateRow     = 'All Room Types')
 
+
+unique(item79.final$Clean.Room)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"All Room Types")
+item79.final <- item79.final %>% mutate(Clean.Room = factor(Clean.Room, levels = rowOrder)) %>% arrange(Clean.Room)  
+item79.final <- data.frame(item79.final)
+
+
 # Export table
 item79.final.SF <- item79.final[which(item79.final$BuildingType == "Single Family"),-1]
 item79.final.MH <- item79.final[which(item79.final$BuildingType == "Manufactured"),-1]
@@ -409,6 +428,25 @@ item79.final <- mean_one_group_unweighted(CustomerLevelData = item79.data
                                           ,valueVariable    = 'LPD'
                                           ,byVariable       = 'Clean.Room'
                                           ,aggregateRow     = 'All Room Types')
+
+
+unique(item79.final$Clean.Room)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"All Room Types")
+item79.final <- item79.final %>% mutate(Clean.Room = factor(Clean.Room, levels = rowOrder)) %>% arrange(Clean.Room)  
+item79.final <- data.frame(item79.final)
+
 
 # Export table
 item79.final.SF <- item79.final[which(item79.final$BuildingType == "Single Family"),-1]
