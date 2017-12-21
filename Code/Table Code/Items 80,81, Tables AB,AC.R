@@ -427,6 +427,19 @@ item81.final <- proportions_one_group(CustomerLevelData = item81.data
                                       ,groupingVariable = 'EquipVintage_bins'
                                       ,total.name       = 'All Vintages')
 
+unique(item81.final$EquipVintage_bins)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+item81.final <- item81.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item81.final <- data.frame(item81.final)
+
 item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
                                 ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured")
@@ -447,6 +460,19 @@ item81.final <- proportions_one_group(CustomerLevelData = item81.data
                                       ,groupingVariable = 'EquipVintage_bins'
                                       ,total.name       = 'All Vintages'
                                       ,weighted         = FALSE)
+
+unique(item81.final$EquipVintage_bins)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Total")
+item81.final <- item81.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
+item81.final <- data.frame(item81.final)
 
 item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
                                 ,-which(colnames(item81.final) %in% c("BuildingType"))]
