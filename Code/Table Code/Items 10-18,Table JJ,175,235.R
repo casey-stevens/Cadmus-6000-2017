@@ -45,6 +45,7 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 ###################################################################################################################
 #subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                             ,"PK_Envelope_ID"
                                                              , "Category"
                                                              , "Wall.Type"
                                                              , "Wall.Area"
@@ -277,8 +278,10 @@ colnames(clean.insul.join6) <- c("CK_Cadmus_ID"
                                  ,"Remove.3"
                                  ,"furred.inches"
                                  ,"Remove")
+clean.insul.join7 <- clean.insul.join6[-which(clean.insul.join6$cavity.inches1 %in% c("Unknown", "N/A", "N/A N/A") & clean.insul.join6$exterior.inches1 %in% c("Unknown", "N/A", "N/A N/A")),]
 
-clean.thickness.data <- clean.insul.join6[-grep("Remove", colnames(clean.insul.join6))]
+clean.thickness.data <- clean.insul.join7[-grep("Remove", colnames(clean.insul.join7))]
+
 
 ###########################
 # End cleaning step
@@ -466,6 +469,7 @@ unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
 prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
 #make area numeric
@@ -476,9 +480,12 @@ prep.dat5$Wall.Area <- as.numeric(as.character(prep.dat5$Wall.Area))
 weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
                        ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
+unique(weightedU$aveUval)
+
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) + 1
+weightedU$aveRval[which(weightedU$aveRval == "NaN")] <- 0
 unique(weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data

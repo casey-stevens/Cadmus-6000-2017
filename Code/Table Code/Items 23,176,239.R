@@ -49,6 +49,7 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 #############################################################################################
 #subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                             ,"PK_Envelope_ID"
                                                                , "Category"
                                                                , "Floor.Type"
                                                                , "Floor.Sub-Type"

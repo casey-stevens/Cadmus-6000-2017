@@ -97,8 +97,7 @@ item77.data$count <- 1
 item77.final <- proportions_one_group(CustomerLevelData = item77.data
                                ,valueVariable    = 'StorageBulbs'
                                ,groupingVariable = 'State'
-                               ,total.name       = 'Region'
-                               ,columnName       = 'Remove')
+                               ,total.name       = 'Region')
 
 item77.final.SF <- item77.final[which(item77.final$BuildingType == "Single Family")
                                 ,-which(colnames(item77.final) %in% c("BuildingType"))]
