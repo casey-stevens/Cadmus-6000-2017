@@ -68,6 +68,15 @@ item89.final <- mean_one_group(CustomerLevelData = item89.data
                                ,byVariable    = 'State'
                                ,aggregateRow  = "Region")
 
+unique(item89.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item89.final <- item89.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item89.final <- data.frame(item89.final)
+
 # Export table
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
@@ -84,6 +93,15 @@ item89.final <- mean_one_group_unweighted(CustomerLevelData = item89.data
                                           ,valueVariable = 'Clothes.Washes.Per.Week' 
                                           ,byVariable    = 'State'
                                           ,aggregateRow  = "Region")
+
+unique(item89.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item89.final <- item89.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item89.final <- data.frame(item89.final)
 
 # Export table
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
