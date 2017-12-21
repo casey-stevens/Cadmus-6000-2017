@@ -853,20 +853,20 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                    , p.h = count / total.count), stringsAsFactors = F)
       
     }else{
-    StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
-                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable)
-                                                 , summarise
-                                                 , count = sum(get(valueVariable))
-                                                 , n_hj = length(unique(CK_Cadmus_ID)) ), stringsAsFactors = F)
-    
-    StrataProportion         <- data.frame(ddply(StrataGroupedProportions
-                                                 , c("BuildingType", "State", "Region", "Territory")
-                                                 , summarise
-                                                 , total.count = sum(count)), stringsAsFactors = F)
-    StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
-    StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
-    StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
-    
+      StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                   , c("BuildingType", "State", "Region", "Territory", rowVariable)
+                                                   , summarise
+                                                   , count = sum(get(valueVariable))
+                                                   , n_hj = length(unique(CK_Cadmus_ID)) ), stringsAsFactors = F)
+      
+      StrataProportion         <- data.frame(ddply(StrataGroupedProportions
+                                                   , c("BuildingType", "State", "Region", "Territory")
+                                                   , summarise
+                                                   , total.count = sum(count)), stringsAsFactors = F)
+      StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
+      StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
+      StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
+      
     }
     
     

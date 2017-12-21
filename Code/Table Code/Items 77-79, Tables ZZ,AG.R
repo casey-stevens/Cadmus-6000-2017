@@ -357,11 +357,12 @@ item79.dat$Total.Wattage <- as.numeric(as.character(item79.dat$Fixture.Qty)) *
   as.numeric(as.character(item79.dat$LIGHTING_BulbsPerFixture)) * 
   as.numeric(as.character(item79.dat$Clean.Wattage))
 
-item79.dat0 <- summarise(group_by(item79.dat, CK_Cadmus_ID, BuildingType, State, Clean.Room)
+item79.dat0 <- item79.dat[which(!(item79.dat$Clean.Room %in% c("Storage"))),]
+item79.sum <- summarise(group_by(item79.dat, CK_Cadmus_ID, BuildingType, State, Clean.Room)
                          ,Total.Wattage = sum(Total.Wattage))
 
 #merge on area information
-item79.dat1 <- left_join(item79.dat0, item79.area1, by = c("CK_Cadmus_ID", "Clean.Room"))
+item79.dat1 <- left_join(item79.sum, item79.area1, by = c("CK_Cadmus_ID", "Clean.Room"))
 
 item79.dat1$LPD <- item79.dat1$Total.Wattage / item79.dat1$SiteArea
 
@@ -455,3 +456,144 @@ exportTable(item79.final.SF, "SF", "Table 86", weighted = FALSE)
 exportTable(item79.final.MH, "MH", "Table 64", weighted = FALSE)
 
 
+
+
+
+
+#############################################################################################
+#Table AG: Distribution of All stored lamps by lamp type and state
+#############################################################################################
+#subset to columns needed for analysis
+tableAG.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                                ,"Fixture.Qty"
+                                                                ,"LIGHTING_BulbsPerFixture"
+                                                                ,"CK_SiteID"
+                                                                ,"Lamp.Category"
+                                                                ,"Clean.Room"))]
+tableAG.dat$count <- 1
+
+tableAG.dat0 <- left_join(rbsa.dat, tableAG.dat, by = "CK_Cadmus_ID")
+
+tableAG.dat1 <- tableAG.dat0[which(!is.na(tableAG.dat0$Lamp.Category)),]
+
+tableAG.dat2 <- tableAG.dat1[grep("SITE", tableAG.dat1$CK_SiteID),]
+
+#clean fixture and bulbs per fixture
+tableAG.dat2$Fixture.Qty <- as.numeric(as.character(tableAG.dat2$Fixture.Qty))
+tableAG.dat2$LIGHTING_BulbsPerFixture <- as.numeric(as.character(tableAG.dat2$LIGHTING_BulbsPerFixture))
+
+tableAG.dat2$Lamps <- tableAG.dat2$Fixture.Qty * tableAG.dat2$LIGHTING_BulbsPerFixture
+unique(tableAG.dat2$Lamps)
+
+tableAG.dat3 <- tableAG.dat2[which(!(is.na(tableAG.dat2$Lamps))),]
+
+tableAG.led.sum <- summarise(group_by(tableAG.dat3, CK_Cadmus_ID, Lamp.Category)
+                             ,TotalBulbs = sum(Lamps))
+
+tableAG.merge1 <- left_join(rbsa.dat, tableAG.led.sum)
+
+## subset to only storage bulbs
+tableAG.storage <- tableAG.dat3[which(tableAG.dat3$Clean.Room == "Storage"),]
+#summarise within site
+tableAG.storage.sum <- summarise(group_by(tableAG.storage, CK_Cadmus_ID, Lamp.Category)
+                                 ,StorageBulbs = sum(Lamps))
+
+tableAG.merge2 <- left_join(tableAG.merge1, tableAG.storage.sum)
+tableAG.merge <- tableAG.merge2[which(!is.na(tableAG.merge2$TotalBulbs)),]
+tableAG.merge$StorageBulbs[which(is.na(tableAG.merge$StorageBulbs))] <- 0
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAG.data <- weightedData(tableAG.merge[-which(colnames(tableAG.merge) %in% c("StorageBulbs"
+                                                                                 ,"TotalBulbs"
+                                                                                 ,"Lamp.Category"))])
+tableAG.data <- left_join(tableAG.data, tableAG.merge[which(colnames(tableAG.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"StorageBulbs"
+                                                                                           ,"TotalBulbs"
+                                                                                           ,"Lamp.Category"))])
+tableAG.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableAG.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.data
+                                             ,valueVariable = "StorageBulbs"
+                                             ,columnVariable = "State"
+                                             ,rowVariable = "Lamp.Category"
+                                             ,aggregateColumnName = "Region")
+tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
+
+tableAG.cast <- dcast(setDT(tableAG.summary)
+                      ,formula = BuildingType + Lamp.Category ~ State
+                      ,value.var = c("w.percent","w.SE","count","n","N"))
+
+tableAG.final <- data.frame("BuildingType"   = tableAG.cast$BuildingType
+                             ,"Lamp.Category" = tableAG.cast$Lamp.Category
+                             ,"ID"             = tableAG.cast$w.percent_ID
+                             ,"ID.SE"          = tableAG.cast$w.SE_ID
+                             ,"ID.n"           = tableAG.cast$n_ID
+                             ,"MT"             = tableAG.cast$w.percent_MT
+                             ,"MT.SE"          = tableAG.cast$w.SE_MT
+                             ,"MT.n"           = tableAG.cast$n_MT
+                             ,"OR"             = tableAG.cast$w.percent_OR
+                             ,"OR.SE"          = tableAG.cast$w.SE_OR
+                             ,"OR.n"           = tableAG.cast$n_OR
+                             ,"WA"             = tableAG.cast$w.percent_WA
+                             ,"WA.SE"          = tableAG.cast$w.SE_WA
+                             ,"WA.n"           = tableAG.cast$n_WA
+                             ,"Region"         = tableAG.cast$w.percent_Region
+                             ,"Region.SE"      = tableAG.cast$w.SE_Region
+                             ,"Region.n"       = tableAG.cast$n_Region
+                             )
+
+tableAG.final.SF <- tableAG.final[which(tableAG.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAG.final) %in% c("BuildingType"))]
+tableAG.final.MH <- tableAG.final[which(tableAG.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAG.final) %in% c("BuildingType"))]
+
+exportTable(tableAG.final.SF, "SF", "Table AG", weighted = TRUE)
+exportTable(tableAG.final.MH, "MH", "Table AG", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAG.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAG.data
+                                             ,valueVariable = "StorageBulbs"
+                                             ,columnVariable = "State"
+                                             ,rowVariable = "Lamp.Category"
+                                             ,aggregateColumnName = "Region")
+tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
+
+tableAG.cast <- dcast(setDT(tableAG.summary)
+                      ,formula = BuildingType + Lamp.Category ~ State
+                      ,value.var = c("Percent","SE","Count","n"))
+
+tableAG.table <- data.frame("BuildingType"    = tableAG.cast$BuildingType
+                            ,"Lamp.Category"  = tableAG.cast$Lamp.Category
+                            ,"ID"             = tableAG.cast$Percent_ID
+                            ,"ID.SE"          = tableAG.cast$SE_ID
+                            ,"ID.n"           = tableAG.cast$n_ID
+                            ,"MT"             = tableAG.cast$Percent_MT
+                            ,"MT.SE"          = tableAG.cast$SE_MT
+                            ,"MT.n"           = tableAG.cast$n_MT
+                            ,"OR"             = tableAG.cast$Percent_OR
+                            ,"OR.SE"          = tableAG.cast$SE_OR
+                            ,"OR.n"           = tableAG.cast$n_OR
+                            ,"WA"             = tableAG.cast$Percent_WA
+                            ,"WA.SE"          = tableAG.cast$SE_WA
+                            ,"WA.n"           = tableAG.cast$n_WA
+                            ,"Region"         = tableAG.cast$Percent_Region
+                            ,"Region.SE"      = tableAG.cast$SE_Region
+                            ,"Region.n"       = tableAG.cast$n_Region
+)
+
+
+tableAG.final.SF <- tableAG.table[which(tableAG.table$BuildingType == "Single Family")
+                                  ,which(colnames(tableAG.table) %notin% c("BuildingType"))]
+tableAG.final.MH <- tableAG.table[which(tableAG.table$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAG.table) %in% c("BuildingType"))]
+
+exportTable(tableAG.final.SF, "SF", "Table AG", weighted = FALSE)
+exportTable(tableAG.final.MH, "MH", "Table AG", weighted = FALSE)
