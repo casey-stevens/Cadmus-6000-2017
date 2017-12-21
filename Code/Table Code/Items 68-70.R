@@ -368,6 +368,25 @@ item70.table <- data.frame("BuildingType"                  = item70.cast$Buildin
                            ,"n"                            = item70.cast$`n_All Categories`
 )
 
+# row ordering example code
+levels(item70.table$Room.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+item70.table <- item70.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)  
+item70.table <- data.frame(item70.table)
+
 
 item70.final.SF <- item70.table[which(item70.table$BuildingType == "Single Family")
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
@@ -441,6 +460,26 @@ item70.table <- data.frame("BuildingType"                  = item70.cast$Buildin
                            # ,"n_Other"                      = item70.cast$n_Other
                            ,"n"                            = item70.cast$`n_All Categories`
 )
+
+
+# row ordering example code
+levels(item70.table$Room.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+item70.table <- item70.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)  
+item70.table <- data.frame(item70.table)
 
 
 item70.final.SF <- item70.table[which(item70.table$BuildingType == "Single Family")
