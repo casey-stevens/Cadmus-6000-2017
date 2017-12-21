@@ -197,7 +197,7 @@ item57.final <- mean_one_group(CustomerLevelData = item57.data
                                ,aggregateRow     = 'All Vintages')
 
 # row ordering example code
-levels(item57.final$EquipVintage_bins)
+unique(item57.final$EquipVintage_bins)
 rowOrder <- c("Pre 1990"
               ,"1990-1999"
               ,"2000-2006"
@@ -226,7 +226,7 @@ item57.final <- mean_one_group_unweighted(CustomerLevelData = item57.data
                                ,aggregateRow     = 'All Vintages')
 
 # row ordering example code
-levels(item57.final$EquipVintage_bins)
+unique(item57.final$EquipVintage_bins)
 rowOrder <- c("Pre 1990"
               ,"1990-1999"
               ,"2000-2006"
