@@ -208,6 +208,15 @@ item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"n_Region"       = item60.cast$n_Region
 )
 
+levels(item60.table$Percentage.of.Ducts.in.Unconditioned.Space)
+rowOrder <- c("1-50%"
+              ,"51-99%"
+              ,"100%"
+              ,"None"
+              ,"Total")
+item60.table <- item60.table %>% mutate(Percentage.of.Ducts.in.Unconditioned.Space = factor(Percentage.of.Ducts.in.Unconditioned.Space, levels = rowOrder)) %>% arrange(Percentage.of.Ducts.in.Unconditioned.Space)  
+item60.table <- data.frame(item60.table)
+
 
 item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
                                 ,-which(colnames(item60.table) %in% c("BuildingType"))]
@@ -249,6 +258,15 @@ item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"SE_Region"      = item60.cast$SE_Region
                            ,"n_Region"       = item60.cast$n_Region
 )
+
+levels(item60.table$Percentage.of.Ducts.in.Unconditioned.Space)
+rowOrder <- c("1-50%"
+              ,"51-99%"
+              ,"100%"
+              ,"None"
+              ,"Total")
+item60.table <- item60.table %>% mutate(Percentage.of.Ducts.in.Unconditioned.Space = factor(Percentage.of.Ducts.in.Unconditioned.Space, levels = rowOrder)) %>% arrange(Percentage.of.Ducts.in.Unconditioned.Space)  
+item60.table <- data.frame(item60.table)
 
 
 item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
