@@ -69,6 +69,17 @@ item94.final <- proportions_one_group(CustomerLevelData = item94.data
                                       ,groupingVariable = 'Stove.Fuel'
                                       ,total.name       = 'Total')
 
+
+unique(item94.final$Stove.Fuel)
+rowOrder <- c("Electric"
+              ,"Gas"
+              ,"Propane"
+              ,"Other"
+              ,"Total")
+item94.final <- item94.final %>% mutate(Stove.Fuel = factor(Stove.Fuel, levels = rowOrder)) %>% arrange(Stove.Fuel)  
+item94.final <- data.frame(item94.final)
+
+
 item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Family")
                                 ,-which(colnames(item94.final) %in% c("BuildingType"))]
 item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
@@ -86,6 +97,17 @@ item94.final <- proportions_one_group(CustomerLevelData = item94.data
                                       ,groupingVariable = 'Stove.Fuel'
                                       ,total.name       = 'Total'
                                       ,weighted         = FALSE)
+
+
+unique(item94.final$Stove.Fuel)
+rowOrder <- c("Electric"
+              ,"Gas"
+              ,"Propane"
+              ,"Other"
+              ,"Total")
+item94.final <- item94.final %>% mutate(Stove.Fuel = factor(Stove.Fuel, levels = rowOrder)) %>% arrange(Stove.Fuel)  
+item94.final <- data.frame(item94.final)
+
 
 item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Family")
                                 ,-which(colnames(item94.final) %in% c("BuildingType"))]
