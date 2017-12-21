@@ -81,6 +81,21 @@ item82.final <- proportions_one_group(CustomerLevelData = item82.data
                                       ,valueVariable = 'count'
                                       ,groupingVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                       ,total.name = 'Total')
+
+unique(item82.final$APPLIANCE_FRIDGE_FREEZER_Type)
+rowOrder <- c("Full Size Refrigerator Only"
+              ,"Mini Refrigerator"
+              ,"Refrigerated Beer Cooler"
+              ,"Refrigerator with Bottom Freezer"
+              ,"Refrigerator with Side-by-Side Freezer"
+              ,"Refrigerator with Top Freezer"
+              ,"Refrigerated Wine Cooler"
+              ,"Side-by-Side Refrigerator with Bottom Freezer"
+              ,"Total")
+item82.final <- item82.final %>% mutate(APPLIANCE_FRIDGE_FREEZER_Type = factor(APPLIANCE_FRIDGE_FREEZER_Type, levels = rowOrder)) %>% arrange(APPLIANCE_FRIDGE_FREEZER_Type)  
+item82.final <- data.frame(item82.final)
+
+
 item82.final.SF <- item82.final[which(item82.final$BuildingType == "Single Family")
                                 ,which(colnames(item82.final) %notin% c("BuildingType"))]
 exportTable(item82.final.SF, "SF", "Table 89", weighted = TRUE)
@@ -93,6 +108,22 @@ item82.final <- proportions_one_group(CustomerLevelData = item82.data
                                       ,groupingVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                       ,total.name = 'Total'
                                       ,weighted = FALSE)
+
+
+unique(item82.final$APPLIANCE_FRIDGE_FREEZER_Type)
+rowOrder <- c("Full Size Refrigerator Only"
+              ,"Mini Refrigerator"
+              ,"Refrigerated Beer Cooler"
+              ,"Refrigerator with Bottom Freezer"
+              ,"Refrigerator with Side-by-Side Freezer"
+              ,"Refrigerator with Top Freezer"
+              ,"Refrigerated Wine Cooler"
+              ,"Side-by-Side Refrigerator with Bottom Freezer"
+              ,"Total")
+item82.final <- item82.final %>% mutate(APPLIANCE_FRIDGE_FREEZER_Type = factor(APPLIANCE_FRIDGE_FREEZER_Type, levels = rowOrder)) %>% arrange(APPLIANCE_FRIDGE_FREEZER_Type)  
+item82.final <- data.frame(item82.final)
+
+
 item82.final.SF <- item82.final[which(item82.final$BuildingType == "Single Family")
                                 ,which(colnames(item82.final) %notin% c("BuildingType"))]
 exportTable(item82.final.SF, "SF", "Table 89", weighted = FALSE)
@@ -138,6 +169,21 @@ item83.final <- mean_one_group(CustomerLevelData = item83.data
                                ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                ,aggregateRow = "All Refrigerator Types")
 
+
+unique(item83.final$APPLIANCE_FRIDGE_FREEZER_Type)
+rowOrder <- c("Full Size Refrigerator Only"
+              ,"Mini Refrigerator"
+              ,"Refrigerated Beer Cooler"
+              ,"Refrigerator with Bottom Freezer"
+              ,"Refrigerator with Side-by-Side Freezer"
+              ,"Refrigerator with Top Freezer"
+              ,"Refrigerated Wine Cooler"
+              ,"Side-by-Side Refrigerator with Bottom Freezer"
+              ,"All Refrigerator Types")
+item83.final <- item83.final %>% mutate(APPLIANCE_FRIDGE_FREEZER_Type = factor(APPLIANCE_FRIDGE_FREEZER_Type, levels = rowOrder)) %>% arrange(APPLIANCE_FRIDGE_FREEZER_Type)  
+item83.final <- data.frame(item83.final)
+
+
 item83.final.SF <- item83.final[which(item83.final$BuildingType == "Single Family")
                                 ,which(colnames(item83.final) %notin% c("BuildingType"))]
 exportTable(item83.final.SF, "SF", "Table 90", weighted = TRUE)
@@ -149,6 +195,20 @@ item83.final <- mean_one_group_unweighted(CustomerLevelData = item83.data
                                           ,valueVariable = 'Refrigerator/Freezer.Size'
                                           ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                           ,aggregateRow = "All Refrigerator Types")
+
+
+unique(item83.final$APPLIANCE_FRIDGE_FREEZER_Type)
+rowOrder <- c("Full Size Refrigerator Only"
+              ,"Mini Refrigerator"
+              ,"Refrigerated Beer Cooler"
+              ,"Refrigerator with Bottom Freezer"
+              ,"Refrigerator with Side-by-Side Freezer"
+              ,"Refrigerator with Top Freezer"
+              ,"Refrigerated Wine Cooler"
+              ,"Side-by-Side Refrigerator with Bottom Freezer"
+              ,"All Refrigerator Types")
+item83.final <- item83.final %>% mutate(APPLIANCE_FRIDGE_FREEZER_Type = factor(APPLIANCE_FRIDGE_FREEZER_Type, levels = rowOrder)) %>% arrange(APPLIANCE_FRIDGE_FREEZER_Type)  
+item83.final <- data.frame(item83.final)
 
 item83.final.SF <- item83.final[which(item83.final$BuildingType == "Single Family")
                                 ,which(colnames(item83.final) %notin% c("BuildingType"))]
