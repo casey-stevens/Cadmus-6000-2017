@@ -86,8 +86,11 @@ tableCC.dat$Ind[which(tableCC.dat$Lamp.Category == "Light Emitting Diode")] <- 1
 
 tableCC.sum <- summarise(group_by(tableCC.dat, CK_Cadmus_ID)
                          ,Ind = sum(unique((Ind))))
-
+unique(tableCC.sum$Ind)
 tableCC.merge <- left_join(merge.dat2, tableCC.sum)
+unique(tableCC.merge$Ind)
+
+tableCC.merge <- tableCC.merge[which(tableCC.merge$Ownership.Type != "Prefer not to say"),]
 
 ################################################
 # Adding pop and sample sizes for weights

@@ -335,9 +335,9 @@ tableAC.data$Count <- 1
 #######################
 tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,valueVariable = "Ind"
-                                       ,groupingVariable = "State"
+                                       ,groupingVariable = "Type"
                                        ,total.name = "Region")
-tableAC.final$State[which(tableAC.final$State == "Total")] <- "Region"
+tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
 tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
@@ -353,9 +353,9 @@ exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
 #######################
 tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,valueVariable = "Ind"
-                                       ,groupingVariable = "State"
+                                       ,groupingVariable = "Type"
                                        ,total.name = "Region")
-tableAC.final$State[which(tableAC.final$State == "Total")] <- "Region"
+tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
 tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]

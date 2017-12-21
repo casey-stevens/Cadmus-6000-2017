@@ -539,13 +539,13 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,p.h = count / total.count), stringsAsFactors = F)
       }
       # If grouping variable is NOT state
-    } else if(groupingVariable %in% "Clean.Type" & valueVariable == "Ind"){
+    } else if(groupingVariable %in% c("Clean.Type","Type") & valueVariable == "Ind"){
       # obtain count and proportion by strata and row grouping variable
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
                                                    ,n_hj = length(unique(CK_Cadmus_ID))
                                                    ,count = sum(get(valueVariable))
-                                                   ,total.count = sum(Room.Count)
+                                                   ,total.count = sum(Count)
                                                    ,p.h = count / total.count), stringsAsFactors = F)
       
       
@@ -583,7 +583,7 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"Territory"
                                                                           ,"N.h"
                                                                           ,"n.h"))])
-      if(rowVariable == "Lamp.Category"){
+      if(groupingVariable == "Lamp.Category"){
         columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType"),summarise
                                              ,columnVar.N.h = sum(unique(N.h))
                                              ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
@@ -838,11 +838,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", rowVariable)
                                                    , summarise
                                                    , count = sum(get(valueVariable))
-                                                   , n_hj = length(unique(CK_Cadmus_ID)) 
-                                                   , total.count = length(unique(CK_Cadmus_ID))
+                                                   , n_hj = length(unique(CK_Cadmus_ID))
+                                                   , total.count = sum(Count)
                                                    , p.h = count / total.count), stringsAsFactors = F)
-      
-    }else if(valueVariable == "Wifi.Ind"){
+
+    }else
+    if(valueVariable == "Wifi.Ind"){
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", rowVariable)
                                                    , summarise
@@ -864,6 +865,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , total.count = sum(count)), stringsAsFactors = F)
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
+    StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
+    
     }
     
     
