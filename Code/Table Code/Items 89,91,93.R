@@ -231,6 +231,17 @@ item93.final <- mean_one_group(CustomerLevelData = item93.data
                                ,byVariable    = 'State'
                                ,aggregateRow  = "Region")
 
+
+unique(item93.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item93.final <- item93.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item93.final <- data.frame(item93.final)
+
+
 # Export table
 item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Family")
                                 ,-which(colnames(item93.final) %in% c("BuildingType"
@@ -249,6 +260,16 @@ item93.final <- mean_one_group_unweighted(CustomerLevelData = item93.data
                                ,valueVariable = 'Dishwashes.Per.Week' 
                                ,byVariable    = 'State'
                                ,aggregateRow  = "Region")
+
+unique(item93.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item93.final <- item93.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item93.final <- data.frame(item93.final)
+
 
 # Export table
 item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Family")
