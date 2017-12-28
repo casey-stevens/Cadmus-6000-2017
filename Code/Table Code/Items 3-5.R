@@ -192,7 +192,7 @@ exportTable(item3.table.SF, "SF", "Table 10"
 # Weighting Implementation function: Mean, one group
 ######################################################
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                            , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+                                                            , "Conditioned.Living.Area"))]
 colnames(env.dat) <- c("CK_Cadmus_ID"
                        , "BldgLevel_Area_SqFt")
 
@@ -280,7 +280,7 @@ exportTable(item4.table.MH, "MH", "Table 10"
 ######################################################
 
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                            , "ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"))]
+                                                            , "Conditioned.Living.Area"))]
 colnames(env.dat) <- c("CK_Cadmus_ID"
                        , "BldgLevel_Area_SqFt")
 
@@ -297,38 +297,30 @@ item5.dat2 <- item5.dat1[which(!is.na(item5.dat1$ConditionedArea)),]
 item5.dat2 <- item5.dat2[which(item5.dat2$ConditionedArea != 0),]
 item5.dat3 <- item5.dat2[which(!is.na(item5.dat2$HomeYearBuilt)),]
 
+######################################################
+# Summarise data up to unique customer level
+######################################################
+item5.customer <- summarise(group_by(item5.dat3, CK_Cadmus_ID)
+                            ,siteAreaConditioned = sum(ConditionedArea))
 
-item5.data <- weightedData(item5.dat3[which(colnames(item5.dat3) %notin% c("BldgLevel_Area_SqFt"
-                                                                         ,"ConditionedArea"))])
-item5.data <- left_join(item5.data, item5.dat3[which(colnames(item5.dat3) %in% c("CK_Cadmus_ID"
+item5.merge <- left_join(rbsa.dat, item5.customer)
+item5.merge <- item5.merge[which(!is.na(item5.merge$siteAreaConditioned)),]
+
+
+item5.data <- weightedData(item5.merge[which(colnames(item5.merge) %notin% c("BldgLevel_Area_SqFt"
+                                                                         ,"siteAreaConditioned"))])
+item5.data <- left_join(item5.data, item5.merge[which(colnames(item5.merge) %in% c("CK_Cadmus_ID"
                                                                                  , "BldgLevel_Area_SqFt"
-                                                                                 , "ConditionedArea"))])
+                                                                                 , "siteAreaConditioned"))])
 
 item5.data$count <- 1
 colnames(item5.data)
-
-##############################
-# Summarise to customer level
-##############################
-item5.customer <- summarise(group_by(item5.data
-                                     , BuildingType
-                                     , HomeYearBuilt_bins2
-                                     , CK_Cadmus_ID
-                                     , State
-                                     , Region
-                                     , Territory
-                                     , n.h
-                                     , N.h)
-                            ,siteAreaConditioned = sum(ConditionedArea)
-)
-item5.customer$siteAreaConditioned <- as.numeric(as.character(item5.customer$siteAreaConditioned))
-item5.customer <- data.frame(item5.customer)
 
 
 ##############################
 # Weighted Analysis
 ##############################
-item5.final <- mean_two_groups(CustomerLevelData  = item5.customer
+item5.final <- mean_two_groups(CustomerLevelData  = item5.data
                                , valueVariable    = 'siteAreaConditioned'
                                , byVariableRow    = 'HomeYearBuilt_bins2'
                                , byVariableColumn = 'State'
@@ -384,7 +376,7 @@ exportTable(item5.table.MH, "MH", "Table 11"
 ##############################
 # Unweighted Analysis
 ##############################
-item5.final <- mean_two_groups_unweighted(CustomerLevelData  = item5.customer
+item5.final <- mean_two_groups_unweighted(CustomerLevelData  = item5.data
                                           , valueVariable    = 'siteAreaConditioned'
                                           , byVariableRow    = 'HomeYearBuilt_bins2'
                                           , byVariableColumn = 'State'

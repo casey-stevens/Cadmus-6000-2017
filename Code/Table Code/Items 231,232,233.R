@@ -59,8 +59,7 @@ buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 #read in Envelope data for MF table
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
-envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                                  ,"CK_SiteID"
+envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_SiteID"
                                                                   ,"Wall.Area"
                                                                   ,"Conditioned.Living.Area"
                                                                   ,"Category"
@@ -82,10 +81,12 @@ envelope.dat2$Window.Count <- (envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindo
                                  envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSoutheast +
                                  envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingSouthwest +
                                  envelope.dat2$ENV_Fenestration_WINDOWS_NumOfWindowsFacingWest)
+# envelope.dat2 <- envelope.dat2[-grep("bldg",envelope.dat2$CK_SiteID, ignore.case = T),]
 dup.ind <- envelope.dat2$CK_SiteID[which(duplicated(envelope.dat2$CK_SiteID))]
-envelope.dat2 <- envelope.dat2[-which(envelope.dat2$CK_SiteID == dup.ind & envelope.dat2$Window.Count == 4),]
+envelope.dat2 <- envelope.dat2[-which(envelope.dat2$CK_SiteID %in% dup.ind & envelope.dat2$Window.Count == 4),]
 
-envelope.merge <- left_join(rbsa.dat, envelope.dat2)
+
+envelope.merge <- left_join(rbsa.dat, envelope.dat2, by = c("CK_Building_ID" = "CK_SiteID"))
 length(unique(envelope.merge$CK_Cadmus_ID)) 
 envelope.dat.MF <- envelope.merge[grep("Multifamily", envelope.merge$BuildingType),]
 envelope.dat.MF <- envelope.dat.MF[-grep("SITE", envelope.dat.MF$CK_Building_ID),]
@@ -123,8 +124,8 @@ one.line.bldg.dat.MF <- one.line.merge[grep("Multifamily", one.line.merge$Buildi
 one.line.bldg.dat.MF <- one.line.merge[-grep("SITE"      , one.line.merge$CK_Building_ID),]
 which(duplicated(one.line.bldg.dat.MF$CK_Cadmus_ID))
 
-
-
+oneline.sub <- one.line.bldg.dat.MF[which(names(one.line.bldg.dat.MF) %in% c("CK_Cadmus_ID", "Window.Area"))]
+envelope.dat.MF.merge <- left_join(envelope.dat.MF, oneline.sub)
 #############################################################################################
 #Item 231: Table 23
 #############################################################################################
@@ -350,22 +351,20 @@ exportTable(item232.final.MF, "MF", "Table 24", weighted = FALSE)
 # Merge Window and Floor Area
 ##########################################
 # Window area is same for item 233 as it was for 232
-item233.windows.sum <- item232.windows.sum
+# item233.windows.sum <- item232.windows.sum
 
-item233.envelope <- envelope.dat1[which(envelope.dat1$Category == "Floor"),]
-item233.envelope$Floor.Area <- as.numeric(as.character(item233.envelope$Floor.Area))
-item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Floor.Area)),]
+item233.envelope <- envelope.dat.MF.merge[which(!is.na(envelope.dat.MF.merge$Conditioned.Area)),]
+item233.envelope$Floor.Area <- as.numeric(as.character(item233.envelope$Conditioned.Area))
+item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Window.Area)),]
+item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Window.Count)),]
 
-item233.floor.sum <- summarise(group_by(item233.envelope, CK_SiteID)
-                          ,FloorArea  = sum(Floor.Area, na.rm = T))
-names(item233.floor.sum) <- c("CK_Building_ID", "FloorArea")
-
-
-item233.dat <- left_join(item233.windows.sum, item233.floor.sum)
+item233.sum <- summarise(group_by(item233.envelope, CK_Building_ID)
+                         ,FloorArea  = sum(Floor.Area, na.rm = T)
+                         ,WindowArea = sum(Window.Area, na.rm = T)
+                         ,WindowCount = sum(Window.Count, na.rm = T))
 
 #Remove any items where walla area and window are are not greater than zero.
-item233.dat1 <- item233.dat[which(item233.dat$FloorArea > 0 & 
-                                    item233.dat$WindowArea > 0),]
+item233.dat1 <- item233.sum[which(item233.sum$FloorArea > 0 & item233.sum$WindowArea > 0),]
 
 #calculate the window to wall ratio
 item233.dat1$WindowToFloorArea <- item233.dat1$WindowArea / item233.dat1$FloorArea

@@ -311,7 +311,7 @@ mean_two_groups <- function(CustomerLevelData
                                   ,byCol = columnAggregate
                                   ,byRow = rowAggregate
                                   ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                  ,SE    = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
+                                  ,SE    = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                   ,n     = sum(n)
                                   ,N     = sum(unique(N_h))), stringsAsFactors = F)
       #rename columns byCol and by Row
