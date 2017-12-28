@@ -62,6 +62,7 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"CK_SiteID"
                                                                   ,"Wall.Area"
+                                                                  ,"Conditioned.Living.Area"
                                                                   ,"Category"
                                                                   ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingEast"
                                                                   ,"ENV_Fenestration_WINDOWS_NumOfWindowsFacingNorth"

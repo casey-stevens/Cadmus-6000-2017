@@ -40,7 +40,7 @@ stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCle
 appliances.export          <- "Appliances.xlsx"
 buildings.interview.export <- "Buildings Interview.xlsx"
 buildings.export           <- "Buildings.xlsx"
-envelope.export            <- "Envelope_OLD.xlsx"
+envelope.export            <- "Envelope.xlsx"
 lighting.export            <- "Lighting.xlsx"
 mechanical.export          <- "Mechanical.xlsx"
 rooms.export               <- "Rooms.xlsx"
