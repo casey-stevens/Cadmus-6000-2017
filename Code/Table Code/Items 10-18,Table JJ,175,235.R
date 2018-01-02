@@ -77,10 +77,12 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
 
 prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
 prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
+prep.dat0$`Furred.Wall.Insulated?`  [which(prep.dat0$`Furred.Wall.Insulated?`   != "Yes" & prep.dat0$Wall.Type %in%    c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
 prep.dat0.1 <- prep.dat0[which(!(is.na(prep.dat0$Wall.Area))),]
 prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area != "Unknown"),]
-# prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 != "Unknown"),]
-# prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1 == "Unknown"),]
+prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 %notin% c("Unknown",NA)),]
+prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1  %in% c("Unknown",NA)),]
+prep.dat1.0 <- prep.dat1.2[-which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %in% c("Unknown",NA)),]
 
 #review types
 unique(prep.dat1.0$Wall.Cavity.Insulation.Type.1)
@@ -278,7 +280,7 @@ colnames(clean.insul.join6) <- c("CK_Cadmus_ID"
                                  ,"Remove.3"
                                  ,"furred.inches"
                                  ,"Remove")
-clean.insul.join7 <- clean.insul.join6[-which(clean.insul.join6$cavity.inches1 %in% c("Unknown", "N/A", "N/A N/A") & clean.insul.join6$exterior.inches1 %in% c("Unknown", "N/A", "N/A N/A")),]
+clean.insul.join7 <- clean.insul.join6[-which(clean.insul.join6$cavity.inches1 %in% c("Unknown", "N/A", "N/A N/A") & clean.insul.join6$exterior.inches1 %in% c("Unknown", "N/A", "N/A N/A") & clean.insul.join6$furred.inches %in% c("Unknown", "N/A", "N/A N/A")),]
 
 clean.thickness.data <- clean.insul.join7[-grep("Remove", colnames(clean.insul.join7))]
 
@@ -447,7 +449,7 @@ prep.dat4.9 <- rbind.data.frame(prep.dat4.5
                                 , stringsAsFactors = F)
 prep.dat4.9$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat4.9$Wall.Cavity.Insulation.Condition.1))] <- 1
 prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Type)),]
-
+prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
@@ -468,7 +470,7 @@ unique(prep.dat5$total.r.val)
 # prep.dat5$total.r.val[which(prep.dat5$Wall.Type == "ICF")]
 
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
 prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
@@ -484,9 +486,11 @@ unique(weightedU$aveUval)
 
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) + 1
-weightedU$aveRval[which(weightedU$aveRval == "NaN")] <- 0
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
 unique(weightedU$aveRval)
+unique(weightedU$aveUval)
 
 # get unique cadmus IDs and building types for this subset of data
 wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
@@ -2183,6 +2187,7 @@ rowOrder <- c("Framed 2x2"
               ,"ICF"
               ,"SIP"
               ,"Log"
+              ,"Unknown"
               ,"All Framing Types")
 item18.table <- item18.table %>% mutate(Wall.Type = factor(Wall.Type, levels = rowOrder)) %>% arrange(Wall.Type)  
 item18.table <- data.frame(item18.table)
@@ -2644,6 +2649,7 @@ tableJJ.2x6.data <- left_join(tableJJ.2x6.data, tableJJ.2by6.dat[which(colnames(
                                                                                                          ,"count"))])
 
 tableJJ.2x6.data$count <- 1
+
 ##############################
 # Weighted Analysis
 ##############################
@@ -2661,7 +2667,27 @@ tableJJ.2by6.R$Category <- "2x6 Framed Wall R Value"
 
 wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFactors = F)
 
+wall.cast <- dcast(setDT(wall.table.JJ)
+                   ,formula = BuildingType + State ~ Category
+                   ,value.var = c("Mean", "SE","n", "n_h", "N_h"))
+wall.cast <- data.frame(wall.cast, stringsAsFactors = F)
 
+wall.table <- data.frame("BuildingType" = wall.cast$BuildingType
+                         ,"State" = wall.cast$State
+                         ,"Wall.Insulation" = wall.cast$Mean_Wall.R.Value
+                         ,"Wall.Insulation.SE" = wall.cast$SE_Wall.R.Value
+                         ,"Wall.Insulation.n" = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall" = wall.cast$Mean_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall.n" = wall.cast$n_2x6.Framed.Wall.R.Value)
+
+wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
+                                  ,which(colnames(wall.table) %notin% c("BuildingType"))]
+wall.table.JJ.MH <- wall.table[which(wall.table$BuildingType == "Manufactured")
+                                  ,which(colnames(wall.table) %notin% c("BuildingType"))]
+
+exportTable(wall.table.JJ.SF, "SF","Table JJ",weighted = TRUE)
+exportTable(wall.table.JJ.MH, "MH","Table JJ",weighted = TRUE)
 
 ##############################
 # Unweighted Analysis
@@ -2679,3 +2705,25 @@ tableJJ.2by6.R <- mean_one_group_unweighted(CustomerLevelData = tableJJ.2x6.data
 tableJJ.2by6.R$Category <- "2x6 Framed Wall R Value"
 
 wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFactors = F)
+
+wall.cast <- dcast(setDT(wall.table.JJ)
+                   ,formula = BuildingType + State ~ Category
+                   ,value.var = c("Mean", "SE","n", "n_h", "N_h"))
+wall.cast <- data.frame(wall.cast, stringsAsFactors = F)
+
+wall.table <- data.frame("BuildingType" = wall.cast$BuildingType
+                         ,"State" = wall.cast$State
+                         ,"Wall.Insulation" = wall.cast$Mean_Wall.R.Value
+                         ,"Wall.Insulation.SE" = wall.cast$SE_Wall.R.Value
+                         ,"Wall.Insulation.n" = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall" = wall.cast$Mean_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall.n" = wall.cast$n_2x6.Framed.Wall.R.Value)
+
+wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
+                               ,which(colnames(wall.table) %notin% c("BuildingType"))]
+wall.table.JJ.MH <- wall.table[which(wall.table$BuildingType == "Manufactured")
+                               ,which(colnames(wall.table) %notin% c("BuildingType"))]
+
+exportTable(wall.table.JJ.SF, "SF","Table JJ",weighted = FALSE)
+exportTable(wall.table.JJ.MH, "MH","Table JJ",weighted = FALSE)

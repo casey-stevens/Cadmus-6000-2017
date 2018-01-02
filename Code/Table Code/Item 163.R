@@ -88,7 +88,9 @@ item163.mechanical <- item163.sum1
 #
 #############################################################################################
 #subset envelope data to necessary columns
+#subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                             ,"PK_Envelope_ID"
                                                              , "Category"
                                                              , "Floor.Type"
                                                              , "Floor.Sub-Type"
@@ -410,16 +412,29 @@ unique(prep.dat4.5$slab.rvalues2)
 unique(prep.dat4.5$slab.rvalues3)
 
 prep.dat4.5$Floor.Insulation.Condition.1 <- prep.dat4.5$Floor.Insulation.Condition.1 / 100
+prep.dat4.5$Slab.Insulation.Condition.1  <- prep.dat4.5$Slab.Insulation.Condition.1 / 100
 
 # clean up condition information
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Floor.Insulation.Condition.1 %notin% c(1, NA)),]
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Floor.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub1$Floor.Insulation.Condition.1 <- 1 - prep.condition.sub1$Floor.Insulation.Condition.1
+prep.condition.sub1$floor.rvalues1 <- 0
+prep.condition.sub1$floor.rvalues2 <- 0
+prep.condition.sub1$floor.rvalues3 <- 0
 prep.condition.sub1$total.r.val <- NA
+
+# clean up condition information
+prep.condition.sub2 <- prep.dat4.5[which(prep.dat4.5$Slab.Insulation.Condition.1 %notin% c(1, NA, 0)),]
+# prep.condition.sub2$Slab.Insulation.Condition.1 <- 1 - prep.condition.sub2$Slab.Insulation.Condition.1
+# prep.condition.sub2$slab.rvalues1 <- 0
+# prep.condition.sub2$slab.rvalues2 <- 0
+# prep.condition.sub2$slab.rvalues3 <- 0
+# prep.condition.sub2$total.r.val <- NA
 
 prep.dat5 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               , stringsAsFactors = F)
 
+prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
@@ -438,7 +453,8 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$floor.rvalues1[na.ind] * prep.dat5$f
 unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
+prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
 #make area numeric
@@ -452,7 +468,9 @@ weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Floor.Type)
 )
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
 unique(weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data
@@ -465,7 +483,6 @@ prep.dat6 <- left_join(weightedU, Floor.unique, by = "CK_Cadmus_ID")
 prep.dat7 <- left_join(prep.dat6, rbsa.dat)
 prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
 prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
-
 ###################################################################################################################
 #
 #
@@ -554,16 +571,13 @@ item163.all.insul.levels <-  proportions_one_group(item163.data
                                                   ,columnName       = "rvalue.bins.SF"
                                                   ,weighted = TRUE
                                                   ,two.prop.total = TRUE)
-
+item163.all.insul.levels$HomeYearBuilt_bins3[which(item163.all.insul.levels$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 #merge together!
 item163.final <- rbind.data.frame(item163.summary
                                  , item163.all.frame.types
                                  , item163.all.insul.levels
                                  , stringsAsFactors = F)
-item163.final <- item163.final[which(item163.final$rvalue.bins.SF != "Total"),]
-item163.final$HomeYearBuilt_bins3[which(item163.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
-
 
 item163.cast <- dcast(setDT(item163.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.SF,
@@ -645,6 +659,7 @@ item163.all.insul.levels <-  proportions_one_group(item163.data
                                                   ,weighted = FALSE
                                                   ,two.prop.total = TRUE
 )
+item163.all.insul.levels$HomeYearBuilt_bins3[which(item163.all.insul.levels$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 
 #merge together!
@@ -652,9 +667,6 @@ item163.final <- rbind.data.frame(item163.summary
                                  , item163.all.frame.types
                                  , item163.all.insul.levels
                                  , stringsAsFactors = F)
-item163.final <- item163.final[which(item163.final$rvalue.bins.SF != "Total"),]
-item163.final$HomeYearBuilt_bins3[which(item163.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
-
 
 item163.cast <- dcast(setDT(item163.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.SF,

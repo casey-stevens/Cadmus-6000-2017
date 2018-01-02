@@ -89,6 +89,7 @@ item164.mechanical <- item164.sum1
 #############################################################################################
 #subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                             ,"PK_Envelope_ID"
                                                              , "Category"
                                                              , "Ceiling.Type"
                                                              , "Ceiling.Sub-Type"
@@ -309,8 +310,11 @@ unique(prep.dat4.5$ceiling.rvalues3)
 # clean up condition information
 prep.dat4.5$Ceiling.Insulation.Condition.1 <- prep.dat4.5$Ceiling.Insulation.Condition.1 / 100
 
-prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Ceiling.Insulation.Condition.1 %notin% c(1, NA)),]
+prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Ceiling.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub1$Ceiling.Insulation.Condition.1 <- 1 - prep.condition.sub1$Ceiling.Insulation.Condition.1
+prep.condition.sub1$ceiling.rvalues1 <- 0
+prep.condition.sub1$ceiling.rvalues2 <- 0
+prep.condition.sub1$ceiling.rvalues3 <- 0
 prep.condition.sub1$total.r.val <- NA
 
 prep.dat5 <- rbind.data.frame(prep.dat4.5
@@ -318,6 +322,7 @@ prep.dat5 <- rbind.data.frame(prep.dat4.5
                               , stringsAsFactors = F)
 
 prep.dat5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat5$Ceiling.Insulation.Condition.1))] <- 1 
+prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
@@ -334,7 +339,8 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$ceiling.rvalues1[na.ind] * prep.dat5
 unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
+prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
 #make area numeric
@@ -347,7 +353,9 @@ weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Ceiling.Type)
 )
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
 unique(weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data

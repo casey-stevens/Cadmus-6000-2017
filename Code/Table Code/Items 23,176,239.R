@@ -393,6 +393,7 @@ prep.dat5 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               , stringsAsFactors = F)
 
+prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
@@ -411,7 +412,8 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$floor.rvalues1[na.ind] * prep.dat5$f
 unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
+prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
 #make area numeric
@@ -425,7 +427,9 @@ weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Floor.Type)
 )
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
 unique(weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data

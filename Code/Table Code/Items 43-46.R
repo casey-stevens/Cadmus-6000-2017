@@ -31,7 +31,8 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
                                                                         ,"Generic"
                                                                         ,"Primary.Heating.System"
-                                                                        ,"Heating.Fuel"))]
+                                                                        ,"Heating.Fuel"
+                                                                        ,"System.Sub-Type"))]
 
 
 
@@ -52,7 +53,18 @@ unique(item43.dat2$Primary.Heating.System)
 
 item43.dat2$Heating.System.Ind <- item43.dat2$Primary.Heating.System
 item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
-item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
+item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "No")]  <- "Secondary Heating System"
+
+for (ii in 1:nrow(item43.dat2)){
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+    item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
+  }
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+item43.dat2$Generic[which(item43.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
 
 item43.dat3 <- unique(data.frame("CK_Cadmus_ID" = item43.dat2$CK_Cadmus_ID
                           ,"Heating_Type"       = item43.dat2$Generic
@@ -68,6 +80,7 @@ length(unique(item43.dat5$CK_Cadmus_ID))
 item43.dat5$count <- 1
 
 item43.dat6 <- item43.dat5[which(!is.na(item43.dat5$Heating_Type)),]
+unique(item43.dat6$Heating_Type)
 
 item43.data <- weightedData(item43.dat6[-which(colnames(item43.dat6) %in% c("Heating_Type"
                                                                             ,"Primary_Secondary"
@@ -141,6 +154,18 @@ item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Natural gas")]    <-
 item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
 item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Wood (cord)")]    <- "Wood"
 unique(item44.dat2$Heating.Fuel)
+
+for (ii in 1:nrow(item44.dat2)){
+  if (item44.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+    item44.dat2$Generic[ii] <- item44.dat2$`System.Sub-Type`[ii]
+  }
+  if (item44.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item44.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+item44.dat2$Generic[which(item44.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
+
 
 item44.dat3 <- unique(data.frame("CK_Cadmus_ID" = item44.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item44.dat2$Generic
@@ -286,6 +311,18 @@ item45.dat2$Heating.System.Ind <- item45.dat2$Primary.Heating.System
 item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
 item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System ==  "No")] <- "Secondary Heating System"
 
+
+for (ii in 1:nrow(item45.dat2)){
+  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+    item45.dat2$Generic[ii] <- item45.dat2$`System.Sub-Type`[ii]
+  }
+  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item45.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+item45.dat2$Generic[which(item45.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
+
 item45.dat3 <- unique(data.frame("CK_Cadmus_ID" = item45.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item45.dat2$Generic
                                  ,"Primary_Secondary" = item45.dat2$Heating.System.Ind))
@@ -366,6 +403,16 @@ item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural gas")]      
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural Gas")]       <- "Gas"
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Fuel oil/kerosene")] <- "Oil"
 
+for (ii in 1:nrow(item46.dat2)){
+  if (item46.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+    item46.dat2$Generic[ii] <- item46.dat2$`System.Sub-Type`[ii]
+  }
+  if (item46.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item46.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+item46.dat2$Generic[which(item46.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
 
 item46.dat3 <- unique(data.frame("CK_Cadmus_ID" = item46.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item46.dat2$Generic

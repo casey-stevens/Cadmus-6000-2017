@@ -277,6 +277,7 @@ prep.dat5 <- rbind.data.frame(prep.dat4.5
                               , stringsAsFactors = F)
 
 prep.dat5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat5$Ceiling.Insulation.Condition.1))] <- 1 
+prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
@@ -293,7 +294,8 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$ceiling.rvalues1[na.ind] * prep.dat5
 unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
+prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
 #make area numeric
@@ -306,7 +308,9 @@ weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Ceiling.Type)
 )
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
 unique(weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data
@@ -332,13 +336,13 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 
 
-rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
-ceiling.merge <- left_join(rbsa.ceiling, prep.dat5)
-#########export rvalues
-##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
+# ceiling.merge <- left_join(rbsa.ceiling, prep.dat5)
+# #########export rvalues
+# ##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 
@@ -633,30 +637,43 @@ item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
                             ,"Housing.Vintage"      = item177.cast$HomeYearBuilt_bins2
                             ,"Percent.R0.R8"        = item177.cast$w.percent_R0.R8
                             ,"SE.R0.R8"             = item177.cast$w.SE_R0.R8
-                            ,"n.R0.R8"              = item177.cast$n_R0.R8
-                            ,"Count.R0.R8"          = item177.cast$count_R0.R8
+                            # ,"n.R0.R8"              = item177.cast$n_R0.R8
+                            # ,"Count.R0.R8"          = item177.cast$count_R0.R8
                             ,"Percent.R9.R14"       = item177.cast$w.percent_R9.R14
                             ,"SE.R9.R14"            = item177.cast$w.SE_R9.R14
-                            ,"n.R9.R14"             = item177.cast$n_R9.R14
-                            ,"Count.R9.R14"          = item177.cast$count_R9.R14
+                            # ,"n.R9.R14"             = item177.cast$n_R9.R14
+                            # ,"Count.R9.R14"          = item177.cast$count_R9.R14
                             ,"Percent.R15.R21"      = item177.cast$w.percent_R15.R21
                             ,"SE.R15.R21"           = item177.cast$w.SE_R15.R21
-                            ,"n.R15.R21"            = item177.cast$n_R15.R21
-                            ,"Count.R15.R21"          = item177.cast$count_R15.R21
+                            # ,"n.R15.R21"            = item177.cast$n_R15.R21
+                            # ,"Count.R15.R21"          = item177.cast$count_R15.R21
                             ,"Percent.R22.R30"      = item177.cast$w.percent_R22.R30
                             ,"SE.R22.R30"           = item177.cast$w.SE_R22.R30
-                            ,"n.R22.R30"            = item177.cast$n_R22.R30
-                            ,"Count.R22.R30"          = item177.cast$count_R22.R30
+                            # ,"n.R22.R30"            = item177.cast$n_R22.R30
+                            # ,"Count.R22.R30"          = item177.cast$count_R22.R30
                             ,"Percent.R31.R40"      = item177.cast$w.percent_R31.R40
                             ,"SE.R31.R40"           = item177.cast$w.SE_R31.R40
-                            ,"n.R31.R40"            = item177.cast$n_R31.R40
-                            ,"Count.R31.R40"          = item177.cast$count_R31.R40
+                            # ,"n.R31.R40"            = item177.cast$n_R31.R40
+                            # ,"Count.R31.R40"          = item177.cast$count_R31.R40
                             ,"Percent.All.Ceilings" = item177.cast$`w.percent_All Ceilings`
                             ,"SE.All.Ceilings"      = item177.cast$`w.SE_All Ceilings`
-                            ,"SampleSize"           = item177.cast$`n_All Ceilings`
-                            ,"Count.All.Ceilings"   = item177.cast$`count_All Ceilings`)
+                            # ,"SampleSize"           = item177.cast$`n_All Ceilings`
+                            # ,"Count.All.Ceilings"   = item177.cast$`count_All Ceilings`
+                            ,"n" = item177.cast$`n_All Ceilings`
+                            )
 
-
+levels(item177.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+item177.table <- item177.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item177.table <- data.frame(item177.table)
 
 item177.table.MH <- item177.table[which(item177.table$BuildingType == "Manufactured"),-1]
 
@@ -681,8 +698,8 @@ item177.all.vintages <- proportions_one_group(item177.data
                                               ,groupingVariable = "rvalue.bins"
                                               ,total.name       = "All Housing Vintages"
                                               ,columnName       = "HomeYearBuilt_bins2"
-                                              ,weighted = TRUE
-                                              ,two.prop.total = FALSE)
+                                              ,weighted = FALSE
+                                              ,two.prop.total = TRUE)
 item177.all.vintages$rvalue.bins[which(item177.all.vintages$rvalue.bins == "Total")] <- "All Ceilings"
 
 ## Summary for only "All Ceilings"
@@ -704,36 +721,49 @@ item177.final <- rbind.data.frame(item177.summary
 
 item177.cast <- dcast(setDT(item177.final),
                       formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins,
-                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      value.var = c("Percent", "SE", "Count", "n"))
 
 item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
                             ,"Housing.Vintage"      = item177.cast$HomeYearBuilt_bins2
-                            ,"Percent.R0.R8"        = item177.cast$w.percent_R0.R8
-                            ,"SE.R0.R8"             = item177.cast$w.SE_R0.R8
-                            ,"n.R0.R8"              = item177.cast$n_R0.R8
-                            ,"Count.R0.R8"          = item177.cast$count_R0.R8
-                            ,"Percent.R9.R14"       = item177.cast$w.percent_R9.R14
-                            ,"SE.R9.R14"            = item177.cast$w.SE_R9.R14
-                            ,"n.R9.R14"             = item177.cast$n_R9.R14
-                            ,"Count.R9.R14"          = item177.cast$count_R9.R14
-                            ,"Percent.R15.R21"      = item177.cast$w.percent_R15.R21
-                            ,"SE.R15.R21"           = item177.cast$w.SE_R15.R21
-                            ,"n.R15.R21"            = item177.cast$n_R15.R21
-                            ,"Count.R15.R21"          = item177.cast$count_R15.R21
-                            ,"Percent.R22.R30"      = item177.cast$w.percent_R22.R30
-                            ,"SE.R22.R30"           = item177.cast$w.SE_R22.R30
-                            ,"n.R22.R30"            = item177.cast$n_R22.R30
-                            ,"Count.R22.R30"          = item177.cast$count_R22.R30
-                            ,"Percent.R31.R40"      = item177.cast$w.percent_R31.R40
-                            ,"SE.R31.R40"           = item177.cast$w.SE_R31.R40
-                            ,"n.R31.R40"            = item177.cast$n_R31.R40
-                            ,"Count.R31.R40"          = item177.cast$count_R31.R40
-                            ,"Percent.All.Ceilings" = item177.cast$`w.percent_All Ceilings`
-                            ,"SE.All.Ceilings"      = item177.cast$`w.SE_All Ceilings`
-                            ,"SampleSize"           = item177.cast$`n_All Ceilings`
-                            ,"Count.All.Ceilings"   = item177.cast$`count_All Ceilings`)
+                            ,"Percent.R0.R8"        = item177.cast$Percent_R0.R8
+                            ,"SE.R0.R8"             = item177.cast$SE_R0.R8
+                            # ,"n.R0.R8"              = item177.cast$n_R0.R8
+                            # ,"Count.R0.R8"          = item177.cast$Count_R0.R8
+                            ,"Percent.R9.R14"       = item177.cast$Percent_R9.R14
+                            ,"SE.R9.R14"            = item177.cast$SE_R9.R14
+                            # ,"n.R9.R14"             = item177.cast$n_R9.R14
+                            # ,"Count.R9.R14"          = item177.cast$Count_R9.R14
+                            ,"Percent.R15.R21"      = item177.cast$Percent_R15.R21
+                            ,"SE.R15.R21"           = item177.cast$SE_R15.R21
+                            # ,"n.R15.R21"            = item177.cast$n_R15.R21
+                            # ,"Count.R15.R21"          = item177.cast$Count_R15.R21
+                            ,"Percent.R22.R30"      = item177.cast$Percent_R22.R30
+                            ,"SE.R22.R30"           = item177.cast$SE_R22.R30
+                            # ,"n.R22.R30"            = item177.cast$n_R22.R30
+                            # ,"Count.R22.R30"          = item177.cast$Count_R22.R30
+                            ,"Percent.R31.R40"      = item177.cast$Percent_R31.R40
+                            ,"SE.R31.R40"           = item177.cast$SE_R31.R40
+                            # ,"n.R31.R40"            = item177.cast$n_R31.R40
+                            # ,"Count.R31.R40"          = item177.cast$Count_R31.R40
+                            ,"Percent.All.Ceilings" = item177.cast$`Percent_All Ceilings`
+                            ,"SE.All.Ceilings"      = item177.cast$`SE_All Ceilings`
+                            # ,"SampleSize"           = item177.cast$`n_All Ceilings`
+                            # ,"Count.All.Ceilings"   = item177.cast$`Count_All Ceilings`
+                            ,"n" = item177.cast$`n_All Ceilings`
+                            )
 
-
+levels(item177.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Housing Vintages")
+item177.table <- item177.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item177.table <- data.frame(item177.table)
 
 item177.table.MH <- item177.table[which(item177.table$BuildingType == "Manufactured"),-1]
 

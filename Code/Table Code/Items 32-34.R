@@ -224,6 +224,7 @@ item33.all.framing.categories <- proportions_one_group(CustomerLevelData = item3
                                                        ,columnName       = "Framing.Categories"
                                                        ,weighted         = TRUE
                                                        ,two.prop.total   = TRUE)
+item33.all.framing.categories$State.x[which(item33.all.framing.categories$State.x == "Total")] <- "Region"
 colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.categories) == "State.x")] <- "State"
 
 item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
@@ -289,6 +290,7 @@ item33.all.framing.categories <- proportions_one_group(CustomerLevelData = item3
                                                        ,columnName       = "Framing.Categories"
                                                        ,weighted         = FALSE
                                                        ,two.prop.total   = TRUE)
+item33.all.framing.categories$State.x[which(item33.all.framing.categories$State.x == "Total")] <- "Region"
 colnames(item33.all.framing.categories)[which(colnames(item33.all.framing.categories) == "State.x")] <- "State"
 
 item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)

@@ -842,8 +842,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                    , total.count = sum(Count)
                                                    , p.h = count / total.count), stringsAsFactors = F)
 
-    }else
-    if(valueVariable == "Wifi.Ind"){
+    }else if(valueVariable == "Wifi.Ind"){
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", rowVariable)
                                                    , summarise
@@ -881,7 +880,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , total.count = sum(Count)
                                                  , p.h = count / total.count), stringsAsFactors = F)
     
-  }else if(columnVariable %in% c("HomeType","Lamp.Category") & valueVariable == c("Ind", "Lamps")){
+  }else if(columnVariable %in% c("HomeType","Lamp.Category") & valueVariable %in% c("Ind", "Lamps")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
                                                  , summarise

@@ -65,7 +65,8 @@ unique(item157.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType)
 # Clean Ground Contact types
 ###########################
 item157.dat$GroundContact <- item157.dat$ENV_Construction_BLDG_STRUCTURE_FoundationType
-for (i in 1:length(GroundContactTypes$Raw.data.categories)){
+ii = 1
+for (i in 1:length(item157.dat$GroundContact)){
   item157.dat$GroundContact[which(item157.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
 }
 ###########################
@@ -166,22 +167,17 @@ item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
                             ,"Percent_ID"     = item157.cast$w.percent_ID
                             ,"SE_ID"          = item157.cast$w.SE_ID
                             ,"n_ID"           = item157.cast$n_ID
-                            ,"n_ID"           = item157.cast$n_ID
                             ,"Percent_MT"     = item157.cast$w.percent_MT
                             ,"SE_MT"          = item157.cast$w.SE_MT
-                            ,"n_MT"           = item157.cast$n_MT
                             ,"n_MT"           = item157.cast$n_MT
                             ,"Percent_OR"     = item157.cast$w.percent_OR
                             ,"SE_OR"          = item157.cast$w.SE_OR
                             ,"n_OR"           = item157.cast$n_OR
-                            ,"n_OR"           = item157.cast$n_OR
                             ,"Percent_WA"     = item157.cast$w.percent_WA
                             ,"SE_WA"          = item157.cast$w.SE_WA
                             ,"n_WA"           = item157.cast$n_WA
-                            ,"n_WA"           = item157.cast$n_WA
                             ,"Percent_Region" = item157.cast$w.percent_Region
                             ,"SE_Region"      = item157.cast$w.SE_Region
-                            ,"n_Region"       = item157.cast$n_Region
                             ,"n_Region"       = item157.cast$n_Region
 )
 

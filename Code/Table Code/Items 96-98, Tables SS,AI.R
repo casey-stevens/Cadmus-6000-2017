@@ -162,7 +162,8 @@ exportTable(item96.final.MH, "MH", "Table 84", weighted = FALSE)
 item97.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
                                                                    ,"Generic"
                                                                    ,"DHW.Fuel"
-                                                                   ,""))]
+                                                                   ,"DHW.Type"
+                                                                   ,"DHW.Technology"))]
 item97.dat$count <- 1
 
 item97.dat0 <- item97.dat[which(item97.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -170,18 +171,27 @@ item97.dat0 <- item97.dat[which(item97.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item97.dat1 <- left_join(rbsa.dat, item97.dat0, by = "CK_Cadmus_ID")
 
 item97.dat2 <- item97.dat1[grep("Water Heater",item97.dat1$Generic),]
+item97.dat2$Detailed.Type <- paste(item97.dat2$DHW.Type, item97.dat2$DHW.Technology, sep = "-")
+unique(item97.dat2$Detailed.Type)
 
+item97.dat3 <- item97.dat2[-grep("unknown",item97.dat2$Detailed.Type, ignore.case = T),]
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item97.data <- weightedData(item97.dat2[-which(colnames(item97.dat2) %in% c("Generic"
+item97.data <- weightedData(item97.dat3[-which(colnames(item97.dat3) %in% c("Generic"
                                                                             ,"DHW.Fuel"
-                                                                            ,"count"))])
-item97.data <- left_join(item97.data, item97.dat2[which(colnames(item97.dat2) %in% c("CK_Cadmus_ID"
+                                                                            ,"count"
+                                                                            ,"DHW.Type"
+                                                                            ,"DHW.Technology"
+                                                                            ,"Detailed.Type"))])
+item97.data <- left_join(item97.data, item97.dat3[which(colnames(item97.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"DHW.Fuel"
-                                                                                     ,"count"))])
+                                                                                     ,"count"
+                                                                                     ,"DHW.Type"
+                                                                                     ,"DHW.Technology"
+                                                                                     ,"Detailed.Type"))])
 
 #######################
 # Weighted Analysis
@@ -189,13 +199,11 @@ item97.data <- left_join(item97.data, item97.dat2[which(colnames(item97.dat2) %i
 item97.final <- proportions_one_group(CustomerLevelData  = item97.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Generic'
-                                      , total.name       = "Total"
-                                      , columnName       = "Homes with Ducts")
+                                      , total.name       = "Total")
 
 # Export table
 item97.final.SF <- item97.final[which(item97.final$BuildingType == "Single Family")
-                                ,-which(colnames(item97.final) %in% c("BuildingType"
-                                                                      ,"Homes.with.Ducts"))]
+                                ,-which(colnames(item97.final) %in% c("BuildingType"))]
 
 exportTable(item97.final.SF, "SF", "Table 104", weighted = TRUE)
 
@@ -206,16 +214,91 @@ item97.final <- proportions_one_group(CustomerLevelData  = item97.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Generic'
                                       , total.name       = "Total"
-                                      , columnName       = "Homes with Ducts"
                                       , weighted = FALSE)
 
 # Export table
 item97.final.SF <- item97.final[which(item97.final$BuildingType == "Single Family")
-                                ,-which(colnames(item97.final) %in% c("BuildingType"
-                                                                      ,"Homes.with.Ducts"
-                                                                      ,"Total.Count"))]
+                                ,-which(colnames(item97.final) %in% c("BuildingType"))]
 
 exportTable(item97.final.SF, "SF", "Table 104", weighted = FALSE)
+
+
+
+
+
+#############################################################################################
+#Table AI: DISTRIBUTION OF WATER HEATERS BY TYPE (SF table AI)
+#############################################################################################
+#subset to columns needed for analysis
+tableAI.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Generic"
+                                                                   ,"DHW.Fuel"
+                                                                   ,"DHW.Type"
+                                                                   ,"DHW.Technology"))]
+tableAI.dat$count <- 1
+
+tableAI.dat0 <- tableAI.dat[which(tableAI.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+tableAI.dat1 <- left_join(rbsa.dat, tableAI.dat0, by = "CK_Cadmus_ID")
+
+tableAI.dat2 <- tableAI.dat1[grep("Water Heater",tableAI.dat1$Generic),]
+tableAI.dat2$Detailed.Type <- paste(tableAI.dat2$DHW.Type, tableAI.dat2$DHW.Technology, sep = "-")
+unique(tableAI.dat2$Detailed.Type)
+
+tableAI.dat3 <- tableAI.dat2[-grep("unknown",tableAI.dat2$Detailed.Type, ignore.case = T),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAI.data <- weightedData(tableAI.dat3[-which(colnames(tableAI.dat3) %in% c("Generic"
+                                                                            ,"DHW.Fuel"
+                                                                            ,"count"
+                                                                            ,"DHW.Type"
+                                                                            ,"DHW.Technology"
+                                                                            ,"Detailed.Type"))])
+tableAI.data <- left_join(tableAI.data, tableAI.dat3[which(colnames(tableAI.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Generic"
+                                                                                     ,"DHW.Fuel"
+                                                                                     ,"count"
+                                                                                     ,"DHW.Type"
+                                                                                     ,"DHW.Technology"
+                                                                                     ,"Detailed.Type"))])
+
+#######################
+# Weighted Analysis
+#######################
+tableAI.final <- proportions_one_group(CustomerLevelData  = tableAI.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'Detailed.Type'
+                                      , total.name       = "Total")
+
+# Export table
+tableAI.final.SF <- tableAI.final[which(tableAI.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+tableAI.final.MH <- tableAI.final[which(tableAI.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+
+exportTable(tableAI.final.SF, "SF", "Table AI", weighted = TRUE)
+exportTable(tableAI.final.MH, "MH", "Table AI", weighted = TRUE)
+
+#######################
+# Unweighted Analysis
+#######################
+tableAI.final <- proportions_one_group(CustomerLevelData  = tableAI.data
+                                      , valueVariable    = 'count'
+                                      , groupingVariable = 'Detailed.Type'
+                                      , total.name       = "Total"
+                                      , weighted = FALSE)
+
+# Export table
+tableAI.final.SF <- tableAI.final[which(tableAI.final$BuildingType == "Single Family")
+                                ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+tableAI.final.MH <- tableAI.final[which(tableAI.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+
+exportTable(tableAI.final.SF, "SF", "Table AI", weighted = FALSE)
+exportTable(tableAI.final.MH, "MH", "Table AI", weighted = FALSE)
+
 
 
 

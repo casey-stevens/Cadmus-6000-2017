@@ -272,7 +272,7 @@ exportTable(item21.final.SF, "SF", "Table 28"
 #subset envelope data to necessary columns
 item22.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                , "Foundation"
-                                                               , ""))]
+                                                               , "Conditioned.Living.Area"))]
 
 item22.dat1 <- unique(item22.dat[grep("crawl|Crawl", item22.dat$Foundation),])
 
@@ -286,12 +286,14 @@ item22.merge$FloorOverCrawl[which(item22.merge$Foundation == "Crawlspace")] <- 1
 # apply weights to the subset of the data
 item22.data <- weightedData(item22.merge[which(colnames(item22.merge) %notin% c("count"
                                                                                 ,"Foundation"
+                                                                                ,"Conditioned.Living.Area"
                                                                                 ,"FloorOverCrawl"))])
 #merge back on measured variable
 item22.data <- left_join(item22.data, item22.merge[which(colnames(item22.merge) %in% c("CK_Cadmus_ID"
-                                                                                         ,"count"
-                                                                                         ,"Foundation"
-                                                                                         ,"FloorOverCrawl"))])
+                                                                                       ,"count"
+                                                                                       ,"Foundation"
+                                                                                       ,"Conditioned.Living.Area"
+                                                                                       ,"FloorOverCrawl"))])
 
 unique(item22.data$FloorOverCrawl)
 item22.data$Ind <- item22.data$FloorOverCrawl

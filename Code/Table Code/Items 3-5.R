@@ -96,35 +96,26 @@ item3.final <- proportionRowsAndColumns1(CustomerLevelData     = item3.data
                                          , rowVariable         = 'GroundContact'
                                          , aggregateColumnName = "Region")
 
-colnames(item3.final) <- c("BuildingType"
-                           , "State"
-                           , "GroundContact"
-                           , "Percent"
-                           , "SE"
-                           , "Count"
-                           , "PopSize"
-                           , "n")
-
 item3.cast <- dcast(setDT(item3.final)
                     ,formula = BuildingType + GroundContact ~ State
-                    ,value.var = c("Percent", "SE", "n", "Count", "N"))
+                    ,value.var = c("w.percent", "w.SE", "n", "count"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
-                          ,"Percent_ID"     = item3.cast$Percent_ID
-                          ,"SE_ID"          = item3.cast$SE_ID
+                          ,"Percent_ID"     = item3.cast$w.percent_ID
+                          ,"SE_ID"          = item3.cast$w.SE_ID
                           ,"n_ID"           = item3.cast$n_ID
-                          ,"Percent_MT"     = item3.cast$Percent_MT
-                          ,"SE_MT"          = item3.cast$SE_MT
+                          ,"Percent_MT"     = item3.cast$w.percent_MT
+                          ,"SE_MT"          = item3.cast$w.SE_MT
                           ,"n_MT"           = item3.cast$n_MT
-                          ,"Percent_OR"     = item3.cast$Percent_OR
-                          ,"SE_OR"          = item3.cast$SE_OR
+                          ,"Percent_OR"     = item3.cast$w.percent_OR
+                          ,"SE_OR"          = item3.cast$w.SE_OR
                           ,"n_OR"           = item3.cast$n_OR
-                          ,"Percent_WA"     = item3.cast$Percent_WA
-                          ,"SE_WA"          = item3.cast$SE_WA
+                          ,"Percent_WA"     = item3.cast$w.percent_WA
+                          ,"SE_WA"          = item3.cast$w.SE_WA
                           ,"n_WA"           = item3.cast$n_WA
-                          ,"Percent_Region" = item3.cast$Percent_Region
-                          ,"SE_Region"      = item3.cast$SE_Region
+                          ,"Percent_Region" = item3.cast$w.percent_Region
+                          ,"SE_Region"      = item3.cast$w.SE_Region
                           ,"n_Region"       = item3.cast$n_Region)
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
@@ -143,14 +134,6 @@ item3.final <- proportions_two_groups_unweighted(CustomerLevelData = item3.data
                                          , columnVariable = 'State'
                                          , rowVariable = 'GroundContact'
                                          , aggregateColumnName = "Region")
-
-colnames(item3.final) <- c("BuildingType"
-                           , "State"
-                           , "GroundContact"
-                           , "Count"
-                           , "n"
-                           , "Percent"
-                           , "SE")
 
 item3.cast <- dcast(setDT(item3.final)
                     ,formula = BuildingType + GroundContact ~ State
