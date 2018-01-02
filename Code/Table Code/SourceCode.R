@@ -26,6 +26,7 @@ library(data.table)
 # - output data
 ################################################################################
 rootpath              <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
+billingRootpath       <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/Billing analysis"
 analysisFolder        <- rootpath
 # filepathRawData       <- file.path(analysisFolder,"Data for PSE")
 filepathRawData       <- file.path(analysisFolder,"$Clean Data", "2017.10.30")
@@ -33,8 +34,9 @@ filepathCleanData     <- file.path(analysisFolder, "Analysis Documents", "Clean 
 filepathCleaningDocs  <- file.path(analysisFolder, "Analysis Documents")
 filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
 outputFolder          <- file.path(analysisFolder, "Tables from Previous RBSA Report")
+filepathBillingData   <- file.path(billingRootpath, "Preliminary Results")
 
-stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder)))
+stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder, filepathBillingData)))
 
 #File Names
 appliances.export          <- "Appliances.xlsx"
@@ -51,3 +53,4 @@ windows.export             <- "Windows.xlsx"
 survey.export              <- "Participant Survey.xlsx"
 one.line.export            <- "One Line Summary.xlsm"
 one.line.bldg.export       <- "One Line Summary - BLDG.xlsm"
+billing.data               <- "Prelim Compiled Ready.xlsx"
