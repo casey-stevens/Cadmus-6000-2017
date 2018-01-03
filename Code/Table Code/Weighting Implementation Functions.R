@@ -238,7 +238,7 @@ mean_two_groups <- function(CustomerLevelData
                                           ,strataMean = mean(get(valueVariable), na.rm = T)
                                           ,strataSD   = sd(get(valueVariable), na.rm = T)
                                           ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata$strataSD[which(item.strata$strataSD == "NaN")] <- 0
+    item.strata.group$strataSD[which(item.strata.group$strataSD == "NaN")] <- 0
   } 
   
   if (byVariableColumn == 'State') {
