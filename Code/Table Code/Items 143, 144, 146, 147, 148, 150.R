@@ -44,7 +44,8 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
                                                                         ,"Generic"
                                                                         ,"Primary.Heating.System"
-                                                                        ,"Heating.Fuel"))]
+                                                                        ,"Heating.Fuel",
+                                                                        "System.Sub-Type"))]
 
 #remove datapoint not asked for and repeated header lines
 mechanical.dat1 <- mechanical.dat1[which(mechanical.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
