@@ -90,7 +90,7 @@ mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas"
 #############################################################################################
 # Item 143: AVERAGE ANNUAL KWH PER HOME BY STATE - TABLE 150 
 #############################################################################################
-item143.data <- results.dat
+item143.data <- results.dat[which(results.dat$UsageRaw_kWh > 0),]
 drop.for.weighting <- c(usage.columns)
 
 item143.weighted <- weightedData(item143.data[-c(which(colnames(item143.data) %in% 
@@ -137,7 +137,7 @@ exportTable(item7.final.MH, "MH", "Table 125"
 # Item 144: AVERAGE WEATHER NORMALIZED KWH PER HOME BY STATE  - SF TABLE 151, MH TABLE 126
 #############################################################################################
 
-item144.data <- results.dat
+item144.data <- results.dat[which(results.dat$UsageNAC_kWh > 0),]
 drop.for.weighting <- c(usage.columns)
 
 item144.weighted <- weightedData(item144.data[-c(which(colnames(item144.data) %in% 
@@ -185,7 +185,7 @@ exportTable(item7.final.MH, "MH", "Table 126"
 # Item 146: AVERAGE ESTIMATED ANNUAL ELECTRIC SPACE HEAT PER HOME BY STATE   - SF TABLE 153, MH TABLE 128
 #############################################################################################
 
-item146.customer <- results.dat
+item146.customer <- results.dat[which(results.dat$heating_kWh > 0),]
 # Need to merge on primary heating system fuel type
 mechanical.final <- unique(mechanical.dat5[which(colnames(mechanical.dat5) %in% 
                                             c("CK_Cadmus_ID", "Heating_Fuel"))])
