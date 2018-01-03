@@ -155,8 +155,8 @@ item38.data$count <- 1
 ######################
 item38.final <- mean_one_group(CustomerLevelData = item38.data
                                ,valueVariable = 'CFM50'
-                               ,byVariable = 'State'
-                               ,aggregateRow = "Region")
+                               ,byVariable    = 'State'
+                               ,aggregateRow  = "Region")
 
 item38.final.SF <- item38.final[which(item38.final$BuildingType == "Single Family")
                                 ,which(colnames(item38.final) %notin% c("BuildingType"))]
@@ -198,7 +198,7 @@ item39.dat  <- item38.data
 
 item39.dat$ACH50 <- item39.dat$P50_CFM * 60 / item39.dat$Conditioned.Volume
 
-item39.dat1 <- item39.dat[which(item39.dat$ACH50 != "Inf"),] #only 665/961 have a recorded conditioned floor volume
+item39.dat1 <- item39.dat[which(item39.dat$ACH50 != "Inf"),] #only 888/961 have a recorded conditioned floor volume
 
 ######################
 # weighted analysis
@@ -287,7 +287,7 @@ item40.data$count <- 1
 
 item40.data$ACH50 <- item40.data$P50_CFM * 60 / item40.data$Conditioned.Volume
 
-item40.dat1 <- item40.data[which(item40.data$ACH50 != "Inf"),] #only 665/961 have a recorded conditioned floor volume
+item40.dat1 <- item40.data[which(item40.data$ACH50 != "Inf"),] #only 883/959 have a recorded conditioned floor volume
 #############################################################################################
 # For Single Family
 #############################################################################################

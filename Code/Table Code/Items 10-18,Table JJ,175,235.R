@@ -2303,12 +2303,15 @@ exportTable(item18.table.SF, "SF", "Table 25"
 item17.dat <- prep.dat5[grep("masonry|icf",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
-item17.weightedU <- summarise(group_by(item17.dat, CK_Cadmus_ID, Wall.Type)
+item17.weightedU <- summarise(group_by(item17.dat, CK_Cadmus_ID)
                               ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 
 #back-calculate the weight r values
-item17.weightedU$aveRval <- (1 / as.numeric(as.character(item17.weightedU$aveUval))) - 1
+item17.weightedU$aveRval <- (1 / as.numeric(as.character(item17.weightedU$aveUval)))
+item17.weightedU$aveRval[which(item17.weightedU$aveRval %in% c("NaN",1))] <- 0
+item17.weightedU$aveUval[which(item17.weightedU$aveUval == "NaN")] <- 1
+
 unique(item17.weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data

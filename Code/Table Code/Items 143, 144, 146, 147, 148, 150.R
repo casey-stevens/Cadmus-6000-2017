@@ -26,8 +26,8 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
-### Clean data to only the necessary fields for all of the folowing items 
-# 143, 144, 146, 147, 148, 150
+billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data))
+billing.dat$CK_Cadmus_ID <- trimws(toupper(billing.dat$CADID))
 
 #############################################################################################
 # Item 143: AVERAGE ANNUAL KWH PER HOME BY STATE - TABLE 150 

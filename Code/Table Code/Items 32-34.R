@@ -355,7 +355,7 @@ item34.dat1 <- left_join(rbsa.dat, item34.dat, by = "CK_Cadmus_ID")
 length(unique(item34.dat1$CK_Cadmus_ID))
 
 item34.dat1$Indicator <- 0
-item34.dat1$Indicator[which(item34.dat1$Type == 'Storm Window')] <- 1
+item34.dat1$Indicator[grep("storm",item34.dat1$Type, ignore.case = T)] <- 1
 
 item34.summary <- summarise(group_by(item34.dat1, CK_Cadmus_ID)
                             ,Ind = sum(unique(Indicator)))

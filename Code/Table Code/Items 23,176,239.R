@@ -422,7 +422,7 @@ prep.dat5$Floor.Area <- as.numeric(as.character(prep.dat5$Floor.Area))
 prep.dat5$Floor.Insulation.Condition.1[which(is.na(prep.dat5$Floor.Insulation.Condition.1))] <- 1
 
 #weight the u factor per home -- where weights are the wall area within home
-weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Floor.Type)
+weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
                        ,aveUval = sum(Floor.Area * Floor.Insulation.Condition.1 * uvalue) / sum(Floor.Area * Floor.Insulation.Condition.1)
 )
 

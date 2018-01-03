@@ -72,6 +72,7 @@ prep.data.duct$System.Type[grep("Not", prep.data.duct$System.Type)] <- "Not Pres
 prep.data.duct$System.Type[grep("Unknown|unknown", prep.data.duct$System.Type)] <- "Unknown"
 
 prep.data.duct1 <- prep.data.duct[which(prep.data.duct$System.Type %notin% c("Unknown")),]
+prep.data.duct1 <- prep.data.duct1[which(prep.data.duct1$Duct.Plenum.Insulation.Thickness.1 %notin% c("Unknown","unknown",NA,"NA","N/A") & prep.data.duct1$Duct.Runs.Insulation.Type.1 %notin% c("Unknown","unknown",NA,"NA","N/A")),]
 
 
 #review types
@@ -307,7 +308,9 @@ na.ind <- which(is.na(prep.dat5$total.r.val))
 prep.dat5$total.r.val[na.ind] <- (prep.dat5$Duct.Plenum.rvalues1[na.ind] * prep.dat5$Duct.Plenum.inches1[na.ind]) +  
   (prep.dat5$Duct.Plenum.rvalues2[na.ind] * prep.dat5$Duct.Plenum.inches2[na.ind]) +  
   (prep.dat5$Duct.Plenum.rvalues3[na.ind] * prep.dat5$Duct.Plenum.inches3[na.ind]) + 
-  prep.dat5$Duct.Runs.rvalues1[na.ind] + prep.dat5$Duct.Runs.rvalues2[na.ind] + prep.dat5$Duct.Runs.rvalues3[na.ind]
+  prep.dat5$Duct.Runs.rvalues1[na.ind] + 
+  prep.dat5$Duct.Runs.rvalues2[na.ind] + 
+  prep.dat5$Duct.Runs.rvalues3[na.ind]
 
 #check -- NOTE -- NONE SHOULD BE NA
 unique(prep.dat5$total.r.val)
@@ -321,7 +324,7 @@ prep.dat5$uvalue           <- as.numeric(as.character(prep.dat5$uvalue))
 # prep.dat5$Duct.Plenum.Area <- as.numeric(as.character(prep.dat5$Duct.Plenum.Area))
 
 #weight the u factor per home -- where weights are the wall area within home
-weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, System.Type)
+weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
                        # ,aveUval = sum(Duct.Plenum.Area * Duct.Plenum.Insulation.Condition.1 * uvalue) / sum(Duct.Plenum.Area * Duct.Plenum.Insulation.Condition.1)
                        ,aveUval = mean(uvalue)
 )
