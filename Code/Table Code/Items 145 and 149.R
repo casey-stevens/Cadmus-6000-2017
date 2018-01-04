@@ -201,12 +201,10 @@ item149.final <- mean_two_groups(CustomerLevelData  = item149.data
 item149.table.SF <- item149.final[which(item149.final$BuildingType %in% c("Single Family")),-1]
 item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item149.table.SF, "SF", "Table "
+exportTable(item149.table.SF, "SF", "Table 156"
             , weighted = TRUE)
-exportTable(item149.table.MH, "MH", "Table "
+exportTable(item149.table.MH, "MH", "Table 131"
             , weighted = TRUE)
-# exportTable(item5.table.SF, "SF", "Table 12"
-#             , weighted = TRUE, final = TRUE)
 
 
 
@@ -224,7 +222,7 @@ item149.final <- mean_two_groups_unweighted(CustomerLevelData  = item149.data
 item149.table.SF <- item149.final[which(item149.final$BuildingType %in% c("Single Family")),-1]
 item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item149.table.SF, "SF", "Table "
+exportTable(item149.table.SF, "SF", "Table 156"
             , weighted = FALSE)
-exportTable(item149.table.MH, "MH", "Table "
+exportTable(item149.table.MH, "MH", "Table 131"
             , weighted = FALSE)

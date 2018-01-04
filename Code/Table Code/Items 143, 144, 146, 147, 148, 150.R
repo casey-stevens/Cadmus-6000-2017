@@ -162,10 +162,8 @@ item144.final <- mean_one_group(CustomerLevelData = item144.weighted
 item144.final.SF <- item144.final[which(item144.final$BuildingType == "Single Family"),-1]
 item144.final.MH <- item144.final[which(item144.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item144.final.SF, "SF", "Table 151"
-            , weighted = TRUE)
-exportTable(item144.final.MH, "MH", "Table 126"
-            , weighted = TRUE)
+exportTable(item144.final.SF, "SF", "Table 151", weighted = TRUE)
+exportTable(item144.final.MH, "MH", "Table 126", weighted = TRUE)
 
 
 ################################
