@@ -111,8 +111,14 @@ item145.dat3 <- item145.dat2 %>%
 
 drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
                    "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
-                   
 item145.dat4 <- item145.dat3[which(item145.dat3$Conditioned.Area > 0),]
+unique(item145.dat4$Heating_Fuel)     
+item145.dat4$Heating_Fuel[which(item145.dat4$Heating_Fuel %in% c("Wood",
+                                                                 "Oil",
+                                                                 "Pellets",
+                                                                 "Other",
+                                                                 "Propane"))] <- "Other"
+unique(item145.dat4$Heating_Fuel)     
 item145.data <- weightedData(item145.dat4[-which(colnames(item145.dat4) %in% drop.columns)])
 
 item145.data <- left_join(item145.data, item145.dat4[c(1, which(colnames(item145.dat4) %in% drop.columns))])
@@ -160,7 +166,7 @@ exportTable(item145.table.MH, "MH", "Table 127"
             , weighted = FALSE)
 
 #############################################################################################
-# Item 149: AVERAGE GAS EUI PER HOME BY HEATING FUEL AND STATE  - SF TABLE 152, MH TABLE 136
+# Item 149: AVERAGE GAS EUI PER HOME BY HEATING FUEL AND STATE  - SF TABLE 156, MH TABLE 131
 #############################################################################################
 item149.dat <- final.data[which(final.data$UsageNAC_therms > 0),]
 unique(item149.dat$Heating_Fuel)
@@ -181,6 +187,13 @@ drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
                   "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
 
 item149.dat4 <- item149.dat3[which(item149.dat3$Conditioned.Area > 0),]
+unique(item149.dat4$Heating_Fuel)     
+item149.dat4$Heating_Fuel[which(item149.dat4$Heating_Fuel %in% c("Wood",
+                                                                 "Oil",
+                                                                 "Pellets",
+                                                                 "Other",
+                                                                 "Propane"))] <- "Other"
+unique(item149.dat4$Heating_Fuel)     
 item149.data <- weightedData(item149.dat4[-which(colnames(item149.dat4) %in% drop.columns)])
 
 item149.data <- left_join(item149.data, item149.dat4[c(1, which(colnames(item149.dat4) %in% drop.columns))])
