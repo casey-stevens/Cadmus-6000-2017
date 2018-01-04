@@ -15,14 +15,14 @@
 
 exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weighted = TRUE, weights = NA, final = NA) {
   if (weighted == TRUE){
-    if(!is.na(final)){
-      Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-      workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - Report Copy.xlsx", sep = ""), sep="/"))
-      
-      writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 4)
-      
-      saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - Report Copy.xlsx", sep = ""), sep="/"), overwrite = T)
-    }else{
+    # if(!is.na(final)){
+    #   Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+    #   workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - Report Copy.xlsx", sep = ""), sep="/"))
+    #   
+    #   writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 4)
+    #   
+    #   saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - Report Copy.xlsx", sep = ""), sep="/"), overwrite = T)
+    # }else{
       library(openxlsx)
       Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
       workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY_v2.xlsx", sep = ""), sep="/"))
@@ -30,7 +30,7 @@ exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weig
       writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 40)
       
       saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator," - COPY_v2.xlsx", sep = ""), sep="/"), overwrite = T)
-    }
+    # }
   }else{
     library(openxlsx)
     Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")

@@ -202,46 +202,73 @@ item9.dat$count <- 1
 item9.dat$Area <- as.numeric(as.character(item9.dat$Area))
 #remove missing area information
 item9.dat1 <- item9.dat[which(!is.na(item9.dat$Area)),]
-
-# #average within houses
-# item9.customer <- summarise(group_by(item9.dat1
-#                                      , CK_Cadmus_ID
-#                                      , BuildingType
-#                                      , Clean.Type)
-#                             ,Site_Area = mean(Area)
-# )
-# 
-# item9.cast <- dcast(item9.customer,formula = CK_Cadmus_ID ~ Clean.Type, sum, value.var = "Site_Area")
-# 
-# item9.melt <- melt(item9.cast, id.vars = "CK_Cadmus_ID")
-
-item9.merge <- left_join(rbsa.dat, item9.dat1)
-item9.merge <- item9.merge[which(!is.na(item9.merge$Area)),]
-
 #clean room types
-unique(item9.merge$Clean.Type)
-item9.merge$Clean.Type[which(item9.merge$Clean.Type %in% c("Attic"
-                                                           ,"Basement"
-                                                           ,"Crawlspace"
-                                                           ,"Crawl Space"
-                                                           ,"Mechanical"
-                                                           ,"Grow Room"))] <- "Other"
+unique(item9.dat1$Clean.Type)
+item9.dat1$Clean.Type[which(item9.dat1$Clean.Type %in% c("Attic"
+                                                         ,"Basement"
+                                                         ,"Crawlspace"
+                                                         ,"Crawl Space"
+                                                         ,"Mechanical"
+                                                         ,"Grow Room"))] <- "Other"
 
-unique(item9.merge$Clean.Type)
+unique(item9.dat1$Clean.Type)
+
+
+#average within houses
+item9.customer <- summarise(group_by(item9.dat1
+                                     , CK_Cadmus_ID
+                                     , Clean.Type)
+                            ,Site_Area  = mean(Area)
+                            ,Site_Sum   = sum(Area)
+                            ,Site_Count = sum(count)
+)
+
+#cast and melt by site_area
+item9.cast <- dcast(setDT(item9.customer)
+                    ,formula = CK_Cadmus_ID ~ Clean.Type
+                    ,value.var = c("Site_Area"))
+
+item9.melt <- melt(item9.cast, id.vars = "CK_Cadmus_ID")
+names(item9.melt) <- c("CK_Cadmus_ID", "Clean.Type", "y_bar_ilk")
+
+#cast and melt by site_area
+item9.cast1 <- dcast(setDT(item9.customer)
+                    ,formula = CK_Cadmus_ID ~ Clean.Type
+                    ,value.var = c("Site_Sum"))
+
+item9.melt1 <- melt(item9.cast1, id.vars = "CK_Cadmus_ID")
+names(item9.melt1) <- c("CK_Cadmus_ID", "Clean.Type", "y_ilk")
+
+#cast and melt by site_count
+item9.cast2 <- dcast(setDT(item9.customer)
+                    ,formula = CK_Cadmus_ID ~ Clean.Type
+                    ,value.var = c("Site_Count"))
+
+item9.melt2 <- melt(item9.cast2, id.vars = "CK_Cadmus_ID")
+names(item9.melt2) <- c("CK_Cadmus_ID", "Clean.Type", "m_ilk")
+
+item9.merge <- left_join(item9.melt, item9.melt1)
+item9.merge <- left_join(item9.merge, item9.melt2)
+item9.merge <- left_join(rbsa.dat, item9.merge)
+item9.merge <- item9.merge[which(!is.na(item9.merge$y_bar_ilk)),]
 
 # apply weights to the subset of the data
-item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("Site_Area"
+item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("y_bar_ilk"
                                                                            ,"Clean.Type"
                                                                            ,"Area"
                                                                            ,"count"
-                                                                           ,"Iteration"))])
+                                                                           ,"Iteration"
+                                                                           ,"m_ilk"
+                                                                           ,"y_ilk"))])
 #merge back on measured variable
 item9.data <- left_join(item9.data, item9.merge[which(colnames(item9.merge) %in% c("CK_Cadmus_ID"
-                                                                                   ,"Site_Area"
+                                                                                   ,"y_bar_ilk"
                                                                                    ,"Clean.Type"
                                                                                    ,"Area"
                                                                                    ,"count"
-                                                                                   ,"Iteration"))])
+                                                                                   ,"Iteration"
+                                                                                   ,"m_ilk"
+                                                                                   ,"y_ilk"))])
 item9.data$count <- 1
 
 
@@ -250,7 +277,7 @@ item9.data$count <- 1
 # Weighted Analysis
 ################################
 item9.final <- mean_one_group(CustomerLevelData = item9.data
-                              , valueVariable = 'Area'
+                              , valueVariable = 'y_ilk'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 
@@ -271,7 +298,7 @@ exportTable(item9.final.MH, "MH", "Table 14"
 # Unweighted Analysis
 ################################
 item9.final <- mean_one_group_unweighted(CustomerLevelData = item9.data
-                              , valueVariable = 'Area'
+                              , valueVariable = 'y_bar_ilk'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 
