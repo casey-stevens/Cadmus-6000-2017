@@ -29,7 +29,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
                                       , c("BuildingType", "State", "Region", "Territory", byVariable), summarise
                                       ,y_lk     = sum(get(valueVariable), na.rm = T)
-                                      ,y_bar_lk = mean(y_bar_ilk, na.rm = T)
+                                      ,y_bar_lk = sum(y_ilk, na.rm = T) / sum(m_ilk)
                                       ,n_lk     = length(unique(CK_Cadmus_ID))
                                       ,m_lk     = sum(m_ilk)
                                       ), stringsAsFactors = F)
@@ -38,8 +38,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   
   domain_summary <- data.frame(ddply(site_strata_domain_merge
                                      , c("BuildingType",byVariable), summarise
-                                     ,M_hat_k = sum(N_l / n_l * sum(m_ilk))
-                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(N_l / n_l * sum(y_ilk))
+                                     ,M_hat_k = sum(unique(N_l) / unique(n_l) * sum(m_ilk))
+                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(unique(N_l) / unique(n_l) * sum(y_ilk))
   ), stringsAsFactors = F)
   
   site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_summary)
@@ -54,7 +54,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   domain_estimation <- data.frame(ddply(site_strata_domain_merge
                                                , c("BuildingType",byVariable), summarise
                                                # ,inner_sum = sum(((y_bar_ilk - y_bar_lk)^2 / (n_lk )) + (n_lk * (1 - n_lk / n_l) * (y_bar_lk - y_bar_hat_k)^2))
-                                               ,outer_sum = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * unique(inner_sum)))
+                                               ,outer_sum = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * sum(inner_sum)))
                                                ,var_hat_y_bar_hat_k = (1 / unique(M_hat_k)^2) * outer_sum
                                                ,EB_y_bat_hat_k = sqrt(var_hat_y_bar_hat_k) * 1.645
   ), stringsAsFactors = F)

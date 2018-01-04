@@ -86,17 +86,65 @@ mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas"
 mecahnical.dat.final <- 
   mechanical.dat5[which(colnames(mechanical.dat5) %in% c("CK_Cadmus_ID", "Heating_Fuel"))]
 
-rbsa.dat.clean <- unique(left_join(results.dat2, mecahnical.dat.final))
-
-#############################################################################################
-# Item 151: AVERAGE ANNUAL ELECTRICITY AND GAS USE PER HOME BY STATE - SF TABLE 158, MH TABLE 133
-#############################################################################################
-
-item151.dat <- rbsa.dat.clean
-## Check this equation
-item151.dat$kBtu <- item151.dat$kWh_NAC_fake * 3.412 + item151.dat$therm_NAC_fake * 99.98
+final.data <- unique(left_join(results.dat2, mecahnical.dat.final))
+# There are four people with multiple heating systems wil run with this for now
 
 
+
+
+
+##################################################################################################
+# Item 151: AVERAGE ANNUAL ELECTRICITY AND GAS USE PER HOME BY STATE (SF table 158, MH table 133)
+##################################################################################################
+item151.dat <- final.data[which(final.data$UsageNAC_kWh > 0),]
+item151.dat$UsageNAC_therms[which(is.na(item151.dat$UsageNAC_therms))] <- 0
+item151.dat$kBtu <- item151.dat$UsageNAC_kWh * 3.412 + item151.dat$UsageNAC_therms * 99.98
+
+#############################
+# Add pop and sample sizes
+#############################
+drop.columns <- c("CADID"
+                  ,"UsageNAC_kWh"
+                  ,"UsageRaw_kWh"
+                  ,"heating_kWh"
+                  ,"UsageNAC_therms"
+                  ,"UsageRaw_therms"
+                  ,"heating_therms"
+                  ,"Heating_Fuel"
+                  ,"kBtu")
+item151.data <- weightedData(item151.dat[-which(colnames(item151.dat) %in% drop.columns)])
+item151.data <- left_join(item151.data, item151.dat[which(colnames(item151.dat) %in% c("CK_Cadmus_ID",drop.columns))])
+
+
+#####################
+# weighted analysis
+#####################
+item151.final <- mean_one_group(CustomerLevelData = item151.data
+                                ,valueVariable = 'kBtu'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+item151.final.SF <- item151.final[which(item151.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item151.final) == "BuildingType")]
+item151.final.MH <- item151.final[which(item151.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item151.final) == "BuildingType")]
+
+exportTable(item151.final.SF, "SF", "Table 158", weighted = TRUE)
+exportTable(item151.final.MH, "MH", "Table 133", weighted = TRUE)
+
+#####################
+# unweighted analysis
+#####################
+item151.final <- mean_one_group_unweighted(CustomerLevelData = item151.data
+                                ,valueVariable = 'kBtu'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+item151.final.SF <- item151.final[which(item151.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item151.final) == "BuildingType")]
+item151.final.MH <- item151.final[which(item151.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item151.final) == "BuildingType")]
+
+exportTable(item151.final.SF, "SF", "Table 158", weighted = FALSE)
+exportTable(item151.final.MH, "MH", "Table 133", weighted = FALSE)
 
 
 
@@ -105,134 +153,120 @@ item151.dat$kBtu <- item151.dat$kWh_NAC_fake * 3.412 + item151.dat$therm_NAC_fak
 # Item 152: AVERAGE ELECTRICITY AND GAS EUI BY STATE - SF TABLE 159, MH TABLE 134
 #############################################################################################
 
-item152.dat <- rbsa.dat.clean
-item152.dat$kBtu <- item152.dat$kWh_usage_fake * 3.412 + item152.dat$therm_usage_fake * 99.98
-item152.dat$EUI <- item152.dat$kBtu/item152.dat$SqFt
+item152.dat <- final.data[which(final.data$UsageNAC_kWh > 0),]
+item152.dat <- item152.dat[which(item152.dat$Conditioned.Area > 0),]
+item152.dat$UsageNAC_therms[which(is.na(item152.dat$UsageNAC_therms))] <- 0
+item152.dat$kBtu <- item152.dat$UsageNAC_kWh * 3.412 + item152.dat$UsageNAC_therms * 99.98
+item152.dat$EUI <- item152.dat$kBtu/item152.dat$Conditioned.Area
 
 
-######################################################
-# Step 1.1: Using customer level data,
-#   Summarise data up to strata level
-######################################################
-item152.strata <- summarise(group_by(item152.dat, BuildingType, State, Region, Territory)
-                            ,n_h        = unique(n.h)
-                            ,N_h        = unique(N.h)
-                            ,fpc        = (1 - n_h / N_h)
-                            ,w_h        = n_h / N_h
-                            ,strataEUI = sum(EUI) / n_h
-                            ,strataSD   = sd(EUI)
-                            ,n          = length(unique(CK_Cadmus_ID))
-)
+#############################
+# Add pop and sample sizes
+#############################
+drop.columns <- c("CADID"
+                  ,"UsageNAC_kWh"
+                  ,"UsageRaw_kWh"
+                  ,"heating_kWh"
+                  ,"UsageNAC_therms"
+                  ,"UsageRaw_therms"
+                  ,"heating_therms"
+                  ,"Heating_Fuel"
+                  ,"kBtu"
+                  ,"EUI")
+item152.data <- weightedData(item152.dat[-which(colnames(item152.dat) %in% drop.columns)])
+item152.data <- left_join(item152.data, item152.dat[which(colnames(item152.dat) %in% c("CK_Cadmus_ID",drop.columns))])
 
-item152.strata$strataSD[which(item152.strata$strataSD == "NaN")] <- 0
 
-######################################################
-# Step 2: Using strata level data,
-#   Perform state level analysis
-######################################################
-item152.state <- summarise(group_by(item152.strata, BuildingType, State)
-                           ,Mean       = sum(N_h * strataEUI) / sum(N_h)
-                           ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                           ,SampleSize = sum(unique(n))
-)
+#####################
+# weighted analysis
+#####################
+item152.final <- mean_one_group(CustomerLevelData = item152.data
+                                ,valueVariable = 'EUI'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+item152.final.SF <- item152.final[which(item152.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item152.final) == "BuildingType")]
+item152.final.MH <- item152.final[which(item152.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item152.final) == "BuildingType")]
 
-######################################################
-# Step 3: Using strata level data,
-#   Perform region level analysis
-######################################################
-item152.region <- summarise(group_by(item152.strata, BuildingType)
-                            ,State      = "Region"
-                            ,Mean       = sum(N_h * strataEUI) / sum(N_h)
-                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                            ,SampleSize = sum(unique(n)))
+exportTable(item152.final.SF, "SF", "Table 158", weighted = TRUE)
+exportTable(item152.final.MH, "MH", "Table 133", weighted = TRUE)
 
-######################################################
-# Step 4: Combine results into correct table format,
-#   Split table by building type
-#   and export tables to respective workbooks
-######################################################
-item152.final <- rbind.data.frame(item152.state, item152.region, stringsAsFactors = F) 
-item152.table.SF <- item152.final[which(item152.final$BuildingType %in% c("Single Family")),-1]
-item152.table.MH <- item152.final[which(item152.final$BuildingType %in% c("Manufactured")),-1]
+#####################
+# unweighted analysis
+#####################
+item152.final <- mean_one_group_unweighted(CustomerLevelData = item152.data
+                                           ,valueVariable = 'EUI'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = "Region")
+item152.final.SF <- item152.final[which(item152.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item152.final) == "BuildingType")]
+item152.final.MH <- item152.final[which(item152.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item152.final) == "BuildingType")]
 
-library(openxlsx)
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip.exe")
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
-workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
+exportTable(item152.final.SF, "SF", "Table 158", weighted = FALSE)
+exportTable(item152.final.MH, "MH", "Table 133", weighted = FALSE)
 
-# UPDATE SHEET AND X
-writeData(workbook.SF, sheet = "Table 158", x = item152.table.SF, startRow = 20)
-writeData(workbook.MH, sheet = "Table 133", x = item152.table.MH, startRow = 20)
 
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+
+
+
+
 
 #############################################################################################
 # Item 153: AVERAGE WEATHER-NORMALIZED ELECTRICITY AND GAS EUI BY STATE  - SF TABLE 160, MH TABLE 135
 #############################################################################################
 
-item153.dat <- rbsa.dat.clean
-item153.dat$kBtu <- item153.dat$kWh_NAC_fake * 3.412 + item153.dat$therm_NAC_fake * 99.98
-item153.dat$EUI <- item153.dat$kBtu/item153.dat$SqFt
+item153.dat <- final.data[which(final.data$UsageNAC_kWh > 0),]
+item153.dat <- item153.dat[which(item153.dat$Conditioned.Area > 0),]
+item153.dat$UsageNAC_therms[which(is.na(item153.dat$UsageNAC_therms))] <- 0
+item153.dat$kBtu <- item153.dat$UsageNAC_kWh * 3.412 + item153.dat$UsageNAC_therms * 99.98
+item153.dat$EUI <- item153.dat$kBtu/item153.dat$Conditioned.Area
 
 
-######################################################
-# Step 1.1: Using customer level data,
-#   Summarise data up to strata level
-######################################################
-item153.strata <- summarise(group_by(item153.dat, BuildingType, State, Region, Territory)
-                            ,n_h        = unique(n.h)
-                            ,N_h        = unique(N.h)
-                            ,fpc        = (1 - n_h / N_h)
-                            ,w_h        = n_h / N_h
-                            ,strataEUI = sum(EUI) / n_h
-                            ,strataSD   = sd(EUI)
-                            ,n          = length(unique(CK_Cadmus_ID))
-)
-
-item153.strata$strataSD[which(item153.strata$strataSD == "NaN")] <- 0
-
-######################################################
-# Step 2: Using strata level data,
-#   Perform state level analysis
-######################################################
-item153.state <- summarise(group_by(item153.strata, BuildingType, State)
-                           ,Mean       = sum(N_h * strataEUI) / sum(N_h)
-                           ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                           ,SampleSize = sum(unique(n))
-)
-
-######################################################
-# Step 3: Using strata level data,
-#   Perform region level analysis
-######################################################
-item153.region <- summarise(group_by(item153.strata, BuildingType)
-                            ,State      = "Region"
-                            ,Mean       = sum(N_h * strataEUI) / sum(N_h)
-                            ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2)) / sum(unique(N_h))
-                            ,SampleSize = sum(unique(n)))
-
-######################################################
-# Step 4: Combine results into correct table format,
-#   Split table by building type
-#   and export tables to respective workbooks
-######################################################
-item153.final <- rbind.data.frame(item153.state, item153.region, stringsAsFactors = F) 
-item153.table.SF <- item153.final[which(item153.final$BuildingType %in% c("Single Family")),-1]
-item153.table.MH <- item153.final[which(item153.final$BuildingType %in% c("Manufactured")),-1]
-
-library(openxlsx)
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip.exe")
-workbook.SF <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"))
-workbook.MH <- loadWorkbook(file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"))
-
-# UPDATE SHEET AND X
-writeData(workbook.SF, sheet = "Table 158", x = item153.table.SF, startRow = 20)
-writeData(workbook.MH, sheet = "Table 133", x = item153.table.MH, startRow = 20)
-
-saveWorkbook(workbook.SF, file = paste(outputFolder, "Tables in Excel - SF - COPY.xlsx", sep="/"), overwrite = T)
-saveWorkbook(workbook.MH, file = paste(outputFolder, "Tables in Excel - MH - COPY.xlsx", sep="/"), overwrite = T)
+#############################
+# Add pop and sample sizes
+#############################
+drop.columns <- c("CADID"
+                  ,"UsageNAC_kWh"
+                  ,"UsageRaw_kWh"
+                  ,"heating_kWh"
+                  ,"UsageNAC_therms"
+                  ,"UsageRaw_therms"
+                  ,"heating_therms"
+                  ,"Heating_Fuel"
+                  ,"kBtu"
+                  ,"EUI")
+item153.data <- weightedData(item153.dat[-which(colnames(item153.dat) %in% drop.columns)])
+item153.data <- left_join(item153.data, item153.dat[which(colnames(item153.dat) %in% c("CK_Cadmus_ID",drop.columns))])
 
 
+#####################
+# weighted analysis
+#####################
+item153.final <- mean_one_group(CustomerLevelData = item153.data
+                                ,valueVariable = 'EUI'
+                                ,byVariable = 'State'
+                                ,aggregateRow = "Region")
+item153.final.SF <- item153.final[which(item153.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item153.final) == "BuildingType")]
+item153.final.MH <- item153.final[which(item153.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item153.final) == "BuildingType")]
 
+exportTable(item153.final.SF, "SF", "Table 158", weighted = TRUE)
+exportTable(item153.final.MH, "MH", "Table 133", weighted = TRUE)
 
+#####################
+# unweighted analysis
+#####################
+item153.final <- mean_one_group_unweighted(CustomerLevelData = item153.data
+                                           ,valueVariable = 'EUI'
+                                           ,byVariable = 'State'
+                                           ,aggregateRow = "Region")
+item153.final.SF <- item153.final[which(item153.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item153.final) == "BuildingType")]
+item153.final.MH <- item153.final[which(item153.final$BuildingType == "Manufactured")
+                                  ,-which(colnames(item153.final) == "BuildingType")]
+
+exportTable(item153.final.SF, "SF", "Table 158", weighted = FALSE)
+exportTable(item153.final.MH, "MH", "Table 133", weighted = FALSE)
