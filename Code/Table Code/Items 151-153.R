@@ -253,8 +253,8 @@ item153.final.SF <- item153.final[which(item153.final$BuildingType == "Single Fa
 item153.final.MH <- item153.final[which(item153.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item153.final) == "BuildingType")]
 
-exportTable(item153.final.SF, "SF", "Table 158", weighted = TRUE)
-exportTable(item153.final.MH, "MH", "Table 133", weighted = TRUE)
+exportTable(item153.final.SF, "SF", "Table 160", weighted = TRUE)
+exportTable(item153.final.MH, "MH", "Table 135", weighted = TRUE)
 
 #####################
 # unweighted analysis
@@ -268,5 +268,5 @@ item153.final.SF <- item153.final[which(item153.final$BuildingType == "Single Fa
 item153.final.MH <- item153.final[which(item153.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item153.final) == "BuildingType")]
 
-exportTable(item153.final.SF, "SF", "Table 158", weighted = FALSE)
-exportTable(item153.final.MH, "MH", "Table 133", weighted = FALSE)
+exportTable(item153.final.SF, "SF", "Table 160", weighted = FALSE)
+exportTable(item153.final.MH, "MH", "Table 135", weighted = FALSE)

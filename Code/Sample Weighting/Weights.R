@@ -13,10 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item274.dat5[which(colnames(item274.dat5) %notin% c("SITES_Pool_POOL_HOT_TUB_PoolLocation"
-#                                                                 ,"SITES_Pool_POOL_HOT_TUB_PoolType"
-#                                                                 ,"Ind"
-#                                                                 ,"count"))]
+# itemData <- rbsa.dat
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -416,6 +413,15 @@ length(unique(cleanRBSA.dat1$CK_Cadmus_ID)) - length(unique(samp.dat.final$CK_Ca
 
 missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat.2$CK_Cadmus_ID),]
 # samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.ind),]
+
+
+# samp.dat.export <- samp.dat.final[,-ncol(samp.dat.final)]
+# samp.dat.export <- samp.dat.export[-grep("bldg",samp.dat.export$CK_Building_ID, ignore.case = T),]
+# ##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
+#            append = T, row.names = F, showNA = F)
+
 
 return(samp.dat.final)
 
