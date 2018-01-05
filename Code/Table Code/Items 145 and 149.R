@@ -228,8 +228,6 @@ exportTable(item149.table.SF, "SF", "Table 156"
             , weighted = TRUE)
 exportTable(item149.table.MH, "MH", "Table 131"
             , weighted = TRUE)
-# exportTable(item5.table.SF, "SF", "Table 12"
-#             , weighted = TRUE, final = TRUE)
 
 
 

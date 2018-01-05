@@ -141,7 +141,6 @@ weightedData <- function(itemData){
   sort(unique(cadmus.dat2$Utility[which(cadmus.dat2$Utility %notin% zipMap.dat1$Utility)]))
   
   
-  ##  Andrew: were these reviewed with Rietz or Steve?, are there any others that could have been missed?
   ##  Fix mismatches
   zipMap.dat1$Utility[which(zipMap.dat1$Utility == "TACOMA CITY OF")] <-
     "CITY OF TACOMA"

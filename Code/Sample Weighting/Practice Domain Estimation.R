@@ -29,17 +29,25 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
                                       , c("BuildingType", "State", "Region", "Territory", byVariable), summarise
                                       ,y_lk     = sum(get(valueVariable), na.rm = T)
-                                      ,y_bar_lk = mean(y_bar_ilk, na.rm = T)
+                                      ,y_bar_lk = mean(y_bar_ilk, na.rm = T)#sum(y_ilk, na.rm = T) / sum(m_ilk)
                                       ,n_lk     = length(unique(CK_Cadmus_ID))
                                       ,m_lk     = sum(m_ilk)
                                       ), stringsAsFactors = F)
   strata_domain_merge <- left_join(strata_domain_summary, strata_domain_level)
   site_strata_domain_merge <- left_join(CustomerLevelData, strata_domain_merge)
   
+  
+  domain_level <- data.frame(ddply(strata_domain_level
+                                          , c("BuildingType"), summarise
+                                          ,n_k        = sum((n_l))
+                                          ,N_k        = sum((N_l))), stringsAsFactors = F)
+  
+  site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_level)
+  
   domain_summary <- data.frame(ddply(site_strata_domain_merge
                                      , c("BuildingType",byVariable), summarise
-                                     ,M_hat_k = sum(N_l / n_l * sum(m_ilk))
-                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(N_l / n_l * sum(y_ilk))
+                                     ,M_hat_k = sum(unique(N_k) / unique(n_k) * sum(m_ilk))
+                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(unique(N_k) / unique(n_k) * sum(y_ilk))
   ), stringsAsFactors = F)
   
   site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_summary)
@@ -53,29 +61,42 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   
   domain_estimation <- data.frame(ddply(site_strata_domain_merge
                                                , c("BuildingType",byVariable), summarise
-                                               # ,inner_sum = sum(((y_bar_ilk - y_bar_lk)^2 / (n_lk )) + (n_lk * (1 - n_lk / n_l) * (y_bar_lk - y_bar_hat_k)^2))
-                                               ,outer_sum = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * unique(inner_sum)))
+                                               ,outer_sum = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * inner_sum))
                                                ,var_hat_y_bar_hat_k = (1 / unique(M_hat_k)^2) * outer_sum
-                                               ,EB_y_bat_hat_k = sqrt(var_hat_y_bar_hat_k) * 1.645
+                                               ,SE_y_bar_hat_k = sqrt(var_hat_y_bar_hat_k)
   ), stringsAsFactors = F)
-  
   
   across_domain_summary <- data.frame(ddply(site_strata_domain_merge
-                                     , c("BuildingType"), summarise
-                                     ,M_hat_k = sum(N_l / n_l * sum(m_ilk))
-                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(N_l / n_l * sum(y_ilk))
-                                     ,var_hat_y_bar_hat_k = (1 / M_hat_k^2) * sum( (N_l^2 / (n_l * (n_l - 1))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * sum( ((y_bar_ilk - y_bar_lk)^2 / (n_lk - 1)) + (n_lk * (1 - n_lk / n_l) * (y_bar_lk - y_bar_hat_k)^2), na.rm = T) ), na.rm = T)
-                                     ,EB_y_bat_hat_k = sqrt(var_hat_y_bar_hat_k) * 1.645
+                                     , c("BuildingType",byVariable), summarise
+                                     ,M_hat_k = sum(unique(N_k) / unique(n_k) * sum(m_ilk))
+                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(unique(N_k) / unique(n_k) * sum(y_ilk))
   ), stringsAsFactors = F)
+  across_domain_estimation <- data.frame(ddply(site_strata_domain_merge
+                                     , c("BuildingType"), summarise
+                                     , byRow  = aggregateRow
+                                     ,outer_sum = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * inner_sum))
+                                     ,var_hat_y_bar_hat_k = (1 / sum(unique(M_hat_k))^2) * outer_sum
+                                     ,SE_y_bar_hat_k = sqrt(var_hat_y_bar_hat_k)
+  ), stringsAsFactors = F)
+  #rename columns
+  colnames(across_domain_estimation)[which(colnames(across_domain_estimation) == 'byRow')] <- byVariable
 
-  # ##  Write out confidence/precision info
-  # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-  # write.xlsx(site_strata_domain_merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Domain_Estimation_Mean", rundate, ".xlsx", sep = ""), sep="/"),
-  #            append = T, row.names = F, showNA = F)
+  item.summary <- rbind.data.frame(domain_summary, across_domain_summary, stringsAsFactors = F)
+  item.summary$Clean.Type <- as.character(item.summary$Clean.Type)
+  item.estimation <- rbind.data.frame(domain_estimation, across_domain_estimation, stringsAsFactors = F)
+  item.estimation$Clean.Type <- as.character(item.estimation$Clean.Type)
   
+  #samplesizes
+  item.samplesize <- unique(site_strata_domain_merge[which(colnames(site_strata_domain_merge) %in% c("BuildingType",byVariable,"n_lk"))])
+  item.samplesize <- data.frame(ddply(item.samplesize
+                                      , c("BuildingType",byVariable), summarise
+                                      ,n = sum(n_lk)), stringsAsFactors = F)
+  item.samplesize$Clean.Type <- as.character(item.samplesize$Clean.Type)
   
-  item.final <- rbind.data.frame(domain_summary, across_domain_summary, stringsAsFactors = F)
-  item.final <- item.final[which(colnames(item.final) %in% c("BuildingType","Mean","SE","n"))]
+  item.final <- left_join(item.summary, item.estimation)
+  item.final <- left_join(item.final, item.samplesize)
+  names(item.final)[which(names(item.final) %in% c("y_bar_hat_k","SE_y_bar_hat_k"))] <- c("Mean","SE")
+  item.final <- item.final[which(!colnames(item.final) %in% c("M_hat_k","outer_sum","var_hat_y_bar_hat_k"))]
   return(item.final)
 }
 
