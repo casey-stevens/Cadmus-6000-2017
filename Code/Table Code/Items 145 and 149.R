@@ -26,8 +26,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 # Bring in Usages
-billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data))
-billing.dat$CK_Cadmus_ID <- trimws(toupper(billing.dat$CADID))
+billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
+                        ,startRow = 1, sheet = "RESULTSCOMPILED")
 
 results.dat <- merge(rbsa.dat, billing.dat, 
                      by = "CK_Cadmus_ID", all.y = T)
@@ -125,6 +125,16 @@ item145.data <- left_join(item145.data, item145.dat4[c(1, which(colnames(item145
 
 item145.data$EUI <- item145.data$UsageNAC_kWh/item145.data$Conditioned.Area
 
+#Create Quartiles
+quartiles <- quantile(item145.data$EUI)
+item145.data$EUI_Quartile <- 4
+
+item145.data$EUI_Quartile[which(item145.data$EUI >= 0 & item145.data$EUI < 3.9245651)] <- 1
+item145.data$EUI_Quartile[which(item145.data$EUI >= 3.9245651 & item145.data$EUI < 6.7524004)] <- 2
+item145.data$EUI_Quartile[which(item145.data$EUI >= 6.7524004 & item145.data$EUI < 10.7592748)] <- 3
+
+#Export Quartiles
+billing.dat <- write.xlsx(item145.data, file = file.path(filepathBillingData, "EUI with Quartiles.xlsx"))
 
 ##############################
 # Weighted Analysis
