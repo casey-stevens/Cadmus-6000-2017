@@ -156,8 +156,8 @@ exportTable(item151.final.MH, "MH", "Table 133", weighted = FALSE)
 # Item 152: AVERAGE ELECTRICITY AND GAS EUI BY STATE - SF TABLE 159, MH TABLE 134
 #############################################################################################
 item152.dat <- final.data[which(final.data$UsageRaw_kWh > 0),]
-item152.dat2 <- item152.dat[-which(is.na(item152.dat$UsageRaw_therms) &
-                                     item152.dat$Heating_Fuel != "Electric"),]
+item152.dat2 <- item152.dat[-which(is.na(item151.dat1$UsageNAC_therms) &
+                                     item151.dat1$Heating_Fuel == "Gas"),]
 item152.dat3 <- item152.dat2[which(item152.dat2$Conditioned.Area > 0),]
 item152.dat3$UsageRaw_therms[which(is.na(item152.dat3$UsageRaw_therms))] <- 0
 item152.dat3$kBtu <- item152.dat3$UsageRaw_kWh * 3.412 + item152.dat3$UsageRaw_therms * 99.98
@@ -222,8 +222,8 @@ exportTable(item152.final.MH, "MH", "Table 134", weighted = FALSE)
 #############################################################################################
 
 item153.dat <- final.data[which(final.data$UsageNAC_kWh > 0),]
-item153.dat <- item153.dat[-which(is.na(item153.dat$UsageNAC_therms) &
-                                    item153.dat$Heating_Fuel != "Electric"),]
+item153.dat <- item153.dat[-which(is.na(item151.dat1$UsageNAC_therms) &
+                                    item151.dat1$Heating_Fuel == "Gas"),]
 item153.dat <- item153.dat[which(item153.dat$Conditioned.Area > 0),]
 item153.dat$UsageNAC_therms[which(is.na(item153.dat$UsageNAC_therms))] <- 0
 item153.dat$kBtu <- item153.dat$UsageNAC_kWh * 3.412 + item153.dat$UsageNAC_therms * 99.98
