@@ -86,7 +86,7 @@ item154.final.MH <- item154.final[which(item154.final$BuildingType == "Manufactu
 # Unweighted Analysis
 ################################
 item154.final <- mean_one_group_unweighted(CustomerLevelData = item154.weighted
-                                           , valueVariable = 'UsageRaw_kWh'
+                                           , valueVariable = 'kBtu'
                                            , byVariable    = 'State'
                                            , aggregateRow  = 'Region')
 #subset by home type
@@ -146,7 +146,7 @@ item155.final.MH <- item155.final[which(item155.final$BuildingType == "Manufactu
 # Unweighted Analysis
 ################################
 item155.final <- mean_one_group_unweighted(CustomerLevelData = item155.weighted
-                                           , valueVariable = 'UsageRaw_kWh'
+                                           , valueVariable = 'EUI'
                                            , byVariable    = 'State'
                                            , aggregateRow  = 'Region')
 #subset by home type
