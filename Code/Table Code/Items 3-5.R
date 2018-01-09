@@ -98,7 +98,7 @@ item3.final <- proportionRowsAndColumns1(CustomerLevelData     = item3.data
 
 item3.cast <- dcast(setDT(item3.final)
                     ,formula = BuildingType + GroundContact ~ State
-                    ,value.var = c("w.percent", "w.SE", "n", "count"))
+                    ,value.var = c("w.percent", "w.SE", "n", "count", "EB"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
@@ -116,7 +116,12 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"n_WA"           = item3.cast$n_WA
                           ,"Percent_Region" = item3.cast$w.percent_Region
                           ,"SE_Region"      = item3.cast$w.SE_Region
-                          ,"n_Region"       = item3.cast$n_Region)
+                          ,"n_Region"       = item3.cast$n_Region
+                          ,"EB_ID"          = item1.cast$EB_ID
+                          ,"EB_MT"          = item1.cast$EB_MT
+                          ,"EB_OR"          = item1.cast$EB_OR
+                          ,"EB_WA"          = item1.cast$EB_WA
+                          ,"EB_Region"      = item1.cast$EB_Region)
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
@@ -328,6 +333,11 @@ item5.table <- data.frame("BuildingType"     = item5.final$BuildingType
                           ,"Mean_Region"     = item5.final$Mean_Region
                           ,"SE_Region"       = item5.final$SE_Region
                           ,"n_Region"        = item5.final$n_Region
+                          ,"EB_ID"          = item5.final$EB_ID
+                          ,"EB_MT"          = item5.final$EB_MT
+                          ,"EB_OR"          = item5.final$EB_OR
+                          ,"EB_WA"          = item5.final$EB_WA
+                          ,"EB_Region"      = item5.final$EB_Region
                           )
 
 # row ordering example code

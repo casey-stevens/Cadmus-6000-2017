@@ -262,8 +262,17 @@ unique(prep.dat4.5$ceiling.rvalues1)
 unique(prep.dat4.5$ceiling.rvalues2)
 unique(prep.dat4.5$ceiling.rvalues3)
 
-# clean up condition information
-prep.dat4.5$Ceiling.Insulation.Condition.1 <- prep.dat4.5$Ceiling.Insulation.Condition.1 / 100
+## Clean condition values
+prep.dat4.5$Ceiling.Insulation.Condition.1   <- as.character(prep.dat4.5$Ceiling.Insulation.Condition.1)
+prep.dat4.5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat4.5$Ceiling.Insulation.Condition.1))] <- "NA"
+
+for(ii in 1:nrow(prep.dat4.5)){
+  if(prep.dat4.5$Ceiling.Insulation.Condition.1[ii] != "1"){
+    prep.dat4.5$Ceiling.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Ceiling.Insulation.Condition.1)[ii] / 100
+  }
+}
+
+prep.dat4.5$Ceiling.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Ceiling.Insulation.Condition.1))
 
 prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Ceiling.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub1$Ceiling.Insulation.Condition.1 <- 1 - prep.condition.sub1$Ceiling.Insulation.Condition.1

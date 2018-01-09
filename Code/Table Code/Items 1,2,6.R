@@ -25,8 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData
-                                           ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
@@ -50,7 +49,7 @@ item1.final <- proportionRowsAndColumns1(CustomerLevelData = item1.dat
 #cast data into correct format
 item1.cast <- dcast(setDT(item1.final)
                      ,formula = BuildingType + HomeType ~ State
-                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 #can add pop and sample sizes if needed in exported table
 item1.table <- data.frame("BuildingType"    = item1.cast$BuildingType
@@ -69,7 +68,13 @@ item1.table <- data.frame("BuildingType"    = item1.cast$BuildingType
                           ,"n_WA"           = item1.cast$n_WA
                           ,"Percent_Region" = item1.cast$w.percent_Region
                           ,"SE_Region"      = item1.cast$w.SE_Region
-                          ,"n"              = item1.cast$n_Region)
+                          ,"n"              = item1.cast$n_Region
+                          ,"EB_ID"          = item1.cast$EB_ID
+                          ,"EB_MT"          = item1.cast$EB_MT
+                          ,"EB_OR"          = item1.cast$EB_OR
+                          ,"EB_WA"          = item1.cast$EB_WA
+                          ,"EB_Region"      = item1.cast$EB_Region
+                          ,"")
 
 # row ordering example code
 levels(item1.table$Home.Type)
@@ -178,7 +183,7 @@ item2.dat$count <- 1
 
 
 ############################
-# Unweighted Analysis
+# weighted Analysis
 ############################
 item2.final <- proportionRowsAndColumns1(item2.dat
                           , valueVariable = 'count'
@@ -189,7 +194,7 @@ item2.final <- proportionRowsAndColumns1(item2.dat
 
 item2.cast <- dcast(setDT(item2.final)
                      ,formula = BuildingType + HomeYearBuilt_bins2 ~ State
-                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"Housing.Vintage" = item2.cast$HomeYearBuilt_bins2
@@ -207,7 +212,12 @@ item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"n_WA"            = item2.cast$n_WA
                            ,"Percent_Region"  = item2.cast$w.percent_Region
                            ,"SE_Region"       = item2.cast$w.SE_Region
-                           ,"n"               = item2.cast$n_Region)
+                           ,"n"               = item2.cast$n_Region
+                          ,"EB_ID"          = item1.cast$EB_ID
+                          ,"EB_MT"          = item1.cast$EB_MT
+                          ,"EB_OR"          = item1.cast$EB_OR
+                          ,"EB_WA"          = item1.cast$EB_WA
+                          ,"EB_Region"      = item1.cast$EB_Region)
 
 # row ordering example code
 levels(item2.table$Housing.Vintage)
@@ -334,7 +344,7 @@ colnames(item6.final) <- c("BuildingType"
 
 item6.cast <- dcast(setDT(item6.final)
                      ,formula = BuildingType + BuildingHeight ~ State
-                     ,value.var = c("Percent", "SE", "Count", "N", "n"))
+                     ,value.var = c("Percent", "SE", "Count", "N", "n", "EB"))
 
 item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                           ,"BuildingHeight" = item6.cast$BuildingHeight
@@ -352,7 +362,12 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                           ,"n_WA"           = item6.cast$n_WA
                           ,"Percent_Region" = item6.cast$Percent_Region
                           ,"SE_Region"      = item6.cast$SE_Region
-                          ,"n_Region"       = item6.cast$n_Region)
+                          ,"n_Region"       = item6.cast$n_Region
+                          ,"EB_ID"          = item1.cast$EB_ID
+                          ,"EB_MT"          = item1.cast$EB_MT
+                          ,"EB_OR"          = item1.cast$EB_OR
+                          ,"EB_WA"          = item1.cast$EB_WA
+                          ,"EB_Region"      = item1.cast$EB_Region)
 
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 exportTable(item6.table.SF, "SF", "Table 13"

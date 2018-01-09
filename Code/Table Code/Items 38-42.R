@@ -198,7 +198,7 @@ item39.dat  <- item38.data
 
 item39.dat$ACH50 <- item39.dat$P50_CFM * 60 / item39.dat$Conditioned.Volume
 
-item39.dat1 <- item39.dat[which(item39.dat$ACH50 != "Inf"),] #only 888/961 have a recorded conditioned floor volume
+item39.dat1 <- item39.dat[which(item39.dat$ACH50 != "Inf"),]
 
 ######################
 # weighted analysis

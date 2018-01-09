@@ -250,7 +250,11 @@ names(item9.melt2) <- c("CK_Cadmus_ID", "Clean.Type", "m_ilk")
 item9.merge <- left_join(item9.melt, item9.melt1)
 item9.merge <- left_join(item9.merge, item9.melt2)
 item9.merge <- left_join(rbsa.dat, item9.merge)
-item9.merge <- item9.merge[which(!is.na(item9.merge$y_bar_ilk)),]
+item9.merge <- item9.merge[which(!is.na(item9.merge$y_ilk)),]
+
+
+# item9.merge <- left_join(rbsa.dat, item9.customer)
+# item9.merge <- item9.merge[which(!is.na(item9.merge$Site_Area)),]
 
 # apply weights to the subset of the data
 item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("y_bar_ilk"
@@ -259,7 +263,10 @@ item9.data <- weightedData(item9.merge[-which(colnames(item9.merge) %in% c("y_ba
                                                                            ,"count"
                                                                            ,"Iteration"
                                                                            ,"m_ilk"
-                                                                           ,"y_ilk"))])
+                                                                           ,"y_ilk"
+                                                                           ,"Site_Area"
+                                                                           ,"Site_Count"
+                                                                           ,"Site_Sum"))])
 #merge back on measured variable
 item9.data <- left_join(item9.data, item9.merge[which(colnames(item9.merge) %in% c("CK_Cadmus_ID"
                                                                                    ,"y_bar_ilk"
@@ -268,7 +275,10 @@ item9.data <- left_join(item9.data, item9.merge[which(colnames(item9.merge) %in%
                                                                                    ,"count"
                                                                                    ,"Iteration"
                                                                                    ,"m_ilk"
-                                                                                   ,"y_ilk"))])
+                                                                                   ,"y_ilk"
+                                                                                   ,"Site_Area"
+                                                                                   ,"Site_Count"
+                                                                                   ,"Site_Sum"))])
 item9.data$count <- 1
 
 
@@ -277,7 +287,7 @@ item9.data$count <- 1
 # Weighted Analysis
 ################################
 item9.final <- mean_one_group(CustomerLevelData = item9.data
-                              , valueVariable = 'y_ilk'
+                              , valueVariable = 'y_bar_ilk'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 
@@ -298,7 +308,7 @@ exportTable(item9.final.MH, "MH", "Table 14"
 # Unweighted Analysis
 ################################
 item9.final <- mean_one_group_unweighted(CustomerLevelData = item9.data
-                              , valueVariable = 'y_bar_ilk'
+                              , valueVariable = 'y_ilk'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 

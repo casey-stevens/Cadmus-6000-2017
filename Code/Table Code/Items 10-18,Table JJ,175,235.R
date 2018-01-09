@@ -422,9 +422,24 @@ unique(prep.dat4.5$exterior.rvalues2)
 unique(prep.dat4.5$exterior.rvalues3)
 unique(prep.dat4.5$furred.rvalues)
 
-prep.dat4.5$Wall.Cavity.Insulation.Condition.1   <- prep.dat4.5$Wall.Cavity.Insulation.Condition.1 / 100
-prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- prep.dat4.5$Wall.Exterior.Insulation.Condition.1 / 100
 
+## Clean condition values
+prep.dat4.5$Wall.Cavity.Insulation.Condition.1   <- as.character(prep.dat4.5$Wall.Cavity.Insulation.Condition.1)
+prep.dat4.5$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat4.5$Wall.Cavity.Insulation.Condition.1))] <- "NA"
+prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- as.character(prep.dat4.5$Wall.Exterior.Insulation.Condition.1)
+prep.dat4.5$Wall.Exterior.Insulation.Condition.1[which(is.na(prep.dat4.5$Wall.Exterior.Insulation.Condition.1))] <- "NA"
+
+for(ii in 1:nrow(prep.dat4.5)){
+  if(prep.dat4.5$Wall.Cavity.Insulation.Condition.1[ii] != "1"){
+    prep.dat4.5$Wall.Cavity.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Wall.Cavity.Insulation.Condition.1)[ii] / 100
+    }
+  if(prep.dat4.5$Wall.Exterior.Insulation.Condition.1[ii] != "1"){
+    prep.dat4.5$Wall.Exterior.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Wall.Exterior.Insulation.Condition.1)[ii]  / 100
+    }
+}
+
+prep.dat4.5$Wall.Cavity.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Wall.Cavity.Insulation.Condition.1))
+prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Wall.Exterior.Insulation.Condition.1))
 
 # clean up condition information - 
 # this creates a line item for any condition less than 100%, 
@@ -540,7 +555,7 @@ item10.weightedU <- summarise(group_by(item10.dat, CK_Cadmus_ID, Wall.Type)
 )
 
 #back-calculate the weight r values
-item10.weightedU$aveRval <- (1 / as.numeric(as.character(item10.weightedU$aveUval))) - 1
+item10.weightedU$aveRval <- (1 / as.numeric(as.character(item10.weightedU$aveUval)))
 unique(item10.weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data
@@ -670,6 +685,7 @@ item10.table <- data.frame(item10.table)
 
 
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
+
 
 #export table to correct workbook using exporting function
 exportTable(item10.table.SF, "SF", "Table 17"
@@ -2711,7 +2727,7 @@ wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFacto
 
 wall.cast <- dcast(setDT(wall.table.JJ)
                    ,formula = BuildingType + State ~ Category
-                   ,value.var = c("Mean", "SE","n", "n_h", "N_h"))
+                   ,value.var = c("Mean", "SE","n"))
 wall.cast <- data.frame(wall.cast, stringsAsFactors = F)
 
 wall.table <- data.frame("BuildingType" = wall.cast$BuildingType

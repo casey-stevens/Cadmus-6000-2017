@@ -597,3 +597,86 @@ tableAG.final.MH <- tableAG.table[which(tableAG.table$BuildingType == "Manufactu
 
 exportTable(tableAG.final.SF, "SF", "Table AG", weighted = FALSE)
 exportTable(tableAG.final.MH, "MH", "Table AG", weighted = FALSE)
+
+
+
+
+
+
+
+
+#############################################################################################
+#Table AH: AVERAGE household wattage per lamp BY STATE
+#############################################################################################
+#subset to columns needed for analysis
+tableAH.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Fixture.Qty"
+                                                               ,"LIGHTING_BulbsPerFixture"
+                                                               ,"CK_SiteID"
+                                                               ,"Lamp.Category"
+                                                               ,"Clean.Room"
+                                                               ,"Clean.Wattage"
+                                                               ,"Wattage.for.Calc"))]
+tableAH.dat$count <- 1
+
+tableAH.dat1 <- left_join(tableAH.dat, rbsa.dat, by = "CK_Cadmus_ID")
+
+tableAH.dat2 <- tableAH.dat1[grep("SITE", tableAH.dat1$CK_SiteID),]
+
+tableAH.dat3 <- tableAH.dat2[which(!(tableAH.dat2$Clean.Room %in% c("Storage"))),]
+unique(tableAH.dat3$Wattage.for.Calc)
+tableAH.dat4 <- tableAH.dat3[-grep("-|Unknown|unknown", tableAH.dat3$Wattage.for.Calc),]
+
+tableAH.dat4$Total.Wattage <- as.numeric(as.character(tableAH.dat4$Fixture.Qty)) * 
+  as.numeric(as.character(tableAH.dat4$LIGHTING_BulbsPerFixture)) * 
+  as.numeric(as.character(tableAH.dat4$Wattage.for.Calc))
+
+tableAH.dat5 <- tableAH.dat4[which(!(is.na(tableAH.dat4$Wattage.for.Calc))),]
+tableAH.dat5$Wattage.for.Calc <- as.numeric(as.character(tableAH.dat5$Wattage.for.Calc))
+
+tableAH.dat6 <- summarise(group_by(tableAH.dat5, CK_Cadmus_ID)
+                         ,Wattage.per.bulb = mean(Wattage.for.Calc, na.rm = T))
+
+tableAH.prep <- left_join(rbsa.dat, tableAH.dat6)
+tableAH.prep1 <- tableAH.prep[which(!is.na(tableAH.prep$Wattage.per.bulb)),]
+tableAH.prep1 <- tableAH.prep1[which(tableAH.prep1$Wattage.per.bulb != "Inf"),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAH.data <- weightedData(tableAH.prep1[-which(colnames(tableAH.prep1) %in% c("Wattage.per.bulb"))])
+tableAH.data <- left_join(tableAH.data, tableAH.prep1[which(colnames(tableAH.prep1) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Wattage.per.bulb"))])
+
+#######################
+# Weighted Analysis
+#######################
+tableAH.data$count <-1
+tableAH.final <- mean_one_group(CustomerLevelData = tableAH.data
+                               ,valueVariable    = 'Wattage.per.bulb'
+                               ,byVariable       = 'State'
+                               ,aggregateRow     = 'Region')
+
+# Export table
+tableAH.final.SF <- tableAH.final[which(tableAH.final$BuildingType == "Single Family"),-1]
+tableAH.final.MH <- tableAH.final[which(tableAH.final$BuildingType == "Manufactured"),-1]
+
+exportTable(tableAH.final.SF, "SF", "Table AH", weighted = TRUE)
+exportTable(tableAH.final.MH, "MH", "Table AH", weighted = TRUE)
+
+
+################################
+# Unweighted Analysis
+################################
+tableAH.final <- mean_one_group_unweighted(CustomerLevelData = tableAH.data
+                                          ,valueVariable    = 'Wattage.per.bulb'
+                                          ,byVariable       = 'State'
+                                          ,aggregateRow     = 'Region')
+
+# Export table
+tableAH.final.SF <- tableAH.final[which(tableAH.final$BuildingType == "Single Family"),-1]
+tableAH.final.MH <- tableAH.final[which(tableAH.final$BuildingType == "Manufactured"),-1]
+
+exportTable(tableAH.final.SF, "SF", "Table AH", weighted = FALSE)
+exportTable(tableAH.final.MH, "MH", "Table AH", weighted = FALSE)
+

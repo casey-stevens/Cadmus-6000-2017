@@ -370,8 +370,23 @@ unique(prep.dat4.5$slab.rvalues1)
 unique(prep.dat4.5$slab.rvalues2)
 unique(prep.dat4.5$slab.rvalues3)
 
-prep.dat4.5$Floor.Insulation.Condition.1 <- prep.dat4.5$Floor.Insulation.Condition.1 / 100
-prep.dat4.5$Slab.Insulation.Condition.1  <- prep.dat4.5$Slab.Insulation.Condition.1 / 100
+## Clean condition values
+prep.dat4.5$Floor.Insulation.Condition.1   <- as.character(prep.dat4.5$Floor.Insulation.Condition.1)
+prep.dat4.5$Floor.Insulation.Condition.1[which(is.na(prep.dat4.5$Floor.Insulation.Condition.1))] <- "NA"
+prep.dat4.5$Slab.Insulation.Condition.1 <- as.character(prep.dat4.5$Slab.Insulation.Condition.1)
+prep.dat4.5$Slab.Insulation.Condition.1[which(is.na(prep.dat4.5$Slab.Insulation.Condition.1))] <- "NA"
+
+for(ii in 1:nrow(prep.dat4.5)){
+  if(prep.dat4.5$Floor.Insulation.Condition.1[ii] != "1"){
+    prep.dat4.5$Floor.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Floor.Insulation.Condition.1)[ii] / 100
+  }
+  if(prep.dat4.5$Slab.Insulation.Condition.1[ii] != "1"){
+    prep.dat4.5$Slab.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Slab.Insulation.Condition.1)[ii]  / 100
+  }
+}
+
+prep.dat4.5$Floor.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Floor.Insulation.Condition.1))
+prep.dat4.5$Slab.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Slab.Insulation.Condition.1))
 
 # clean up condition information
 prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Floor.Insulation.Condition.1 %notin% c(1, NA, 0)),]
