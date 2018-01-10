@@ -58,7 +58,7 @@ colnames(envelope.dat1) <- c("CK_Cadmus_ID"
                              # ,"Floor_Area"
                              ,"Floor_Type" 
                              ,"BasementInd")
-env.buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buidings.export))
+env.buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 env.buildings.dat$CK_Cadmus_ID <- trimws(toupper(env.buildings.dat$CK_Cadmus_ID))
 env.buildings.dat <- env.buildings.dat[which(colnames(env.buildings.dat) %in% c("CK_Cadmus_ID"
                                                                                 ,"SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages "))]

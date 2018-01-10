@@ -126,6 +126,24 @@ which(duplicated(one.line.bldg.dat.MF$CK_Cadmus_ID))
 
 oneline.sub <- one.line.bldg.dat.MF[which(names(one.line.bldg.dat.MF) %in% c("CK_Cadmus_ID", "Window.Area"))]
 envelope.dat.MF.merge <- left_join(envelope.dat.MF, oneline.sub)
+
+
+
+
+
+
+env.buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export), sheet = 1)
+env.buildings.dat$CK_Building_ID <- trimws(toupper(env.buildings.dat$PK_BuildingID))
+env.buildings.dat <- env.buildings.dat[which(colnames(env.buildings.dat) %in% c("CK_Building_ID"
+                                                                                ,"SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages"))]
+colnames(env.buildings.dat) <- c("Floor_Area"
+                                 ,"CK_Building_ID")
+
+envelope.dat.MF.merge <- left_join(envelope.dat.MF.merge, env.buildings.dat)
+
+
+
+
 #############################################################################################
 #Item 231: Table 23
 #############################################################################################
@@ -353,8 +371,8 @@ exportTable(item232.final.MF, "MF", "Table 24", weighted = FALSE)
 # Window area is same for item 233 as it was for 232
 # item233.windows.sum <- item232.windows.sum
 
-item233.envelope <- envelope.dat.MF.merge[which(!is.na(envelope.dat.MF.merge$Conditioned.Area)),]
-item233.envelope$Floor.Area <- as.numeric(as.character(item233.envelope$Conditioned.Area))
+item233.envelope <- envelope.dat.MF.merge[which(!is.na(envelope.dat.MF.merge$Floor_Area)),]
+item233.envelope$Floor.Area <- as.numeric(as.character(item233.envelope$Floor_Area))
 item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Window.Area)),]
 item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Window.Count)),]
 
@@ -380,10 +398,12 @@ item233.merge <- item233.merge[which(!is.na(item233.merge$WindowToFloorArea)),]
 ################################################
 item233.data <- weightedData(item233.merge[-which(colnames(item233.merge) %in% c("WindowArea"
                                                                                  ,"FloorArea"
+                                                                                 ,"WindowCount"
                                                                                  ,"WindowToFloorArea"))])
 item233.data <- left_join(item233.data, item233.merge[which(colnames(item233.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"WindowArea"
                                                                                            ,"FloorArea"
+                                                                                           ,"WindowCount"
                                                                                            ,"WindowToFloorArea"))])
 
 item233.data$WindowToFloorArea <- as.numeric(as.character(item233.data$WindowToFloorArea))
