@@ -37,16 +37,17 @@ lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 #############################################################################################
 #subset to columns needed for analysis
 item68.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
-                                                               ,""
-                                                               ,""
-                                                               ,""
+                                                               ,"Lamp.Category"
+                                                               ,"Fixture.Qty"
+                                                               ,"LIGHTING_BulbsPerFixture"
+                                                               ,"Status"
                                                                ,""
                                                                ,""))]
 item68.dat$count <- 1
 
-item68.dat1 <- left_join(item68.dat, rbsa.dat, by = "CK_Cadmus_ID")
+item68.dat1 <- left_join(rbsa.dat, item68.dat, by = "CK_Cadmus_ID")
 
-item68.dat2 <- item68.dat1[-grep("BLDG", item68.dat1$CK_SiteID),]
+item68.dat2 <- item68.dat1[-grep("BLDG", item68.dat1$CK_Building_ID),]
 
 #clean fixture and bulbs per fixture
 item68.dat2$Fixture.Qty <- as.numeric(as.character(item68.dat2$Fixture.Qty))
@@ -56,8 +57,123 @@ item68.dat2$Lamps <- item68.dat2$Fixture.Qty * item68.dat2$LIGHTING_BulbsPerFixt
 unique(item68.dat2$Lamps)
 
 item68.dat3 <- item68.dat2[which(!(is.na(item68.dat2$Lamps))),]
+unique(item68.dat3$Status)
+item68.dat4 <- item68.dat3[which(item68.dat3$Status %notin% c("Empty Socket", "Unknown")),]
 
 
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item68.data <- weightedData(item68.dat4[-which(colnames(item68.dat4) %in% c("Fixture.Qty"
+                                                                            ,"LIGHTING_BulbsPerFixture"
+                                                                            ,"Lamp.Category"
+                                                                            ,"Lamps"
+                                                                            ,"count"
+                                                                            ,"Status"))])
+item68.data <- left_join(item68.data, item68.dat4[which(colnames(item68.dat4) %in% c("CK_Cadmus_ID"               
+                                                                                     ,"Fixture.Qty"
+                                                                                     ,"LIGHTING_BulbsPerFixture"
+                                                                                     ,"Lamp.Category"
+                                                                                     ,"Lamps"
+                                                                                     ,"count"
+                                                                                     ,"Status"))])
+item68.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item68.summary <- proportionRowsAndColumns1(CustomerLevelData = item68.data
+                                            ,valueVariable    = 'Lamps'
+                                            ,columnVariable   = 'State'
+                                            ,rowVariable      = 'Status'
+                                            ,aggregateColumnName = "Region")
+
+item68.cast <- dcast(setDT(item68.summary)
+                     , formula = BuildingType + Status ~ State
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item68.table <- data.frame("BuildingType"    = item68.cast$BuildingType
+                           ,"EISA.Category"  = item68.cast$Status
+                           ,"Percent_ID"     = item68.cast$w.percent_ID
+                           ,"SE_ID"          = item68.cast$w.SE_ID
+                           ,"n_ID"           = item68.cast$n_ID
+                           ,"Percent_MT"     = item68.cast$w.percent_MT
+                           ,"SE_MT"          = item68.cast$w.SE_MT
+                           ,"n_MT"           = item68.cast$n_MT
+                           ,"Percent_OR"     = item68.cast$w.percent_OR
+                           ,"SE_OR"          = item68.cast$w.SE_OR
+                           ,"n_OR"           = item68.cast$n_OR
+                           ,"Percent_WA"     = item68.cast$w.percent_WA
+                           ,"SE_WA"          = item68.cast$w.SE_WA
+                           ,"n_WA"           = item68.cast$n_WA
+                           ,"Percent_Region" = item68.cast$w.percent_Region
+                           ,"SE_Region"      = item68.cast$w.SE_Region
+                           ,"n_Region"       = item68.cast$n_Region
+)
+
+levels(item68.table$EISA.Category)
+rowOrder <- c("Exempt"
+              ,"Noncompliant"
+              ,"Compliant"
+              ,"Total")
+item68.table <- item68.table %>% mutate(EISA.Category = factor(EISA.Category, levels = rowOrder)) %>% arrange(EISA.Category)  
+item68.table <- data.frame(item68.table)
+
+
+item68.final.SF <- item68.table[which(item68.table$BuildingType == "Single Family")
+                                ,-which(colnames(item68.table) %in% c("BuildingType"))]
+item68.final.MH <- item68.table[which(item68.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item68.table) %in% c("BuildingType"))]
+item68.final.MF <- item68.table[which(item68.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item68.table) %in% c("BuildingType"))]
+
+exportTable(item68.final.SF, "SF", "Table 75", weighted = TRUE)
+exportTable(item68.final.MH, "MH", "Table 54", weighted = TRUE)
+exportTable(item68.final.MF, "MF", "Table 81", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item68.summary <- proportions_two_groups_unweighted(CustomerLevelData = item68.data
+                                                    ,valueVariable    = 'Lamps'
+                                                    ,columnVariable   = 'State'
+                                                    ,rowVariable      = 'Status'
+                                                    ,aggregateColumnName = "Region")
+
+item68.cast <- dcast(setDT(item68.summary)
+                     , formula = BuildingType + Status ~ State
+                     , value.var = c("Percent", "SE", "Count", "n"))
+
+
+item68.table <- data.frame("BuildingType"    = item68.cast$BuildingType
+                           ,"EISA.Category"  = item68.cast$Status
+                           ,"Percent_ID"     = item68.cast$Percent_ID
+                           ,"SE_ID"          = item68.cast$SE_ID
+                           ,"n_ID"           = item68.cast$n_ID
+                           ,"Percent_MT"     = item68.cast$Percent_MT
+                           ,"SE_MT"          = item68.cast$SE_MT
+                           ,"n_MT"           = item68.cast$n_MT
+                           ,"Percent_OR"     = item68.cast$Percent_OR
+                           ,"SE_OR"          = item68.cast$SE_OR
+                           ,"n_OR"           = item68.cast$n_OR
+                           ,"Percent_WA"     = item68.cast$Percent_WA
+                           ,"SE_WA"          = item68.cast$SE_WA
+                           ,"n_WA"           = item68.cast$n_WA
+                           ,"Percent_Region" = item68.cast$Percent_Region
+                           ,"SE_Region"      = item68.cast$SE_Region
+                           ,"n_Region"       = item68.cast$n_Region
+)
+
+item68.final.SF <- item68.table[which(item68.table$BuildingType == "Single Family")
+                                ,-which(colnames(item68.table) %in% c("BuildingType"))]
+item68.final.MH <- item68.table[which(item68.table$BuildingType == "Manufactured")
+                                ,-which(colnames(item68.table) %in% c("BuildingType"))]
+item68.final.MF <- item68.table[which(item68.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item68.table) %in% c("BuildingType"))]
+
+exportTable(item68.final.SF, "SF", "Table 75", weighted = FALSE)
+exportTable(item68.final.MH, "MH", "Table 54", weighted = FALSE)
+exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
 
 
 
@@ -714,3 +830,154 @@ exportTable(tableAE.final.MH, "MH", "Table AE", weighted = FALSE)
 exportTable(tableAE.final.MF, "MF", "Table AE", weighted = FALSE)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#item 259: DISTRIBUTION OF COMMON AREA LAMPS BY EISA CATEGORY (MF table 51)
+#############################################################################################
+#subset to columns needed for analysis
+item259.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Lamp.Category"
+                                                               ,"Fixture.Qty"
+                                                               ,"LIGHTING_BulbsPerFixture"
+                                                               ,"Status"
+                                                               ,""
+                                                               ,""))]
+item259.dat$count <- 1
+
+item259.dat1 <- left_join(rbsa.dat, item259.dat, by = "CK_Cadmus_ID")
+
+item259.dat2 <- item259.dat1[grep("BLDG", item259.dat1$CK_Building_ID),]
+
+#clean fixture and bulbs per fixture
+item259.dat2$Fixture.Qty <- as.numeric(as.character(item259.dat2$Fixture.Qty))
+item259.dat2$LIGHTING_BulbsPerFixture <- as.numeric(as.character(item259.dat2$LIGHTING_BulbsPerFixture))
+
+item259.dat2$Lamps <- item259.dat2$Fixture.Qty * item259.dat2$LIGHTING_BulbsPerFixture
+unique(item259.dat2$Lamps)
+
+item259.dat3 <- item259.dat2[which(!(is.na(item259.dat2$Lamps))),]
+unique(item259.dat3$Status)
+item259.dat4 <- item259.dat3[which(item259.dat3$Status %notin% c("Empty Socket", "Unknown")),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item259.data <- weightedData(item259.dat4[-which(colnames(item259.dat4) %in% c("Fixture.Qty"
+                                                                            ,"LIGHTING_BulbsPerFixture"
+                                                                            ,"Lamp.Category"
+                                                                            ,"Lamps"
+                                                                            ,"count"
+                                                                            ,"Status"))])
+item259.data <- left_join(item259.data, item259.dat4[which(colnames(item259.dat4) %in% c("CK_Cadmus_ID"               
+                                                                                     ,"Fixture.Qty"
+                                                                                     ,"LIGHTING_BulbsPerFixture"
+                                                                                     ,"Lamp.Category"
+                                                                                     ,"Lamps"
+                                                                                     ,"count"
+                                                                                     ,"Status"))])
+item259.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item259.summary <- proportionRowsAndColumns1(CustomerLevelData = item259.data
+                                            ,valueVariable    = 'Lamps'
+                                            ,columnVariable   = 'State'
+                                            ,rowVariable      = 'Status'
+                                            ,aggregateColumnName = "Region")
+
+item259.cast <- dcast(setDT(item259.summary)
+                     , formula = BuildingType + Status ~ State
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+
+item259.table <- data.frame("BuildingType"    = item259.cast$BuildingType
+                           ,"EISA.Category"  = item259.cast$Status
+                           ,"Percent_ID"     = item259.cast$w.percent_ID
+                           ,"SE_ID"          = item259.cast$w.SE_ID
+                           ,"n_ID"           = item259.cast$n_ID
+                           ,"Percent_MT"     = item259.cast$w.percent_MT
+                           ,"SE_MT"          = item259.cast$w.SE_MT
+                           ,"n_MT"           = item259.cast$n_MT
+                           ,"Percent_OR"     = item259.cast$w.percent_OR
+                           ,"SE_OR"          = item259.cast$w.SE_OR
+                           ,"n_OR"           = item259.cast$n_OR
+                           ,"Percent_WA"     = item259.cast$w.percent_WA
+                           ,"SE_WA"          = item259.cast$w.SE_WA
+                           ,"n_WA"           = item259.cast$n_WA
+                           ,"Percent_Region" = item259.cast$w.percent_Region
+                           ,"SE_Region"      = item259.cast$w.SE_Region
+                           ,"n_Region"       = item259.cast$n_Region
+)
+
+levels(item259.table$EISA.Category)
+rowOrder <- c("Exempt"
+              ,"Noncompliant"
+              ,"Compliant"
+              ,"Total")
+item259.table <- item259.table %>% mutate(EISA.Category = factor(EISA.Category, levels = rowOrder)) %>% arrange(EISA.Category)  
+item259.table <- data.frame(item259.table)
+
+item259.final.MF <- item259.table[which(item259.table$BuildingType == "Multifamily")
+                                ,-which(colnames(item259.table) %in% c("BuildingType"))]
+
+exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item259.summary <- proportions_two_groups_unweighted(CustomerLevelData = item259.data
+                                                    ,valueVariable    = 'Lamps'
+                                                    ,columnVariable   = 'State'
+                                                    ,rowVariable      = 'Status'
+                                                    ,aggregateColumnName = "Region")
+
+item259.cast <- dcast(setDT(item259.summary)
+                     , formula = BuildingType + Status ~ State
+                     , value.var = c("Percent", "SE", "Count", "n"))
+
+
+item259.table <- data.frame("BuildingType"    = item259.cast$BuildingType
+                           ,"EISA.Category"  = item259.cast$Status
+                           ,"Percent_ID"     = item259.cast$Percent_ID
+                           ,"SE_ID"          = item259.cast$SE_ID
+                           ,"n_ID"           = item259.cast$n_ID
+                           ,"Percent_MT"     = item259.cast$Percent_MT
+                           ,"SE_MT"          = item259.cast$SE_MT
+                           ,"n_MT"           = item259.cast$n_MT
+                           ,"Percent_OR"     = item259.cast$Percent_OR
+                           ,"SE_OR"          = item259.cast$SE_OR
+                           ,"n_OR"           = item259.cast$n_OR
+                           ,"Percent_WA"     = item259.cast$Percent_WA
+                           ,"SE_WA"          = item259.cast$SE_WA
+                           ,"n_WA"           = item259.cast$n_WA
+                           ,"Percent_Region" = item259.cast$Percent_Region
+                           ,"SE_Region"      = item259.cast$SE_Region
+                           ,"n_Region"       = item259.cast$n_Region
+)
+
+item259.final.MF <- item259.table[which(item259.table$BuildingType == "Multifamily")
+                                  ,-which(colnames(item259.table) %in% c("BuildingType"))]
+
+exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)
