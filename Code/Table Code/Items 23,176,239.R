@@ -580,7 +580,7 @@ item23.final$HomeYearBuilt_bins3[which(item23.final$HomeYearBuilt_bins3 == "Tota
 
 item23.cast <- dcast(setDT(item23.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item23.cast)
 item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins3
@@ -609,6 +609,14 @@ item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"SE.RGT36"        = item23.cast$w.SE_RGT36
                            # ,"n.RGT36"         = item23.cast$n_RGT36
                            ,"n"                 = item23.cast$`n_All Housing Vintages`
+                           ,'EB.None'         = item23.cast$EB_None
+                           ,'EB.R1.R3'        = item23.cast$EB_R1.R3
+                           ,'EB.R4.R10'       = item23.cast$EB_R4.R10
+                           ,'EB.R11.R15'      = item23.cast$EB_R11.R15
+                           ,'EB.R16.R22'      = item23.cast$EB_R16.R22
+                           ,'EB.R23.R27'      = item23.cast$EB_R23.R27
+                           ,'EB.R28.R35'      = item23.cast$EB_R28.R35
+                           ,'EB.RGT36'        = item23.cast$EB_RGT36
                            )
 
 # row ordering example code
@@ -768,7 +776,7 @@ item23.final$HomeYearBuilt_bins2[which(item23.final$HomeYearBuilt_bins2 == "Tota
 
 item23.cast <- dcast(setDT(item23.final),
                      formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins.MH,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins2
@@ -788,6 +796,11 @@ item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"SE.R31.R40"      = item23.cast$w.SE_R31.R40
                            # ,"Count.R31.R40"   = item23.cast$count_R31.R40
                            ,"n"               = item23.cast$`n_All Housing Vintages`
+                           ,'EB.R0.R8'        = item23.cast$EB_R0.R8
+                           ,'EB.R9.R14'       = item23.cast$EB_R9.R14
+                           ,'EB.R15.R21'      = item23.cast$EB_R15.R21
+                           ,'EB.R22.R30'      = item23.cast$EB_R22.R30
+                           ,'EB.R31.R40'      = item23.cast$EB_R31.R40
                            )
 
 # row ordering example code
