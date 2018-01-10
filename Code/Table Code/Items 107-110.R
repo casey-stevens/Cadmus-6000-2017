@@ -125,11 +125,11 @@ item108.dat3            <- item108.dat2[which(!(is.na(item108.dat2$TV.Wattage)))
 #clean age
 unique(item108.dat3$Age)
 item108.dat3$Age <- as.numeric(as.character(item108.dat3$Age))
-item108.dat4     <- item108.dat3[which(!(is.na(item108.dat3$Age))),]
+item108.dat4     <- item108.dat3#[which(!(is.na(item108.dat3$Age))),]
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
-item108.dat4$EquipVintage_bins <- as.numeric(as.character(item108.dat4$Age))
-
+item108.dat4$Age <- as.numeric(as.character(item108.dat4$Age))
+item108.dat4$EquipVintage_bins <- "Unknown Vintage"
 item108.dat4$EquipVintage_bins[which(item108.dat4$Age <  1990)] <- "Pre 1990"
 item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 1990 & item108.dat4$Age < 1995)] <- "1990-1994"
 item108.dat4$EquipVintage_bins[which(item108.dat4$Age >= 1995 & item108.dat4$Age < 2000)] <- "1995-1999"
@@ -176,6 +176,7 @@ rowOrder <- c("Pre 1990"
               ,"2005-2009"
               ,"2010-2014"
               ,"Post 2014"
+              ,"Unknown Vintage"
               ,"All Vintages")
 item108.table <- item108.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
 item108.table <- data.frame(item108.table)
@@ -209,6 +210,7 @@ rowOrder <- c("Pre 1990"
               ,"2005-2009"
               ,"2010-2014"
               ,"Post 2014"
+              ,"Unknown Vintage"
               ,"All Vintages")
 item108.table <- item108.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
 item108.table <- data.frame(item108.table)

@@ -556,6 +556,8 @@ item10.weightedU <- summarise(group_by(item10.dat, CK_Cadmus_ID, Wall.Type)
 
 #back-calculate the weight r values
 item10.weightedU$aveRval <- (1 / as.numeric(as.character(item10.weightedU$aveUval)))
+item10.weightedU$aveRval[which(item10.weightedU$aveRval %in% c("NaN",1))] <- 0
+item10.weightedU$aveUval[which(item10.weightedU$aveUval == "NaN")] <- 1
 unique(item10.weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data
@@ -977,8 +979,35 @@ exportTable(item11.table.SF, "SF", "Table 18"
 #############################################################################################
 # Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19, MH table 16)
 #############################################################################################
+prep.item12.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
+
+#weight the u factor per home -- where weights are the wall area within home
+prep.item12.weightedU <- summarise(group_by(prep.item12.dat, CK_Cadmus_ID, Wall.Type)
+                              ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
+)
+
+#back-calculate the weight r values
+prep.item12.weightedU$aveRval <- (1 / as.numeric(as.character(prep.item12.weightedU$aveUval)))
+prep.item12.weightedU$aveRval[which(prep.item12.weightedU$aveRval %in% c("NaN",1))] <- 0
+prep.item12.weightedU$aveUval[which(prep.item12.weightedU$aveUval == "NaN")] <- 1
+unique(prep.item12.weightedU$aveRval)
+
+# get unique cadmus IDs and building types for this subset of data
+prep.item12.wall.unique <- unique(prep.item12.dat[which(colnames(prep.item12.dat) %in% c("CK_Cadmus_ID","BuildingType"))])
+
+# merge on ID and building types to weighted uFactor and rValue data
+prep.item12.dat1 <- left_join(prep.item12.weightedU, prep.item12.wall.unique, by = "CK_Cadmus_ID")
+
+#merge weighted u values onto cleaned RBSA data
+prep.item12.dat2 <- left_join(prep.item12.dat1, rbsa.dat)
+prep.item12.dat2$aveUval[which(is.na(prep.item12.dat2$aveUval))] <- 0
+prep.item12.dat2$aveRval[which(is.na(prep.item12.dat2$aveRval))] <- 0
+
+
+
+
 ## Note: For this table, you must run up to prep.dat7 for the cleaned data
-item12.dat <- prep.dat7
+item12.dat <- prep.item12.dat2
 
 item12.dat1 <- item12.dat[which(!(is.na(item12.dat$HomeYearBuilt_bins3))),]
 

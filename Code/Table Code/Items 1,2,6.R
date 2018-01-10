@@ -213,11 +213,11 @@ item2.table <- data.frame("BuildingType"     = item2.cast$BuildingType
                            ,"Percent_Region"  = item2.cast$w.percent_Region
                            ,"SE_Region"       = item2.cast$w.SE_Region
                            ,"n"               = item2.cast$n_Region
-                          ,"EB_ID"          = item1.cast$EB_ID
-                          ,"EB_MT"          = item1.cast$EB_MT
-                          ,"EB_OR"          = item1.cast$EB_OR
-                          ,"EB_WA"          = item1.cast$EB_WA
-                          ,"EB_Region"      = item1.cast$EB_Region)
+                          ,"EB_ID"          = item2.cast$EB_ID
+                          ,"EB_MT"          = item2.cast$EB_MT
+                          ,"EB_OR"          = item2.cast$EB_OR
+                          ,"EB_WA"          = item2.cast$EB_WA
+                          ,"EB_Region"      = item2.cast$EB_Region)
 
 # row ordering example code
 levels(item2.table$Housing.Vintage)
@@ -340,7 +340,8 @@ colnames(item6.final) <- c("BuildingType"
                            , "SE"
                            , "Count"
                            , "N"
-                           , "n")
+                           , "n"
+                           , "EB")
 
 item6.cast <- dcast(setDT(item6.final)
                      ,formula = BuildingType + BuildingHeight ~ State
@@ -363,11 +364,11 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                           ,"Percent_Region" = item6.cast$Percent_Region
                           ,"SE_Region"      = item6.cast$SE_Region
                           ,"n_Region"       = item6.cast$n_Region
-                          ,"EB_ID"          = item1.cast$EB_ID
-                          ,"EB_MT"          = item1.cast$EB_MT
-                          ,"EB_OR"          = item1.cast$EB_OR
-                          ,"EB_WA"          = item1.cast$EB_WA
-                          ,"EB_Region"      = item1.cast$EB_Region)
+                          ,"EB_ID"          = item6.cast$EB_ID
+                          ,"EB_MT"          = item6.cast$EB_MT
+                          ,"EB_OR"          = item6.cast$EB_OR
+                          ,"EB_WA"          = item6.cast$EB_WA
+                          ,"EB_Region"      = item6.cast$EB_Region)
 
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 exportTable(item6.table.SF, "SF", "Table 13"

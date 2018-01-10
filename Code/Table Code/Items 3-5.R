@@ -117,11 +117,11 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"Percent_Region" = item3.cast$w.percent_Region
                           ,"SE_Region"      = item3.cast$w.SE_Region
                           ,"n_Region"       = item3.cast$n_Region
-                          ,"EB_ID"          = item1.cast$EB_ID
-                          ,"EB_MT"          = item1.cast$EB_MT
-                          ,"EB_OR"          = item1.cast$EB_OR
-                          ,"EB_WA"          = item1.cast$EB_WA
-                          ,"EB_Region"      = item1.cast$EB_Region)
+                          ,"EB_ID"          = item3.cast$EB_ID
+                          ,"EB_MT"          = item3.cast$EB_MT
+                          ,"EB_OR"          = item3.cast$EB_OR
+                          ,"EB_WA"          = item3.cast$EB_WA
+                          ,"EB_Region"      = item3.cast$EB_Region)
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 

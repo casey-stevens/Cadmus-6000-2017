@@ -62,17 +62,17 @@ item302.dat2$Age <- as.numeric(as.character(item302.dat2$Age))
 item302.dat2$TV.Wattage <- as.numeric(as.character(item302.dat2$TV.Wattage))
 
 ####Create vintage bins according to previous RBSA table
-item302.dat2$Age.Cat <- item302.dat2$Age
+item302.dat2$Age.Cat <- "Unknown Vintage"
 item302.dat2$Age.Cat[which(item302.dat2$Age < 1990)] <- "Pre 1990"
 item302.dat2$Age.Cat[which(item302.dat2$Age >= 1990 & item302.dat2$Age < 2000)] <- "1990-1999"
 item302.dat2$Age.Cat[which(item302.dat2$Age >= 2000 & item302.dat2$Age < 2005)] <- "2000-2004"
 item302.dat2$Age.Cat[which(item302.dat2$Age >= 2005 & item302.dat2$Age < 2010)] <- "2005-2009"
-item302.dat2$Age.Cat[which(item302.dat2$Age >= 2010)] <- "Post 2009"
+item302.dat2$Age.Cat[which(item302.dat2$Age >= 2010 & item302.dat2$Age < 2015)] <- "2010-2014"
+item302.dat2$Age.Cat[which(item302.dat2$Age >= 2015)] <- "Post 2014"
 #check age category mapping
 unique(item302.dat2$Age.Cat)
 
-item302.dat3 <- item302.dat2[which(!is.na(item302.dat2$Age.Cat)),]
-item302.dat4 <- item302.dat3[which(!is.na(item302.dat3$TV.Wattage)),]
+item302.dat4 <- item302.dat2[which(!is.na(item302.dat2$TV.Wattage)),]
 
 ######################################
 #Pop and Sample Sizes for weights
@@ -105,7 +105,21 @@ item302.final <- mean_one_group(CustomerLevelData = item302.data
                                 ,valueVariable = 'TV.Wattage'
                                 ,byVariable = 'Age.Cat'
                                 ,aggregateRow = "All Vintages")
-item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType","n_h"))]
+item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType"))]
+
+unique(item302.final$Age.Cat)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Unknown Vintage"
+              ,"All Vintages")
+item302.final <- item302.final %>% mutate(Age.Cat = factor(Age.Cat, levels = rowOrder)) %>% arrange(Age.Cat)  
+item302.final <- data.frame(item302.final)
+
+
 exportTable(item302.final, "MF", "Table 96", weighted = TRUE)
 ######################
 # unweighted analysis
@@ -114,7 +128,20 @@ item302.final <- mean_one_group_unweighted(CustomerLevelData = item302.data
                                 ,valueVariable = 'TV.Wattage'
                                 ,byVariable = 'Age.Cat'
                                 ,aggregateRow = "All Vintages")
-item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType","n_h"))]
+item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType"))]
+
+unique(item302.final$Age.Cat)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"2010-2014"
+              ,"Post 2014"
+              ,"Unknown Vintage"
+              ,"All Vintages")
+item302.final <- item302.final %>% mutate(Age.Cat = factor(Age.Cat, levels = rowOrder)) %>% arrange(Age.Cat)  
+item302.final <- data.frame(item302.final)
+
 exportTable(item302.final, "MF", "Table 96", weighted = FALSE)
 
 

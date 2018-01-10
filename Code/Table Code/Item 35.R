@@ -52,12 +52,20 @@ basement.tmp <- envelope.dat$CK_Cadmus_ID[which(envelope.dat$Floor.Type == "Base
 envelope.dat$BasementInd[which(envelope.dat$CK_Cadmus_ID %in% basement.tmp)] <- 1
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                   ,"Floor.Type"
-                                                                  ,"ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"
+                                                                  # ,"ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"
                                                                   ,"BasementInd"))]
 colnames(envelope.dat1) <- c("CK_Cadmus_ID"
-                             ,"Floor_Area"
+                             # ,"Floor_Area"
                              ,"Floor_Type" 
                              ,"BasementInd")
+env.buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buidings.export))
+env.buildings.dat$CK_Cadmus_ID <- trimws(toupper(env.buildings.dat$CK_Cadmus_ID))
+env.buildings.dat <- env.buildings.dat[which(colnames(env.buildings.dat) %in% c("CK_Cadmus_ID"
+                                                                                ,"SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages "))]
+colnames(env.buildings.dat) <- c("CK_Cadmus_ID"
+                                 ,"Floor_Area")
+
+envelope.dat1 <- left_join(envelope.dat1, env.buildings.dat)
 
 #Rooms for MH and MF
 rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))

@@ -265,9 +265,10 @@ unique(prep.dat4.5$ceiling.rvalues3)
 ## Clean condition values
 prep.dat4.5$Ceiling.Insulation.Condition.1   <- as.character(prep.dat4.5$Ceiling.Insulation.Condition.1)
 prep.dat4.5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat4.5$Ceiling.Insulation.Condition.1))] <- "NA"
+unique(prep.dat4.5$Ceiling.Insulation.Condition.1)
 
 for(ii in 1:nrow(prep.dat4.5)){
-  if(prep.dat4.5$Ceiling.Insulation.Condition.1[ii] != "1"){
+  if(prep.dat4.5$Ceiling.Insulation.Condition.1[ii] %notin% c("1","0.75", "0.9")){
     prep.dat4.5$Ceiling.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Ceiling.Insulation.Condition.1)[ii] / 100
   }
 }
@@ -345,13 +346,13 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 
 
-# rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
-# ceiling.merge <- left_join(rbsa.ceiling, prep.dat5)
-# #########export rvalues
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
+rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
+ceiling.merge <- left_join(rbsa.ceiling, prep.dat5)
+#########export rvalues
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 
 
 
