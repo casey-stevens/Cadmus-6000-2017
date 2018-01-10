@@ -146,6 +146,16 @@ item145.final <- mean_two_groups(CustomerLevelData  = item145.data
                                  , columnAggregate  = "All Homes"
                                  , rowAggregate     = "Region")
 
+# If final table have <NA> something was named incorrectly
+levels(item145.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item145.final <- item145.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item145.final <- data.frame(item145.final)
+
 
 item145.table.SF <- item145.final[which(item145.final$BuildingType %in% c("Single Family")),-1]
 item145.table.MH <- item145.final[which(item145.final$BuildingType %in% c("Manufactured")),-1]
@@ -166,6 +176,15 @@ item145.final <- mean_two_groups_unweighted(CustomerLevelData  = item145.data
                                              , columnAggregate  = "All Homes"
                                              , rowAggregate     = "Region")
 
+# If final table have <NA> something was named incorrectly
+levels(item145.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item145.final <- item145.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item145.final <- data.frame(item145.final)
 
 item145.table.SF <- item145.final[which(item145.final$BuildingType %in% c("Single Family")),-1]
 item145.table.MH <- item145.final[which(item145.final$BuildingType %in% c("Manufactured")),-1]
@@ -220,6 +239,15 @@ item149.final <- mean_two_groups(CustomerLevelData  = item149.data
                                  , columnAggregate  = "All Homes"
                                  , rowAggregate     = "Region")
 
+# If final table have <NA> something was named incorrectly
+levels(item149.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item149.final <- item149.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item149.final <- data.frame(item149.final)
 
 item149.table.SF <- item149.final[which(item149.final$BuildingType %in% c("Single Family")),-1]
 item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manufactured")),-1]
@@ -241,6 +269,15 @@ item149.final <- mean_two_groups_unweighted(CustomerLevelData  = item149.data
                                             , columnAggregate  = "All Homes"
                                             , rowAggregate     = "Region")
 
+# If final table have <NA> something was named incorrectly
+levels(item149.final$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+item149.final <- item149.final %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+item149.final <- data.frame(item149.final)
 
 item149.table.SF <- item149.final[which(item149.final$BuildingType %in% c("Single Family")),-1]
 item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manufactured")),-1]

@@ -27,7 +27,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data))
-billing.dat$CK_Cadmus_ID <- trimws(toupper(billing.dat$CADID))
+billing.dat$CK_Cadmus_ID <- trimws(toupper(billing.dat$CK_Cadmus_ID))
 
 results.dat <- merge(rbsa.dat, billing.dat, 
                      by = "CK_Cadmus_ID", all.y = T)
