@@ -430,12 +430,16 @@ tableJJ.attic <- mean_one_group(CustomerLevelData = item26.data
                                 ,valueVariable = "aveRval"
                                 ,byVariable = "State"
                                 ,aggregateRow = "Region")
+tableJJ.attic.SF <- tableJJ.attic[which(tableJJ.attic$BuildingType == "Single Family")
+                                  , which(colnames(tableJJ.attic) != "BuildingType")]
 
 ######## Unweighted
-tableJJ.attic <- mean_one_group_unweighted(CustomerLevelData = item26.data
+tableJJ.attic.unw <- mean_one_group_unweighted(CustomerLevelData = item26.data
                                 ,valueVariable = "aveRval"
                                 ,byVariable = "State"
                                 ,aggregateRow = "Region")
+tableJJ.attic.unw.SF <- tableJJ.attic.unw[which(tableJJ.attic.unw$BuildingType == "Single Family")
+                                          , which(colnames(tableJJ.attic.unw) != "BuildingType")]
 
 
 
