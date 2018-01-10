@@ -1282,7 +1282,7 @@ item12.final$HomeYearBuilt_bins2[which(item12.final$HomeYearBuilt_bins2 == "Tota
 
 item12.cast <- dcast(setDT(item12.final),
                      formula   = BuildingType + HomeYearBuilt_bins2 ~ rvalue.bins.MH,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins2
@@ -1299,6 +1299,10 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"SE.R22.R30"      = item12.cast$w.SE_R22.R30
                            # ,"n.R22.R30"       = item12.cast$n_R22.R30
                            ,"n" = item12.cast$`n_All Housing Vintages`
+                           ,"EB.R0.R8"           = item12.cast$EB_R0.R8
+                           ,"EB.R9.R14"      = item12.cast$EB_R9.R14
+                           ,"EB.R15.R21"       = item12.cast$EB_R15.R21
+                           ,"EB.R22.R30"      = item12.cast$EB_R22.R30
                            )
 
 # row ordering example code
