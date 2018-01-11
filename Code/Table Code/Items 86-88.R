@@ -361,7 +361,7 @@ item88.summary <- proportionRowsAndColumns1(CustomerLevelData = item88.data
                                             ,rowVariable      = 'EquipVintage_bins'
                                             ,aggregateColumnName = "Remove")
 item88.summary <- item88.summary[which(item88.summary$Washer.Type %notin% c("Remove", "Total")),]
-item88.summary <- item88.summary[which(item88.summary$EquipVintage_bins %notin% c("Remove", "Total")),]
+item88.summary$EquipVintage_bins[which(item88.summary$EquipVintage_bins == "Total")] <- "All Clothes Washer Types"
 
 item88.all.washer.types <- proportions_one_group(CustomerLevelData = item88.data
                                                  ,valueVariable = 'count'
@@ -435,7 +435,7 @@ item88.summary <- proportions_two_groups_unweighted(CustomerLevelData = item88.d
                                                     ,rowVariable      = 'EquipVintage_bins'
                                                     ,aggregateColumnName = "Remove")
 item88.summary <- item88.summary[which(item88.summary$Washer.Type %notin% c("Remove", "Total")),]
-item88.summary <- item88.summary[which(item88.summary$EquipVintage_bins %notin% c("Remove", "Total")),]
+item88.summary$EquipVintage_bins[which(item88.summary$EquipVintage_bins == "Total")] <- "All Clothes Washer Types"
 
 item88.all.washer.types <- proportions_one_group(CustomerLevelData = item88.data
                                                  ,valueVariable = 'count'
