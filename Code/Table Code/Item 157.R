@@ -160,7 +160,7 @@ item157.final <- proportionRowsAndColumns1(CustomerLevelData = item157.data
 
 item157.cast <- dcast(setDT(item157.final)
                       , formula = BuildingType + GroundContact ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
                             ,"GroundContact"  = item157.cast$GroundContact
@@ -179,6 +179,11 @@ item157.table <- data.frame("BuildingType"    = item157.cast$BuildingType
                             ,"Percent_Region" = item157.cast$w.percent_Region
                             ,"SE_Region"      = item157.cast$w.SE_Region
                             ,"n_Region"       = item157.cast$n_Region
+                            ,"EB_ID"          = item157.cast$EB_ID
+                            ,"EB_MT"          = item157.cast$EB_MT
+                            ,"EB_OR"          = item157.cast$EB_OR
+                            ,"EB_WA"          = item157.cast$EB_WA
+                            ,"EB_Region"      = item157.cast$EB_Region
 )
 
 
