@@ -102,7 +102,7 @@ item102.final <- rbind.data.frame(item102.summary, item102.all.fuels)
 
 item102.cast <- dcast(setDT(item102.final)
                      ,formula = BuildingType + DHW.Fuel ~ Gallon_bins
-                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"DHW.Fuel"             = item102.cast$DHW.Fuel
@@ -115,6 +115,8 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             # ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
                             ,n = item102.cast$n_Total
+                            ,"EB_0.50.Gallons"      = item102.cast$`EB_0-55 Gallons`
+                            ,"EB_GT50.Gallons"      = item102.cast$`EB_>55 Gallons`
                             )
 
 # row ordering example code
@@ -275,7 +277,7 @@ item103.final <- rbind.data.frame(item103.final, item103.all.fuels)
 
 item103.cast <- dcast(setDT(item103.final)
                       ,formula = BuildingType + DHW.Location ~ Gallon_bins
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
                             ,"DHW.Location"         = item103.cast$DHW.Location
@@ -288,6 +290,8 @@ item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
                             # ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
                             ,"n" = item103.cast$n_Total
+                            ,"EB_0.50.Gallons"      = item103.cast$`EB_0-55 Gallons`
+                            ,"EB_GT50.Gallons"      = item103.cast$`EB_>55 Gallons`
 )
 
 # row ordering example code
@@ -450,7 +454,7 @@ item104.final <- rbind.data.frame(item104.final, item104.all.fuels)
 
 item104.cast <- dcast(setDT(item104.final)
                       ,formula = BuildingType + DHW.Location ~ Gallon_bins
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
                             ,"DHW.Location"         = item104.cast$DHW.Location
@@ -463,6 +467,8 @@ item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
                             # ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
                             ,"n" = item104.cast$n_Total
+                            ,"EB_0.50.Gallons"      = item104.cast$`EB_0-55 Gallons`
+                            ,"EB_GT50.Gallons"      = item104.cast$`EB_>55 Gallons`
 )
 
 # row ordering example code
