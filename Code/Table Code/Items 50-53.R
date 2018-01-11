@@ -135,7 +135,12 @@ item50.table <- data.frame("BuildingType"       = item50.final$BuildingType
                            ,"n_WA"              = item50.final$n_WA
                            ,"Mean_Region"       = item50.final$Mean_Region
                            ,"SE_Region"         = item50.final$SE_Region
-                           ,"n_Region"          = item50.final$n_Region)
+                           ,"n_Region"          = item50.final$n_Region
+                           ,"EB_ID"             = item50.final$EB_ID
+                           ,"EB_MT"             = item50.final$EB_MT
+                           ,"EB_OR"             = item50.final$EB_OR
+                           ,"EB_WA"             = item50.final$EB_WA
+                           ,"EB_Region"         = item50.final$EB_Region)
 
 # row ordering example code
 levels(item50.table$Equipment.Vintage)
@@ -249,7 +254,7 @@ item51.final <- proportionRowsAndColumns1(CustomerLevelData = item51.data
 #cast data into correct table format
 item51.cast <- dcast(setDT(item51.final)
                       , formula = BuildingType + Efficiency_bins ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 #subset to only the columns needed for the final RBSA table
 item51.table <- data.frame("BuildingType"    = item51.cast$BuildingType
@@ -268,7 +273,12 @@ item51.table <- data.frame("BuildingType"    = item51.cast$BuildingType
                            ,"n_WA"           = item51.cast$n_WA
                            ,"Percent_Region" = item51.cast$w.percent_Region
                            ,"SE_Region"      = item51.cast$w.SE_Region
-                           ,"n_Region"       = item51.cast$n_Region)
+                           ,"n_Region"       = item51.cast$n_Region
+                           ,"EB_ID"          = item51.cast$EB_ID
+                           ,"EB_MT"          = item51.cast$EB_MT
+                           ,"EB_OR"          = item51.cast$EB_OR
+                           ,"EB_WA"          = item51.cast$EB_WA
+                           ,"EB_Region"      = item51.cast$EB_Region)
 
 
 
@@ -503,7 +513,7 @@ item53.final <- proportionRowsAndColumns1(CustomerLevelData    = item53.data
 #cast data into correct table format
 item53.cast <- dcast(setDT(item53.final)
                      , formula   = BuildingType + HSPF_bins ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 #subset to only the columns needed for the final RBSA table
 item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
@@ -522,7 +532,12 @@ item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
                            ,"n_WA"           = item53.cast$n_WA
                            ,"Percent_Region" = item53.cast$w.percent_Region
                            ,"SE_Region"      = item53.cast$w.SE_Region
-                           ,"n_Region"       = item53.cast$n_Region)
+                           ,"n_Region"       = item53.cast$n_Region
+                           ,"EB_ID"          = item53.cast$EB_ID
+                           ,"EB_MT"          = item53.cast$EB_MT
+                           ,"EB_OR"          = item53.cast$EB_OR
+                           ,"EB_WA"          = item53.cast$EB_WA
+                           ,"EB_Region"      = item53.cast$EB_Region)
 
 #subset to only the relevant building types for this item
 item53.table.SF <- item53.table[which(item53.table$BuildingType %in% c("Single Family")),-1]

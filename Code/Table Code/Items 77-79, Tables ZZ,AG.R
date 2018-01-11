@@ -526,26 +526,31 @@ tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total
 
 tableAG.cast <- dcast(setDT(tableAG.summary)
                       ,formula = BuildingType + Lamp.Category ~ State
-                      ,value.var = c("w.percent","w.SE","count","n","N"))
+                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
 tableAG.final <- data.frame("BuildingType"   = tableAG.cast$BuildingType
-                             ,"Lamp.Category" = tableAG.cast$Lamp.Category
-                             ,"ID"             = tableAG.cast$w.percent_ID
-                             ,"ID.SE"          = tableAG.cast$w.SE_ID
-                             ,"ID.n"           = tableAG.cast$n_ID
-                             ,"MT"             = tableAG.cast$w.percent_MT
-                             ,"MT.SE"          = tableAG.cast$w.SE_MT
-                             ,"MT.n"           = tableAG.cast$n_MT
-                             ,"OR"             = tableAG.cast$w.percent_OR
-                             ,"OR.SE"          = tableAG.cast$w.SE_OR
-                             ,"OR.n"           = tableAG.cast$n_OR
-                             ,"WA"             = tableAG.cast$w.percent_WA
-                             ,"WA.SE"          = tableAG.cast$w.SE_WA
-                             ,"WA.n"           = tableAG.cast$n_WA
-                             ,"Region"         = tableAG.cast$w.percent_Region
-                             ,"Region.SE"      = tableAG.cast$w.SE_Region
-                             ,"Region.n"       = tableAG.cast$n_Region
-                             )
+                            ,"Lamp.Category" = tableAG.cast$Lamp.Category
+                            ,"ID"             = tableAG.cast$w.percent_ID
+                            ,"ID.SE"          = tableAG.cast$w.SE_ID
+                            ,"ID.n"           = tableAG.cast$n_ID
+                            ,"MT"             = tableAG.cast$w.percent_MT
+                            ,"MT.SE"          = tableAG.cast$w.SE_MT
+                            ,"MT.n"           = tableAG.cast$n_MT
+                            ,"OR"             = tableAG.cast$w.percent_OR
+                            ,"OR.SE"          = tableAG.cast$w.SE_OR
+                            ,"OR.n"           = tableAG.cast$n_OR
+                            ,"WA"             = tableAG.cast$w.percent_WA
+                            ,"WA.SE"          = tableAG.cast$w.SE_WA
+                            ,"WA.n"           = tableAG.cast$n_WA
+                            ,"Region"         = tableAG.cast$w.percent_Region
+                            ,"Region.SE"      = tableAG.cast$w.SE_Region
+                            ,"Region.n"       = tableAG.cast$n_Region
+                            ,"ID.EB"          = tableAG.cast$EB_ID
+                            ,"MT.EB"          = tableAG.cast$EB_MT
+                            ,"OR.EB"          = tableAG.cast$EB_OR
+                            ,"WA.EB"          = tableAG.cast$EB_WA
+                            ,"Region.EB"      = tableAG.cast$EB_Region
+)
 
 tableAG.final.SF <- tableAG.final[which(tableAG.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAG.final) %in% c("BuildingType"))]

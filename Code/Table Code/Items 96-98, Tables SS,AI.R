@@ -72,7 +72,7 @@ item96.final <- proportionRowsAndColumns1(CustomerLevelData = item96.data
 
 item96.cast <- dcast(setDT(item96.final)
                      , formula = BuildingType + DHW.Fuel ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item96.table <- data.frame("BuildingType"       = item96.cast$BuildingType
                            ,"Water.Heater.Fuel" = item96.cast$DHW.Fuel
@@ -91,6 +91,11 @@ item96.table <- data.frame("BuildingType"       = item96.cast$BuildingType
                            ,"Percent_Region"    = item96.cast$w.percent_Region
                            ,"SE_Region"         = item96.cast$w.SE_Region
                            ,"n_Region"          = item96.cast$n_Region
+                           ,"EB_ID"             = item96.cast$EB_ID
+                           ,"EB_MT"             = item96.cast$EB_MT
+                           ,"EB_OR"             = item96.cast$EB_OR
+                           ,"EB_WA"             = item96.cast$EB_WA
+                           ,"EB_Region"         = item96.cast$EB_Region
 )
     #QAQC
     stopifnot(sum(item96.table[which(item96.table$BuildingType == "Single Family")
@@ -357,7 +362,7 @@ item98.final <- proportionRowsAndColumns1(CustomerLevelData = item98.data
 
 item98.cast <- dcast(setDT(item98.final)
                      , formula = BuildingType + DHW.Location ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item98.table <- data.frame("BuildingType"           = item98.cast$BuildingType
                            ,"Water.Heater.Location" = item98.cast$DHW.Location
@@ -376,6 +381,11 @@ item98.table <- data.frame("BuildingType"           = item98.cast$BuildingType
                            ,"Percent_Region"        = item98.cast$w.percent_Region
                            ,"SE_Region"             = item98.cast$w.SE_Region
                            ,"n_Region"              = item98.cast$n_Region
+                           ,"EB_ID"             = item98.cast$EB_ID
+                           ,"EB_MT"             = item98.cast$EB_MT
+                           ,"EB_OR"             = item98.cast$EB_OR
+                           ,"EB_WA"             = item98.cast$EB_WA
+                           ,"EB_Region"         = item98.cast$EB_Region
 )
 #QAQC
 stopifnot(sum(item98.table[which(item98.table$BuildingType == "Single Family")
@@ -503,6 +513,11 @@ tableSS.table <- data.frame("BuildingType"       = tableSS.cast$BuildingType
                            ,"Mean_Region"       = tableSS.cast$Mean_Region
                            ,"SE_Region"         = tableSS.cast$SE_Region
                            ,"n_Region"          = tableSS.cast$n_Region
+                           ,"EB_ID"             = item96.cast$EB_ID
+                           ,"EB_MT"             = item96.cast$EB_MT
+                           ,"EB_OR"             = item96.cast$EB_OR
+                           ,"EB_WA"             = item96.cast$EB_WA
+                           ,"EB_Region"         = item96.cast$EB_Region
 )
 
 # row ordering example code

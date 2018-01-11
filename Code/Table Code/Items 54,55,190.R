@@ -85,7 +85,7 @@ item54.final <- rbind.data.frame(item54.summary, item54.all.cooling.zones, strin
 
 item54.cast <- dcast(setDT(item54.final)
                      ,formula = BuildingType + Cooling.Zone ~ State
-                     ,value.var = c("w.percent","w.SE","count","N","n"))
+                     ,value.var = c("w.percent","w.SE","count","N","n", "EB"))
 
 item54.table <- data.frame("BuildingType"    = item54.cast$BuildingType
                            ,"Cooling.Zone"   = item54.cast$Cooling.Zone
@@ -103,7 +103,12 @@ item54.table <- data.frame("BuildingType"    = item54.cast$BuildingType
                            ,"n_WA"           = item54.cast$n_WA
                            ,"Percent_Region" = item54.cast$w.percent_Region
                            ,"SE_Region"      = item54.cast$w.SE_Region
-                           ,"n_Region"       = item54.cast$n_Region)
+                           ,"n_Region"       = item54.cast$n_Region
+                           ,"EB_ID"          = item54.cast$EB_ID
+                           ,"EB_MT"          = item54.cast$EB_MT
+                           ,"EB_OR"          = item54.cast$EB_OR
+                           ,"EB_WA"          = item54.cast$EB_WA
+                           ,"EB_Region"      = item54.cast$EB_Region)
 
 item54.table.SF <- item54.table[which(item54.table$BuildingType == "Single Family")
                                 ,which(colnames(item54.table) %notin% c("BuildingType"))]
@@ -235,7 +240,7 @@ item55.final <- rbind.data.frame(item55.summary, item55.all.cooling.zones, strin
 
 item55.cast <- dcast(setDT(item55.final)
                      ,formula = BuildingType + System.Type ~ Cooling.Zone
-                     ,value.var = c("w.percent","w.SE","count","N","n"))
+                     ,value.var = c("w.percent","w.SE","count","N","n","EB"))
 
 item55.table <- data.frame("BuildingType"               = item55.cast$BuildingType
                            ,"Cooling.System.Type"       = item55.cast$System.Type
@@ -250,7 +255,11 @@ item55.table <- data.frame("BuildingType"               = item55.cast$BuildingTy
                            ,"n.Cooling.Zone.3"          = item55.cast$n_3
                            ,"Percent.All.Cooling.Zones" = item55.cast$`w.percent_All Cooling Zones`
                            ,"SE.All.Cooling.Zones"      = item55.cast$`w.SE_All Cooling Zones`
-                           ,"n.All.Cooling.Zones"       = item55.cast$`n_All Cooling Zones`)
+                           ,"n.All.Cooling.Zones"       = item55.cast$`n_All Cooling Zones`
+                           ,"EB_Cooling.Zone.1"         = item55.cast$EB_1
+                           ,"EB_Cooling.Zone.2"         = item55.cast$EB_2
+                           ,"EB_Cooling.Zone.3"         = item55.cast$EB_3
+                           ,"EB_All.Cooling.Zones"      = item55.cast$`EB_All Cooling Zones`)
 # row ordering example code
 levels(item55.table$Cooling.System.Type)
 rowOrder <- c("Packaged AC"

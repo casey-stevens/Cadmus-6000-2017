@@ -187,7 +187,7 @@ item60.final <- proportionRowsAndColumns1(CustomerLevelData = item60.data
 
 item60.cast <- dcast(setDT(item60.final)
                      , formula = BuildingType + UnconditionedBins ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"Percentage.of.Ducts.in.Unconditioned.Space" = item60.cast$UnconditionedBins
@@ -206,6 +206,11 @@ item60.table <- data.frame("BuildingType"     = item60.cast$BuildingType
                            ,"Percent_Region" = item60.cast$w.percent_Region
                            ,"SE_Region"      = item60.cast$w.SE_Region
                            ,"n_Region"       = item60.cast$n_Region
+                           ,"EB_ID"          = item60.cast$EB_ID
+                           ,"EB_MT"          = item60.cast$EB_MT
+                           ,"EB_OR"          = item60.cast$EB_OR
+                           ,"EB_WA"          = item60.cast$EB_WA
+                           ,"EB_Region"      = item60.cast$EB_Region
 )
 
 levels(item60.table$Percentage.of.Ducts.in.Unconditioned.Space)

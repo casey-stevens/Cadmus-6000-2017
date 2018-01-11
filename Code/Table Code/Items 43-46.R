@@ -129,13 +129,9 @@ item43.final <- proportions_one_group(CustomerLevelData  = item43.data
 # export table
 # SF = Table 50, MH = Table 32
 item43.final.SF <- item43.final[which(item43.final$BuildingType == "Single Family")
-                                ,-which(colnames(item43.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item43.final) %in% c("BuildingType"))]
 item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item43.final) %in% c("BuildingType"
-                                                                      ,"Total.Count"
-                                                                      ,"Remove"))]
+                                ,-which(colnames(item43.final) %in% c("BuildingType"))]
 
 exportTable(item43.final.SF, "SF", "Table 50", weighted = FALSE)
 exportTable(item43.final.MH, "MH", "Table 32", weighted = FALSE)
@@ -223,7 +219,7 @@ item44.final <- proportionRowsAndColumns1(CustomerLevelData = item44.data
 
 item44.cast <- dcast(setDT(item44.final)
                       , formula = BuildingType + Heating_Fuel ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item44.table <- data.frame("BuildingType"    = item44.cast$BuildingType
                            ,"Heating.Fuel"   = item44.cast$Heating_Fuel
@@ -242,6 +238,11 @@ item44.table <- data.frame("BuildingType"    = item44.cast$BuildingType
                            ,"Percent_Region" = item44.cast$w.percent_Region
                            ,"SE_Region"      = item44.cast$w.SE_Region
                            ,"n_Region"       = item44.cast$n_Region
+                           ,"EB_ID"          = item44.cast$EB_ID
+                           ,"EB_MT"          = item44.cast$EB_MT
+                           ,"EB_OR"          = item44.cast$EB_OR
+                           ,"EB_WA"          = item44.cast$EB_WA
+                           ,"EB_Region"      = item44.cast$EB_Region
 )
 
 
@@ -362,7 +363,6 @@ item45.final <- proportions_one_group(CustomerLevelData  = item45.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Heating_Type'
                                       , total.name       = "Total"
-                                      , columnName       = "Secondary Heating Systems"
                                       , weighted = TRUE)
 
 item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Family")
@@ -474,9 +474,9 @@ item46.final <- proportionRowsAndColumns1(CustomerLevelData = item46.data
 
 item46.cast <- dcast(setDT(item46.final)
                      , formula = BuildingType + Heating_Fuel ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
+item46.table <- data.frame("BuildingType"    = item46.cast$BuildingType
                            ,"Heating.Fuel"   = item46.cast$Heating_Fuel
                            ,"Percent_ID"     = item46.cast$w.percent_ID
                            ,"SE_ID"          = item46.cast$w.SE_ID
@@ -493,6 +493,11 @@ item46.table <- data.frame("BuildingType"     = item46.cast$BuildingType
                            ,"Percent_Region" = item46.cast$w.percent_Region
                            ,"SE_Region"      = item46.cast$w.SE_Region
                            ,"n_Region"       = item46.cast$n_Region
+                           ,"EB_ID"          = item46.cast$EB_ID
+                           ,"EB_MT"          = item46.cast$EB_MT
+                           ,"EB_OR"          = item46.cast$EB_OR
+                           ,"EB_WA"          = item46.cast$EB_WA
+                           ,"EB_Region"      = item46.cast$EB_Region
 )
 
 

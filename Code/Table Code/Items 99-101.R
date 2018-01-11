@@ -157,7 +157,7 @@ item99.final <- rbind.data.frame(item99.final, item99.all.fuels)
 
 item99.cast <- dcast(setDT(item99.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
                            ,"DHW.Location"        = item99.cast$DHW.Location
@@ -181,7 +181,14 @@ item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
                            ,"n.Wood"              = item99.cast$n_Wood
                            ,"Percent.All.Heating.Fuel.Types" = item99.cast$`w.percent_All Fuels`
                            ,"SE.All.Heating.Fuel.Types"      = item99.cast$`w.SE_All Fuels`
-                           ,"n.All.Heating.Fuel.Types"       = item99.cast$`n_All Fuels`)
+                           ,"n.All.Heating.Fuel.Types"       = item99.cast$`n_All Fuels`
+                           ,"EB_Electric"          = item99.cast$EB_Electric
+                           ,"EB_Gas"               = item99.cast$EB_Gas
+                           ,"EB_Oil"               = item99.cast$EB_Oil
+                           ,"EB_Pellets"           = item99.cast$EB_Pellets
+                           ,"EB_Propane"           = item99.cast$EB_Propane
+                           ,"EB_Wood"              = item99.cast$EB_Wood
+                           ,"EB_All.Heating.Fuels" = item99.cast$`EB_All Fuels`)
 
 item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Family")
                                 ,-which(colnames(item99.table) %in% c("BuildingType"))]
@@ -385,7 +392,7 @@ item100.final <- rbind.data.frame(item100.final, item100.all.fuels)
 
 item100.cast <- dcast(setDT(item100.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                     ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item100.table <- data.frame("BuildingType"        = item100.cast$BuildingType
                            ,"DHW.Location"        = item100.cast$DHW.Location
@@ -409,7 +416,14 @@ item100.table <- data.frame("BuildingType"        = item100.cast$BuildingType
                            ,"n.Wood"              = item100.cast$n_Wood
                            ,"Percent.All.Heating.Fuel.Types" = item100.cast$`w.percent_All Fuels`
                            ,"SE.All.Heating.Fuel.Types"      = item100.cast$`w.SE_All Fuels`
-                           ,"n.All.Heating.Fuel.Types"       = item100.cast$`n_All Fuels`)
+                           ,"n.All.Heating.Fuel.Types"       = item100.cast$`n_All Fuels`
+                           ,"EB_Electric"          = item100.cast$EB_Electric
+                           ,"EB_Gas"               = item100.cast$EB_Gas
+                           ,"EB_Oil"               = item100.cast$EB_Oil
+                           ,"EB_Pellets"           = item100.cast$EB_Pellets
+                           ,"EB_Propane"           = item100.cast$EB_Propane
+                           ,"EB_Wood"              = item100.cast$EB_Wood
+                           ,"EB_All.Heating.Fuels" = item100.cast$`EB_All Fuels`)
 
 item100.final.SF <- item100.table[which(item100.table$BuildingType == "Single Family")
                                 ,-which(colnames(item100.table) %in% c("BuildingType"))]
@@ -478,7 +492,7 @@ exportTable(item100.final.SF, "SF", "Table 107", weighted = FALSE)
 #Item 101: DISTRIBUTION OF GAS WATER HEATER LOCATIONS BY SPACE HEATING FUEL TYPE (SF table 108)
 #############################################################################################
 item101.merge <- item100.join1[which(item100.join1$DHW.Fuel == "Natural Gas"),]
-
+item101.merge <- item101.merge[which(item101.merge$Heating.Fuel != "Can't Determine"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -515,7 +529,7 @@ item101.final <- rbind.data.frame(item101.final, item101.all.fuels)
 
 item101.cast <- dcast(setDT(item101.final)
                       ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 names(item101.cast)
 item101.table <- data.frame("BuildingType"         = item101.cast$BuildingType
                             ,"DHW.Location"        = item101.cast$DHW.Location
@@ -539,7 +553,14 @@ item101.table <- data.frame("BuildingType"         = item101.cast$BuildingType
                             ,"n.Wood"              = item101.cast$n_Wood
                             ,"Percent.All.Heating.Fuel.Types" = item101.cast$`w.percent_All Fuels`
                             ,"SE.All.Heating.Fuel.Types"      = item101.cast$`w.SE_All Fuels`
-                            ,"n.All.Heating.Fuel.Types"       = item101.cast$`n_All Fuels`)
+                            ,"n.All.Heating.Fuel.Types"       = item101.cast$`n_All Fuels`
+                            ,"EB_Electric"          = item101.cast$EB_Electric
+                            ,"EB_Gas"               = item101.cast$EB_Gas
+                            # ,"EB_Oil"               = item101.cast$EB_Oil
+                            ,"EB_Pellets"           = item101.cast$EB_Pellets
+                            # ,"EB_Propane"           = item101.cast$EB_Propane
+                            ,"EB_Wood"              = item101.cast$EB_Wood
+                            ,"EB_All.Heating.Fuels" = item101.cast$`EB_All Fuels`)
 
 item101.final.SF <- item101.table[which(item101.table$BuildingType == "Single Family")
                                   ,-which(colnames(item101.table) %in% c("BuildingType"))]
