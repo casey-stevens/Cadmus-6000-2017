@@ -93,6 +93,8 @@ for(i in 1:ncol(prep.dat3)){
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.1))] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "12")] <- "12 inches"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "5.5")] <- "5.5 inches"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "20 or more inches")] <- "20 inches"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.2))] <- "N/A N/A"
@@ -261,6 +263,9 @@ prep.dat4.5$total.r.val <- NA
 unique(prep.dat4.5$ceiling.rvalues1)
 unique(prep.dat4.5$ceiling.rvalues2)
 unique(prep.dat4.5$ceiling.rvalues3)
+unique(prep.dat4.5$ceiling.inches1)
+unique(prep.dat4.5$ceiling.inches2)
+unique(prep.dat4.5$ceiling.inches3)
 
 ## Clean condition values
 prep.dat4.5$Ceiling.Insulation.Condition.1   <- as.character(prep.dat4.5$Ceiling.Insulation.Condition.1)

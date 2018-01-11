@@ -318,7 +318,7 @@ item109.final <- rbind.data.frame(item109.summary, item109.all.vintages, strings
 
 item109.cast <- dcast(setDT(item109.final)
                       ,BuildingType + EquipVintage_bins ~ TV.Screen.Type
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Vintage"        = item109.cast$EquipVintage_bins
@@ -340,7 +340,13 @@ item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Percent_Other"  = item109.cast$w.percent_Other
                             ,"SE_Other"       = item109.cast$w.SE_Other
                             # ,"n_Other"        = item109.cast$n_Other
-                            ,"n"     = item109.cast$n_Total
+                            ,"n"              = item109.cast$n_Total
+                            ,"EB_CRT"         = item109.cast$EB_CRT
+                            ,"EB_LED"         = item109.cast$EB_LED
+                            ,"EB_LCD"         = item109.cast$EB_LCD
+                            ,"EB_LED.LCD"     = item109.cast$`EB_LED LCD`
+                            ,"EB_Plasma"      = item109.cast$EB_Plasma
+                            ,"EB_Other"       = item109.cast$EB_Other
                             )
 
 unique(item109.table$Vintage)

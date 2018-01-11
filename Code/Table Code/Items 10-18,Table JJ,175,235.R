@@ -2773,17 +2773,28 @@ wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFacto
 
 wall.cast <- dcast(setDT(wall.table.JJ)
                    ,formula = BuildingType + State ~ Category
-                   ,value.var = c("Mean", "SE","n", "n_h", "N_h"))
+                   ,value.var = c("Mean", "SE","n", "n_h", "N_h","EB"))
 wall.cast <- data.frame(wall.cast, stringsAsFactors = F)
 
-wall.table <- data.frame("BuildingType" = wall.cast$BuildingType
-                         ,"State" = wall.cast$State
-                         ,"Wall.Insulation" = wall.cast$Mean_Wall.R.Value
-                         ,"Wall.Insulation.SE" = wall.cast$SE_Wall.R.Value
-                         ,"Wall.Insulation.n" = wall.cast$n_2x6.Framed.Wall.R.Value
-                         ,"R.Value.Framed.2x6.Wall" = wall.cast$Mean_2x6.Framed.Wall.R.Value
+wall.table <- data.frame("BuildingType"                = wall.cast$BuildingType
+                         ,"State"                      = wall.cast$State
+                         ,"Wall.Insulation"            = wall.cast$Mean_Wall.R.Value
+                         ,"Wall.Insulation.SE"         = wall.cast$SE_Wall.R.Value
+                         ,"Wall.Insulation.n"          = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall"    = wall.cast$Mean_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
-                         ,"R.Value.Framed.2x6.Wall.n" = wall.cast$n_2x6.Framed.Wall.R.Value)
+                         ,"R.Value.Framed.2x6.Wall.n"  = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"Wall.Insulation.EB"         = wall.cast$EB_Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall.EB" = wall.cast$EB_2x6.Framed.Wall.R.Value
+                         )
+levels(wall.table$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+wall.table <- wall.table %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+wall.table <- data.frame(wall.table)
 
 wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
                                   ,which(colnames(wall.table) %notin% c("BuildingType"))]
@@ -2823,6 +2834,14 @@ wall.table <- data.frame("BuildingType" = wall.cast$BuildingType
                          ,"R.Value.Framed.2x6.Wall" = wall.cast$Mean_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.n" = wall.cast$n_2x6.Framed.Wall.R.Value)
+levels(wall.table$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+wall.table <- wall.table %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+wall.table <- data.frame(wall.table)
 
 wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
                                ,which(colnames(wall.table) %notin% c("BuildingType"))]
