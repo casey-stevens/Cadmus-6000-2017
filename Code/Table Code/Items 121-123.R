@@ -96,11 +96,9 @@ item122.final <- mean_one_group(item122.data
                                 ,aggregateRow = 'Region')
 
 item122.final.SF <- item122.final[which(item122.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item122.final) %in% c("BuildingType"
-                                                                         ,"Count"))]
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"))]
 item122.final.MH <- item122.final[which(item122.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item122.final) %in% c("BuildingType"
-                                                                         ,"Count"))]
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"))]
 
 exportTable(item122.final.SF, "SF", "Table 129", weighted = TRUE)
 exportTable(item122.final.MH, "MH", "Table 104", weighted = TRUE)
@@ -116,13 +114,9 @@ item122.final <- mean_one_group_unweighted(item122.data
                                            ,aggregateRow = 'Region')
 
 item122.final.SF <- item122.final[which(item122.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item122.final) %in% c("BuildingType"
-                                                                         ,"Count"
-                                                                         ,"count"))]
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"))]
 item122.final.MH <- item122.final[which(item122.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item122.final) %in% c("BuildingType"
-                                                                         ,"Count"
-                                                                         ,"count"))]
+                                  ,-which(colnames(item122.final) %in% c("BuildingType"))]
 
 exportTable(item122.final.SF, "SF", "Table 129", weighted = FALSE)
 exportTable(item122.final.MH, "MH", "Table 104", weighted = FALSE)
@@ -221,6 +215,11 @@ item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
                             ,"Mean_Region"    = item123.cast$Mean_Region
                             ,"SE_Region"      = item123.cast$SE_Region
                             ,"n_Region"       = item123.cast$n_Region
+                            ,"EB_ID"          = item123.cast$EB_ID
+                            ,"EB_MT"          = item123.cast$EB_MT
+                            ,"EB_OR"          = item123.cast$EB_OR
+                            ,"EB_WA"          = item123.cast$EB_WA
+                            ,"EB_Region"      = item123.cast$EB_Region
 )
 
 item123.final.SF <- item123.table[which(item123.table$BuildingType == "Single Family")
