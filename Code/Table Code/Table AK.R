@@ -86,22 +86,6 @@ tableAK.dat2$Heating.System.Ind[which(tableAK.dat2$Primary.Heating.System == "Ye
 tableAK.dat2$Heating.System.Ind[which(tableAK.dat2$Primary.Heating.System == "No")]  <- "Secondary Heating System"
 
 unique(tableAK.dat2$`System.Sub-Type`)
-
-for (ii in 1:nrow(tableAK.dat2)){
-  if (tableAK.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-    tableAK.dat2$Generic[ii] <- tableAK.dat2$`System.Sub-Type`[ii]
-  }
-  if (tableAK.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
-    tableAK.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
-  }
-  if (tableAK.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
-    tableAK.dat2$Generic[ii] <- "Plug-In Heaters"
-  }
-}
-
-tableAK.dat2$Generic[which(tableAK.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
-tableAK.dat2$Generic[which(tableAK.dat2$Generic == "Zonal Heat")] <- "Other Zonal Heat"
-
 unique(tableAK.dat2$Generic)
 
 tableAK.dat3 <-tableAK.dat2[which(tableAK.dat2$Primary.Heating.System == "Yes"),]
@@ -124,9 +108,7 @@ tableAK.dat5 <- tableAK.dat4[which(!is.na(tableAK.dat4$Heating.Capacity)),]
 tableAK.dat6 <- tableAK.dat5[which(tableAK.dat5$Heating.Fuel == "Electric"),]
 unique(tableAK.dat6$Generic)
 tableAK.dat7 <- tableAK.dat6[which(tableAK.dat6$Generic %in% c("Air Source Heat Pump"
-                                                               ,"Dual Fuel Primary"
                                                                ,"Furnace"
-                                                               ,"Air Handler"
                                                                ,"GeoThermal Heat Pump")),]
 
 unique(tableAK.dat7$`Heating.Capacity.Units.-.High`)
