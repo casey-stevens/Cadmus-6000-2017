@@ -354,7 +354,8 @@ exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
 tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,valueVariable = "Ind"
                                        ,groupingVariable = "Type"
-                                       ,total.name = "Region")
+                                       ,total.name = "Region"
+                                       ,weighted = FALSE)
 tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
 tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
