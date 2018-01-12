@@ -658,7 +658,7 @@ item160.final <- rbind.data.frame(item160.summary
 ##cast data
 item160.cast <- dcast(setDT(item160.final),
                      formula   = BuildingType + Wall.Type ~ rvalue.bins,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 #join all insulation levels onto rvalue summary
 item160.table <- data.frame("BuildingType"    = item160.cast$BuildingType
@@ -682,6 +682,12 @@ item160.table <- data.frame("BuildingType"    = item160.cast$BuildingType
                            ,"SE.All Insulation Levels"      = item160.cast$`w.SE_All Insulation Levels`
                            # ,"count.All Insulation Levels"   = item160.cast$`count_All Insulation Levels`
                            ,"n"                    = item160.cast$`n_All Insulation Levels`
+                           ,"EB.R0"           = item160.cast$EB_R0
+                           ,"EB.R1.R10"       = item160.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item160.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item160.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item160.cast$EB_RGT22
+                           ,"EB.All Insulation Levels"      = item160.cast$`EB_All Insulation Levels`
 )
 
 # row ordering example code

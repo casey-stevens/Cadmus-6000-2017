@@ -138,6 +138,8 @@ for(i in 1:ncol(prep.dat3)){
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.1))] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "12")] <- "12 inches"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "5.5")] <- "5.5 inches"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "20 or more inches")] <- "20 inches"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.2))] <- "N/A N/A"
@@ -307,8 +309,18 @@ unique(prep.dat4.5$ceiling.rvalues1)
 unique(prep.dat4.5$ceiling.rvalues2)
 unique(prep.dat4.5$ceiling.rvalues3)
 
-# clean up condition information
-prep.dat4.5$Ceiling.Insulation.Condition.1 <- prep.dat4.5$Ceiling.Insulation.Condition.1 / 100
+## Clean condition values
+prep.dat4.5$Ceiling.Insulation.Condition.1   <- as.character(prep.dat4.5$Ceiling.Insulation.Condition.1)
+prep.dat4.5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat4.5$Ceiling.Insulation.Condition.1))] <- "NA"
+unique(prep.dat4.5$Ceiling.Insulation.Condition.1)
+
+for(ii in 1:nrow(prep.dat4.5)){
+  if(prep.dat4.5$Ceiling.Insulation.Condition.1[ii] %notin% c("1","0.75", "0.9")){
+    prep.dat4.5$Ceiling.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Ceiling.Insulation.Condition.1)[ii] / 100
+  }
+}
+
+prep.dat4.5$Ceiling.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Ceiling.Insulation.Condition.1))
 
 prep.condition.sub1 <- prep.dat4.5[which(prep.dat4.5$Ceiling.Insulation.Condition.1 %notin% c(1, NA, 0)),]
 prep.condition.sub1$Ceiling.Insulation.Condition.1 <- 1 - prep.condition.sub1$Ceiling.Insulation.Condition.1

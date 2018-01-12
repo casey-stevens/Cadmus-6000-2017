@@ -119,6 +119,19 @@ item156.table <- data.frame("BuildingType"    = item156.cast$BuildingType
                             ,"EB_Region"      = item156.cast$EB_Region
 )
 
+# If final table have <NA> something was named incorrectly
+levels(item156.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"Total")
+item156.table <- item156.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item156.table <- data.frame(item156.table)
 
 item156.final.SF <- item156.table[which(item156.table$BuildingType == "Single Family")
                                   ,-which(colnames(item156.table) %in% c("BuildingType"))]
@@ -164,6 +177,19 @@ item156.table <- data.frame("BuildingType"    = item156.cast$BuildingType
                             ,"n_Region"       = item156.cast$n_Region
 )
 
+# If final table have <NA> something was named incorrectly
+levels(item156.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"Total")
+item156.table <- item156.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item156.table <- data.frame(item156.table)
 
 item156.final.SF <- item156.table[which(item156.table$BuildingType == "Single Family")
                                   ,-which(colnames(item156.table) %in% c("BuildingType"))]
