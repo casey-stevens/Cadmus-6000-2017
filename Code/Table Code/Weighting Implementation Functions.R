@@ -117,7 +117,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     item.region <- data.frame(ddply(item.strata, "BuildingType", summarise
                                     ,byRow  = aggregateRow
                                     ,Mean   = sum(N_h * strataMean) / sum(N_h)
-                                    ,SE     = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                                    ,SE     = 1 / nrow(item.group) * sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                     ,n      = unique((n_h))
                                     ,n_h    = unique((n_h))
                                     ,N_h    = unique((N_h))

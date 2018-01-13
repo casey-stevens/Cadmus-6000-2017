@@ -93,6 +93,8 @@ for(i in 1:ncol(prep.dat3)){
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.1))] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "12")] <- "12 inches"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "5.5")] <- "5.5 inches"
+prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "20 or more inches")] <- "20 inches"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
 prep.dat3$Ceiling.Insulation.Thickness.2[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.2))] <- "N/A N/A"
@@ -261,6 +263,9 @@ prep.dat4.5$total.r.val <- NA
 unique(prep.dat4.5$ceiling.rvalues1)
 unique(prep.dat4.5$ceiling.rvalues2)
 unique(prep.dat4.5$ceiling.rvalues3)
+unique(prep.dat4.5$ceiling.inches1)
+unique(prep.dat4.5$ceiling.inches2)
+unique(prep.dat4.5$ceiling.inches3)
 
 ## Clean condition values
 prep.dat4.5$Ceiling.Insulation.Condition.1   <- as.character(prep.dat4.5$Ceiling.Insulation.Condition.1)
@@ -346,13 +351,13 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 
 
-rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
-ceiling.merge <- left_join(rbsa.ceiling, prep.dat5)
-#########export rvalues
-##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
+# ceiling.merge <- left_join(rbsa.ceiling, prep.dat5)
+# #########export rvalues
+# ##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 
@@ -430,12 +435,16 @@ tableJJ.attic <- mean_one_group(CustomerLevelData = item26.data
                                 ,valueVariable = "aveRval"
                                 ,byVariable = "State"
                                 ,aggregateRow = "Region")
+tableJJ.attic.SF <- tableJJ.attic[which(tableJJ.attic$BuildingType == "Single Family")
+                                  , which(colnames(tableJJ.attic) != "BuildingType")]
 
 ######## Unweighted
-tableJJ.attic <- mean_one_group_unweighted(CustomerLevelData = item26.data
+tableJJ.attic.unw <- mean_one_group_unweighted(CustomerLevelData = item26.data
                                 ,valueVariable = "aveRval"
                                 ,byVariable = "State"
                                 ,aggregateRow = "Region")
+tableJJ.attic.unw.SF <- tableJJ.attic.unw[which(tableJJ.attic.unw$BuildingType == "Single Family")
+                                          , which(colnames(tableJJ.attic.unw) != "BuildingType")]
 
 
 

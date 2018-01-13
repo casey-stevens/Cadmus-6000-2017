@@ -51,21 +51,12 @@ envelope.dat$BasementInd <- 0
 basement.tmp <- envelope.dat$CK_Cadmus_ID[which(envelope.dat$Floor.Type == "Basement")]
 envelope.dat$BasementInd[which(envelope.dat$CK_Cadmus_ID %in% basement.tmp)] <- 1
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                                  ,"Floor.Type"
-                                                                  # ,"ENV_Construction_BLDG_STRUCTURE_BldgLevel_Area_SqFt"
+                                                                  ,"CK_SiteID"
                                                                   ,"BasementInd"))]
 colnames(envelope.dat1) <- c("CK_Cadmus_ID"
-                             # ,"Floor_Area"
-                             ,"Floor_Type" 
+                             ,"CK_Building_ID"
                              ,"BasementInd")
-env.buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
-env.buildings.dat$CK_Cadmus_ID <- trimws(toupper(env.buildings.dat$CK_Cadmus_ID))
-env.buildings.dat <- env.buildings.dat[which(colnames(env.buildings.dat) %in% c("CK_Cadmus_ID"
-                                                                                ,"SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages "))]
-colnames(env.buildings.dat) <- c("CK_Cadmus_ID"
-                                 ,"Floor_Area")
-
-envelope.dat1 <- left_join(envelope.dat1, env.buildings.dat)
+envelope.dat1 <- unique(envelope.dat1[-which(colnames(envelope.dat1) == "CK_Cadmus_ID")])
 
 #Rooms for MH and MF
 rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
@@ -73,7 +64,7 @@ rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 
 rooms.dat1 <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID","CK_SiteID","Clean.Type","Area"))]
 rooms.dat2 <- rooms.dat1[grep("SITE",rooms.dat1$CK_SiteID),]
-colnames(rooms.dat2) <- c("CK_Cadmus_ID", "Site_ID", "Room_Type", "Room_Area")
+colnames(rooms.dat2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Room_Type", "Room_Area")
 
 
 
@@ -111,47 +102,43 @@ item35.windows2 <- summarise(group_by(item35.windows1, CK_Cadmus_ID)
                              ,WindowArea = sum(Window_Area))
 
 
-
-#############################################################################################
-#FOR SINGLE FAMILY
-#############################################################################################
-
-floor.dat <- item35.ENV#[which(!(is.na(item35.ENV$Floor_Area))),]
-length(unique(floor.dat$CK_Cadmus_ID)) 
-
-#convert to numeric
-floor.dat$Floor_Area <- as.numeric(as.character(floor.dat$Conditioned.Area))
-
-#keep only Floor area greater than zero
-floor.dat1 <- floor.dat[which(floor.dat$Floor_Area > 0),]
-
-## Subset to only single family
-floor.dat2 <- floor.dat1[which(floor.dat1$BuildingType == "Single Family"),]
-
-#summarize data by cadmus ID and building type
-floor.sum <- summarise(group_by(floor.dat2, CK_Cadmus_ID)
-                       ,BasementInd = sum(unique(BasementInd))
-                       ,FloorArea_Site = unique(Floor_Area))
-
-
 ##########################################
 # Merge Window and Floor Area
 ##########################################
-# merge window and room averages
-item35.dat <- left_join(item35.windows2, floor.sum)
+item35.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Floor.Type"
+                                                               ,"Floor.Sub-Type"))]
 
-# Subset to only single family
-item35.dat1 <- item35.dat[which(!is.na(item35.dat$BasementInd)),]
+item35.dat1 <- left_join(rbsa.dat, item35.dat, by = "CK_Cadmus_ID")
+
+#subset to only single family homes
+item35.dat2 <- item35.dat1[which(item35.dat1$BuildingType == "Single Family"),]
+item35.dat2$count <- 1
+
+item35.dat2$Ind <- 0
+item35.dat2$Ind[which(item35.dat2$Floor.Type == "Basement")] <- 1
+
+item35.dat3 <- unique(item35.dat2[which(item35.dat2$Ind == 1),])
+item35.dat4 <- left_join(rbsa.dat, item35.dat3)
+item35.dat4$Ind[which(is.na(item35.dat4$Ind))] <- 0
+
+
+# merge window and room averages
+item35.dat <- left_join(item35.dat4, item35.windows2)
+item35.dat <- item35.dat[grep("site", item35.dat$CK_Building_ID, ignore.case = T),]
+item35.dat1 <- item35.dat[-which(duplicated(item35.dat$CK_Cadmus_ID)),]
+item35.dat1 <- item35.dat1[which(item35.dat1$Conditioned.Area > 0),]
 
 #calculate the window to floor ratio
-item35.dat1$WindowToFloorArea <- item35.dat1$WindowArea / item35.dat1$FloorArea_Site
+item35.dat1$WindowToFloorArea <- item35.dat1$WindowArea / item35.dat1$Conditioned.Area
+item35.dat1 <- item35.dat1[which(item35.dat1$WindowToFloorArea < 1),]
 
 #remove missing ratio information (missing floor area info)
-item35.dat2 <- item35.dat1[which(!(is.na(item35.dat1$WindowToFloorArea))),]
+item35.dat2 <- item35.dat1[which(!is.na(item35.dat1$WindowToFloorArea)),]
 
-item35.dat2$Basement <- item35.dat2$BasementInd
-item35.dat2$Basement[which(item35.dat2$BasementInd == 0)] <- "Home without Basements"
-item35.dat2$Basement[which(item35.dat2$BasementInd == 1)] <- "Home with Basements"
+item35.dat2$Basement <- item35.dat2$Ind
+item35.dat2$Basement[which(item35.dat2$Ind == 0)] <- "Home without Basements"
+item35.dat2$Basement[which(item35.dat2$Ind == 1)] <- "Home with Basements"
 
 item35.merge <- left_join(rbsa.dat, item35.dat2)
 item35.merge <- item35.merge[which(!is.na(item35.merge$Basement)),]
@@ -160,15 +147,19 @@ item35.merge <- item35.merge[which(!is.na(item35.merge$Basement)),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item35.data <- weightedData(item35.merge[-which(colnames(item35.merge) %in% c("WindowArea"
-                                                                              ,"BasementInd"
-                                                                              ,"FloorArea_Site"
+item35.data <- weightedData(item35.merge[-which(colnames(item35.merge) %in% c("Floor.Type"
+                                                                              ,"Floor.Sub-Type"
+                                                                              ,"count"
+                                                                              ,"WindowArea"
+                                                                              ,"Ind"
                                                                               ,"WindowToFloorArea"
                                                                               ,"Basement"))])
 item35.data <- left_join(item35.data, item35.merge[which(colnames(item35.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Floor.Type"
+                                                                                       ,"Floor.Sub-Type"
+                                                                                       ,"count"
                                                                                        ,"WindowArea"
-                                                                                       ,"BasementInd"
-                                                                                       ,"FloorArea_Site"
+                                                                                       ,"Ind"
                                                                                        ,"WindowToFloorArea"
                                                                                        ,"Basement"))])
 item35.data$count <- 1

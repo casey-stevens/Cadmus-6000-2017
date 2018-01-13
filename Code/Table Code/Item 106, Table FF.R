@@ -89,7 +89,7 @@ item106.final <- proportionRowsAndColumns1(CustomerLevelData = item106.data
 
 item106.cast <- dcast(setDT(item106.final)
                      , formula = BuildingType + GPM_bins ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item106.table <- data.frame("BuildingType"   = item106.cast$BuildingType
                            ,"Flow.Rate.GPM"  = item106.cast$GPM_bins
@@ -108,11 +108,25 @@ item106.table <- data.frame("BuildingType"   = item106.cast$BuildingType
                            ,"Percent_Region" = item106.cast$w.percent_Region
                            ,"SE_Region"      = item106.cast$w.SE_Region
                            ,"n_Region"       = item106.cast$n_Region
-)
+                           ,"EB_ID"          = item106.cast$EB_ID
+                           ,"EB_MT"          = item106.cast$EB_MT
+                           ,"EB_OR"          = item106.cast$EB_OR
+                           ,"EB_WA"          = item106.cast$EB_WA
+                           ,"EB_Region"      = item106.cast$EB_Region
+) 
 #QAQC
 stopifnot(sum(item106.table[which(item106.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item106.table))], na.rm = T) == 10)
 
+levels(item106.table$Flow.Rate.GPM)
+rowOrder <- c("< 1.5"
+              ,"1.6-2.0"
+              ,"2.1-2.5"
+              ,"2.6-3.5"
+              ,"> 3.6"
+              ,"Total")
+item106.table <- item106.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+item106.table <- data.frame(item106.table)
 
 item106.final.SF <- item106.table[which(item106.table$BuildingType == "Single Family")
                                 ,-which(colnames(item106.table) %in% c("BuildingType"))]
@@ -161,6 +175,15 @@ item106.table <- data.frame("BuildingType"   = item106.cast$BuildingType
 stopifnot(sum(item106.table[which(item106.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item106.table))], na.rm = T) == 10)
 
+levels(item106.table$Flow.Rate.GPM)
+rowOrder <- c("< 1.5"
+              ,"1.6-2.0"
+              ,"2.1-2.5"
+              ,"2.6-3.5"
+              ,"> 3.6"
+              ,"Total")
+item106.table <- item106.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+item106.table <- data.frame(item106.table)
 
 item106.final.SF <- item106.table[which(item106.table$BuildingType == "Single Family")
                                 ,-which(colnames(item106.table) %in% c("BuildingType"))]

@@ -785,6 +785,11 @@ tableAF.table <- data.frame("BuildingType"    = tableAF.cast$BuildingType
                             ,"Region"         = tableAF.cast$Mean_Region
                             ,"Region.SE"      = tableAF.cast$SE_Region
                             ,"Region.n"       = tableAF.cast$n_Region
+                            ,"ID.EB"          = tableAF.cast$EB_ID
+                            ,"MT.EB"          = tableAF.cast$EB_MT
+                            ,"OR.EB"          = tableAF.cast$EB_OR
+                            ,"WA.EB"          = tableAF.cast$EB_WA
+                            ,"Region.EB"      = tableAF.cast$EB_Region
 )
 
 levels(tableAF.table$Lamp.Category)

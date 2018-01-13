@@ -172,7 +172,7 @@ item166.final$Framing.Categories[which(item166.final$Framing.Categories == "Tota
 
 item166.cast <- dcast(setDT(item166.final)
                       , formula = BuildingType + Framing.Categories ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item166.table <- data.frame("BuildingType"    = item166.cast$BuildingType
                             ,"Framing.Categories"= item166.cast$Framing.Categories
@@ -196,8 +196,25 @@ item166.table <- data.frame("BuildingType"    = item166.cast$BuildingType
                             ,"SE_Region"      = item166.cast$w.SE_Region
                             # ,"Count_Region"   = item166.cast$count_Region
                             ,"n_Region"       = item166.cast$n_Region
+                            ,"EB_ID"          = item166.cast$EB_ID
+                            ,"EB_MT"          = item166.cast$EB_MT
+                            ,"EB_OR"          = item166.cast$EB_OR
+                            ,"EB_WA"          = item166.cast$EB_WA
+                            ,"EB_Region"      = item166.cast$EB_Region
 )
 
+levels(item166.table$Framing.Categories)
+rowOrder <- c("Metal Single Glazed"
+              ,"Metal Double Glazed"
+              ,"Metal Triple Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+              ,"Other Double Glazed" 
+              ,"All Framing Types"
+)
+item166.table <- item166.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
+item166.table <- data.frame(item166.table)
 
 item166.final.SF <- item166.table[which(item166.table$BuildingType == "Single Family")
                                   ,-which(colnames(item166.table) %in% c("BuildingType"))]
@@ -240,6 +257,18 @@ item166.table <- data.frame("BuildingType"    = item166.cast$BuildingType
                             ,"n_Region"   = item166.cast$n_Region
 )
 
+levels(item166.table$Framing.Categories)
+rowOrder <- c("Metal Single Glazed"
+              ,"Metal Double Glazed"
+              ,"Metal Triple Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+              ,"Other Double Glazed" 
+              ,"All Framing Types"
+)
+item166.table <- item166.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
+item166.table <- data.frame(item166.table)
 
 item166.final.SF <- item166.table[which(item166.table$BuildingType == "Single Family")
                                   ,-which(colnames(item166.table) %in% c("BuildingType"))]

@@ -72,7 +72,7 @@ item124.final <- proportionRowsAndColumns1(CustomerLevelData = item124.data
 
 item124.cast <- dcast(setDT(item124.final)
                      , formula = BuildingType + Ownership.Type ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item124.table <- data.frame("BuildingType"   = item124.cast$BuildingType
                            ,"Ownership.Type" = item124.cast$Ownership.Type
@@ -91,6 +91,11 @@ item124.table <- data.frame("BuildingType"   = item124.cast$BuildingType
                            ,"Percent_Region" = item124.cast$w.percent_Region
                            ,"SE_Region"      = item124.cast$w.SE_Region
                            ,"n_Region"       = item124.cast$n_Region
+                           ,"EB_ID"          = item124.cast$EB_ID
+                           ,"EB_MT"          = item124.cast$EB_MT
+                           ,"EB_OR"          = item124.cast$EB_OR
+                           ,"EB_WA"          = item124.cast$EB_WA
+                           ,"EB_Region"      = item124.cast$EB_Region
 )
 #QAQC
 stopifnot(sum(item124.table[which(item124.table$BuildingType == "Single Family")
@@ -294,7 +299,7 @@ item127.final <- proportionRowsAndColumns1(CustomerLevelData = item127.data
 
 item127.cast <- dcast(setDT(item127.final)
                       , formula = BuildingType + Percent.Assistance ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item127.table <- data.frame("BuildingType"        = item127.cast$BuildingType
                             ,"Percent.Assistance" = item127.cast$Percent.Assistance
@@ -313,6 +318,11 @@ item127.table <- data.frame("BuildingType"        = item127.cast$BuildingType
                             ,"Percent_Region"     = item127.cast$w.percent_Region
                             ,"SE_Region"          = item127.cast$w.SE_Region
                             ,"n_Region"           = item127.cast$n_Region
+                            ,"EB_ID"          = item127.cast$EB_ID
+                            ,"EB_MT"          = item127.cast$EB_MT
+                            ,"EB_OR"          = item127.cast$EB_OR
+                            ,"EB_WA"          = item127.cast$EB_WA
+                            ,"EB_Region"      = item127.cast$EB_Region
 )
 
 # row ordering example code
@@ -398,8 +408,7 @@ exportTable(item127.final.MH, "MH", "Table 109", weighted = FALSE)
 
 
 #############################################################################################
-#Item 127: DISTRIBUTION OF HOMES WITH ELECTRIC FUEL ASSISTANCE BY PERCENTAGE OF ASSISTANCE AND STATE 
-# (SF table 134, MH table 109)
+#TABLE AD: Percent of homes reporting having completed an energy audit in the last two years
 #############################################################################################
 #subset to columns needed for analysis
 tableAD.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"

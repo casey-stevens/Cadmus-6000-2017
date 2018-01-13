@@ -153,7 +153,26 @@ item159.table <- data.frame("BuildingType"    = item159.cast$BuildingType
                             ,"Mean_Region"    = item159.cast$Mean_Region
                             ,"SE_Region"      = item159.cast$SE_Region
                             ,"n_Region"       = item159.cast$n_Region
+                            ,"EB_ID"          = item159.cast$EB_ID
+                            ,"EB_MT"          = item159.cast$EB_MT
+                            ,"EB_OR"          = item159.cast$EB_OR
+                            ,"EB_WA"          = item159.cast$EB_WA
+                            ,"EB_Region"      = item159.cast$EB_Region
 )
+
+# If final table have <NA> something was named incorrectly
+levels(item159.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item159.table <- item159.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item159.table <- data.frame(item159.table)
 
 item159.final.SF <- item159.table[which(item159.table$BuildingType == "Single Family")
                                   ,-which(colnames(item159.table) %in% c("BuildingType"))]
@@ -189,6 +208,20 @@ item159.table <- data.frame("BuildingType"    = item159.cast$BuildingType
                             ,"SE_Region"      = item159.cast$SE_Region
                             ,"n_Region"       = item159.cast$n_Region
 )
+
+# If final table have <NA> something was named incorrectly
+levels(item159.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item159.table <- item159.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item159.table <- data.frame(item159.table)
 
 item159.final.SF <- item159.table[which(item159.table$BuildingType == "Single Family")
                                   ,-which(colnames(item159.table) %in% c("BuildingType"))]

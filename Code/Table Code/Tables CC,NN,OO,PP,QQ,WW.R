@@ -126,7 +126,7 @@ tableCC.final <- rbind.data.frame(tableCC.summary, tableCC.all.types, stringsAsF
 
 tableCC.cast <- dcast(setDT(tableCC.final)
                       ,formula = BuildingType + Ownership.Type ~ State
-                      ,value.var = c("w.percent","w.SE","count","n", "N"))
+                      ,value.var = c("w.percent","w.SE","count","n", "N", "EB"))
 
 tableCC.table <- data.frame("BuildingType"    = tableCC.cast$BuildingType
                             ,"Ownership.Type" = tableCC.cast$Ownership.Type
@@ -145,6 +145,11 @@ tableCC.table <- data.frame("BuildingType"    = tableCC.cast$BuildingType
                             ,"Region"         = tableCC.cast$w.percent_Region
                             ,"Region.SE"      = tableCC.cast$w.SE_Region
                             ,"Region.n"       = tableCC.cast$n_Region
+                            ,"EB_ID"          = tableCC.cast$EB_ID
+                            ,"EB_MT"          = tableCC.cast$EB_MT
+                            ,"EB_OR"          = tableCC.cast$EB_OR
+                            ,"EB_WA"          = tableCC.cast$EB_WA
+                            ,"EB_Region"      = tableCC.cast$EB_Region
                             )
 
 levels(tableCC.table$Ownership.Type)

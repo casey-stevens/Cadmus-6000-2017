@@ -98,7 +98,6 @@ item47.final <- proportions_one_group(CustomerLevelData  = item47.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Heating.Fuel'
                                       , total.name       = "Total"
-                                      , columnName       = "Remove"
                                       , weighted = FALSE)
 
 item47.final.SF <- item47.final[which(item47.final$BuildingType == "Single Family")
@@ -126,13 +125,14 @@ item48.dat2 <- left_join(item48.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 item48.dat2$count <- 1
 
 item48.dat3 <- item48.dat2[which(item48.dat2$BuildingType == "Single Family"),]
+item48.dat4 <- item48.dat3[which(!is.na(item48.dat3$Heating.Fuel)),]
 
 # Weighting function
-item48.data <- weightedData(item48.dat3[-which(colnames(item48.dat3) %in% c("Generic"
+item48.data <- weightedData(item48.dat4[-which(colnames(item48.dat4) %in% c("Generic"
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item48.data <- left_join(item48.data, item48.dat3[which(colnames(item48.dat3) %in% c("CK_Cadmus_ID"
+item48.data <- left_join(item48.data, item48.dat4[which(colnames(item48.dat4) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Sub-Type"
                                                                                      ,"Heating.Fuel"

@@ -73,7 +73,7 @@ item173.final <- proportionRowsAndColumns1(CustomerLevelData = item173.data
 
 item173.cast <- dcast(setDT(item173.final)
                       , formula = BuildingType + Age.and.Construction.Standard ~ State
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item173.table <- data.frame("BuildingType"    = item173.cast$BuildingType
                             ,"Age_Standard"   = item173.cast$Age.and.Construction.Standard
@@ -97,6 +97,11 @@ item173.table <- data.frame("BuildingType"    = item173.cast$BuildingType
                             ,"SE_Region"      = item173.cast$w.SE_Region
                             ,"Count_Region"   = item173.cast$count_Region
                             ,"n_Region"       = item173.cast$n_Region
+                            ,"EB_ID"          = item173.cast$EB_ID
+                            ,"EB_MT"          = item173.cast$EB_MT
+                            ,"EB_OR"          = item173.cast$EB_OR
+                            ,"EB_WA"          = item173.cast$EB_WA
+                            ,"EB_Region"      = item173.cast$EB_Region
 )
 
 

@@ -206,6 +206,7 @@ rowOrder <- c("Pre 1990"
               ,"2000-2006"
               ,"2007-2014"
               ,"Post 2014"
+              ,"Vintage Unknown"
               ,"All Vintages")
 item57.final <- item57.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
 item57.final <- data.frame(item57.final)
@@ -235,6 +236,7 @@ rowOrder <- c("Pre 1990"
               ,"2000-2006"
               ,"2007-2014"
               ,"Post 2014"
+              ,"Vintage Unknown"
               ,"All Vintages")
 item57.final <- item57.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
 item57.final <- data.frame(item57.final)

@@ -89,7 +89,7 @@ item68.summary <- proportionRowsAndColumns1(CustomerLevelData = item68.data
 
 item68.cast <- dcast(setDT(item68.summary)
                      , formula = BuildingType + Status ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item68.table <- data.frame("BuildingType"    = item68.cast$BuildingType
                            ,"EISA.Category"  = item68.cast$Status
@@ -108,6 +108,11 @@ item68.table <- data.frame("BuildingType"    = item68.cast$BuildingType
                            ,"Percent_Region" = item68.cast$w.percent_Region
                            ,"SE_Region"      = item68.cast$w.SE_Region
                            ,"n_Region"       = item68.cast$n_Region
+                           ,"EB_ID"          = item68.cast$EB_ID
+                           ,"EB_MT"          = item68.cast$EB_MT
+                           ,"EB_OR"          = item68.cast$EB_OR
+                           ,"EB_WA"          = item68.cast$EB_WA
+                           ,"EB_Region"      = item68.cast$EB_Region
 )
 
 levels(item68.table$EISA.Category)
@@ -174,20 +179,6 @@ item68.final.MF <- item68.table[which(item68.table$BuildingType == "Multifamily"
 exportTable(item68.final.SF, "SF", "Table 75", weighted = FALSE)
 exportTable(item68.final.MH, "MH", "Table 54", weighted = FALSE)
 exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -264,7 +255,7 @@ item69.summary <- proportionRowsAndColumns1(CustomerLevelData = item69.data
 
 item69.cast <- dcast(setDT(item69.summary)
                      , formula = BuildingType + Lamp.Category ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
                            ,"Lamp.Type"      = item69.cast$Lamp.Category
@@ -283,6 +274,11 @@ item69.table <- data.frame("BuildingType"    = item69.cast$BuildingType
                            ,"Percent_Region" = item69.cast$w.percent_Region
                            ,"SE_Region"      = item69.cast$w.SE_Region
                            ,"n_Region"       = item69.cast$n_Region
+                           ,"EB_ID"          = item69.cast$EB_ID
+                           ,"EB_MT"          = item69.cast$EB_MT
+                           ,"EB_OR"          = item69.cast$EB_OR
+                           ,"EB_WA"          = item69.cast$EB_WA
+                           ,"EB_Region"      = item69.cast$EB_Region
 )
 
 
@@ -456,7 +452,7 @@ item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, item70.s
 
 item70.cast <- dcast(setDT(item70.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item70.table <- data.frame("BuildingType"                  = item70.cast$BuildingType
                            ,"Room.Type"                    = item70.cast$Clean.Room
@@ -482,6 +478,13 @@ item70.table <- data.frame("BuildingType"                  = item70.cast$Buildin
                            ,"SE_Other"                     = item70.cast$w.SE_Other
                            # ,"n_Other"                      = item70.cast$n_Other
                            ,"n"                            = item70.cast$`n_All Categories`
+                           ,"EB_CFL"                       = item70.cast$`EB_Compact Fluorescent`
+                           ,"EB_Halogen"                   = item70.cast$EB_Halogen
+                           ,"EB_Incandescent"              = item70.cast$EB_Incandescent
+                           ,"EB_Incandescent.Halogen"      = item70.cast$`EB_Incandescent / Halogen`
+                           ,"EB_LED"                       = item70.cast$`EB_Light Emitting Diode`
+                           ,"EB_LF"                        = item70.cast$`EB_Linear Fluorescent`
+                           ,"EB_Other"                     = item70.cast$EB_Other
 )
 
 # row ordering example code
@@ -676,7 +679,7 @@ tableAE.final <- rbind.data.frame(tableAE.summary, tableAE.all.room.types, table
 
 tableAE.cast <- dcast(setDT(tableAE.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 tableAE.table <- data.frame("BuildingType"                  = tableAE.cast$BuildingType
                            ,"Room.Type"                    = tableAE.cast$Clean.Room
@@ -702,6 +705,13 @@ tableAE.table <- data.frame("BuildingType"                  = tableAE.cast$Build
                            ,"SE_Other"                     = tableAE.cast$w.SE_Other
                            # ,"n_Other"                      = tableAE.cast$n_Other
                            ,"n"                            = tableAE.cast$`n_All Categories`
+                           ,"EB_CFL"                       = tableAE.cast$`EB_Compact Fluorescent`
+                           ,"EB_Halogen"                   = tableAE.cast$EB_Halogen
+                           ,"EB_Incandescent"              = tableAE.cast$EB_Incandescent
+                           ,"EB_Incandescent.Halogen"      = tableAE.cast$`EB_Incandescent / Halogen`
+                           ,"EB_LED"                       = tableAE.cast$`EB_Light Emitting Diode`
+                           ,"EB_LF"                        = tableAE.cast$`EB_Linear Fluorescent`
+                           ,"EB_Other"                     = tableAE.cast$EB_Other
 )
 
 # row ordering example code

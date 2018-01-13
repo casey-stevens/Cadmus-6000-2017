@@ -198,7 +198,7 @@ item87.final <- proportionRowsAndColumns1(CustomerLevelData = item87.data
 
 item87.cast <- dcast(setDT(item87.final)
                      , formula = BuildingType + Washer.Type ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item87.table <- data.frame("BuildingType"    = item87.cast$BuildingType
                            ,"Washer.Type"    = item87.cast$Washer.Type
@@ -217,6 +217,11 @@ item87.table <- data.frame("BuildingType"    = item87.cast$BuildingType
                            ,"Percent_Region" = item87.cast$w.percent_Region
                            ,"SE_Region"      = item87.cast$w.SE_Region
                            ,"n_Region"       = item87.cast$n_Region
+                           ,"EB_ID"          = item87.cast$EB_ID
+                           ,"EB_MT"          = item87.cast$EB_MT
+                           ,"EB_OR"          = item87.cast$EB_OR
+                           ,"EB_WA"          = item87.cast$EB_WA
+                           ,"EB_Region"      = item87.cast$EB_Region
 )
 stopifnot(sum(item87.table[which(item87.table$BuildingType == "Single Family")
                            ,grep("Percent",colnames(item87.table))], na.rm = T) == 10)
@@ -361,7 +366,7 @@ item88.summary <- proportionRowsAndColumns1(CustomerLevelData = item88.data
                                             ,rowVariable      = 'EquipVintage_bins'
                                             ,aggregateColumnName = "Remove")
 item88.summary <- item88.summary[which(item88.summary$Washer.Type %notin% c("Remove", "Total")),]
-item88.summary <- item88.summary[which(item88.summary$EquipVintage_bins %notin% c("Remove", "Total")),]
+item88.summary$EquipVintage_bins[which(item88.summary$EquipVintage_bins == "Total")] <- "All Clothes Washer Types"
 
 item88.all.washer.types <- proportions_one_group(CustomerLevelData = item88.data
                                                  ,valueVariable = 'count'
@@ -377,7 +382,7 @@ item88.final <- rbind.data.frame(item88.summary, item88.all.washer.types, string
 
 item88.cast <- dcast(setDT(item88.final)
                      , formula = BuildingType + Washer.Type ~ EquipVintage_bins
-                     , value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item88.table <- data.frame("BuildingType"           = item88.cast$BuildingType
                            ,"Washer.Type"           = item88.cast$Washer.Type
@@ -403,6 +408,13 @@ item88.table <- data.frame("BuildingType"           = item88.cast$BuildingType
                            ,"SE_Post.2014"          = item88.cast$`w.SE_Post 2014`
                            # ,"n_Post.2014"           = item88.cast$`n_Post 2014`
                            ,"n"                     = item88.cast$`n_All Clothes Washer Types`
+                           ,"EB_Pre.1990"           = item88.cast$`EB_Pre 1990`
+                           ,"EB_1990.1994"          = item88.cast$`EB_1990-1994`
+                           ,"EB_1995.1999"          = item88.cast$`EB_1995-1999`
+                           ,"EB_2000.2004"          = item88.cast$`EB_2000-2004`
+                           ,"EB_2005.2009"          = item88.cast$`EB_2005-2009`
+                           ,"EB_2010.2014"          = item88.cast$`EB_2010-2014`
+                           ,"EB_Post.2014"          = item88.cast$`EB_Post 2014`
 )
 
 unique(item88.table$Washer.Type)
@@ -435,7 +447,7 @@ item88.summary <- proportions_two_groups_unweighted(CustomerLevelData = item88.d
                                                     ,rowVariable      = 'EquipVintage_bins'
                                                     ,aggregateColumnName = "Remove")
 item88.summary <- item88.summary[which(item88.summary$Washer.Type %notin% c("Remove", "Total")),]
-item88.summary <- item88.summary[which(item88.summary$EquipVintage_bins %notin% c("Remove", "Total")),]
+item88.summary$EquipVintage_bins[which(item88.summary$EquipVintage_bins == "Total")] <- "All Clothes Washer Types"
 
 item88.all.washer.types <- proportions_one_group(CustomerLevelData = item88.data
                                                  ,valueVariable = 'count'

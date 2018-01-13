@@ -168,17 +168,12 @@ item113.final <- proportions_one_group(CustomerLevelData = item113.data
                                        ,valueVariable = 'Ind'
                                        ,groupingVariable = "State"
                                        ,total.name = "Region"
-                                       ,columnName = "Remove"
                                        ,weighted = FALSE)
 
 item113.final.SF <- item113.final[which(item113.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item113.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"))]
 item113.final.MH <- item113.final[which(item113.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item113.final) %in% c("BuildingType"
-                                                                         ,"Remove"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item113.final) %in% c("BuildingType"))]
 exportTable(item113.final.SF, "SF", "Table 120", weighted = FALSE)
 exportTable(item113.final.MH, "MH", "Table 95", weighted = FALSE)
 

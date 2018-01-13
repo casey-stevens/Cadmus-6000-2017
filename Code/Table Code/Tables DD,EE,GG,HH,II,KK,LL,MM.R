@@ -79,7 +79,7 @@ tableDD.summary <- proportionRowsAndColumns1(CustomerLevelData = tableDD.data
 
 tableDD.cast <- dcast(setDT(tableDD.summary)
                       ,formula = BuildingType + Thermostat.Type ~ State
-                      ,value.var = c("w.percent","w.SE","count","n", "N"))
+                      ,value.var = c("w.percent","w.SE","count","n", "N","EB"))
 
 tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
                             ,"Thermostat.Type"= tableDD.cast$Thermostat.Type
@@ -98,6 +98,11 @@ tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
                             ,"Region"         = tableDD.cast$w.percent_Region
                             ,"Region.SE"      = tableDD.cast$w.SE_Region
                             ,"Region.n"       = tableDD.cast$n_Region
+                            ,"EB_ID"          = tableDD.cast$EB_ID
+                            ,"EB_MT"          = tableDD.cast$EB_MT
+                            ,"EB_OR"          = tableDD.cast$EB_OR
+                            ,"EB_WA"          = tableDD.cast$EB_WA
+                            ,"EB_Region"      = tableDD.cast$EB_Region
 )
 
 levels(tableDD.table$Thermostat.Type)
@@ -306,7 +311,7 @@ exportTable(tableHH.table.MH, "MH", "Table HH", weighted = FALSE)
 
 
 #############################################################################################
-# Table II: Percent of homes with smart powerstips by State
+# Table II: Distribution of power strips by use type and state
 #############################################################################################
 #For everything else
 colnames(appliances.dat)[grep("power",colnames(appliances.dat), ignore.case = T)]
@@ -330,7 +335,7 @@ tableII.data <- weightedData(tableII.merge[-which(colnames(tableII.merge) %in% c
 tableII.data <- left_join(tableII.data, tableII.merge[which(colnames(tableII.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Type"
                                                                                            ,"Power.Strip.Use"))])
-tableII.data$Ind <- 1
+tableII.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -341,7 +346,7 @@ tableII.summary <- proportionRowsAndColumns1(CustomerLevelData = tableII.data
                                              ,aggregateColumnName = "Region")
 tableII.cast <- dcast(setDT(tableII.summary)
                       ,formula = BuildingType + Power.Strip.Use ~ State
-                      ,value.var = c("w.percent","w.SE","count","n","N"))
+                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
 tableII.table <- data.frame("BuildingType" = tableII.cast$BuildingType
                             ,"Power.Strip.Use" = tableII.cast$Power.Strip.Use
@@ -359,7 +364,12 @@ tableII.table <- data.frame("BuildingType" = tableII.cast$BuildingType
                             ,"WA.n"           = tableII.cast$n_WA
                             ,"Region"         = tableII.cast$w.percent_Region
                             ,"Region.SE"      = tableII.cast$w.SE_Region
-                            ,"Region.n"       = tableII.cast$n_Region)
+                            ,"Region.n"       = tableII.cast$n_Region
+                            ,"EB_ID"          = tableII.cast$EB_ID
+                            ,"EB_MT"          = tableII.cast$EB_MT
+                            ,"EB_OR"          = tableII.cast$EB_OR
+                            ,"EB_WA"          = tableII.cast$EB_WA
+                            ,"EB_Region"      = tableII.cast$EB_Region)
 
 tableII.table.SF <- tableII.table[which(tableII.table$BuildingType == "Single Family")
                                   ,which(colnames(tableII.table) %notin% c("BuildingType"))]
@@ -414,7 +424,7 @@ exportTable(tableII.table.MH, "MH", "Table II", weighted = FALSE)
 
 
 #############################################################################################
-# Table KK: Distribution of Vented Dryers by State
+# Table KK: Percent of Homes with Vented Dryers by State
 #############################################################################################
 #For everything else
 tableKK.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Vented"))]
@@ -515,7 +525,7 @@ tableMM.summary <- proportionRowsAndColumns1(CustomerLevelData = tableMM.data
                                              ,aggregateColumnName = "Region")
 tableMM.cast <- dcast(setDT(tableMM.summary)
                       ,formula = BuildingType + Dryer.Fuel ~ State
-                      ,value.var = c("w.percent","w.SE","count","n","N"))
+                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
 tableMM.table <- data.frame("BuildingType" = tableMM.cast$BuildingType
                             ,"Dryer.Fuel" = tableMM.cast$Dryer.Fuel
@@ -533,7 +543,12 @@ tableMM.table <- data.frame("BuildingType" = tableMM.cast$BuildingType
                             ,"WA.n"           = tableMM.cast$n_WA
                             ,"Region"         = tableMM.cast$w.percent_Region
                             ,"Region.SE"      = tableMM.cast$w.SE_Region
-                            ,"Region.n"       = tableMM.cast$n_Region)
+                            ,"Region.n"       = tableMM.cast$n_Region
+                            ,"EB_ID"          = tableMM.cast$EB_ID
+                            ,"EB_MT"          = tableMM.cast$EB_MT
+                            ,"EB_OR"          = tableMM.cast$EB_OR
+                            ,"EB_WA"          = tableMM.cast$EB_WA
+                            ,"EB_Region"      = tableMM.cast$EB_Region)
 
 tableMM.table.SF <- tableMM.table[which(tableMM.table$BuildingType == "Single Family")
                                   ,which(colnames(tableMM.table) %notin% c("BuildingType"))]
@@ -655,7 +670,7 @@ tableLL.summary <- tableLL.summary[which(tableLL.summary$Type != "Total"),]
 
 tableLL.cast <- dcast(setDT(tableLL.summary)
                       ,formula = BuildingType + Type ~ State
-                      ,value.var = c("w.percent","w.SE","count","n","N"))
+                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
 tableLL.table <- data.frame("BuildingType"    = tableLL.cast$BuildingType
                             ,"Type"           = tableLL.cast$Type
@@ -673,7 +688,12 @@ tableLL.table <- data.frame("BuildingType"    = tableLL.cast$BuildingType
                             ,"WA.n"           = tableLL.cast$n_WA
                             ,"Region"         = tableLL.cast$w.percent_Region
                             ,"Region.SE"      = tableLL.cast$w.SE_Region
-                            ,"Region.n"       = tableLL.cast$n_Region)
+                            ,"Region.n"       = tableLL.cast$n_Region
+                            ,"EB_ID"          = tableLL.cast$EB_ID
+                            ,"EB_MT"          = tableLL.cast$EB_MT
+                            ,"EB_OR"          = tableLL.cast$EB_OR
+                            ,"EB_WA"          = tableLL.cast$EB_WA
+                            ,"EB_Region"      = tableLL.cast$EB_Region)
 
 tableLL.table.SF <- tableLL.table[which(tableLL.table$BuildingType == "Single Family")
                                   ,which(colnames(tableLL.table) %notin% c("BuildingType"))]

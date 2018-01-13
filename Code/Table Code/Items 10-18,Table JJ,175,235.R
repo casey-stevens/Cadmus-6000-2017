@@ -326,13 +326,13 @@ prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Fiberglass or mine
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Unknown fiberglass")]               <- "Unknown"
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "-- Datapoint not asked for --")]    <- NA
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "None")]                             <- NA
-prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "N/A")]                              <- NA
+prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 %in% c("N/A","NA"))]                    <- NA
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Expanded polystyrene foam board (white)")] <- "Expanded polystyrene foam board"
 prep.dat4$cavity.rvalues1[grep('unknown', prep.dat4$cavity.rvalues1, ignore.case = T)] <- "Unknown"
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Extruded polystyrene foam board (pink or blue)")] <- "Extruded polystyrene foam board"
 
 prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "Extruded polystyrene (blue)")]      <- "Extruded polystyrene foam board"
-prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "N/A")]                              <- NA
+prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 %in% c("N/A","NA"))]                    <- NA
 prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "-- Datapoint not asked for --")]    <- NA
 prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "Expanded polystyrene foam board (white)")] <- "Expanded polystyrene foam board"
 prep.dat4$cavity.rvalues2[grep('unknown', prep.dat4$cavity.rvalues2, ignore.case = T)] <- "Unknown"
@@ -647,7 +647,7 @@ item10.final$Wall.Type[which(item10.final$Wall.Type == "Total")] <- "All Frame T
 ##cast data
 item10.cast <- dcast(setDT(item10.final),
                      formula   = BuildingType + Wall.Type ~ rvalue.bins,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 #join all insulation levels onto rvalue summary
 item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
@@ -670,6 +670,12 @@ item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
                            ,"Percent_All Insulation Levels" = item10.cast$`w.percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`w.SE_All Insulation Levels`
                            ,"n"       = item10.cast$`n_All Insulation Levels`
+                           ,"EB.R0"           = item10.cast$EB_R0
+                           ,"EB.R1.R10"       = item10.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item10.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item10.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item10.cast$EB_RGT22
+                           ,"EB.All Insulation Levels"      = item10.cast$`EB_All Insulation Levels`
                            )
 
 # row ordering example code
@@ -856,7 +862,7 @@ item11.final <- item11.final[which(item11.final$HomeYearBuilt_bins3 != "Remove")
 
 item11.cast <- dcast(setDT(item11.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
-                     value.var = c("w.percent", "w.SE", "count","n","N"))
+                     value.var = c("w.percent", "w.SE", "count","n","N","EB"))
 
 
 
@@ -878,6 +884,11 @@ item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"SE_Unknown"      = item11.cast$`w.SE_Framed (Unknown)`
                            # ,"n_Unknown"       = item11.cast$`n_Framed (Unknown)`
                            ,"n" = item11.cast$n_Total
+                           ,"EB_2x4" = item11.cast$`EB_Framed 2x4`
+                           ,"EB_2x6" = item11.cast$`EB_Framed 2x6`
+                           ,"EB_2x6" = item11.cast$`EB_Framed 2x8`
+                           ,"EB_ALT" = item11.cast$EB_Alternative
+                           ,"EB_Unknown" = item11.cast$`EB_Framed (Unknown)`
                            )
 
 # row ordering example code
@@ -1093,7 +1104,7 @@ item12.final$HomeYearBuilt_bins3[which(item12.final$HomeYearBuilt_bins3 == "Tota
 
 item12.cast <- dcast(setDT(item12.final),
                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins3
@@ -1113,6 +1124,11 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"SE.RGT22"        = item12.cast$w.SE_RGT22
                            # ,"n.RGT22"         = item12.cast$n_RGT22
                            ,"n" = item12.cast$`n_All Housing Vintages`
+                           ,"EB.R0"           = item12.cast$EB_R0
+                           ,"EB.R1.R10"       = item12.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item12.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item12.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item12.cast$EB_RGT22
                            )
 
 # row ordering example code
@@ -1266,7 +1282,7 @@ item12.final$HomeYearBuilt_bins2[which(item12.final$HomeYearBuilt_bins2 == "Tota
 
 item12.cast <- dcast(setDT(item12.final),
                      formula   = BuildingType + HomeYearBuilt_bins2 ~ rvalue.bins.MH,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"Housing.Vintage" = item12.cast$HomeYearBuilt_bins2
@@ -1283,6 +1299,10 @@ item12.table <- data.frame("BuildingType"     = item12.cast$BuildingType
                            ,"SE.R22.R30"      = item12.cast$w.SE_R22.R30
                            # ,"n.R22.R30"       = item12.cast$n_R22.R30
                            ,"n" = item12.cast$`n_All Housing Vintages`
+                           ,"EB.R0.R8"           = item12.cast$EB_R0.R8
+                           ,"EB.R9.R14"      = item12.cast$EB_R9.R14
+                           ,"EB.R15.R21"       = item12.cast$EB_R15.R21
+                           ,"EB.R22.R30"      = item12.cast$EB_R22.R30
                            )
 
 # row ordering example code
@@ -1443,7 +1463,7 @@ item13.final$HomeYearBuilt_bins3[which(item13.final$HomeYearBuilt_bins3 == "Tota
 
 item13.cast <- dcast(setDT(item13.final),
                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"Housing.Vintage" = item13.cast$HomeYearBuilt_bins3
@@ -1463,6 +1483,11 @@ item13.table <- data.frame("BuildingType"     = item13.cast$BuildingType
                            ,"SE.RGT22"        = item13.cast$w.SE_RGT22
                            # ,"n.RGT22"         = item13.cast$n_RGT22
                            ,"n" = item13.cast$`n_All Housing Vintages`
+                           ,"EB.R0"           = item13.cast$EB_R0
+                           ,"EB.R1.R10"       = item13.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item13.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item13.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item13.cast$EB_RGT22
 )
 
 # row ordering example code
@@ -1626,7 +1651,7 @@ item14.final$HomeYearBuilt_bins3[which(item14.final$HomeYearBuilt_bins3 == "Tota
 
 item14.cast <- dcast(setDT(item14.final),
                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Housing.Vintage" = item14.cast$HomeYearBuilt_bins3
@@ -1645,7 +1670,12 @@ item14.table <- data.frame("BuildingType"     = item14.cast$BuildingType
                            ,"Percent.RGT22"   = item14.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item14.cast$w.SE_RGT22
                            # ,"n.RGT22"         = item14.cast$n_RGT22
-                           ,"n" = item14.cast$`n_All Housing Vintages`
+                           ,"n"               = item14.cast$`n_All Housing Vintages`
+                           ,"EB.R0"           = item14.cast$EB_R0
+                           ,"EB.R1.R10"       = item14.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item14.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item14.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item14.cast$EB_RGT22
 )
 
 # row ordering example code
@@ -1807,7 +1837,7 @@ item15.final$HomeYearBuilt_bins3[which(item15.final$HomeYearBuilt_bins3 == "Tota
 
 item15.cast <- dcast(setDT(item15.final),
                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Housing.Vintage" = item15.cast$HomeYearBuilt_bins3
@@ -1826,7 +1856,12 @@ item15.table <- data.frame("BuildingType"     = item15.cast$BuildingType
                            ,"Percent.RGT22"   = item15.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item15.cast$w.SE_RGT22
                            # ,"n.RGT22"         = item15.cast$n_RGT22
-                           ,"n" = item15.cast$`n_All Housing Vintages`
+                           ,"n"               = item15.cast$`n_All Housing Vintages`
+                           ,"EB.R0"           = item15.cast$EB_R0
+                           ,"EB.R1.R10"       = item15.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item15.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item15.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item15.cast$EB_RGT22
 )
 
 # row ordering example code
@@ -1989,7 +2024,7 @@ item16.final$HomeYearBuilt_bins3[which(item16.final$HomeYearBuilt_bins3 == "Tota
 
 item16.cast <- dcast(setDT(item16.final),
                      formula   = BuildingType + HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Housing.Vintage" = item16.cast$HomeYearBuilt_bins3
@@ -2008,7 +2043,13 @@ item16.table <- data.frame("BuildingType"     = item16.cast$BuildingType
                            ,"Percent.RGT22"   = item16.cast$w.percent_RGT22
                            ,"SE.RGT22"        = item16.cast$w.SE_RGT22
                            # ,"n.RGT22"         = item16.cast$n_RGT22
-                           ,"n" = item16.cast$`n_All Housing Vintages`
+                           ,"n"               = item16.cast$`n_All Housing Vintages`
+                           ,"EB.R0"           = item16.cast$EB_R0
+                           ,"EB.R1.R10"       = item16.cast$EB_R1.R10
+                           ,"EB.R11.R16"      = item16.cast$EB_R11.R16
+                           ,"EB.R17.R22"      = item16.cast$EB_R17.R22
+                           ,"EB.RGT22"        = item16.cast$EB_RGT22
+                           
 )
 
 # row ordering example code
@@ -2179,7 +2220,7 @@ item18.final <- item18.final[which(item18.final$Wall.Type != "Remove"),]
 
 item18.cast <- dcast(setDT(item18.final),
                      formula   = BuildingType +  Wall.Type ~ insulation.levels,
-                     value.var = c("w.percent", "w.SE", "count","n","N"))
+                     value.var = c("w.percent", "w.SE", "count","n","N", "EB"))
 names(item18.cast)
 
 
@@ -2216,6 +2257,16 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"SE_None"           = item18.cast$w.SE_None
                            # ,"n_None"            = item18.cast$n_None
                            ,"n"                 = item18.cast$n_Total
+                           ,"EB_0.25_inch"      = item18.cast$EB_0.25
+                           ,"EB_0.5_inch"       = item18.cast$EB_0.5
+                           ,"EB_0.75_inch"      = item18.cast$EB_0.75
+                           ,"EB_1_inch"         = item18.cast$EB_1
+                           ,"EB_1.5_inch"       = item18.cast$EB_1.5
+                           ,"EB_2_inch"         = item18.cast$EB_2
+                           ,"EB_3_inch"         = item18.cast$EB_3
+                           ,"EB_4_inch"         = item18.cast$EB_4
+                           ,"EB_5.5_inch"       = item18.cast$EB_5.5
+                           ,"EB_None"           = item18.cast$EB_None
 )
 
 # row ordering example code
@@ -2441,7 +2492,7 @@ item17.final$HomeYearBuilt_bins3[which(item17.final$HomeYearBuilt_bins3 == "Tota
 
 item17.cast <- dcast(setDT(item17.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
 #join all insulation levels onto rvalue summary
 item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
@@ -2462,6 +2513,11 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
                            ,"SE.RGT21"        = item17.cast$w.SE_RGT21
                            # ,"n.RGT21"         = item17.cast$n_RGT21
                            ,"n"               = item17.cast$`n_All Housing Vintages`
+                           ,'EB.None'         = item17.cast$EB_None
+                           ,"EB.R1.R9"        = item17.cast$EB_R1.R9
+                           ,"EB.R10.R15"      = item17.cast$EB_R10.R15
+                           ,"EB.R16.R20"      = item17.cast$EB_R16.R20
+                           ,"EB.R21"          = item17.cast$EB_RGT21
                            )
 
 # row ordering example code
@@ -2717,17 +2773,28 @@ wall.table.JJ <- rbind.data.frame(tableJJ.wall.R, tableJJ.2by6.R, stringsAsFacto
 
 wall.cast <- dcast(setDT(wall.table.JJ)
                    ,formula = BuildingType + State ~ Category
-                   ,value.var = c("Mean", "SE","n", "n_h", "N_h"))
+                   ,value.var = c("Mean", "SE","n", "n_h", "N_h","EB"))
 wall.cast <- data.frame(wall.cast, stringsAsFactors = F)
 
-wall.table <- data.frame("BuildingType" = wall.cast$BuildingType
-                         ,"State" = wall.cast$State
-                         ,"Wall.Insulation" = wall.cast$Mean_Wall.R.Value
-                         ,"Wall.Insulation.SE" = wall.cast$SE_Wall.R.Value
-                         ,"Wall.Insulation.n" = wall.cast$n_2x6.Framed.Wall.R.Value
-                         ,"R.Value.Framed.2x6.Wall" = wall.cast$Mean_2x6.Framed.Wall.R.Value
+wall.table <- data.frame("BuildingType"                = wall.cast$BuildingType
+                         ,"State"                      = wall.cast$State
+                         ,"Wall.Insulation"            = wall.cast$Mean_Wall.R.Value
+                         ,"Wall.Insulation.SE"         = wall.cast$SE_Wall.R.Value
+                         ,"Wall.Insulation.n"          = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall"    = wall.cast$Mean_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
-                         ,"R.Value.Framed.2x6.Wall.n" = wall.cast$n_2x6.Framed.Wall.R.Value)
+                         ,"R.Value.Framed.2x6.Wall.n"  = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"Wall.Insulation.EB"         = wall.cast$EB_Wall.R.Value
+                         ,"R.Value.Framed.2x6.Wall.EB" = wall.cast$EB_2x6.Framed.Wall.R.Value
+                         )
+levels(wall.table$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+wall.table <- wall.table %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+wall.table <- data.frame(wall.table)
 
 wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
                                   ,which(colnames(wall.table) %notin% c("BuildingType"))]
@@ -2767,6 +2834,14 @@ wall.table <- data.frame("BuildingType" = wall.cast$BuildingType
                          ,"R.Value.Framed.2x6.Wall" = wall.cast$Mean_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.n" = wall.cast$n_2x6.Framed.Wall.R.Value)
+levels(wall.table$State)
+rowOrder <- c("ID"
+              ,"MT"
+              ,"OR"
+              ,"WA"
+              ,"Region")
+wall.table <- wall.table %>% mutate(State = factor(State, levels = rowOrder)) %>% arrange(State)  
+wall.table <- data.frame(wall.table)
 
 wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
                                ,which(colnames(wall.table) %notin% c("BuildingType"))]

@@ -581,7 +581,7 @@ item163.final <- rbind.data.frame(item163.summary
 
 item163.cast <- dcast(setDT(item163.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                     value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"Housing.Vintage" = item163.cast$HomeYearBuilt_bins3
@@ -610,6 +610,14 @@ item163.table <- data.frame("BuildingType"     = item163.cast$BuildingType
                            ,"SE.RGT36"        = item163.cast$w.SE_RGT36
                            # ,"Count.RGT36"     = item163.cast$count_RGT36
                            ,"n" = item163.cast$`n_All Insulation Levels`
+                           ,"EB.None"         = item163.cast$EB_None
+                           ,"EB.R1.R3"        = item163.cast$EB_R1.R3
+                           ,"EB.R4.R10"       = item163.cast$EB_R4.R10
+                           ,"EB.R11.R15"      = item163.cast$EB_R11.R15
+                           ,"EB.R16.R22"      = item163.cast$EB_R16.R22
+                           ,"EB.R23.R27"      = item163.cast$EB_R23.R27
+                           ,"EB.R28.R35"      = item163.cast$EB_R28.R35
+                           ,"EB.RGT36"        = item163.cast$EB_RGT36
 )
 
 # row ordering example code

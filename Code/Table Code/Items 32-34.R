@@ -231,7 +231,7 @@ item33.final <- rbind.data.frame(item33.final, item33.all.framing.categories)
 
 item33.cast <- dcast(setDT(item33.final)
                      , formula = BuildingType + Framing.Categories ~ State
-                     , value.var = c("w.percent", "w.SE", "count", "n"))
+                     , value.var = c("w.percent", "w.SE", "count", "n", "EB"))
 
 item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
                            ,"Framing.Categories" = item33.cast$Framing.Categories
@@ -250,6 +250,11 @@ item33.table <- data.frame("BuildingType"        = item33.cast$BuildingType
                            ,"Percent_Region"     = item33.cast$w.percent_Region
                            ,"SE_Region"          = item33.cast$w.SE_Region
                            ,"n_Region"           = item33.cast$n_Region
+                           ,"EB_ID"              = item33.cast$EB_ID
+                           ,"EB_MT"              = item33.cast$EB_MT
+                           ,"EB_OR"              = item33.cast$EB_OR
+                           ,"EB_WA"              = item33.cast$EB_WA
+                           ,"EB_Region"          = item33.cast$EB_Region
 )
 
 
