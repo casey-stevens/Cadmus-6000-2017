@@ -98,11 +98,11 @@ tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
                             ,"Region"         = tableDD.cast$w.percent_Region
                             ,"Region.SE"      = tableDD.cast$w.SE_Region
                             ,"Region.n"       = tableDD.cast$n_Region
-                            ,"EB_ID"          = tableDD.cast$EB_ID
-                            ,"EB_MT"          = tableDD.cast$EB_MT
-                            ,"EB_OR"          = tableDD.cast$EB_OR
-                            ,"EB_WA"          = tableDD.cast$EB_WA
-                            ,"EB_Region"      = tableDD.cast$EB_Region
+                            ,"ID.EB"          = tableDD.cast$EB_ID
+                            ,"MT.EB"          = tableDD.cast$EB_MT
+                            ,"OR.EB"          = tableDD.cast$EB_OR
+                            ,"WA.EB"          = tableDD.cast$EB_WA
+                            ,"Region.EB"      = tableDD.cast$EB_Region
 )
 
 levels(tableDD.table$Thermostat.Type)

@@ -117,7 +117,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     item.region <- data.frame(ddply(item.strata, "BuildingType", summarise
                                     ,byRow  = aggregateRow
                                     ,Mean   = sum(N_h * strataMean) / sum(N_h)
-                                    ,SE     = 1 / nrow(item.group) * sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                                    ,SE     = 1 / 4 * sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                     ,n      = unique((n_h))
                                     ,n_h    = unique((n_h))
                                     ,N_h    = unique((N_h))
@@ -280,7 +280,7 @@ mean_two_groups <- function(CustomerLevelData
     item.group.rowAgg <- data.frame(ddply(item.strata, c("BuildingType", byVariableColumn), summarise
                                ,byRow      = rowAggregate
                                ,Mean       = sum(N_h * strataMean) / sum(N_h)
-                               ,SE         = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                               ,SE         = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                ,n          = sum(n)
                                ,N          = sum(unique(N_h))
                                ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
@@ -295,7 +295,7 @@ mean_two_groups <- function(CustomerLevelData
     item.group.colAgg1 <- data.frame(ddply(item.strata, c("BuildingType", byVariableRow), summarise
                                 ,byCol = columnAggregate
                                 ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                ,SE    = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                                ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                 ,n     = sum(n)
                                 ,N     = sum(unique(N_h))
                                 ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
@@ -308,7 +308,7 @@ mean_two_groups <- function(CustomerLevelData
                                   ,byCol = columnAggregate
                                   ,byRow = rowAggregate
                                   ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                  ,SE    = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                                  ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                   ,n     = sum(n)
                                   ,N     = sum(unique(N_h))
                                   ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
