@@ -5,7 +5,6 @@
 ##  Updated:                                             
 ##  Billing Code(s):  
 #############################################################################################
-##  Clear variables
 
 ##  Clear variables
 rm(list = ls())
@@ -79,7 +78,7 @@ item154.final.MH <- item154.final[which(item154.final$BuildingType == "Manufactu
 ##export data - haven't changed any of the datsets waiting for Casey to QC
 exportTable(item154.final.SF, "SF", "Table 161"
            , weighted = TRUE)
-exportTable(item154.final.MH, "MH", "Table 125"
+exportTable(item154.final.MH, "MH", "Table 136"
            , weighted = TRUE)
 
 ################################
@@ -93,10 +92,10 @@ item154.final <- mean_one_group_unweighted(CustomerLevelData = item154.weighted
 item154.final.SF <- item154.final[which(item154.final$BuildingType == "Single Family"),-1]
 item154.final.MH <- item154.final[which(item154.final$BuildingType == "Manufactured"),-1]
 #export data
-#exportTable(item154.final.SF, "SF", "Table 150"
-#            , weighted = FALSE)
-#exportTable(item154.final.MH, "MH", "Table 125"
-#            , weighted = FALSE)
+exportTable(item154.final.SF, "SF", "Table 161"
+           , weighted = FALSE)
+exportTable(item154.final.MH, "MH", "Table 136"
+           , weighted = FALSE)
 
 #############################################################################################
 # Item 155: TABLE 162: AVERAGE EUI OTHER FUEL USE PER HOME BY STATE 
@@ -137,9 +136,9 @@ item155.final <- mean_one_group(CustomerLevelData = item155.weighted
 item155.final.SF <- item155.final[which(item155.final$BuildingType == "Single Family"),-1]
 item155.final.MH <- item155.final[which(item155.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item155.final.SF, "SF", "Table 161"
+exportTable(item155.final.SF, "SF", "Table 162"
            , weighted = TRUE)
-exportTable(item155.final.MH, "MH", "Table 125"
+exportTable(item155.final.MH, "MH", "Table 137"
            , weighted = TRUE)
 
 ################################
@@ -153,10 +152,10 @@ item155.final <- mean_one_group_unweighted(CustomerLevelData = item155.weighted
 item155.final.SF <- item155.final[which(item155.final$BuildingType == "Single Family"),-1]
 item155.final.MH <- item155.final[which(item155.final$BuildingType == "Manufactured"),-1]
 #export data
-#exportTable(item155.final.SF, "SF", "Table 150"
-#            , weighted = FALSE)
-#exportTable(item155.final.MH, "MH", "Table 125"
-#            , weighted = FALSE)
+exportTable(item155.final.SF, "SF", "Table 162"
+           , weighted = FALSE)
+exportTable(item155.final.MH, "MH", "Table 137"
+           , weighted = FALSE)
 
 
 

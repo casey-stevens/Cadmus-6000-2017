@@ -220,7 +220,7 @@ colnames(item4.data)
 ##############################
 # Weighted Analysis
 ##############################
-item4.final <- mean_one_group(CustomerLevelData = item4.data
+item4.final <- mean_one_group_stratified(CustomerLevelData = item4.data
                               , valueVariable = 'siteAreaConditioned'
                               , byVariable    = 'State'
                               , aggregateRow  = 'Region')

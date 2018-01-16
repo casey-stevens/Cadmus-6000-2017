@@ -34,9 +34,11 @@ mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadm
                                                                         ,"Heating.Fuel"
                                                                         ,"Heating.Efficiency.-.High"
                                                                         ,"Component.1.Year.of.Manufacture"
-                                                                        ,"HSPF"))]
+                                                                        ,"HSPF"
+                                                                        ,"Primary.Heating.System"))]
 #fix capitalization error
 mechanical.dat1$Heating.Fuel[which(mechanical.dat1$Heating.Fuel == "Natural gas")] <- "Natural Gas"
+mechanical.dat1 <- mechanical.dat1[which(mechanical.dat1$Primary.Heating.System == "Yes"),]
 #remove any irrelevant equipment vintages (datapoint not asked for)
 mechanical.dat2 <- mechanical.dat1[which(mechanical.dat1$Component.1.Year.of.Manufacture != "-- Datapoint not asked for --"),]
 #remove any NA equipment vintages
@@ -94,14 +96,16 @@ item50.data <- weightedData(item50.dat5[-which(colnames(item50.dat5) %in% c("Gen
                                                                             ,"Component.1.Year.of.Manufacture"
                                                                             ,"Heating.Efficiency.-.High"
                                                                             ,"HSPF"
-                                                                            ,"EquipVintage_bins"))])
+                                                                            ,"EquipVintage_bins"
+                                                                            ,"Primary.Heating.System"))])
 
 item50.data <- left_join(item50.data, item50.dat5[which(colnames(item50.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Heating.Fuel"
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"Heating.Efficiency.-.High"
-                                                                                     ,"EquipVintage_bins"))])
+                                                                                     ,"EquipVintage_bins"
+                                                                                     ,"Primary.Heating.System"))])
 
 item50.data$`Heating.Efficiency.-.High` <- item50.data$`Heating.Efficiency.-.High` / 100
 unique(item50.data$`Heating.Efficiency.-.High`)
@@ -367,14 +371,26 @@ item52.dat2$HSPF <- as.numeric(as.character(item52.dat2$HSPF))
 
 #remove any NAs in HSPF
 item52.dat3 <- item52.dat2[which(!(is.na(item52.dat2$HSPF))),]
+item52.dat3$count <- 1
+#average within houses
+item52.customer <- summarise(group_by(item52.dat3
+                                      , CK_Cadmus_ID
+                                      , EquipVintage_bins)
+                             ,y_bar_ilk  = mean(HSPF)
+                             ,y_ilk      = sum(HSPF)
+                             ,m_ilk      = sum(count)
+)
+
+
 
 #Join cleaned item 52 mechanical information with cleaned RBSA site information
-item52.dat4 <- unique(left_join(rbsa.dat, item52.dat3, by = "CK_Cadmus_ID"))
-item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$HSPF)),]
+item52.dat4 <- unique(left_join(rbsa.dat, item52.customer, by = "CK_Cadmus_ID"))
+item52.dat4 <- item52.dat4[-grep("bldg", item52.dat4$CK_Building_ID, ignore.case = T),]
+item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$y_bar_ilk)),]
 item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$EquipVintage_bins)),]
 
 #any duplicates?
-which(duplicated(item52.dat5))
+item52.dat5$CK_Cadmus_ID[which(duplicated(item52.dat5$CK_Cadmus_ID))]
 
 # Weighting
 item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("Generic"
@@ -382,20 +398,28 @@ item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("Gen
                                                                             ,"Component.1.Year.of.Manufacture"
                                                                             ,"Heating.Efficiency.-.High"
                                                                             ,"HSPF"
-                                                                            ,"EquipVintage_bins"))])
+                                                                            ,"EquipVintage_bins"
+                                                                            ,"Primary.Heating.System"
+                                                                            ,"y_bar_ilk"
+                                                                            ,"y_ilk"
+                                                                            ,"m_ilk"))])
 
 item52.data <- left_join(item52.data, item52.dat5[which(colnames(item52.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Heating.Fuel"
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"HSPF"
-                                                                                     ,"EquipVintage_bins"))])
+                                                                                     ,"EquipVintage_bins"
+                                                                                     ,"Primary.Heating.System"
+                                                                                     ,"y_bar_ilk"
+                                                                                     ,"y_ilk"
+                                                                                     ,"m_ilk"))])
 item52.data$count <- 1
 ###############################
 # Weighted Analysis
 ###############################
-item52.final <- mean_one_group(CustomerLevelData = item52.data
-                               ,valueVariable = 'HSPF' 
+item52.final <- mean_one_group_domain(CustomerLevelData = item52.data
+                               ,valueVariable = 'y_bar_ilk' 
                                ,byVariable    = 'EquipVintage_bins'
                                ,aggregateRow  = "All Vintages")
 # row ordering example code
@@ -424,7 +448,7 @@ exportTable(item52.final.MH, "MH", "Table 39", weighted = TRUE)
 ###############################
 item52.data$count <- 1
 item52.final <- mean_one_group_unweighted(CustomerLevelData = item52.data
-                               ,valueVariable = 'HSPF' 
+                               ,valueVariable = 'y_bar_ilk' 
                                ,byVariable    = 'EquipVintage_bins'
                                ,aggregateRow  = "All Vintages")
 # row ordering example code
@@ -489,7 +513,8 @@ item53.data <- weightedData(item53.dat4[-which(colnames(item53.dat4) %in% c("Gen
                                                                              ,"HSPF"
                                                                              ,"EquipVintage_bins"
                                                                              ,"HSPF_bins"                      
-                                                                             ,"count" ))])
+                                                                             ,"count"
+                                                                            ,"Primary.Heating.System" ))])
 item53.data <- left_join(item53.data, item53.dat4[which(colnames(item53.dat4) %in% c("CK_Cadmus_ID"
                                                                                       ,"Generic"                        
                                                                                       ,"Heating.Fuel"
@@ -498,7 +523,8 @@ item53.data <- left_join(item53.data, item53.dat4[which(colnames(item53.dat4) %i
                                                                                       ,"HSPF"
                                                                                       ,"EquipVintage_bins"
                                                                                       ,"HSPF_bins"                      
-                                                                                      ,"count"))])
+                                                                                      ,"count"
+                                                                                     ,"Primary.Heating.System"))])
 item53.data$count <- 1
 ########################
 # Weighted Analysis

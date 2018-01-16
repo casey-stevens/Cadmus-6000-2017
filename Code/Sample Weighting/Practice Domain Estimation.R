@@ -34,9 +34,6 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                    ,N_k        = sum((N_l))), stringsAsFactors = F)
   
   
-  strata_domain_merge      <- left_join(strata_domain_summary, strata_domain_level)
-  site_strata_domain_merge <- left_join(CustomerLevelData, strata_domain_merge)
-  site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_level)
   
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
@@ -46,6 +43,9 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                                ,n_lk     = length(unique(CK_Cadmus_ID))
                                                ,m_lk     = sum(m_ilk)
   ), stringsAsFactors = F)
+  strata_domain_merge      <- left_join(strata_domain_summary, strata_domain_level)
+  site_strata_domain_merge <- left_join(CustomerLevelData, strata_domain_merge)
+  site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_level)
   
   ### Get esimtated number of units in the population and estimated population average of the metric
   domain_summary <- data.frame(ddply(site_strata_domain_merge
@@ -53,6 +53,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                      ,M_hat_k = sum(unique(N_k) / unique(n_k) * sum(m_ilk))
                                      ,y_bar_hat_k  = (1 / M_hat_k) * sum(unique(N_k) / unique(n_k) * sum(y_ilk))
   ), stringsAsFactors = F)
+  
+
   site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_summary)
   
   
@@ -107,11 +109,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                       , c("BuildingType",byVariable), summarise
                                       ,n = sum(n_lk)), stringsAsFactors = F)
   item.samplesize$Clean.Type <- as.character(item.samplesize$Clean.Type)
-  samplesize.sub <- unique(site_strata_domain_merge[which(colnames(site_strata_domain_merge) %in% c("BuildingType","n_l"))])
-  domain.samplesize <- data.frame(ddply(samplesize.sub
+  # samplesize.sub <- strata_domain_level[which(colnames(strata_domain_level) %in% c("BuildingType","n_l"))]
+  domain.samplesize <- data.frame(ddply(item.samplesize
                                       , c("BuildingType"), summarise
                                       ,byRow = aggregateRow
-                                      ,n = sum(n_l)), stringsAsFactors = F)
+                                      ,n = max(n)), stringsAsFactors = F)
   colnames(domain.samplesize)[which(colnames(domain.samplesize) == 'byRow')] <- byVariable
   domain.samplesize$Clean.Type <- as.character(domain.samplesize$Clean.Type)
   samplesizes <- rbind.data.frame(item.samplesize, domain.samplesize, stringsAsFactors = F)
@@ -121,6 +123,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   item.final <- left_join(item.final, samplesizes)
   names(item.final)[which(names(item.final) %in% c("y_bar_hat_k","SE_y_bar_hat_k"))] <- c("Mean","SE")
   item.final <- item.final[which(!colnames(item.final) %in% c("M_hat_k","outer_sum","var_hat_y_bar_hat_k"))]
+  item.final$EB <- item.final$SE * qt(0.9, item.final$n - 1)
   return(item.final)
 }
 

@@ -40,7 +40,7 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 
 
 #############################################################################################
-#Item 62: AVERAGE DUCT LEAKAGE TOTAL FLOW BY STATE  (SF table 69)
+#Table AA
 #############################################################################################
 #subset to columns needed for analysis
 tableAA.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -49,10 +49,19 @@ tableAA.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
                                                                    ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                    ,"MECH_TrueFLow_NSOP"
                                                                    ,"MECH_TrueFLow_TFSOP"
-                                                                   ,"MECH_TrueFLow_SOP_NoFilter"))]
+                                                                   ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                   ,"Primary.Heating.System"))]
 str(tableAA.dat)
 tableAA.dat1 <- tableAA.dat[which(!is.na(tableAA.dat$MECH_TrueFLow_NSOP)),]
 tableAA.dat2 <- tableAA.dat1[which(!is.na(tableAA.dat1$MECH_TrueFLow_SOP_NoFilter)),]
+
+tableAA.dat2$MECH_TrueFLow_NSOP <- as.numeric(as.character(tableAA.dat2$MECH_TrueFLow_NSOP))
+tableAA.dat2$MECH_TrueFLow_Plate14_PressureDifference <- as.numeric(as.character(tableAA.dat2$MECH_TrueFLow_Plate14_PressureDifference))
+tableAA.dat2$MECH_TrueFLow_Plate20_PressureDifference <- as.numeric(as.character(tableAA.dat2$MECH_TrueFLow_Plate20_PressureDifference))
+tableAA.dat2$MECH_TrueFLow_SOP_NoFilter <- as.numeric(as.character(tableAA.dat2$MECH_TrueFLow_SOP_NoFilter))
+tableAA.dat2$MECH_TrueFLow_TFSOP <- as.numeric(as.character(tableAA.dat2$MECH_TrueFLow_TFSOP))
+
+
 ii=145
 for(ii in 1:nrow(tableAA.dat2)){
   if(!is.na(tableAA.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])){
@@ -86,7 +95,8 @@ tableAA.data <- weightedData(tableAA.merge[-which(colnames(tableAA.merge) %in% c
                                                                               ,"MECH_TrueFLow_SOP_NoFilter"
                                                                               ,"MECH_TrueFLow_TFSOP"
                                                                               ,"System.Type"
-                                                                              ,"Flow" ))])
+                                                                              ,"Flow"
+                                                                              ,"Primary.Heating.System"))])
 tableAA.data <- left_join(tableAA.data, tableAA.merge[which(colnames(tableAA.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"MECH_TrueFLow_NSOP"
                                                                                        ,"MECH_TrueFLow_Plate14_PressureDifference"
@@ -94,7 +104,8 @@ tableAA.data <- left_join(tableAA.data, tableAA.merge[which(colnames(tableAA.mer
                                                                                        ,"MECH_TrueFLow_SOP_NoFilter"
                                                                                        ,"MECH_TrueFLow_TFSOP"
                                                                                        ,"System.Type"
-                                                                                       ,"Flow"))])
+                                                                                       ,"Flow"
+                                                                                       ,"Primary.Heating.System"))])
 tableAA.data$count <- 1
 colnames(tableAA.data)
 #######################

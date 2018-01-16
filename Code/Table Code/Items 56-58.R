@@ -89,10 +89,18 @@ item56.dat2$SEER <- as.numeric(as.character(item56.dat2$SEER))
 
 #remove any NAs in SEER
 item56.dat3 <- item56.dat2[which(!(is.na(item56.dat2$SEER))),]
+item56.dat3$count <- 1
+item56.customer <- summarise(group_by(item56.dat3
+                                     , CK_Cadmus_ID
+                                     , EquipVintage_bins)
+                            ,y_bar_ilk  = mean(SEER)
+                            ,y_ilk      = sum(SEER)
+                            ,m_ilk      = sum(count)
+)
 
 #Join cleaned item 56 mechanical information with cleaned RBSA site information
-item56.dat4 <- left_join(rbsa.dat, item56.dat3, by = "CK_Cadmus_ID")
-item56.dat5 <- item56.dat4[-which(is.na(item56.dat4$SEER)), ]
+item56.dat4 <- left_join(rbsa.dat, item56.customer, by = "CK_Cadmus_ID")
+item56.dat5 <- item56.dat4[-which(is.na(item56.dat4$y_bar_ilk)), ]
 
 
 # Weighting
@@ -100,21 +108,27 @@ item56.data <- weightedData(item56.dat5[-which(colnames(item56.dat5) %in% c("Gen
                                                                             ,"Seasonal./.Portable.Equipment?"
                                                                             ,"Component.1.Year.of.Manufacture"
                                                                             ,"SEER"
-                                                                            ,"EquipVintage_bins"))])
+                                                                            ,"EquipVintage_bins"
+                                                                            ,"y_bar_ilk"
+                                                                            ,"y_ilk"
+                                                                            ,"m_ilk"))])
 
 item56.data <- left_join(item56.data, item56.dat5[which(colnames(item56.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Seasonal./.Portable.Equipment?"
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"SEER"
-                                                                                     ,"EquipVintage_bins"))])
+                                                                                     ,"EquipVintage_bins"
+                                                                                     ,"y_bar_ilk"
+                                                                                     ,"y_ilk"
+                                                                                     ,"m_ilk"))])
 
 ################################
 # Weighted Analysis
 ################################
 item56.data$count <-1
-item56.final <- mean_one_group(CustomerLevelData = item56.data
-                               ,valueVariable    = 'SEER'
+item56.final <- mean_one_group_domain(CustomerLevelData = item56.data
+                               ,valueVariable    = 'y_bar_ilk'
                                ,byVariable       = 'EquipVintage_bins'
                                ,aggregateRow     = 'All Vintages')
 
@@ -130,7 +144,7 @@ exportTable(item56.final.MH, "MH", "Table 43", weighted = TRUE)
 # Unweighted Analysis
 ################################
 item56.final <- mean_one_group_unweighted(CustomerLevelData = item56.data
-                               ,valueVariable    = 'SEER'
+                               ,valueVariable    = 'y_bar_ilk'
                                ,byVariable       = 'EquipVintage_bins'
                                ,aggregateRow     = 'All Vintages')
 
@@ -169,11 +183,20 @@ item57.dat2$SEER <- as.numeric(as.character(item57.dat2$SEER))
 #remove any NAs in SEER
 item57.dat3 <- item57.dat2[which(!(is.na(item57.dat2$SEER))),]
 
-#Join cleaned item 57 mechanical information with cleaned RBSA site information
-item57.dat4 <- left_join(rbsa.dat, item57.dat3, by = "CK_Cadmus_ID")
+item57.dat3$count <- 1
+item57.customer <- summarise(group_by(item57.dat3
+                                      , CK_Cadmus_ID
+                                      , EquipVintage_bins)
+                             ,y_bar_ilk  = mean(SEER)
+                             ,y_ilk      = sum(SEER)
+                             ,m_ilk      = sum(count)
+)
 
+
+#Join cleaned item 57 mechanical information with cleaned RBSA site information
+item57.dat4 <- left_join(rbsa.dat, item57.customer, by = "CK_Cadmus_ID")
 # Remove duplicates
-item57.dat5 <- item57.dat4[-which(is.na(item57.dat4$SEER)), ]
+item57.dat5 <- item57.dat4[-which(is.na(item57.dat4$y_bar_ilk)), ]
 
 
 # Weighting
@@ -181,21 +204,27 @@ item57.data <- weightedData(item57.dat5[-which(colnames(item57.dat5) %in% c("Gen
                                                                             ,"Seasonal./.Portable.Equipment?"
                                                                             ,"Component.1.Year.of.Manufacture"
                                                                             ,"SEER"
-                                                                            ,"EquipVintage_bins"))])
+                                                                            ,"EquipVintage_bins"
+                                                                            ,"y_bar_ilk"
+                                                                            ,"y_ilk"
+                                                                            ,"m_ilk"))])
 
 item57.data <- left_join(item57.data, item57.dat5[which(colnames(item57.dat5) %in% c("CK_Cadmus_ID"
-                                                                                      ,"Generic"
-                                                                                      ,"Seasonal./.Portable.Equipment?"
-                                                                                      ,"Component.1.Year.of.Manufacture"
-                                                                                      ,"SEER"
-                                                                                      ,"EquipVintage_bins"))])
+                                                                                     ,"Generic"
+                                                                                     ,"Seasonal./.Portable.Equipment?"
+                                                                                     ,"Component.1.Year.of.Manufacture"
+                                                                                     ,"SEER"
+                                                                                     ,"EquipVintage_bins"
+                                                                                     ,"y_bar_ilk"
+                                                                                     ,"y_ilk"
+                                                                                     ,"m_ilk"))])
 item57.data$count <- 1
 
 ########################
 # Weighted Analysis
 ########################
-item57.final <- mean_one_group(CustomerLevelData = item57.data
-                               ,valueVariable    = 'SEER'
+item57.final <- mean_one_group_domain(CustomerLevelData = item57.data
+                               ,valueVariable    = 'y_bar_ilk'
                                ,byVariable       = 'EquipVintage_bins'
                                ,aggregateRow     = 'All Vintages')
 
@@ -225,7 +254,7 @@ exportTable(item57.final.MH, "MH", "Table 44",weighted = TRUE)
 # Unweighted Analysis
 ########################
 item57.final <- mean_one_group_unweighted(CustomerLevelData = item57.data
-                               ,valueVariable    = 'SEER'
+                               ,valueVariable    = 'y_bar_ilk'
                                ,byVariable       = 'EquipVintage_bins'
                                ,aggregateRow     = 'All Vintages')
 

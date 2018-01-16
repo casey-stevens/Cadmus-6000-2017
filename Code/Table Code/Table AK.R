@@ -46,6 +46,14 @@ tableAK.flow <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_
                                                                      ,"MECH_TrueFLow_SOP_NoFilter"))]
 tableAK.flow1 <- tableAK.flow[which(!is.na(tableAK.flow$MECH_TrueFLow_NSOP)),]
 tableAK.flow2 <- tableAK.flow1[which(!is.na(tableAK.flow1$MECH_TrueFLow_SOP_NoFilter)),]
+
+tableAK.flow2$MECH_TrueFLow_NSOP <- as.numeric(as.character(tableAK.flow2$MECH_TrueFLow_NSOP))
+tableAK.flow2$MECH_TrueFLow_Plate14_PressureDifference <- as.numeric(as.character(tableAK.flow2$MECH_TrueFLow_Plate14_PressureDifference))
+tableAK.flow2$MECH_TrueFLow_Plate20_PressureDifference <- as.numeric(as.character(tableAK.flow2$MECH_TrueFLow_Plate20_PressureDifference))
+tableAK.flow2$MECH_TrueFLow_SOP_NoFilter <- as.numeric(as.character(tableAK.flow2$MECH_TrueFLow_SOP_NoFilter))
+tableAK.flow2$MECH_TrueFLow_TFSOP <- as.numeric(as.character(tableAK.flow2$MECH_TrueFLow_TFSOP))
+
+
 ii=145
 for(ii in 1:nrow(tableAK.flow2)){
   if(!is.na(tableAK.flow2$MECH_TrueFLow_Plate14_PressureDifference[ii])){
@@ -88,7 +96,7 @@ tableAK.dat2$Heating.System.Ind[which(tableAK.dat2$Primary.Heating.System == "No
 unique(tableAK.dat2$`System.Sub-Type`)
 unique(tableAK.dat2$Generic)
 
-tableAK.dat3 <-tableAK.dat2[which(tableAK.dat2$Primary.Heating.System == "Yes"),]
+tableAK.dat3 <-tableAK.dat2#[which(tableAK.dat2$Primary.Heating.System == "Yes"),]
 
 tableAK.dat4 <- tableAK.dat3[which(!is.na(tableAK.dat3$`Heating.Capacity.Units.-.High`)),]
 
@@ -109,7 +117,8 @@ tableAK.dat6 <- tableAK.dat5[which(tableAK.dat5$Heating.Fuel == "Electric"),]
 unique(tableAK.dat6$Generic)
 tableAK.dat7 <- tableAK.dat6[which(tableAK.dat6$Generic %in% c("Air Source Heat Pump"
                                                                ,"Furnace"
-                                                               ,"GeoThermal Heat Pump")),]
+                                                               ,"GeoThermal Heat Pump"
+                                                               ,"Water Source Heat Pump")),]
 
 unique(tableAK.dat7$`Heating.Capacity.Units.-.High`)
 

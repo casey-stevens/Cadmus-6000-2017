@@ -266,10 +266,30 @@ exportTable(item39.final.MH, "MH", "Table 28", weighted = FALSE)
 #############################################################################################
 item40.dat  <- item38.dat1[which(!is.na(item38.dat1$HomeYearBuilt)),]
 
+item40.dat$count <- 1
+
+
+item40.dat$ACH50 <- item40.dat$P50_CFM * 60 / item40.dat$Conditioned.Volume
+
+item40.dat1 <- item40.dat[which(item40.dat$ACH50 != "Inf"),] #only 883/959 have a recorded conditioned floor volume
+
+
+#average within houses
+item40.customer <- summarise(group_by(item40.dat1
+                                     , CK_Cadmus_ID
+                                     , HomeYearBuilt)
+                            ,y_bar_ilk  = mean(ACH50)
+                            ,y_ilk      = sum(ACH50)
+                            ,m_ilk      = sum(count)
+)
+
+item40.merge <- left_join(rbsa.dat, item40.customer)
+item40.merge <- item40.merge[which(!is.na(item40.merge$y_bar_ilk)),]
+
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
-item40.data <- weightedData(item40.dat[which(colnames(item40.dat) %notin% c("MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+item40.data <- weightedData(item40.merge[which(colnames(item40.merge) %notin% c("MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
                                                                             ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
                                                                             ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
                                                                             ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
@@ -288,9 +308,13 @@ item40.data <- weightedData(item40.dat[which(colnames(item40.dat) %notin% c("MEC
                                                                             ,"Flow.Exponent"
                                                                             ,"P50_CFM"
                                                                             ,"P50_HousePressure"
-                                                                            ,"CFM50"))])
+                                                                            ,"CFM50"
+                                                                            ,"ACH50"
+                                                                            ,"y_bar_ilk"
+                                                                            ,"y_ilk"
+                                                                            ,"m_ilk"))])
 
-item40.data <- left_join(item40.data, item40.dat[which(colnames(item40.dat) %in% c("CK_Cadmus_ID"
+item40.data <- left_join(item40.data, item40.merge[which(colnames(item40.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
                                                                                    ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
                                                                                    ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
@@ -310,21 +334,19 @@ item40.data <- left_join(item40.data, item40.dat[which(colnames(item40.dat) %in%
                                                                                    ,"Flow.Exponent"
                                                                                    ,"P50_CFM"
                                                                                    ,"P50_HousePressure"
-                                                                                   ,"CFM50"))])
-item40.data$count <- 1
-
-
-item40.data$ACH50 <- item40.data$P50_CFM * 60 / item40.data$Conditioned.Volume
-
-item40.dat1 <- item40.data[which(item40.data$ACH50 != "Inf"),] #only 883/959 have a recorded conditioned floor volume
+                                                                                   ,"CFM50"
+                                                                                   ,"ACH50"
+                                                                                   ,"y_bar_ilk"
+                                                                                   ,"y_ilk"
+                                                                                   ,"m_ilk"))])
 #############################################################################################
 # For Single Family
 #############################################################################################
 ######################
 # weighted analysis
 ######################
-item40.final <- mean_one_group(CustomerLevelData = item40.dat1
-                               ,valueVariable = 'ACH50'
+item40.final <- mean_one_group_domain(CustomerLevelData = item40.data
+                               ,valueVariable = 'y_bar_ilk'
                                ,byVariable = 'HomeYearBuilt_bins4'
                                ,aggregateRow = "All Vintages")
 
@@ -351,8 +373,8 @@ exportTable(item40.final.SF, "SF", "Table 47", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
-item40.final <- mean_one_group_unweighted(CustomerLevelData = item40.dat1
-                                          ,valueVariable = 'ACH50'
+item40.final <- mean_one_group_unweighted(CustomerLevelData = item40.data
+                                          ,valueVariable = 'y_bar_ilk'
                                           ,byVariable = 'HomeYearBuilt_bins4'
                                           ,aggregateRow = "All Vintages")
 
@@ -383,8 +405,8 @@ exportTable(item40.final.SF, "SF", "Table 47", weighted = FALSE)
 ######################
 # weighted analysis
 ######################
-item40.final <- mean_one_group(CustomerLevelData = item40.dat1
-                               ,valueVariable = 'ACH50'
+item40.final <- mean_one_group_domain(CustomerLevelData = item40.data
+                               ,valueVariable = 'y_bar_ilk'
                                ,byVariable = 'HomeYearBuilt_bins2'
                                ,aggregateRow = "All Vintages")
 
@@ -409,8 +431,8 @@ exportTable(item40.final.MH, "MH", "Table 29", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
-item40.final <- mean_one_group_unweighted(CustomerLevelData = item40.dat1
-                                          ,valueVariable = 'ACH50'
+item40.final <- mean_one_group_unweighted(CustomerLevelData = item40.data
+                                          ,valueVariable = 'y_bar_ilk'
                                           ,byVariable = 'HomeYearBuilt_bins2'
                                           ,aggregateRow = "All Vintages")
 
