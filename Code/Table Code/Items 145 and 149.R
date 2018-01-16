@@ -32,7 +32,8 @@ billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
 results.dat <- merge(rbsa.dat, billing.dat, 
                      by = "CK_Cadmus_ID", all.y = T)
 
-results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case = T),]
+#results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case = T),]
+results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
 mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
