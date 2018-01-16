@@ -6,7 +6,6 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-
 ##  Clear variables
 rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
@@ -32,7 +31,7 @@ billing.dat$CK_Cadmus_ID <- trimws(toupper(billing.dat$CK_Cadmus_ID))
 results.dat <- merge(rbsa.dat, billing.dat, 
                      by = "CK_Cadmus_ID", all.y = T)
 
-results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case = T),]
+results.dat2 <- results.dat
 
 usage.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
                    "UsageNAC_therms", "UsageRaw_therms", "heating_therms")
