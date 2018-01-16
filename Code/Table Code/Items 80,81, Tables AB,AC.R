@@ -240,7 +240,7 @@ tableAB.final <- mean_one_group(CustomerLevelData = tableAB.data
                                ,byVariable       = 'Type'
                                ,aggregateRow = "Total")
 # tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
-
+tableAB.final$Mean <- tableAB.final
 
 tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
                                 ,-which(colnames(tableAB.final) %in% c("BuildingType"))]

@@ -267,29 +267,30 @@ exportTable(item4.table.MH, "MH", "Table 10"
 # Weighting Implementation function: Mean, two groups
 ######################################################
 
-env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                            , "Conditioned.Living.Area"))]
-colnames(env.dat) <- c("CK_Cadmus_ID"
-                       , "BldgLevel_Area_SqFt")
-
-#make conditioned area as.numeric
-env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
+# env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+#                                                             , "Conditioned.Living.Area"))]
+# colnames(env.dat) <- c("CK_Cadmus_ID"
+#                        , "BldgLevel_Area_SqFt")
+# 
+# #make conditioned area as.numeric
+# env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
 
 
 #merge
-item5.dat <- left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
+item5.dat <- rbsa.dat#left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
 length(unique(item5.dat$CK_Cadmus_ID))
 
 item5.dat1 <- item5.dat[which(item5.dat$BuildingType != "Multifamily"),]
-item5.dat2 <- item5.dat1[which(!is.na(item5.dat1$ConditionedArea)),]
-item5.dat2 <- item5.dat2[which(item5.dat2$ConditionedArea != 0),]
+# item5.dat1 <- item5.dat1[-grep("bldg", item5.dat1$CK_Building_ID, ignore.case = T),]
+item5.dat2 <- item5.dat1[which(!is.na(item5.dat1$Conditioned.Area)),]
+item5.dat2 <- item5.dat2[which(item5.dat2$Conditioned.Area > 0),]
 item5.dat3 <- item5.dat2[which(!is.na(item5.dat2$HomeYearBuilt)),]
 
 ######################################################
 # Summarise data up to unique customer level
 ######################################################
 item5.customer <- summarise(group_by(item5.dat3, CK_Cadmus_ID)
-                            ,siteAreaConditioned = sum(ConditionedArea))
+                            ,siteAreaConditioned = sum(Conditioned.Area))
 
 item5.merge <- left_join(rbsa.dat, item5.customer)
 item5.merge <- item5.merge[which(!is.na(item5.merge$siteAreaConditioned)),]

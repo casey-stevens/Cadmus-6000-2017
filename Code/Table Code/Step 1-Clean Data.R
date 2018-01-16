@@ -40,6 +40,7 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "HomeYearBuilt"      = one.line.dat$Year.Built
                             , "State"              = one.line.dat$State
                             , "Detailed.Region"    = one.line.dat$Region
+                            # , "BuildingHeight"     = one.line.dat$N.Floors
                             , "Conditioned.Area"   = one.line.dat$Conditioned.Area
                             , "Conditioned.Volume" = one.line.dat$Conditioned.Volume
                             , "Cooling.Zone"       = one.line.dat$Cooling.Zone
