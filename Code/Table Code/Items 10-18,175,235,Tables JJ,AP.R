@@ -1410,6 +1410,165 @@ exportTable(item12.table.MH, "MH", "Table 16"
 
 
 
+#############################################################################################
+# Table AP: DISTRIBUTION OF WALL INSULATION LEVELS BY STATE
+#############################################################################################
+prep.tableAP.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
+
+#weight the u factor per home -- where weights are the wall area within home
+prep.tableAP.weightedU <- summarise(group_by(prep.tableAP.dat, CK_Cadmus_ID, Wall.Type)
+                                   ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
+)
+
+#back-calculate the weight r values
+prep.tableAP.weightedU$aveRval <- (1 / as.numeric(as.character(prep.tableAP.weightedU$aveUval)))
+prep.tableAP.weightedU$aveRval[which(prep.tableAP.weightedU$aveRval %in% c("NaN",1))] <- 0
+prep.tableAP.weightedU$aveUval[which(prep.tableAP.weightedU$aveUval == "NaN")] <- 1
+unique(prep.tableAP.weightedU$aveRval)
+
+# get unique cadmus IDs and building types for this subset of data
+prep.tableAP.wall.unique <- unique(prep.tableAP.dat[which(colnames(prep.tableAP.dat) %in% c("CK_Cadmus_ID","BuildingType"))])
+
+# merge on ID and building types to weighted uFactor and rValue data
+prep.tableAP.dat1 <- left_join(prep.tableAP.weightedU, prep.tableAP.wall.unique, by = "CK_Cadmus_ID")
+
+#merge weighted u values onto cleaned RBSA data
+prep.tableAP.dat2 <- left_join(prep.tableAP.dat1, rbsa.dat)
+prep.tableAP.dat2$aveUval[which(is.na(prep.tableAP.dat2$aveUval))] <- 0
+prep.tableAP.dat2$aveRval[which(is.na(prep.tableAP.dat2$aveRval))] <- 0
+
+
+
+
+## Note: For this table, you must run up to prep.dat7 for the cleaned data
+tableAP.dat <- prep.tableAP.dat2
+
+tableAP.dat1 <- tableAP.dat
+
+#Bin R values -- SF only
+tableAP.dat1$rvalue.bins.SF <- "Unknown"
+tableAP.dat1$rvalue.bins.SF[which(tableAP.dat1$aveRval < 1)] <- "R0"
+tableAP.dat1$rvalue.bins.SF[which(tableAP.dat1$aveRval >=  1  & tableAP.dat1$aveRval < 11)]  <- "R1.R10"
+tableAP.dat1$rvalue.bins.SF[which(tableAP.dat1$aveRval >= 11 & tableAP.dat1$aveRval  < 17)]  <- "R11.R16"
+tableAP.dat1$rvalue.bins.SF[which(tableAP.dat1$aveRval >= 17 & tableAP.dat1$aveRval  < 23)]  <- "R17.R22"
+tableAP.dat1$rvalue.bins.SF[which(tableAP.dat1$aveRval >= 22)] <- "RGT22"
+unique(tableAP.dat1$rvalue.bins.SF)
+
+#Bin R values -- MH only
+tableAP.dat1$rvalue.bins.MH <- "Unknown"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 0  & tableAP.dat1$aveRval <  9)]  <- "R0.R8"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 9  & tableAP.dat1$aveRval < 15)]  <- "R9.R14"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 15 & tableAP.dat1$aveRval < 22)]  <- "R15.R21"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 22)]  <- "R22.R30"
+unique(tableAP.dat1$rvalue.bins.MH)
+
+
+############################################################################################################
+# Apply weights
+############################################################################################################
+tableAP.dat1$count <- 1
+colnames(tableAP.dat1)
+
+tableAP.merge <- left_join(rbsa.dat, tableAP.dat1)
+tableAP.merge <- tableAP.merge[which(!is.na(tableAP.merge$count)),]
+
+tableAP.data <- weightedData(unique(tableAP.merge[-which(colnames(tableAP.merge) %in% c("Wall.Type"
+                                                                                     ,"aveUval"
+                                                                                     ,"aveRval"
+                                                                                     ,"rvalue.bins.SF"
+                                                                                     ,"rvalue.bins.MH"
+                                                                                     ,"count"))]))
+tableAP.data <- left_join(tableAP.data, tableAP.merge[which(colnames(tableAP.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"Wall.Type"
+                                                                                       ,"aveUval"
+                                                                                       ,"aveRval"
+                                                                                       ,"rvalue.bins.SF"
+                                                                                       ,"rvalue.bins.MH"
+                                                                                       ,"count"))])
+
+#############################################################################################
+# Weighted Analysis - Single Family
+#############################################################################################
+tableAP.final <- proportionRowsAndColumns1(CustomerLevelData     = tableAP.data
+                                            , valueVariable       = 'count'
+                                            , columnVariable      = 'State'
+                                            , rowVariable         = 'rvalue.bins.SF'
+                                            , aggregateColumnName = "Region"
+)
+
+tableAP.cast <- dcast(setDT(tableAP.final),
+                     formula   = BuildingType + rvalue.bins.SF ~ State,
+                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+tableAP.table <- data.frame("BuildingType"     = tableAP.cast$BuildingType
+                            ,"Insulation.Levels" = tableAP.cast$rvalue.bins.SF
+                            ,"Percent_ID"     = tableAP.cast$w.percent_ID
+                            ,"SE_ID"          = tableAP.cast$w.SE_ID
+                            ,"n_ID"           = tableAP.cast$n_ID
+                            ,"Percent_MT"     = tableAP.cast$w.percent_MT
+                            ,"SE_MT"          = tableAP.cast$w.SE_MT
+                            ,"n_MT"           = tableAP.cast$n_MT
+                            ,"Percent_OR"     = tableAP.cast$w.percent_OR
+                            ,"SE_OR"          = tableAP.cast$w.SE_OR
+                            ,"n_OR"           = tableAP.cast$n_OR
+                            ,"Percent_WA"     = tableAP.cast$w.percent_WA
+                            ,"SE_WA"          = tableAP.cast$w.SE_WA
+                            ,"n_WA"           = tableAP.cast$n_WA
+                            ,"Percent_Region" = tableAP.cast$w.percent_Region
+                            ,"SE_Region"      = tableAP.cast$w.SE_Region
+                            ,"n_Region"       = tableAP.cast$n_Region
+                            ,"EB_ID"          = tableAP.cast$EB_ID
+                            ,"EB_MT"          = tableAP.cast$EB_MT
+                            ,"EB_OR"          = tableAP.cast$EB_OR
+                            ,"EB_WA"          = tableAP.cast$EB_WA
+                            ,"EB_Region"      = tableAP.cast$EB_Region
+)
+
+tableAP.table.SF <- tableAP.table[which(tableAP.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(tableAP.table.SF, "SF", "Table AP", weighted = TRUE)
+
+
+
+################################
+# Unweighted Analysis
+################################
+tableAP.final <- proportions_two_groups_unweighted(CustomerLevelData     = tableAP.data
+                                           , valueVariable       = 'count'
+                                           , columnVariable      = 'State'
+                                           , rowVariable         = 'rvalue.bins.SF'
+                                           , aggregateColumnName = "Region"
+)
+
+tableAP.cast <- dcast(setDT(tableAP.final),
+                      formula   = BuildingType + rvalue.bins.SF ~ State,
+                      value.var = c("Percent", "SE", "Count", "n"))
+
+tableAP.table <- data.frame("BuildingType"     = tableAP.cast$BuildingType
+                            ,"Insulation.Levels" = tableAP.cast$rvalue.bins.SF
+                            ,"Percent_ID"     = tableAP.cast$Percent_ID
+                            ,"SE_ID"          = tableAP.cast$SE_ID
+                            ,"n_ID"           = tableAP.cast$n_ID
+                            ,"Percent_MT"     = tableAP.cast$Percent_MT
+                            ,"SE_MT"          = tableAP.cast$SE_MT
+                            ,"n_MT"           = tableAP.cast$n_MT
+                            ,"Percent_OR"     = tableAP.cast$Percent_OR
+                            ,"SE_OR"          = tableAP.cast$SE_OR
+                            ,"n_OR"           = tableAP.cast$n_OR
+                            ,"Percent_WA"     = tableAP.cast$Percent_WA
+                            ,"SE_WA"          = tableAP.cast$SE_WA
+                            ,"n_WA"           = tableAP.cast$n_WA
+                            ,"Percent_Region" = tableAP.cast$Percent_Region
+                            ,"SE_Region"      = tableAP.cast$SE_Region
+                            ,"n_Region"       = tableAP.cast$n_Region
+)
+
+tableAP.table.SF <- tableAP.table[which(tableAP.table$BuildingType == "Single Family"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(tableAP.table.SF, "SF", "Table AP", weighted = FALSE)
+
 
 
 
