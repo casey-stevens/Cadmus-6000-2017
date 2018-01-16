@@ -430,6 +430,7 @@ samp.dat.MF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamil
                          , total.counts.MF)
 
 samp.dat.final <- rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F)
+samp.dat.final <- samp.dat.final[which(!is.na(samp.dat.final$N.h)),]
 unique(samp.dat.final$n.h)
 
 which(duplicated(samp.dat.final$CK_Cadmus_ID))
@@ -440,13 +441,13 @@ missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat
 # samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.ind),]
 
 
-samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
-samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
-samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
-##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
-           append = T, row.names = F, showNA = F)
+# samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
+# samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
+# samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
+# ##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 return(samp.dat.final)
