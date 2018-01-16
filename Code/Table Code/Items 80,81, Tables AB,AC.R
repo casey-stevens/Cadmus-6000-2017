@@ -201,9 +201,7 @@ exportTable(item80.final.MH, "MH", "Table 68", weighted = FALSE)
 #############################################################################################
 tableAB.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                    ,"Type"
-                                                                   ,"Age"
-                                                                   ,""
-                                                                   ,""))]
+                                                                   ,"Age"))]
 tableAB.dat$count <- 1
 
 tableAB.dat$Age <- as.numeric(as.character(tableAB.dat$Age))
@@ -240,7 +238,7 @@ tableAB.final <- mean_one_group(CustomerLevelData = tableAB.data
                                ,byVariable       = 'Type'
                                ,aggregateRow = "Total")
 # tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
-tableAB.final$Mean <- tableAB.final
+tableAB.final$Mean <- round(tableAB.final$Mean,0)
 
 tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
                                 ,-which(colnames(tableAB.final) %in% c("BuildingType"))]

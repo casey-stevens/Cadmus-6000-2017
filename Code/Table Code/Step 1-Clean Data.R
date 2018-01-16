@@ -45,6 +45,7 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "Conditioned.Volume" = one.line.dat$Conditioned.Volume
                             , "Cooling.Zone"       = one.line.dat$Cooling.Zone
                             , "ZIP"                = one.line.dat$Zip
+                            ,"Territory"           = one.line.dat$Strata.Territory
                             , stringsAsFactors     = F)
 building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
                               ,"CK_Building_ID"   = one.line.dat$CK_BuildingID

@@ -72,7 +72,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                    ,n      = sum(n_hj)
                                    ,n_h    = unique(n_h)
                                    ,N_h    = unique(N_h)
-                                   ,EB   = SE * qt(0.9, n)
+                                   ,EB   = SE * qt(1-(1-0.9)/2, n)
                                    ,Precision = EB / Mean), stringsAsFactors = F)
     
     Category <- valueVariable
@@ -87,7 +87,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                            ,n    = sum(n_hj)
                            ,n_h  = (unique(n_h))
                            ,N_h  = (unique(N_h))
-                           ,EB   = SE * qt(0.9, n)
+                           ,EB   = SE * qt(1-(1-0.9)/2, n)
                            ,Precision = EB / Mean), stringsAsFactors = F)
     
     item.region <- data.frame(ddply(item.strata, "BuildingType", summarise
@@ -97,7 +97,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                     ,n      = unique((n_h))
                                     ,n_h    = unique((n_h))
                                     ,N_h    = unique((N_h))
-                                    ,EB     = SE * qt(0.9, n)
+                                    ,EB     = SE * qt(1-(1-0.9)/2, n)
                                     ,Precision = EB / Mean), stringsAsFactors = F)
     #rename columns
     colnames(item.region)[which(colnames(item.region) == 'byRow')] <- byVariable
@@ -222,7 +222,7 @@ mean_one_group_domain <- function(CustomerLevelData, valueVariable, byVariable, 
   item.final <- left_join(item.final, samplesizes)
   names(item.final)[which(names(item.final) %in% c("y_bar_hat_k","SE_y_bar_hat_k"))] <- c("Mean","SE")
   item.final <- item.final[which(!colnames(item.final) %in% c("M_hat_k","outer_sum","var_hat_y_bar_hat_k"))]
-  item.final$EB <- item.final$SE * qt(0.9, item.final$n)
+  item.final$EB <- item.final$SE * qt(1-(1-0.9)/2, item.final$n)
   return(item.final)
 }
 
@@ -363,7 +363,7 @@ mean_two_groups <- function(CustomerLevelData
                           ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                           ,n    = sum(n)
                           ,N    = sum(unique(N_h))
-                          ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
+                          ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
   
   #merge samples sizes onto mean and SE info
   # item.group.all <- left_join(item.group.all, item.group.sample.size)
@@ -378,7 +378,7 @@ mean_two_groups <- function(CustomerLevelData
                                ,SE         = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                ,n          = sum(n)
                                ,N          = sum(unique(N_h))
-                               ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
+                               ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
     #Rename column byrow
     item.group.rowAgg <- ConvertColName(item.group.rowAgg,
                                         "byRow",
@@ -393,7 +393,7 @@ mean_two_groups <- function(CustomerLevelData
                                 ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                 ,n     = sum(n)
                                 ,N     = sum(unique(N_h))
-                                ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
+                                ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
     #rename column byCol
     item.group.colAgg1 <- ConvertColName(item.group.colAgg1, "byCol",
                                          byVariableColumn)
@@ -406,7 +406,7 @@ mean_two_groups <- function(CustomerLevelData
                                   ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
                                   ,n     = sum(n)
                                   ,N     = sum(unique(N_h))
-                                  ,EB   = SE * qt(0.9, n)), stringsAsFactors = F)
+                                  ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
       #rename columns byCol and by Row
       item.group.colAgg2 <- ConvertColName(item.group.colAgg2, "byRow",byVariableRow)
       item.group.colAgg2 <- ConvertColName(item.group.colAgg2, "byCol",byVariableColumn)
@@ -703,7 +703,7 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,count     = sum(count)
                                                      ,N         = sum(unique(N.h))
                                                      ,n         = sum(n_hj)
-                                                     ,EB   = w.SE * qt(0.9, n)
+                                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)
                                                      ), stringsAsFactors = F)
         #summarise across home types (total level)
         ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
@@ -713,7 +713,7 @@ proportions_one_group <- function(CustomerLevelData
                                          ,count     = sum(count, na.rm = T)
                                          ,N         = unique(columnVar.N.h)#sum(unique(N.h))
                                          ,n         = sum(n_hj)
-                                         ,EB   = w.SE * qt(0.9, n)
+                                         ,EB   = w.SE * qt(1-(1-0.9)/2, n)
         ), stringsAsFactors = F) 
         
       }else{
@@ -726,7 +726,7 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,count     = sum(count)
                                                      ,N         = unique(columnVar.N.h)
                                                      ,n         = sum(n_hj)
-                                                     ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
         if(groupingVariable == "Lamp.Category"){
           #summarise across home types (total level)
           ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
@@ -736,7 +736,7 @@ proportions_one_group <- function(CustomerLevelData
                                            ,count     = sum(count)
                                            ,N         = sum(unique(columnVar.N.h))
                                            ,n         = sum(unique(columnVar.n.h))
-                                           ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                           ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
         }else {
           #summarise across home types (total level)
           ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
@@ -746,7 +746,7 @@ proportions_one_group <- function(CustomerLevelData
                                            ,count          = sum(count, na.rm = T)
                                            ,n              = sum(n)
                                            ,N              = sum(unique(N), na.rm = T)
-                                           ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                           ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
         }
 
         
@@ -1091,7 +1091,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  ,count     = sum(count)
                                                  ,N         = sum(unique(N.h))
                                                  ,n         = sum(n_hj)
-                                                 ,EB   = w.SE * qt(0.9, n)
+                                                 ,EB   = w.SE * qt(1-(1-0.9)/2, n)
     ), stringsAsFactors = F)
     
     # calculate column totals
@@ -1106,7 +1106,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,count     = sum(count)
                                      ,N         = unique(columnVar.N.h)
                                      ,n         = sum(n_hj)
-                                     ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
   }else {
     
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
@@ -1119,7 +1119,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  ,count     = sum(count)
                                                  ,N         = unique(columnVar.N.h)
                                                  ,n         = sum(n_hj)
-                                                 ,EB   = w.SE * qt(0.9, n)
+                                                 ,EB   = w.SE * qt(1-(1-0.9)/2, n)
                                                  # ,n         = unique(columnVar.n.h)
     ), stringsAsFactors = F)
     
@@ -1134,7 +1134,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      # ,n              = sum(n_hj, na.rm = T)
                                      ,n              = sum((n), na.rm = T)
                                      ,N              = sum(unique(N), na.rm = T)
-                                     ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
   }
   
   #rename column
@@ -1171,7 +1171,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                              ,count     = sum(count)
                              ,N         = unique(aggregate.N.h)
                              ,n         = sum(n_hj)
-                             ,EB   = w.SE * qt(0.9, n)
+                             ,EB   = w.SE * qt(1-(1-0.9)/2, n)
                              # ,n         = unique(aggregate.n.h)
                              )
   #rename column
@@ -1186,7 +1186,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                         # ,n         = sum((n), na.rm = T)
                         ,n         = sum((n), na.rm = T)
                         ,N         = sum(unique(N), na.rm = T)
-                        ,EB   = w.SE * qt(0.9, n))
+                        ,EB   = w.SE * qt(1-(1-0.9)/2, n))
   #rename column
   colnames(item.agg.tot)[which(colnames(item.agg.tot) == 'rowTotal')]   <- rowVariable
   
@@ -1405,7 +1405,7 @@ proportions_one_group_MF <- function(CustomerLevelData
                                                    ,count     = sum(count)
                                                    ,n         = sum(n_hj)
                                                    ,N         = unique(columnTot.N.h)
-                                                   ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                                   ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
       
       
       #summarise across home types (total level)
@@ -1416,7 +1416,7 @@ proportions_one_group_MF <- function(CustomerLevelData
                                        ,count          = sum(count, na.rm = T)
                                        ,n              = sum(n)
                                        ,N              = sum(unique(N), na.rm = T)
-                                       ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                       ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
@@ -1467,7 +1467,7 @@ proportions_one_group_MF <- function(CustomerLevelData
                                     ,count     = sum(count)
                                     ,n         = sum(n)
                                     ,N         = sum(unique(N.h))
-                                    ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                    ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
       
     }else {
       # obtain count and proportion by strata and row grouping variable
@@ -1513,7 +1513,7 @@ proportions_one_group_MF <- function(CustomerLevelData
                                                    ,count     = sum(count)
                                                    ,n         = sum(n)
                                                    ,N         = sum(unique(N.h))
-                                                   ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                                   ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
       
       
       #summarise across home types (total level)
@@ -1524,7 +1524,7 @@ proportions_one_group_MF <- function(CustomerLevelData
                                        ,count          = sum(count, na.rm = T)
                                        ,n              = sum(n)
                                        ,N              = sum(unique(N), na.rm = T)
-                                       ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                       ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
@@ -1721,7 +1721,7 @@ proportions_one_group_within_row <- function(CustomerLevelData
                                                    ,count     = sum(count)
                                                    ,N         = unique(columnVar.N.h)
                                                    ,n         = sum(n_hj)
-                                                   ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                                   ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
@@ -1731,7 +1731,7 @@ proportions_one_group_within_row <- function(CustomerLevelData
                                        ,count          = sum(count, na.rm = T)
                                        ,n              = sum(unique(n))
                                        ,N              = unique(N)
-                                       ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                       ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
     }else{
@@ -1742,7 +1742,7 @@ proportions_one_group_within_row <- function(CustomerLevelData
                                                    ,count     = sum(count)
                                                    ,N         = unique(columnVar.N.h)
                                                    ,n         = unique(n_hj)
-                                                   ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                                   ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
       
       #summarise across home types (total level)
       ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
@@ -1752,7 +1752,7 @@ proportions_one_group_within_row <- function(CustomerLevelData
                                        ,count          = sum(count, na.rm = T)
                                        ,n              = unique(n)
                                        ,N              = unique(N)
-                                       ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                       ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
     }
@@ -2029,7 +2029,7 @@ proportionRowsAndColumns1_within_row <- function(CustomerLevelData
                                                ,count     = sum(count)
                                                ,N         = unique(columnVar.N.h)
                                                ,n         = unique(n_hj)
-                                               ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F)
+                                               ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
   if (columnVariable == "Cooling.Zone" & valueVariable == "Ind"){
     # calculate column totals
     ColumnTotals <- data.frame(ddply(StrataData
@@ -2043,7 +2043,7 @@ proportionRowsAndColumns1_within_row <- function(CustomerLevelData
                                      ,count     = sum(count)
                                      ,N         = unique(columnVar.N.h)
                                      ,n         = sum(n_hj)
-                                     ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
   }else {
     # calculate column totals
     ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup
@@ -2055,7 +2055,7 @@ proportionRowsAndColumns1_within_row <- function(CustomerLevelData
                                      ,count          = sum(count, na.rm = T)
                                      ,n              = sum(unique(n), na.rm = T)
                                      ,N              = sum(unique(N), na.rm = T)
-                                     ,EB   = w.SE * qt(0.9, n)), stringsAsFactors = F) 
+                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
   }
   
   #rename column
@@ -2091,7 +2091,7 @@ proportionRowsAndColumns1_within_row <- function(CustomerLevelData
                              ,count     = sum(count)
                              ,N         = unique(aggregate.N.h)
                              ,n         = unique(aggregate.n.h)
-                             ,EB   = w.SE * qt(0.9, n))
+                             ,EB   = w.SE * qt(1-(1-0.9)/2, n))
   #rename column
   colnames(item.agg.weighted)[which(colnames(item.agg.weighted) == 'aggregateName')] <- columnVariable
   
@@ -2103,7 +2103,7 @@ proportionRowsAndColumns1_within_row <- function(CustomerLevelData
                         ,count     = sum(count, na.rm = T)
                         ,n         = sum(unique(n), na.rm = T)
                         ,N         = sum(unique(N), na.rm = T)
-                        ,EB   = w.SE * qt(0.9, n))
+                        ,EB   = w.SE * qt(1-(1-0.9)/2, n))
   #rename column
   colnames(item.agg.tot)[which(colnames(item.agg.tot) == 'rowTotal')]   <- rowVariable
   

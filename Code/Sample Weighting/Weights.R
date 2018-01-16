@@ -196,6 +196,7 @@ weightedData <- function(itemData){
                             ,"Conditioned.Area"
                             ,"Conditioned.Volume"
                             ,"Cooling.Zone"
+                            ,"Territory"
                             ,"HomeYearBuilt_bins1"
                             ,"HomeYearBuilt_bins2"
                             ,"HomeYearBuilt_bins3"
@@ -250,17 +251,21 @@ weightedData <- function(itemData){
   dupCustIDs <- unique(samp.dat.2$CK_Cadmus_ID[which(duplicated(samp.dat.2$CK_Cadmus_ID))])
   dupData    <- samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% dupCustIDs),]
    #this is okay, any MF building with a SITE and BUILDING ID will have a duplicated CK_Cadmus_ID
+  
+  single.family.bldg <- samp.dat.2[which(samp.dat.2$BuildingType == "Single Family"),]
+  single.family.bldg1 <- single.family.bldg$CK_Building_ID[grep("bldg",single.family.bldg$CK_Building_ID, ignore.case = T)]
+  samp.dat.3 <- samp.dat.2[which(!samp.dat.2$CK_Building_ID %in% single.family.bldg1),]
 
 ##  Find  missing states and regions in full data
 #     NOTE: there are cases where zip codes found in our data collection did not show up in the population data from ACS.
 #     Make sure this gets written in weighting section of report
-missing.region <- samp.dat.2$CK_Cadmus_ID[which(is.na(samp.dat.2$Region))]
+missing.region <- samp.dat.3$CK_Cadmus_ID[which(is.na(samp.dat.3$Region))]
 #print this: send to Rietz (MF does not need region)
-samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.region & samp.dat.2$State %in% c("WA", "OR") & samp.dat.2$BuildingType != "Multifamily"),]
+samp.dat.3[which(samp.dat.3$CK_Cadmus_ID %in% missing.region & samp.dat.3$State %in% c("WA", "OR") & samp.dat.3$BuildingType != "Multifamily"),]
 
 
 ##  Reassign Data
-samp.dat.4 <- samp.dat.2
+samp.dat.4 <- samp.dat.3
 
 #########################################
 # All of this needs to be reviewed
@@ -275,21 +280,21 @@ stopifnot(all(samp.dat.5$BPA_vs_IOU[grep("PUGET SOUND",     samp.dat.5$Utility)]
 
 # Subset and define Territory
 # Initialize the vector for strata names
-samp.dat.5$Territory <- rep("MISSING", nrow(samp.dat.5))
+# samp.dat.5$Territory <- rep("MISSING", nrow(samp.dat.5))
 unique(samp.dat.5$Utility)
 
 
-# Assign Territory
-samp.dat.5$Territory[which(samp.dat.5$BPA_vs_IOU == "BPA")]             <- "BPA"
-samp.dat.5$Territory[grep("IOU|NOT BPA",        samp.dat.5$BPA_vs_IOU)] <- "Non-BPA.Non-PSE"
-samp.dat.5$Territory[grep("SNOHOMISH",          samp.dat.5$Utility)]    <- "SnoPUD"
-samp.dat.5$Territory[grep("PUGET SOUND",        samp.dat.5$Utility)]    <- "PSE"
-samp.dat.5$Territory[grep("SEATTLE CITY LIGHT", samp.dat.5$Utility)]    <- "SCL"
-unique(samp.dat.5$Territory)
-
-
-##incorrect territory: If WA and PS territory cannot be Non-BPA.Non-PSE
-territory.ind <- samp.dat.5$CK_Cadmus_ID[which(samp.dat.5$State == "WA" & samp.dat.5$Region == "PS" & samp.dat.5$Territory == "Non-BPA.Non-PSE")]
+# # Assign Territory
+# samp.dat.5$Territory[which(samp.dat.5$BPA_vs_IOU == "BPA")]             <- "BPA"
+# samp.dat.5$Territory[grep("IOU|NOT BPA",        samp.dat.5$BPA_vs_IOU)] <- "Non-BPA.Non-PSE"
+# samp.dat.5$Territory[grep("SNOHOMISH",          samp.dat.5$Utility)]    <- "SnoPUD"
+# samp.dat.5$Territory[grep("PUGET SOUND",        samp.dat.5$Utility)]    <- "PSE"
+# samp.dat.5$Territory[grep("SEATTLE CITY LIGHT", samp.dat.5$Utility)]    <- "SCL"
+# unique(samp.dat.5$Territory)
+# 
+# 
+# ##incorrect territory: If WA and PS territory cannot be Non-BPA.Non-PSE
+# territory.ind <- samp.dat.5$CK_Cadmus_ID[which(samp.dat.5$State == "WA" & samp.dat.5$Region == "PS" & samp.dat.5$Territory == "Non-BPA.Non-PSE")]
 
 # If there are any territory issues, uncomment the following:
   # incorrect.territory <- samp.dat.5$CK_Cadmus_ID[which(samp.dat.5$CK_Cadmus_ID %in% territory.ind)]
@@ -322,11 +327,14 @@ sampCounts.SF <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == 
                                    BuildingType, State, Region, Territory)
                           , n.h = length(unique(CK_Cadmus_ID)))
 sum(sampCounts.SF$n.h)
-sampCounts.MH <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactured"),], 
+
+samp.dat.7 <- samp.dat.6
+samp.dat.7$Territory[grep("scl",samp.dat.7$Territory,ignore.case = T)] <- "SCL"
+sampCounts.MH <- summarise(group_by(samp.dat.7[which(samp.dat.7$BuildingType == "Manufactured"),], 
                                     BuildingType, State, Region, Territory)
                            ,n.h = length(unique(CK_Cadmus_ID)))
 sum(sampCounts.MH$n.h)
-sampCounts.MF <- summarise(group_by(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),], 
+sampCounts.MF <- summarise(group_by(samp.dat.7[which(samp.dat.7$BuildingType == "Multifamily"),], 
                                     BuildingType, State, Region, Territory)
                            ,n.h = length(unique(CK_Cadmus_ID)))
 sum(sampCounts.MF$n.h)
@@ -351,7 +359,7 @@ popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
 popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU %in% c("IOU", "NOT BPA", NA))]    <- "Non-BPA.Non-PSE"
 popCounts.0$Territory[grep("SNOHOMISH",    popCounts.0$Utility)] <- "SnoPUD"
 popCounts.0$Territory[grep("PUGET SOUND",  popCounts.0$Utility)] <- "PSE"
-popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL"
+popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL Not LI or EH"
 unique(popCounts.0$Territory)
 
 # Get sample sizes in each Territory
@@ -360,11 +368,26 @@ popCounts.SF <- summarise(group_by(popCounts.0,
                           ,BuildingType = "Single Family"
                          , N.h = sum(SF.pop)
                          )
-popCounts.MH <- summarise(group_by(popCounts.0, 
+SCL.LI.Row <- data.frame(popCounts.SF[which(popCounts.SF$Territory == "SCL Not LI or EH"),],stringsAsFactors = F)
+SCL.LI.Row$Territory <- "SCL LI"
+SCL.EH.Row <- data.frame(popCounts.SF[which(popCounts.SF$Territory == "SCL Not LI or EH"),],stringsAsFactors = F)
+SCL.EH.Row$Territory <- "SCL EH"
+SCL.LI.EH.Row <- data.frame(popCounts.SF[which(popCounts.SF$Territory == "SCL Not LI or EH"),],stringsAsFactors = F)
+SCL.LI.EH.Row$Territory <- "SCL LI and EH"
+
+popCounts.SF <- rbind.data.frame(popCounts.SF, SCL.LI.Row, SCL.EH.Row, SCL.LI.EH.Row)
+popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL Not LI or EH")] <- round(popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL Not LI or EH")] - popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL Not LI or EH")]*0.05 - popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL Not LI or EH")]*0.18,0)
+popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL LI")] <- round(popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL LI")]*0.05,0)
+popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL EH")] <- round(popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL EH")]*0.18,0)
+popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL LI and EH")] <- round(popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL LI and EH")]*0.05*0.18,0)
+
+popCounts.1 <- popCounts.0
+popCounts.1$Territory[grep("scl", popCounts.1$Territory, ignore.case = T)] <- "SCL"
+popCounts.MH <- summarise(group_by(popCounts.1, 
                                    State, Region, Territory)
                           ,BuildingType = "Manufactured"
                           ,N.h = sum(MH.pop))
-popCounts.MF <- summarise(group_by(popCounts.0, 
+popCounts.MF <- summarise(group_by(popCounts.1, 
                                    State, Region, Territory)
                           ,BuildingType = "Multifamily"
                           ,N.h = sum(MF.pop))
@@ -376,9 +399,9 @@ popCounts.MF <- summarise(group_by(popCounts.0,
 #############################################################################################
 
 total.counts.SF <- full_join(popCounts.SF, sampCounts.SF, by = c("BuildingType"
-                                                        ,"State"
-                                                        ,"Region"
-                                                        ,"Territory"))
+                                                                 ,"State"
+                                                                 ,"Region"
+                                                                 ,"Territory"))
 total.counts.MH <- full_join(popCounts.MH, sampCounts.MH, by = c("BuildingType"
                                                                  ,"State"
                                                                  ,"Region"
@@ -391,6 +414,8 @@ total.counts.MF <- full_join(popCounts.MF, sampCounts.MF, by = c("BuildingType"
 ## check that there are no NA's in final sample sizes
 ## Put zero as a placeholder until final comes in
 total.counts.SF$n.h[which(is.na(total.counts.SF$n.h))] <- 0
+total.counts.MH$n.h[which(is.na(total.counts.MH$n.h))] <- 0
+total.counts.MF$n.h[which(is.na(total.counts.MF$n.h))] <- 0
 
 #############################################################################################
 # Cmerge pop and sample sizes onto cleaned data
@@ -415,12 +440,13 @@ missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat
 # samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.ind),]
 
 
-# samp.dat.export <- samp.dat.final[,-ncol(samp.dat.final)]
-# samp.dat.export <- samp.dat.export[-grep("bldg",samp.dat.export$CK_Building_ID, ignore.case = T),]
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
-#            append = T, row.names = F, showNA = F)
+samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
+samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
+samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
+           append = T, row.names = F, showNA = F)
 
 
 return(samp.dat.final)
