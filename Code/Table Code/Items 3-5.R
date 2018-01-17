@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
-
+length(unique(rbsa.dat$CK_Cadmus_ID[which(rbsa.dat$BuildingType == "Single Family")]))
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -35,7 +35,7 @@ stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK
 
 # Bring in clean ground contact types
 GroundContactTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "Ground Contact Types.xlsx"), sheet = 1)
-GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) != "Notes")]
+GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) %in% c("Raw.data.categories", "Final"))]
 
 
 
@@ -68,6 +68,8 @@ for (i in 1:length(GroundContactTypes$Raw.data.categories)){
 item3.dat$GroundContact <- trimws(item3.dat$GroundContact)
 # End cleaning Step
 unique(item3.dat$GroundContact)
+
+item3.dat$GroundContact <- gsub("&gt;",">", item3.dat$GroundContact)
 
 # Remove unwanted ground contact types
 item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA, 0)),]

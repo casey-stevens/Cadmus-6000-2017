@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat
+# itemData <- weightedData(item4.merge[-which(colnames(item4.merge) %in% c("BldgLevel_Area_SqFt","siteAreaConditioned"))])
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")

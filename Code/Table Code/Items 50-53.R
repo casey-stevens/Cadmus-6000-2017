@@ -86,39 +86,44 @@ item50.dat3 <- item50.dat2[which(item50.dat2$`Heating.Efficiency.-.High` != "Unk
 
 #make heating efficiency information numeric
 item50.dat3$`Heating.Efficiency.-.High` <- as.numeric(as.character(item50.dat3$`Heating.Efficiency.-.High`))
+item50.dat3$`Heating.Efficiency.-.High` <- item50.dat3$`Heating.Efficiency.-.High` / 100
+unique(item50.dat3$`Heating.Efficiency.-.High`)
+item50.dat3$count <- 1
 
-#Join cleaned item 50 mechanical information with cleaned RBSA site information
-item50.dat4 <- left_join(rbsa.dat, item50.dat3, by = "CK_Cadmus_ID")
-item50.dat5 <- item50.dat4[which(!is.na(item50.dat4$`Heating.Efficiency.-.High`)),]
+item50.dat4 <- item50.dat3[which(!is.na(item50.dat3$`Heating.Efficiency.-.High`)),]
+#average within houses
+item50.customer <- summarise(group_by(item50.dat4
+                                     , CK_Cadmus_ID
+                                     , EquipVintage_bins)
+                            ,y_bar_ilk  = mean(`Heating.Efficiency.-.High`)
+                            ,y_ilk      = sum(`Heating.Efficiency.-.High`)
+                            ,m_ilk      = sum(count)
+)
 
-item50.data <- weightedData(item50.dat5[-which(colnames(item50.dat5) %in% c("Generic"
-                                                                            ,"Heating.Fuel"
-                                                                            ,"Component.1.Year.of.Manufacture"
-                                                                            ,"Heating.Efficiency.-.High"
-                                                                            ,"HSPF"
-                                                                            ,"EquipVintage_bins"
-                                                                            ,"Primary.Heating.System"))])
+item50.merge <- left_join(rbsa.dat, item50.customer)
+item50.merge <- item50.merge[which(!is.na(item50.merge$y_ilk)),]
 
-item50.data <- left_join(item50.data, item50.dat5[which(colnames(item50.dat5) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Generic"
-                                                                                     ,"Heating.Fuel"
-                                                                                     ,"Component.1.Year.of.Manufacture"
-                                                                                     ,"Heating.Efficiency.-.High"
+
+item50.data <- weightedData(item50.merge[-which(colnames(item50.merge) %in% c("EquipVintage_bins"
+                                                                              ,"y_bar_ilk"
+                                                                              ,"y_ilk"
+                                                                              ,"m_ilk"))])
+
+item50.data <- left_join(item50.data, item50.merge[which(colnames(item50.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"EquipVintage_bins"
-                                                                                     ,"Primary.Heating.System"))])
-
-item50.data$`Heating.Efficiency.-.High` <- item50.data$`Heating.Efficiency.-.High` / 100
-unique(item50.data$`Heating.Efficiency.-.High`)
+                                                                                     ,"y_bar_ilk"
+                                                                                     ,"y_ilk"
+                                                                                     ,"m_ilk"))])
 
 ###########################
 # Weighted Analysis
 ###########################
-item50.final <- mean_two_groups(CustomerLevelData = item50.data
-                                ,valueVariable    = 'Heating.Efficiency.-.High'
-                                ,byVariableRow    = 'EquipVintage_bins'
-                                ,byVariableColumn = 'State'
-                                ,columnAggregate  = "Region"
-                                ,rowAggregate     = "All Vintages"
+item50.final <- mean_two_groups_domain(CustomerLevelData = item50.data
+                                       ,valueVariable    = 'y_ilk'
+                                       ,byVariableRow    = 'EquipVintage_bins'
+                                       ,byVariableColumn = 'State'
+                                       ,aggregateColumn  = "Region"
+                                       ,aggregateRow     = "All Vintages"
 )
 
 
@@ -171,7 +176,7 @@ exportTable(item50.table.MH, "MH", "Table 38", weighted = TRUE)
 # Unweighted Analysis
 ###########################
 item50.final <- mean_two_groups_unweighted(CustomerLevelData = item50.data
-                                ,valueVariable    = 'Heating.Efficiency.-.High'
+                                ,valueVariable    = 'y_ilk'
                                 ,byVariableRow    = 'EquipVintage_bins'
                                 ,byVariableColumn = 'State'
                                 ,columnAggregate  = "Region"

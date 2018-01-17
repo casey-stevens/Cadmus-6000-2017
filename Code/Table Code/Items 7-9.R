@@ -223,36 +223,6 @@ item9.customer <- summarise(group_by(item9.dat1
                             ,m_ilk      = sum(count)
 )
 
-
-
-# #cast and melt by site_area
-# item9.cast <- dcast(setDT(item9.customer)
-#                     ,formula = CK_Cadmus_ID ~ Clean.Type
-#                     ,value.var = c("Site_Area"))
-# 
-# item9.melt <- melt(item9.cast, id.vars = "CK_Cadmus_ID")
-# names(item9.melt) <- c("CK_Cadmus_ID", "Clean.Type", "y_bar_ilk")
-# 
-# #cast and melt by site_area
-# item9.cast1 <- dcast(setDT(item9.customer)
-#                     ,formula = CK_Cadmus_ID ~ Clean.Type
-#                     ,value.var = c("Site_Sum"))
-# 
-# item9.melt1 <- melt(item9.cast1, id.vars = "CK_Cadmus_ID")
-# names(item9.melt1) <- c("CK_Cadmus_ID", "Clean.Type", "y_ilk")
-# 
-# #cast and melt by site_count
-# item9.cast2 <- dcast(setDT(item9.customer)
-#                     ,formula = CK_Cadmus_ID ~ Clean.Type
-#                     ,value.var = c("Site_Count"))
-# 
-# item9.melt2 <- melt(item9.cast2, id.vars = "CK_Cadmus_ID")
-# names(item9.melt2) <- c("CK_Cadmus_ID", "Clean.Type", "m_ilk")
-# 
-# item9.merge <- left_join(item9.melt, item9.melt1)
-# item9.merge <- left_join(item9.merge, item9.melt2)
-
-
 item9.merge <- left_join(rbsa.dat, item9.customer)
 item9.merge <- item9.merge[which(!is.na(item9.merge$y_ilk)),]
 
@@ -287,7 +257,7 @@ item9.data$count <- 1
 # Weighted Analysis
 ################################
 item9.final <- mean_one_group_domain(CustomerLevelData = item9.data
-                              , valueVariable = 'y_bar_ilk'
+                              , valueVariable = 'y_ilk'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 

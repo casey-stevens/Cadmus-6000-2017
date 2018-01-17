@@ -6,17 +6,12 @@
 ##  Billing Code(s):  
 #############################################################################################
 
-#################################################################################
+#################################################################################################################
 #Function: mean_one_group
 #Used For: Calculating the mean where means are calculated accross 
 #          multiple rows for one grouping variable
 #          For example, calculating the average of a measure in each state
-#################################################################################
-# Test
-# CustomerLevelData = item9.data
-# valueVariable = 'Site_Area'
-# byVariable    = 'Clean.Type'
-# aggregateRow  = "All Room Types"
+#################################################################################################################
 
 #weighted function for means with one grouping variable
 mean_one_group <- function(CustomerLevelData, valueVariable, 
@@ -33,10 +28,6 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                , c("BuildingType", "State", "Region", "Territory"), summarise
                                ,n_h        = unique(n.h)
                                ,N_h        = unique(N.h)), stringsAsFactors = F)
-  Popandns <- data.frame(ddply(Popandns
-                               , c("BuildingType"), summarise
-                               ,n_h        = sum(n_h)
-                               ,N_h        = sum(N_h)), stringsAsFactors = F)
 
   if(byVariable %in% c("State","BuildingType")){
     
@@ -49,13 +40,13 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     stopifnot(item.strata$n_hj == item.strata$n_h)
     item.strata <- left_join(item.strata, Popandns)
   }else {
-    DomainCounts    <- data.frame(ddply(CustomerLevelData #item.strata.group
+    byVariableCounts    <- data.frame(ddply(CustomerLevelData #item.strata.group
                                     , c("BuildingType", "State", "Region", "Territory", byVariable), summarise
                                     ,strataMean = mean(get(valueVariable), na.rm = T)
                                     ,strataSD   = sd(get(valueVariable), na.rm = T)
                                     ,count_hj   = sum(count)
                                     ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata <- left_join(DomainCounts, Popandns) #replaced item.strata.group with DomainCounts
+    item.strata <- left_join(byVariableCounts, Popandns) #replaced item.strata.group with byVariableCounts
     
     #QAQC
     stopifnot(item.strata$n <= item.strata$n_h)
@@ -68,11 +59,11 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   if(byVariable == "BuildingType"){
     item.final <- data.frame(ddply(item.strata, c("BuildingType"), summarise
                                    ,Mean = sum(N_h * strataMean) / sum(N_h)
-                                   ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * sum(strataSD)^2)) / sum(N_h)
+                                   ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
                                    ,n      = sum(n_hj)
                                    ,n_h    = unique(n_h)
                                    ,N_h    = unique(N_h)
-                                   ,EB   = SE * qt(1-(1-0.9)/2, n)
+                                   ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
                                    ,Precision = EB / Mean), stringsAsFactors = F)
     
     Category <- valueVariable
@@ -83,21 +74,21 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   }else{
     item.group <- data.frame(ddply(item.strata, c("BuildingType", byVariable), summarise
                            ,Mean = sum(N_h * strataMean) / sum(N_h)
-                           ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * sum(strataSD)^2)) / sum(N_h)
+                           ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
                            ,n    = sum(n_hj)
-                           ,n_h  = (unique(n_h))
-                           ,N_h  = (unique(N_h))
-                           ,EB   = SE * qt(1-(1-0.9)/2, n)
+                           ,n_h  = sum(n_h)
+                           ,N_h  = sum(N_h)
+                           ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
                            ,Precision = EB / Mean), stringsAsFactors = F)
     
     item.region <- data.frame(ddply(item.strata, "BuildingType", summarise
                                     ,byRow  = aggregateRow
                                     ,Mean   = sum(N_h * strataMean) / sum(N_h)
-                                    ,SE     = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * sum(strataSD)^2)) / sum(N_h)
-                                    ,n      = unique((n_h))
-                                    ,n_h    = unique((n_h))
-                                    ,N_h    = unique((N_h))
-                                    ,EB     = SE * qt(1-(1-0.9)/2, n)
+                                    ,SE     = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
+                                    ,n      = sum(n_h)
+                                    ,n_h    = sum(n_h)
+                                    ,N_h    = sum(N_h)
+                                    ,EB     = SE * qt(1-(1-0.9)/2, n-length(strataMean))
                                     ,Precision = EB / Mean), stringsAsFactors = F)
     #rename columns
     colnames(item.region)[which(colnames(item.region) == 'byRow')] <- byVariable
@@ -112,6 +103,12 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
 
 
 
+#################################################################################################################
+#Function: mean_one_group_domain
+#Used For: 
+# 
+# 
+#################################################################################################################
 #weighted function for means with one grouping variable
 mean_one_group_domain <- function(CustomerLevelData, valueVariable, byVariable, aggregateRow) {
   
@@ -127,12 +124,6 @@ mean_one_group_domain <- function(CustomerLevelData, valueVariable, byVariable, 
                                           , c("BuildingType", "State", "Region", "Territory"), summarise
                                           ,n_l        = unique(n.h)
                                           ,N_l        = unique(N.h)), stringsAsFactors = F)
-  domain_level <- data.frame(ddply(strata_domain_level
-                                   , c("BuildingType"), summarise
-                                   ,n_k        = sum((n_l))
-                                   ,N_k        = sum((N_l))), stringsAsFactors = F)
-  
-  
   
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
@@ -144,98 +135,132 @@ mean_one_group_domain <- function(CustomerLevelData, valueVariable, byVariable, 
   ), stringsAsFactors = F)
   strata_domain_merge      <- left_join(strata_domain_summary, strata_domain_level)
   site_strata_domain_merge <- left_join(CustomerLevelData, strata_domain_merge)
-  site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_level)
   
+  
+  
+  
+  
+  
+  ##################################################################################################x
+  # Domain estimation
+  ##################################################################################################x
   ### Get esimtated number of units in the population and estimated population average of the metric
   domain_summary <- data.frame(ddply(site_strata_domain_merge
                                      , c("BuildingType",byVariable), summarise
-                                     ,M_hat_k = sum(unique(N_k) / unique(n_k) * sum(m_ilk))
-                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(unique(N_k) / unique(n_k) * sum(y_ilk))
+                                     ,M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
   ), stringsAsFactors = F)
   
   
-  site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_summary)
-  
-  
+  strata_domain_merge <- left_join(strata_domain_merge, domain_summary)
   ### calculate the inner sum to get the between-strata variance at the domain level
-  strata_domain_estimation <- data.frame(ddply(site_strata_domain_merge
-                                               , c("BuildingType","State","Region","Territory",byVariable), summarise
-                                               ,inner_sum = sum(((y_bar_ilk - y_bar_lk)^2 / (n_lk )) + (n_lk  * (y_bar_lk - y_bar_hat_k)^2))
+  across_strata_estimation <- data.frame(ddply(strata_domain_merge
+                                               , c("BuildingType",byVariable), summarise
+                                               ,sum_2 = sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * n_lk * (y_bar_lk - y_bar_hat_k)^2)
   ), stringsAsFactors = F)
-  
-  site_strata_domain_merge <- left_join(site_strata_domain_merge, strata_domain_estimation)
-  
+
+
+site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_summary)
   ### calculate the outer sum to get the within-strata variance, the combined total estimated variance, and the standard error at the domain level 
   domain_estimation <- data.frame(ddply(site_strata_domain_merge
                                         , c("BuildingType",byVariable), summarise
-                                        ,outer_sum = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * inner_sum), na.rm = T)
-                                        ,var_hat_y_bar_hat_k = outer_sum / unique(M_hat_k)^2
-                                        ,SE_y_bar_hat_k = sqrt(var_hat_y_bar_hat_k)
+                                        ,sum_1 = sum(sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (1 / n_lk) * (1 - n_l / N_l) * (y_bar_ilk - y_bar_lk)^2 / (n_lk )))
   ), stringsAsFactors = F)
   
+  domain_variance_merge <- left_join(across_strata_estimation, domain_estimation)
+  domain_variance_merge <- left_join(domain_variance_merge, domain_summary)
+  domain_variance_merge$var_hat_y_bar_hat_k <- (domain_variance_merge$sum_1 + domain_variance_merge$sum_2) / domain_variance_merge$M_hat_k^2
+  domain_variance_merge$SE_y_bar_hat_k <- sqrt(domain_variance_merge$var_hat_y_bar_hat_k)
+  domain_variance_merge$EB_y_bar_hat_k <- domain_variance_merge$SE_y_bar_hat_k * 1.645
+  domain_variance_merge$Precision <- domain_variance_merge$EB_y_bar_hat_k / domain_variance_merge$y_bar_hat_k
+  
+  
+  
+  ##################################################################################################x
+  # Across Domain estimation
+  ##################################################################################################x
   ### calculate the inner sum to get the between-strata variance across domains
   across_domain_summary <- data.frame(ddply(site_strata_domain_merge
                                             , c("BuildingType"), summarise
-                                            , byRow = aggregateRow
-                                            ,M_hat_k = sum(unique(N_k) / unique(n_k) * sum(m_ilk))
-                                            ,y_bar_hat_k  = (1 / M_hat_k) * sum(unique(N_k) / unique(n_k) * sum(y_ilk))
+                                            , byRow              = aggregateRow
+                                            , M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                            , y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
   ), stringsAsFactors = F)
   
-  ### calculate the outer sum to get the within-strata variance, the combined total estimated variance, and the standard error across domains 
-  across_domain_estimation <- data.frame(ddply(site_strata_domain_merge
+  
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_domain_estimation1 <- data.frame(ddply(strata_domain_merge
                                                , c("BuildingType"), summarise
                                                , byRow              = aggregateRow
-                                               ,outer_sum           = sum((N_l^2 / (n_l * (n_l ))) * (1 - n_l / N_l) * ((1 / n_lk) * (1 - n_l / N_l) * inner_sum))
-                                               ,var_hat_y_bar_hat_k = (1 / sum(unique(M_hat_k))^2) * outer_sum
-                                               ,SE_y_bar_hat_k      = sqrt(var_hat_y_bar_hat_k)
+                                               , sum_2 = sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * n_lk * (y_bar_lk - y_bar_hat_k)^2)
   ), stringsAsFactors = F)
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_domain_estimation2 <- data.frame(ddply(site_strata_domain_merge
+                                        , c("BuildingType"), summarise
+                                        , byRow              = aggregateRow
+                                        ,sum_1 = sum(sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (1 / n_lk) * (1 - n_l / N_l) * (y_bar_ilk - y_bar_lk)^2 / (n_lk )))
+  ), stringsAsFactors = F)
+  
+  across_domain_variance_merge <- left_join(across_domain_estimation1, across_domain_estimation2)
+  across_domain_variance_merge <- left_join(across_domain_variance_merge, across_domain_summary)
+  across_domain_variance_merge$var_hat_y_bar_hat_k <- (across_domain_variance_merge$sum_1 + across_domain_variance_merge$sum_2) / across_domain_variance_merge$M_hat_k^2
+  across_domain_variance_merge$SE_y_bar_hat_k <- sqrt(across_domain_variance_merge$var_hat_y_bar_hat_k)
+  across_domain_variance_merge$EB_y_bar_hat_k <- across_domain_variance_merge$SE_y_bar_hat_k * 1.645
+  across_domain_variance_merge$Precision <- across_domain_variance_merge$EB_y_bar_hat_k / across_domain_variance_merge$y_bar_hat_k
+
   #rename columns
-  colnames(across_domain_estimation)[which(colnames(across_domain_estimation) == 'byRow')] <- byVariable
-  colnames(across_domain_summary)[which(colnames(across_domain_summary) == 'byRow')]       <- byVariable
+  colnames(across_domain_variance_merge)[which(colnames(across_domain_variance_merge) == 'byRow')] <- byVariable
+
+
   
-  
-  ### Merge summary infomration together
-  item.summary               <- rbind.data.frame(domain_summary, across_domain_summary, stringsAsFactors = F)
-  # item.summary$Clean.Type    <- as.character(item.summary$Clean.Type)
-  
+  ##################################################################################################x
+  # Combining Domain and Across Domain Estimation
+  ##################################################################################################x
   ### Merge estimation infomration together
-  item.estimation            <- rbind.data.frame(domain_estimation, across_domain_estimation, stringsAsFactors = F)
-  # item.estimation$Clean.Type <- as.character(item.estimation$Clean.Type)
-  
-  #obatin correct sample sizes for 
+  item.estimation            <- rbind.data.frame(domain_variance_merge, across_domain_variance_merge, stringsAsFactors = F)
+
+  #obatin correct sample sizes for
   samplesize.sub <- unique(site_strata_domain_merge[which(colnames(site_strata_domain_merge) %in% c("BuildingType",byVariable,"n_lk"))])
   item.samplesize <- data.frame(ddply(samplesize.sub
                                       , c("BuildingType",byVariable), summarise
                                       ,n = sum(n_lk)), stringsAsFactors = F)
-  # item.samplesize$Clean.Type <- as.character(item.samplesize$Clean.Type)
-  # samplesize.sub <- strata_domain_level[which(colnames(strata_domain_level) %in% c("BuildingType","n_l"))]
-  domain.samplesize <- data.frame(ddply(item.samplesize
-                                        , c("BuildingType"), summarise
-                                        ,byRow = aggregateRow
-                                        ,n = max(n)), stringsAsFactors = F)
+  
+  if(byVariable == "Clean.Type"){
+    domain.samplesize <- data.frame(ddply(item.samplesize
+                                          , c("BuildingType"), summarise
+                                          ,byRow = aggregateRow
+                                          ,n = max(n)), stringsAsFactors = F)
+  }else{
+    domain.samplesize <- data.frame(ddply(item.samplesize
+                                          , c("BuildingType"), summarise
+                                          ,byRow = aggregateRow
+                                          ,n = sum(n)), stringsAsFactors = F)
+  }
   colnames(domain.samplesize)[which(colnames(domain.samplesize) == 'byRow')] <- byVariable
   # domain.samplesize$Clean.Type <- as.character(domain.samplesize$Clean.Type)
   samplesizes <- rbind.data.frame(item.samplesize, domain.samplesize, stringsAsFactors = F)
   
+  
   ### Add sample sizes onto final data
-  item.final <- left_join(item.summary, item.estimation)
+  item.final <- item.estimation
   item.final <- left_join(item.final, samplesizes)
-  names(item.final)[which(names(item.final) %in% c("y_bar_hat_k","SE_y_bar_hat_k"))] <- c("Mean","SE")
-  item.final <- item.final[which(!colnames(item.final) %in% c("M_hat_k","outer_sum","var_hat_y_bar_hat_k"))]
-  item.final$EB <- item.final$SE * qt(1-(1-0.9)/2, item.final$n)
+  names(item.final)[which(names(item.final) %in% c("y_bar_hat_k","SE_y_bar_hat_k", "EB_y_bar_hat_k"))] <- c("Mean","SE","EB")
+  item.final <- item.final[which(!colnames(item.final) %in% c("sum_1","sum_2","M_hat_k","outer_sum","var_hat_y_bar_hat_k"))]
+  
+  
+  
   return(item.final)
 }
 
 
 
 
-
-# Test
-# CustomerLevelData = item52.data
-# valueVariable = 'HSPF' 
-# byVariable    = 'EquipVintage_bins'
-# aggregateRow  = "All Vintages"
-
+#################################################################################################################
+#Function: mean_one_group_unweighted
+#Used For: 
+# 
+# 
+#################################################################################################################
 mean_one_group_unweighted <- function(CustomerLevelData, valueVariable, 
                            byVariable, aggregateRow) {
   
@@ -245,9 +270,6 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
     colnames(data)[which(colnames(data) == currentColName)] <- newColName
     return(data)
   }
-  
-  
-
     ######################################################
     # means and SEs by grouping variables
     ######################################################
@@ -285,20 +307,12 @@ mean_one_group_unweighted <- function(CustomerLevelData, valueVariable,
 
 
 
-#####################################################################################
-# This function works for when there are means by row and by column,
-# specify the row variable and the column variable and the variable that
-# needs summarizing, then specify whether the row needs an aggregate summary
-# and whether the column needs an aggregate summary
-#####################################################################################
-# Test
-# CustomerLevelData = item159.data
-# valueVariable    = 'Site.SQFT'
-# byVariableRow    = 'HomeYearBuilt_bins2'
-# byVariableColumn = 'State'
-# columnAggregate  = "Region"
-# rowAggregate     = "All Vintages"
-
+#################################################################################################################
+#Function: mean_two_groups
+#Used For: 
+# 
+# 
+#################################################################################################################
 mean_two_groups <- function(CustomerLevelData
                             , valueVariable
                             , byVariableRow
@@ -441,14 +455,272 @@ mean_two_groups <- function(CustomerLevelData
 
 
 
-# Test
-# CustomerLevelData = item123.data
-# valueVariable    = 'Occupants'
-# byVariableRow    = 'Age.Category'
-# byVariableColumn = 'State'
-# columnAggregate  = "Region"
-# rowAggregate     = "All_Ages"
+#################################################################################################################
+#Function: mean_two_groups_domain
+#Used For: 
+# 
+# 
+#################################################################################################################
+#weighted function for means with one grouping variable
+mean_two_groups_domain <- function(CustomerLevelData
+                                  , valueVariable
+                                  , byVariableRow
+                                  , byVariableColumn
+                                  , aggregateColumn = NA
+                                  , aggregateRow    = NA) {
+  
+  ### Function to convert column names
+  ConvertColName <- function(dataset, currentColName, newColName) {
+    data <- dataset
+    colnames(data)[which(colnames(data) == currentColName)] <- newColName
+    return(data)
+  }
+  
+  ### Get appropriate sample and population sizes for the strata and the domain
+  strata_domain_level <- data.frame(ddply(CustomerLevelData
+                                          , c("BuildingType", "State", "Region", "Territory"), summarise
+                                          ,n_l        = unique(n.h)
+                                          ,N_l        = unique(N.h)), stringsAsFactors = F)
+  
+  ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
+  strata_domain_summary    <- data.frame(ddply(CustomerLevelData
+                                               , c("BuildingType", "State", "Region", "Territory", byVariableRow, byVariableColumn), summarise
+                                               ,y_lk     = sum(get(valueVariable), na.rm = T)
+                                               ,y_bar_lk = y_lk / length(unique(CK_Cadmus_ID))
+                                               ,n_lk     = length(unique(CK_Cadmus_ID))
+                                               ,m_lk     = sum(m_ilk)
+  ), stringsAsFactors = F)
+  strata_domain_merge      <- left_join(strata_domain_summary, strata_domain_level)
+  site_strata_domain_merge <- left_join(CustomerLevelData, strata_domain_merge)
+  
+  
+  
+  
+  
+  
+  ##################################################################################################x
+  # Domain estimation
+  ##################################################################################################x
+  ### Get esimtated number of units in the population and estimated population average of the metric
+  domain_summary <- data.frame(ddply(site_strata_domain_merge
+                                     , c("BuildingType",byVariableRow,byVariableColumn), summarise
+                                     ,M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                     ,y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
+  ), stringsAsFactors = F)
+  
+  
+  strata_domain_merge <- left_join(strata_domain_merge, domain_summary)
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_strata_estimation <- data.frame(ddply(strata_domain_merge
+                                               , c("BuildingType",byVariableRow,byVariableColumn), summarise
+                                               ,sum_2 = sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * n_lk * (y_bar_lk - y_bar_hat_k)^2)
+  ), stringsAsFactors = F)
+  
+  
+  site_strata_domain_merge <- left_join(site_strata_domain_merge, domain_summary)
+  ### calculate the outer sum to get the within-strata variance, the combined total estimated variance, and the standard error at the domain level 
+  domain_estimation <- data.frame(ddply(site_strata_domain_merge
+                                        , c("BuildingType",byVariableRow,byVariableColumn), summarise
+                                        ,sum_1 = sum(sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (1 / n_lk) * (1 - n_l / N_l) * (y_bar_ilk - y_bar_lk)^2 / (n_lk )))
+  ), stringsAsFactors = F)
+  
+  domain_variance_merge <- left_join(across_strata_estimation, domain_estimation)
+  domain_variance_merge <- left_join(domain_variance_merge, domain_summary)
+  domain_variance_merge$var_hat_y_bar_hat_k <- (domain_variance_merge$sum_1 + domain_variance_merge$sum_2) / domain_variance_merge$M_hat_k^2
+  domain_variance_merge$SE_y_bar_hat_k <- sqrt(domain_variance_merge$var_hat_y_bar_hat_k)
+  domain_variance_merge$EB_y_bar_hat_k <- domain_variance_merge$SE_y_bar_hat_k * 1.645
+  domain_variance_merge$Precision <- domain_variance_merge$EB_y_bar_hat_k / domain_variance_merge$y_bar_hat_k
+  
+  
+  
+  ##################################################################################################x
+  # Across Domain estimation (ACROSS ROWS)
+  ##################################################################################################x
+  ### calculate the inner sum to get the between-strata variance across domains
+  across_domain_rows_summary <- data.frame(ddply(site_strata_domain_merge
+                                            , c("BuildingType", byVariableColumn), summarise
+                                            , byRow              = aggregateRow
+                                            , M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                            , y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
+  ), stringsAsFactors = F)
+  
+  
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_domain_rows_estimation1 <- data.frame(ddply(strata_domain_merge
+                                                , c("BuildingType", byVariableColumn), summarise
+                                                , byRow              = aggregateRow
+                                                , sum_2 = sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * n_lk * (y_bar_lk - y_bar_hat_k)^2)
+  ), stringsAsFactors = F)
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_domain_rows_estimation2 <- data.frame(ddply(site_strata_domain_merge
+                                                , c("BuildingType", byVariableColumn), summarise
+                                                , byRow              = aggregateRow
+                                                ,sum_1 = sum(sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (1 / n_lk) * (1 - n_l / N_l) * (y_bar_ilk - y_bar_lk)^2 / (n_lk )))
+  ), stringsAsFactors = F)
+  
+  across_domain_rows_variance_merge <- left_join(across_domain_rows_estimation1, across_domain_rows_estimation2)
+  across_domain_rows_variance_merge <- left_join(across_domain_rows_variance_merge, across_domain_rows_summary)
+  across_domain_rows_variance_merge$var_hat_y_bar_hat_k <- (across_domain_rows_variance_merge$sum_1 + across_domain_rows_variance_merge$sum_2) / across_domain_rows_variance_merge$M_hat_k^2
+  across_domain_rows_variance_merge$SE_y_bar_hat_k <- sqrt(across_domain_rows_variance_merge$var_hat_y_bar_hat_k)
+  across_domain_rows_variance_merge$EB_y_bar_hat_k <- across_domain_rows_variance_merge$SE_y_bar_hat_k * 1.645
+  across_domain_rows_variance_merge$Precision <- across_domain_rows_variance_merge$EB_y_bar_hat_k / across_domain_rows_variance_merge$y_bar_hat_k
+  
+  #rename columns
+  colnames(across_domain_rows_variance_merge)[which(colnames(across_domain_rows_variance_merge) == 'byRow')] <- byVariableRow
+  
+  
+  
+  ##################################################################################################x
+  # Across Domain estimation (ACROSS COLUMNS)
+  ##################################################################################################x
+  ### calculate the inner sum to get the between-strata variance across domains
+  across_domain_cols_summary <- data.frame(ddply(site_strata_domain_merge
+                                            , c("BuildingType", byVariableRow), summarise
+                                            , byCol              = aggregateColumn
+                                            , M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                            , y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
+  ), stringsAsFactors = F)
+  
+  
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_domain_cols_estimation1 <- data.frame(ddply(strata_domain_merge
+                                                , c("BuildingType", byVariableRow), summarise
+                                                , byCol              = aggregateColumn
+                                                , sum_2 = sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * n_lk * (y_bar_lk - y_bar_hat_k)^2)
+  ), stringsAsFactors = F)
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_domain_cols_estimation2 <- data.frame(ddply(site_strata_domain_merge
+                                                , c("BuildingType", byVariableRow), summarise
+                                                , byCol              = aggregateColumn
+                                                ,sum_1 = sum(sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (1 / n_lk) * (1 - n_l / N_l) * (y_bar_ilk - y_bar_lk)^2 / (n_lk )))
+  ), stringsAsFactors = F)
+  
+  across_domain_cols_variance_merge <- left_join(across_domain_cols_estimation1, across_domain_cols_estimation2)
+  across_domain_cols_variance_merge <- left_join(across_domain_cols_variance_merge, across_domain_cols_summary)
+  across_domain_cols_variance_merge$var_hat_y_bar_hat_k <- (across_domain_cols_variance_merge$sum_1 + across_domain_cols_variance_merge$sum_2) / across_domain_cols_variance_merge$M_hat_k^2
+  across_domain_cols_variance_merge$SE_y_bar_hat_k <- sqrt(across_domain_cols_variance_merge$var_hat_y_bar_hat_k)
+  across_domain_cols_variance_merge$EB_y_bar_hat_k <- across_domain_cols_variance_merge$SE_y_bar_hat_k * 1.645
+  across_domain_cols_variance_merge$Precision <- across_domain_cols_variance_merge$EB_y_bar_hat_k / across_domain_cols_variance_merge$y_bar_hat_k
+  
+  #rename columns
+  colnames(across_domain_cols_variance_merge)[which(colnames(across_domain_cols_variance_merge) == 'byCol')] <- byVariableColumn
+  
+  
+  
+  
+  ##################################################################################################x
+  # Across Domain estimation (ACROSS COLUMNS)
+  ##################################################################################################x
+  ### calculate the inner sum to get the between-strata variance across domains
+  across_both_summary <- data.frame(ddply(site_strata_domain_merge
+                                          , c("BuildingType"), summarise
+                                          , byRow = aggregateRow
+                                          , byCol = aggregateColumn
+                                          , M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                          , y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
+  ), stringsAsFactors = F)
+  
+  
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_both_estimation1 <- data.frame(ddply(strata_domain_merge
+                                              , c("BuildingType"), summarise
+                                              , byRow = aggregateRow
+                                              , byCol = aggregateColumn
+                                              , sum_2 = sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * n_lk * (y_bar_lk - y_bar_hat_k)^2)
+  ), stringsAsFactors = F)
+  ### calculate the inner sum to get the between-strata variance at the domain level
+  across_both_estimation2 <- data.frame(ddply(site_strata_domain_merge
+                                              , c("BuildingType"), summarise
+                                              , byRow = aggregateRow
+                                              , byCol = aggregateColumn
+                                              ,sum_1 = sum(sum(N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (1 / n_lk) * (1 - n_l / N_l) * (y_bar_ilk - y_bar_lk)^2 / (n_lk )))
+  ), stringsAsFactors = F)
+  
+  across_both_variance_merge <- left_join(across_both_estimation1, across_both_estimation2)
+  across_both_variance_merge <- left_join(across_both_variance_merge, across_both_summary)
+  across_both_variance_merge$var_hat_y_bar_hat_k <- (across_both_variance_merge$sum_1 + across_both_variance_merge$sum_2) / across_both_variance_merge$M_hat_k^2
+  across_both_variance_merge$SE_y_bar_hat_k <- sqrt(across_both_variance_merge$var_hat_y_bar_hat_k)
+  across_both_variance_merge$EB_y_bar_hat_k <- across_both_variance_merge$SE_y_bar_hat_k * 1.645
+  across_both_variance_merge$Precision <- across_both_variance_merge$EB_y_bar_hat_k / across_both_variance_merge$y_bar_hat_k
+  
+  #rename columns
+  colnames(across_both_variance_merge)[which(colnames(across_both_variance_merge) == 'byCol')] <- byVariableColumn
+  colnames(across_both_variance_merge)[which(colnames(across_both_variance_merge) == 'byRow')] <- byVariableRow
+  
+  
+  
+  
+  
+  
+  ##################################################################################################x
+  # Combining Domain and Across Domain Estimation
+  ##################################################################################################x
+  ### Merge estimation infomration together
+  item.estimation            <- rbind.data.frame(domain_variance_merge
+                                                 , across_domain_rows_variance_merge
+                                                 , across_domain_cols_variance_merge
+                                                 , across_both_variance_merge
+                                                 , stringsAsFactors = F)
+  
+  #obatin correct sample sizes for
+  item.samplesize <- data.frame(ddply(CustomerLevelData
+                                      , c("BuildingType",byVariableRow,byVariableColumn), summarise
+                                      ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+  #obatin correct sample sizes for
+  rows.samplesize <- data.frame(ddply(CustomerLevelData
+                                      , c("BuildingType",byVariableRow), summarise
+                                      ,byCol = aggregateColumn
+                                      ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+  #obatin correct sample sizes for
+  cols.samplesize <- data.frame(ddply(CustomerLevelData
+                                      , c("BuildingType",byVariableColumn), summarise
+                                      ,byRow = aggregateRow
+                                      ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+  domain.samplesize <- data.frame(ddply(CustomerLevelData
+                                        , c("BuildingType"), summarise
+                                        ,byRow = aggregateRow
+                                        ,byCol = aggregateColumn
+                                        ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+  
+  
+  colnames(domain.samplesize)[which(colnames(domain.samplesize) == 'byRow')] <- byVariableRow
+  colnames(domain.samplesize)[which(colnames(domain.samplesize) == 'byCol')] <- byVariableColumn
+  colnames(rows.samplesize)[which(colnames(rows.samplesize) == 'byCol')] <- byVariableColumn
+  colnames(cols.samplesize)[which(colnames(cols.samplesize) == 'byRow')] <- byVariableRow
+  
+  samplesizes <- rbind.data.frame(item.samplesize,rows.samplesize,cols.samplesize,domain.samplesize, stringsAsFactors = F)
+  
+  
+  ### Add sample sizes onto final data
+  item.final <- data.frame(item.estimation, stringsAsFactors = F)
+  item.final <- left_join(item.final, samplesizes)
+  names(item.final)[which(names(item.final) %in% c("y_bar_hat_k","SE_y_bar_hat_k", "EB_y_bar_hat_k"))] <- c("Mean","SE","EB")
+  item.final <- item.final[which(!colnames(item.final) %in% c("sum_1","sum_2","M_hat_k","outer_sum","var_hat_y_bar_hat_k"))]
+  
+  
+  item.cast <- dcast(setDT(item.final)
+                     ,formula = BuildingType + get(byVariableRow) ~ get(byVariableColumn)
+                     ,value.var = c("Mean", "SE", "n", "EB", "Precision"))
+  item.cast <- ConvertColName(item.cast, 'byVariableRow',byVariableRow)
+  
+  
+  return(item.cast)
+}
 
+
+
+
+
+
+
+
+
+#################################################################################################################
+#Function: mean_two_groups_unweighted
+#Used For: 
+# 
+# 
+#################################################################################################################
 mean_two_groups_unweighted <- function(CustomerLevelData
                                        , valueVariable
                                        , byVariableRow
@@ -594,7 +866,9 @@ proportions_one_group <- function(CustomerLevelData
     return(data)
   }
   
-  
+  ###################################################################################################x
+  # For Weighted
+  ###################################################################################################x
   if (weighted == TRUE){
     #sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
@@ -641,13 +915,6 @@ proportions_one_group <- function(CustomerLevelData
                                                    ,total.count = sum(Count)
                                                    ,p.h = count / total.count), stringsAsFactors = F)
       
-      
-      # StrataProportion <- data.frame(ddply(CustomerLevelData
-      #                                      , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
-      #                                      ,total.count = sum(Room.Count)), stringsAsFactors = F)
-      # 
-      # StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
-      # StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     }else{
       # obtain count and proportion by strata and row grouping variable
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
@@ -665,10 +932,18 @@ proportions_one_group <- function(CustomerLevelData
       StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
     }
       
+    
+    #####################################################################################################x
+    # For "Percentage" tables
+    #####################################################################################################x
       #join strata counts with summary of grouping variable within strata
-      StrataData <- left_join(StrataPopCounts , StrataGroupedProportions, 
+      StrataData <- left_join(StrataPopCounts , StrataGroupedProportions,
                               by = c("BuildingType", "State", "Region","Territory"))
+
       
+    #####################################################################################################x
+    # For "Distribution" tables
+    #####################################################################################################x
       #obtain the total population size for the building type by state combination observed in the sample
       StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
                                                                           ,"State"
@@ -676,47 +951,50 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"Territory"
                                                                           ,"N.h"
                                                                           ,"n.h"))])
-      if(groupingVariable == "Lamp.Category"){
-        columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType"),summarise
-                                             ,columnVar.N.h = sum(unique(N.h))
-                                             ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
-      }else{
-        columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType"),summarise
+
+      columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType"),summarise
                                            ,columnVar.N.h = sum(unique(N.h))
                                            ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
-      }
-      
-      
-      
-      #join strata data with weights by column grouping variable 
+
+      #join strata data with weights by column grouping variable
       StrataDataWeights <- left_join(StrataData, columnVarWeights, by = "BuildingType")
-      # StrataDataWeights <- StrataDataWeights[which(StrataDataWeights$p.h != "NaN"),]
       
       
-      if(groupingVariable %in% c("State", "Clean.Type", "Wall.Type") & valueVariable %in% c("Ind", "cond.ind")){
+    #####################################################################################################x
+    # For "Percentage" tables
+    #####################################################################################################x
+      if(groupingVariable %in% c("State", "Clean.Type", "Wall.Type")){ # & valueVariable %in% c("Ind", "cond.ind")
         #summarise by column variable
         #summary of both grouping variables
-        ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+        ColumnProportionsByGroup <- data.frame(ddply(StrataData
                                                      , c("BuildingType", groupingVariable), summarise
-                                                     ,w.percent = sum(N.h * p.h) /sum(unique(N.h))
-                                                     ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(unique(N.h))
+                                                     ,w.percent = sum(N.h * p.h) / sum(N.h)
+                                                     ,w.SE      = sqrt(sum(N.h^2 * (1 / n.h) * (1 - n.h / N.h) * p.h * (1 - p.h))) / sum(N.h)
                                                      ,count     = sum(count)
-                                                     ,N         = sum(unique(N.h))
+                                                     ,N         = sum(N.h)
                                                      ,n         = sum(n_hj)
                                                      ,EB   = w.SE * qt(1-(1-0.9)/2, n)
                                                      ), stringsAsFactors = F)
         #summarise across home types (total level)
-        ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
+        ColumnTotals <- data.frame(ddply(StrataData, "BuildingType", summarise
                                          ,rowTotal  = "Total"
-                                         ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)#sum(unique(N.h))
-                                         ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(columnVar.N.h)#sum(unique(N.h))
-                                         ,count     = sum(count, na.rm = T)
-                                         ,N         = unique(columnVar.N.h)#sum(unique(N.h))
+                                         ,w.percent = sum(N.h * p.h) / sum(N.h)
+                                         ,w.SE      = sqrt(sum(N.h^2 * (1 / n.h) * (1 - n.h / N.h) * p.h * (1 - p.h))) / sum(N.h)
+                                         ,count     = sum(count)
+                                         ,N         = sum(N.h)
                                          ,n         = sum(n_hj)
                                          ,EB   = w.SE * qt(1-(1-0.9)/2, n)
         ), stringsAsFactors = F) 
         
       }else{
+        
+        
+        
+        
+        
+    #####################################################################################################x
+    # For "Distribution" tables
+    #####################################################################################################x
         #summarise by column variable
         #summary of both grouping variables
         ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
@@ -730,27 +1008,27 @@ proportions_one_group <- function(CustomerLevelData
         if(groupingVariable == "Lamp.Category"){
           #summarise across home types (total level)
           ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
-                                           ,rowTotal       = "Total"
-                                           ,w.percent      = 1 #sum(w.percent)
-                                           ,w.SE           = NA
+                                           ,rowTotal  = "Total"
+                                           ,w.percent = sum(w.percent)
+                                           ,w.SE      = NA
                                            ,count     = sum(count)
                                            ,N         = sum(unique(columnVar.N.h))
                                            ,n         = sum(unique(columnVar.n.h))
-                                           ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
+                                           ,EB        = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
         }else {
           #summarise across home types (total level)
           ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
-                                           ,rowTotal       = "Total"
-                                           ,w.percent      = sum(w.percent)
-                                           ,w.SE           = NA
-                                           ,count          = sum(count, na.rm = T)
-                                           ,n              = sum(n)
-                                           ,N              = sum(unique(N), na.rm = T)
-                                           ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
+                                           ,rowTotal  = "Total"
+                                           ,w.percent = sum(w.percent)
+                                           ,w.SE      = NA
+                                           ,count     = sum(count, na.rm = T)
+                                           ,n         = sum(n)
+                                           ,N         = sum(unique(N), na.rm = T)
+                                           ,EB        = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
         }
-
-        
-      }
+      }## End loops for distribution and percentage tables
+      
+      
       #rename column
       ColumnTotals <- ConvertColName(ColumnTotals, 'rowTotal', groupingVariable)
       
@@ -773,7 +1051,10 @@ proportions_one_group <- function(CustomerLevelData
       item.full <- item.full[which(colnames(item.full) != "Total.Count")]
       return(item.full)
     
-    # For Unweighted
+      
+  ###################################################################################################x
+  # For Unweighted
+  ###################################################################################################x
   } else {
     item.tmp1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
                                   ,n     = length(unique(CK_Cadmus_ID))
@@ -877,19 +1158,11 @@ proportions_one_group <- function(CustomerLevelData
 
 #################################################################################
 #Function: proportionRowsAndColumns1
-#Used For: Calculating the proportion where proportions are calculated accross 
-#          multiple columns. For example Table 13. Each column should add up to
-#          100%. There is a total row which is 100%. 
-#          And there is an overall column, which combines all the columns data
+#Used For: 
+#
+# 
+#
 #################################################################################
-# TEST
-# CustomerLevelData     = item10.data
-# valueVariable       = 'count'
-# columnVariable      = 'Wall.Type'
-# rowVariable         = 'rvalue.bins'
-# aggregateColumnName = "All Frame Types"
-# # totalRow = TRUE
-# weighted = FALSE
 
 proportionRowsAndColumns1 <- function(CustomerLevelData
                                       , valueVariable
@@ -908,7 +1181,6 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   # Obtain correct population and sample size information within strata
   ########################################################################
   # this if statement is because insulation tables
-  ############# FIGURE OUT WHY
   
   if (rowVariable == "rvalue.bins"){
     StrataPopCounts <- data.frame(ddply(CustomerLevelData

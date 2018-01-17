@@ -50,7 +50,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 # Bring in clean ground contact types
 GroundContactTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "Ground Contact Types.xlsx"), sheet = 1)
-GroundContactTypes <- GroundContactTypes[which(!(colnames(GroundContactTypes) == "Notes"))]
+GroundContactTypes <- GroundContactTypes[which(!(colnames(GroundContactTypes) %in% c("Raw.data.categories", "Final")))]
 
 #subset to columns need in table
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
@@ -74,9 +74,11 @@ for (i in 1:length(item157.dat$GroundContact)){
 ###########################
 item157.dat$GroundContact <- trimws(item157.dat$GroundContact)
 unique(item157.dat$GroundContact)
+item3.dat$GroundContact <- gsub("&gt;",">", item3.dat$GroundContact)
+
 
 item157.dat1 <- item157.dat[which(!(is.na(item157.dat$GroundContact))),]
-item157.dat2 <- item157.dat1[which(item157.dat1$GroundContact != "Remove"),]
+item157.dat2 <- item157.dat1[which(item157.dat1$GroundContact  %notin% c("Remove", NA, 0)),]
 
 item157.envelope <- item157.dat2
 
