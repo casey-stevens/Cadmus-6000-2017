@@ -28,7 +28,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 # Bring in Usages
 billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
-                         ,startRow = 1, sheet = "RESULTSCOMPILED")
+                         ,startRow = 1, sheet = 1)
 
 results.dat <- merge(rbsa.dat, billing.dat, 
                      by = "CK_Cadmus_ID", all.y = T)
@@ -212,20 +212,54 @@ UsageDataSF_3$EUI <- UsageDataSF_3$UsageNAC_kWh/UsageDataSF_3$Conditioned.Area
 quantile(UsageDataSF_3$EUI)
 
 UsageDataSF_3$EUI_Quartile <- 4
-UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 0 & UsageDataSF_3$EUI < 3.5316948)] <- 1
-UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 3.5316948 & UsageDataSF_3$EUI < 6.0273354)] <- 2
-UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 6.0273354 & UsageDataSF_3$EUI < 9.3661975)] <- 3
+UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 0 & UsageDataSF_3$EUI < 3.5516670)] <- 1
+UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 3.5516670 & UsageDataSF_3$EUI < 5.9943223)] <- 2
+UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 5.9943223 & UsageDataSF_3$EUI < 9.3070297)] <- 3
 keep.cols <- c("CK_Cadmus_ID","EUI", "EUI_Quartile", "Conditioned.Area")
 
 UsageDataSF_Final <- UsageDataSF_3[,which(colnames(UsageDataSF_3) %in% keep.cols)]
 View(UsageDataSF_Final)
-UsageDataSF_Final2 <- merge(UsageDataSF_Final, heating.final, by = "CK_Cadmus_ID",all.x = T)
-UsageDataSF_Final3 <- merge(UsageDataSF_Final2, lighting.final, by = "CK_Cadmus_ID",all.x = T)
+UsageDataSF_Final2 <- merge(UsageDataSF_Final,  heating.final   , by = "CK_Cadmus_ID",all.x = T)
+UsageDataSF_Final3 <- merge(UsageDataSF_Final2, lighting.final  , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final4 <- merge(UsageDataSF_Final3, central_Ac.final, by = "CK_Cadmus_ID",all.x = T)
-UsageDataSF_Final5 <- merge(UsageDataSF_Final4, dhw.final, by = "CK_Cadmus_ID",all.x = T)
-UsageDataSF_Final6 <- merge(UsageDataSF_Final5, survey.final, by = "CK_Cadmus_ID", all.x = T)
+UsageDataSF_Final5 <- merge(UsageDataSF_Final4, dhw.final       , by = "CK_Cadmus_ID",all.x = T)
+UsageDataSF_Final6 <- merge(UsageDataSF_Final5, survey.final    , by = "CK_Cadmus_ID",all.x = T)
 View(UsageDataSF_Final6)
-FinalSummary <- summarize(group_by(UsageDataSF_Final6,UsageDataSF_Final6$EUI_Quartile),
+
+ii=5
+for (ii in colnames(UsageDataSF_Final6)){
+  UsageDataSF_Final6[is.na(UsageDataSF_Final6[ii]),ii] <- 0
+}
+
+###########################
+#Pull in weights
+###########################
+UsageDataSF_data <- weightedData(item116.merge[-which(colnames(item116.merge) %in% c("Ind"))])
+UsageDataSF_data <- left_join(UsageDataSF_data, item116.merge[which(colnames(item116.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))])
+
+UsageDataSF_data$count <- 1
+UsageDataSF_data$Count <- 1
+#######################
+# Weighted Analysis
+#######################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FinalSummary <- summarize(group_by(UsageDataSF_data,UsageDataSF_data$EUI_Quartile),
                           count = length(unique(CK_Cadmus_ID)),
                           Avg_Area = mean(Conditioned.Area.x, na.rm =T),
                           Total_Electric_Heat = sum(ElectricInd, na.rm = T),
@@ -238,28 +272,4 @@ FinalSummary <- summarize(group_by(UsageDataSF_Final6,UsageDataSF_Final6$EUI_Qua
                           NonMissing_DHW = sum(!is.na(Electric_DWH)),
                           Average_Number_Occupants = mean(Qty.Occupants, na.rm = T),
                           NonMissing_People = sum(!is.na(Qty.Occupants)))
-
-##### Bring in lighting workbook
-## Need to use: Lamp Category, LIGHTING_BulbsPerFixture, Fixture Qty
-
-# Before anything get rid of Clean.Room = "Storage"
-# Lamp Category = 
-# Light Emitting Diode = 1 - efficient indicator
-# OR
-# Compact Fluorescent = 1 - eff
-# 
-### Central AC
-##  System_Type = Central AC then yes otherwise no - Keep everything yes is only yes everything else is no
-
-### Water Heat 
-### DHW Fuel = "Electric" then electric otherwise 0 - if no fuel type then exclude from table
-
-### Average number of occupants
-##  Participant SUrvey file - survey.export
-## Total = sum(
-#Including yourself, how many people in your household are … Under the age of 18
-#Including yourself, how many people in your household are … Between 18 and 34
-#Including yourself, how many people in your household are … Between 34 and 54
-#Including yourself, how many people in your household are … Between 55 and 64
-#Including yourself, how many people in your household are … 65 and older)
 

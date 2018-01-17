@@ -1184,10 +1184,9 @@ proportion_one_group_domain <- function(CustomerLevelData, valueVariable, byVari
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
                                                , c("BuildingType", "State", "Region", "Territory", byVariable), summarise
-                                               ,y_lk     = sum(get(valueVariable), na.rm = T)
-                                               ,y_bar_lk = y_lk / length(unique(CK_Cadmus_ID))
-                                               ,n_lk     = length(unique(CK_Cadmus_ID))
-                                               ,m_lk     = sum(m_ilk)
+                                               ,count_lk_star = sum(get(valueVariable), na.rm = T)
+                                               ,n_lk          = length(unique(CK_Cadmus_ID))
+                                               ,m_lk          = sum(m_ilk)
   ), stringsAsFactors = F)
   strata_domain_merge      <- left_join(strata_domain_summary, strata_domain_level)
   site_strata_domain_merge <- left_join(CustomerLevelData, strata_domain_merge)
@@ -1203,7 +1202,7 @@ proportion_one_group_domain <- function(CustomerLevelData, valueVariable, byVari
   ### Get esimtated number of units in the population and estimated population average of the metric
   domain_summary <- data.frame(ddply(site_strata_domain_merge
                                      , c("BuildingType",byVariable), summarise
-                                     ,M_hat_k = sum(sum(N_l / n_lk * m_ilk))
+                                     ,M_hat_k = sum(sum(N_l / n_lk * p_ilk))
                                      ,y_bar_hat_k  = (1 / M_hat_k) * sum(sum(N_l / n_lk * get(valueVariable)))
   ), stringsAsFactors = F)
   
