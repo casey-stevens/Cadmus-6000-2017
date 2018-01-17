@@ -324,6 +324,9 @@ UsageDataSF_sum5 <- UsageDataSF_sum5[which(UsageDataSF_sum5$EUI_Quartile != "Tot
 names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c("Percent_Elec_DHW")
 
 
+#######################
+# Combine into table format
+#######################
 UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
 
 

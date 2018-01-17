@@ -127,9 +127,7 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
-
-exportTable(item3.table.SF, "SF", "Table 10"
-            , weighted = TRUE)
+exportTable(item3.table.SF, "SF", "Table 10", weighted = TRUE)
 
 
 
@@ -166,9 +164,7 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
-
-exportTable(item3.table.SF, "SF", "Table 10"
-            , weighted = FALSE)
+exportTable(item3.table.SF, "SF", "Table 10", weighted = FALSE)
 
 
 
@@ -231,10 +227,8 @@ item4.final <- mean_one_group(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item4.table.SF, "SF", "Table 11"
-            , weighted = TRUE)
-exportTable(item4.table.MH, "MH", "Table 10"
-            , weighted = TRUE)
+exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
+exportTable(item4.table.MH, "MH", "Table 10", weighted = TRUE)
 
 
 

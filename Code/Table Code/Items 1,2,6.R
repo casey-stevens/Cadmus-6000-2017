@@ -98,10 +98,8 @@ item1.table.SF <- data.frame(item1.table[which(item1.table$BuildingType %in% c("
 item1.table.MH <- item1.table[which(item1.table$BuildingType %in% c("Manufactured")),-1]
 
 #exporting function
-exportTable(item1.table.SF, "SF", "Table 8"
-            , weighted = TRUE)
-exportTable(item1.table.MH, "MH", "Table 7"
-            , weighted = TRUE)
+exportTable(item1.table.SF, "SF", "Table 8", weighted = TRUE)
+exportTable(item1.table.MH, "MH", "Table 7", weighted = TRUE)
 
 
 
@@ -161,10 +159,8 @@ item1.table.SF.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c(
 item1.table.MH.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c("Manufactured")),-1]
 
 #exporting function
-exportTable(item1.table.SF.unw, "SF", "Table 8"
-            , weighted = FALSE)
-exportTable(item1.table.MH.unw, "MH", "Table 7"
-            , weighted = FALSE)
+exportTable(item1.table.SF.unw, "SF", "Table 8", weighted = FALSE)
+exportTable(item1.table.MH.unw, "MH", "Table 7", weighted = FALSE)
 
 
 
@@ -238,10 +234,8 @@ item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family")
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 #exporting function
-exportTable(item2.table.SF, "SF", "Table 9"
-            , weighted = TRUE)
-exportTable(item2.table.MH, "MH", "Table 8"
-            , weighted = TRUE)
+exportTable(item2.table.SF, "SF", "Table 9", weighted = TRUE)
+exportTable(item2.table.MH, "MH", "Table 8", weighted = TRUE)
 
 
 
@@ -295,10 +289,8 @@ item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family")
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 #exporting function
-exportTable(item2.table.SF, "SF", "Table 9"
-            , weighted = FALSE)
-exportTable(item2.table.MH, "MH", "Table 8"
-            , weighted = FALSE)
+exportTable(item2.table.SF, "SF", "Table 9", weighted = FALSE)
+exportTable(item2.table.MH, "MH", "Table 8", weighted = FALSE)
 
 
 
@@ -371,8 +363,8 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                           ,"EB_Region"      = item6.cast$EB_Region)
 
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
-exportTable(item6.table.SF, "SF", "Table 13"
-            , weighted = TRUE)
+
+exportTable(item6.table.SF, "SF", "Table 13", weighted = TRUE)
 
 
 
@@ -419,5 +411,5 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
                           ,"n_Region"       = item6.cast$n_Region)
 
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
-exportTable(item6.table.SF, "SF", "Table 13"
-            , weighted = FALSE)
+
+exportTable(item6.table.SF, "SF", "Table 13", weighted = FALSE)

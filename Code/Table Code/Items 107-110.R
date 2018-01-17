@@ -467,6 +467,10 @@ item110.dat2 <- item110.dat1[which(item110.dat1$Type == "Television"),]
 #remove any missing room types
 item110.dat3 <- item110.dat2[which(!(is.na(item110.dat2$Clean.Room))),]
 
+item110.dat3$count <- 1
+item110.customer <- summarise(group_by(item110.dat3, CK_Cadmus_ID, Type)
+                              ,m_ilk = sum(count))
+
 
 item110.customer <- left_join(item110.dat3, rbsa.dat)
 item110.customer$Clean.Room[which(item110.customer$Clean.Room %in% c("Attic"
