@@ -30,8 +30,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
                          ,startRow = 1, sheet = 1)
 
-results.dat <- merge(rbsa.dat, billing.dat, 
-                     by = "CK_Cadmus_ID", all.y = T)
+results.dat <- left_join(rbsa.dat, billing.dat, by = "CK_Cadmus_ID")
 
 #results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case = T),]
 results.dat2 <- results.dat
@@ -134,11 +133,11 @@ lighting.clean3$EfficientBulbs <-
   as.numeric(lighting.clean3$LIGHTING_BulbsPerFixture) * lighting.clean3$Efficient
 View(lighting.clean3)
 lighting.clean4 <- summarize(group_by(lighting.clean3,CK_Cadmus_ID),
-                             BulbTotal = sum(AllBulbs),
+                             TotalBulbs = sum(AllBulbs),
                              EfficientTotal = sum(EfficientBulbs))
 
 lighting.clean4$EfficientSaturation <- 
-  lighting.clean4$EfficientTotal/lighting.clean4$BulbTotal
+  lighting.clean4$EfficientTotal/lighting.clean4$TotalBulbs
 
 lighting.final <- lighting.clean4
 
@@ -208,41 +207,124 @@ UsageDataSF <- results.dat2[which(results.dat2$BuildingType == "Single Family"),
 UsageDataSF_2 <- UsageDataSF[-which(is.na(UsageDataSF$UsageNAC_kWh)),]
 UsageDataSF_3 <- UsageDataSF_2[which(UsageDataSF_2$Conditioned.Area > 0),]
 UsageDataSF_3$EUI <- UsageDataSF_3$UsageNAC_kWh/UsageDataSF_3$Conditioned.Area
+UsageDataSF_3 <- unique(UsageDataSF_3)
 
-quantile(UsageDataSF_3$EUI)
-
-UsageDataSF_3$EUI_Quartile <- 4
-UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 0 & UsageDataSF_3$EUI < 3.5516670)] <- 1
-UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 3.5516670 & UsageDataSF_3$EUI < 5.9943223)] <- 2
-UsageDataSF_3$EUI_Quartile[which(UsageDataSF_3$EUI >= 5.9943223 & UsageDataSF_3$EUI < 9.3070297)] <- 3
-keep.cols <- c("CK_Cadmus_ID","EUI", "EUI_Quartile", "Conditioned.Area")
+keep.cols <- c("CK_Cadmus_ID","EUI", "Conditioned.Area")
 
 UsageDataSF_Final <- UsageDataSF_3[,which(colnames(UsageDataSF_3) %in% keep.cols)]
-View(UsageDataSF_Final)
+# View(UsageDataSF_Final)
 UsageDataSF_Final2 <- merge(UsageDataSF_Final,  heating.final   , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final3 <- merge(UsageDataSF_Final2, lighting.final  , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final4 <- merge(UsageDataSF_Final3, central_Ac.final, by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final5 <- merge(UsageDataSF_Final4, dhw.final       , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final6 <- merge(UsageDataSF_Final5, survey.final    , by = "CK_Cadmus_ID",all.x = T)
-View(UsageDataSF_Final6)
+# View(UsageDataSF_Final6)
 
 ii=5
 for (ii in colnames(UsageDataSF_Final6)){
   UsageDataSF_Final6[is.na(UsageDataSF_Final6[ii]),ii] <- 0
 }
 
+
+UsageDataSF_Final7 <- left_join(rbsa.dat, UsageDataSF_Final6)
+UsageDataSF_Final7 <- UsageDataSF_Final7[which(!is.na(UsageDataSF_Final7$count)),]
+which(duplicated(UsageDataSF_Final7$CK_Cadmus_ID))
+
+
+unique(UsageDataSF_Final7$EUI)
+quantile(UsageDataSF_Final7$EUI)
+summary(UsageDataSF_Final7$EUI)
+
+UsageDataSF_Final7$EUI_Quartile <- 4
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5486421)] <- 1
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5486421 & UsageDataSF_Final7$EUI < 5.9666173)] <- 2
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9666173 & UsageDataSF_Final7$EUI < 9.2798564)] <- 3
+
 ###########################
 #Pull in weights
 ###########################
-UsageDataSF_data <- weightedData(item116.merge[-which(colnames(item116.merge) %in% c("Ind"))])
-UsageDataSF_data <- left_join(UsageDataSF_data, item116.merge[which(colnames(item116.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))])
+UsageDataSF_data <- weightedData(UsageDataSF_Final7[-which(colnames(UsageDataSF_Final7) %in% c("Conditioned.Area.x"
+                                                                                               ,"EUI"
+                                                                                               ,"EUI_Quartile"
+                                                                                               ,"ElectricInd"
+                                                                                               ,"TotalBulbs"
+                                                                                               ,"EfficientTotal"
+                                                                                               ,"EfficientSaturation"
+                                                                                               ,"ACtotal"
+                                                                                               ,"Has_AC"
+                                                                                               ,"Electric_DWH"
+                                                                                               ,"Conditioned.Area.y"
+                                                                                               ,"Qty.Occupants"
+                                                                                               ,"count"))])
+UsageDataSF_data <- left_join(UsageDataSF_data, UsageDataSF_Final7[which(colnames(UsageDataSF_Final7) %in% c("CK_Cadmus_ID"
+                                                                                                             ,"Conditioned.Area.x"
+                                                                                                             ,"EUI"
+                                                                                                             ,"EUI_Quartile"
+                                                                                                             ,"ElectricInd"
+                                                                                                             ,"TotalBulbs"
+                                                                                                             ,"EfficientTotal"
+                                                                                                             ,"EfficientSaturation"
+                                                                                                             ,"ACtotal"
+                                                                                                             ,"Has_AC"
+                                                                                                             ,"Electric_DWH"
+                                                                                                             ,"Conditioned.Area.y"
+                                                                                                             ,"Qty.Occupants"
+                                                                                                             ,"count"))])
 
 UsageDataSF_data$count <- 1
 UsageDataSF_data$Count <- 1
 #######################
-# Weighted Analysis
+# Weighted Analysis - Average Area
 #######################
+UsageDataSF_sum1 <- mean_one_group(CustomerLevelData = UsageDataSF_data
+                                   ,valueVariable = "Conditioned.Area"
+                                   ,byVariable = "EUI_Quartile"
+                                   ,aggregateRow = "Remove")
+UsageDataSF_sum1 <- UsageDataSF_sum1[which(UsageDataSF_sum1$EUI_Quartile != "Remove"),-which(names(UsageDataSF_sum1) %in% c("BuildingType","n_h","N_h","Precision","n","SE"))]
+names(UsageDataSF_sum1)[which(names(UsageDataSF_sum1) %in% c("Mean"))] <- c("Mean_Conditioned_Area")
+
+#######################
+# Weighted Analysis - % electrically heated
+#######################
+UsageDataSF_sum2 <- proportions_one_group(CustomerLevelData = UsageDataSF_data
+                                          ,valueVariable = "ElectricInd"
+                                          ,groupingVariable = "EUI_Quartile"
+                                          ,total.name = "Remove")
+UsageDataSF_sum2 <- UsageDataSF_sum2[which(UsageDataSF_sum2$EUI_Quartile != "Total"),-which(names(UsageDataSF_sum2) %in% c("BuildingType","n_h","N_h","N","count","n","w.SE","EUI_Quartile"))]
+names(UsageDataSF_sum2)[which(names(UsageDataSF_sum2) %in% c("w.percent"))] <- c("Percent_Elec_Heated")
+
+#######################
+# Weighted Analysis - Efficient lighting %
+#######################
+UsageDataSF_sum3 <- proportions_one_group(CustomerLevelData = UsageDataSF_data
+                                          ,valueVariable = "EfficientTotal"
+                                          ,groupingVariable = "EUI_Quartile"
+                                          ,total.name = "Remove")
+UsageDataSF_sum3 <- UsageDataSF_sum3[which(UsageDataSF_sum3$EUI_Quartile != "Total"),-which(names(UsageDataSF_sum3) %in% c("BuildingType","n_h","N_h","N","count","n","w.SE","EUI_Quartile"))]
+names(UsageDataSF_sum3)[which(names(UsageDataSF_sum3) %in% c("w.percent"))] <- c("Percent_Eff_Lighting")
+
+#######################
+# Weighted Analysis - % with AC
+#######################
+UsageDataSF_sum4 <- proportions_one_group(CustomerLevelData = UsageDataSF_data
+                                          ,valueVariable = "Has_AC"
+                                          ,groupingVariable = "EUI_Quartile"
+                                          ,total.name = "Remove")
+UsageDataSF_sum4 <- UsageDataSF_sum4[which(UsageDataSF_sum4$EUI_Quartile != "Total"),-which(names(UsageDataSF_sum4) %in% c("BuildingType","n_h","N_h","N","count","n","w.SE","EUI_Quartile"))]
+names(UsageDataSF_sum4)[which(names(UsageDataSF_sum4) %in% c("w.percent"))] <- c("Percent_AC")
+
+#######################
+# Weighted Analysis - % with Elec DHW
+#######################
+UsageDataSF_sum5 <- proportions_one_group(CustomerLevelData = UsageDataSF_data
+                                          ,valueVariable = "Electric_DWH"
+                                          ,groupingVariable = "EUI_Quartile"
+                                          ,total.name = "Remove")
+UsageDataSF_sum5 <- UsageDataSF_sum5[which(UsageDataSF_sum5$EUI_Quartile != "Total"),-which(names(UsageDataSF_sum5) %in% c("BuildingType","n_h","N_h","N","count","n","w.SE","EUI_Quartile"))]
+names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c("Percent_Elec_DHW")
+
+
+UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
 
 
 
@@ -252,19 +334,12 @@ UsageDataSF_data$Count <- 1
 
 
 
-
-
-
-
-
-
-
-FinalSummary <- summarize(group_by(UsageDataSF_data,UsageDataSF_data$EUI_Quartile),
+FinalSummary <- summarize(group_by(UsageDataSF_Final7,UsageDataSF_Final7$EUI_Quartile),
                           count = length(unique(CK_Cadmus_ID)),
                           Avg_Area = mean(Conditioned.Area.x, na.rm =T),
                           Total_Electric_Heat = sum(ElectricInd, na.rm = T),
                           NonMissing_Elec_Heat = sum(!is.na(ElectricInd)),
-                          Avg_Eff_Lighting = sum(EfficientTotal, na.rm =T)/sum(BulbTotal, na.rm =T) ,
+                          Avg_Eff_Lighting = sum(EfficientTotal, na.rm =T)/sum(TotalBulbs, na.rm =T) ,
                           NonMissing_Lighting = sum(is.na(EfficientSaturation)),
                           Total_AC = sum(Has_AC, na.rm = T),
                           NonMissing_AC = sum(!is.na(Has_AC)),

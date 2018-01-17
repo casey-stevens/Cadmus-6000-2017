@@ -876,11 +876,11 @@ proportions_one_group <- function(CustomerLevelData
                                         ,N.h   = unique(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
     
-    if(groupingVariable %in% c("State","BuildingType")){
+    if(groupingVariable %in% c("State","BuildingType", "EUI_Quartile")){
       
       # this if statement is specifically to calculate the denominator for tables
       # where we want to know the percent of stored bulbs by bulb type
-      if(valueVariable == "StorageBulbs"){
+      if(valueVariable %in% c("StorageBulbs")){
         # obtain count and proportion by strata and row grouping variable
         StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                      , c("BuildingType", "State", "Region", "Territory"), summarise
@@ -896,7 +896,23 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,count       = sum(get(valueVariable))
                                                      ,total.count = sum(Count)
                                                      ,p.h = count / total.count), stringsAsFactors = F)
-      }else {
+      }else if(valueVariable %in% c("EfficientTotal")){
+        # obtain count and proportion by strata and row grouping variable
+        StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                     , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
+                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
+                                                     ,count       = sum(get(valueVariable))
+                                                     ,total.count = sum(TotalBulbs)
+                                                     ,p.h = count / total.count), stringsAsFactors = F)
+      }else if(valueVariable %in% c("ElectricInd", "Has_AC", "Electric_DWH")){
+        # obtain count and proportion by strata and row grouping variable
+        StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                     , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
+                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
+                                                     ,count       = sum(get(valueVariable))
+                                                     ,total.count = sum(Count)
+                                                     ,p.h = count / total.count), stringsAsFactors = F)
+      }else{
         # obtain count and proportion by strata and row grouping variable
         StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                      , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
@@ -963,7 +979,7 @@ proportions_one_group <- function(CustomerLevelData
     #####################################################################################################x
     # For "Percentage" tables
     #####################################################################################################x
-      if(groupingVariable %in% c("State", "Clean.Type", "Wall.Type")){ # & valueVariable %in% c("Ind", "cond.ind")
+      if(groupingVariable %in% c("State", "Clean.Type", "Wall.Type", "EUI_Quartile")){ # & valueVariable %in% c("Ind", "cond.ind")
         #summarise by column variable
         #summary of both grouping variables
         ColumnProportionsByGroup <- data.frame(ddply(StrataData
