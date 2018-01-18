@@ -52,6 +52,8 @@ item19.dat2$Ind[which(item19.dat2$Floor.Type == "Basement")] <- 1
 
 item19.dat3 <- unique(item19.dat2[which(item19.dat2$Ind == 1),])
 
+item19.dat3 <- item19.dat3[-which(duplicated(item19.dat3$CK_Cadmus_ID)),]
+
 item19.merge <- left_join(rbsa.dat, item19.dat3)
 
 item19.merge1 <- item19.merge[-which(item19.merge$`Floor.Sub-Type` == "Unknown"),]
@@ -75,7 +77,7 @@ item19.data$Ind <- as.numeric(as.character(item19.data$Ind))
 item19.data$Count <- 1
 item19.data$count <- 1
 
-
+which(duplicated(item19.data$CK_Cadmus_ID))
 #####################################
 # Weighted Analysis
 #####################################

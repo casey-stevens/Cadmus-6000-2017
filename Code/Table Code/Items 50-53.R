@@ -168,6 +168,8 @@ item50.table.SF <- item50.table[which(item50.table$BuildingType == "Single Famil
 item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
 
 
+item50.final.SF <- item50.final[which(item50.final$BuildingType == "Single Family"),]
+
 exportTable(item50.table.SF, "SF", "Table 57", weighted = TRUE)
 exportTable(item50.table.MH, "MH", "Table 38", weighted = TRUE)
 

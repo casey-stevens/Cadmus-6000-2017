@@ -321,7 +321,7 @@ UsageDataSF_sum5 <- proportions_one_group(CustomerLevelData = UsageDataSF_data
                                           ,valueVariable = "Electric_DWH"
                                           ,groupingVariable = "EUI_Quartile"
                                           ,total.name = "Remove")
-UsageDataSF_sum5 <- UsageDataSF_sum5[which(UsageDataSF_sum5$EUI_Quartile != "Total"),-which(names(UsageDataSF_sum5) %in% c("BuildingType","n_h","N_h","N","count","n","w.SE","EUI_Quartile"))]
+UsageDataSF_sum5 <- UsageDataSF_sum5[which(UsageDataSF_sum5$EUI_Quartile != "Total"),-which(names(UsageDataSF_sum5) %in% c("BuildingType","n_h","N_h","N","count","w.SE","EUI_Quartile"))]
 names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c("Percent_Elec_DHW")
 
 

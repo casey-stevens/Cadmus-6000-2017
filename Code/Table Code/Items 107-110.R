@@ -467,40 +467,41 @@ item110.dat2 <- item110.dat1[which(item110.dat1$Type == "Television"),]
 #remove any missing room types
 item110.dat3 <- item110.dat2[which(!(is.na(item110.dat2$Clean.Room))),]
 
+item110.dat3$Clean.Room[which(item110.dat3$Clean.Room %in% c("Attic"
+                                                             ,"Basement"
+                                                             ,"Crawlspace"
+                                                             ,"Crawl Space"
+                                                             ,"Mechanical"
+                                                             ,"Grow Room"))] <- "Other"
+unique(item110.dat3$Clean.Room[which(item110.dat3$BuildingType == "Single Family")])
+
 item110.dat3$count <- 1
-item110.customer <- summarise(group_by(item110.dat3, CK_Cadmus_ID, Type)
+item110.customer <- summarise(group_by(item110.dat3, CK_Cadmus_ID, Type,Clean.Room)
                               ,m_ilk = sum(count))
+item110.merge <- left_join(rbsa.dat, item110.customer)
+item110.merge <- item110.merge[which(!is.na(item110.merge$m_ilk)),]
 
 
-item110.customer <- left_join(item110.dat3, rbsa.dat)
-item110.customer$Clean.Room[which(item110.customer$Clean.Room %in% c("Attic"
-                                                           ,"Basement"
-                                                           ,"Crawlspace"
-                                                           ,"Crawl Space"
-                                                           ,"Mechanical"
-                                                           ,"Grow Room"))] <- "Other"
-unique(item110.customer$Clean.Room[which(item110.customer$BuildingType == "Single Family")])
 
 ###########################################
 # add pop and sample sizes for weighting
 ###########################################
-item110.data <- weightedData(item110.customer[-which(colnames(item110.customer) %in% c("Type"
-                                                                                       ,"Clean.Room"
-                                                                                       ,"count"))])
-item110.data <- left_join(item110.data, item110.customer[which(colnames(item110.customer) %in% c("CK_Cadmus_ID"
-                                                                                                 ,"Type"
-                                                                                                 ,"Clean.Room"
-                                                                                                 ,"count"))])
+item110.data <- weightedData(item110.merge[-which(colnames(item110.merge) %in% c("Type"
+                                                                                 ,"Clean.Room"
+                                                                                 ,"m_ilk"))])
+item110.data <- left_join(item110.data, item110.merge[which(colnames(item110.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Type"
+                                                                                           ,"Clean.Room"
+                                                                                           ,"m_ilk"))])
 
 
 #####################
 # Weighted analysis
 #####################
-item110.final    <- proportions_one_group(item110.data
-                                   ,valueVariable    = 'count'
-                                   ,groupingVariable = 'Clean.Room'
-                                   ,total.name       = "Total"
-                                   ,weighted         = TRUE)
+item110.final    <- proportions_one_group_domain(CustomerLevelData = item110.data
+                                                 ,valueVariable    = 'm_ilk'
+                                                 ,byVariable       = 'Clean.Room'
+                                                 ,aggregateRow     = "Total")
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"))]
 exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
