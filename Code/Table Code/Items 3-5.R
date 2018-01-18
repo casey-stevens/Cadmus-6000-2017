@@ -76,13 +76,18 @@ item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA, 0)
 
 #subset to only single family for item 3
 item3.dat2 <- item3.dat1[which(item3.dat1$BuildingType == "Single Family"),]
+item3.dat2$count <- 1
+item3.customer <- summarise(group_by(item3.dat2, CK_Cadmus_ID, State, GroundContact)
+                              ,m_ilk = sum(count))
+item3.merge <- left_join(rbsa.dat, item3.customer)
+item3.merge <- item3.merge[which(!is.na(item3.merge$m_ilk)),]
 
 
 
 #add weighting information
-item3.data <- weightedData(item3.dat2[-which(colnames(item3.dat2) %in% c("FoundationType", "GroundContact"))])
+item3.data <- weightedData(item3.merge[-which(colnames(item3.merge) %in% c("m_ilk", "GroundContact"))])
 
-item3.data <- left_join(item3.data, item3.dat2[which(colnames(item3.dat2) %in% c("CK_Cadmus_ID", "FoundationType", "GroundContact"))])
+item3.data <- left_join(item3.data, item3.merge[which(colnames(item3.merge) %in% c("CK_Cadmus_ID", "m_ilk", "GroundContact"))])
 
 item3.data$count <- 1
 colnames(item3.data)
@@ -92,15 +97,13 @@ colnames(item3.data)
 ##############################
 # Weighted Analysis
 ##############################
-item3.final <- proportionRowsAndColumns1(CustomerLevelData     = item3.data
-                                         , valueVariable       = 'count'
-                                         , columnVariable      = 'State'
-                                         , rowVariable         = 'GroundContact'
-                                         , aggregateColumnName = "Region")
+item3.cast <- proportions_two_groups_domain(CustomerLevelData     = item3.data
+                                             , valueVariable       = 'm_ilk'
+                                             , byVariableColumn    = 'State'
+                                             , byVariableRow       = 'GroundContact'
+                                             , aggregateColumn     = "Region"
+                                             , aggregateRow        = "Total")
 
-item3.cast <- dcast(setDT(item3.final)
-                    ,formula = BuildingType + GroundContact ~ State
-                    ,value.var = c("w.percent", "w.SE", "n", "count", "EB"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
