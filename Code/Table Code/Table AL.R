@@ -237,8 +237,8 @@ summary(UsageDataSF_Final7$EUI)
 
 UsageDataSF_Final7$EUI_Quartile <- 4
 UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5486421)] <- 1
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5486421 & UsageDataSF_Final7$EUI < 5.9666173)] <- 2
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9666173 & UsageDataSF_Final7$EUI < 9.2798564)] <- 3
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5486421 & UsageDataSF_Final7$EUI < 5.9583333)] <- 2
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9583333 & UsageDataSF_Final7$EUI < 9.2550041)] <- 3
 
 ###########################
 #Pull in weights
@@ -256,6 +256,7 @@ UsageDataSF_data <- weightedData(UsageDataSF_Final7[-which(colnames(UsageDataSF_
                                                                                                ,"Conditioned.Area.y"
                                                                                                ,"Qty.Occupants"
                                                                                                ,"count"))])
+
 UsageDataSF_data <- left_join(UsageDataSF_data, UsageDataSF_Final7[which(colnames(UsageDataSF_Final7) %in% c("CK_Cadmus_ID"
                                                                                                              ,"Conditioned.Area.x"
                                                                                                              ,"EUI"
