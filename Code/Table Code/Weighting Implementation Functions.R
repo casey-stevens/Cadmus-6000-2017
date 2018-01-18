@@ -373,11 +373,18 @@ mean_two_groups <- function(CustomerLevelData
   #                                 ,n = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
   
   item.group.all <- data.frame(ddply(item.strata, c("BuildingType", byVariableRow, byVariableColumn), summarise
-                          ,Mean = sum(N_h * strataMean) / sum(N_h)
-                          ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                          ,n    = sum(n)
-                          ,N    = sum(unique(N_h))
-                          ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
+                                     ,Mean = sum(N_h * strataMean) / sum(N_h)
+                                     ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
+                                     ,n    = sum(n_hj)
+                                     ,n_h  = sum(n_h)
+                                     ,N_h  = sum(N_h)
+                                     ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
+                          # ,Mean = sum(N_h * strataMean) / sum(N_h)
+                          # ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                          # ,n    = sum(n)
+                          # ,N    = sum(unique(N_h))
+                          # ,EB   = SE * qt(1-(1-0.9)/2, n)
+                          ), stringsAsFactors = F)
   
   #merge samples sizes onto mean and SE info
   # item.group.all <- left_join(item.group.all, item.group.sample.size)
@@ -388,11 +395,18 @@ mean_two_groups <- function(CustomerLevelData
   if (!is.na(rowAggregate)){
     item.group.rowAgg <- data.frame(ddply(item.strata, c("BuildingType", byVariableColumn), summarise
                                ,byRow      = rowAggregate
-                               ,Mean       = sum(N_h * strataMean) / sum(N_h)
-                               ,SE         = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                               ,n          = sum(n)
-                               ,N          = sum(unique(N_h))
-                               ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
+                               ,Mean = sum(N_h * strataMean) / sum(N_h)
+                               ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
+                               ,n    = sum(n_hj)
+                               ,n_h  = sum(n_h)
+                               ,N_h  = sum(N_h)
+                               ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
+                               # ,Mean       = sum(N_h * strataMean) / sum(N_h)
+                               # ,SE         = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                               # ,n          = sum(n)
+                               # ,N          = sum(unique(N_h))
+                               # ,EB   = SE * qt(1-(1-0.9)/2, n)
+                               ), stringsAsFactors = F)
     #Rename column byrow
     item.group.rowAgg <- ConvertColName(item.group.rowAgg,
                                         "byRow",
@@ -403,11 +417,18 @@ mean_two_groups <- function(CustomerLevelData
   if (!is.na(columnAggregate)) {
     item.group.colAgg1 <- data.frame(ddply(item.strata, c("BuildingType", byVariableRow), summarise
                                 ,byCol = columnAggregate
-                                ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                ,n     = sum(n)
-                                ,N     = sum(unique(N_h))
-                                ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
+                                ,Mean = sum(N_h * strataMean) / sum(N_h)
+                                ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
+                                ,n    = sum(n_hj)
+                                ,n_h  = sum(n_h)
+                                ,N_h  = sum(N_h)
+                                ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
+                                # ,Mean  = sum(N_h * strataMean) / sum(N_h)
+                                # ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                                # ,n     = sum(n)
+                                # ,N     = sum(unique(N_h))
+                                # ,EB   = SE * qt(1-(1-0.9)/2, n)
+                                ), stringsAsFactors = F)
     #rename column byCol
     item.group.colAgg1 <- ConvertColName(item.group.colAgg1, "byCol",
                                          byVariableColumn)
@@ -416,11 +437,18 @@ mean_two_groups <- function(CustomerLevelData
       item.group.colAgg2 <- data.frame(ddply(item.strata, "BuildingType", summarise
                                   ,byCol = columnAggregate
                                   ,byRow = rowAggregate
-                                  ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                  ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                  ,n     = sum(n)
-                                  ,N     = sum(unique(N_h))
-                                  ,EB   = SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
+                                  ,Mean = sum(N_h * strataMean) / sum(N_h)
+                                  ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
+                                  ,n    = sum(n_hj)
+                                  ,n_h  = sum(n_h)
+                                  ,N_h  = sum(N_h)
+                                  ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
+                                  # ,Mean  = sum(N_h * strataMean) / sum(N_h)
+                                  # ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
+                                  # ,n     = sum(n)
+                                  # ,N     = sum(unique(N_h))
+                                  # ,EB   = SE * qt(1-(1-0.9)/2, n)
+                                  ), stringsAsFactors = F)
       #rename columns byCol and by Row
       item.group.colAgg2 <- ConvertColName(item.group.colAgg2, "byRow",byVariableRow)
       item.group.colAgg2 <- ConvertColName(item.group.colAgg2, "byCol",byVariableColumn)
@@ -1699,7 +1727,7 @@ proportions_two_groups_domain <- function(CustomerLevelData
   ### calculate the inner sum to get the between-strata variance at the domain level
   across_strata_estimation <- data.frame(ddply(site_strata_domain_merge
                                                , c("BuildingType",byVariableRow,byVariableColumn), summarise
-                                               ,var = sum(1 / M_hat^2 * N_l^2 / (n_l * (n_l )) * (1 - n_l / N_l) * (m_ilk - m_bar_lk)^2)
+                                               ,var = sum(1 / M_hat^2 * N_l^2 / (n_l * (n_l -1)) * (1 - n_l / N_l) * (m_ilk - m_bar_lk)^2)
                                                ,SE = sqrt(var)
                                                ,EB = SE * 1.645
   ), stringsAsFactors = F)
@@ -1905,13 +1933,13 @@ proportions_two_groups_domain <- function(CustomerLevelData
   item.final <- data.frame(item.estimation, stringsAsFactors = F)
   item.final <- left_join(item.final, samplesizes)
   
-  item.cast <- dcast(setDT(item.final)
-                     ,formula = BuildingType + get(byVariableRow) ~ get(byVariableColumn)
-                     ,value.var = c("w.percent", "w.SE", "n", "EB"))
-  item.cast <- ConvertColName(item.cast, 'byVariableRow',byVariableRow)
+  # item.cast <- dcast(setDT(item.final)
+  #                    ,formula = BuildingType + get(byVariableRow) ~ get(byVariableColumn)
+  #                    ,value.var = c("w.percent", "w.SE", "n", "EB"))
+  # item.cast <- ConvertColName(item.cast, 'byVariableRow',byVariableRow)
+
   
-  
-  return(item.cast)
+  return(item.final)
 }
 
 

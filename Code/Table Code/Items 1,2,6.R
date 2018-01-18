@@ -17,6 +17,9 @@ rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
+##  Create "Not In" operator
+"%notin%" <- Negate("%in%")
+
 # Source
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
@@ -304,7 +307,7 @@ exportTable(item2.table.MH, "MH", "Table 8", weighted = FALSE)
 # Item 6: DISTRIBUTION OF HOMES BY BUILDING HEIGHT AND STATE (SF table 13)
 #
 #############################################################################################
-item6.dat <- weightedData(rbsa.dat[which(!is.na(rbsa.dat$BuildingHeight)),])
+item6.dat <- weightedData(rbsa.dat[which(rbsa.dat$BuildingHeight %notin% c(NA, "N/A")),])
 item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.0))] <- "1 Story"
 item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.5))] <- "1.5 Stories"
 item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.0))] <- "2 Stories"

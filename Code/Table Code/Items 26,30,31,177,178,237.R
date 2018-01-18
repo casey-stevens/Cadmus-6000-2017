@@ -524,19 +524,22 @@ item31.dat0 <- item31.dat[which(item31.dat$Ceiling.Insulation.Thickness.1 != "N/
 item31.dat1 <- left_join(rbsa.dat, item31.dat0)
 item31.dat2 <- item31.dat1[which(!is.na(item31.dat1$uvalue)),]
 
-item31.data <- weightedData(item31.dat2[-c(grep("Ceiling|ceiling", colnames(item31.dat2))
+item31.data <- weightedData(item31.dat2[-c(grep("Ceiling", colnames(item31.dat2),ignore.case = T)
                                            ,which(colnames(item31.dat2) %in% c("Category"
                                                                                ,"count"
                                                                                ,"uvalue"
                                                                                ,"total.r.val"
-                                                                               ,"TMP_ID")))])
+                                                                               ,"TMP_ID"
+                                                                               ,"PK_Envelope_ID"
+                                                                               ,"")))])
 item31.data <- left_join(item31.data,item31.dat2[c(grep("Ceiling|ceiling", colnames(item31.dat2))
                                                    ,which(colnames(item31.dat2) %in% c("CK_Cadmus_ID"
                                                                                        ,"Category"
                                                                                        ,"count"
                                                                                        ,"uvalue"
                                                                                        ,"total.r.val"
-                                                                                       ,"TMP_ID")))] )
+                                                                                       ,"TMP_ID"
+                                                                                       ,"PK_Envelope_ID")))] )
 
 ##############################
 # Weighted Analysis

@@ -97,13 +97,15 @@ colnames(item3.data)
 ##############################
 # Weighted Analysis
 ##############################
-item3.cast <- proportions_two_groups_domain(CustomerLevelData     = item3.data
+item3.final <- proportions_two_groups_domain(CustomerLevelData     = item3.data
                                              , valueVariable       = 'm_ilk'
                                              , byVariableColumn    = 'State'
                                              , byVariableRow       = 'GroundContact'
                                              , aggregateColumn     = "Region"
                                              , aggregateRow        = "Total")
-
+item3.cast <- dcast(setDT(item3.final)
+                   ,formula = BuildingType + GroundContact ~ State
+                   ,value.var = c("w.percent", "w.SE", "n", "EB"))
 
 item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
                           ,"GroundContact"  = item3.cast$GroundContact
