@@ -278,7 +278,7 @@ exportTable(item9.final.MH, "MH", "Table 14"
 # Unweighted Analysis
 ################################
 item9.final <- mean_one_group_unweighted(CustomerLevelData = item9.data
-                              , valueVariable = 'y_ilk'
+                              , valueVariable = 'y_bar_ilk'
                               , byVariable    = 'Clean.Type'
                               , aggregateRow  = "All Room Types")
 

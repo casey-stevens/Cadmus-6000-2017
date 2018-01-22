@@ -514,6 +514,7 @@ exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
 ##############
 # Unweighted
 ##############
+item110.data$count <- 1
 item110.final    <- proportions_one_group(item110.data
                                           ,valueVariable    = 'count'
                                           ,groupingVariable = 'Clean.Room'

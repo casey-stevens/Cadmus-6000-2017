@@ -47,7 +47,7 @@ item47.dat <- mechanical.dat1
 item47.dat1 <- item47.dat[which(item47.dat$Generic == "Furnace"),]
 item47.dat1 <- unique(item47.dat1)
 item47.dat2 <- left_join(rbsa.dat, item47.dat1, by = "CK_Cadmus_ID")
-item47.dat3 <- item47.dat2[which(!is.na(item47.dat2$Generic)),]
+item47.dat3 <- item47.dat2[which(item47.dat2$Generic %notin% c("N/A",NA)),]
 
 unique(item47.dat3$Heating.Fuel)
 item47.dat3$Heating.Fuel[grep("gas|kerosene", item47.dat3$Heating.Fuel, ignore.case = T)] <- "Gas"
@@ -57,7 +57,8 @@ item47.dat4 <- item47.dat3[which(item47.dat3$Heating.Fuel %notin% c("Other"
                                                                     ,"Unknown"
                                                                     ,"Can't Determine"
                                                                     ,NA
-                                                                    ,"Wood (cord)")),]
+                                                                    ,"Wood (cord)"
+                                                                    ,"N/A")),]
 unique(item47.dat4$Heating.Fuel)
 
 item47.dat4$count <- 1
@@ -125,7 +126,7 @@ item48.dat2 <- left_join(item48.dat1, rbsa.dat, by = "CK_Cadmus_ID")
 item48.dat2$count <- 1
 
 item48.dat3 <- item48.dat2[which(item48.dat2$BuildingType == "Single Family"),]
-item48.dat4 <- item48.dat3[which(!is.na(item48.dat3$Heating.Fuel)),]
+item48.dat4 <- item48.dat3[which(item48.dat3$Heating.Fuel %notin% c("N/A",NA)),]
 
 # Weighting function
 item48.data <- weightedData(item48.dat4[-which(colnames(item48.dat4) %in% c("Generic"
@@ -192,7 +193,7 @@ item49.dat4$Heating.Fuel[grep("cord",item49.dat4$Heating.Fuel, ignore.case = T)]
 item49.dat4$Heating.Fuel[grep("pellets",item49.dat4$Heating.Fuel, ignore.case = T)] <- "Pellets"
 item49.dat4$Heating.Fuel[grep("gas",item49.dat4$Heating.Fuel, ignore.case = T)] <- "Gas"
 unique(item49.dat4$Heating.Fuel)
-
+item49.dat4 <- item49.dat4[which(item49.dat4$Heating.Fuel %notin% c("N/A",NA)),]
 # Weighting function
 item49.data <- weightedData(item49.dat4[-which(colnames(item49.dat4) %in% c("Generic"
                                                                             ,"System.Sub-Type"

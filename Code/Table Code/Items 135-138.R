@@ -42,6 +42,7 @@ item135.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,""))])
 
 colnames(item135.dat) <- c("CK_Cadmus_ID", "QTY")
+item135.dat$QTY <- as.numeric(as.character(item135.dat$QTY))
 #remove any repeat header rows from exporting
 item135.dat0 <- item135.dat[which(item135.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
@@ -177,6 +178,7 @@ item136.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,""))])
 
 colnames(item136.dat) <- c("CK_Cadmus_ID", "QTY")
+item136.dat$QTY <- as.numeric(as.character(item136.dat$QTY))
 #remove any repeat header rows from exporting
 item136.dat0 <- item136.dat[which(item136.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
@@ -312,6 +314,7 @@ item137.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,""))])
 
 colnames(item137.dat) <- c("CK_Cadmus_ID", "QTY")
+item137.dat$QTY <- as.numeric(as.character(item137.dat$QTY))
 #remove any repeat header rows from exporting
 item137.dat0 <- item137.dat[which(item137.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
@@ -472,6 +475,7 @@ item138.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,""))])
 
 colnames(item138.dat) <- c("CK_Cadmus_ID", "QTY")
+item138.dat$QTY <- as.numeric(as.character(item138.dat$QTY))
 #remove any repeat header rows from exporting
 item138.dat0 <- item138.dat[which(item138.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 

@@ -340,8 +340,8 @@ mean_two_groups <- function(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory", byVariableColumn), summarise
                                           ,strataMean = mean(get(valueVariable), na.rm = T)
                                           ,strataSD   = sd(get(valueVariable), na.rm = T)
-                                          ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata.group$strataSD[which(item.strata.group$strataSD == "NaN")] <- 0
+                                          ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    item.strata.group$strataSD[which(item.strata.group$strataSD %in% c(NA,"NaN"))] <- 0
   } 
   
   if (byVariableColumn == 'State') {
@@ -349,8 +349,8 @@ mean_two_groups <- function(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory", byVariableRow), summarise
                                           ,strataMean = mean(get(valueVariable), na.rm = T)
                                           ,strataSD   = sd(get(valueVariable), na.rm = T)
-                                          ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata.group$strataSD[which(item.strata.group$strataSD == "NaN")] <- 0
+                                          ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    item.strata.group$strataSD[which(item.strata.group$strataSD %in% c(NA,"NaN"))] <- 0
   }
   
   if (byVariableRow != 'State' & byVariableColumn != 'State') {
@@ -358,8 +358,8 @@ mean_two_groups <- function(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory", byVariableRow, byVariableColumn), summarise
                                           ,strataMean = mean(get(valueVariable), na.rm = T)
                                           ,strataSD   = sd(get(valueVariable), na.rm = T)
-                                          ,n          = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
-    item.strata.group$strataSD[which(item.strata.group$strataSD == "NaN")] <- 0
+                                          ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    item.strata.group$strataSD[which(item.strata.group$strataSD %in% c(NA,"NaN"))] <- 0
   }
   
   item.strata <- left_join(item.strata.group, StrataPopCounts)
@@ -1036,13 +1036,13 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
         if(groupingVariable == "Lamp.Category"){
           #summarise across home types (total level)
-          ColumnTotals <- data.frame(ddply(StrataDataWeights, "BuildingType", summarise
+          ColumnTotals <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
                                            ,rowTotal  = "Total"
-                                           ,w.percent = sum(w.percent)
+                                           ,w.percent = 1
                                            ,w.SE      = NA
                                            ,count     = sum(count)
-                                           ,N         = sum(unique(columnVar.N.h))
-                                           ,n         = sum(unique(columnVar.n.h))
+                                           ,N         = sum(unique(N.h))
+                                           ,n         = length(unique(CK_Cadmus_ID))
                                            ,EB        = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
         }else {
           #summarise across home types (total level)

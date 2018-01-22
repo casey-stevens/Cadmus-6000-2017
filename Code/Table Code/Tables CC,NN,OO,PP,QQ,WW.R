@@ -548,8 +548,3 @@ tableWW.table.MH <- tableWW.table[which(tableWW.table$BuildingType == "Manufactu
 
 exportTable(tableWW.table.SF, "SF", "Table WW", weighted = FALSE)
 exportTable(tableWW.table.MH, "MH", "Table WW", weighted = FALSE)
-
-
-
-
-

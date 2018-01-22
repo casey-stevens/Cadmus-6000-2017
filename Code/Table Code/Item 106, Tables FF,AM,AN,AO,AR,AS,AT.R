@@ -58,8 +58,9 @@ item106.dat4$GPM_bins <- item106.dat4$GPM.Measured.Site
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site <= 1.5)] <- "< 1.5"
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >  1.5 & item106.dat4$GPM.Measured.Site < 2.1)] <- "1.6-2.0"
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 2.1 & item106.dat4$GPM.Measured.Site < 2.6)] <- "2.1-2.5"
-item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 2.6 & item106.dat4$GPM.Measured.Site < 3.6)] <- "2.6-3.5"
-item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 3.6)] <- "> 3.6"
+# item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 2.6 & item106.dat4$GPM.Measured.Site < 3.6)] <- "2.6-3.5"
+# item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 3.6)] <- "> 3.6"
+item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 2.6)] <- "> 2.5"
 unique(item106.dat4$GPM_bins)
 
 item106.merge <- left_join(rbsa.dat, item106.dat4)
@@ -648,24 +649,32 @@ unique(tableAM.dat2$GPM_Measured)
 
 tableAM.dat3 <- tableAM.dat2[grep("bathroom|faucet|shower",tableAM.dat2$Fixture.Type,ignore.case = T),]
 tableAM.dat3$count <- 1
-tableAM.dat4 <- summarise(group_by(tableAM.dat3, CK_Cadmus_ID, Fixture.Type)
-                          ,Site.Count = sum(count))
+tableAM.dat3$Count <- 1
+
+#cast the melt example code
+tableAM.cast <- dcast(setDT(tableAM.dat3)
+                     ,formula = CK_Cadmus_ID ~ Fixture.Type,sum
+                     ,value.var = c("Count"))
+tableAM.cast[is.na(tableAM.cast),] <- 0
+
+tableAM.melt <- melt(tableAM.cast, id.vars = "CK_Cadmus_ID")
+names(tableAM.melt) <- c("CK_Cadmus_ID", "Fixture.Type", "Count")
+
+tableAM.dat4 <- summarise(group_by(tableAM.melt, CK_Cadmus_ID, Fixture.Type)
+                          ,Site.Count = sum(Count))
 
 tableAM.merge <- left_join(rbsa.dat, tableAM.dat4)
-tableAM.merge <- tableAM.merge[which(!is.na(tableAM.merge$Site.Count)),]
+tableAM.merge$Site.Count[which(is.na(tableAM.merge$Site.Count))] <- 0
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-tableAM.data <- weightedData(tableAM.merge[-which(colnames(tableAM.merge) %in% c("GPM.Measured.Site"               
-                                                                                 ,"Site.Count"
-                                                                                 ,"count"
+tableAM.data <- weightedData(tableAM.merge[-which(colnames(tableAM.merge) %in% c("Site.Count"
                                                                                  ,"Fixture.Type"))])
 tableAM.data <- left_join(tableAM.data, tableAM.merge[which(colnames(tableAM.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"GPM.Measured.Site"               
                                                                                            ,"Site.Count"
-                                                                                           ,"count"
                                                                                            ,"Fixture.Type"))])
+tableAM.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
@@ -762,3 +771,445 @@ exportTable(tableAM.final.SF, "SF", "Table AM", weighted = FALSE)
 
 
 
+#############################################################################################
+# Table AR: DISTRIBUTION OF SHOWERHEAD FLOW RATE BY STATE (new bins)
+#############################################################################################
+#subset to columns needed for analysis
+TableAR.dat <- water.dat[which(colnames(water.dat) %in% c("CK_Cadmus_ID"
+                                                          ,"GPM_Measured"
+                                                          ,"Fixture.Type"))]
+TableAR.dat$count <- 1
+
+TableAR.dat0 <- TableAR.dat[which(TableAR.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+TableAR.dat1 <- left_join(TableAR.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+
+TableAR.dat1$GPM_Measured <- as.numeric(as.character(TableAR.dat1$GPM_Measured))
+TableAR.dat2 <- TableAR.dat1[which(!(is.na(TableAR.dat1$GPM_Measured))),]
+unique(TableAR.dat2$GPM_Measured)
+
+TableAR.dat3 <- TableAR.dat2[grep("shower|Shower",TableAR.dat2$Fixture.Type),]
+
+TableAR.dat4 <- summarise(group_by(TableAR.dat3, CK_Cadmus_ID)
+                          ,GPM.Measured.Site = mean(GPM_Measured))
+
+TableAR.dat4$GPM_bins <- TableAR.dat4$GPM.Measured.Site
+TableAR.dat4$GPM_bins[which(TableAR.dat4$GPM.Measured.Site <  2.5)] <- "< 2.5"
+TableAR.dat4$GPM_bins[which(TableAR.dat4$GPM.Measured.Site >= 2.5)] <- ">= 2.5"
+unique(TableAR.dat4$GPM_bins)
+
+TableAR.merge <- left_join(rbsa.dat, TableAR.dat4)
+TableAR.merge <- TableAR.merge[which(!is.na(TableAR.merge$GPM_bins)),]
+
+
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+TableAR.data <- weightedData(TableAR.merge[-which(colnames(TableAR.merge) %in% c("GPM.Measured.Site"               
+                                                                                 ,"GPM_bins"
+                                                                                 ,"count"))])
+TableAR.data <- left_join(TableAR.data, TableAR.merge[which(colnames(TableAR.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"GPM.Measured.Site"               
+                                                                                           ,"GPM_bins"
+                                                                                           ,"count"))])
+#######################
+# Weighted Analysis
+#######################
+TableAR.data$count <- 1
+TableAR.final <- proportionRowsAndColumns1(CustomerLevelData = TableAR.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'State'
+                                           ,rowVariable      = 'GPM_bins'
+                                           ,aggregateColumnName = "Region")
+
+TableAR.cast <- dcast(setDT(TableAR.final)
+                      , formula = BuildingType + GPM_bins ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+TableAR.table <- data.frame("BuildingType"   = TableAR.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = TableAR.cast$GPM_bins
+                            ,"Percent_ID"     = TableAR.cast$w.percent_ID
+                            ,"SE_ID"          = TableAR.cast$w.SE_ID
+                            ,"n_ID"           = TableAR.cast$n_ID
+                            ,"Percent_MT"     = TableAR.cast$w.percent_MT
+                            ,"SE_MT"          = TableAR.cast$w.SE_MT
+                            ,"n_MT"           = TableAR.cast$n_MT
+                            ,"Percent_OR"     = TableAR.cast$w.percent_OR
+                            ,"SE_OR"          = TableAR.cast$w.SE_OR
+                            ,"n_OR"           = TableAR.cast$n_OR
+                            ,"Percent_WA"     = TableAR.cast$w.percent_WA
+                            ,"SE_WA"          = TableAR.cast$w.SE_WA
+                            ,"n_WA"           = TableAR.cast$n_WA
+                            ,"Percent_Region" = TableAR.cast$w.percent_Region
+                            ,"SE_Region"      = TableAR.cast$w.SE_Region
+                            ,"n_Region"       = TableAR.cast$n_Region
+                            ,"EB_ID"          = TableAR.cast$EB_ID
+                            ,"EB_MT"          = TableAR.cast$EB_MT
+                            ,"EB_OR"          = TableAR.cast$EB_OR
+                            ,"EB_WA"          = TableAR.cast$EB_WA
+                            ,"EB_Region"      = TableAR.cast$EB_Region
+) 
+#QAQC
+stopifnot(sum(TableAR.table[which(TableAR.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(TableAR.table))], na.rm = T) == 10)
+
+levels(TableAR.table$Flow.Rate.GPM)
+rowOrder <- c("< 2.5"
+              ,">= 2.5"
+              ,"Total")
+TableAR.table <- TableAR.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+TableAR.table <- data.frame(TableAR.table)
+
+TableAR.final.SF <- TableAR.table[which(TableAR.table$BuildingType == "Single Family")
+                                  ,-which(colnames(TableAR.table) %in% c("BuildingType"))]
+View(TableAR.final.SF)
+exportTable(TableAR.final.SF, "SF", "Table AR", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+TableAR.final <- proportions_two_groups_unweighted(CustomerLevelData = TableAR.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'GPM_bins'
+                                                   ,aggregateColumnName = "Region")
+
+TableAR.cast <- dcast(setDT(TableAR.final)
+                      , formula = BuildingType + GPM_bins ~ State
+                      , value.var = c("Percent", "SE", "Count", "n"))
+
+
+TableAR.table <- data.frame("BuildingType"   = TableAR.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = TableAR.cast$GPM_bins
+                            ,"Percent_ID"     = TableAR.cast$Percent_ID
+                            ,"SE_ID"          = TableAR.cast$SE_ID
+                            ,"n_ID"           = TableAR.cast$n_ID
+                            ,"Percent_MT"     = TableAR.cast$Percent_MT
+                            ,"SE_MT"          = TableAR.cast$SE_MT
+                            ,"n_MT"           = TableAR.cast$n_MT
+                            ,"Percent_OR"     = TableAR.cast$Percent_OR
+                            ,"SE_OR"          = TableAR.cast$SE_OR
+                            ,"n_OR"           = TableAR.cast$n_OR
+                            ,"Percent_WA"     = TableAR.cast$Percent_WA
+                            ,"SE_WA"          = TableAR.cast$SE_WA
+                            ,"n_WA"           = TableAR.cast$n_WA
+                            ,"Percent_Region" = TableAR.cast$Percent_Region
+                            ,"SE_Region"      = TableAR.cast$SE_Region
+                            ,"n_Region"       = TableAR.cast$n_Region
+)
+stopifnot(sum(TableAR.table[which(TableAR.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(TableAR.table))], na.rm = T) == 10)
+
+levels(TableAR.table$Flow.Rate.GPM)
+rowOrder <- c("< 2.5"
+              ,">= 2.5"
+              ,"Total")
+TableAR.table <- TableAR.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+TableAR.table <- data.frame(TableAR.table)
+
+TableAR.final.SF <- TableAR.table[which(TableAR.table$BuildingType == "Single Family")
+                                  ,-which(colnames(TableAR.table) %in% c("BuildingType"))]
+
+exportTable(TableAR.final.SF, "SF", "Table AR", weighted = FALSE)
+
+
+
+
+
+
+#############################################################################################
+# Table AS: DISTRIBUTION OF Bathroom Faucet FLOW RATE BY STATE
+#############################################################################################
+#subset to columns needed for analysis
+tableAS.dat <- water.dat[which(colnames(water.dat) %in% c("CK_Cadmus_ID"
+                                                          ,"GPM_Measured"
+                                                          ,"Fixture.Type"))]
+tableAS.dat$count <- 1
+
+tableAS.dat0 <- tableAS.dat[which(tableAS.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+tableAS.dat1 <- left_join(tableAS.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+
+tableAS.dat1$GPM_Measured <- as.numeric(as.character(tableAS.dat1$GPM_Measured))
+tableAS.dat2 <- tableAS.dat1[which(!(is.na(tableAS.dat1$GPM_Measured))),]
+unique(tableAS.dat2$GPM_Measured)
+
+tableAS.dat3 <- tableAS.dat2[grep("bathroom",tableAS.dat2$Fixture.Type, ignore.case = T),]
+
+tableAS.dat4 <- summarise(group_by(tableAS.dat3, CK_Cadmus_ID)
+                          ,GPM.Measured.Site = mean(GPM_Measured))
+
+tableAS.dat4$GPM_bins <- tableAS.dat4$GPM.Measured.Site
+tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
+tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+unique(tableAS.dat4$GPM_bins)
+
+tableAS.merge <- left_join(rbsa.dat, tableAS.dat4)
+tableAS.merge <- tableAS.merge[which(!is.na(tableAS.merge$GPM_bins)),]
+
+
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAS.data <- weightedData(tableAS.merge[-which(colnames(tableAS.merge) %in% c("GPM.Measured.Site"               
+                                                                                 ,"GPM_bins"
+                                                                                 ,"count"))])
+tableAS.data <- left_join(tableAS.data, tableAS.merge[which(colnames(tableAS.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"GPM.Measured.Site"               
+                                                                                           ,"GPM_bins"
+                                                                                           ,"count"))])
+#######################
+# Weighted Analysis
+#######################
+tableAS.data$count <- 1
+tableAS.final <- proportionRowsAndColumns1(CustomerLevelData = tableAS.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'State'
+                                           ,rowVariable      = 'GPM_bins'
+                                           ,aggregateColumnName = "Region")
+
+tableAS.cast <- dcast(setDT(tableAS.final)
+                      , formula = BuildingType + GPM_bins ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+tableAS.table <- data.frame("BuildingType"   = tableAS.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = tableAS.cast$GPM_bins
+                            ,"Percent_ID"     = tableAS.cast$w.percent_ID
+                            ,"SE_ID"          = tableAS.cast$w.SE_ID
+                            ,"n_ID"           = tableAS.cast$n_ID
+                            ,"Percent_MT"     = tableAS.cast$w.percent_MT
+                            ,"SE_MT"          = tableAS.cast$w.SE_MT
+                            ,"n_MT"           = tableAS.cast$n_MT
+                            ,"Percent_OR"     = tableAS.cast$w.percent_OR
+                            ,"SE_OR"          = tableAS.cast$w.SE_OR
+                            ,"n_OR"           = tableAS.cast$n_OR
+                            ,"Percent_WA"     = tableAS.cast$w.percent_WA
+                            ,"SE_WA"          = tableAS.cast$w.SE_WA
+                            ,"n_WA"           = tableAS.cast$n_WA
+                            ,"Percent_Region" = tableAS.cast$w.percent_Region
+                            ,"SE_Region"      = tableAS.cast$w.SE_Region
+                            ,"n_Region"       = tableAS.cast$n_Region
+                            ,"EB_ID"          = tableAS.cast$EB_ID
+                            ,"EB_MT"          = tableAS.cast$EB_MT
+                            ,"EB_OR"          = tableAS.cast$EB_OR
+                            ,"EB_WA"          = tableAS.cast$EB_WA
+                            ,"EB_Region"      = tableAS.cast$EB_Region
+) 
+#QAQC
+stopifnot(sum(tableAS.table[which(tableAS.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(tableAS.table))], na.rm = T) == 10)
+
+levels(tableAS.table$Flow.Rate.GPM)
+rowOrder <- c("<= 2.2"
+              ,"> 2.2"
+              ,"Total")
+tableAS.table <- tableAS.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+tableAS.table <- data.frame(tableAS.table)
+
+tableAS.final.SF <- tableAS.table[which(tableAS.table$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAS.table) %in% c("BuildingType"))]
+
+exportTable(tableAS.final.SF, "SF", "Table AS", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAS.final <- proportions_two_groups_unweighted(CustomerLevelData = tableAS.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'GPM_bins'
+                                                   ,aggregateColumnName = "Region")
+
+tableAS.cast <- dcast(setDT(tableAS.final)
+                      , formula = BuildingType + GPM_bins ~ State
+                      , value.var = c("Percent", "SE", "Count", "n"))
+
+
+tableAS.table <- data.frame("BuildingType"   = tableAS.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = tableAS.cast$GPM_bins
+                            ,"Percent_ID"     = tableAS.cast$Percent_ID
+                            ,"SE_ID"          = tableAS.cast$SE_ID
+                            ,"n_ID"           = tableAS.cast$n_ID
+                            ,"Percent_MT"     = tableAS.cast$Percent_MT
+                            ,"SE_MT"          = tableAS.cast$SE_MT
+                            ,"n_MT"           = tableAS.cast$n_MT
+                            ,"Percent_OR"     = tableAS.cast$Percent_OR
+                            ,"SE_OR"          = tableAS.cast$SE_OR
+                            ,"n_OR"           = tableAS.cast$n_OR
+                            ,"Percent_WA"     = tableAS.cast$Percent_WA
+                            ,"SE_WA"          = tableAS.cast$SE_WA
+                            ,"n_WA"           = tableAS.cast$n_WA
+                            ,"Percent_Region" = tableAS.cast$Percent_Region
+                            ,"SE_Region"      = tableAS.cast$SE_Region
+                            ,"n_Region"       = tableAS.cast$n_Region
+)
+stopifnot(sum(tableAS.table[which(tableAS.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(tableAS.table))], na.rm = T) == 10)
+
+levels(tableAS.table$Flow.Rate.GPM)
+rowOrder <- c("<= 2.2"
+              ,"> 2.2"
+              ,"Total")
+tableAS.table <- tableAS.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+tableAS.table <- data.frame(tableAS.table)
+
+tableAS.final.SF <- tableAS.table[which(tableAS.table$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAS.table) %in% c("BuildingType"))]
+
+exportTable(tableAS.final.SF, "SF", "Table AS", weighted = FALSE)
+
+
+
+
+
+
+
+#############################################################################################
+# Table AT: DISTRIBUTION OF Kitchen Faucet FLOW RATE BY STATE
+#############################################################################################
+#subset to columns needed for analysis
+TableAT.dat <- water.dat[which(colnames(water.dat) %in% c("CK_Cadmus_ID"
+                                                          ,"GPM_Measured"
+                                                          ,"Fixture.Type"))]
+TableAT.dat$count <- 1
+
+TableAT.dat0 <- TableAT.dat[which(TableAT.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+TableAT.dat1 <- left_join(TableAT.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+
+TableAT.dat1$GPM_Measured <- as.numeric(as.character(TableAT.dat1$GPM_Measured))
+TableAT.dat2 <- TableAT.dat1[which(!(is.na(TableAT.dat1$GPM_Measured))),]
+unique(TableAT.dat2$GPM_Measured)
+
+TableAT.dat3 <- TableAT.dat2[grep("kitchen",TableAT.dat2$Fixture.Type, ignore.case = T),]
+
+TableAT.dat4 <- summarise(group_by(TableAT.dat3, CK_Cadmus_ID)
+                          ,GPM.Measured.Site = mean(GPM_Measured))
+
+TableAT.dat4$GPM_bins <- TableAT.dat4$GPM.Measured.Site
+TableAT.dat4$GPM_bins[which(TableAT.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
+TableAT.dat4$GPM_bins[which(TableAT.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+unique(TableAT.dat4$GPM_bins)
+
+TableAT.merge <- left_join(rbsa.dat, TableAT.dat4)
+TableAT.merge <- TableAT.merge[which(!is.na(TableAT.merge$GPM_bins)),]
+
+
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+TableAT.data <- weightedData(TableAT.merge[-which(colnames(TableAT.merge) %in% c("GPM.Measured.Site"               
+                                                                                 ,"GPM_bins"
+                                                                                 ,"count"))])
+TableAT.data <- left_join(TableAT.data, TableAT.merge[which(colnames(TableAT.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"GPM.Measured.Site"               
+                                                                                           ,"GPM_bins"
+                                                                                           ,"count"))])
+#######################
+# Weighted Analysis
+#######################
+TableAT.data$count <- 1
+TableAT.final <- proportionRowsAndColumns1(CustomerLevelData = TableAT.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'State'
+                                           ,rowVariable      = 'GPM_bins'
+                                           ,aggregateColumnName = "Region")
+
+TableAT.cast <- dcast(setDT(TableAT.final)
+                      , formula = BuildingType + GPM_bins ~ State
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+TableAT.table <- data.frame("BuildingType"   = TableAT.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = TableAT.cast$GPM_bins
+                            ,"Percent_ID"     = TableAT.cast$w.percent_ID
+                            ,"SE_ID"          = TableAT.cast$w.SE_ID
+                            ,"n_ID"           = TableAT.cast$n_ID
+                            ,"Percent_MT"     = TableAT.cast$w.percent_MT
+                            ,"SE_MT"          = TableAT.cast$w.SE_MT
+                            ,"n_MT"           = TableAT.cast$n_MT
+                            ,"Percent_OR"     = TableAT.cast$w.percent_OR
+                            ,"SE_OR"          = TableAT.cast$w.SE_OR
+                            ,"n_OR"           = TableAT.cast$n_OR
+                            ,"Percent_WA"     = TableAT.cast$w.percent_WA
+                            ,"SE_WA"          = TableAT.cast$w.SE_WA
+                            ,"n_WA"           = TableAT.cast$n_WA
+                            ,"Percent_Region" = TableAT.cast$w.percent_Region
+                            ,"SE_Region"      = TableAT.cast$w.SE_Region
+                            ,"n_Region"       = TableAT.cast$n_Region
+                            ,"EB_ID"          = TableAT.cast$EB_ID
+                            ,"EB_MT"          = TableAT.cast$EB_MT
+                            ,"EB_OR"          = TableAT.cast$EB_OR
+                            ,"EB_WA"          = TableAT.cast$EB_WA
+                            ,"EB_Region"      = TableAT.cast$EB_Region
+) 
+#QAQC
+stopifnot(sum(TableAT.table[which(TableAT.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(TableAT.table))], na.rm = T) == 10)
+
+levels(TableAT.table$Flow.Rate.GPM)
+rowOrder <- c("<= 2.2"
+              ,"> 2.2"
+              ,"Total")
+TableAT.table <- TableAT.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+TableAT.table <- data.frame(TableAT.table)
+
+TableAT.final.SF <- TableAT.table[which(TableAT.table$BuildingType == "Single Family")
+                                  ,-which(colnames(TableAT.table) %in% c("BuildingType"))]
+
+exportTable(TableAT.final.SF, "SF", "Table AT", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+TableAT.final <- proportions_two_groups_unweighted(CustomerLevelData = TableAT.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'State'
+                                                   ,rowVariable      = 'GPM_bins'
+                                                   ,aggregateColumnName = "Region")
+
+TableAT.cast <- dcast(setDT(TableAT.final)
+                      , formula = BuildingType + GPM_bins ~ State
+                      , value.var = c("Percent", "SE", "Count", "n"))
+
+
+TableAT.table <- data.frame("BuildingType"   = TableAT.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = TableAT.cast$GPM_bins
+                            ,"Percent_ID"     = TableAT.cast$Percent_ID
+                            ,"SE_ID"          = TableAT.cast$SE_ID
+                            ,"n_ID"           = TableAT.cast$n_ID
+                            ,"Percent_MT"     = TableAT.cast$Percent_MT
+                            ,"SE_MT"          = TableAT.cast$SE_MT
+                            ,"n_MT"           = TableAT.cast$n_MT
+                            ,"Percent_OR"     = TableAT.cast$Percent_OR
+                            ,"SE_OR"          = TableAT.cast$SE_OR
+                            ,"n_OR"           = TableAT.cast$n_OR
+                            ,"Percent_WA"     = TableAT.cast$Percent_WA
+                            ,"SE_WA"          = TableAT.cast$SE_WA
+                            ,"n_WA"           = TableAT.cast$n_WA
+                            ,"Percent_Region" = TableAT.cast$Percent_Region
+                            ,"SE_Region"      = TableAT.cast$SE_Region
+                            ,"n_Region"       = TableAT.cast$n_Region
+)
+stopifnot(sum(TableAT.table[which(TableAT.table$BuildingType == "Single Family")
+                            ,grep("Percent",colnames(TableAT.table))], na.rm = T) == 10)
+
+levels(TableAT.table$Flow.Rate.GPM)
+rowOrder <- c("<= 2.2"
+              ,"> 2.2"
+              ,"Total")
+TableAT.table <- TableAT.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
+TableAT.table <- data.frame(TableAT.table)
+
+TableAT.final.SF <- TableAT.table[which(TableAT.table$BuildingType == "Single Family")
+                                  ,-which(colnames(TableAT.table) %in% c("BuildingType"))]
+
+exportTable(TableAT.final.SF, "SF", "Table AT", weighted = FALSE)

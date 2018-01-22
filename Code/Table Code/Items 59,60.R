@@ -55,7 +55,7 @@ item59.dat1 <- unique(item59.dat0[which(item59.dat0$Generic == "Ducting"),])
 length(unique(item59.dat1$CK_Cadmus_ID))
 unique(item59.dat1$System.Type)
 
-item59.dat2 <- item59.dat1[-grep("not present|presence unknown|not asked for", item59.dat1$System.Type,ignore.case = T),]
+item59.dat2 <- item59.dat1[-grep("not present|presence unknown|not asked for|N/A", item59.dat1$System.Type,ignore.case = T),]
 unique(item59.dat2$System.Type)
 
 # Add count var
@@ -138,7 +138,7 @@ item60.dat0 <- left_join(rbsa.dat, item60.dat, by = "CK_Cadmus_ID")
 #remove coditioned space = datapoint not asked for
 item60.dat1 <- item60.dat0[which(item60.dat0$Percentage.of.Supply.Ducts.in.Conditioned.Space != "-- Datapoint not asked for --"),]
 #remove conditioned space = NA
-item60.dat2 <- item60.dat1[which(!(is.na(item60.dat1$Percentage.of.Supply.Ducts.in.Conditioned.Space))),]
+item60.dat2 <- item60.dat1[which(item60.dat1$Percentage.of.Supply.Ducts.in.Conditioned.Space %notin% c("N/A",NA)),]
 
 #Make conditioned space numeric
 item60.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space <- as.numeric(as.character(item60.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space))

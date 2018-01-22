@@ -330,7 +330,7 @@ names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c
 #######################
 UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
 
-
+exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 
 
 
@@ -351,4 +351,5 @@ FinalSummary <- summarize(group_by(UsageDataSF_Final7,UsageDataSF_Final7$EUI_Qua
                           NonMissing_DHW = sum(!is.na(Electric_DWH)),
                           Average_Number_Occupants = mean(Qty.Occupants, na.rm = T),
                           NonMissing_People = sum(!is.na(Qty.Occupants)))
+exportTable(FinalSummary, "SF", "Table AL", weighted = FALSE)
 

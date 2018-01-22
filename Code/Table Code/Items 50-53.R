@@ -90,11 +90,12 @@ item50.dat3$`Heating.Efficiency.-.High` <- item50.dat3$`Heating.Efficiency.-.Hig
 unique(item50.dat3$`Heating.Efficiency.-.High`)
 item50.dat3$count <- 1
 
-item50.dat4 <- item50.dat3[which(!is.na(item50.dat3$`Heating.Efficiency.-.High`)),]
+item50.dat4 <- item50.dat3[which(item50.dat3$`Heating.Efficiency.-.High` %notin% c("N/A",NA)),]
 #average within houses
 item50.customer <- summarise(group_by(item50.dat4
                                      , CK_Cadmus_ID
                                      , EquipVintage_bins)
+                             ,`Heating.Efficiency.-.High` = sum(`Heating.Efficiency.-.High`)
                             ,y_bar_ilk  = mean(`Heating.Efficiency.-.High`)
                             ,y_ilk      = sum(`Heating.Efficiency.-.High`)
                             ,m_ilk      = sum(count)
@@ -107,13 +108,15 @@ item50.merge <- item50.merge[which(!is.na(item50.merge$y_ilk)),]
 item50.data <- weightedData(item50.merge[-which(colnames(item50.merge) %in% c("EquipVintage_bins"
                                                                               ,"y_bar_ilk"
                                                                               ,"y_ilk"
-                                                                              ,"m_ilk"))])
+                                                                              ,"m_ilk"
+                                                                              ,"Heating.Efficiency.-.High"))])
 
 item50.data <- left_join(item50.data, item50.merge[which(colnames(item50.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"EquipVintage_bins"
                                                                                      ,"y_bar_ilk"
                                                                                      ,"y_ilk"
-                                                                                     ,"m_ilk"))])
+                                                                                     ,"m_ilk"
+                                                                                     ,"Heating.Efficiency.-.High"))])
 
 ###########################
 # Weighted Analysis
@@ -168,7 +171,7 @@ item50.table.SF <- item50.table[which(item50.table$BuildingType == "Single Famil
 item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
 
 
-item50.final.SF <- item50.final[which(item50.final$BuildingType == "Single Family"),]
+# item50.final.SF <- item50.final[which(item50.final$BuildingType == "Single Family"),]
 
 exportTable(item50.table.SF, "SF", "Table 57", weighted = TRUE)
 exportTable(item50.table.MH, "MH", "Table 38", weighted = TRUE)
@@ -377,7 +380,7 @@ item52.dat2 <- item52.dat1[which(item52.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item52.dat2$HSPF <- as.numeric(as.character(item52.dat2$HSPF))
 
 #remove any NAs in HSPF
-item52.dat3 <- item52.dat2[which(!(is.na(item52.dat2$HSPF))),]
+item52.dat3 <- item52.dat2[which(item52.dat2$HSPF %notin% c("N/A",NA)),]
 item52.dat3$count <- 1
 #average within houses
 item52.customer <- summarise(group_by(item52.dat3
@@ -395,6 +398,7 @@ item52.dat4 <- unique(left_join(rbsa.dat, item52.customer, by = "CK_Cadmus_ID"))
 item52.dat4 <- item52.dat4[-grep("bldg", item52.dat4$CK_Building_ID, ignore.case = T),]
 item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$y_bar_ilk)),]
 item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$EquipVintage_bins)),]
+unique(item52.dat4$EquipVintage_bins)
 
 #any duplicates?
 item52.dat5$CK_Cadmus_ID[which(duplicated(item52.dat5$CK_Cadmus_ID))]

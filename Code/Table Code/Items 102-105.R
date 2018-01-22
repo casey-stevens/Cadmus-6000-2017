@@ -511,16 +511,14 @@ item104.final <- rbind.data.frame(item104.final, item104.all.fuels)
 
 item104.cast <- dcast(setDT(item104.final)
                       ,formula = BuildingType + DHW.Location ~ Gallon_bins
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
-                            ,"DHW.Location"         = item104.cast$DHW.Location
-                            ,"Percent_0.50.Gallons" = item104.cast$`w.percent_0-55 Gallons`
-                            ,"SE_0.50.Gallons"      = item104.cast$`w.SE_0-55 Gallons`
-                            # ,"Count_0.50.Gallons"   = item104.cast$`count_0-55 Gallons`
-                            # ,"n_0.50.Gallons"       = item104.cast$`n_0-55 Gallons`
-                            ,"Percent_GT50.Gallons" = item104.cast$`w.percent_>55 Gallons`
-                            ,"SE_GT50.Gallons"      = item104.cast$`w.SE_>55 Gallons`
+                            ,"DHLocation"         = item104.cast$DHLocation
+                            ,"Percent_0.50.Gallons" = item104.cast$`Percent_0-55 Gallons`
+                            ,"SE_0.50.Gallons"      = item104.cast$`SE_0-55 Gallons`
+                            ,"Percent_GT50.Gallons" = item104.cast$`Percent_>55 Gallons`
+                            ,"SE_GT50.Gallons"      = item104.cast$`SE_>55 Gallons`
                             # ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
                             # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
                             ,"n" = item104.cast$n_Total
@@ -571,28 +569,28 @@ unique(item105.dat3$DHW.Year.Manufactured)
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
 item105.dat3$EquipVintage_bins <- as.numeric(as.character(item105.dat3$DHW.Year.Manufactured))
-
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured < 1990)] <- "Pre 1990"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 1990 & item105.dat3$DHW.Year.Manufactured < 2000)] <- "1990-1999"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2000 & item105.dat3$DHW.Year.Manufactured < 2005)] <- "2000-2004"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2005 & item105.dat3$DHW.Year.Manufactured < 2010)] <- "2005-2009"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2010 & item105.dat3$DHW.Year.Manufactured < 2015)] <- "2010-2014"
-item105.dat3$EquipVintage_bins[which(item105.dat3$DHW.Year.Manufactured >= 2015)] <- "Post 2014"
+item105.dat4 <- item105.dat3[which(!is.na(item105.dat3$EquipVintage_bins)),]
+item105.dat4$EquipVintage_bins[which(item105.dat4$DHW.Year.Manufactured < 1990)] <- "Pre 1990"
+item105.dat4$EquipVintage_bins[which(item105.dat4$DHW.Year.Manufactured >= 1990 & item105.dat4$DHW.Year.Manufactured < 2000)] <- "1990-1999"
+item105.dat4$EquipVintage_bins[which(item105.dat4$DHW.Year.Manufactured >= 2000 & item105.dat4$DHW.Year.Manufactured < 2005)] <- "2000-2004"
+item105.dat4$EquipVintage_bins[which(item105.dat4$DHW.Year.Manufactured >= 2005 & item105.dat4$DHW.Year.Manufactured < 2010)] <- "2005-2009"
+item105.dat4$EquipVintage_bins[which(item105.dat4$DHW.Year.Manufactured >= 2010 & item105.dat4$DHW.Year.Manufactured < 2015)] <- "2010-2014"
+item105.dat4$EquipVintage_bins[which(item105.dat4$DHW.Year.Manufactured >= 2015)] <- "Post 2014"
 #check uniques
-unique(item105.dat3$EquipVintage_bins)
+unique(item105.dat4$EquipVintage_bins)
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item105.data <- weightedData(item105.dat3[-which(colnames(item105.dat3) %in% c("Generic"
+item105.data <- weightedData(item105.dat4[-which(colnames(item105.dat4) %in% c("Generic"
                                                                                ,"DHW.Size.(Gallons)"
                                                                                ,"DHW.Year.Manufactured"
                                                                                ,"DHW.Fuel"
                                                                                ,"DHW.Location"
                                                                                ,"count"
                                                                                ,"EquipVintage_bins"))])
-item105.data <- left_join(item105.data, item105.dat3[which(colnames(item105.dat3) %in% c("CK_Cadmus_ID"
+item105.data <- left_join(item105.data, item105.dat4[which(colnames(item105.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"Generic"
                                                                                          ,"DHW.Size.(Gallons)"
                                                                                          ,"DHW.Year.Manufactured"
@@ -600,14 +598,15 @@ item105.data <- left_join(item105.data, item105.dat3[which(colnames(item105.dat3
                                                                                          ,"DHW.Location"
                                                                                          ,"count"
                                                                                          ,"EquipVintage_bins"))])
+item105.data$m_ilk <- 1
 
 #######################
 # Weighted Analysis
 #######################
 item105.final <- proportions_one_group(CustomerLevelData  = item105.data
-                                      , valueVariable    = 'count'
+                                      , valueVariable    = 'm_ilk'
                                       , groupingVariable = 'EquipVintage_bins'
-                                      , total.name       = "Total")
+                                      , total.name =      "Total")
 
 unique(item105.final$EquipVintage_bins)
 rowOrder <- c("Pre 1990"

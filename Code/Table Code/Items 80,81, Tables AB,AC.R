@@ -87,7 +87,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
   item80.dat0 <- item80.dat[which(item80.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
   
   item80.dat1 <- left_join(item80.dat0, rbsa.dat, by = "CK_Cadmus_ID")
-  item80.dat1$Large.Unusual.Load.Quantity[which(is.na(item80.dat1$Large.Unusual.Load.Quantity))] <- 1
+  item80.dat1$Large.Unusual.Load.Quantity[which(item80.dat1$Large.Unusual.Load.Quantity %in% c("N/A",NA))] <- 1
   unique(item80.dat1$Large.Unusual.Load.Quantity)
   item80.dat1$Large.Unusual.Load.Quantity <- as.numeric(as.character(item80.dat1$Large.Unusual.Load.Quantity))
   

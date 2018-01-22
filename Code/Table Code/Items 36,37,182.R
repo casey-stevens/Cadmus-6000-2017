@@ -34,10 +34,13 @@ one.line.dat$CK_Cadmus_ID <- trimws(toupper(one.line.dat$Cadmus.ID))
 item36.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Whole.House.UA"))]
 item36.dat1 <- left_join(rbsa.dat, item36.dat)
+item36.dat1 <- item36.dat1[grep("SITE",item36.dat1$CK_Building_ID),]
+item36.dat1$Whole.House.UA <- as.numeric(as.character(item36.dat1$Whole.House.UA))
 item36.dat2 <- item36.dat1[which(!is.na(item36.dat1$Whole.House.UA)),]
 item36.dat3 <- item36.dat2[grep("site",item36.dat2$CK_Building_ID, ignore.case = T),]
 which(duplicated(item36.dat3$CK_Cadmus_ID))
 item36.dat4 <- item36.dat3[which(item36.dat3$Conditioned.Area > 0),]
+
 
 item36.dat4$Normalized.Heat.Loss.Rate <- item36.dat4$Whole.House.UA / item36.dat4$Conditioned.Area
 
@@ -52,6 +55,8 @@ item36.data <- left_join(item36.data, item36.dat5[which(colnames(item36.dat5) %i
                                                                                      ,"Whole.House.UA"
                                                                                      ,"Normalized.Heat.Loss.Rate"))])
 item36.data$count <- 1
+which(duplicated(item36.data$CK_Cadmus_ID))
+
 #######################
 # Weighted Analysis
 #######################
@@ -162,11 +167,12 @@ exportTable(item36.table.MH, "MH","Table 24",weighted = FALSE)
 item37.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Whole.House.UA"))]
 item37.dat1 <- left_join(rbsa.dat, item37.dat)
-item37.dat2 <- item37.dat1[which(!is.na(item37.dat1$Whole.House.UA)),]
+item37.dat1$Whole.House.UA <- as.numeric(as.character(item37.dat1$Whole.House.UA))
+item37.dat2 <- item37.dat1[which(item37.dat1$Whole.House.UA %notin% c("N/A",NA)),]
 item37.dat3 <- item37.dat2[grep("site",item37.dat2$CK_Building_ID, ignore.case = T),]
 which(duplicated(item37.dat3$CK_Cadmus_ID))
 
-item37.dat4 <-  item37.dat3[which(!is.na(item37.dat3$HomeYearBuilt_bins3)),]
+item37.dat4 <-  item37.dat3[which(item37.dat3$HomeYearBuilt_bins3  %notin% c("N/A",NA)),]
 
 ################################################
 # Adding pop and sample sizes for weights

@@ -27,7 +27,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 # Bring in Usages
 billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
-                        ,startRow = 1, sheet = "RESULTSCOMPILED")
+                        ,startRow = 1, sheet = 1)
 
 results.dat <- merge(rbsa.dat, billing.dat, 
                      by = "CK_Cadmus_ID", all.y = T)
@@ -211,7 +211,8 @@ item149.dat3 <- item149.dat2 %>%
                                 , "Can't Determine"
                                 , "Hydronic Gas-Water Fan Heater"
                                 , "Hot Water from Water Heater"
-                                , "Other"))
+                                , "Other"
+                                ,"N/A"))
 
 drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
                   "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")

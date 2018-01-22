@@ -47,7 +47,7 @@ item132.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
 colnames(item132.dat) <- c("CK_Cadmus_ID"
                            ,"Thermostat_Setpoint")
 item132.dat$count <- 1
-
+item132.dat$Thermostat_Setpoint <- as.numeric(as.character(item132.dat$Thermostat_Setpoint))
 #remove any repeat header rows from exporting
 item132.dat0 <- item132.dat[which(item132.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 

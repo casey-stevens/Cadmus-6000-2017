@@ -278,7 +278,11 @@ unique(item127.dat1$Percent.Assistance)
 
 item127.dat2 <- item127.dat1[which(!(is.na(item127.dat1$Percent.Assistance))),]
 item127.dat3 <- item127.dat2[which(item127.dat2$Percent.Assistance %notin% c("Don't know"
-                                                                             ,"Prefer not to say")),]
+                                                                             ,"Prefer not to say"
+                                                                             ,"N/A")),]
+
+item127.dat3$CK_Cadmus_ID[which(duplicated(item127.dat3$CK_Cadmus_ID[which(item127.dat3$BuildingType == "Single Family")]))]
+length(unique(item127.dat3$CK_Cadmus_ID[which(item127.dat3$BuildingType == "Single Family")]))
 ################################################
 # Adding pop and sample sizes for weights
 ################################################

@@ -54,6 +54,14 @@ mech.dat.sub <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_
 
 mech.dat.sub1 <- left_join(rbsa.dat, mech.dat.sub, by = "CK_Cadmus_ID")
 length(unique(mech.dat.sub1$CK_Cadmus_ID))
+mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_SecondTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_SecondTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_SecondTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_SecondTrial))
 
 mech.dat.sub2 <- mech.dat.sub1[which(!is.na(mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_FirstTrial | mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_SecondTrial)),]
 mech.dat.sub3 <- mech.dat.sub2[which(!is.na(mech.dat.sub2$MECH_Blower_DOOR_P25_CFM_FirstTrial | mech.dat.sub2$MECH_Blower_DOOR_P25_CFM_SecondTrial)),]

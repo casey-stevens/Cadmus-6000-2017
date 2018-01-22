@@ -155,6 +155,14 @@ item123.dat0 <- item123.dat[which(item123.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 #merge together analysis data with cleaned RBSA data
 item123.dat1 <- left_join(item123.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 str(item123.dat1)
+item123.dat1$Age_1_5    <- as.numeric(as.character(item123.dat1$Age_1_5))
+item123.dat1$Age_11_18    <- as.numeric(as.character(item123.dat1$Age_11_18))
+item123.dat1$Age_19_45    <- as.numeric(as.character(item123.dat1$Age_19_45))
+item123.dat1$Age_46_64    <- as.numeric(as.character(item123.dat1$Age_46_64))
+item123.dat1$Age_6_10    <- as.numeric(as.character(item123.dat1$Age_6_10))
+item123.dat1$Age_65_Older    <- as.numeric(as.character(item123.dat1$Age_65_Older))
+item123.dat1$Age_Less_Than_1    <- as.numeric(as.character(item123.dat1$Age_Less_Than_1))
+
 item123.dat1$Age_0_18 <- item123.dat1$Age_Less_Than_1 + item123.dat1$Age_1_5 + item123.dat1$Age_6_10 + item123.dat1$Age_11_18
 item123.dat1$Age_19_64 <- item123.dat1$Age_19_45 + item123.dat1$Age_46_64
 
@@ -171,7 +179,7 @@ item123.melt <- melt(item123.dat2, measure.vars = c("Age_0_18"
 colnames(item123.melt)[which(colnames(item123.melt) == "variable")] <- "Age.Category"
 
 item123.sum <- summarise(group_by(item123.melt, CK_Cadmus_ID, Age.Category)
-                         ,Occupants = sum(value))
+                         ,Occupants = sum(value, na.rm = T))
 
 item123.merge <- left_join(rbsa.dat, item123.sum)
 item123.merge <- item123.merge[which(!is.na(item123.merge$Occupants)),]

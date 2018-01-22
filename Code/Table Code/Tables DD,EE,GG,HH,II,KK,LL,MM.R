@@ -326,7 +326,7 @@ tableII.merge$Power.Strip.Use <- trimws(tableII.merge$Power.Strip.Use)
 
 tableII.merge <- left_join(rbsa.dat, tableII.merge)
 tableII.merge <- tableII.merge[which(!is.na(tableII.merge$Power.Strip.Use)),]
-
+length(unique(tableII.merge$CK_Cadmus_ID[which(tableII.merge$BuildingType == "Single Family")]))
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -707,19 +707,20 @@ exportTable(tableLL.table.MH, "MH", "Table LL", weighted = TRUE)
 #######################
 # Weighted Analysis
 #######################
+tableLL.data$Ind <- tableLL.data$Wifi.Ind
 tableLL.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableLL.data
-                                             ,valueVariable = "Wifi.Ind"
+                                             ,valueVariable = "Ind"
                                              ,columnVariable = "State"
-                                             ,rowVariable = "Type.Wifi"
+                                             ,rowVariable = "Type"
                                              ,aggregateColumnName = "Region")
-tableLL.summary <- tableLL.summary[which(tableLL.summary$Type.Wifi != "Total"),]
+tableLL.summary <- tableLL.summary[which(tableLL.summary$Type != "Total"),]
 
 tableLL.cast <- dcast(setDT(tableLL.summary)
-                      ,formula = BuildingType + Type.Wifi ~ State
+                      ,formula = BuildingType + Type ~ State
                       ,value.var = c("Percent","SE","Count","n"))
 
 tableLL.table <- data.frame("BuildingType"    = tableLL.cast$BuildingType
-                            ,"Type.Wifi"      = tableLL.cast$Type.Wifi
+                            ,"Type"           = tableLL.cast$Type
                             ,"ID"             = tableLL.cast$Percent_ID
                             ,"ID.SE"          = tableLL.cast$SE_ID
                             ,"ID.n"           = tableLL.cast$n_ID

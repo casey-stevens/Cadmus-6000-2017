@@ -53,7 +53,9 @@ unique(item128.dat1$Percent.Assistance)
 
 item128.dat2 <- item128.dat1[which(!(is.na(item128.dat1$Percent.Assistance))),]
 item128.dat3 <- item128.dat2[which(item128.dat2$Percent.Assistance %notin% c("Don't know"
-                                                                             ,"Prefer not to say")),]
+                                                                             ,"Prefer not to say"
+                                                                             ,"N/A"
+                                                                             ,NA)),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -188,7 +190,7 @@ item129.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,""))])
 colnames(item129.dat) <- c("CK_Cadmus_ID", "Thermostat_Setpoint")
 item129.dat$count <- 1
-
+item129.dat$Thermostat_Setpoint <- as.numeric(as.character(item129.dat$Thermostat_Setpoint))
 #remove any repeat header rows from exporting
 item129.dat0 <- item129.dat[which(item129.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
@@ -340,6 +342,8 @@ item131.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForHeating"))])
 colnames(item131.dat) <- c("CK_Cadmus_ID", "Nighttime_Heating", "Thermostat_Setpoint")
 item131.dat$count <- 1
+item131.dat$Nighttime_Heating <- as.numeric(as.character(item131.dat$Nighttime_Heating))
+item131.dat$Thermostat_Setpoint <- as.numeric(as.character(item131.dat$Thermostat_Setpoint))
 
 #remove any repeat header rows from exporting
 item131.dat0 <- item131.dat[which(item131.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]

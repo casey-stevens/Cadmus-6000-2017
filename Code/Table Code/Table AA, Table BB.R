@@ -135,7 +135,7 @@ exportTable(tableAA.final.SF, "SF", "Table AA", weighted = FALSE)
 #Item 63: AVERAGE DUCT LEAKAGE TOTAL FLOW (NORMALIZED BY HOUSE AREA) BY STATE (SF table 70)
 #############################################################################################
 tableBB.dat <- tableAA.merge
-tableBB.dat$Normalized.Flow <- tableBB.dat$Flow / tableBB.dat$Conditioned.Area
+tableBB.dat$Normalized.Flow <- as.numeric(as.character(tableBB.dat$Flow)) / as.numeric(as.character(tableBB.dat$Conditioned.Area))
 tableBB.dat1 <- tableBB.dat[which(!is.na(tableBB.dat$Normalized.Flow)),]
 
 ################################################
@@ -146,6 +146,7 @@ tableBB.data <- weightedData(tableBB.dat1[-which(colnames(tableBB.dat1) %in% c("
                                                                               ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                               ,"MECH_TrueFLow_SOP_NoFilter"
                                                                               ,"MECH_TrueFLow_TFSOP"
+                                                                              ,"Primary.Heating.System"
                                                                               ,"System.Type"
                                                                               ,"Flow"
                                                                               ,"Normalized.Flow"))])
@@ -155,6 +156,7 @@ tableBB.data <- left_join(tableBB.data, tableBB.dat1[which(colnames(tableBB.dat1
                                                                                        ,"MECH_TrueFLow_Plate20_PressureDifference"
                                                                                        ,"MECH_TrueFLow_SOP_NoFilter"
                                                                                        ,"MECH_TrueFLow_TFSOP"
+                                                                                       ,"Primary.Heating.System"
                                                                                        ,"System.Type"
                                                                                        ,"Flow"
                                                                                        ,"Normalized.Flow"))])

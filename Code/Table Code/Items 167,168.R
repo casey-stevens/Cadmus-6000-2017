@@ -92,6 +92,9 @@ item167.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
 item167.dat1 <- left_join(item167.dat, item167.mechanical)
 item167.dat2 <- left_join(rbsa.dat, item167.dat1)
 
+item167.dat2$Whole.House.UA <- as.numeric(as.character(item167.dat2$Whole.House.UA))
+item167.dat2$Conditioned.Area <- as.numeric(as.character(item167.dat2$Conditioned.Area))
+
 item167.dat2 <- item167.dat2[which(!is.na(item167.dat2$Whole.House.UA)),]
 item167.dat3 <- item167.dat2[grep("site",item167.dat2$CK_Building_ID, ignore.case = T),]
 
