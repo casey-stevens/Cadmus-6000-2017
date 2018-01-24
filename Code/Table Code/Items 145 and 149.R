@@ -161,10 +161,8 @@ item145.final <- data.frame(item145.final)
 item145.table.SF <- item145.final[which(item145.final$BuildingType %in% c("Single Family")),-1]
 item145.table.MH <- item145.final[which(item145.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item145.table.SF, "SF", "Table 152"
-            , weighted = TRUE)
-exportTable(item145.table.MH, "MH", "Table 127"
-            , weighted = TRUE)
+# exportTable(item145.table.SF, "SF", "Table 152", weighted = TRUE)
+exportTable(item145.table.MH, "MH", "Table 127", weighted = TRUE)
 
 
 ##############################
@@ -190,10 +188,11 @@ item145.final <- data.frame(item145.final)
 item145.table.SF <- item145.final[which(item145.final$BuildingType %in% c("Single Family")),-1]
 item145.table.MH <- item145.final[which(item145.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item145.table.SF, "SF", "Table 152"
-            , weighted = FALSE)
-exportTable(item145.table.MH, "MH", "Table 127"
-            , weighted = FALSE)
+# exportTable(item145.table.SF, "SF", "Table 152", weighted = FALSE)
+exportTable(item145.table.MH, "MH", "Table 127", weighted = FALSE)
+
+
+
 
 #############################################################################################
 # Item 149: AVERAGE GAS EUI PER HOME BY HEATING FUEL AND STATE  - SF TABLE 156, MH TABLE 131
@@ -254,10 +253,8 @@ item149.final <- data.frame(item149.final)
 item149.table.SF <- item149.final[which(item149.final$BuildingType %in% c("Single Family")),-1]
 item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item149.table.SF, "SF", "Table 156"
-            , weighted = TRUE)
-exportTable(item149.table.MH, "MH", "Table 131"
-            , weighted = TRUE)
+# exportTable(item149.table.SF, "SF", "Table 156", weighted = TRUE)
+exportTable(item149.table.MH, "MH", "Table 131", weighted = TRUE)
 
 
 
@@ -284,7 +281,5 @@ item149.final <- data.frame(item149.final)
 item149.table.SF <- item149.final[which(item149.final$BuildingType %in% c("Single Family")),-1]
 item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item149.table.SF, "SF", "Table 156"
-            , weighted = FALSE)
-exportTable(item149.table.MH, "MH", "Table 131"
-            , weighted = FALSE)
+# exportTable(item149.table.SF, "SF", "Table 156", weighted = FALSE)
+exportTable(item149.table.MH, "MH", "Table 131", weighted = FALSE)

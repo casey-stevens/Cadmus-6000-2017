@@ -132,7 +132,7 @@ item151.final.SF <- item151.final[which(item151.final$BuildingType == "Single Fa
 item151.final.MH <- item151.final[which(item151.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item151.final) == "BuildingType")]
 
-exportTable(item151.final.SF, "SF", "Table 158", weighted = TRUE)
+# exportTable(item151.final.SF, "SF", "Table 158", weighted = TRUE)
 exportTable(item151.final.MH, "MH", "Table 133", weighted = TRUE)
 
 #####################
@@ -147,7 +147,7 @@ item151.final.SF <- item151.final[which(item151.final$BuildingType == "Single Fa
 item151.final.MH <- item151.final[which(item151.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item151.final) == "BuildingType")]
 
-exportTable(item151.final.SF, "SF", "Table 158", weighted = FALSE)
+# exportTable(item151.final.SF, "SF", "Table 158", weighted = FALSE)
 exportTable(item151.final.MH, "MH", "Table 133", weighted = FALSE)
 
 
@@ -194,7 +194,7 @@ item152.final.SF <- item152.final[which(item152.final$BuildingType == "Single Fa
 item152.final.MH <- item152.final[which(item152.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item152.final) == "BuildingType")]
 
-exportTable(item152.final.SF, "SF", "Table 159", weighted = TRUE)
+# exportTable(item152.final.SF, "SF", "Table 159", weighted = TRUE)
 exportTable(item152.final.MH, "MH", "Table 134", weighted = TRUE)
 
 #####################
@@ -209,7 +209,7 @@ item152.final.SF <- item152.final[which(item152.final$BuildingType == "Single Fa
 item152.final.MH <- item152.final[which(item152.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item152.final) == "BuildingType")]
 
-exportTable(item152.final.SF, "SF", "Table 159", weighted = FALSE)
+# exportTable(item152.final.SF, "SF", "Table 159", weighted = FALSE)
 exportTable(item152.final.MH, "MH", "Table 134", weighted = FALSE)
 
 
@@ -260,7 +260,7 @@ item153.final.SF <- item153.final[which(item153.final$BuildingType == "Single Fa
 item153.final.MH <- item153.final[which(item153.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item153.final) == "BuildingType")]
 
-exportTable(item153.final.SF, "SF", "Table 160", weighted = TRUE)
+# exportTable(item153.final.SF, "SF", "Table 160", weighted = TRUE)
 exportTable(item153.final.MH, "MH", "Table 135", weighted = TRUE)
 
 #####################
@@ -275,5 +275,5 @@ item153.final.SF <- item153.final[which(item153.final$BuildingType == "Single Fa
 item153.final.MH <- item153.final[which(item153.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item153.final) == "BuildingType")]
 
-exportTable(item153.final.SF, "SF", "Table 160", weighted = FALSE)
+# exportTable(item153.final.SF, "SF", "Table 160", weighted = FALSE)
 exportTable(item153.final.MH, "MH", "Table 135", weighted = FALSE)

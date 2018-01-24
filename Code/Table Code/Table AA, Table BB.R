@@ -115,9 +115,14 @@ tableAA.final <- mean_one_group(CustomerLevelData = tableAA.data
                                ,valueVariable = 'Flow'
                                ,byVariable = 'State'
                                ,aggregateRow = 'Region')
+
 tableAA.final.SF <- tableAA.final[which(tableAA.final$BuildingType == "Single Family")
                                 ,which(colnames(tableAA.final) %notin% c("BuildingType"))]
-exportTable(tableAA.final.SF, "SF", "Table AA", weighted = TRUE)
+tableAA.final.MH <- tableAA.final[which(tableAA.final$BuildingType == "Manufactured")
+                                  ,which(colnames(tableAA.final) %notin% c("BuildingType"))]
+
+# exportTable(tableAA.final.SF, "SF", "Table AA", weighted = TRUE)
+exportTable(tableAA.final.MH, "MH", "Table AA", weighted = TRUE)
 
 #######################
 # unweighted Analysis
@@ -128,7 +133,11 @@ tableAA.final <- mean_one_group_unweighted(CustomerLevelData = tableAA.data
                                ,aggregateRow = 'Region')
 tableAA.final.SF <- tableAA.final[which(tableAA.final$BuildingType == "Single Family")
                                 ,which(colnames(tableAA.final) %notin% c("BuildingType"))]
-exportTable(tableAA.final.SF, "SF", "Table AA", weighted = FALSE)
+tableAA.final.MH <- tableAA.final[which(tableAA.final$BuildingType == "Manufactured")
+                                  ,which(colnames(tableAA.final) %notin% c("BuildingType"))]
+
+# exportTable(tableAA.final.SF, "SF", "Table AA", weighted = FALSE)
+exportTable(tableAA.final.MH, "MH", "Table AA", weighted = FALSE)
 
 
 #############################################################################################
@@ -170,9 +179,14 @@ tableBB.final <- mean_one_group(CustomerLevelData = tableBB.data
                                ,valueVariable = 'Normalized.Flow'
                                ,byVariable = 'State'
                                ,aggregateRow = 'Region')
+
 tableBB.final.SF <- tableBB.final[which(tableBB.final$BuildingType == "Single Family")
                                 ,which(colnames(tableBB.final) %notin% c("BuildingType"))]
-exportTable(tableBB.final.SF, "SF", "Table BB", weighted = TRUE)
+tableBB.final.MH <- tableBB.final[which(tableBB.final$BuildingType == "Manufactured")
+                                  ,which(colnames(tableBB.final) %notin% c("BuildingType"))]
+
+# exportTable(tableBB.final.SF, "SF", "Table BB", weighted = TRUE)
+exportTable(tableBB.final.MH, "MH", "Table BB", weighted = TRUE)
 
 #######################
 # unweighted Analysis
@@ -183,5 +197,9 @@ tableBB.final <- mean_one_group_unweighted(CustomerLevelData = tableBB.data
                                           ,aggregateRow = 'Region')
 tableBB.final.SF <- tableBB.final[which(tableBB.final$BuildingType == "Single Family")
                                 ,which(colnames(tableBB.final) %notin% c("BuildingType"))]
-exportTable(tableBB.final.SF, "SF", "Table BB", weighted = FALSE)
+tableBB.final.MH <- tableBB.final[which(tableBB.final$BuildingType == "Manufactured")
+                                  ,which(colnames(tableBB.final) %notin% c("BuildingType"))]
+
+# exportTable(tableBB.final.SF, "SF", "Table BB", weighted = FALSE)
+exportTable(tableBB.final.MH, "MH", "Table BB", weighted = FALSE)
 

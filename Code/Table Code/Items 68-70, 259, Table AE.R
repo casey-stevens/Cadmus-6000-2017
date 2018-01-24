@@ -131,7 +131,7 @@ item68.final.MH <- item68.table[which(item68.table$BuildingType == "Manufactured
 item68.final.MF <- item68.table[which(item68.table$BuildingType == "Multifamily")
                                 ,-which(colnames(item68.table) %in% c("BuildingType"))]
 
-exportTable(item68.final.SF, "SF", "Table 75", weighted = TRUE)
+# exportTable(item68.final.SF, "SF", "Table 75", weighted = TRUE)
 exportTable(item68.final.MH, "MH", "Table 54", weighted = TRUE)
 exportTable(item68.final.MF, "MF", "Table 81", weighted = TRUE)
 
@@ -176,7 +176,7 @@ item68.final.MH <- item68.table[which(item68.table$BuildingType == "Manufactured
 item68.final.MF <- item68.table[which(item68.table$BuildingType == "Multifamily")
                                 ,-which(colnames(item68.table) %in% c("BuildingType"))]
 
-exportTable(item68.final.SF, "SF", "Table 75", weighted = FALSE)
+# exportTable(item68.final.SF, "SF", "Table 75", weighted = FALSE)
 exportTable(item68.final.MH, "MH", "Table 54", weighted = FALSE)
 exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
 
@@ -289,7 +289,7 @@ item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured
 item69.final.MF <- item69.table[which(item69.table$BuildingType == "Multifamily")
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
-exportTable(item69.final.SF, "SF", "Table 76", weighted = TRUE)
+# exportTable(item69.final.SF, "SF", "Table 76", weighted = TRUE)
 exportTable(item69.final.MH, "MH", "Table 55", weighted = TRUE)
 exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
 
@@ -334,7 +334,7 @@ item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured
 item69.final.MF <- item69.table[which(item69.table$BuildingType == "Multifamily")
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
-exportTable(item69.final.SF, "SF", "Table 76", weighted = FALSE)
+# exportTable(item69.final.SF, "SF", "Table 76", weighted = FALSE)
 exportTable(item69.final.MH, "MH", "Table 55", weighted = FALSE)
 exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
 
@@ -514,7 +514,7 @@ item70.final.MH <- item70.table[which(item70.table$BuildingType == "Manufactured
 item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily")
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
-exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
+# exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
 exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
 exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
 
@@ -608,7 +608,7 @@ item70.final.MH <- item70.table[which(item70.table$BuildingType == "Manufactured
 item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily")
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
-exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
+# exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
 exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
 exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
 
@@ -741,7 +741,7 @@ tableAE.final.MH <- tableAE.table[which(tableAE.table$BuildingType == "Manufactu
 tableAE.final.MF <- tableAE.table[which(tableAE.table$BuildingType == "Multifamily")
                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
 
-exportTable(tableAE.final.SF, "SF", "Table AE", weighted = TRUE)
+# exportTable(tableAE.final.SF, "SF", "Table AE", weighted = TRUE)
 exportTable(tableAE.final.MH, "MH", "Table AE", weighted = TRUE)
 exportTable(tableAE.final.MF, "MF", "Table AE", weighted = TRUE)
 
@@ -835,7 +835,7 @@ tableAE.final.MH <- tableAE.table[which(tableAE.table$BuildingType == "Manufactu
 tableAE.final.MF <- tableAE.table[which(tableAE.table$BuildingType == "Multifamily")
                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
 
-exportTable(tableAE.final.SF, "SF", "Table AE", weighted = FALSE)
+# exportTable(tableAE.final.SF, "SF", "Table AE", weighted = FALSE)
 exportTable(tableAE.final.MH, "MH", "Table AE", weighted = FALSE)
 exportTable(tableAE.final.MF, "MF", "Table AE", weighted = FALSE)
 

@@ -53,28 +53,8 @@ merge.dat1 <- left_join(rbsa.dat, survey.dat, by = "CK_Cadmus_ID")
 unique(merge.dat1$Ownership.Type)
 
 #remove NA from ownership type
-merge.dat2 <- merge.dat1[which(!(is.na(merge.dat1$Ownership.Type))),]
+merge.dat2 <- merge.dat1[which(merge.dat1$Ownership.Type %notin% c("N/A",NA)),]
 length(unique(merge.dat2$CK_Cadmus_ID))
-
-
-# rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
-# rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
-# rooms.dat <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
-#                                                         ,"Clean.Type"))]
-# rooms.dat$count <- 1
-# rooms.dat$Clean.Type[which(rooms.dat$Clean.Type %in% c("Attic"
-#                                                              ,"Basement"
-#                                                              ,"Crawlspace"
-#                                                              ,"Crawl Space"
-#                                                              ,"Mechanical"
-#                                                              ,"Grow Room"))] <- "Other"
-# rooms.sum <- summarise(group_by(rooms.dat, CK_Cadmus_ID, Clean.Type)
-#                        ,Room.Count = sum((count)))
-# rooms.cast <- dcast(setDT(rooms.sum)
-#                     ,formula = CK_Cadmus_ID ~ Clean.Type,sum
-#                     ,value.var = "Room.Count")
-# rooms.melt <- melt(rooms.cast, id.vars = "CK_Cadmus_ID")
-# names(rooms.melt) <- c("CK_Cadmus_ID", "Clean.Type", "Room.Count")
 
 
 #############################################################################################
@@ -165,7 +145,7 @@ tableCC.table.SF <- tableCC.table[which(tableCC.table$BuildingType == "Single Fa
 tableCC.table.MH <- tableCC.table[which(tableCC.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableCC.table) %notin% c("BuildingType"))]
 
-exportTable(tableCC.table.SF, "SF", "Table CC", weighted = TRUE)
+# exportTable(tableCC.table.SF, "SF", "Table CC", weighted = TRUE)
 exportTable(tableCC.table.MH, "MH", "Table CC", weighted = TRUE)
 
 #######################
@@ -225,7 +205,7 @@ tableCC.table.SF <- tableCC.table[which(tableCC.table$BuildingType == "Single Fa
 tableCC.table.MH <- tableCC.table[which(tableCC.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableCC.table) %notin% c("BuildingType"))]
 
-exportTable(tableCC.table.SF, "SF", "Table CC", weighted = FALSE)
+# exportTable(tableCC.table.SF, "SF", "Table CC", weighted = FALSE)
 exportTable(tableCC.table.MH, "MH", "Table CC", weighted = FALSE)
 
 
@@ -264,7 +244,7 @@ tableNN.table.SF <- tableNN.table[which(tableNN.table$BuildingType == "Single Fa
 tableNN.table.MH <- tableNN.table[which(tableNN.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableNN.table) %notin% c("BuildingType"))]
 
-exportTable(tableNN.table.SF, "SF", "Table NN", weighted = TRUE)
+# exportTable(tableNN.table.SF, "SF", "Table NN", weighted = TRUE)
 exportTable(tableNN.table.MH, "MH", "Table NN", weighted = TRUE)
 
 
@@ -281,7 +261,7 @@ tableNN.table.SF <- tableNN.table[which(tableNN.table$BuildingType == "Single Fa
 tableNN.table.MH <- tableNN.table[which(tableNN.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableNN.table) %notin% c("BuildingType"))]
 
-exportTable(tableNN.table.SF, "SF", "Table NN", weighted = FALSE)
+# exportTable(tableNN.table.SF, "SF", "Table NN", weighted = FALSE)
 exportTable(tableNN.table.MH, "MH", "Table NN", weighted = FALSE)
 
 
@@ -320,7 +300,7 @@ tableOO.table.SF <- tableOO.table[which(tableOO.table$BuildingType == "Single Fa
 tableOO.table.MH <- tableOO.table[which(tableOO.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableOO.table) %notin% c("BuildingType"))]
 
-exportTable(tableOO.table.SF, "SF", "Table OO", weighted = TRUE)
+# exportTable(tableOO.table.SF, "SF", "Table OO", weighted = TRUE)
 exportTable(tableOO.table.MH, "MH", "Table OO", weighted = TRUE)
 
 
@@ -337,160 +317,8 @@ tableOO.table.SF <- tableOO.table[which(tableOO.table$BuildingType == "Single Fa
 tableOO.table.MH <- tableOO.table[which(tableOO.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableOO.table) %notin% c("BuildingType"))]
 
-exportTable(tableOO.table.SF, "SF", "Table OO", weighted = FALSE)
+# exportTable(tableOO.table.SF, "SF", "Table OO", weighted = FALSE)
 exportTable(tableOO.table.MH, "MH", "Table OO", weighted = FALSE)
-
-
-
-
-# #############################################################################################
-# # Table PP: Percentage of homes with CFLs by Room Type
-# #############################################################################################
-# tablePP.dat <- left_join(rbsa.dat, lighting.dat.CFL)
-# tablePP.dat$Ind <- 0
-# tablePP.dat$Ind[which(tablePP.dat$Lamp.Category == "Compact Fluorescent")] <- 1
-# Count <- 1
-# 
-# tablePP.dat1 <- tablePP.dat[which(!is.na(tablePP.dat$Clean.Room)),]
-# tablePP.dat1$Clean.Room[which(tablePP.dat1$Clean.Room %in% c("Attic"
-#                                                            ,"Basement"
-#                                                            ,"Crawlspace"
-#                                                            ,"Crawl Space"
-#                                                            ,"Mechanical"
-#                                                            ,"Grow Room"))] <- "Other"
-# 
-# tablePP.cast <- dcast(setDT(tablePP.dat1)
-#                       ,formula = CK_Cadmus_ID ~ Clean.Room,sum
-#                       ,value.var = "Ind")
-# tablePP.cast <- data.frame(tablePP.cast, stringsAsFactors = F)
-# 
-# tablePP.melt <- melt(tablePP.cast, id.vars = "CK_Cadmus_ID")
-# names(tablePP.melt) <- c("CK_Cadmus_ID", "Clean.Type", "Ind")
-# 
-# 
-# tablePP.melt$Ind[which(tablePP.melt$Ind > 0)] <- 1
-# unique(tablePP.melt$Ind)
-# 
-# 
-# tablePP.sum.bulbs <- summarise(group_by(tablePP.melt, CK_Cadmus_ID, Clean.Type)
-#                          ,Ind = sum(unique((Ind))))
-# 
-# unique(tablePP.sum.bulbs$Clean.Type)
-# tablePP.merge <- left_join(rooms.melt, tablePP.sum.bulbs, c("CK_Cadmus_ID","Clean.Type"))
-# tablePP.merge <- left_join(rbsa.dat,tablePP.merge)
-# 
-# tablePP.merge$Ind[which(is.na(tablePP.merge$Ind))] <- 0
-# names(tablePP.merge)
-# ################################################
-# # Adding pop and sample sizes for weights
-# ################################################
-# tablePP.data <- weightedData(tablePP.merge[-which(colnames(tablePP.merge) %in% c("Ind"
-#                                                                                  ,"Clean.Type"
-#                                                                                  ,"Room.Count"))])
-# tablePP.data <- left_join(tablePP.data, tablePP.merge[which(colnames(tablePP.merge) %in% c("CK_Cadmus_ID"
-#                                                                                            ,"Ind"
-#                                                                                            ,"Clean.Type"
-#                                                                                            ,"Room.Count"))])
-# tablePP.data <- tablePP.data[which(!is.na(tablePP.data$Clean.Type)),]
-# tablePP.data$count <- 1
-# # tablePP.data$Count <- 1
-# 
-# #######################
-# # Weighted Analysis
-# #######################
-# tablePP.table <- proportions_one_group(CustomerLevelData = tablePP.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "Clean.Type"
-#                                        ,total.name = "All Room Types"
-#                                        ,weighted = TRUE)
-# tablePP.table.SF <- tablePP.table[which(tablePP.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tablePP.table) %notin% c("BuildingType"))]
-# tablePP.table.MH <- tablePP.table[which(tablePP.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(tablePP.table) %notin% c("BuildingType"))]
-# 
-# exportTable(tablePP.table.SF, "SF", "Table PP", weighted = TRUE)
-# exportTable(tablePP.table.MH, "MH", "Table PP", weighted = TRUE)
-# 
-# 
-# #######################
-# # unweighted Analysis
-# #######################
-# tablePP.table <- proportions_one_group(CustomerLevelData = tablePP.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = FALSE)
-# tablePP.table.SF <- tablePP.table[which(tablePP.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tablePP.table) %notin% c("BuildingType"))]
-# tablePP.table.MH <- tablePP.table[which(tablePP.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(tablePP.table) %notin% c("BuildingType"))]
-# 
-# exportTable(tablePP.table.SF, "SF", "Table PP", weighted = FALSE)
-# exportTable(tablePP.table.MH, "MH", "Table PP", weighted = FALSE)
-# 
-# 
-# 
-# #############################################################################################
-# # Table QQ: Percentage of homes with LEDs by state
-# #############################################################################################
-# tableQQ.dat <- left_join(rbsa.dat, lighting.dat.LED)
-# tableQQ.dat$Ind <- 0
-# tableQQ.dat$Ind[which(tableQQ.dat$Lamp.Category == "Light Emitting Diode")] <- 1
-# 
-# tableQQ.sum <- summarise(group_by(tableQQ.dat, CK_Cadmus_ID)
-#                          ,Ind = sum(unique((Ind))))
-# 
-# tableQQ.merge <- left_join(rbsa.dat, tableQQ.sum)
-# 
-# ################################################
-# # Adding pop and sample sizes for weights
-# ################################################
-# tableQQ.data <- weightedData(tableQQ.merge[-which(colnames(tableQQ.merge) %in% c("Ind"))])
-# tableQQ.data <- left_join(tableQQ.data, tableQQ.merge[which(colnames(tableQQ.merge) %in% c("CK_Cadmus_ID"
-#                                                                                            ,"Ind"))])
-# tableQQ.data$count <- 1
-# tableQQ.data$Count <- 1
-# 
-# #######################
-# # Weighted Analysis
-# #######################
-# tableQQ.table <- proportions_one_group(CustomerLevelData = tableQQ.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = TRUE)
-# tableQQ.table.SF <- tableQQ.table[which(tableQQ.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tableQQ.table) %notin% c("BuildingType"))]
-# tableQQ.table.MH <- tableQQ.table[which(tableQQ.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(tableQQ.table) %notin% c("BuildingType"))]
-# 
-# exportTable(tableQQ.table.SF, "SF", "Table QQ", weighted = TRUE)
-# exportTable(tableQQ.table.MH, "MH", "Table QQ", weighted = TRUE)
-# 
-# 
-# #######################
-# # unweighted Analysis
-# #######################
-# tableQQ.table <- proportions_one_group(CustomerLevelData = tableQQ.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = FALSE)
-# tableQQ.table.SF <- tableQQ.table[which(tableQQ.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tableQQ.table) %notin% c("BuildingType"))]
-# tableQQ.table.MH <- tableQQ.table[which(tableQQ.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(tableQQ.table) %notin% c("BuildingType"))]
-# 
-# exportTable(tableQQ.table.SF, "SF", "Table QQ", weighted = FALSE)
-# exportTable(tableQQ.table.MH, "MH", "Table QQ", weighted = FALSE)
-
-
-
-
-
-
-
-
 
 
 
@@ -529,7 +357,7 @@ tableWW.table.SF <- tableWW.table[which(tableWW.table$BuildingType == "Single Fa
 tableWW.table.MH <- tableWW.table[which(tableWW.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableWW.table) %notin% c("BuildingType"))]
 
-exportTable(tableWW.table.SF, "SF", "Table WW", weighted = TRUE)
+# exportTable(tableWW.table.SF, "SF", "Table WW", weighted = TRUE)
 exportTable(tableWW.table.MH, "MH", "Table WW", weighted = TRUE)
 
 
@@ -546,5 +374,5 @@ tableWW.table.SF <- tableWW.table[which(tableWW.table$BuildingType == "Single Fa
 tableWW.table.MH <- tableWW.table[which(tableWW.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableWW.table) %notin% c("BuildingType"))]
 
-exportTable(tableWW.table.SF, "SF", "Table WW", weighted = FALSE)
+# exportTable(tableWW.table.SF, "SF", "Table WW", weighted = FALSE)
 exportTable(tableWW.table.MH, "MH", "Table WW", weighted = FALSE)

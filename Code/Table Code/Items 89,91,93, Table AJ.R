@@ -83,7 +83,7 @@ item89.final <- data.frame(item89.final)
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item89.final.SF, "SF", "Table 96", weighted = TRUE)
+# exportTable(item89.final.SF, "SF", "Table 96", weighted = TRUE)
 exportTable(item89.final.MH, "MH", "Table 77", weighted = TRUE)
 
 
@@ -109,7 +109,7 @@ item89.final <- data.frame(item89.final)
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item89.final.SF, "SF", "Table 96", weighted = FALSE)
+# exportTable(item89.final.SF, "SF", "Table 96", weighted = FALSE)
 exportTable(item89.final.MH, "MH", "Table 77", weighted = FALSE)
 
 
@@ -124,7 +124,7 @@ tableAJ.dat <- unique(appliances.dat[which(colnames(appliances.dat) %in% c("CK_C
                                                                            ,""))])
 
 tableAJ.dat0 <- tableAJ.dat[which(!is.na(tableAJ.dat$Washer.Size)),]
-tableAJ.dat1 <- tableAJ.dat0[-grep("unknown|-- Datapoint not asked for --",tableAJ.dat0$Washer.Size, ignore.case = T),]
+tableAJ.dat1 <- tableAJ.dat0[-grep("unknown|-- Datapoint not asked for --|Datapoint not asked for",tableAJ.dat0$Washer.Size, ignore.case = T),]
 tableAJ.dat1$Washer.Size <- gsub(" cu ft| u ft","",tableAJ.dat1$Washer.Size)
 tableAJ.dat1$Washer.Size <- as.numeric(as.character(tableAJ.dat1$Washer.Size))
 unique(tableAJ.dat1$Washer.Size)
@@ -159,7 +159,7 @@ tableAJ.final <- data.frame(tableAJ.final)
 tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Family"),-1]
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
-exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
+# exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
 exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
 
 
@@ -184,7 +184,7 @@ tableAJ.final <- data.frame(tableAJ.final)
 tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Family"),-1]
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
-exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
+# exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
 exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
 
 
@@ -213,7 +213,7 @@ item91.dat2$Dryer.Loads.Per.Week <- item91.dat2$Clothes.Washes.Per.Week * (item9
 item91.dat2$Dryer.Loads.Per.Wash <- item91.dat2$Dryer.Loads.Per.Week / item91.dat2$Clothes.Washes.Per.Week
 unique(item91.dat2$Dryer.Loads.Per.Wash)
 
-item91.dat3 <- item91.dat2[which(item91.dat2$Dryer.Loads.Per.Wash %notin% c("NaN", NA)),]
+item91.dat3 <- item91.dat2[which(item91.dat2$Dryer.Loads.Per.Wash %notin% c("NaN", NA,"N/A")),]
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -240,13 +240,11 @@ item91.final <- mean_one_group(CustomerLevelData = item91.data
                                ,aggregateRow = "Region")
 
 item91.final.SF <- item91.final[which(item91.final$BuildingType == "Single Family")
-                                ,-which(colnames(item91.final) %in% c("BuildingType"
-                                                                      ,"Count"))]
+                                ,-which(colnames(item91.final) %in% c("BuildingType"))]
 item91.final.MH <- item91.final[which(item91.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item91.final) %in% c("BuildingType"
-                                                                      ,"Count"))]
+                                ,-which(colnames(item91.final) %in% c("BuildingType"))]
 
-exportTable(item91.final.SF, "SF", "Table 98", weighted = TRUE)
+# exportTable(item91.final.SF, "SF", "Table 98", weighted = TRUE)
 exportTable(item91.final.MH, "MH", "Table 79", weighted = TRUE)
 
 
@@ -259,15 +257,11 @@ item91.final <- mean_one_group_unweighted(CustomerLevelData = item91.data
                                           ,aggregateRow = "Region")
 
 item91.final.SF <- item91.final[which(item91.final$BuildingType == "Single Family")
-                                ,-which(colnames(item91.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"count"))]
+                                ,-which(colnames(item91.final) %in% c("BuildingType"))]
 item91.final.MH <- item91.final[which(item91.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item91.final) %in% c("BuildingType"
-                                                                      ,"Remove"
-                                                                      ,"count"))]
+                                ,-which(colnames(item91.final) %in% c("BuildingType"))]
 
-exportTable(item91.final.SF, "SF", "Table 98", weighted = FALSE)
+# exportTable(item91.final.SF, "SF", "Table 98", weighted = FALSE)
 exportTable(item91.final.MH, "MH", "Table 79", weighted = FALSE)
 
 
@@ -321,13 +315,11 @@ item93.final <- data.frame(item93.final)
 
 # Export table
 item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Family")
-                                ,-which(colnames(item93.final) %in% c("BuildingType"
-                                                                      ,"Count"))]
+                                ,-which(colnames(item93.final) %in% c("BuildingType"))]
 item93.final.MH <- item93.final[which(item93.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item93.final) %in% c("BuildingType"
-                                                                      ,"Count"))]
+                                ,-which(colnames(item93.final) %in% c("BuildingType"))]
 
-exportTable(item93.final.SF, "SF", "Table 100", weighted = TRUE)
+# exportTable(item93.final.SF, "SF", "Table 100", weighted = TRUE)
 exportTable(item93.final.MH, "MH", "Table 81", weighted = TRUE)
 
 ###############################
@@ -350,12 +342,10 @@ item93.final <- data.frame(item93.final)
 
 # Export table
 item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Family")
-                                ,-which(colnames(item93.final) %in% c("BuildingType"
-                                                                      ,"count"))]
+                                ,-which(colnames(item93.final) %in% c("BuildingType"))]
 item93.final.MH <- item93.final[which(item93.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item93.final) %in% c("BuildingType"
-                                                                      ,"count"))]
+                                ,-which(colnames(item93.final) %in% c("BuildingType"))]
 
-exportTable(item93.final.SF, "SF", "Table 100", weighted = FALSE)
+# exportTable(item93.final.SF, "SF", "Table 100", weighted = FALSE)
 exportTable(item93.final.MH, "MH", "Table 81", weighted = FALSE)
 

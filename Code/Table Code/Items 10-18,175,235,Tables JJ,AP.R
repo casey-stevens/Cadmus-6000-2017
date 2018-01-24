@@ -78,11 +78,11 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
 prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
 prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
 prep.dat0$`Furred.Wall.Insulated?`  [which(prep.dat0$`Furred.Wall.Insulated?`   != "Yes" & prep.dat0$Wall.Type %in%    c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
-prep.dat0.1 <- prep.dat0[which(!(is.na(prep.dat0$Wall.Area))),]
-prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area != "Unknown"),]
-prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 %notin% c("Unknown",NA)),]
-prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1  %in% c("Unknown",NA)),]
-prep.dat1.0 <- prep.dat1.2[-which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %in% c("Unknown",NA)),]
+prep.dat0.1 <- prep.dat0[which(prep.dat0$Wall.Area %notin% c("N/A",NA)),]
+prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area %notin% c("Unknown")),]
+prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 %notin% c("Unknown",NA,"N/A")),]
+prep.dat1.2 <- prep.dat1.1[which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1  %notin% c("Unknown",NA)),]
+prep.dat1.0 <- prep.dat1.2[which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %notin% c("Unknown",NA)),]
 
 #review types
 unique(prep.dat1.0$Wall.Cavity.Insulation.Type.1)
@@ -128,7 +128,7 @@ prep.dat3 <- prep.dat2
 ###########################
 
 for(i in 1:ncol(prep.dat3)){
-  prep.dat3[,i] <- ifelse(prep.dat3[,i] == "-- Datapoint not asked for --", NA, prep.dat3[,i])
+  prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("-- Datapoint not asked for --","Datapoint not asked for"), NA, prep.dat3[,i])
 }
 
 #cleaning for wall.cavity
@@ -990,7 +990,7 @@ exportTable(item11.table.SF, "SF", "Table 18"
 #############################################################################################
 # Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19, MH table 16)
 #############################################################################################
-prep.item12.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
+prep.item12.dat <- prep.dat5#[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
 prep.item12.weightedU <- summarise(group_by(prep.item12.dat, CK_Cadmus_ID, Wall.Type)
@@ -1413,7 +1413,7 @@ exportTable(item12.table.MH, "MH", "Table 16"
 #############################################################################################
 # Table AP: DISTRIBUTION OF WALL INSULATION LEVELS BY STATE
 #############################################################################################
-prep.tableAP.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
+prep.tableAP.dat <- prep.dat5#[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
 prep.tableAP.weightedU <- summarise(group_by(prep.tableAP.dat, CK_Cadmus_ID)
@@ -1438,9 +1438,6 @@ prep.tableAP.dat2$aveUval[which(is.na(prep.tableAP.dat2$aveUval))] <- 0
 prep.tableAP.dat2$aveRval[which(is.na(prep.tableAP.dat2$aveRval))] <- 0
 
 
-
-
-## Note: For this table, you must run up to prep.dat7 for the cleaned data
 tableAP.dat <- prep.tableAP.dat2
 
 tableAP.dat1 <- tableAP.dat
@@ -1568,6 +1565,92 @@ tableAP.table.SF <- tableAP.table[which(tableAP.table$BuildingType == "Single Fa
 
 #export table to correct workbook using exporting function
 exportTable(tableAP.table.SF, "SF", "Table AP", weighted = FALSE)
+
+
+#############################################################################################
+# Weighted Analysis - manufactured
+#############################################################################################
+tableAP.final <- proportionRowsAndColumns1(CustomerLevelData     = tableAP.data
+                                           , valueVariable       = 'count'
+                                           , columnVariable      = 'State'
+                                           , rowVariable         = 'rvalue.bins.MH'
+                                           , aggregateColumnName = "Region"
+)
+
+tableAP.cast <- dcast(setDT(tableAP.final),
+                      formula   = BuildingType + rvalue.bins.MH ~ State,
+                      value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+tableAP.table <- data.frame("BuildingType"     = tableAP.cast$BuildingType
+                            ,"Insulation.Levels" = tableAP.cast$rvalue.bins.MH
+                            ,"Percent_ID"     = tableAP.cast$w.percent_ID
+                            ,"SE_ID"          = tableAP.cast$w.SE_ID
+                            ,"n_ID"           = tableAP.cast$n_ID
+                            ,"Percent_MT"     = tableAP.cast$w.percent_MT
+                            ,"SE_MT"          = tableAP.cast$w.SE_MT
+                            ,"n_MT"           = tableAP.cast$n_MT
+                            ,"Percent_OR"     = tableAP.cast$w.percent_OR
+                            ,"SE_OR"          = tableAP.cast$w.SE_OR
+                            ,"n_OR"           = tableAP.cast$n_OR
+                            ,"Percent_WA"     = tableAP.cast$w.percent_WA
+                            ,"SE_WA"          = tableAP.cast$w.SE_WA
+                            ,"n_WA"           = tableAP.cast$n_WA
+                            ,"Percent_Region" = tableAP.cast$w.percent_Region
+                            ,"SE_Region"      = tableAP.cast$w.SE_Region
+                            ,"n_Region"       = tableAP.cast$n_Region
+                            ,"EB_ID"          = tableAP.cast$EB_ID
+                            ,"EB_MT"          = tableAP.cast$EB_MT
+                            ,"EB_OR"          = tableAP.cast$EB_OR
+                            ,"EB_WA"          = tableAP.cast$EB_WA
+                            ,"EB_Region"      = tableAP.cast$EB_Region
+)
+
+tableAP.table.MH <- tableAP.table[which(tableAP.table$BuildingType == "Manufactured"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(tableAP.table.MH, "MH", "Table AP", weighted = TRUE)
+
+
+
+################################
+# Unweighted Analysis
+################################
+tableAP.final <- proportions_two_groups_unweighted(CustomerLevelData     = tableAP.data
+                                                   , valueVariable       = 'count'
+                                                   , columnVariable      = 'State'
+                                                   , rowVariable         = 'rvalue.bins.MH'
+                                                   , aggregateColumnName = "Region"
+)
+
+tableAP.cast <- dcast(setDT(tableAP.final),
+                      formula   = BuildingType + rvalue.bins.MH ~ State,
+                      value.var = c("Percent", "SE", "Count", "n"))
+
+tableAP.table <- data.frame("BuildingType"     = tableAP.cast$BuildingType
+                            ,"Insulation.Levels" = tableAP.cast$rvalue.bins.MH
+                            ,"Percent_ID"     = tableAP.cast$Percent_ID
+                            ,"SE_ID"          = tableAP.cast$SE_ID
+                            ,"n_ID"           = tableAP.cast$n_ID
+                            ,"Percent_MT"     = tableAP.cast$Percent_MT
+                            ,"SE_MT"          = tableAP.cast$SE_MT
+                            ,"n_MT"           = tableAP.cast$n_MT
+                            ,"Percent_OR"     = tableAP.cast$Percent_OR
+                            ,"SE_OR"          = tableAP.cast$SE_OR
+                            ,"n_OR"           = tableAP.cast$n_OR
+                            ,"Percent_WA"     = tableAP.cast$Percent_WA
+                            ,"SE_WA"          = tableAP.cast$SE_WA
+                            ,"n_WA"           = tableAP.cast$n_WA
+                            ,"Percent_Region" = tableAP.cast$Percent_Region
+                            ,"SE_Region"      = tableAP.cast$SE_Region
+                            ,"n_Region"       = tableAP.cast$n_Region
+)
+
+tableAP.table.MH <- tableAP.table[which(tableAP.table$BuildingType == "Manufactured"),-1]
+
+#export table to correct workbook using exporting function
+exportTable(tableAP.table.MH, "MH", "Table AP", weighted = FALSE)
+
+
 
 
 
@@ -2939,7 +3022,7 @@ wall.table <- data.frame("BuildingType"                = wall.cast$BuildingType
                          ,"State"                      = wall.cast$State
                          ,"Wall.Insulation"            = wall.cast$Mean_Wall.R.Value
                          ,"Wall.Insulation.SE"         = wall.cast$SE_Wall.R.Value
-                         ,"Wall.Insulation.n"          = wall.cast$n_2x6.Framed.Wall.R.Value
+                         ,"Wall.Insulation.n"          = wall.cast$n_Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall"    = wall.cast$Mean_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.SE" = wall.cast$SE_2x6.Framed.Wall.R.Value
                          ,"R.Value.Framed.2x6.Wall.n"  = wall.cast$n_2x6.Framed.Wall.R.Value
@@ -2960,7 +3043,7 @@ wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
 wall.table.JJ.MH <- wall.table[which(wall.table$BuildingType == "Manufactured")
                                   ,which(colnames(wall.table) %notin% c("BuildingType"))]
 
-exportTable(wall.table.JJ.SF, "SF","Table JJ",weighted = TRUE)
+# exportTable(wall.table.JJ.SF, "SF","Table JJ",weighted = TRUE)
 exportTable(wall.table.JJ.MH, "MH","Table JJ",weighted = TRUE)
 
 ##############################
@@ -3007,5 +3090,6 @@ wall.table.JJ.SF <- wall.table[which(wall.table$BuildingType == "Single Family")
 wall.table.JJ.MH <- wall.table[which(wall.table$BuildingType == "Manufactured")
                                ,which(colnames(wall.table) %notin% c("BuildingType"))]
 
-exportTable(wall.table.JJ.SF, "SF","Table JJ",weighted = FALSE)
+# exportTable(wall.table.JJ.SF, "SF","Table JJ",weighted = FALSE)
 exportTable(wall.table.JJ.MH, "MH","Table JJ",weighted = FALSE)
+

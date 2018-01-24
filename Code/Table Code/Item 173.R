@@ -79,23 +79,18 @@ item173.table <- data.frame("BuildingType"    = item173.cast$BuildingType
                             ,"Age_Standard"   = item173.cast$Age.and.Construction.Standard
                             ,"Percent_ID"     = item173.cast$w.percent_ID
                             ,"SE_ID"          = item173.cast$w.SE_ID
-                            ,"Count_ID"       = item173.cast$count_ID
                             ,"n_ID"           = item173.cast$n_ID
                             ,"Percent_MT"     = item173.cast$w.percent_MT
                             ,"SE_MT"          = item173.cast$w.SE_MT
-                            ,"Count_MT"       = item173.cast$count_MT
                             ,"n_MT"           = item173.cast$n_MT
                             ,"Percent_OR"     = item173.cast$w.percent_OR
                             ,"SE_OR"          = item173.cast$w.SE_OR
-                            ,"Count_OR"       = item173.cast$count_OR
                             ,"n_OR"           = item173.cast$n_OR
                             ,"Percent_WA"     = item173.cast$w.percent_WA
                             ,"SE_WA"          = item173.cast$w.SE_WA
-                            ,"Count_WA"       = item173.cast$count_WA
                             ,"n_WA"           = item173.cast$n_WA
                             ,"Percent_Region" = item173.cast$w.percent_Region
                             ,"SE_Region"      = item173.cast$w.SE_Region
-                            ,"Count_Region"   = item173.cast$count_Region
                             ,"n_Region"       = item173.cast$n_Region
                             ,"EB_ID"          = item173.cast$EB_ID
                             ,"EB_MT"          = item173.cast$EB_MT
@@ -123,26 +118,26 @@ item173.final <- proportions_two_groups_unweighted(CustomerLevelData = item173.d
 
 item173.cast <- dcast(setDT(item173.final)
                       , formula = BuildingType + Age.and.Construction.Standard ~ State
-                      , value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      , value.var = c("Percent", "SE", "n"))
 
 
 item173.table <- data.frame("BuildingType"    = item173.cast$BuildingType
                             ,"Age_Standard"   = item173.cast$Age.and.Construction.Standard
                             ,"Percent_ID"     = item173.cast$Percent_ID
                             ,"SE_ID"          = item173.cast$SE_ID
-                            ,"Count_ID"       = item173.cast$Count_ID
+                            ,"n_ID"           = item173.cast$n_ID
                             ,"Percent_MT"     = item173.cast$Percent_MT
                             ,"SE_MT"          = item173.cast$SE_MT
-                            ,"Count_MT"       = item173.cast$Count_MT
+                            ,"n_MT"           = item173.cast$n_MT
                             ,"Percent_OR"     = item173.cast$Percent_OR
                             ,"SE_OR"          = item173.cast$SE_OR
-                            ,"Count_OR"       = item173.cast$Count_OR
+                            ,"n_OR"           = item173.cast$n_OR
                             ,"Percent_WA"     = item173.cast$Percent_WA
                             ,"SE_WA"          = item173.cast$SE_WA
-                            ,"Count_WA"       = item173.cast$Count_WA
+                            ,"n_WA"           = item173.cast$n_WA
                             ,"Percent_Region" = item173.cast$Percent_Region
                             ,"SE_Region"      = item173.cast$SE_Region
-                            ,"Count_Region"   = item173.cast$Count_Region
+                            ,"n_Region"       = item173.cast$n_Region
 )
 
 

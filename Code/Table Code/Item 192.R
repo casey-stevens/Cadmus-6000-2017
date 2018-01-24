@@ -91,7 +91,6 @@ item192.all.types <- proportions_one_group(item192.data
                                               ,columnName       = "HomeType"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item192.all.types$HomeType[which(item192.all.types$HomeType == "Total")] <- "All Types"
 
 
 
@@ -105,7 +104,7 @@ item192.cast <- dcast(setDT(item192.final),
                       value.var = c("w.percent", "w.SE", "count", "n", "N"))
 
 item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
-                            ,"HomeType"          = item192.cast$HomeType
+                            ,"Home.Type"          = item192.cast$HomeType
                             ,"Percent.Connected" = item192.cast$w.percent_Connected
                             ,"SE.Connected"      = item192.cast$w.SE_Connected
                             ,"Count.Connected"   = item192.cast$count_Connected
@@ -117,6 +116,22 @@ item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
                             ,"Count.Disconnected"   = NA #item192.cast$count_Disconnected
                             )
 
+# row ordering example code
+levels(item192.table$Home.Type)
+rowOrder <- c("Single Family Detached"
+              ,"Duplex, Triplex, or Fourplex"
+              ,"Townhome or Rowhome"
+              ,"Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"Single Wide"
+              ,"Double Wide"
+              ,"Triple Wide"
+              ,"Modular / Prefab"
+              ,"Total"
+              ,"All Types")
+item192.table <- item192.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item192.table <- data.frame(item192.table)
 
 
 item192.table.MH <- item192.table[which(item192.table$BuildingType == "Manufactured"),-1]
@@ -158,7 +173,7 @@ item192.cast <- dcast(setDT(item192.final),
                       value.var = c("Percent", "SE", "Count", "SampleSize"))
 
 item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
-                            ,"HomeType"          = item192.cast$HomeType
+                            ,"Home.Type"          = item192.cast$HomeType
                             ,"Percent.Connected" = item192.cast$Percent_Connected
                             ,"SE.Connected"      = item192.cast$SE_Connected
                             ,"Count.Connected"   = item192.cast$Count_Connected
@@ -170,6 +185,22 @@ item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
                             ,"Count.Disconnected"   = NA #item192.cast$count_Disconnected
 )
 
+# row ordering example code
+levels(item192.table$Home.Type)
+rowOrder <- c("Single Family Detached"
+              ,"Duplex, Triplex, or Fourplex"
+              ,"Townhome or Rowhome"
+              ,"Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"Single Wide"
+              ,"Double Wide"
+              ,"Triple Wide"
+              ,"Modular / Prefab"
+              ,"Total"
+              ,"All Types")
+item192.table <- item192.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item192.table <- data.frame(item192.table)
 
 
 item192.table.MH <- item192.table[which(item192.table$BuildingType == "Manufactured"),-1]

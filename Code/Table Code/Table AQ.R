@@ -17,7 +17,7 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
-
+"%notin%" <- Negate("%in%")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -54,7 +54,7 @@ mechanical.dat3 <- mechanical.dat2
 tableAQ.dat <- mechanical.dat3[which(mechanical.dat3$CK_Cadmus_ID != "BUILDING"),]
 
 #remove any irrelevant heating efficiency datapoints (datapoint not asked for)
-tableAQ.dat1 <- tableAQ.dat[which(tableAQ.dat$`Heating.Efficiency.-.High` != "-- Datapoint not asked for --"),]
+tableAQ.dat1 <- tableAQ.dat[which(tableAQ.dat$`Heating.Efficiency.-.High` %notin% c("-- Datapoint not asked for --","Datapoint not asked for")),]
 
 #remove any repeated header lines
 tableAQ.dat2 <- tableAQ.dat1[which(tableAQ.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -142,7 +142,7 @@ tableAQ.table.SF <- tableAQ.table[which(tableAQ.table$BuildingType == "Single Fa
 tableAQ.table.MH <- tableAQ.table[which(tableAQ.table$BuildingType == "Manufactured") , -which(colnames(tableAQ.table) %in% c("BuildingType"))]
 
 
-exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = TRUE)
+# exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = TRUE)
 exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = TRUE)
 
 
@@ -195,5 +195,5 @@ tableAQ.table.SF <- tableAQ.table[which(tableAQ.table$BuildingType == "Single Fa
 tableAQ.table.MH <- tableAQ.table[which(tableAQ.table$BuildingType == "Manufactured"), -which(colnames(tableAQ.table) %in% c("BuildingType"))]
 
 
-exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = FALSE)
+# exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = FALSE)
 exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = FALSE)

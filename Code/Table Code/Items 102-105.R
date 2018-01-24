@@ -623,13 +623,11 @@ item105.table <- data.frame(item105.table)
 # SF = Table 112, MH = Table 87
 # Export table
 item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Family")
-                                  ,-which(colnames(item105.table) %in% c("BuildingType"
-                                                                         ,"Water.Heaters"))]
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"))]
 item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
-                                  ,-which(colnames(item105.table) %in% c("BuildingType"
-                                                                         ,"Water.Heaters"))]
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"))]
 
-exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
+# exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
 exportTable(item105.final.MH, "MH", "Table 87", weighted = TRUE)
 
 #######################
@@ -655,14 +653,10 @@ item105.table <- data.frame(item105.table)
 # SF = Table 112, MH = Table 87
 # Export table
 item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Family")
-                                  ,-which(colnames(item105.table) %in% c("BuildingType"
-                                                                         ,"Water.Heaters"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"))]
 item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
-                                  ,-which(colnames(item105.table) %in% c("BuildingType"
-                                                                         ,"Water.Heaters"
-                                                                         ,"Total.Count"))]
+                                  ,-which(colnames(item105.table) %in% c("BuildingType"))]
 
-exportTable(item105.final.SF, "SF", "Table 112", weighted = FALSE)
+# exportTable(item105.final.SF, "SF", "Table 112", weighted = FALSE)
 exportTable(item105.final.MH, "MH", "Table 87", weighted = FALSE)
 

@@ -106,7 +106,7 @@ item36.table.SF <- item36.table[which(item36.table$BuildingType == "Single Famil
 item36.table.MH <- item36.table[which(item36.table$BuildingType == "Manufactured"),
                                 -which(colnames(item36.table) == "BuildingType")]
 
-exportTable(item36.table.SF, "SF","Table 43",weighted = TRUE)
+# exportTable(item36.table.SF, "SF","Table 43",weighted = TRUE)
 exportTable(item36.table.MH, "MH","Table 24",weighted = TRUE)
 
 #######################
@@ -153,7 +153,7 @@ item36.table.SF <- item36.table[which(item36.table$BuildingType == "Single Famil
 item36.table.MH <- item36.table[which(item36.table$BuildingType == "Manufactured"),
                                 -which(colnames(item36.table) == "BuildingType")]
 
-exportTable(item36.table.SF, "SF","Table 43",weighted = FALSE)
+# exportTable(item36.table.SF, "SF","Table 43",weighted = FALSE)
 exportTable(item36.table.MH, "MH","Table 24",weighted = FALSE)
 
 
@@ -230,7 +230,7 @@ item37.table.SF <- item37.table[which(item37.table$BuildingType == "Single Famil
 item37.table.MH <- item37.table[which(item37.table$BuildingType == "Manufactured"),
                                 -which(colnames(item37.table) == "BuildingType")]
 
-exportTable(item37.table.SF, "SF","Table 44",weighted = TRUE)
+# exportTable(item37.table.SF, "SF","Table 44",weighted = TRUE)
 exportTable(item37.table.MH, "MH","Table 26",weighted = TRUE)
 
 #######################
@@ -277,7 +277,7 @@ item37.table.SF <- item37.table[which(item37.table$BuildingType == "Single Famil
 item37.table.MH <- item37.table[which(item37.table$BuildingType == "Manufactured"),
                                 -which(colnames(item37.table) == "BuildingType")]
 
-exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
+# exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 exportTable(item37.table.MH, "MH","Table 26",weighted = FALSE)
 
 
@@ -304,7 +304,8 @@ item182.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Whole.House.UA"))]
 item182.dat0 <- left_join(item182.sites, item182.dat)
 item182.dat1 <- left_join(rbsa.dat, item182.dat0)
-item182.dat2 <- item182.dat1[which(!is.na(item182.dat1$Whole.House.UA)),]
+item182.dat1$Whole.House.UA <- as.numeric(as.character(item182.dat1$Whole.House.UA))
+item182.dat2 <- item182.dat1[which(item182.dat1$Whole.House.UA %notin% c("N/A",NA)),]
 item182.dat3 <- item182.dat2[grep("site",item182.dat2$CK_Building_ID, ignore.case = T),]
 which(duplicated(item182.dat3$CK_Cadmus_ID))
 

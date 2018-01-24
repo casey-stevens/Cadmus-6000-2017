@@ -195,7 +195,7 @@ item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Famil
 item99.final.MH <- item99.table[which(item99.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item99.table) %in% c("BuildingType"))]
 
-exportTable(item99.final.SF, "SF", "Table 106", weighted = TRUE)
+# exportTable(item99.final.SF, "SF", "Table 106", weighted = TRUE)
 exportTable(item99.final.MH, "MH", "Table 86", weighted = TRUE)
 
 
@@ -255,7 +255,7 @@ item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Famil
 item99.final.MH <- item99.table[which(item99.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item99.table) %in% c("BuildingType"))]
 
-exportTable(item99.final.SF, "SF", "Table 106", weighted = FALSE)
+# exportTable(item99.final.SF, "SF", "Table 106", weighted = FALSE)
 exportTable(item99.final.MH, "MH", "Table 86", weighted = FALSE)
 
 

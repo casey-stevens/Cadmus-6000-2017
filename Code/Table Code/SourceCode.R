@@ -54,3 +54,4 @@ survey.export              <- "Participant Survey.xlsx"
 one.line.export            <- "One Line Summary.xlsm"
 one.line.bldg.export       <- "One Line Summary - BLDG.xlsm"
 billing.data               <- "RBSA Usages Compiled Final_2018-01-16.xlsx"
+stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
