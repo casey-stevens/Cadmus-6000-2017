@@ -77,6 +77,19 @@ tableRR.table.MH <- tableRR.table[which(tableRR.table$BuildingType == "Manufactu
 # exportTable(tableRR.table.SF, "SF", "Table RR", weighted = TRUE)
 exportTable(tableRR.table.MH, "MH", "Table RR", weighted = TRUE)
 
+#######################
+# MULTIFAMILY
+#######################
+tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "HomeType"
+                                       ,total.name = "All Types"
+                                       ,weighted = TRUE)
+tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Manufactured")
+                                  ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
+exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE)
+
+
 
 #######################
 # unweighted Analysis
@@ -94,6 +107,17 @@ tableRR.table.MH <- tableRR.table[which(tableRR.table$BuildingType == "Manufactu
 # exportTable(tableRR.table.SF, "SF", "Table RR", weighted = FALSE)
 exportTable(tableRR.table.MH, "MH", "Table RR", weighted = FALSE)
 
+#######################
+# MULTIFAMILY
+#######################
+tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
+                                          ,valueVariable = "Ind"
+                                          ,groupingVariable = "HomeType"
+                                          ,total.name = "All Types"
+                                          ,weighted = FALSE)
+tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Multifamily")
+                                     ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
+exportTable(tableRR.table.MF, "MF", "Table RR", weighted = FALSE)
 
 
 
@@ -269,6 +293,19 @@ TableVV.table.MH <- TableVV.table[which(TableVV.table$BuildingType == "Manufactu
 # exportTable(TableVV.table.SF, "SF", "Table VV", weighted = TRUE)
 exportTable(TableVV.table.MH, "MH", "Table VV", weighted = TRUE)
 
+#######################
+# MULTIFAMILY
+#######################
+TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
+                                       ,valueVariable = "Ind"
+                                       ,groupingVariable = "HomeType"
+                                       ,total.name = "All Types"
+                                       ,weighted = TRUE)
+TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Single Family")
+                                  ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
+exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE)
+
+
 
 #######################
 # unweighted Analysis
@@ -286,3 +323,15 @@ TableVV.table.MH <- TableVV.table[which(TableVV.table$BuildingType == "Manufactu
 # exportTable(TableVV.table.SF, "SF", "Table VV", weighted = FALSE)
 exportTable(TableVV.table.MH, "MH", "Table VV", weighted = FALSE)
 
+
+#######################
+# MULTIFAMILY
+#######################
+TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
+                                          ,valueVariable = "Ind"
+                                          ,groupingVariable = "HomeType"
+                                          ,total.name = "All Types"
+                                          ,weighted = FALSE)
+TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Single Family")
+                                     ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
+exportTable(TableVV.table.MF,"MF","Table VV",weighted = FALSE)

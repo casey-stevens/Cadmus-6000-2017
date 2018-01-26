@@ -42,14 +42,12 @@ item229.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 ,"ENV_Construction_BLDG_STRUCTURE_TypeOfFrame"))]
 item229.dat$count <- 1
 
-item229.dat0 <- left_join(rbsa.dat, item229.dat, by = "CK_Cadmus_ID")
-
-item229.dat1 <- item229.dat0[grep("site",item229.dat0$CK_Building_ID, ignore.case = T),]
+item229.dat1 <- left_join(rbsa.dat.site, item229.dat, by = "CK_Cadmus_ID")
 
 #Subset to Multifamily
 item229.dat2 <- item229.dat1[grep("(3 or fewer floors)", item229.dat1$BuildingTypeXX),]
 
-item229.dat3 <- item229.dat2[which(!(item229.dat2$ENV_Construction_BLDG_STRUCTURE_TypeOfFrame %in% c("Unknown", NA, "N/A", "-- Datapoint not asked for --", 0))),]
+item229.dat3 <- item229.dat2[which(!(item229.dat2$ENV_Construction_BLDG_STRUCTURE_TypeOfFrame %in% c("Unknown", NA, "N/A", "-- Datapoint not asked for --", "Datapoint not asked for", 0))),]
 unique(item229.dat3$ENV_Construction_BLDG_STRUCTURE_TypeOfFrame)
 item229.dat3$ENV_Construction_CONSTRUCTION_ConstructionType[which(item229.dat3$ENV_Construction_BLDG_STRUCTURE_TypeOfFrame == "Wood")] <- "Framing"
 unique(item229.dat3$ENV_Construction_CONSTRUCTION_ConstructionType)
@@ -96,7 +94,8 @@ mid.rise <- data.frame("BuildingType" = "Multifamily"
                        ,"w.SE" = NA
                        ,"count" = NA
                        ,"N" = NA
-                       ,"n" = NA)
+                       ,"n" = NA
+                       ,"EB" = NA)
 high.rise <- data.frame("BuildingType" = "Multifamily"
                        ,"HomeType" = "High-Rise (7+)"
                        ,"Structural.System" = NA
@@ -104,12 +103,13 @@ high.rise <- data.frame("BuildingType" = "Multifamily"
                        ,"w.SE" = NA
                        ,"count" = NA
                        ,"N" = NA
-                       ,"n" = NA)
+                       ,"n" = NA
+                       ,"EB" = NA)
 
 item229.final <- rbind.data.frame(item229.summary, mid.rise, high.rise, stringsAsFactors = F)
 item229.cast <- dcast(setDT(item229.final)
                       ,formula = BuildingType + HomeType ~ Structural.System
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item229.table <- data.frame("BuildingType"             = item229.cast$BuildingType
                             ,"HomeType"                = item229.cast$HomeType
@@ -121,8 +121,10 @@ item229.table <- data.frame("BuildingType"             = item229.cast$BuildingTy
                             ,"Steel.Framing.SE"        = NA#
                             ,"Wood.Framing"            = item229.cast$`w.percent_Wood Framing`
                             ,"Wood.Framing.SE"         = item229.cast$`w.SE_Wood Framing`
-                            ,"Brick.Solid.Masonry"     = item229.cast$`w.percent_Brick Solid masonry`
-                            ,"Brick.Solid.Masonry.SE"  = item229.cast$`w.SE_Brick Solid masonry`
+                            ,"Wood.Framing.n"          = item229.cast$`n_Wood Framing`
+                            ,"Brick.Solid.Masonry"     = NA#item229.cast$`w.percent_Brick Solid masonry`
+                            ,"Brick.Solid.Masonry.SE"  = NA#item229.cast$`w.SE_Brick Solid masonry`
+                            ,"Wood.Framing.EB"         = item229.cast$`EB_Wood Framing`
 )
 levels(item229.table$HomeType)
 rowOrder <- c("Low-Rise (1-3)"
@@ -174,8 +176,9 @@ item229.table <- data.frame("BuildingType"             = item229.cast$BuildingTy
                             ,"Steel.Framing.SE"        = NA#
                             ,"Wood.Framing"            = item229.cast$`Percent_Wood Framing`
                             ,"Wood.Framing.SE"         = item229.cast$`SE_Wood Framing`
-                            ,"Brick.Solid.Masonry"     = item229.cast$`Percent_Brick Solid masonry`
-                            ,"Brick.Solid.Masonry.SE"  = item229.cast$`SE_Brick Solid masonry`
+                            ,"Wood.Framing.n"          = item229.cast$`n_Wood Framing`
+                            ,"Brick.Solid.Masonry"     = NA#item229.cast$`Percent_Brick Solid masonry`
+                            ,"Brick.Solid.Masonry.SE"  = NA#item229.cast$`SE_Brick Solid masonry`
 )
 levels(item229.table$HomeType)
 rowOrder <- c("Low-Rise (1-3)"

@@ -116,27 +116,40 @@ item296.summary$Washer.Type[which(item296.summary$Washer.Type == "Total")] <- "A
 
 item296.cast <- dcast(setDT(item296.summary)
                       ,formula = Washer.Age ~ Washer.Type
-                      ,value.var = c("w.percent", "w.SE","count","n", "N"))
-
+                      ,value.var = c("w.percent", "w.SE","count","n", "N","EB"))
+names(item296.cast)
 item296.table <- data.frame("Clothes.Washer.Age"                 = item296.cast$Washer.Age
                             ,"Combined.Washer.Dryer"             = NA#item296.cast$`w.percent_Combined Washer/Dryer`
                             ,"Combined.Washer.Dryer.SE"          = NA#item296.cast$`w.SE_Combined Washer/Dryer`
-                            ,"Combined.Washer.Dryer.n"           = NA#item296.cast$`count_Combined Washer/Dryer`
                             ,"Horizontal.Axis"                   = item296.cast$`w.percent_Horizontal Axis`
                             ,"Horizontal.Axis.SE"                = item296.cast$`w.SE_Horizontal Axis`
-                            ,"Horizontal.Axis.n"                 = item296.cast$`count_Horizontal Axis`
                             ,"Stacked.Washer.Dryer"              = item296.cast$`w.percent_Stacked Washer/Dryer`
                             ,"Stacked.Washer.Dryer.SE"           = item296.cast$`w.SE_Stacked Washer/Dryer`
-                            ,"Stacked.Washer.Dryer.n"            = item296.cast$`count_Stacked Washer/Dryer`
                             ,"Vertical.Axis.with.Agitator"       = item296.cast$`w.percent_Vertical Axis (with agitator)`
                             ,"Vertical.Axis.with.Agitator.SE"    = item296.cast$`w.SE_Vertical Axis (with agitator)`
-                            ,"Vertical.Axis.with.Agitator.n"     = item296.cast$`count_Vertical Axis (with agitator)`
                             ,"Vertical.Axis.without.Agitator"    = item296.cast$`w.percent_Vertical Axis (without agitator)`
                             ,"Vertical.Axis.without.Agitator.SE" = item296.cast$`w.SE_Vertical Axis (without agitator)`
-                            ,"Vertical.Axis.without.Agitator.n"  = item296.cast$`count_Vertical Axis (without agitator)`
                             ,"All.Types"                         = item296.cast$`w.percent_All Types`
                             ,"All.Types.SE"                      = item296.cast$`w.SE_All Types`
-                            ,"All.Types.n"                       = item296.cast$`count_All Types`)
+                            ,"n"                                 = item296.cast$`n_All Types`
+                            ,"Combined.Washer.Dryer.EB"          = NA#item296.cast$`w.EB_Combined Washer/Dryer`
+                            ,"Horizontal.Axis.EB"                = item296.cast$`EB_Horizontal Axis`
+                            ,"Stacked.Washer.Dryer.EB"           = item296.cast$`EB_Stacked Washer/Dryer`
+                            ,"Vertical.Axis.with.Agitator.EB"    = item296.cast$`EB_Vertical Axis (with agitator)`
+                            ,"Vertical.Axis.without.Agitator.EB" = item296.cast$`EB_Vertical Axis (without agitator)`
+                            ,"All.Types.EB"                      = item296.cast$`EB_All Types`)
+
+levels(item296.table$Clothes.Washer.Age)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"Post 2009"
+              ,"All Vintages")
+item296.table <- item296.table %>% mutate(Clothes.Washer.Age = factor(Clothes.Washer.Age, levels = rowOrder)) %>% arrange(Clothes.Washer.Age)  
+item296.table <- data.frame(item296.table)
 
 exportTable(item296.table, "MF", "Table 90", weighted = TRUE)
 
@@ -153,27 +166,34 @@ item296.summary$Washer.Type[which(item296.summary$Washer.Type == "Total")] <- "A
 
 item296.cast <- dcast(setDT(item296.summary)
                       ,formula = Washer.Age ~ Washer.Type
-                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+                      ,value.var = c("Percent", "SE","Count","n"))
 
 item296.table <- data.frame("Clothes.Washer.Age"                 = item296.cast$Washer.Age
                             ,"Combined.Washer.Dryer"             = NA#item296.cast$`Percent_Combined Washer/Dryer`
                             ,"Combined.Washer.Dryer.SE"          = NA#item296.cast$`SE_Combined Washer/Dryer`
-                            ,"Combined.Washer.Dryer.n"           = NA#item296.cast$`Count_Combined Washer/Dryer`
                             ,"Horizontal.Axis"                   = item296.cast$`Percent_Horizontal Axis`
                             ,"Horizontal.Axis.SE"                = item296.cast$`SE_Horizontal Axis`
-                            ,"Horizontal.Axis.n"                 = item296.cast$`Count_Horizontal Axis`
                             ,"Stacked.Washer.Dryer"              = item296.cast$`Percent_Stacked Washer/Dryer`
                             ,"Stacked.Washer.Dryer.SE"           = item296.cast$`SE_Stacked Washer/Dryer`
-                            ,"Stacked.Washer.Dryer.n"            = item296.cast$`Count_Stacked Washer/Dryer`
                             ,"Vertical.Axis.with.Agitator"       = item296.cast$`Percent_Vertical Axis (with agitator)`
                             ,"Vertical.Axis.with.Agitator.SE"    = item296.cast$`SE_Vertical Axis (with agitator)`
-                            ,"Vertical.Axis.with.Agitator.n"     = item296.cast$`Count_Vertical Axis (with agitator)`
                             ,"Vertical.Axis.without.Agitator"    = item296.cast$`Percent_Vertical Axis (without agitator)`
                             ,"Vertical.Axis.without.Agitator.SE" = item296.cast$`SE_Vertical Axis (without agitator)`
-                            ,"Vertical.Axis.without.Agitator.n"  = item296.cast$`Count_Vertical Axis (without agitator)`
                             ,"All.Types"                         = item296.cast$`Percent_All Types`
                             ,"All.Types.SE"                      = item296.cast$`SE_All Types`
-                            ,"All.Types.n"                       = item296.cast$`Count_All Types`)
+                            ,"n"                                 = item296.cast$`n_All Types`)
+
+levels(item296.table$Clothes.Washer.Age)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"Post 2009"
+              ,"All Vintages")
+item296.table <- item296.table %>% mutate(Clothes.Washer.Age = factor(Clothes.Washer.Age, levels = rowOrder)) %>% arrange(Clothes.Washer.Age)  
+item296.table <- data.frame(item296.table)
 
 exportTable(item296.table, "MF", "Table 90", weighted = FALSE)
 
@@ -238,10 +258,9 @@ item297.data <- weightedData(item297.dat5[which(colnames(item297.dat5) %notin% c
                                                                                  ,""))])
 
 item297.data <- left_join(item297.data, item297.dat5[which(colnames(item297.dat5) %in% c("CK_Cadmus_ID"
-                                                                                         ,"CK_SiteID"
                                                                                          ,"Type"
-                                                                                         ,"Age"
                                                                                          ,"Dryer.Age"))])
+item297.data <- unique(item297.data)
 item297.data$count <- 1
 
 
@@ -252,7 +271,7 @@ item297.final <- proportions_one_group_MF(CustomerLevelData = item297.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Dryer.Age'
                                           ,total.name = 'Remove')
-item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
+# item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
 
 exportTable(item297.final, "MF", "Table 91", weighted = TRUE)
 

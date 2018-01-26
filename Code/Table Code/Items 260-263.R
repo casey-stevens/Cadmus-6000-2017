@@ -136,7 +136,7 @@ item260.final <- mean_one_group(CustomerLevelData = item260.data
                                 ,byVariable = 'HomeYearBuilt_bins_MF'
                                 ,aggregateRow = "All Vintages")
 
-item260.final <- item260.final[which(colnames(item260.final) %notin% c("BuildingType", "n_h", "N_h"))]
+item260.final <- item260.final[which(colnames(item260.final) %notin% c("BuildingType"))]
 
 exportTable(item260.final, "MF", "Table 52", weighted = TRUE)
 
@@ -150,7 +150,7 @@ item260.final <- mean_one_group_unweighted(CustomerLevelData = item260.data
                                 ,byVariable = 'HomeYearBuilt_bins_MF'
                                 ,aggregateRow = "All Vintages")
 
-item260.final <- item260.final[which(colnames(item260.final) %notin% c("BuildingType", "n_h", "N_h"))]
+item260.final <- item260.final[which(colnames(item260.final) %notin% c("BuildingType"))]
 
 exportTable(item260.final, "MF", "Table 52", weighted = FALSE)
 
@@ -345,28 +345,26 @@ item263.data$count <- 1
 #############################
 # weighted analysis
 #############################
-item263.final <- proportions_one_group_MF(CustomerLevelData = item263.data
+item263.final <- proportions_one_group(CustomerLevelData = item263.data
                                           ,valueVariable = 'Site.Wattage'
                                           ,groupingVariable = 'Switch.Type'
                                           ,total.name = NA
                                           ,weighted = TRUE)
 item263.final <- item263.final[which(item263.final$Switch.Type != "Total"),]
-item263.final <- item263.final[which(colnames(item263.final) %notin% c("BuildingType"
-                                                                       ,"count"))]
+item263.final <- item263.final[which(colnames(item263.final) %notin% c("BuildingType"))]
 
 exportTable(item263.final, "MF", "Table 55", weighted = TRUE)
 
 #############################
 # uneighted analysis
 #############################
-item263.final <- proportions_one_group_MF(CustomerLevelData = item263.data
+item263.final <- proportions_one_group(CustomerLevelData = item263.data
                                           ,valueVariable = 'Site.Wattage'
                                           ,groupingVariable = 'Switch.Type'
                                           ,total.name = NA
                                           ,weighted = FALSE)
 item263.final <- item263.final[which(item263.final$Switch.Type != "Total"),]
-item263.final <- item263.final[which(colnames(item263.final) %notin% c("BuildingType"
-                                                                       ,"count"))]
+item263.final <- item263.final[which(colnames(item263.final) %notin% c("BuildingType"))]
 
 exportTable(item263.final, "MF", "Table 55", weighted = FALSE)
 

@@ -78,10 +78,10 @@ item234.final <- proportionRowsAndColumns1(CustomerLevelData = item234.data
                                            ,rowVariable      = 'WallType'
                                            ,aggregateColumnName = "Remove")
 item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
-item234.final <- item234.final[which(item234.final$WallType != "Total"),]
+# item234.final <- item234.final[which(item234.final$WallType != "Total"),]
 
 
-item234.all.vintages <- proportions_one_group_MF(CustomerLevelData = item234.data
+item234.all.vintages <- proportions_one_group(CustomerLevelData = item234.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'WallType'
                                                  ,total.name = "All Sizes"
@@ -98,19 +98,20 @@ item234.cast <- dcast(setDT(item234.final)
 item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
                              ,"In-fill.Steel"    = NA
                              ,"In-fill.Steel.SE" = NA
-                             ,"In-fill.Steel.n"  = NA
                              ,"Masonry"          = item234.cast$w.percent_Masonry
                              ,"Masonry.SE"       = item234.cast$w.SE_Masonry
-                             ,"Masonry.n"        = item234.cast$count_Masonry
                              ,"Steel.Frame"      = NA#item234.cast$w.percent_Steel.Frame
                              ,"Steel.Frame.SE"   = NA#item234.cast$w.SE_Steel.Frame
-                             ,"Steel.Frame.n"    = NA
                              ,"Wood"             = item234.cast$`w.percent_Wood Frame`
                              ,"Wood.SE"          = item234.cast$`w.SE_Wood Frame`
-                             ,"Wood.n"           = item234.cast$`count_Wood Frame`
                              ,"Other"            = item234.cast$w.percent_Other
                              ,"Other.SE"         = item234.cast$w.SE_Other
-                             ,"Other.n"          = item234.cast$count_Other)
+                             ,"n"                = item234.cast$n_Total
+                             ,"In-fill.Steel.EB" = NA
+                             ,"Masonry.EB"       = item234.cast$w.EB_Masonry
+                             ,"Steel.Frame.EB"   = NA#item234.cast$w.EB_Steel.Frame
+                             ,"Wood.EB"          = item234.cast$`w.EB_Wood Frame`
+                             ,"Other.EB"         = item234.cast$w.EB_Other)
 
 exportTable(item234.final, "MF", "Table 26", weighted = TRUE)
 
@@ -127,7 +128,7 @@ item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
 item234.final <- item234.final[which(item234.final$WallType != "Total"),]
 
 
-item234.all.vintages <- proportions_one_group_MF(CustomerLevelData = item234.data
+item234.all.vintages <- proportions_one_group(CustomerLevelData = item234.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'WallType'
                                                  ,total.name = "All Sizes"
@@ -139,23 +140,19 @@ item234.final <- rbind.data.frame(item234.final, item234.all.vintages, stringsAs
 
 item234.cast <- dcast(setDT(item234.final)
                       ,formula = HomeType ~ WallType
-                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+                      ,value.var = c("Percent","SE", "Count","n"))
 
 item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
                              ,"In-fill.Steel"    = NA
                              ,"In-fill.Steel.SE" = NA
-                             ,"In-fill.Steel.n"  = NA
                              ,"Masonry"          = item234.cast$Percent_Masonry
                              ,"Masonry.SE"       = item234.cast$SE_Masonry
-                             ,"Masonry.n"        = item234.cast$Count_Masonry
                              ,"Steel.Frame"      = NA#item234.cast$Percent_Steel.Frame
                              ,"Steel.Frame.SE"   = NA#item234.cast$SE_Steel.Frame
-                             ,"Steel.Frame.n"    = NA
                              ,"Wood"             = item234.cast$`Percent_Wood Frame`
                              ,"Wood.SE"          = item234.cast$`SE_Wood Frame`
-                             ,"Wood.n"           = item234.cast$`Count_Wood Frame`
                              ,"Other"            = item234.cast$Percent_Other
                              ,"Other.SE"         = item234.cast$SE_Other
-                             ,"Other.n"          = item234.cast$Count_Other)
+                             ,"n"                = item234.cast$n_Total)
 
 exportTable(item234.final, "MF", "Table 26", weighted = FALSE)

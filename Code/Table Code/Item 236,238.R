@@ -129,10 +129,10 @@ item236.final <- proportionRowsAndColumns1(CustomerLevelData = item236.data
                                            ,rowVariable      = 'CeilingType'
                                            ,aggregateColumnName = "Remove")
 item236.final <- item236.final[which(item236.final$HomeType != "Remove"),]
-item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
+# item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
 
 
-item236.all.vintages <- proportions_one_group_MF(CustomerLevelData = item236.data
+item236.all.vintages <- proportions_one_group(CustomerLevelData = item236.data
                                                  ,valueVariable = 'Ceiling.Area'
                                                  ,groupingVariable = 'CeilingType'
                                                  ,total.name = "All Sizes"
@@ -144,21 +144,22 @@ item236.final <- rbind.data.frame(item236.final, item236.all.vintages, stringsAs
 
 item236.cast <- dcast(setDT(item236.final)
                       ,formula = HomeType ~ CeilingType
-                      ,value.var = c("w.percent","w.SE", "count","n","N"))
+                      ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 
 item236.final <- data.frame( "Building.Size" = item236.cast$HomeType
                              ,"Attic"        = item236.cast$w.percent_Attic
                              ,"Attic.SE"     = item236.cast$w.SE_Attic
-                             ,"Attic.n"      = item236.cast$n_Attic
                              ,"Roof.Deck"    = item236.cast$`w.percent_Roof Deck`
                              ,"Roof.Deck.SE" = item236.cast$`w.SE_Roof Deck`
-                             ,"Roof.Deck.n"  = item236.cast$`n_Roof Deck`
                              ,"Vaulted"      = item236.cast$w.percent_Vaulted
                              ,"Vaulted.SE"   = item236.cast$w.SE_Vaulted
-                             ,"Vaulted.n"    = item236.cast$n_Vaulted
                              ,"Other"        = item236.cast$w.percent_Other
                              ,"Other.SE"     = item236.cast$w.SE_Other
-                             ,"Other.n"      = item236.cast$n_Other)
+                             ,"n"            = item236.cast$n_Total
+                             ,"Attic.EB"     = item236.cast$EB_Attic
+                             ,"Roof.Deck.EB" = item236.cast$`EB_Roof Deck`
+                             ,"Vaulted.EB"   = item236.cast$EB_Vaulted
+                             ,"Other.EB"     = item236.cast$EB_Other)
 
 exportTable(item236.final, "MF", "Table 28", weighted = TRUE)
 
@@ -172,7 +173,7 @@ item236.final <- proportions_two_groups_unweighted(CustomerLevelData = item236.d
                                            ,rowVariable      = 'CeilingType'
                                            ,aggregateColumnName = "Remove")
 item236.final <- item236.final[which(item236.final$HomeType != "Remove"),]
-item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
+# item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
 
 
 item236.all.vintages <- proportions_one_group_MF(CustomerLevelData = item236.data
@@ -187,21 +188,18 @@ item236.final <- rbind.data.frame(item236.final, item236.all.vintages, stringsAs
 
 item236.cast <- dcast(setDT(item236.final)
                       ,formula = HomeType ~ CeilingType
-                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+                      ,value.var = c("Percent","SE", "Count","n"))
 
 item236.final <- data.frame( "Building.Size" = item236.cast$HomeType
                              ,"Attic"        = item236.cast$Percent_Attic
                              ,"Attic.SE"     = item236.cast$SE_Attic
-                             ,"Attic.n"      = item236.cast$SampleSize_Attic
                              ,"Roof.Deck"    = item236.cast$`Percent_Roof Deck`
                              ,"Roof.Deck.SE" = item236.cast$`SE_Roof Deck`
-                             ,"Roof.Deck.n"  = item236.cast$`SampleSize_Roof Deck`
                              ,"Vaulted"      = item236.cast$Percent_Vaulted
                              ,"Vaulted.SE"   = item236.cast$SE_Vaulted
-                             ,"Vaulted.n"    = item236.cast$SampleSize_Vaulted
                              ,"Other"        = item236.cast$Percent_Other
                              ,"Other.SE"     = item236.cast$SE_Other
-                             ,"Other.n"      = item236.cast$SampleSize_Other)
+                             ,"n"            = item236.cast$n_Total)
 
 exportTable(item236.final, "MF", "Table 28", weighted = FALSE)
 
@@ -248,10 +246,10 @@ item238.final <- proportionRowsAndColumns1(CustomerLevelData = item238.data
                                            ,rowVariable      = 'Floor.Sub.Type'
                                            ,aggregateColumnName = "Remove")
 item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
-item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
+# item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
 
 
-item238.all.sizes <- proportions_one_group_MF(CustomerLevelData = item238.data
+item238.all.sizes <- proportions_one_group(CustomerLevelData = item238.data
                                                  ,valueVariable = 'Floor.Area'
                                                  ,groupingVariable = 'Floor.Sub.Type'
                                                  ,total.name = "All Sizes"
@@ -263,7 +261,7 @@ item238.final <- rbind.data.frame(item238.final, item238.all.sizes, stringsAsFac
 
 item238.cast <- dcast(setDT(item238.final)
                       ,formula = Floor.Sub.Type ~ HomeType
-                      ,value.var = c("w.percent","w.SE", "count","n","N"))
+                      ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 
 
 
@@ -279,7 +277,12 @@ item238.final <- data.frame( "Floor.Type"    = item238.cast$Floor.Sub.Type
                              ,"High.Rise.GT7.n" = item238.cast$`n_Apartment Building (More than 6 floors)`
                              ,"All.Sizes"       = item238.cast$`w.percent_All Sizes`
                              ,"All.Sizes.SE"    = item238.cast$`w.SE_All Sizes`
-                             ,"All.Sizes.n"     = item238.cast$`n_All Sizes`)
+                             ,"All.Sizes.n"     = item238.cast$`n_All Sizes`
+                             ,"Low.Rise.1.3.EB" = item238.cast$`EB_Apartment Building (3 or fewer floors)`
+                             ,"Mid.Rise.4.6.EB" = item238.cast$`EB_Apartment Building (4 to 6 floors)`
+                             ,"High.Rise.GT7.EB"= item238.cast$`EB_Apartment Building (More than 6 floors)`
+                             ,"All.Sizes.EB"    = item238.cast$`EB_All Sizes`
+                             )
 
 exportTable(item238.final, "MF", "Table 30", weighted = TRUE)
 
@@ -292,7 +295,7 @@ item238.final <- proportions_two_groups_unweighted(CustomerLevelData = item238.d
                                            ,rowVariable      = 'Floor.Sub.Type'
                                            ,aggregateColumnName = "Remove")
 item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
-item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
+# item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
 
 
 item238.all.sizes <- proportions_one_group_MF(CustomerLevelData = item238.data
@@ -307,20 +310,20 @@ item238.final <- rbind.data.frame(item238.final, item238.all.sizes, stringsAsFac
 
 item238.cast <- dcast(setDT(item238.final)
                       ,formula = Floor.Sub.Type ~ HomeType
-                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+                      ,value.var = c("Percent","SE", "Count","n"))
 
 item238.final <- data.frame( "Floor.Type"    = item238.cast$Floor.Sub.Type
                              ,"Low.Rise.1.3"    = item238.cast$`Percent_Apartment Building (3 or fewer floors)`
                              ,"Low.Rise.1.3.SE" = item238.cast$`SE_Apartment Building (3 or fewer floors)`
-                             ,"Low.Rise.1.3.n"  = item238.cast$`SampleSize_Apartment Building (3 or fewer floors)`
+                             ,"Low.Rise.1.3.n"  = item238.cast$`n_Apartment Building (3 or fewer floors)`
                              ,"Mid.Rise.4.6"    = item238.cast$`Percent_Apartment Building (4 to 6 floors)`
                              ,"Mid.Rise.4.6.SE" = item238.cast$`SE_Apartment Building (4 to 6 floors)`
-                             ,"Mid.Rise.4.6.n"  = item238.cast$`SampleSize_Apartment Building (4 to 6 floors)`
+                             ,"Mid.Rise.4.6.n"  = item238.cast$`n_Apartment Building (4 to 6 floors)`
                              ,"High.Rise.GT7"   = item238.cast$`Percent_Apartment Building (More than 6 floors)`
                              ,"High.Rise.GT7.SE"= item238.cast$`SE_Apartment Building (More than 6 floors)`
-                             ,"High.Rise.GT7.n" = item238.cast$`SampleSize_Apartment Building (More than 6 floors)`
+                             ,"High.Rise.GT7.n" = item238.cast$`n_Apartment Building (More than 6 floors)`
                              ,"All.Sizes"       = item238.cast$`Percent_All Sizes`
                              ,"All.Sizes.SE"    = item238.cast$`SE_All Sizes`
-                             ,"All.Sizes.n"     = item238.cast$`SampleSize_All Sizes`)
+                             ,"All.Sizes.n"     = item238.cast$`n_All Sizes`)
 
 exportTable(item238.final, "MF", "Table 30", weighted = FALSE)

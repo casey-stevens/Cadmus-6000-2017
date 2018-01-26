@@ -45,9 +45,7 @@ item299.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_I
                                                                     ,""))]
 
 #join clean rbsa data onto appliances analysis data
-item299.dat0 <- left_join(rbsa.dat, item299.dat, by = "CK_Cadmus_ID")
-
-item299.dat1 <- item299.dat0[grep("SITE", ietm299.dat0$CK_SiteID),]
+item299.dat1 <- left_join(rbsa.dat, item299.dat, by = "CK_Cadmus_ID")
 
 #subset to only MF
 item299.dat2 <- item299.dat1[grep("Multifamily", item299.dat1$BuildingType),]
@@ -64,6 +62,7 @@ colnames(item299.tmp) <- c("CK_Cadmus_ID", "Dishwasher.Age")
 
 #merge back on with cleaned RBSA data to observe how many MF do not have dishwashers
 item299.dat4 <- left_join(rbsa.dat, item299.tmp)
+item299.dat4 <- item299.dat4[grep("bldg",item299.dat4$CK_Building_ID, ignore.case = T),]
 
 #subset to only MF
 item299.dat5 <- item299.dat4[grep("Multifamily", item299.dat4$BuildingType),]
@@ -116,22 +115,52 @@ item299.data$count <- 1
 ######################
 # weighted analysis
 ######################
-item299.final <- proportions_one_group_MF(CustomerLevelData = item299.data
+item299.final <- proportions_one_group(CustomerLevelData = item299.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Dishwasher.Cat'
                                           ,total.name = 'Remove')
-item299.final <- item299.final[which(item299.final$Dishwasher.Cat != "Total"),]
+# item299.final <- item299.final[which(item299.final$Dishwasher.Cat != "Total"),]
+item299.final$Dishwasher.Cat <- as.factor(item299.final$Dishwasher.Cat)
+
+levels(item299.final$Dishwasher.Cat)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"Post 2009"
+              ,"None"
+              ,"Unknown"
+              ,"Total")
+item299.final <- item299.final %>% mutate(Dishwasher.Cat = factor(Dishwasher.Cat, levels = rowOrder)) %>% arrange(Dishwasher.Cat)  
+item299.final <- data.frame(item299.final)
+
 
 exportTable(item299.final, "MF", "Table 93", weighted = TRUE)
 
 ######################
 # unweighted analysis
 ######################
-item299.final <- proportions_one_group_MF(CustomerLevelData = item299.data
+item299.final <- proportions_one_group(CustomerLevelData = item299.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Dishwasher.Cat'
                                           ,total.name = 'Remove'
                                           ,weighted = FALSE)
-item299.final <- item299.final[which(item299.final$Dishwasher.Cat != "Total"),]
+# item299.final <- item299.final[which(item299.final$Dishwasher.Cat != "Total"),]
+
+levels(item299.final$Dishwasher.Cat)
+rowOrder <- c("Pre 1980"
+              ,"1980-1989"
+              ,"1990-1994"
+              ,"1995-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"Post 2009"
+              ,"None"
+              ,"Unknown"
+              ,"Total")
+item299.final <- item299.final %>% mutate(Dishwasher.Cat = factor(Dishwasher.Cat, levels = rowOrder)) %>% arrange(Dishwasher.Cat)  
+item299.final <- data.frame(item299.final)
 
 exportTable(item299.final, "MF", "Table 93", weighted = FALSE)

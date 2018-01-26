@@ -175,18 +175,27 @@ item286.summary$DHW.Fuel[which(item286.summary$DHW.Fuel == "Total")] <- "All Typ
 
 item286.cast <- dcast(setDT(item286.summary)
                       ,formula = DHW.Fuel ~ TankSize
-                      ,value.var = c("w.percent", "w.SE","count","n", "N"))
+                      ,value.var = c("w.percent", "w.SE","count","n", "N","EB"))
 
 item286.table <- data.frame("Water.Heater.Fuel" = item286.cast$DHW.Fuel
                             ,"0.55.Gal"         = item286.cast$`w.percent_0-55`
                             ,"0.55.Gal.SE"      = item286.cast$`w.SE_0-55`
-                            ,"0.55.Gal.n"       = item286.cast$`count_0-55`
                             ,"GT55.Gal"         = item286.cast$`w.percent_>55`
                             ,"GT55.Gal.SE"      = item286.cast$`w.SE_>55`
-                            ,"GT55.Gal.n"       = item286.cast$`count_>55`
-                            ,"All.Sizes"         = item286.cast$`w.percent_All Sizes`
-                            ,"All.Sizes.SE"      = item286.cast$`w.SE_All Sizes`
-                            ,"All.Sizes.n"       = item286.cast$`count_All Sizes`)
+                            ,"All.Sizes"        = item286.cast$`w.percent_All Sizes`
+                            ,"All.Sizes.SE"     = item286.cast$`w.SE_All Sizes`
+                            ,"n"                = item286.cast$`n_All Sizes`
+                            ,"0.55.Gal.EB"      = item286.cast$`EB_0-55`
+                            ,"GT55.Gal.EB"      = item286.cast$`EB_>55`
+                            ,"All.Sizes.EB"     = item286.cast$`EB_All Sizes`)
+
+levels(item286.table$Water.Heater.Fuel)
+rowOrder <- c("Electric"
+              ,"Natural Gas"
+              ,"All Types")
+item286.table <- item286.table %>% mutate(Water.Heater.Fuel = factor(Water.Heater.Fuel, levels = rowOrder)) %>% arrange(Water.Heater.Fuel)  
+item286.table <- data.frame(item286.table)
+
 
 exportTable(item286.table, "MF", "Table 78", weighted = TRUE)
 
@@ -202,18 +211,23 @@ item286.summary$DHW.Fuel[which(item286.summary$DHW.Fuel == "Total")] <- "All Typ
 
 item286.cast <- dcast(setDT(item286.summary)
                       ,formula = DHW.Fuel ~ TankSize
-                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+                      ,value.var = c("Percent", "SE","Count","n"))
 
 item286.table <- data.frame("Water.Heater.Fuel" = item286.cast$DHW.Fuel
                             ,"0.55.Gal"         = item286.cast$`Percent_0-55`
                             ,"0.55.Gal.SE"      = item286.cast$`SE_0-55`
-                            ,"0.55.Gal.n"       = item286.cast$`Count_0-55`
                             ,"GT55.Gal"         = item286.cast$`Percent_>55`
                             ,"GT55.Gal.SE"      = item286.cast$`SE_>55`
-                            ,"GT55.Gal.n"       = item286.cast$`Count_>55`
-                            ,"All.Sizes"         = item286.cast$`Percent_All Sizes`
-                            ,"All.Sizes.SE"      = item286.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"       = item286.cast$`Count_All Sizes`)
+                            ,"All.Sizes"        = item286.cast$`Percent_All Sizes`
+                            ,"All.Sizes.SE"     = item286.cast$`SE_All Sizes`
+                            ,"n"                = item286.cast$`n_All Sizes`)
+
+levels(item286.table$Water.Heater.Fuel)
+rowOrder <- c("Electric"
+              ,"Natural Gas"
+              ,"All Types")
+item286.table <- item286.table %>% mutate(Water.Heater.Fuel = factor(Water.Heater.Fuel, levels = rowOrder)) %>% arrange(Water.Heater.Fuel)  
+item286.table <- data.frame(item286.table)
 
 exportTable(item286.table, "MF", "Table 78", weighted = FALSE)
 
@@ -235,11 +249,10 @@ item287.dat <- mechanical.dat5[,which(colnames(mechanical.dat5) %in% c("CK_Cadmu
                                                                        ,"DHW.Year.Manufactured"))]
 
 
-item287.dat2 <- item287.dat[-grep("bldg",item287.dat$CK_SiteID,ignore.case = T),]
-item287.dat3 <- item287.dat2[which(!is.na(item287.dat2$DHW.Type)),]
+item287.dat3 <- item287.dat[which(!is.na(item287.dat$DHW.Type)),]
 item287.dat3$Year <- as.numeric(as.character(item287.dat3$DHW.Year.Manufactured))
 
-item287.dat4 <- item287.dat3[which(!is.na(item287.dat3$Year)),]
+item287.dat4 <- item287.dat3[which(item287.dat3$Year %notin% c("N/A",NA)),]
 
 item287.dat4$Vintage <- NA
 item287.dat4$Vintage[which(item287.dat4$Year < 1990)] <- "Pre_1990"
@@ -247,10 +260,11 @@ item287.dat4$Vintage[which(item287.dat4$Year > 1990 & item287.dat4$Year < 1999)]
 item287.dat4$Vintage[which(item287.dat4$Year >= 2000 & item287.dat4$Year <= 2004)] <- "2000_2004"
 item287.dat4$Vintage[which(item287.dat4$Year >= 2005 & item287.dat4$Year <= 2009)] <- "2005_2009"
 item287.dat4$Vintage[which(item287.dat4$Year > 2009)] <- "Post_2009"
-
+unique(item287.dat4$Vintage)
 item287.dat4$Count <- 1
 
 item287.merge <- left_join(rbsa.dat, item287.dat4)
+item287.merge <- item287.merge[-grep("bldg",item287.merge$CK_Building_ID,ignore.case = T),]
 item287.merge <- item287.merge[which(!is.na(item287.merge$Vintage)),]
 
 ######################################
@@ -285,22 +299,46 @@ item287.data$count <- 1
 #########################
 # weighted analysis
 #########################
-item287.final <- proportions_one_group_MF(CustomerLevelData = item287.data
+item287.final <- proportions_one_group(CustomerLevelData = item287.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Vintage'
-                                          ,total.name = "Remove")
-item287.final <- item287.final[which(item287.final$Vintage != "Total"),]
+                                          ,total.name = "All Vintages")
+item287.final$Vintage[which(item287.final$Vintage == "Total")] <- "All Vintages"
+item287.final$Vintage <- as.factor(item287.final$Vintage)
+
+levels(item287.final$Vintage)
+rowOrder <- c("Pre_1990"
+              ,"1990_1999"
+              ,"2000_2004"
+              ,"2005_2009"
+              ,"Post_2009"
+              ,"All Vintages")
+item287.final <- item287.final %>% mutate(Vintage = factor(Vintage, levels = rowOrder)) %>% arrange(Vintage)  
+item287.final <- data.frame(item287.final)
+
 
 exportTable(item287.final, "MF", "Table 79", weighted = TRUE)
 
 #########################
 # weighted analysis
 #########################
-item287.final <- proportions_one_group_MF(CustomerLevelData = item287.data
+item287.final <- proportions_one_group(CustomerLevelData = item287.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Vintage'
-                                          ,total.name = "Remove"
+                                          ,total.name = "Total"
                                           ,weighted = FALSE)
-item287.final <- item287.final[which(item287.final$Vintage != "Total"),]
+item287.final$Vintage[which(item287.final$Vintage == "Total")] <- "All Vintages"
+item287.final$Vintage <- as.factor(item287.final$Vintage)
+
+levels(item287.final$Vintage)
+rowOrder <- c("Pre_1990"
+              ,"1990_1999"
+              ,"2000_2004"
+              ,"2005_2009"
+              ,"Post_2009"
+              ,"All Vintages")
+item287.final <- item287.final %>% mutate(Vintage = factor(Vintage, levels = rowOrder)) %>% arrange(Vintage)  
+item287.final <- data.frame(item287.final)
+
 
 exportTable(item287.final, "MF", "Table 79", weighted = FALSE)

@@ -151,7 +151,7 @@ envelope.dat.MF.merge <- left_join(envelope.dat.MF.merge, env.buildings.dat)
 # Clean up window data
 ##########################################
 item231.dat <- envelope.dat.MF
-
+names(item231.dat)
 #clean up frame/body type
 unique(item231.dat$`Frame./.Body.Type`)
 item231.dat$Frame.Type <- trimws(item231.dat$`Frame./.Body.Type`)
@@ -343,7 +343,8 @@ item232.final <- mean_one_group(CustomerLevelData = item232.data
                                 ,valueVariable    = 'WindowToWallArea'
                                 ,byVariable       = 'HomeType'
                                 ,aggregateRow     = "All Sizes")
-item232.final.MF <- item232.final[which(item232.final$BuildingType == "Multifamily"),which(colnames(item232.final) %notin% c("BuildingType"))]
+item232.final.MF <- item232.final[which(item232.final$BuildingType == "Multifamily")
+                                  ,which(colnames(item232.final) %notin% c("BuildingType"))]
 exportTable(item232.final.MF, "MF", "Table 24", weighted = TRUE)
 
 
@@ -354,7 +355,8 @@ item232.final <- mean_one_group_unweighted(CustomerLevelData = item232.data
                                            ,valueVariable    = 'WindowToWallArea'
                                            ,byVariable       = 'HomeType'
                                            ,aggregateRow     = "All Sizes")
-item232.final.MF <- item232.final[which(item232.final$BuildingType == "Multifamily"),which(colnames(item232.final) %notin% c("BuildingType"))]
+item232.final.MF <- item232.final[which(item232.final$BuildingType == "Multifamily")
+                                  ,which(colnames(item232.final) %notin% c("BuildingType"))]
 exportTable(item232.final.MF, "MF", "Table 24", weighted = FALSE)
 
 

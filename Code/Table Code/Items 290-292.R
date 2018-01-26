@@ -60,7 +60,8 @@ item290.dat4 <- item290.dat3[grep("SITE", item290.dat3$CK_SiteID),]
 item290.dat5 <- item290.dat4[grep("Multifamily", item290.dat4$BuildingType),]
 
 item290.dat5$Lamp.Category[which(item290.dat5$Lamp.Category %in% c("Unknown", "Incandescent / Halogen"))] <- "Other"
-
+item290.dat5$Lamp.Category[which(item290.dat5$Clean.Room == "Storage")] <- item290.dat5$Clean.Room[which(item290.dat5$Clean.Room == "Storage")]
+  
 item290.site <- summarise(group_by(item290.dat5, CK_Cadmus_ID)
                           ,Total.Unit.Fixtures = sum(Fixture.Qty)
                           ,Total.Unit.Lamps = sum(Total.Lamps))
@@ -216,7 +217,7 @@ item292.final <- mean_one_group(CustomerLevelData = item292.data
                                 ,valueVariable = "LPD"
                                 ,byVariable = 'Clean.Room'
                                 ,aggregateRow = "Unit LPD")
-item292.final <- item292.final[which(colnames(item292.final) %notin% c("N_h", "BuildingType"))]
+item292.final <- item292.final[which(colnames(item292.final) %notin% c("BuildingType"))]
   
 exportTable(item292.final, "MF", "Table 85", weighted = TRUE)
 
@@ -227,7 +228,7 @@ item292.final <- mean_one_group_unweighted(CustomerLevelData = item292.data
                                 ,valueVariable = "LPD"
                                 ,byVariable = 'Clean.Room'
                                 ,aggregateRow = "Unit LPD")
-item292.final <- item292.final[which(colnames(item292.final) %notin% c("N_h", "BuildingType"))]
+item292.final <- item292.final[which(colnames(item292.final) %notin% c("BuildingType"))]
 
 exportTable(item292.final, "MF", "Table 85", weighted = FALSE)
 

@@ -81,7 +81,7 @@ item192.summary <- proportionRowsAndColumns1(CustomerLevelData     = item192.dat
                                              , aggregateColumnName = "Total"
 )
 item192.summary <- item192.summary[which(item192.summary$HomeType != "Total"),]
-item192.summary <- item192.summary[which(item192.summary$MECH_Ducting_DUCTS_CrossoverCondition != "Total"),]
+# item192.summary <- item192.summary[which(item192.summary$MECH_Ducting_DUCTS_CrossoverCondition != "Total"),]
 
 ## Summary only for "All Vintages"
 item192.all.types <- proportions_one_group(item192.data
@@ -101,19 +101,20 @@ item192.final <- rbind.data.frame(item192.summary
 
 item192.cast <- dcast(setDT(item192.final),
                       formula   = BuildingType + HomeType ~ MECH_Ducting_DUCTS_CrossoverCondition,
-                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
-                            ,"Home.Type"          = item192.cast$HomeType
+                            ,"Home.Type"         = item192.cast$HomeType
                             ,"Percent.Connected" = item192.cast$w.percent_Connected
                             ,"SE.Connected"      = item192.cast$w.SE_Connected
-                            ,"Count.Connected"   = item192.cast$count_Connected
                             ,"Percent.Partially.Connected" = NA #item192.cast$w.percent_Partially.Connected
                             ,"SE.Partially.Connected"      = NA #item192.cast$w.SE_Partially.Connected
-                            ,"Count.Partially.Connected"   = NA #item192.cast$count_Partially.Connected
-                            ,"Percent.Disconnected" = NA #item192.cast$w.percent_Disconnected
-                            ,"SE.Disconnected"      = NA #item192.cast$w.SE_Disconnected
-                            ,"Count.Disconnected"   = NA #item192.cast$count_Disconnected
+                            ,"Percent.Disconnected"        = NA #item192.cast$w.percent_Disconnected
+                            ,"SE.Disconnected"             = NA #item192.cast$w.SE_Disconnected
+                            ,"n"                           = item192.cast$n_Total
+                            ,"EB.Connected"                = item192.cast$EB_Connected
+                            ,"EB.Partially.Connected"      = NA #item192.cast$EB_Partially.Connected
+                            ,"EB.Disconnected"             = NA #item192.cast$EB_Disconnected
                             )
 
 # row ordering example code
@@ -149,7 +150,7 @@ item192.summary <- proportions_two_groups_unweighted(CustomerLevelData     = ite
                                              , aggregateColumnName = "Total"
 )
 item192.summary <- item192.summary[which(item192.summary$HomeType != "Total"),]
-item192.summary <- item192.summary[which(item192.summary$MECH_Ducting_DUCTS_CrossoverCondition != "Total"),]
+item192.summary$MECH_Ducting_DUCTS_CrossoverCondition[which(item192.summary$MECH_Ducting_DUCTS_CrossoverCondition == "Total")] <- "All Types"
 
 ## Summary only for "All Vintages"
 item192.all.types <- proportions_one_group(item192.data
@@ -159,7 +160,7 @@ item192.all.types <- proportions_one_group(item192.data
                                            ,columnName       = "HomeType"
                                            ,weighted = FALSE
                                            ,two.prop.total = TRUE)
-item192.all.types$HomeType[which(item192.all.types$HomeType == "Total")] <- "All Types"
+item192.all.types$MECH_Ducting_DUCTS_CrossoverCondition[which(item192.all.types$MECH_Ducting_DUCTS_CrossoverCondition == "Total")] <- "All Types"
 
 
 
@@ -170,19 +171,17 @@ item192.final <- rbind.data.frame(item192.summary
 
 item192.cast <- dcast(setDT(item192.final),
                       formula   = BuildingType + HomeType ~ MECH_Ducting_DUCTS_CrossoverCondition,
-                      value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      value.var = c("Percent", "SE", "Count", "n"))
 
 item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
                             ,"Home.Type"          = item192.cast$HomeType
                             ,"Percent.Connected" = item192.cast$Percent_Connected
                             ,"SE.Connected"      = item192.cast$SE_Connected
-                            ,"Count.Connected"   = item192.cast$Count_Connected
                             ,"Percent.Partially.Connected" = NA #item192.cast$w.percent_Partially.Connected
                             ,"SE.Partially.Connected"      = NA #item192.cast$w.SE_Partially.Connected
-                            ,"Count.Partially.Connected"   = NA #item192.cast$count_Partially.Connected
                             ,"Percent.Disconnected" = NA #item192.cast$w.percent_Disconnected
                             ,"SE.Disconnected"      = NA #item192.cast$w.SE_Disconnected
-                            ,"Count.Disconnected"   = NA #item192.cast$count_Disconnected
+                            ,"n"                    = item192.cast$`n_All Types`
 )
 
 # row ordering example code

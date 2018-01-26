@@ -311,7 +311,7 @@ item109.all.vintages <- proportions_one_group(CustomerLevelData = item109.data
                                               ,columnName = "EquipVintage_bins"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
+# item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
 
 
 item109.final <- rbind.data.frame(item109.summary, item109.all.vintages, stringsAsFactors = F)
@@ -389,7 +389,7 @@ item109.all.vintages <- proportions_one_group(CustomerLevelData = item109.data
                                               ,columnName = "EquipVintage_bins"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
+# item109.all.vintages <- item109.all.vintages[which(item109.all.vintages$TV.Screen.Type != "Total"),]
 
 
 item109.final <- rbind.data.frame(item109.final, item109.all.vintages, stringsAsFactors = F)
@@ -531,5 +531,5 @@ item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactu
                                   ,-which(colnames(item110.final) %in% c("BuildingType"
                                                                          ,"Room"
                                                                          ,"Total.Count"))]
-exportTable(item110.final.MH, "MH", "Table 90", weighted = FALSE)
+exportTable(item110.final.MH, "MH", "Table 92", weighted = FALSE)
 

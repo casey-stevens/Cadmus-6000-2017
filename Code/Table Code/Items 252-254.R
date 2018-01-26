@@ -88,7 +88,7 @@ item252.final <- rbind.data.frame(item252.summary, item252.all.sizes, stringsAsF
 
 item252.cast <- dcast(setDT(item252.final)
                       ,formula = DHW.Location ~ HomeType
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 item252.table <- data.frame("DHW.Location" = item252.cast$DHW.Location
                             ,"Low.Rise.1.3" = item252.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.SE"  = item252.cast$`w.SE_Apartment Building (3 or fewer floors)`
@@ -101,7 +101,11 @@ item252.table <- data.frame("DHW.Location" = item252.cast$DHW.Location
                             ,"High.Rise.n"      = item252.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"        = item252.cast$`w.percent_All Sizes`
                             ,"All.Sizes.SE"     = item252.cast$`w.SE_All Sizes`
-                            ,"All.Sizes.n"      = item252.cast$`n_All Sizes`)
+                            ,"All.Sizes.n"      = item252.cast$`n_All Sizes`
+                            ,"Low.Rise.EB"  = item252.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid.Rise.EB"  = item252.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High.Rise.EB"     = item252.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All.Sizes.EB"     = item252.cast$`EB_All Sizes`)
 
 exportTable(item252.table, "MF", "Table 44", weighted = TRUE)
 
@@ -237,7 +241,7 @@ colnames(item254.dat3)[which(colnames(item254.dat3) == "CK_Cadmus_ID.x")] <- "CK
 
 #Subset to Multifamily
 item254.dat4 <- item254.dat3[grep("Multifamily", item254.dat3$BuildingType),]
-item254.dat5 <- item254.dat4[which(!is.na(item254.dat4$DHW.Fuel)),]
+item254.dat5 <- item254.dat4[which(item254.dat4$DHW.Fuel %notin% c("N/A",NA)),]
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -267,7 +271,7 @@ item254.summary <- item254.summary[which(item254.summary$DHW.Fuel != "Total"),]
 
 item254.cast <- dcast(setDT(item254.summary)
                       ,formula = System.Type + n + N ~ DHW.Fuel
-                      ,value.var = c("w.percent", "w.SE", "count"))
+                      ,value.var = c("w.percent", "w.SE", "count","n","N","EB"))
 
 item254.table <- data.frame("System.Type" = item254.cast$System.Type
                             ,"Electric"   = item254.cast$w.percent_Electric
@@ -279,7 +283,11 @@ item254.table <- data.frame("System.Type" = item254.cast$System.Type
                             ,"Purchased.Steam" = NA#
                             ,"Purchased.Steam.SE" = NA#
                             ,"n" = item254.cast$n
-                            ,"N" = item254.cast$N)
+                            ,"Electric.EB" = item254.cast$EB_Electric
+                            ,"Gas.EB"      = item254.cast$`EB_Natural Gas`
+                            ,"Gas.Electric.EB" = NA#
+                            ,"Purchased.Steam.EB" = NA#
+                            )
 
 # row ordering example code
 levels(item254.table$System.Type)

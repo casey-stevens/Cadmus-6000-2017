@@ -93,23 +93,23 @@ item268.data <- left_join(item268.data, item268.merge[which(colnames(item268.mer
                                                                                              ,"Laundry.Location"
                                                                                            ,"count"))])
 
-
+names(item268.data)
 ######################
 # weighted analysis
 ######################
 item268.summary <- proportionRowsAndColumns1(CustomerLevelData = item268.data
                                              ,valueVariable = 'count'
-                                             ,columnVariable = "HomeYearBuilt_MF"
+                                             ,columnVariable = "HomeYearBuilt_bins_MF"
                                              ,rowVariable = 'Laundry.Location'
                                              ,aggregateColumnName = "Remove")
-item268.summary <- item268.summary[which(item268.summary$HomeYearBuilt_MF != "Remove"),]
-item268.summary <- item268.summary[which(item268.summary$Laundry.Location != "Total"),]
+item268.summary <- item268.summary[which(item268.summary$HomeYearBuilt_bins_MF != "Remove"),]
+# item268.summary <- item268.summary[which(item268.summary$Laundry.Location != "Total"),]
 
 item268.all.vintages <- proportions_one_group_MF(CustomerLevelData = item268.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'Laundry.Location'
                                                  ,total.name = 'All Vintages'
-                                                 ,columnName = "HomeYearBuilt_MF"
+                                                 ,columnName = "HomeYearBuilt_bins_MF"
                                                  ,weighted = TRUE
                                                  ,two.prop.total = TRUE)
 # item268.all.vintages <- item268.all.vintages[which(item268.all.vintages$Laundry.Location %notin% c("Remove","Total")),]
@@ -117,11 +117,11 @@ item268.all.vintages <- proportions_one_group_MF(CustomerLevelData = item268.dat
 item268.final <- rbind.data.frame(item268.summary, item268.all.vintages, stringsAsFactors = F)
 
 item268.cast <- dcast(setDT(item268.final)
-                      ,formula = HomeYearBuilt_MF ~ Laundry.Location
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,formula = HomeYearBuilt_bins_MF ~ Laundry.Location
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 item268.cast[is.na(item268.cast)] <- 0
 
-item268.table <- data.frame("Housing.Vintage"        = item268.cast$HomeYearBuilt_MF
+item268.table <- data.frame("Housing.Vintage"        = item268.cast$HomeYearBuilt_bins_MF
                             ,"Common.Only"           = item268.cast$w.percent_Common
                             ,"Common.Only.SE"        = item268.cast$w.SE_Common
                             ,"In.Unit.Only"          = item268.cast$w.percent_In.Unit
@@ -130,7 +130,11 @@ item268.table <- data.frame("Housing.Vintage"        = item268.cast$HomeYearBuil
                             ,"In.Unit.and.Common.SE" = item268.cast$w.SE_In.Unit.and.Common
                             ,"None"                  = item268.cast$w.percent_None
                             ,"None.SE"               = item268.cast$w.SE_None
-                            , "n"                    = item268.cast$n_Common + item268.cast$n_In.Unit + item268.cast$n_In.Unit.and.Common + item268.cast$n_None)
+                            , "n"                    = item268.cast$n_Total
+                            ,"Common.Only.EB"        = item268.cast$EB_Common
+                            ,"In.Unit.Only.EB"       = item268.cast$EB_In.Unit
+                            ,"In.Unit.and.Common.EB" = item268.cast$EB_In.Unit.and.Common
+                            ,"None.EB"               = item268.cast$EB_None)
 
 exportTable(item268.table, "MF", "Table 60", weighted = TRUE)
 
@@ -139,28 +143,28 @@ exportTable(item268.table, "MF", "Table 60", weighted = TRUE)
 ######################
 item268.summary <- proportions_two_groups_unweighted(CustomerLevelData = item268.data
                                              ,valueVariable = 'count'
-                                             ,columnVariable = "HomeYearBuilt_MF"
+                                             ,columnVariable = "HomeYearBuilt_bins_MF"
                                              ,rowVariable = 'Laundry.Location'
                                              ,aggregateColumnName = "Remove")
-item268.summary <- item268.summary[which(item268.summary$HomeYearBuilt_MF != "Remove"),]
+item268.summary <- item268.summary[which(item268.summary$HomeYearBuilt_bins_MF != "Remove"),]
 
 item268.all.vintages <- proportions_one_group_MF(CustomerLevelData = item268.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'Laundry.Location'
                                                  ,total.name = 'All Vintages'
-                                                 ,columnName = "HomeYearBuilt_MF"
+                                                 ,columnName = "HomeYearBuilt_bins_MF"
                                                  ,weighted = FALSE
                                                  ,two.prop.total = TRUE)
-item268.all.vintages <- item268.all.vintages[which(item268.all.vintages$Laundry.Location != "Total"),]
+# item268.all.vintages <- item268.all.vintages[which(item268.all.vintages$Laundry.Location != "Total"),]
 
 item268.final <- rbind.data.frame(item268.summary, item268.all.vintages, stringsAsFactors = F)
 
 item268.cast <- dcast(setDT(item268.final)
-                      ,formula = HomeYearBuilt_MF ~ Laundry.Location
+                      ,formula = HomeYearBuilt_bins_MF ~ Laundry.Location
                       ,value.var = c("Percent", "SE", "Count", "n"))
 item268.cast[is.na(item268.cast)] <- 0
 
-item268.table <- data.frame("Housing.Vintage"        = item268.cast$HomeYearBuilt_MF
+item268.table <- data.frame("Housing.Vintage"        = item268.cast$HomeYearBuilt_bins_MF
                             ,"Common.Only"           = item268.cast$Percent_Common
                             ,"Common.Only.SE"        = item268.cast$SE_Common
                             ,"In.Unit.Only"          = item268.cast$Percent_In.Unit
@@ -169,7 +173,7 @@ item268.table <- data.frame("Housing.Vintage"        = item268.cast$HomeYearBuil
                             ,"In.Unit.and.Common.SE" = item268.cast$SE_In.Unit.and.Common
                             ,"None"                  = item268.cast$Percent_None
                             ,"None.SE"               = item268.cast$SE_None
-                            ,"n"                     = item268.cast$n_Common + item268.cast$n_In.Unit + item268.cast$n_In.Unit.and.Common + item268.cast$n_None)
+                            ,"n"                     = item268.cast$n_Total)
 
 exportTable(item268.table, "MF", "Table 60", weighted = FALSE)
 
@@ -191,7 +195,8 @@ names(item269.dat)[which(names(item269.dat) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_
 #subset to only common area washers that have observed age info
 unique(item269.dat$Age)
 item269.dat$Age <- as.numeric(as.character(item269.dat$Age))
-item269.dat2 <- item269.dat[which(!is.na(item269.dat$Age)),]
+item269.dat2 <- item269.dat[which(item269.dat$Age %notin% c("N/A",NA)),]
+item269.dat2 <- item269.dat2[which(item269.dat2$Washer.Type %notin% c("N/A",NA)),]
 
 unique(item269.dat2$Washer.Type)
 item269.dat3 <- item269.dat2[which(item269.dat2$Washer.Type %notin% c("Unknown", NA)),]
@@ -222,7 +227,6 @@ item269.data <- weightedData(item269.dat3[-which(colnames(item269.dat3) %in% c("
                                                                                ,"Laundry.Location"
                                                                                ,"EquipVintage_bins"))])
 item269.data <- left_join(item269.data, item269.dat3[which(colnames(item269.dat3) %in% c("CK_Cadmus_ID"
-                                                                                       ,"CK_Cadmus_ID.y"
                                                                                        ,"Type"
                                                                                        ,"Age"
                                                                                        ,"Washer.Type"
@@ -263,12 +267,12 @@ item269.final <- rbind.data.frame(item269.summary, item269.all.vintages, item269
 
 item269.cast <- dcast(setDT(item269.final)
                       ,formula = BuildingType + Washer.Type ~ EquipVintage_bins
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 item269.cast[is.na(item269.cast)] <- 0
-
+names(item269.cast)
 item269.table <- data.frame("Washer.Type" = item269.cast$Washer.Type
-                            ,"Pre.1980"     = NA#item269.cast$
-                            ,"Pre.1980.SE"  = NA#item269.cast$
+                            ,"Pre.1980"     = NA#item269.cast$`w.percent_Pre 1980`
+                            ,"Pre.1980.SE"  = NA#item269.cast$`w.SE_Pre 1980`
                             ,"1980.1989"    = item269.cast$`w.percent_1980-1989`
                             ,"1980.1989.SE" = item269.cast$`w.SE_1980-1989`
                             ,"1990.1994"    = item269.cast$`w.percent_1990-1994`
@@ -285,12 +289,20 @@ item269.table <- data.frame("Washer.Type" = item269.cast$Washer.Type
                             ,"Post.2014.SE" = item269.cast$`w.SE_Post 2014`
                             ,"All.Vintages" = item269.cast$`w.percent_All Vintages`
                             ,"All.Vintages.SE" = item269.cast$`w.SE_All Vintages`
-                            ,"n" = item269.cast$`n_All Vintages`)
-item269.table$n[which(item269.table$Washer.Type == "All Types")] <- sum(item269.table$n[which(item269.table$Washer.Type != "All Types")])
+                            ,"n" = item269.cast$`n_All Vintages`
+                            ,"Pre.1980.EB"  = NA#item269.cast$`EB_Pre 1980`
+                            ,"1980.1989.EB" = item269.cast$`EB_1980-1989`
+                            ,"1990.1994.EB" = item269.cast$`EB_1990-1994`
+                            ,"1995.1999.EB" = item269.cast$`EB_1995-1999`
+                            ,"2000.2004.EB" = item269.cast$`EB_2000-2004`
+                            ,"2005.2009.EB" = item269.cast$`EB_2005-2009`
+                            ,"2010.2014.EB" = item269.cast$`EB_2010-2014`
+                            ,"Post.2014.EB" = item269.cast$`EB_Post 2014`
+                            ,"All.Vintages.EB" = item269.cast$`EB_All Vintages`
+                            )
 
 levels(item269.table$Washer.Type)
-rowOrder <- c("Combined Washer/Dryer in one drum"
-              ,"Horizontal Axis"
+rowOrder <- c("Horizontal Axis"
               ,"Stacked Washer/Dryer"
               ,"Vertical Axis (with agitator)"
               ,"Vertical Axis (without agitator)"
@@ -428,7 +440,7 @@ item270.final <- mean_one_group(CustomerLevelData = item270.data
                                 ,byVariable = 'Laundry.Location'
                                 ,aggregateRow = "All Types")
 
-item270.final.MF <- item270.final[which(colnames(item270.final) %notin% c("BuildingType", "n_h"))]
+item270.final.MF <- item270.final[which(colnames(item270.final) %notin% c("BuildingType"))]
 exportTable(item270.final.MF, "MF", "Table 62", weighted = TRUE)
 
 #######################
@@ -439,7 +451,7 @@ item270.final <- mean_one_group_unweighted(CustomerLevelData = item270.data
                                            ,byVariable = 'Laundry.Location'
                                            ,aggregateRow = "All Types")
 
-item270.final.MF <- item270.final[which(colnames(item270.final) %notin% c("BuildingType", "n_h"))]
+item270.final.MF <- item270.final[which(colnames(item270.final) %notin% c("BuildingType"))]
 exportTable(item270.final.MF, "MF", "Table 62", weighted = FALSE)
 
 

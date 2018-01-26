@@ -61,8 +61,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
                                    ,Mean = sum(N_h * strataMean) / sum(N_h)
                                    ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
                                    ,n      = sum(n_hj)
-                                   ,n_h    = unique(n_h)
-                                   ,N_h    = unique(N_h)
+                                   ,n_h    = sum(n_h)
+                                   ,N_h    = sum(N_h)
                                    ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
                                    ,Precision = EB / Mean), stringsAsFactors = F)
     

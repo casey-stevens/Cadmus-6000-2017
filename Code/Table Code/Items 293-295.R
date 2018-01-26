@@ -75,14 +75,16 @@ item293.dat2$Large.Unusual.Load.Quantity[which(item293.dat2$Large.Unusual.Load.Q
 unique(item293.dat2$Large.Unusual.Load.Quantity)
 
 item293.dat2$Large.Unusual.Load.Quantity <- as.numeric(as.character(item293.dat2$Large.Unusual.Load.Quantity))
+item293.dat2$Large.Unusual.Load.Quantity[which(item293.dat2$Large.Unusual.Load.Quantity == 0)] <- 1
 item293.dat2$count <- 1
 
 item293.dat2$TotalQty <- item293.dat2$Large.Unusual.Load.Quantity * item293.dat2$count
+item293.dat2[is.na(item293.dat2)] <- 0
 
 item293.dat3 <- item293.dat2[grep("SITE",item293.dat2$CK_Building_ID),]
 
 item293.sum <- summarise(group_by(item293.dat3, CK_Cadmus_ID, Type)
-                        ,SiteCount = sum(TotalQty))
+                        ,SiteCount = sum(TotalQty,na.rm = T))
 unique(item293.sum$Type)
 item293.cast <- dcast(setDT(item293.sum)
                       ,formula = CK_Cadmus_ID ~ Type
@@ -127,7 +129,7 @@ item293.final <- item293.final[which(item293.final$Type %in% c("Washer"
                                                                ,"Freezer"
                                                                ,"Refrigerator"
                                                                ,"Water.Heater")),]
-item293.final.MF <- item293.final[which(colnames(item293.final) %notin% c("BuildingType","n"))]
+item293.final.MF <- item293.final[which(colnames(item293.final) %notin% c("BuildingType"))]
 exportTable(item293.final.MF, "MF","Table 86",weighted =TRUE)
 
 
@@ -218,7 +220,6 @@ item294.final <- proportions_one_group(CustomerLevelData = item294.data
                                       ,total.name = 'Total')
 item294.final.MF <- item294.final[which(item294.final$BuildingType == "Multifamily")
                                 ,which(colnames(item294.final) %notin% c("BuildingType"))]
-item294.final.MF$n[which(item294.final.MF$APPLIANCE_FRIDGE_FREEZER_Type == "Total")] <- length(unique(item294.data$CK_Cadmus_ID))
 exportTable(item294.final.MF, "MF", "Table 88", weighted = TRUE)
 
 ######################

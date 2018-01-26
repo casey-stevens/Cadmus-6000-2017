@@ -213,7 +213,7 @@ item303.summary <- proportionRowsAndColumns1(CustomerLevelData = item303.data
                                              ,columnVariable = 'Age.Cat'
                                              ,rowVariable = 'TV.Screen.Cat'
                                              ,aggregateColumnName = "All Vintages")
-item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
+# item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
 item303.summary <- item303.summary[which(item303.summary$Age.Cat != "All Vintages"),]
 
 item303.all.vintages <- proportions_one_group_MF(CustomerLevelData = item303.data
@@ -228,29 +228,41 @@ item303.final <- rbind.data.frame(item303.summary, item303.all.vintages, strings
 
 item303.cast <- dcast(setDT(item303.final)
                       ,formula = Age.Cat ~ TV.Screen.Cat
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 #put into correct table format
 item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"CRT_Percent"      = item303.cast$w.percent_CRT
                             ,"CRT_SE"           = item303.cast$w.SE_CRT
-                            ,"CRT_n"            = item303.cast$count_CRT
                             ,"Other_Percent"    = item303.cast$w.percent_Other
                             ,"Other_SE"         = item303.cast$w.SE_Other
-                            ,"Other_n"          = item303.cast$count_Other)
+                            ,"n"                = item303.cast$n_Total
+                            ,"CRT_EB"           = item303.cast$EB_CRT
+                            ,"Other_EB"         = item303.cast$EB_Other
+                            )
+levels(item303.table$Equipment_Vintage)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"Post 2009"
+              ,"All Vintages")
+item303.table <- item303.table %>% mutate(Equipment_Vintage = factor(Equipment_Vintage, levels = rowOrder)) %>% arrange(Equipment_Vintage)  
+item303.table <- data.frame(item303.table)
+
 exportTable(item303.table, "MF", "Table 97", weighted = TRUE)
 
 
 
 ######################
-# weighted analysis
+# unweighted analysis
 ######################
 item303.summary <- proportions_two_groups_unweighted(CustomerLevelData = item303.data
                                              ,valueVariable = 'count'
                                              ,columnVariable = 'Age.Cat'
                                              ,rowVariable = 'TV.Screen.Cat'
                                              ,aggregateColumnName = "All Vintages")
-item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
+# item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
 item303.summary <- item303.summary[which(item303.summary$Age.Cat != "All Vintages"),]
 
 item303.all.vintages <- proportions_one_group_MF(CustomerLevelData = item303.data
@@ -265,16 +277,25 @@ item303.final <- rbind.data.frame(item303.summary, item303.all.vintages, strings
 
 item303.cast <- dcast(setDT(item303.final)
                       ,formula = Age.Cat ~ TV.Screen.Cat
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 #put into correct table format
 item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"CRT_Percent"      = item303.cast$Percent_CRT
                             ,"CRT_SE"           = item303.cast$SE_CRT
-                            ,"CRT_n"            = item303.cast$Count_CRT
                             ,"Other_Percent"    = item303.cast$Percent_Other
                             ,"Other_SE"         = item303.cast$SE_Other
-                            ,"Other_n"          = item303.cast$Count_Other)
+                            ,"n"                = item303.cast$n_Total)
+levels(item303.table$Equipment_Vintage)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2004"
+              ,"2005-2009"
+              ,"Post 2009"
+              ,"All Vintages")
+item303.table <- item303.table %>% mutate(Equipment_Vintage = factor(Equipment_Vintage, levels = rowOrder)) %>% arrange(Equipment_Vintage)  
+item303.table <- data.frame(item303.table)
+
 exportTable(item303.table, "MF", "Table 97", weighted = FALSE)
 
 
@@ -316,7 +337,7 @@ item304.data$count <- 1
 ######################
 # weighted analysis
 ######################
-item304.final <- proportions_one_group_MF(CustomerLevelData = item304.data
+item304.final <- proportions_one_group(CustomerLevelData = item304.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Clean.Room'
                                           ,total.name = "All Room Types"
@@ -326,7 +347,7 @@ exportTable(item304.final, "MF", "Table 98", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
-item304.final <- proportions_one_group_MF(CustomerLevelData = item304.data
+item304.final <- proportions_one_group(CustomerLevelData = item304.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Clean.Room'
                                           ,total.name = "All Room Types"

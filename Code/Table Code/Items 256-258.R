@@ -78,7 +78,7 @@ item256.dat5 <- summarise(group_by(item256.dat4, CK_Cadmus_ID, CK_Building_ID)
 
 item256.dat6 <- left_join(item256.dat5, item256.buildings.int)
 
-item256.dat6$LampsPerUnit <- item256.dat6$SiteCount / item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding
+item256.dat6$LampsPerUnit <- item256.dat6$SiteCount / as.numeric(as.character(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding))
 
 #subset to remove any missing number of units, or unit size equal to 1 (doesn't make sense)
 item256.dat7 <- item256.dat6[which(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding > 1),]
@@ -194,7 +194,7 @@ item257.final <- proportionRowsAndColumns1(CustomerLevelData = item257.data
                                            ,rowVariable = 'Lamp.Category'
                                            ,aggregateColumnName = "Remove")
 item257.final <- item257.final[which(item257.final$HomeType != "Remove"),]
-item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
+# item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
 
 item257.all.sizes <- proportions_one_group_MF(CustomerLevelData = item257.data
                                               ,valueVariable = 'SiteCount'
@@ -203,38 +203,48 @@ item257.all.sizes <- proportions_one_group_MF(CustomerLevelData = item257.data
                                               ,columnName = "HomeType"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item257.all.sizes <- item257.all.sizes[which(item257.all.sizes$Lamp.Category != "Total"),]
+# item257.all.sizes <- item257.all.sizes[which(item257.all.sizes$Lamp.Category != "Total"),]
 
 
 item257.final <- rbind.data.frame(item257.final, item257.all.sizes, stringsAsFactors = F)
 
 item257.cast <- dcast(setDT(item257.final)
                       ,formula = HomeType ~ Lamp.Category
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 
 item257.table <- data.frame("Building.Size"            = item257.cast$HomeType
                             ,"Compact.Fluorescent"     = item257.cast$`w.percent_Compact Fluorescent`
                             ,"Compact.Fluorescent.SE"  = item257.cast$`w.SE_Compact Fluorescent`
-                            ,"Compact.Fluorescent.count"   = item257.cast$`count_Compact Fluorescent`
                             ,"Halogen"                 = item257.cast$w.percent_Halogen
                             ,"Halogen.SE"              = item257.cast$w.SE_Halogen
-                            ,"Halogen.count"           = item257.cast$count_Halogen
                             ,"Incandescent"            = item257.cast$w.percent_Incandescent
                             ,"Incandescent.SE"         = item257.cast$w.SE_Incandescent
-                            ,"Incandescent.count"      = item257.cast$count_Incandescent
                             ,"Incandescent.Halogen"    = item257.cast$`w.percent_Incandescent / Halogen`
                             ,"Incandescent.Halogen.SE" = item257.cast$`w.SE_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.count"  = item257.cast$`count_Incandescent / Halogen`
                             ,"Linear.Fluorescent"      = item257.cast$`w.percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE"   = item257.cast$`w.SE_Linear Fluorescent`
-                            ,"Linear.Fluorescent.count"= item257.cast$`count_Linear Fluorescent`
                             ,"LED"                     = item257.cast$`w.percent_Light Emitting Diode`
                             ,"LED.SE"                  = item257.cast$`w.SE_Light Emitting Diode`
-                            ,"LED.count"               = item257.cast$`count_Light Emitting Diode`
                             ,"Other"                   = item257.cast$w.percent_Other
                             ,"Other.SE"                = item257.cast$w.SE_Other
-                            ,"Other.count"             = item257.cast$count_Other)
+                            ,"n"                       = item257.cast$n_Total
+                            ,"Compact.Fluorescent.EB"  = item257.cast$`EB_Compact Fluorescent`
+                            ,"Halogen.EB"              = item257.cast$EB_Halogen
+                            ,"Incandescent.EB"         = item257.cast$EB_Incandescent
+                            ,"Incandescent.Halogen.EB" = item257.cast$`EB_Incandescent / Halogen`
+                            ,"Linear.Fluorescent.EB"   = item257.cast$`EB_Linear Fluorescent`
+                            ,"LED.EB"                  = item257.cast$`EB_Light Emitting Diode`
+                            ,"Other.EB"                = item257.cast$EB_Other
+                            )
+
+levels(item257.table$Building.Size)
+rowOrder <- c("Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"All Sizes")
+item257.table <- item257.table %>% mutate(Building.Size = factor(Building.Size, levels = rowOrder)) %>% arrange(Building.Size)  
+item257.table <- data.frame(item257.table)
 
 exportTable(item257.table, "MF", "Table 49", weighted = TRUE)
 
@@ -248,7 +258,7 @@ item257.final <- proportions_two_groups_unweighted(CustomerLevelData = item257.d
                                            ,rowVariable = 'Lamp.Category'
                                            ,aggregateColumnName = "Remove")
 item257.final <- item257.final[which(item257.final$HomeType != "Remove"),]
-item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
+# item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
 
 item257.all.sizes <- proportions_one_group_MF(CustomerLevelData = item257.data
                                               ,valueVariable = 'SiteCount'
@@ -257,38 +267,32 @@ item257.all.sizes <- proportions_one_group_MF(CustomerLevelData = item257.data
                                               ,columnName = "HomeType"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item257.all.sizes <- item257.all.sizes[which(item257.all.sizes$Lamp.Category != "Total"),]
+# item257.all.sizes <- item257.all.sizes[which(item257.all.sizes$Lamp.Category != "Total"),]
 
 
 item257.final <- rbind.data.frame(item257.final, item257.all.sizes, stringsAsFactors = F)
 
 item257.cast <- dcast(setDT(item257.final)
                       ,formula = HomeType ~ Lamp.Category
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 
 item257.table <- data.frame("Building.Size"            = item257.cast$HomeType
                             ,"Compact.Fluorescent"     = item257.cast$`Percent_Compact Fluorescent`
                             ,"Compact.Fluorescent.SE"  = item257.cast$`SE_Compact Fluorescent`
-                            ,"Compact.Fluorescent.n"   = item257.cast$`SampleSize_Compact Fluorescent`
                             ,"Halogen"                 = item257.cast$Percent_Halogen
                             ,"Halogen.SE"              = item257.cast$SE_Halogen
-                            ,"Halogen.n"               = item257.cast$SampleSize_Halogen
                             ,"Incandescent"            = item257.cast$Percent_Incandescent
                             ,"Incandescent.SE"         = item257.cast$SE_Incandescent
-                            ,"Incandescent.n"          = item257.cast$SampleSize_Incandescent
                             ,"Incandescent.Halogen"    = item257.cast$`Percent_Incandescent / Halogen`
                             ,"Incandescent.Halogen.SE" = item257.cast$`SE_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.n"  = item257.cast$`SampleSize_Incandescent / Halogen`
                             ,"Linear.Fluorescent"      = item257.cast$`Percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE"   = item257.cast$`SE_Linear Fluorescent`
-                            ,"Linear.Fluorescent.n"    = item257.cast$`SampleSize_Linear Fluorescent`
                             ,"LED"                     = item257.cast$`Percent_Light Emitting Diode`
                             ,"LED.SE"                  = item257.cast$`SE_Light Emitting Diode`
-                            ,"LED.n"                   = item257.cast$`SampleSize_Light Emitting Diode`
                             ,"Other"                   = item257.cast$Percent_Other
                             ,"Other.SE"                = item257.cast$SE_Other
-                            ,"Other.n"                 = item257.cast$SampleSize_Other)
+                            ,"n"                       = item257.cast$n_Total)
 
 exportTable(item257.table, "MF", "Table 49", weighted = FALSE)
 
@@ -300,7 +304,6 @@ exportTable(item257.table, "MF", "Table 49", weighted = FALSE)
 #############################################################################################
 #Item 258: DISTRIBUTION OF COMMON AREA LAMPS BY LAMP TYPE AND BUILDING SIZE (MF Table 50)
 #############################################################################################
-
 #subset to columns needed for analysis
 item258.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                 ,"CK_SiteID"
@@ -364,7 +367,7 @@ item258.final <- proportionRowsAndColumns1(CustomerLevelData = item258.data
                                            ,rowVariable = 'Lamp.Category'
                                            ,aggregateColumnName = "Remove")
 item258.final <- item258.final[which(item258.final$Clean.Room != "Remove"),]
-item258.final <- item258.final[which(item258.final$Lamp.Category != "Total"),]
+# item258.final <- item258.final[which(item258.final$Lamp.Category != "Total"),]
 
 item258.all.sizes <- proportions_one_group_MF(CustomerLevelData = item258.data
                                               ,valueVariable = 'SiteCount'
@@ -373,38 +376,40 @@ item258.all.sizes <- proportions_one_group_MF(CustomerLevelData = item258.data
                                               ,columnName = "Clean.Room"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item258.all.sizes <- item258.all.sizes[which(item258.all.sizes$Lamp.Category != "Total"),]
+# item258.all.sizes <- item258.all.sizes[which(item258.all.sizes$Lamp.Category != "Total"),]
 
 
 item258.final <- rbind.data.frame(item258.final, item258.all.sizes, stringsAsFactors = F)
 
 item258.cast <- dcast(setDT(item258.final)
                       ,formula = Clean.Room ~ Lamp.Category
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 
 item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Compact.Fluorescent"     = item258.cast$`w.percent_Compact Fluorescent`
                             ,"Compact.Fluorescent.SE"  = item258.cast$`w.SE_Compact Fluorescent`
-                            ,"Compact.Fluorescent.count"   = item258.cast$`count_Compact Fluorescent`
                             ,"Halogen"                 = item258.cast$w.percent_Halogen
                             ,"Halogen.SE"              = item258.cast$w.SE_Halogen
-                            ,"Halogen.count"           = item258.cast$count_Halogen
                             ,"Incandescent"            = item258.cast$w.percent_Incandescent
                             ,"Incandescent.SE"         = item258.cast$w.SE_Incandescent
-                            ,"Incandescent.count"      = item258.cast$count_Incandescent
                             ,"Incandescent.Halogen"    = item258.cast$`w.percent_Incandescent / Halogen`
                             ,"Incandescent.Halogen.SE" = item258.cast$`w.SE_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.count"  = item258.cast$`count_Incandescent / Halogen`
                             ,"Linear.Fluorescent"      = item258.cast$`w.percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE"   = item258.cast$`w.SE_Linear Fluorescent`
-                            ,"Linear.Fluorescent.count"= item258.cast$`count_Linear Fluorescent`
                             ,"LED"                     = item258.cast$`w.percent_Light Emitting Diode`
                             ,"LED.SE"                  = item258.cast$`w.SE_Light Emitting Diode`
-                            ,"LED.count"               = item258.cast$`count_Light Emitting Diode`
                             ,"Other"                   = item258.cast$w.percent_Other
                             ,"Other.SE"                = item258.cast$w.SE_Other
-                            ,"Other.count"             = item258.cast$count_Other)
+                            ,"n"                       = item258.cast$n_Total
+                            ,"Compact.Fluorescent.EB"  = item258.cast$`EB_Compact Fluorescent`
+                            ,"Halogen.EB"              = item258.cast$EB_Halogen
+                            ,"Incandescent.EB"         = item258.cast$EB_Incandescent
+                            ,"Incandescent.Halogen.EB" = item258.cast$`EB_Incandescent / Halogen`
+                            ,"Linear.Fluorescent.EB"   = item258.cast$`EB_Linear Fluorescent`
+                            ,"LED.EB"                  = item258.cast$`EB_Light Emitting Diode`
+                            ,"Other.EB"                = item258.cast$EB_Other
+                            )
 
 exportTable(item258.table, "MF", "Table 50", weighted = TRUE)
 
@@ -418,7 +423,7 @@ item258.final <- proportions_two_groups_unweighted(CustomerLevelData = item258.d
                                                    ,rowVariable = 'Lamp.Category'
                                                    ,aggregateColumnName = "Remove")
 item258.final <- item258.final[which(item258.final$Clean.Room != "Remove"),]
-item258.final <- item258.final[which(item258.final$Lamp.Category != "Total"),]
+# item258.final <- item258.final[which(item258.final$Lamp.Category != "Total"),]
 
 item258.all.sizes <- proportions_one_group_MF(CustomerLevelData = item258.data
                                               ,valueVariable = 'SiteCount'
@@ -427,38 +432,32 @@ item258.all.sizes <- proportions_one_group_MF(CustomerLevelData = item258.data
                                               ,columnName = "Clean.Room"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item258.all.sizes <- item258.all.sizes[which(item258.all.sizes$Lamp.Category != "Total"),]
+# item258.all.sizes <- item258.all.sizes[which(item258.all.sizes$Lamp.Category != "Total"),]
 
 
 item258.final <- rbind.data.frame(item258.final, item258.all.sizes, stringsAsFactors = F)
 
 item258.cast <- dcast(setDT(item258.final)
                       ,formula = Clean.Room ~ Lamp.Category
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 
 item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Compact.Fluorescent"     = item258.cast$`Percent_Compact Fluorescent`
                             ,"Compact.Fluorescent.SE"  = item258.cast$`SE_Compact Fluorescent`
-                            ,"Compact.Fluorescent.n"   = item258.cast$`SampleSize_Compact Fluorescent`
                             ,"Halogen"                 = item258.cast$Percent_Halogen
                             ,"Halogen.SE"              = item258.cast$SE_Halogen
-                            ,"Halogen.n"               = item258.cast$SampleSize_Halogen
                             ,"Incandescent"            = item258.cast$Percent_Incandescent
                             ,"Incandescent.SE"         = item258.cast$SE_Incandescent
-                            ,"Incandescent.n"          = item258.cast$SampleSize_Incandescent
                             ,"Incandescent.Halogen"    = item258.cast$`Percent_Incandescent / Halogen`
                             ,"Incandescent.Halogen.SE" = item258.cast$`SE_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.n"  = item258.cast$`SampleSize_Incandescent / Halogen`
                             ,"Linear.Fluorescent"      = item258.cast$`Percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE"   = item258.cast$`SE_Linear Fluorescent`
-                            ,"Linear.Fluorescent.n"    = item258.cast$`SampleSize_Linear Fluorescent`
                             ,"LED"                     = item258.cast$`Percent_Light Emitting Diode`
                             ,"LED.SE"                  = item258.cast$`SE_Light Emitting Diode`
-                            ,"LED.n"                   = item258.cast$`SampleSize_Light Emitting Diode`
                             ,"Other"                   = item258.cast$Percent_Other
                             ,"Other.SE"                = item258.cast$SE_Other
-                            ,"Other.n"                 = item258.cast$SampleSize_Other)
+                            ,"n"                       = item258.cast$n_Total)
 
 exportTable(item258.table, "MF", "Table 50", weighted = FALSE)
 

@@ -654,35 +654,29 @@ item177.final <- rbind.data.frame(item177.summary
 
 item177.cast <- dcast(setDT(item177.final),
                       formula   = BuildingType +  HomeYearBuilt_bins2 ~ rvalue.bins,
-                      value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
                             ,"Housing.Vintage"      = item177.cast$HomeYearBuilt_bins2
                             ,"Percent.R0.R8"        = item177.cast$w.percent_R0.R8
                             ,"SE.R0.R8"             = item177.cast$w.SE_R0.R8
-                            # ,"n.R0.R8"              = item177.cast$n_R0.R8
-                            # ,"Count.R0.R8"          = item177.cast$count_R0.R8
                             ,"Percent.R9.R14"       = item177.cast$w.percent_R9.R14
                             ,"SE.R9.R14"            = item177.cast$w.SE_R9.R14
-                            # ,"n.R9.R14"             = item177.cast$n_R9.R14
-                            # ,"Count.R9.R14"          = item177.cast$count_R9.R14
                             ,"Percent.R15.R21"      = item177.cast$w.percent_R15.R21
                             ,"SE.R15.R21"           = item177.cast$w.SE_R15.R21
-                            # ,"n.R15.R21"            = item177.cast$n_R15.R21
-                            # ,"Count.R15.R21"          = item177.cast$count_R15.R21
                             ,"Percent.R22.R30"      = item177.cast$w.percent_R22.R30
                             ,"SE.R22.R30"           = item177.cast$w.SE_R22.R30
-                            # ,"n.R22.R30"            = item177.cast$n_R22.R30
-                            # ,"Count.R22.R30"          = item177.cast$count_R22.R30
                             ,"Percent.R31.R40"      = item177.cast$w.percent_R31.R40
                             ,"SE.R31.R40"           = item177.cast$w.SE_R31.R40
-                            # ,"n.R31.R40"            = item177.cast$n_R31.R40
-                            # ,"Count.R31.R40"          = item177.cast$count_R31.R40
                             ,"Percent.All.Ceilings" = item177.cast$`w.percent_All Ceilings`
                             ,"SE.All.Ceilings"      = item177.cast$`w.SE_All Ceilings`
-                            # ,"SampleSize"           = item177.cast$`n_All Ceilings`
-                            # ,"Count.All.Ceilings"   = item177.cast$`count_All Ceilings`
                             ,"n" = item177.cast$`n_All Ceilings`
+                            ,"EB.R0.R8"             = item177.cast$EB_R0.R8
+                            ,"EB.R9.R14"            = item177.cast$EB_R9.R14
+                            ,"EB.R15.R21"           = item177.cast$EB_R15.R21
+                            ,"EB.R22.R30"           = item177.cast$EB_R22.R30
+                            ,"EB.R31.R40"           = item177.cast$EB_R31.R40
+                            ,"EB.All.Ceilings"      = item177.cast$`EB_All Ceilings`
                             )
 
 levels(item177.table$Housing.Vintage)
@@ -750,28 +744,16 @@ item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
                             ,"Housing.Vintage"      = item177.cast$HomeYearBuilt_bins2
                             ,"Percent.R0.R8"        = item177.cast$Percent_R0.R8
                             ,"SE.R0.R8"             = item177.cast$SE_R0.R8
-                            # ,"n.R0.R8"              = item177.cast$n_R0.R8
-                            # ,"Count.R0.R8"          = item177.cast$Count_R0.R8
                             ,"Percent.R9.R14"       = item177.cast$Percent_R9.R14
                             ,"SE.R9.R14"            = item177.cast$SE_R9.R14
-                            # ,"n.R9.R14"             = item177.cast$n_R9.R14
-                            # ,"Count.R9.R14"          = item177.cast$Count_R9.R14
                             ,"Percent.R15.R21"      = item177.cast$Percent_R15.R21
                             ,"SE.R15.R21"           = item177.cast$SE_R15.R21
-                            # ,"n.R15.R21"            = item177.cast$n_R15.R21
-                            # ,"Count.R15.R21"          = item177.cast$Count_R15.R21
                             ,"Percent.R22.R30"      = item177.cast$Percent_R22.R30
                             ,"SE.R22.R30"           = item177.cast$SE_R22.R30
-                            # ,"n.R22.R30"            = item177.cast$n_R22.R30
-                            # ,"Count.R22.R30"          = item177.cast$Count_R22.R30
                             ,"Percent.R31.R40"      = item177.cast$Percent_R31.R40
                             ,"SE.R31.R40"           = item177.cast$SE_R31.R40
-                            # ,"n.R31.R40"            = item177.cast$n_R31.R40
-                            # ,"Count.R31.R40"          = item177.cast$Count_R31.R40
                             ,"Percent.All.Ceilings" = item177.cast$`Percent_All Ceilings`
                             ,"SE.All.Ceilings"      = item177.cast$`SE_All Ceilings`
-                            # ,"SampleSize"           = item177.cast$`n_All Ceilings`
-                            # ,"Count.All.Ceilings"   = item177.cast$`Count_All Ceilings`
                             ,"n" = item177.cast$`n_All Ceilings`
                             )
 

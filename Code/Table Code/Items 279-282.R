@@ -93,42 +93,45 @@ item279.summary <- proportionRowsAndColumns1(CustomerLevelData = item279.data
 item279.summary <- item279.summary[which(item279.summary$Heating.Fuel != "Total"),]
 item279.summary <- item279.summary[which(item279.summary$System.Type != "All Systems"),]
 
-item279.all.types <- proportions_one_group_MF(CustomerLevelData = item279.data
+item279.all.types <- proportions_one_group(CustomerLevelData = item279.data
                                               ,valueVariable = 'count'
                                               ,groupingVariable = 'System.Type'
                                               ,total.name = 'All Types'
                                               ,columnName = 'Heating.Fuel'
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
+item279.all.types$System.Type[which(item279.all.types$System.Type == "Total")] <- "All Systems"
 
-item279.all.systems <- proportions_one_group_MF(CustomerLevelData = item279.data
+item279.all.systems <- proportions_one_group(CustomerLevelData = item279.data
                                                 ,valueVariable = 'count'
                                                 ,groupingVariable = 'Heating.Fuel'
                                                 ,total.name = 'All Systems'
                                                 ,columnName = 'System.Type'
                                                 ,weighted = TRUE
                                                 ,two.prop.total = TRUE)
-item279.all.systems <- item279.all.systems[which(item279.all.systems$Heating.Fuel != "Total"),]
+# item279.all.systems <- item279.all.systems[which(item279.all.systems$Heating.Fuel ! "Total"),]
 
 item279.final <- rbind.data.frame(item279.summary, item279.all.types, item279.all.systems, stringsAsFactors = F)
 
 item279.cast <- dcast(setDT(item279.final)
                       ,formula = System.Type ~ Heating.Fuel
-                      ,value.var = c("w.percent", "w.SE","count","n","N"))
+                      ,value.var = c("w.percent", "w.SE","count","n","N","EB"))
 
 item279.table <- data.frame("Primary.Heating.System" = item279.cast$System.Type
                             ,"Electric"              = item279.cast$w.percent_Electric
                             ,"Electric.SE"           = item279.cast$w.SE_Electric
-                            ,"Electric.n"            = item279.cast$n_Electric
                             ,"Gas"                   = item279.cast$`w.percent_Natural Gas`
                             ,"Gas.SE"                = item279.cast$`w.SE_Natural Gas`
-                            ,"Gas.n"                 = item279.cast$`n_Natural Gas`
                             ,"Wood"                  = item279.cast$`w.percent_Wood (cord)`
                             ,"Wood.SE"               = item279.cast$`w.SE_Wood (cord)`
-                            ,"Wood.n"                = item279.cast$`n_Wood (cord)`
                             ,"All.Types"             = item279.cast$`w.percent_All Types`
                             ,"All.Types.SE"          = item279.cast$`w.SE_All Types`
-                            ,"All.Types.n"           = item279.cast$`n_All Types`)
+                            ,"n"                     = item279.cast$`n_All Types`
+                            ,"Electric.EB"           = item279.cast$EB_Electric
+                            ,"Gas.EB"                = item279.cast$`EB_Natural Gas`
+                            ,"Wood.EB"               = item279.cast$`EB_Wood (cord)`
+                            ,"All.Types.EB"          = item279.cast$`EB_All Types`
+                            )
 
 exportTable(item279.table, "MF", "Table 71", weighted = TRUE)
 
@@ -152,6 +155,7 @@ item279.all.types <- proportions_one_group_MF(CustomerLevelData = item279.data
                                               ,columnName = 'Heating.Fuel'
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
+item279.all.types$System.Type[which(item279.all.types$System.Type == "Total")] <- "All Systems"
 
 item279.all.systems <- proportions_one_group_MF(CustomerLevelData = item279.data
                                                 ,valueVariable = 'count'
@@ -160,27 +164,24 @@ item279.all.systems <- proportions_one_group_MF(CustomerLevelData = item279.data
                                                 ,columnName = 'System.Type'
                                                 ,weighted = FALSE
                                                 ,two.prop.total = TRUE)
-item279.all.systems <- item279.all.systems[which(item279.all.systems$Heating.Fuel != "Total"),]
+# item279.all.systems <- item279.all.systems[which(item279.all.systems$Heating.Fuel != "Total"),]
 
 item279.final <- rbind.data.frame(item279.summary, item279.all.types, item279.all.systems, stringsAsFactors = F)
 
 item279.cast <- dcast(setDT(item279.final)
                       ,formula = System.Type ~ Heating.Fuel
-                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+                      ,value.var = c("Percent", "SE","Count","n"))
 
 item279.table <- data.frame("Primary.Heating.System" = item279.cast$System.Type
                             ,"Electric"              = item279.cast$Percent_Electric
                             ,"Electric.SE"           = item279.cast$SE_Electric
-                            ,"Electric.n"            = item279.cast$SampleSize_Electric
                             ,"Gas"                   = item279.cast$`Percent_Natural Gas`
                             ,"Gas.SE"                = item279.cast$`SE_Natural Gas`
-                            ,"Gas.n"                 = item279.cast$`SampleSize_Natural Gas`
                             ,"Wood"                  = item279.cast$`Percent_Wood (cord)`
                             ,"Wood.SE"               = item279.cast$`SE_Wood (cord)`
-                            ,"Wood.n"                = item279.cast$`SampleSize_Wood (cord)`
                             ,"All.Types"             = item279.cast$`Percent_All Types`
                             ,"All.Types.SE"          = item279.cast$`SE_All Types`
-                            ,"All.Types.n"           = item279.cast$`SampleSize_All Types`)
+                            ,"n"                     = item279.cast$`n_All Types`)
 
 exportTable(item279.table, "MF", "Table 71", weighted = FALSE)
 
@@ -258,21 +259,22 @@ item280.summary$Heating.Fuel[which(item280.summary$Heating.Fuel == "Total")] <- 
 
 item280.cast <- dcast(setDT(item280.summary)
                       ,formula = System.Type ~ Heating.Fuel
-                      ,value.var = c("w.percent", "w.SE","count","n","N"))
+                      ,value.var = c("w.percent", "w.SE","count","n","N","EB"))
 
 item280.table <- data.frame("Primary.Heating.System" = item280.cast$System.Type
                             ,"Electric"              = item280.cast$w.percent_Electric
                             ,"Electric.SE"           = item280.cast$w.SE_Electric
-                            ,"Electric.n"            = item280.cast$n_Electric
                             ,"Gas"                   = item280.cast$`w.percent_Natural Gas`
                             ,"Gas.SE"                = item280.cast$`w.SE_Natural Gas`
-                            ,"Gas.n"                 = item280.cast$`n_Natural Gas`
                             ,"Wood"                  = item280.cast$`w.percent_Wood`
                             ,"Wood.SE"               = item280.cast$`w.SE_Wood`
-                            ,"Wood.n"                = item280.cast$`n_Wood`
                             ,"All.Types"             = item280.cast$`w.percent_All Types`
                             ,"All.Types.SE"          = item280.cast$`w.SE_All Types`
-                            ,"All.Types.n"           = item280.cast$`n_All Types`)
+                            ,"n"                     = item280.cast$`n_All Types`
+                            ,"Electric.EB"           = item280.cast$EB_Electric
+                            ,"Gas.EB"                = item280.cast$`EB_Natural Gas`
+                            ,"Wood.EB"               = item280.cast$`EB_Wood`
+                            ,"All.Types.EB"          = item280.cast$`EB_All Types`)
 
 exportTable(item280.table, "MF", "Table 72", weighted = TRUE)
 
@@ -290,21 +292,18 @@ item280.summary$Heating.Fuel[which(item280.summary$Heating.Fuel == "Total")] <- 
 
 item280.cast <- dcast(setDT(item280.summary)
                       ,formula = System.Type ~ Heating.Fuel
-                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+                      ,value.var = c("Percent", "SE","Count","n"))
 
 item280.table <- data.frame("Primary.Heating.System" = item280.cast$System.Type
                             ,"Electric"              = item280.cast$Percent_Electric
                             ,"Electric.SE"           = item280.cast$SE_Electric
-                            ,"Electric.n"            = item280.cast$SampleSize_Electric
                             ,"Gas"                   = item280.cast$`Percent_Natural Gas`
                             ,"Gas.SE"                = item280.cast$`SE_Natural Gas`
-                            ,"Gas.n"                 = item280.cast$`SampleSize_Natural Gas`
                             ,"Wood"                  = item280.cast$`Percent_Wood`
                             ,"Wood.SE"               = item280.cast$`SE_Wood`
-                            ,"Wood.n"                = item280.cast$`SampleSize_Wood`
                             ,"All.Types"             = item280.cast$`Percent_All Types`
                             ,"All.Types.SE"          = item280.cast$`SE_All Types`
-                            ,"All.Types.n"           = item280.cast$`SampleSize_All Types`)
+                            ,"n"                     = item280.cast$`n_All Types`)
 
 exportTable(item280.table, "MF", "Table 72", weighted = FALSE)
 
@@ -369,7 +368,7 @@ item281.data$Count <- 1
 ######################
 # weighted analysis
 ######################
-item281.final <- proportions_one_group_MF(CustomerLevelData = item281.data
+item281.final <- proportions_one_group(CustomerLevelData = item281.data
                                           ,valueVariable = 'Ind'
                                           ,groupingVariable = 'HomeType'
                                           ,total.name = 'All Sizes'
@@ -379,7 +378,7 @@ exportTable(item281.final, "MF","Table 73",weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
-item281.final <- proportions_one_group_MF(CustomerLevelData = item281.data
+item281.final <- proportions_one_group(CustomerLevelData = item281.data
                                           ,valueVariable = 'Ind'
                                           ,groupingVariable = 'HomeType'
                                           ,total.name = 'All Sizes'
@@ -448,7 +447,7 @@ item282.summary$HomeType[which(item282.summary$HomeType == "Total")] <- "All Siz
 
 item282.cast <- dcast(setDT(item282.summary)
                       ,formula = System.Type ~ HomeType
-                      ,value.var = c("w.percent", "w.SE","count","n","N"))
+                      ,value.var = c("w.percent", "w.SE","count","n","N", "EB"))
 
 item282.table <- data.frame("Cooling.Systems"          = item282.cast$System.Type
                             ,"Low_Rise_1.3_percent"    = item282.cast$`w.percent_Apartment Building (3 or fewer floors)`
@@ -462,7 +461,12 @@ item282.table <- data.frame("Cooling.Systems"          = item282.cast$System.Typ
                             ,"Hight_Rise_n"            = item282.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_percent"       = item282.cast$`w.percent_All Sizes`
                             ,"All_Sizes_SE"            = item282.cast$`w.SE_All Sizes`
-                            ,"All_Sizes_n"             = item282.cast$`n_All Sizes`)
+                            ,"All_Sizes_n"             = item282.cast$`n_All Sizes`
+                            ,"Low_Rise_EB"             = item282.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid_Rise_EB"             = item282.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_EB"            = item282.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_EB"            = item282.cast$`EB_All Sizes`
+                            )
 
 exportTable(item282.table, "MF","Table 74",weighted = TRUE)
 
@@ -480,20 +484,20 @@ item282.summary$HomeType[which(item282.summary$HomeType == "Total")] <- "All Siz
 
 item282.cast <- dcast(setDT(item282.summary)
                       ,formula = System.Type ~ HomeType
-                      ,value.var = c("Percent", "SE","Count","SampleSize"))
+                      ,value.var = c("Percent", "SE","Count","n"))
 
 item282.table <- data.frame("Cooling.Systems"          = item282.cast$System.Type
                             ,"Low_Rise_1.3_Mean"       = item282.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low_Rise_SE"             = item282.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_n"              = item282.cast$`SampleSize_Apartment Building (3 or fewer floors)`
+                            ,"Low_Rise_n"              = item282.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid_Rise_4.6_Mean"       = item282.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid_Rise_SE"             = item282.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_n"              = item282.cast$`SampleSize_Apartment Building (4 to 6 floors)`
+                            ,"Mid_Rise_n"              = item282.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High_Rise_7Plus_Mean"    = item282.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High_Rise_SE"            = item282.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"Hight_Rise_n"            = item282.cast$`SampleSize_Apartment Building (More than 6 floors)`
+                            ,"Hight_Rise_n"            = item282.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_Mean"          = item282.cast$`Percent_All Sizes`
                             ,"All_Sizes_SE"            = item282.cast$`SE_All Sizes`
-                            ,"All_Sizes_n"             = item282.cast$`SampleSize_All Sizes`)
+                            ,"All_Sizes_n"             = item282.cast$`n_All Sizes`)
 
 exportTable(item282.table, "MF","Table 74",weighted = FALSE)

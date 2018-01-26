@@ -62,17 +62,18 @@ item243.dat2$Heating.System.Ind[which(item243.dat2$Primary.Heating.System == "No
 
 unique(item243.dat2$Heating.Fuel)
 item243.dat2$Fuel <- item243.dat2$Heating.Fuel
-item243.dat2$Fuel[grep("wood",item243.dat2$Fuel, ignore.case = T)] <- "Wood"
+# item243.dat2$Fuel[grep("wood",item243.dat2$Fuel, ignore.case = T)] <- "Wood"
 
-unique(item243.dat2$System.Type[which(is.na(item243.dat2$Fuel)|
-                          item243.dat2$Fuel == "Other" |
-                          item243.dat2$Fuel == "Unknown")])
+unique(item243.dat2$System.Type[which(item243.dat2$Fuel %in% c("Other","Unknown","N/A",NA))])
 
 item243.dat2$Fuel[grep("hp", item243.dat2$System.Type, ignore.case = T)] <- "Electric"
 item243.dat2$Fuel[grep("natural gas|gas", item243.dat2$Fuel, ignore.case = T)] <- "Natural Gas"
 item243.dat2$Fuel[grep("resistance", item243.dat2$Fuel, ignore.case = T)] <- "Electric"
-item243.dat2$Fuel[is.na(item243.dat2$Fuel)] <- "Unknown"
-item243.dat2$Fuel[grep("unknown", item243.dat2$Fuel, ignore.case = T)] <- "Electric"
+item243.dat2$Fuel[grep("N/A", item243.dat2$Fuel, ignore.case = T)] <- "Unknown"
+# item243.dat2$Fuel[is.na(item243.dat2$Fuel)] <- "Unknown"
+# item243.dat2$Fuel[grep("unknown", item243.dat2$Fuel, ignore.case = T)] <- "Electric"
+
+item243.dat2 <- item243.dat2[which(item243.dat2$Fuel != "Unknown"),]
 unique(item243.dat2$Fuel)
 
 item243.dat3 <- unique(data.frame("CK_Cadmus_ID"      = item243.dat2$CK_Cadmus_ID
@@ -83,7 +84,7 @@ item243.dat3 <- unique(data.frame("CK_Cadmus_ID"      = item243.dat2$CK_Cadmus_I
 item243.dat4 <- item243.dat3[which(item243.dat3$Primary_Secondary == "Primary Heating System"),]
 length(unique(item243.dat4$CK_Cadmus_ID))
 
-item243.dat5 <- item243.dat4[which(item243.dat4$Heating_System != "Packaged HP"),]
+item243.dat5 <- item243.dat4#[which(item243.dat4$Heating_System != "Packaged HP"),]
 
 
 item243.merge <- left_join(rbsa.dat, item243.dat5)
@@ -127,28 +128,28 @@ item243.final <- rbind.data.frame(item243.final, item243.all.types, stringsAsFac
 
 item243.cast <- dcast(setDT(item243.final)
                       ,formula = Heating_System ~ Fuel
-                      ,value.var = c("w.percent","w.SE", "count","n","N"))
+                      ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 
-
+names(item243.cast)
 item243.table <- data.frame("Primary.Heating.System" = item243.cast$Heating_System
                             ,"Air.Source.HP"         = NA
                             ,"Air.Source.HP.SE"      = NA
-                            ,"Air.Source.HP.n"       = 0
                             ,"Electric"              = item243.cast$w.percent_Electric
                             ,"Electric.SE"           = item243.cast$w.SE_Electric
-                            ,"Electric.n"            = item243.cast$count_Electric
-                            ,"Natural.Gas"           = item243.cast$`w.percent_Natural Gas`
-                            ,"Natural.Gas.SE"        = item243.cast$`w.SE_Natural Gas`
-                            ,"Natural.Gas.n"         = item243.cast$`count_Natural Gas`
+                            ,"Natural.Gas"           = NA#item243.cast$`w.percent_Natural Gas`
+                            ,"Natural.Gas.SE"        = NA#item243.cast$`w.SE_Natural Gas`
                             ,"Oil"                   = NA
                             ,"Oil.SE"                = NA
-                            ,"Oil.n"                 = 0
                             ,"Purchased.Steam"       = NA
                             ,"Purchased.Steam.SE"    = NA
-                            ,"Purchased.Steam.n"     = 0
-                            ,"All.Types"            = item243.cast$`w.percent_All Types`
-                            ,"All.Types.SE"         = item243.cast$`w.SE_All Types`
-                            ,"All.Types.n"          = item243.cast$`count_All Types`
+                            ,"All.Types"             = item243.cast$`w.percent_All Types`
+                            ,"All.Types.SE"          = item243.cast$`w.SE_All Types`
+                            ,"n"                     = item243.cast$`n_All Types`
+                            ,"Electric.EB"           = item243.cast$EB_Electric
+                            ,"Natural.Gas.EB"        = NA#item243.cast$`EB_Natural Gas`
+                            ,"Oil.EB"                = NA
+                            ,"Purchased.Steam.EB"    = NA
+                            ,"All.Types.EB"          = item243.cast$`EB_All Types`
                             )
 
 exportTable(item243.table, "MF", "Table 35", weighted = TRUE)
@@ -177,28 +178,23 @@ item243.final <- rbind.data.frame(item243.final, item243.all.types, stringsAsFac
 
 item243.cast <- dcast(setDT(item243.final)
                       ,formula = Heating_System ~ Fuel
-                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+                      ,value.var = c("Percent","SE", "Count","n"))
 
 
 item243.table <- data.frame("Primary.Heating.System" = item243.cast$Heating_System
                             ,"Air.Source.HP"         = NA
                             ,"Air.Source.HP.SE"      = NA
-                            ,"Air.Source.HP.n"       = 0
                             ,"Electric"              = item243.cast$Percent_Electric
                             ,"Electric.SE"           = item243.cast$SE_Electric
-                            ,"Electric.n"            = item243.cast$Count_Electric
-                            ,"Natural.Gas"           = item243.cast$`Percent_Natural Gas`
-                            ,"Natural.Gas.SE"        = item243.cast$`SE_Natural Gas`
-                            ,"Natural.Gas.n"         = item243.cast$`Count_Natural Gas`
+                            ,"Natural.Gas"           = NA#item243.cast$`Percent_Natural Gas`
+                            ,"Natural.Gas.SE"        = NA#item243.cast$`SE_Natural Gas`
                             ,"Oil"                   = NA
                             ,"Oil.SE"                = NA
-                            ,"Oil.n"                 = 0
                             ,"Purchased.Steam"       = NA
                             ,"Purchased.Steam.SE"    = NA
-                            ,"Purchased.Steam.n"     = 0
-                            ,"All.Types"            = item243.cast$`Percent_All Types`
-                            ,"All.Types.SE"         = item243.cast$`SE_All Types`
-                            ,"All.Types.n"          = item243.cast$`Count_All Types`
+                            ,"All.Types"             = item243.cast$`Percent_All Types`
+                            ,"All.Types.SE"          = item243.cast$`SE_All Types`
+                            ,"n"                     = item243.cast$`n_All Types`
 )
 
 exportTable(item243.table, "MF", "Table 35", weighted = FALSE)
@@ -227,7 +223,7 @@ item244.dat3 <- item244.dat2[which(item244.dat2$Heating_System != "Packaged HP")
 
 
 item244.merge <- left_join(rbsa.dat, item244.dat3)
-item244.merge <- item244.merge[which(!is.na(item244.merge$Primary_Secondary)),]
+item244.merge <- item244.merge[which(item244.merge$Primary_Secondary %notin% c("N/A",NA)),]
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -253,22 +249,26 @@ item244.final <- item244.final[which(item244.final$Heating_System != "Total"),]
 
 item244.cast <- dcast(setDT(item244.final)
                       ,formula = Heating_System ~ HomeType
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-
+names(item244.cast)
 item244.table <- data.frame("Primary.Heating.System"= item244.cast$Heating_System
                             ,"Low.Rise.1.3"      = item244.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.1.3.SE"   = item244.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.1.3.n"    = item244.cast$`count_Apartment Building (3 or fewer floors)`
+                            ,"Low.Rise.1.3.n"    = item244.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"      = item244.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.SE"   = item244.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.4.6.n"    = item244.cast$`count_Apartment Building (4 to 6 floors)`
+                            ,"Mid.Rise.4.6.n"    = item244.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.gt7"     = NA#item244.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.SE"  = NA#item244.cast$`w.SE_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.n"   = NA
                             ,"All.Sizes"         = item244.cast$`w.percent_All Sizes`
                             ,"All.Sizes.SE"      = item244.cast$`w.SE_All Sizes`
-                            ,"All.Sizes.n"       = item244.cast$`count_All Sizes`) 
+                            ,"All.Sizes.n"       = item244.cast$`n_All Sizes`
+                            ,"Low.Rise.1.3.EB"   = item244.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid.Rise.4.6.EB"   = item244.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High.Rise.gt7.EB"  = NA#item244.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All.Sizes.EB"      = item244.cast$`EB_All Sizes`) 
 exportTable(item244.table, "MF", "Table 36", weighted = TRUE)
 
 #######################
@@ -283,21 +283,21 @@ item244.final <- item244.final[which(item244.final$Heating_System != "Total"),]
 
 item244.cast <- dcast(setDT(item244.final)
                       ,formula = Heating_System ~ HomeType
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item244.table <- data.frame("Primary.Heating.System"= item244.cast$Heating_System
                             ,"Low.Rise.1.3"      = item244.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.1.3.SE"   = item244.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.1.3.n"    = item244.cast$`Count_Apartment Building (3 or fewer floors)`
+                            ,"Low.Rise.1.3.n"    = item244.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"      = item244.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.SE"   = item244.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.4.6.n"    = item244.cast$`Count_Apartment Building (4 to 6 floors)`
+                            ,"Mid.Rise.4.6.n"    = item244.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.gt7"     = NA#item244.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.SE"  = NA#item244.cast$`SE_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.n"   = NA
                             ,"All.Sizes"         = item244.cast$`Percent_All Sizes`
                             ,"All.Sizes.SE"      = item244.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"       = item244.cast$`Count_All Sizes`) 
+                            ,"All.Sizes.n"       = item244.cast$`n_All Sizes`) 
 
 exportTable(item244.table, "MF", "Table 36", weighted = FALSE)
 
@@ -312,7 +312,7 @@ item245.dat3 <- item243.dat3
 item245.dat4 <- item245.dat3[which(item245.dat3$Primary_Secondary == "Secondary Heating System"),]
 
 item245.merge <- left_join(rbsa.dat, item245.dat4)
-item245.merge <- item245.merge[which(!is.na(item245.merge$Primary_Secondary)),]
+item245.merge <- item245.merge[which(item245.merge$Primary_Secondary %notin% c("N/A",NA)),]
 
 
 ################################################
@@ -352,28 +352,23 @@ item245.final <- rbind.data.frame(item245.final, item245.all.types, stringsAsFac
 
 item245.cast <- dcast(setDT(item245.final)
                       ,formula = Heating_System ~ Fuel
-                      ,value.var = c("w.percent","w.SE", "count","n","N"))
+                      ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 
 
 item245.table <- data.frame("Secondary.Heating.System" = item245.cast$Heating_System
                             ,"Air.Source.HP"         = NA
                             ,"Air.Source.HP.SE"      = NA
-                            ,"Air.Source.HP.n"       = 0
                             ,"Electric"              = item245.cast$w.percent_Electric
                             ,"Electric.SE"           = item245.cast$w.SE_Electric
-                            ,"Electric.n"            = item245.cast$count_Electric
                             ,"Natural.Gas"           = NA#item245.cast$`w.percent_Natural Gas`
                             ,"Natural.Gas.SE"        = NA#item245.cast$`w.SE_Natural Gas`
-                            ,"Natural.Gas.n"         = NA#item245.cast$`count_Natural Gas`
                             ,"Oil"                   = NA
                             ,"Oil.SE"                = NA
-                            ,"Oil.n"                 = 0
                             ,"Purchased.Steam"       = NA
                             ,"Purchased.Steam.SE"    = NA
-                            ,"Purchased.Steam.n"     = 0
-                            ,"All.Types"            = item245.cast$`w.percent_All Types`
-                            ,"All.Types.SE"         = item245.cast$`w.SE_All Types`
-                            ,"All.Types.n"          = item245.cast$`count_All Types`
+                            ,"All.Types"             = item245.cast$`w.percent_All Types`
+                            ,"All.Types.SE"          = item245.cast$`w.SE_All Types`
+                            ,"n"                     = item245.cast$`n_All Types`
 )
 
 exportTable(item245.table, "MF", "Table 37", weighted = TRUE)
@@ -402,28 +397,23 @@ item245.final <- rbind.data.frame(item245.final, item245.all.types, stringsAsFac
 
 item245.cast <- dcast(setDT(item245.final)
                       ,formula = Heating_System ~ Fuel
-                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+                      ,value.var = c("Percent","SE", "Count","n"))
 
 
 item245.table <- data.frame("Secondary.Heating.System" = item245.cast$Heating_System
                             ,"Air.Source.HP"         = NA
                             ,"Air.Source.HP.SE"      = NA
-                            ,"Air.Source.HP.n"       = 0
                             ,"Electric"              = item245.cast$Percent_Electric
                             ,"Electric.SE"           = item245.cast$SE_Electric
-                            ,"Electric.n"            = item245.cast$Count_Electric
                             ,"Natural.Gas"           = NA#item245.cast$`Percent_Natural Gas`
                             ,"Natural.Gas.SE"        = NA#item245.cast$`SE_Natural Gas`
-                            ,"Natural.Gas.n"         = NA#item245.cast$`Count_Natural Gas`
                             ,"Oil"                   = NA
                             ,"Oil.SE"                = NA
-                            ,"Oil.n"                 = 0
                             ,"Purchased.Steam"       = NA
                             ,"Purchased.Steam.SE"    = NA
-                            ,"Purchased.Steam.n"     = 0
-                            ,"All.Types"            = item245.cast$`Percent_All Types`
-                            ,"All.Types.SE"         = item245.cast$`SE_All Types`
-                            ,"All.Types.n"          = item245.cast$`Count_All Types`
+                            ,"All.Types"             = item245.cast$`Percent_All Types`
+                            ,"All.Types.SE"          = item245.cast$`SE_All Types`
+                            ,"n"                     = item245.cast$`n_All Types`
 )
 
 exportTable(item245.table, "MF", "Table 37", weighted = FALSE)
@@ -449,7 +439,7 @@ item246.dat3 <- item246.dat2[which(item246.dat2$Heating_System != "Packaged HP")
 
 
 item246.merge <- left_join(rbsa.dat, item246.dat3)
-item246.merge <- item246.merge[which(!is.na(item246.merge$Primary_Secondary)),]
+item246.merge <- item246.merge[which(item246.merge$Primary_Secondary %notin% c("N/A",NA)),]
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -475,22 +465,27 @@ item246.final <- item246.final[which(item246.final$Heating_System != "Total"),]
 
 item246.cast <- dcast(setDT(item246.final)
                       ,formula = Heating_System ~ HomeType
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 
 item246.table <- data.frame("Secondary.Heating.System"= item246.cast$Heating_System
                             ,"Low.Rise.1.3"      = item246.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.1.3.SE"   = item246.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.1.3.n"    = item246.cast$`count_Apartment Building (3 or fewer floors)`
+                            ,"Low.Rise.1.3.n"    = item246.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"      = NA#item246.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.SE"   = NA#item246.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.4.6.n"    = NA#item246.cast$`count_Apartment Building (4 to 6 floors)`
+                            ,"Mid.Rise.4.6.n"    = NA#item246.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.gt7"     = NA#item246.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.SE"  = NA#item246.cast$`w.SE_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.n"   = NA
                             ,"All.Sizes"         = item246.cast$`w.percent_All Sizes`
                             ,"All.Sizes.SE"      = item246.cast$`w.SE_All Sizes`
-                            ,"All.Sizes.n"       = item246.cast$`count_All Sizes`) 
+                            ,"All.Sizes.n"       = item246.cast$`n_All Sizes`
+                            ,"Low.Rise.1.3.EB"   = item246.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid.Rise.4.6.EB"   = NA#item246.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High.Rise.gt7.EB"  = NA#item246.cast$`EB_Apartment Building (More than 6 floors)
+                            ,"All.Sizes.EB"      = item246.cast$`EB_All Sizes`
+                            ) 
 exportTable(item246.table, "MF", "Table 38", weighted = TRUE)
 
 #######################
@@ -505,21 +500,21 @@ item246.final <- item246.final[which(item246.final$Heating_System != "Total"),]
 
 item246.cast <- dcast(setDT(item246.final)
                       ,formula = Heating_System ~ HomeType
-                      ,value.var = c("Percent", "SE", "Count", "SampleSize"))
+                      ,value.var = c("Percent", "SE", "Count", "n"))
 
 item246.table <- data.frame("Secondary.Heating.System"= item246.cast$Heating_System
                             ,"Low.Rise.1.3"      = item246.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.1.3.SE"   = item246.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.1.3.n"    = item246.cast$`Count_Apartment Building (3 or fewer floors)`
+                            ,"Low.Rise.1.3.n"    = item246.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"      = NA#item246.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.SE"   = NA#item246.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.4.6.n"    = NA#item246.cast$`Count_Apartment Building (4 to 6 floors)`
+                            ,"Mid.Rise.4.6.n"    = NA#item246.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.gt7"     = NA#item246.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.SE"  = NA#item246.cast$`SE_Apartment Building (More than 6 floors)`
                             ,"High.Rise.gt7.n"   = NA
                             ,"All.Sizes"         = item246.cast$`Percent_All Sizes`
                             ,"All.Sizes.SE"      = item246.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"       = item246.cast$`Count_All Sizes`) 
+                            ,"All.Sizes.n"       = item246.cast$`n_All Sizes`) 
 
 exportTable(item246.table, "MF", "Table 38", weighted = FALSE)
 
@@ -535,40 +530,42 @@ exportTable(item246.table, "MF", "Table 38", weighted = FALSE)
 item248.dat <- unique(mechanical.dat.MF[which(colnames(mechanical.dat.MF) %in% c("CK_Cadmus_ID",
                                                                                  "Cool.Iteration",
                                                                                  "CK_Building_ID",
-                                                                                 "System.Type"))])
+                                                                                 "System.Type"
+                                                                                 ,"Primary.Cooling.System"))])
+item248.dat <- item248.dat[which(item248.dat$Primary.Cooling.System %in% c("Yes","No")),]
 
 item248.dat$CoolingInd <- 0
-item248.dat$CoolingInd[which(!is.na(item248.dat$Cool.Iteration))] <- 1
+item248.dat$CoolingInd[which(item248.dat$Primary.Cooling.System == "Yes")] <- 1
 
-item248.dat1 <- data.frame(
-  summarise(group_by(item248.dat,CK_Cadmus_ID,System.Type),
-            CoolingInd = sum(CoolingInd)),stringsAsFactors = F )
-item248.dat2 <- data.frame(
-  summarise(group_by(item248.dat1,CK_Cadmus_ID),
-            CoolingSum = sum(CoolingInd)),stringsAsFactors = F )
+item248.dat1 <- data.frame(summarise(group_by(item248.dat,CK_Cadmus_ID,System.Type),
+                                     CoolingInd = sum(CoolingInd, na.rm = T)), stringsAsFactors = F)
+# item248.dat2 <- data.frame(
+#   summarise(group_by(item248.dat1,CK_Cadmus_ID),
+#             CoolingSum = sum(CoolingInd)),stringsAsFactors = F )
 
-item248.dat1$SystemType[which(item248.dat1$CoolingInd == 0)] <- "No Cooling"
-item248.dat1$SystemType[which(item248.dat1$CoolingInd > 0)] <- 
-  item248.dat1$System.Type[which(item248.dat1$CoolingInd > 0)]
+item248.dat1 <- left_join(rbsa.dat, item248.dat1)
 
-item248.dat3 <- unique(item248.dat1[,c("CK_Cadmus_ID","SystemType")])
+item248.dat1$CoolingInd[which(is.na(item248.dat1$CoolingInd))] <- 0
+item248.dat1$System.Type[which(item248.dat1$CoolingInd == 0)] <- "No Cooling"
+item248.dat1$System.Type[which(item248.dat1$CoolingInd > 0)] <- item248.dat1$System.Type[which(item248.dat1$CoolingInd > 0)]
+
+item248.dat3 <- unique(item248.dat1[,c("CK_Cadmus_ID","System.Type")])
 
 item248.dat3 <- left_join(item248.dat3,item248.dat2, by = "CK_Cadmus_ID")
-
-item248.dat4 <- item248.dat3[-which(item248.dat3$CoolingSum > 0 &
-                                      item248.dat3$SystemType == "No Cooling"),]
+item248.dat3$CoolingSum <- as.numeric(as.character(item248.dat3$CoolingSum))
+item248.dat4 <- item248.dat3[which(item248.dat3$System.Type %notin% c(NA,"No Cooling","-- Unassigned --")),]
 
 item248.merge <- left_join(rbsa.dat, item248.dat4)
-item248.merge <- item248.merge[which(!is.na(item248.merge$CoolingSum)),]
+item248.merge <- item248.merge[which(item248.merge$CoolingSum %notin% c("N/A",NA)),]
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item248.data <- weightedData(item248.merge[-which(colnames(item248.merge) %in% c("SystemType"
+item248.data <- weightedData(item248.merge[-which(colnames(item248.merge) %in% c("System.Type"
                                                                                  ,"CoolingSum"))])
 item248.data <- left_join(item248.data, item248.merge[which(colnames(item248.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"SystemType"
+                                                                                           ,"System.Type"
                                                                                            ,"CoolingSum"))])
 
 item248.data$count <- 1
@@ -576,21 +573,21 @@ item248.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
-item248.final <- proportions_one_group_MF(CustomerLevelData = item248.data
+item248.final <- proportions_one_group(CustomerLevelData = item248.data
                                           ,valueVariable = 'count'
-                                          ,groupingVariable = 'SystemType'
+                                          ,groupingVariable = 'System.Type'
                                           ,total.name = "All Systems"
                                           )
-item248.final.MF <- item248.final[which(colnames(item248.final) %notin% c("N", "n", "BuildingType"))]
+item248.final.MF <- item248.final[which(colnames(item248.final) %notin% c("BuildingType"))]
 
 exportTable(item248.final.MF, "MF", "Table 40", weighted = TRUE)
 
 #######################
 # unweighted Analysis
 #######################
-item248.final <- proportions_one_group_MF(CustomerLevelData = item248.data
+item248.final <- proportions_one_group(CustomerLevelData = item248.data
                                           ,valueVariable = 'count'
-                                          ,groupingVariable = 'SystemType'
+                                          ,groupingVariable = 'System.Type'
                                           ,total.name = "All Systems"
                                           ,weighted = FALSE
 )

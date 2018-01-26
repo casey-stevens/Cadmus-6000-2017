@@ -138,15 +138,15 @@ item278.dat4 <- left_join(rbsa.dat, item278.buildings, by = "CK_Building_ID")
 colnames(item278.dat4)[which(colnames(item278.dat4) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 #remove NA building interview info
-item278.dat5 <- item278.dat4[which(!(item278.dat4$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership %in% c(NA, "Unknown"))),]
+item278.dat5 <- item278.dat4[which(!(item278.dat4$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership %in% c(NA, "Unknown","N/A"))),]
 
 item278.dat6 <- left_join(item278.dat5, item278.dat3)
 item278.dat7 <- item278.dat6[which(item278.dat6$BuildingType == "Multifamily"),]
 
 item278.merge <- item278.dat7
 item278.merge$Ind <- 0
-item278.merge$Ind[which(!is.na(item278.merge$Type))] <- 1
-
+item278.merge$Ind[which(item278.merge$Type %notin% c("N/A",NA))] <- 1
+unique(item278.merge$Ind)
 
 ######################################
 #Pop and Sample Sizes for weights
@@ -179,8 +179,8 @@ exportTable(item278.final, "MF", "Table 69", weighted = TRUE)
 ######################
 item278.final <- mean_one_group_unweighted(CustomerLevelData = item278.data
                                            ,valueVariable = 'Ind'
-                                           ,byVariable = 'HomeType'
-                                           ,aggregateRow = 'All Sizes')
+                                           ,byVariable = 'INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership'
+                                           ,aggregateRow = 'All Types')
 
 exportTable(item278.final, "MF", "Table 69", weighted = FALSE)
 
