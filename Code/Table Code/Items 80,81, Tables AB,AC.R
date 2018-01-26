@@ -208,6 +208,7 @@ tableAB.dat$Age <- as.numeric(as.character(tableAB.dat$Age))
 tableAB.dat0 <- tableAB.dat[which(tableAB.dat$Age > 0),]
 
 tableAB.merge <- left_join(rbsa.dat, tableAB.dat0, by = "CK_Cadmus_ID")
+tableAB.merge <- tableAB.merge[grep("site", tableAB.merge$CK_Building_ID, ignore.case = T),]
 tableAB.merge <- tableAB.merge[which(tableAB.merge$Age > 0),]
 
 unique(tableAB.merge$Type)
@@ -237,16 +238,19 @@ tableAB.final <- mean_one_group(CustomerLevelData = tableAB.data
                                ,valueVariable    = 'Age'
                                ,byVariable       = 'Type'
                                ,aggregateRow = "Total")
-# tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
+tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
 tableAB.final$Mean <- round(tableAB.final$Mean,0)
 
 tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
                                 ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 tableAB.final.MH <- tableAB.final[which(tableAB.final$BuildingType == "Manufactured")
                                 ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
+tableAB.final.MF <- tableAB.final[which(tableAB.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 
 # exportTable(tableAB.final.SF, "SF", "Table AB", weighted = TRUE)
-exportTable(tableAB.final.MH, "MH", "Table AB", weighted = TRUE)
+# exportTable(tableAB.final.MH, "MH", "Table AB", weighted = TRUE)
+exportTable(tableAB.final.MF, "MF", "Table AB", weighted = TRUE)
 
 
 #######################
@@ -256,15 +260,18 @@ tableAB.final <- mean_one_group_unweighted(CustomerLevelData = tableAB.data
                                           ,valueVariable    = 'Age'
                                           ,byVariable       = 'Type'
                                           ,aggregateRow = "Total")
-# tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
+tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
 
 tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
                                 ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 tableAB.final.MH <- tableAB.final[which(tableAB.final$BuildingType == "Manufactured")
                                 ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
+tableAB.final.MF <- tableAB.final[which(tableAB.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 
 # exportTable(tableAB.final.SF, "SF", "Table AB", weighted = FALSE)
-exportTable(tableAB.final.MH, "MH", "Table AB", weighted = FALSE)
+# exportTable(tableAB.final.MH, "MH", "Table AB", weighted = FALSE)
+exportTable(tableAB.final.MF, "MF", "Table AB", weighted = FALSE)
 
 
 
@@ -283,6 +290,7 @@ tableAC.dat$Age <- as.numeric(as.character(tableAC.dat$Age))
 tableAC.dat0 <- tableAC.dat[which(tableAC.dat$Age > 0),]
 
 tableAC.merge <- left_join(rbsa.dat, tableAC.dat0, by = "CK_Cadmus_ID")
+tableAC.merge <- tableAC.merge[grep("site",tableAC.merge$CK_Building_ID, ignore.case = T),]
 tableAC.merge <- tableAC.merge[which(tableAC.merge$Age > 0),]
 
 unique(tableAC.merge$Type)
@@ -334,16 +342,19 @@ tableAC.data$Count <- 1
 tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,valueVariable = "Ind"
                                        ,groupingVariable = "Type"
-                                       ,total.name = "Region")
+                                       ,total.name = "Total")
 tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
 tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 tableAC.final.MH <- tableAC.final[which(tableAC.final$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
+tableAC.final.MF <- tableAC.final[which(tableAC.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 
 # exportTable(tableAC.final.SF, "SF", "Table AC", weighted = TRUE)
-exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
+# exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
+exportTable(tableAC.final.MF, "MF", "Table AC", weighted = TRUE)
 
 
 #######################
@@ -352,7 +363,7 @@ exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
 tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,valueVariable = "Ind"
                                        ,groupingVariable = "Type"
-                                       ,total.name = "Region"
+                                       ,total.name = "Total"
                                        ,weighted = FALSE)
 tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
@@ -360,9 +371,12 @@ tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Fa
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 tableAC.final.MH <- tableAC.final[which(tableAC.final$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
+tableAC.final.MF <- tableAC.final[which(tableAC.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 
 # exportTable(tableAC.final.SF, "SF", "Table AC", weighted = FALSE)
-exportTable(tableAC.final.MH, "MH", "Table AC", weighted = FALSE)
+# exportTable(tableAC.final.MH, "MH", "Table AC", weighted = FALSE)
+exportTable(tableAC.final.MF, "MF", "Table AC", weighted = FALSE)
 
 
 
@@ -382,7 +396,7 @@ item81.dat$count <- 1
 item81.dat0 <- item81.dat[which(item81.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 item81.dat1 <- left_join(item81.dat0, rbsa.dat, by = "CK_Cadmus_ID")
-
+item81.dat1 <- item81.dat1[grep("site",item81.dat1$CK_Building_ID, ignore.case = T),]
 item81.dat2 <- item81.dat1[which(item81.dat1$Type %in% c("Refrigerator", "Freezer")),]
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
@@ -447,7 +461,7 @@ item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily"
                                 ,-which(colnames(item81.final) %in% c("BuildingType"))]
 
 # exportTable(item81.final.SF, "SF", "Table 88", weighted = TRUE)
-exportTable(item81.final.MH, "MH", "Table 69", weighted = TRUE)
+# exportTable(item81.final.MH, "MH", "Table 69", weighted = TRUE)
 exportTable(item81.final.MF, "MF", "Table 87", weighted = TRUE)
 
 
@@ -481,6 +495,6 @@ item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily"
                                 ,-which(colnames(item81.final) %in% c("BuildingType"))]
 
 # exportTable(item81.final.SF, "SF", "Table 88", weighted = FALSE)
-exportTable(item81.final.MH, "MH", "Table 69", weighted = FALSE)
+# exportTable(item81.final.MH, "MH", "Table 69", weighted = FALSE)
 exportTable(item81.final.MF, "MF", "Table 87", weighted = FALSE)
 
