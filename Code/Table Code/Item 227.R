@@ -24,6 +24,8 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -53,6 +55,11 @@ colnames(item227.dat) <- c("CK_Cadmus_ID"
                            ,"Age_65_Older"
                            ,"Age_Less_Than_1"
                            )
+for (i in 2:8){
+  item227.dat[,i] <- as.numeric(as.character(item227.dat[,i]))
+}
+item227.dat[is.na(item227.dat)] <- 0
+
 
 item227.dat$count <- 1
 
@@ -79,9 +86,10 @@ item227.merge <- left_join(rbsa.dat, item227.melt)
 item227.merge <- item227.merge[grep("Multifamily", item227.merge$BuildingType),]
 
 #remove missing
-item227.merge <- item227.merge[which(!is.na(item227.merge$Number.of.Residents)),]
-item227.merge <- item227.merge[which(!is.na(item227.merge$Age.Category)),]
-
+item227.merge <- item227.merge[which(item227.merge$Number.of.Residents %notin% c("N/A",NA,0)),]
+item227.merge <- item227.merge[which(item227.merge$Age.Category %notin% c("N/A",NA)),]
+unique(item227.merge$Number.of.Residents)
+unique(item227.merge$Age.Category)
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -105,6 +113,7 @@ item227.final <- mean_one_group(CustomerLevelData = item227.data
                                 ,byVariable = 'Age.Category'
                                 ,aggregateRow = NA)
 item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
+item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuidingType"))]
 
 exportTable(item227.final, "MF", "Table 19", weighted = TRUE)
 
@@ -118,6 +127,6 @@ item227.final <- mean_one_group_unweighted(CustomerLevelData = item227.data
                                 ,aggregateRow = NA)
 item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
 
-item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuidingType", "n"))]
+item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuidingType"))]
 exportTable(item227.final.MF, "MF", "Table 19", weighted = FALSE)
 

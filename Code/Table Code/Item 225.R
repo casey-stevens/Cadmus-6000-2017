@@ -24,6 +24,8 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
@@ -47,7 +49,7 @@ item225.dat <- buildings.interview.dat[which(colnames(buildings.interview.dat) %
 
 colnames(item225.dat) <- c("Ownership", "CK_Building_ID")
 
-item225.dat0 <- item225.dat[which(!(is.na(item225.dat$Ownership))),]
+item225.dat0 <- item225.dat[which(item225.dat$Ownership %notin% c("N/A",NA)),]
 item225.dat1 <- item225.dat0[which(item225.dat0$Ownership != "Unknown"),]
 
 
@@ -134,21 +136,21 @@ item225.final <- rbind.data.frame(item225.final, item225.all.sizes, stringsAsFac
 
 item225.cast <- dcast(setDT(item225.final)
                       ,formula = Ownership ~ HomeType
-                      ,value.var = c("Percent","SE", "Count","SampleSize"))
+                      ,value.var = c("Percent","SE", "Count","n"))
 
 item225.table <- data.frame("Ownership"                = item225.cast$Ownership
                             ,"Low_Rise_1.3_Percent"    = item225.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low_Rise_SE"             = item225.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_count"          = item225.cast$`Count_Apartment Building (3 or fewer floors)`
+                            ,"Low_Rise_n"              = item225.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid_Rise_4.6_Percent"    = item225.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid_Rise_SE"             = item225.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_count"          = item225.cast$`Count_Apartment Building (4 to 6 floors)`
+                            ,"Mid_Rise_n"              = item225.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High_Rise_7Plus_Percent" = NA#item225.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High_Rise_SE"            = NA#item225.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_count"         = NA#item225.cast$`Count_Apartment Building (More than 6 floors)`
+                            ,"High_Rise_n"             = NA#item225.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_Percent"       = item225.cast$`Percent_All Sizes`
                             ,"All_Sizes_SE"            = item225.cast$`SE_All Sizes`
-                            ,"All_Sizes_count"         = item225.cast$`Count_All Sizes`)
+                            ,"All_Sizes_n"             = item225.cast$`n_All Sizes`)
 
 
 exportTable(item225.table, "MF", "Table 17", weighted = FALSE)

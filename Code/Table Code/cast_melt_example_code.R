@@ -110,6 +110,12 @@ rowOrder <- c("Bathroom"
 
 
 
+for (i in 1:5){
+  item224.dat[,i] <- as.numeric(as.character(item224.dat[,i]))
+}
+item224.dat[is.na(item224.dat)] <- 0
+
+
 
 
 

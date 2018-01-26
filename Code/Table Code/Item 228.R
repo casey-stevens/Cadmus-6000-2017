@@ -25,6 +25,8 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.interview.export))
@@ -49,8 +51,10 @@ item228.dat1 <- left_join(rbsa.dat, item228.dat)
 
 #Subset to Multifamily
 item228.dat2 <- item228.dat1[grep("Multifamily", item228.dat1$BuildingType),]
-item228.dat3 <- item228.dat2[which(!is.na(item228.dat2$PercentUnoccupied)),]
-item228.dat4 <- item228.dat3[which(!is.na(item228.dat3$HomeYearBuilt)),]
+
+item228.dat2$PercentUnoccupied <- as.numeric(as.character(item228.dat2$PercentUnoccupied))
+item228.dat3 <- item228.dat2[which(item228.dat2$PercentUnoccupied %notin% c("N/A",NA)),]
+item228.dat4 <- item228.dat3[which(item228.dat3$HomeYearBuilt %notin% c("N/A",NA)),]
 
 
 
@@ -62,7 +66,7 @@ item228.data <- left_join(item228.data, item228.dat4[which(colnames(item228.dat4
                                                                                            ,"PercentUnoccupied"))])
 
 
-item228.data$PercentUnoccupied <- item228.data$PercentUnoccupied / 100
+item228.data$PercentUnoccupied <- as.numeric(as.character(item228.data$PercentUnoccupied)) / 100
 item228.data$count <- 1
 #######################
 # weighted analysis

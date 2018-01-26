@@ -24,6 +24,8 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
@@ -36,6 +38,9 @@ buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building
 buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.interview.export))
 buildings.interview.dat$CK_Building_ID <- trimws(toupper(buildings.interview.dat$CK_BuildingID))
 
+
+one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
+one.line.bldg.dat$CK_Building_ID <- trimws(toupper(one.line.bldg.dat$CK_BuildingID))
 
 
 #############################################################################################
@@ -53,11 +58,15 @@ names(item213.building.dat) <- c("Total.Floors", "CK_Building_ID")
 
 
 item213.dat <- left_join(item213.building.dat, item213.interview.dat)
-item213.dat1 <- item213.dat[which(!is.na(item213.dat$Number.of.Units)),]
+item213.dat1 <- item213.dat[which(item213.dat$Number.of.Units %notin% c("N/A",NA)),]
 
-item213.merge <- left_join(rbsa.dat, item213.dat1)
-item213.merge <- item213.merge[which(!is.na(item213.merge$Number.of.Units)),]
-item213.merge <- item213.merge[which(!is.na(item213.merge$HomeYearBuilt)),]
+item213.merge <- left_join(rbsa.dat.bldg, item213.dat1)
+
+item213.merge$Number.of.Units <- as.numeric(as.character(item213.merge$Number.of.Units))
+item213.merge$HomeYearBuilt <- as.numeric(as.character(item213.merge$HomeYearBuilt))
+
+item213.merge <- item213.merge[which(item213.merge$Number.of.Units %notin% c("N/A",NA)),]
+item213.merge <- item213.merge[which(item213.merge$HomeYearBuilt %notin% c("N/A",NA)),]
 
 
 ################################################
@@ -223,6 +232,11 @@ names(item217.dat) <- c("Number.of.4.Plus.Bedroom.Units"
                         ,"Number.of.2.Bedroom.Units"
                         ,"CK_Building_ID")
 
+item217.dat$Number.of.Studio.Units <- as.numeric(as.character(item217.dat$Number.of.Studio.Units))
+item217.dat$Number.of.1.Bedroom.Units <- as.numeric(as.character(item217.dat$Number.of.1.Bedroom.Units))
+item217.dat$Number.of.2.Bedroom.Units <- as.numeric(as.character(item217.dat$Number.of.2.Bedroom.Units))
+item217.dat$Number.of.3.Bedroom.Units <- as.numeric(as.character(item217.dat$Number.of.3.Bedroom.Units))
+item217.dat$Number.of.4.Plus.Bedroom.Units <- as.numeric(as.character(item217.dat$Number.of.4.Plus.Bedroom.Units))
 item217.dat1 <- item217.dat[which(!is.na(item217.dat$Number.of.Studio.Units)),]
 item217.melt <- melt(item217.dat1, id.vars = "CK_Building_ID")
 names(item217.melt) <- c("CK_Building_ID", "Number.of.Units", "Count")
@@ -365,26 +379,30 @@ exportTable(item217.table.MF, "MF", "Table 9", weighted = FALSE)
 #############################################################################################
 #subset to columns needed for analysis
 #from buildings interview data:
-item226.dat <- buildings.interview.dat[which(colnames(buildings.interview.dat) %in% c("CK_Building_ID"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataBuilding_55orOlder_Tenants_Y_N"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataBuilding_LI_Tenants_Y_N"))]
-names(item226.dat) <- c("Senior.Tenants"
+item226.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
+                                                                          ,"Total.Units.in.Building"
+                                                                          ,"Limited.to.55.or.Older?"
+                                                                          ,"Limited.to.Low.Income?"))]
+names(item226.dat) <- c("Total.Units.in.Building"
+                        ,"Senior.Tenants"
                         ,"Low.Income.Tenants"
                         ,"CK_Building_ID")
+item226.dat$Total.Units.in.Building <- as.numeric(as.character(item226.dat$Total.Units.in.Building))
+item226.dat <- item226.dat[which(item226.dat$Total.Units.in.Building %notin% c("N/A",NA)),]
 
 item226.dat1 <- item226.dat[which(item226.dat$Low.Income.Tenants %in% c("Yes", "No")),]
 item226.dat2 <- item226.dat1[which(item226.dat1$Senior.Tenants %in% c("Yes", "No")),]
 
 
 item226.dat2$Income.Restriction <- "No Income Restrictions"
-item226.dat2$Income.Restriction[which(item226.dat2$Income.Restriction == "Yes")] <- "Low Income Only"
+item226.dat2$Income.Restriction[which(item226.dat2$Low.Income.Tenants == "Yes")] <- "Low Income Only"
 
 item226.dat2$Tenant.Type <- "No Demographic Restrictions"
 item226.dat2$Tenant.Type[which(item226.dat2$Senior.Tenants == "Yes")] <- "Senior Housing"
 
 item226.merge <- left_join(rbsa.dat, item226.dat2)
 item226.merge <- item226.merge[which(!is.na(item226.merge$Tenant.Type)),]
-
+which(duplicated(item226.merge$CK_Cadmus_ID))
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -392,12 +410,14 @@ item226.merge <- item226.merge[which(!is.na(item226.merge$Tenant.Type)),]
 item226.data <- weightedData(item226.merge[-which(colnames(item226.merge) %in% c("Senior.Tenants"
                                                                                  ,"Low.Income.Tenants"
                                                                                  ,"Income.Restriction"
-                                                                                 ,"Tenant.Type"))])
+                                                                                 ,"Tenant.Type"
+                                                                                 ,"Total.Units.in.Building"))])
 item226.data <- left_join(item226.data, item226.merge[which(colnames(item226.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Senior.Tenants"
                                                                                            ,"Low.Income.Tenants"
                                                                                            ,"Income.Restriction"
-                                                                                           ,"Tenant.Type"))])
+                                                                                           ,"Tenant.Type"
+                                                                                           ,"Total.Units.in.Building"))])
 item226.data$count <- 1
 colnames(item226.data)
 
@@ -406,5 +426,124 @@ colnames(item226.data)
 #######################
 
 item226.summary <- proportionRowsAndColumns1(CustomerLevelData = item226.data
-                                             ,valueVariable  = 'count'
-                                             ,columnVariable = )
+                                             ,valueVariable  = 'Total.Units.in.Building'
+                                             ,columnVariable = "Income.Restriction"
+                                             ,rowVariable = "Tenant.Type"
+                                             ,aggregateColumnName = "Remove")
+item226.summary <- item226.summary[which(item226.summary$Income.Restriction != "Remove"),]
+item226.summary <- item226.summary[which(item226.summary$Tenant.Type != "Total"),]
+
+item226.all.income.types <- proportions_one_group(CustomerLevelData = item226.data
+                                                  ,valueVariable = "Total.Units.in.Building"
+                                                  ,groupingVariable = "Tenant.Type"
+                                                  ,total.name = "All Types"
+                                                  ,columnName = "Income.Restriction"
+                                                  ,weighted = TRUE
+                                                  ,two.prop.total = TRUE)
+item226.all.income.types$Tenant.Type[which(item226.all.income.types$Tenant.Type == "Total")] <- "All Types"
+
+item226.all.tenant.types <- proportions_one_group(CustomerLevelData = item226.data
+                                                  ,valueVariable = "Total.Units.in.Building"
+                                                  ,groupingVariable = "Income.Restriction"
+                                                  ,total.name = "All Types"
+                                                  ,columnName = "Tenant.Type"
+                                                  ,weighted = TRUE
+                                                  ,two.prop.total = TRUE)
+item226.all.tenant.types <- item226.all.tenant.types[which(item226.all.tenant.types$Income.Restriction != "Total"),]
+
+
+item226.final <- rbind.data.frame(item226.summary, item226.all.income.types, item226.all.tenant.types, stringsAsFactors = F)
+
+item226.cast <- dcast(setDT(item226.final)
+                      ,formula = BuildingType + Tenant.Type ~ Income.Restriction
+                      ,value.var = c("w.percent","w.SE","count", "n","N","EB"))
+names(item226.cast)
+item226.table <- data.frame("BuildingType"                 = item226.cast$BuildingType
+                            ,"Tenant.Type"                 = item226.cast$Tenant.Type
+                            ,"Percent.Low.Income"      = item226.cast$`w.percent_Low Income Only`
+                            ,"SE.Low.Income"           = item226.cast$`w.SE_Low Income Only`
+                            ,"n.Low.Income"            = item226.cast$`n_Low Income Only`
+                            ,"Percent.No.Income.Restrictions" = item226.cast$`w.percent_No Income Restrictions`
+                            ,"SE.No.Income.Restrictions"      = item226.cast$`w.SE_No Income Restrictions`
+                            ,"n.No.Income.Restrictions"       = item226.cast$`n_No Income Restrictions`
+                            ,"Percent.All.Types"           = item226.cast$`w.percent_All Types`
+                            ,"SE.All.Types"                = item226.cast$`w.SE_All Types`
+                            ,"n.All.Types"                 = item226.cast$`n_All Types`
+                            ,"EB.Low.Income"               = item226.cast$`EB_Low Income Only`
+                            ,"EB.No.Income.Restrictions"   = item226.cast$`EB_No Income Restrictions`
+                            ,"EB.All.Types"                = item226.cast$`EB_All Types`
+                            
+)
+# row ordering example code
+levels(item226.table$Tenant.Type)
+rowOrder <- c("Senior Housing"
+              ,"No Demographic Restrictions"
+              ,"All Types")
+item226.table <- item226.table %>% mutate(Tenant.Type = factor(Tenant.Type, levels = rowOrder)) %>% arrange(Tenant.Type)  
+item226.table <- data.frame(item226.table)
+
+item226.table.MF <- item226.table[which(item226.table$BuildingType == "Multifamily")
+                                  ,which(colnames(item226.table) %notin% c("BuildingType"))]
+exportTable(item226.table.MF, "MF", "Table 18", weighted = TRUE)
+
+
+#######################
+# Weighted Analysis
+#######################
+item226.summary <- proportions_two_groups_unweighted(CustomerLevelData = item226.data
+                                             ,valueVariable  = 'Total.Units.in.Building'
+                                             ,columnVariable = "Income.Restriction"
+                                             ,rowVariable = "Tenant.Type"
+                                             ,aggregateColumnName = "Remove")
+item226.summary <- item226.summary[which(item226.summary$Income.Restriction != "Remove"),]
+item226.summary <- item226.summary[which(item226.summary$Tenant.Type != "Total"),]
+
+item226.all.income.types <- proportions_one_group(CustomerLevelData = item226.data
+                                                  ,valueVariable = "Total.Units.in.Building"
+                                                  ,groupingVariable = "Tenant.Type"
+                                                  ,total.name = "All Types"
+                                                  ,columnName = "Income.Restriction"
+                                                  ,weighted = FALSE
+                                                  ,two.prop.total = TRUE)
+item226.all.income.types$Tenant.Type[which(item226.all.income.types$Tenant.Type == "Total")] <- "All Types"
+
+item226.all.tenant.types <- proportions_one_group(CustomerLevelData = item226.data
+                                                  ,valueVariable = "Total.Units.in.Building"
+                                                  ,groupingVariable = "Income.Restriction"
+                                                  ,total.name = "All Types"
+                                                  ,columnName = "Tenant.Type"
+                                                  ,weighted = FALSE
+                                                  ,two.prop.total = TRUE)
+item226.all.tenant.types <- item226.all.tenant.types[which(item226.all.tenant.types$Income.Restriction != "Total"),]
+
+
+item226.final <- rbind.data.frame(item226.summary, item226.all.income.types, item226.all.tenant.types, stringsAsFactors = F)
+
+item226.cast <- dcast(setDT(item226.final)
+                      ,formula = BuildingType + Tenant.Type ~ Income.Restriction
+                      ,value.var = c("Percent","SE","Count", "n"))
+names(item226.cast)
+item226.table <- data.frame("BuildingType"                 = item226.cast$BuildingType
+                            ,"Tenant.Type"                 = item226.cast$Tenant.Type
+                            ,"Percent.Low.Income"      = item226.cast$`Percent_Low Income Only`
+                            ,"SE.Low.Income"           = item226.cast$`SE_Low Income Only`
+                            ,"n.Low.Income"            = item226.cast$`n_Low Income Only`
+                            ,"Percent.No.Income.Restrictions" = item226.cast$`Percent_No Income Restrictions`
+                            ,"SE.No.Income.Restrictions"      = item226.cast$`SE_No Income Restrictions`
+                            ,"n.No.Income.Restrictions"       = item226.cast$`n_No Income Restrictions`
+                            ,"Percent.All.Types"           = item226.cast$`Percent_All Types`
+                            ,"SE.All.Types"                = item226.cast$`SE_All Types`
+                            ,"n.All.Types"                 = item226.cast$`n_All Types`
+                            
+)
+# row ordering example code
+levels(item226.table$Tenant.Type)
+rowOrder <- c("Senior Housing"
+              ,"No Demographic Restrictions"
+              ,"All Types")
+item226.table <- item226.table %>% mutate(Tenant.Type = factor(Tenant.Type, levels = rowOrder)) %>% arrange(Tenant.Type)  
+item226.table <- data.frame(item226.table)
+
+item226.table.MF <- item226.table[which(item226.table$BuildingType == "Multifamily")
+                                  ,which(colnames(item226.table) %notin% c("BuildingType"))]
+exportTable(item226.table.MF, "MF", "Table 18", weighted = FALSE)

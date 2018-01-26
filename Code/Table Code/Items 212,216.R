@@ -24,6 +24,8 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
@@ -36,13 +38,13 @@ buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building
 #############################################################################################
 # Item 212: DISTRIBUTION OF BUILDINGS BY BUILDING SIZE AND VINTAGE (MF table 4)
 #############################################################################################
-item212.dat <- rbsa.dat
+item212.dat <- rbsa.dat.site
 
 #subset to only MF homes
 item212.dat1 <- item212.dat[grep("Multifamily", item212.dat$BuildingType),]
 
 #remove missing vintage information
-item212.dat2 <- item212.dat1[which(!(is.na(item212.dat1$HomeYearBuilt))),]
+item212.dat2 <- item212.dat1[which(item212.dat1$HomeYearBuilt %notin% c("N/A",NA)),]
 
 
 ################################################
@@ -212,7 +214,7 @@ colnames(item216.dat) <- c("Common.Area"
                            ,"Nonres.Vacant.SQFT"
                            ,"CK_Building_ID")
 
-item216.dat1 <- item216.dat[which(!(is.na(item216.dat$Number.of.Floors))),]
+item216.dat1 <- item216.dat[which(item216.dat$Number.of.Floors %notin% c("N/A",NA)),]
 item216.dat1[is.na(item216.dat1)] <- 0
 
 for (i in 1:10){
@@ -233,10 +235,10 @@ item216.dat1$Total.Floor.Area <- item216.dat1$Total.Nonres.Floor.Area +
   item216.dat1$Common.Area
 
 
-item216.merge <- left_join(rbsa.dat, item216.dat1)
+item216.merge <- left_join(rbsa.dat.bldg, item216.dat1)
 
 item216.dat2 <- item216.merge[grep("Multifamily", item216.merge$BuildingType),]
-item216.dat3 <- item216.dat2[which(item216.dat2$Total.Floor.Area != 0),]
+item216.dat3 <- item216.dat2[which(item216.dat2$Total.Floor.Area > 0),]
 item216.dat4 <- item216.dat3[which(!is.na(item216.dat3$Total.Floor.Area)),]
 
 ################################################
