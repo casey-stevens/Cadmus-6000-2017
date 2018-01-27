@@ -282,9 +282,12 @@ tableAI.final.SF <- tableAI.final[which(tableAI.final$BuildingType == "Single Fa
                                 ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
 tableAI.final.MH <- tableAI.final[which(tableAI.final$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+tableAI.final.MF <- tableAI.final[which(tableAI.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
 
 # exportTable(tableAI.final.SF, "SF", "Table AI", weighted = TRUE)
 exportTable(tableAI.final.MH, "MH", "Table AI", weighted = TRUE)
+exportTable(tableAI.final.MF, "MF", "Table AI", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -300,9 +303,12 @@ tableAI.final.SF <- tableAI.final[which(tableAI.final$BuildingType == "Single Fa
                                 ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
 tableAI.final.MH <- tableAI.final[which(tableAI.final$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+tableAI.final.MF <- tableAI.final[which(tableAI.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
 
 # exportTable(tableAI.final.SF, "SF", "Table AI", weighted = FALSE)
 exportTable(tableAI.final.MH, "MH", "Table AI", weighted = FALSE)
+exportTable(tableAI.final.MF, "MF", "Table AI", weighted = FALSE)
 
 
 

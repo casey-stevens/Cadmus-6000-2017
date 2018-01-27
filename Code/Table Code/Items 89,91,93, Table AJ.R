@@ -124,7 +124,7 @@ tableAJ.dat <- unique(appliances.dat[which(colnames(appliances.dat) %in% c("CK_C
                                                                            ,""))])
 
 tableAJ.dat0 <- tableAJ.dat[which(!is.na(tableAJ.dat$Washer.Size)),]
-tableAJ.dat1 <- tableAJ.dat0[-grep("unknown|-- Datapoint not asked for --|Datapoint not asked for",tableAJ.dat0$Washer.Size, ignore.case = T),]
+tableAJ.dat1 <- tableAJ.dat0[-grep("unknown|-- Datapoint not asked for --|Datapoint not asked for|N/A",tableAJ.dat0$Washer.Size, ignore.case = T),]
 tableAJ.dat1$Washer.Size <- gsub(" cu ft| u ft","",tableAJ.dat1$Washer.Size)
 tableAJ.dat1$Washer.Size <- as.numeric(as.character(tableAJ.dat1$Washer.Size))
 unique(tableAJ.dat1$Washer.Size)
@@ -138,6 +138,7 @@ tableAJ.data <- weightedData(tableAJ.dat2[-which(colnames(tableAJ.dat2) %in% c("
 tableAJ.data <- left_join(tableAJ.data, tableAJ.dat2[which(colnames(tableAJ.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Washer.Size"))])
 
+tableAJ.data$count <- 1
 ###############################
 # Weighted Analysis
 ###############################
@@ -161,6 +162,17 @@ tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactu
 
 # exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
 exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
+
+###############################
+# MULTIFAMILY
+###############################
+tableAJ.final.MF <- mean_one_group(CustomerLevelData = tableAJ.data
+                                ,valueVariable = 'Washer.Size' 
+                                ,byVariable    = 'HomeType'
+                                ,aggregateRow  = "All Types")
+
+tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
+exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
 
 
 ###############################
@@ -186,6 +198,17 @@ tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactu
 
 # exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
 exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
+
+###############################
+# MULTIFAMILY
+###############################
+tableAJ.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAJ.data
+                                   ,valueVariable = 'Washer.Size' 
+                                   ,byVariable    = 'HomeType'
+                                   ,aggregateRow  = "All Types")
+
+tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
+exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
 
 
 

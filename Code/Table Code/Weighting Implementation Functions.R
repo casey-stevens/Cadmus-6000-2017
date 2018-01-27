@@ -51,7 +51,8 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
     #QAQC
     stopifnot(item.strata$n <= item.strata$n_h)
   }
-  item.strata$strataSD[which(is.na(item.strata$strataSD))] <- 0
+  item.strata$strataSD[which(item.strata$strataSD %in% c("N/A","NaN",NA))] <- 0
+  item.strata$strataMean[which(item.strata$strataMean %in% c("N/A","NaN",NA))] <- 0
   
   ######################################################
   # weighted means and SEs by grouping variables
@@ -59,7 +60,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   if(byVariable == "BuildingType"){
     item.final <- data.frame(ddply(item.strata, c("BuildingType"), summarise
                                    ,Mean = sum(N_h * strataMean) / sum(N_h)
-                                   ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2)) / sum(N_h)
+                                   ,SE   = sqrt(sum(N_h^2 * (1 / n_h) * (1 - n_h / N_h) * strataSD^2, na.rm = T)) / sum(N_h)
                                    ,n      = sum(n_hj)
                                    ,n_h    = sum(n_h)
                                    ,N_h    = sum(N_h)

@@ -60,7 +60,7 @@ item290.dat4 <- item290.dat3[grep("SITE", item290.dat3$CK_SiteID),]
 item290.dat5 <- item290.dat4[grep("Multifamily", item290.dat4$BuildingType),]
 
 item290.dat5$Lamp.Category[which(item290.dat5$Lamp.Category %in% c("Unknown", "Incandescent / Halogen"))] <- "Other"
-item290.dat5$Lamp.Category[which(item290.dat5$Clean.Room == "Storage")] <- item290.dat5$Clean.Room[which(item290.dat5$Clean.Room == "Storage")]
+item290.dat5 <- item290.dat5[which(item290.dat5$Clean.Room != "Storage")]# <- item290.dat5$Clean.Room[which(item290.dat5$Clean.Room == "Storage")]
   
 item290.site <- summarise(group_by(item290.dat5, CK_Cadmus_ID)
                           ,Total.Unit.Fixtures = sum(Fixture.Qty)
@@ -231,4 +231,87 @@ item292.final <- mean_one_group_unweighted(CustomerLevelData = item292.data
 item292.final <- item292.final[which(colnames(item292.final) %notin% c("BuildingType"))]
 
 exportTable(item292.final, "MF", "Table 85", weighted = FALSE)
+
+
+
+
+
+#############################################################################################
+#Table 82A: STORAGE LIGHTING CHARACTERISTICS (MF Table 82)
+#############################################################################################
+table82A.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
+                                                                ,"CK_SiteID"
+                                                                ,"Fixture.Qty"
+                                                                ,"LIGHTING_BulbsPerFixture"
+                                                                ,"Clean.Wattage"
+                                                                ,"Lamp.Category"
+                                                                ,"Clean.Room"))]
+
+table82A.dat$Total.Lamps <- as.numeric(as.character(table82A.dat$Fixture.Qty)) * as.numeric(as.character(table82A.dat$LIGHTING_BulbsPerFixture))
+unique(table82A.dat$Total.Lamps)
+
+table82A.dat1 <- table82A.dat[which(!(table82A.dat$Total.Lamps %in% c(NA))),]
+
+table82A.dat2 <- left_join(table82A.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+
+table82A.dat3 <- table82A.dat2[which(table82A.dat2$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+table82A.dat4 <- table82A.dat3[grep("SITE", table82A.dat3$CK_SiteID),]
+
+table82A.dat5 <- table82A.dat4[grep("Multifamily", table82A.dat4$BuildingType),]
+
+table82A.dat5$Lamp.Category[which(table82A.dat5$Lamp.Category %in% c("Unknown", "Incandescent / Halogen"))] <- "Other"
+table82A.dat5 <- table82A.dat5[which(table82A.dat5$Clean.Room == "Storage"),]# <- table82A.dat5$Clean.Room[which(table82A.dat5$Clean.Room == "Storage")]
+
+table82A.site <- summarise(group_by(table82A.dat5, CK_Cadmus_ID)
+                          ,Total.Unit.Fixtures = sum(Fixture.Qty)
+                          ,Total.Unit.Lamps = sum(Total.Lamps))
+
+table82A.cast <- dcast(setDT(table82A.dat5)
+                      ,formula = CK_Cadmus_ID ~ Lamp.Category, sum
+                      ,value.var = "Total.Lamps")
+table82A.join <- left_join(table82A.site, table82A.cast)
+
+table82A.melt <- melt(table82A.join, id.vars = "CK_Cadmus_ID")
+names(table82A.melt) <- c("CK_Cadmus_ID", "Lamp.Category", "Lamp.Count")
+
+
+table82A.merge <- left_join(rbsa.dat, table82A.melt)
+table82A.merge <- table82A.merge[which(!is.na(table82A.merge$Lamp.Count)),]
+
+######################################
+#Pop and Sample Sizes for weights
+######################################
+table82A.data <- weightedData(table82A.merge[which(colnames(table82A.merge) %notin% c("Lamp.Category"
+                                                                                   ,"Lamp.Count"))])
+
+table82A.data <- left_join(table82A.data, table82A.merge[which(colnames(table82A.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Lamp.Category"
+                                                                                           ,"Lamp.Count"))])
+table82A.data$count <- 1
+
+
+#########################
+# weighted analysis
+#########################
+table82A.final <- mean_one_group(CustomerLevelData = table82A.data
+                                ,valueVariable = 'Lamp.Count'
+                                ,byVariable = 'Lamp.Category'
+                                ,aggregateRow = "Remove")
+table82A.final <- table82A.final[which(table82A.final$Lamp.Category != "Remove"),]
+
+exportTable(table82A.final, "MF", "Table 82A", weighted = TRUE)
+
+
+#########################
+# weighted analysis
+#########################
+table82A.final <- mean_one_group_unweighted(CustomerLevelData = table82A.data
+                                           ,valueVariable = 'Lamp.Count'
+                                           ,byVariable = 'Lamp.Category'
+                                           ,aggregateRow = "Remove")
+table82A.final <- table82A.final[which(table82A.final$Lamp.Category != "Remove"),]
+
+exportTable(table82A.final, "MF", "Table 82A", weighted = FALSE)
+
 

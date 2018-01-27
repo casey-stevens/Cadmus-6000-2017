@@ -669,6 +669,21 @@ tableAH.final.MH <- tableAH.final[which(tableAH.final$BuildingType == "Manufactu
 # exportTable(tableAH.final.SF, "SF", "Table AH", weighted = TRUE)
 exportTable(tableAH.final.MH, "MH", "Table AH", weighted = TRUE)
 
+#######################
+# MULTIFAMILY
+#######################
+tableAH.final.MF <- mean_one_group(CustomerLevelData = tableAH.data
+                                ,valueVariable    = 'Wattage.per.bulb'
+                                ,byVariable       = 'HomeType'
+                                ,aggregateRow     = 'All Types')
+
+# Export table
+tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Multifamily"),-1]
+exportTable(tableAH.final.MF, "MF", "Table AH", weighted = TRUE)
+
+
+
+
 
 ################################
 # Unweighted Analysis
@@ -685,3 +700,14 @@ tableAH.final.MH <- tableAH.final[which(tableAH.final$BuildingType == "Manufactu
 # exportTable(tableAH.final.SF, "SF", "Table AH", weighted = FALSE)
 exportTable(tableAH.final.MH, "MH", "Table AH", weighted = FALSE)
 
+#######################
+# MULTIFAMILY
+#######################
+tableAH.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAH.data
+                                   ,valueVariable    = 'Wattage.per.bulb'
+                                   ,byVariable       = 'HomeType'
+                                   ,aggregateRow     = 'All Types')
+
+# Export table
+tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Multifamily"),-1]
+exportTable(tableAH.final.MF, "MF", "Table AH", weighted = FALSE)
