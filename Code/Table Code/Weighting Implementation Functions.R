@@ -1431,7 +1431,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
-  }else if(columnVariable %in% c("System.Type", "TankSize", "Washer.Age")){
+  }else if(columnVariable %in% c("System.Type", "TankSize", "Washer.Age","Heating_System")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType","Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1504,12 +1504,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                                         ,columnVariable
                                                                         ,"N.h"
                                                                         ,"n.h"))])
-    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", columnVariable)
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType",columnVariable)
                                          ,summarise
                                          ,columnVar.N.h = sum(N.h)
                                          ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
     #join strata data with weights by column grouping variable 
-    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable))
+    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType",columnVariable))
     
   # }
 
@@ -1555,9 +1555,10 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
                                                                          (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
-                                                 ,count     = sum(count)
-                                                 ,N         = unique(columnVar.N.h)
-                                                 ,n         = sum(n_hj)
+                                                 ,count     = sum(unique(count))
+                                                 # ,col.N     = unique(columnVar.N.h)
+                                                 ,N         = sum(unique(N.h))
+                                                 ,n         = sum(unique(n_hj))
                                                  ,EB   = w.SE * qt(1-(1-0.9)/2, n)
                                                  # ,n         = unique(columnVar.n.h)
     ), stringsAsFactors = F)
@@ -2019,8 +2020,10 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
   #join the total count onto the counts and sample sizes
   item.final         <- left_join(item.combined, item.totals, by = c("BuildingType",columnVariable))
   
-  if(columnVariable == "System.Type" & rowVariable == "Heating.Fuel"){
+  if(columnVariable %in% c("System.Type") & rowVariable %in% c("Heating.Fuel")){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Heating.Fuel == "Total" & item.final$System.Type == "All Systems")])
+  }else if(columnVariable %in% c("Heating_System") & rowVariable %in% c("Fuel")){
+    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Fuel == "Total" & item.final$Heating_System == "All Systems")])
   }else if(columnVariable == "System.Type" & rowVariable == "HomeType"){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$HomeType == "Total" & item.final$System.Type == "All Systems")])
   }else if(columnVariable == "TankSize" & rowVariable == "DHW.Fuel"){

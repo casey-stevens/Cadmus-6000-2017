@@ -225,10 +225,11 @@ item219.data$Ind <- item219.data$CommonFloorFlag
 # Weighted Analysis
 #######################
 item219.final <- proportions_one_group(CustomerLevelData = item219.data
-                                       ,valueVariable = 'CommonFloorFlag'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = 'HomeType'
                                        ,total.name = "All Sizes"
                                        ,weighted = TRUE)
+item219.final <- item219.final[which(names(item219.final) != "BuildingType")]
 exportTable(item219.final, "MF", "Table 11", weighted = TRUE)
 
 
@@ -236,10 +237,11 @@ exportTable(item219.final, "MF", "Table 11", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item219.final <- proportions_one_group(CustomerLevelData = item219.data
-                                       ,valueVariable = 'CommonFloorFlag'
+                                       ,valueVariable = 'Ind'
                                        ,groupingVariable = 'HomeType'
                                        ,total.name = "All Sizes"
                                        ,weighted = FALSE)
+item219.final <- item219.final[which(names(item219.final) != "BuildingType")]
 exportTable(item219.final, "MF", "Table 11", weighted = FALSE)
 
 

@@ -86,7 +86,7 @@ item227.merge <- left_join(rbsa.dat, item227.melt)
 item227.merge <- item227.merge[grep("Multifamily", item227.merge$BuildingType),]
 
 #remove missing
-item227.merge <- item227.merge[which(item227.merge$Number.of.Residents %notin% c("N/A",NA,0)),]
+item227.merge <- item227.merge[which(item227.merge$Number.of.Residents %notin% c("N/A",NA)),]
 item227.merge <- item227.merge[which(item227.merge$Age.Category %notin% c("N/A",NA)),]
 unique(item227.merge$Number.of.Residents)
 unique(item227.merge$Age.Category)
@@ -113,7 +113,16 @@ item227.final <- mean_one_group(CustomerLevelData = item227.data
                                 ,byVariable = 'Age.Category'
                                 ,aggregateRow = NA)
 item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
-item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuidingType"))]
+item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuildingType"))]
+
+# If final table have <NA> something was named incorrectly
+levels(item227.final.MF$Age.Category)
+rowOrder <- c("Age_0_18"
+              ,"Age_19_64"
+              ,"Age_65_Older"
+              ,"AllCategories")
+item227.final.MF <- item227.final.MF %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
+item227.final.MF <- data.frame(item227.final.MF)
 
 exportTable(item227.final, "MF", "Table 19", weighted = TRUE)
 
@@ -127,6 +136,16 @@ item227.final <- mean_one_group_unweighted(CustomerLevelData = item227.data
                                 ,aggregateRow = NA)
 item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
 
-item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuidingType"))]
+item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuildingType"))]
+
+# If final table have <NA> something was named incorrectly
+levels(item227.final.MF$Age.Category)
+rowOrder <- c("Age_0_18"
+              ,"Age_19_64"
+              ,"Age_65_Older"
+              ,"AllCategories")
+item227.final.MF <- item227.final.MF %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
+item227.final.MF <- data.frame(item227.final.MF)
+
 exportTable(item227.final.MF, "MF", "Table 19", weighted = FALSE)
 

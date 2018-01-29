@@ -347,8 +347,11 @@ rowOrder <- c("Apartment Building (3 or fewer floors)"
 item216.table <- item216.table %>% mutate(HomeType = factor(HomeType, levels = rowOrder)) %>% arrange(HomeType)  
 item216.table <- data.frame(item216.table)
 
-exportTable(item216.table, "MF", "Table 8", weighted = TRUE)
-exportTable(item216.table, "MF", "Table 13", weighted = TRUE)
+item216.table.MF <- item216.table[which(item216.table$BuildingType == "Multifamily"),
+                                  which(names(item216.table) != "BuildingType")]
+
+exportTable(item216.table.MF, "MF", "Table 8", weighted = TRUE)
+exportTable(item216.table.MF, "MF", "Table 13", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -412,5 +415,8 @@ item216.table <- item216.table %>% mutate(HomeType = factor(HomeType, levels = r
 item216.table <- data.frame(item216.table)
 
 
-exportTable(item216.table, "MF", "Table 8", weighted = FALSE)
-exportTable(item216.table, "MF", "Table 13", weighted = FALSE)
+item216.table.MF <- item216.table[which(item216.table$BuildingType == "Multifamily"),
+                                  which(names(item216.table) != "BuildingType")]
+
+exportTable(item216.table.MF, "MF", "Table 8", weighted = FALSE)
+exportTable(item216.table.MF, "MF", "Table 13", weighted = FALSE)

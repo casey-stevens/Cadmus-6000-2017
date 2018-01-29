@@ -73,7 +73,7 @@ unique(envelope.dat.MF$Floor.Sub.Type)
 envelope.sub <- envelope.dat.MF[-grep("Unknown", envelope.dat.MF$Floor.Sub.Type),]
 ii=1
 for(ii in 1:nrow(envelope.sub)){
-  if(envelope.sub$Type.of.Area.Below[ii] != "-- Datapoint not asked for --"){
+  if(envelope.sub$Type.of.Area.Below[ii] %notin% c("-- Datapoint not asked for --", "Datapoint not asked for")){
     envelope.sub$Floor.Sub.Type[ii] <- paste(envelope.sub$Floor.Sub.Type[ii], "Over", envelope.sub$Type.of.Area.Below[ii], sep = " ")
   }else{
     envelope.sub$Floor.Sub.Type[ii] <- envelope.sub$Floor.Sub.Type[ii]
@@ -86,7 +86,7 @@ envelope.sub$Floor.Sub.Type <- gsub("Framed Conditioned", "Framed Floor", envelo
 envelope.sub$Floor.Sub.Type <- gsub("Framed Crawlspace", "Framed Floor", envelope.sub$Floor.Sub.Type)
 unique(envelope.sub$Floor.Sub.Type)
 
-envelope.sub <- envelope.sub[-grep("Other",envelope.sub$Floor.Sub.Type),]
+envelope.sub <- envelope.sub[-grep("Other|Residential|Outside",envelope.sub$Floor.Sub.Type),]
 
 #############################################################################################
 #Item 236: Table 28

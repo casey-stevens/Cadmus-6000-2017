@@ -93,8 +93,8 @@ item234.final <- rbind.data.frame(item234.final, item234.all.vintages, stringsAs
 
 item234.cast <- dcast(setDT(item234.final)
                       ,formula = HomeType ~ WallType
-                      ,value.var = c("w.percent","w.SE", "count","n","N"))
-
+                      ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
+names(item234.cast)
 item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
                              ,"In-fill.Steel"    = NA
                              ,"In-fill.Steel.SE" = NA
@@ -108,10 +108,10 @@ item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
                              ,"Other.SE"         = item234.cast$w.SE_Other
                              ,"n"                = item234.cast$n_Total
                              ,"In-fill.Steel.EB" = NA
-                             ,"Masonry.EB"       = item234.cast$w.EB_Masonry
-                             ,"Steel.Frame.EB"   = NA#item234.cast$w.EB_Steel.Frame
-                             ,"Wood.EB"          = item234.cast$`w.EB_Wood Frame`
-                             ,"Other.EB"         = item234.cast$w.EB_Other)
+                             ,"Masonry.EB"       = item234.cast$EB_Masonry
+                             ,"Steel.Frame.EB"   = NA#item234.cast$EB_Steel.Frame
+                             ,"Wood.EB"          = item234.cast$`EB_Wood Frame`
+                             ,"Other.EB"         = item234.cast$EB_Other)
 
 exportTable(item234.final, "MF", "Table 26", weighted = TRUE)
 
@@ -125,7 +125,7 @@ item234.final <- proportions_two_groups_unweighted(CustomerLevelData = item234.d
                                            ,rowVariable      = 'WallType'
                                            ,aggregateColumnName = "Remove")
 item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
-item234.final <- item234.final[which(item234.final$WallType != "Total"),]
+# item234.final <- item234.final[which(item234.final$WallType != "Total"),]
 
 
 item234.all.vintages <- proportions_one_group(CustomerLevelData = item234.data
