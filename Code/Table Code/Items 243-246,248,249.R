@@ -612,3 +612,83 @@ item248.final <- proportions_one_group(CustomerLevelData = item248.data
 item248.final.MF <- item248.final[which(colnames(item248.final) %notin% c("BuildingType"))]
 
 exportTable(item248.final.MF, "MF", "Table 40", weighted = FALSE)
+
+
+
+
+
+#############################################################################################
+#Item 249: DISTRIBUTION OF UNIT COOLING SYSTEMS / Table 40
+#############################################################################################
+item249.dat <- unique(mechanical.dat.MF[which(colnames(mechanical.dat.MF) %in% c("CK_Cadmus_ID",
+                                                                                 "Cool.Iteration",
+                                                                                 "CK_Building_ID",
+                                                                                 "System.Type"
+                                                                                 ,"Primary.Cooling.System"))])
+item249.dat <- item249.dat[which(item249.dat$Primary.Cooling.System %in% c("Yes","No")),]
+
+item249.dat$CoolingInd <- 0
+item249.dat$CoolingInd[which(item249.dat$Primary.Cooling.System == "Yes")] <- 1
+
+item249.dat1 <- data.frame(summarise(group_by(item249.dat,CK_Cadmus_ID,System.Type),
+                                     CoolingInd = sum(unique(CoolingInd), na.rm = T)), stringsAsFactors = F)
+# item249.dat2 <- data.frame(
+#   summarise(group_by(item249.dat1,CK_Cadmus_ID),
+#             CoolingSum = sum(CoolingInd)),stringsAsFactors = F )
+
+item249.dat1 <- left_join(rbsa.dat, item249.dat1)
+
+item249.dat1$CoolingInd[which(is.na(item249.dat1$CoolingInd))] <- 0
+item249.dat1$System.Type[which(item249.dat1$CoolingInd == 0)] <- "No Cooling"
+item249.dat1$System.Type[which(item249.dat1$CoolingInd > 0)] <- item249.dat1$System.Type[which(item249.dat1$CoolingInd > 0)]
+
+item249.dat2 <- unique(item249.dat1[,c("CK_Cadmus_ID","System.Type")])
+
+item249.dat3 <- left_join(item249.dat2,item249.dat1)
+item249.dat3$CoolingSum <- as.numeric(as.character(item249.dat3$CoolingInd))
+item249.dat4 <- item249.dat3[which(item249.dat3$System.Type %notin% c(NA,"No Cooling","-- Unassigned --","N/A")),]
+
+item249.merge <- left_join(rbsa.dat, item249.dat4)
+item249.merge <- item249.merge[which(item249.merge$BuildingType == "Multifamily"),]
+item249.merge <- item249.merge[grep("BLDG",item249.merge$CK_Building_ID),]
+item249.merge$CoolingSum[which(item249.merge$CoolingSum %in% c("N/A",NA))] <- 1
+item249.merge$System.Type[which(item249.merge$System.Type %in% c("N/A",NA))] <- "No Cooling"
+unique(item249.merge$System.Type)
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item249.data <- weightedData(item249.merge[-which(colnames(item249.merge) %in% c("System.Type"
+                                                                                 ,"CoolingSum"
+                                                                                 ,"CoolingInd"))])
+item249.data <- left_join(item249.data, item249.merge[which(colnames(item249.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"System.Type"
+                                                                                           ,"CoolingSum"
+                                                                                           ,"CoolingInd"))])
+
+item249.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+item249.final <- proportions_one_group(CustomerLevelData = item249.data
+                                       ,valueVariable = 'count'
+                                       ,groupingVariable = 'System.Type'
+                                       ,total.name = "All Systems"
+)
+item249.final.MF <- item249.final[which(colnames(item249.final) %notin% c("BuildingType"))]
+
+exportTable(item249.final.MF, "MF", "Table 41", weighted = TRUE)
+
+#######################
+# unweighted Analysis
+#######################
+item249.final <- proportions_one_group(CustomerLevelData = item249.data
+                                       ,valueVariable = 'count'
+                                       ,groupingVariable = 'System.Type'
+                                       ,total.name = "All Systems"
+                                       ,weighted = FALSE
+)
+item249.final.MF <- item249.final[which(colnames(item249.final) %notin% c("BuildingType"))]
+
+exportTable(item249.final.MF, "MF", "Table 41", weighted = FALSE)
