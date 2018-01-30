@@ -48,18 +48,23 @@ mechanical.dat3 <- mechanical.dat2
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
 mechanical.dat3$EquipVintage_bins <- "Vintage Unknown"
+mechanical.dat3$EquipVintage_bins_MH <- "Vintage Unknown"
+
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` < 1990)] <- "Pre 1990"
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 1990 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2000)] <- "1990-1999"
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2007)] <- "2000-2006"
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2007 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2015)] <- "2007-2014"
 mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2015)] <- "Post 2014"
-# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 1990 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2000)] <- "1990-1999"
-# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2006)] <- "2000-2005"
-# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2006 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2010)] <- "2006-2009"
-# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2010 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2015)] <- "2010-2014"
-# mechanical.dat3$EquipVintage_bins[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2015)] <- "Post 2014"
+
+mechanical.dat3$EquipVintage_bins_MH[which(mechanical.dat3$`Component.1.Year.of.Manufacture` < 1990)] <- "Pre 1990"
+mechanical.dat3$EquipVintage_bins_MH[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 1990 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2000)] <- "1990-1999"
+mechanical.dat3$EquipVintage_bins_MH[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2000 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2006)] <- "2000-2005"
+mechanical.dat3$EquipVintage_bins_MH[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2006 & mechanical.dat3$`Component.1.Year.of.Manufacture` < 2015)] <- "2006-2014"
+mechanical.dat3$EquipVintage_bins_MH[which(mechanical.dat3$`Component.1.Year.of.Manufacture` >= 2015)] <- "Post 2014"
+
 #check uniques
 unique(mechanical.dat3$EquipVintage_bins)
+unique(mechanical.dat3$EquipVintage_bins_MH)
 
 
 
@@ -94,7 +99,8 @@ item50.dat4 <- item50.dat3[which(item50.dat3$`Heating.Efficiency.-.High` %notin%
 #average within houses
 item50.customer <- summarise(group_by(item50.dat4
                                      , CK_Cadmus_ID
-                                     , EquipVintage_bins)
+                                     , EquipVintage_bins
+                                     , EquipVintage_bins_MH)
                              ,`Heating.Efficiency.-.High` = sum(`Heating.Efficiency.-.High`)
                             ,y_bar_ilk  = mean(`Heating.Efficiency.-.High`)
                             ,y_ilk      = sum(`Heating.Efficiency.-.High`)
@@ -106,6 +112,7 @@ item50.merge <- item50.merge[which(!is.na(item50.merge$y_ilk)),]
 
 
 item50.data <- weightedData(item50.merge[-which(colnames(item50.merge) %in% c("EquipVintage_bins"
+                                                                              ,"EquipVintage_bins_MH"
                                                                               ,"y_bar_ilk"
                                                                               ,"y_ilk"
                                                                               ,"m_ilk"
@@ -113,13 +120,14 @@ item50.data <- weightedData(item50.merge[-which(colnames(item50.merge) %in% c("E
 
 item50.data <- left_join(item50.data, item50.merge[which(colnames(item50.merge) %in% c("CK_Cadmus_ID"
                                                                                      ,"EquipVintage_bins"
+                                                                                     ,"EquipVintage_bins_MH"
                                                                                      ,"y_bar_ilk"
                                                                                      ,"y_ilk"
                                                                                      ,"m_ilk"
                                                                                      ,"Heating.Efficiency.-.High"))])
 
 ###########################
-# Weighted Analysis
+# Weighted Analysis - Single Family
 ###########################
 item50.final <- mean_two_groups_domain(CustomerLevelData = item50.data
                                        ,valueVariable    = 'y_ilk'
@@ -168,17 +176,65 @@ item50.table <- data.frame(item50.table)
 
 #subset to only the relevant building types for this item
 item50.table.SF <- item50.table[which(item50.table$BuildingType == "Single Family"),-which(colnames(item50.table) %in% c("BuildingType"))]
+
+exportTable(item50.table.SF, "SF", "Table 57", weighted = TRUE)
+
+###########################
+# Weighted Analysis - Manufactured
+###########################
+item50.final <- mean_two_groups_domain(CustomerLevelData = item50.data
+                                       ,valueVariable    = 'y_ilk'
+                                       ,byVariableRow    = 'EquipVintage_bins_MH'
+                                       ,byVariableColumn = 'State'
+                                       ,aggregateColumn  = "Region"
+                                       ,aggregateRow     = "All Vintages"
+)
+
+
+#subset to only the columns needed for the final RBSA table
+item50.table <- data.frame("BuildingType"       = item50.final$BuildingType
+                           ,"Equipment.Vintage" = item50.final$EquipVintage_bins_MH
+                           ,"Mean_ID"           = item50.final$Mean_ID
+                           ,"SE_ID"             = item50.final$SE_ID
+                           ,"n_ID"              = item50.final$n_ID
+                           ,"Mean_MT"           = item50.final$Mean_MT
+                           ,"SE_MT"             = item50.final$SE_MT
+                           ,"n_MT"              = item50.final$n_MT
+                           ,"Mean_OR"           = item50.final$Mean_OR
+                           ,"SE_OR"             = item50.final$SE_OR
+                           ,"n_OR"              = item50.final$n_OR
+                           ,"Mean_WA"           = item50.final$Mean_WA
+                           ,"SE_WA"             = item50.final$SE_WA
+                           ,"n_WA"              = item50.final$n_WA
+                           ,"Mean_Region"       = item50.final$Mean_Region
+                           ,"SE_Region"         = item50.final$SE_Region
+                           ,"n_Region"          = item50.final$n_Region
+                           ,"EB_ID"             = item50.final$EB_ID
+                           ,"EB_MT"             = item50.final$EB_MT
+                           ,"EB_OR"             = item50.final$EB_OR
+                           ,"EB_WA"             = item50.final$EB_WA
+                           ,"EB_Region"         = item50.final$EB_Region)
+
+# row ordering example code
+levels(item50.table$Equipment.Vintage)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2005"
+              ,"2006-2014"
+              ,"Post 2014"
+              ,"Vintage Unknown"
+              ,"All Vintages")
+item50.table <- item50.table %>% mutate(Equipment.Vintage = factor(Equipment.Vintage, levels = rowOrder)) %>% arrange(Equipment.Vintage)  
+item50.table <- data.frame(item50.table)
+
 item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
 
-
-# item50.final.SF <- item50.final[which(item50.final$BuildingType == "Single Family"),]
-
-# exportTable(item50.table.SF, "SF", "Table 57", weighted = TRUE)
 exportTable(item50.table.MH, "MH", "Table 38", weighted = TRUE)
 
 
+
 ###########################
-# Unweighted Analysis
+# Unweighted Analysis - single family
 ###########################
 item50.final <- mean_two_groups_unweighted(CustomerLevelData = item50.data
                                 ,valueVariable    = 'y_ilk'
@@ -223,11 +279,57 @@ item50.table <- data.frame(item50.table)
 
 #subset to only the relevant building types for this item
 item50.table.SF <- item50.table[which(item50.table$BuildingType == "Single Family"),-which(colnames(item50.table) %in% c("BuildingType"))]
-item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured"), -which(colnames(item50.table) %in% c("BuildingType"))]
-
 
 # exportTable(item50.table.SF, "SF", "Table 57", weighted = FALSE)
+
+###########################
+# unWeighted Analysis - Manufactured
+###########################
+item50.final <- mean_two_groups_unweighted(CustomerLevelData = item50.data
+                                       ,valueVariable    = 'y_ilk'
+                                       ,byVariableRow    = 'EquipVintage_bins_MH'
+                                       ,byVariableColumn = 'State'
+                                       ,columnAggregate  = "Region"
+                                       ,rowAggregate     = "All Vintages"
+)
+
+
+#subset to only the columns needed for the final RBSA table
+item50.table <- data.frame("BuildingType"       = item50.final$BuildingType
+                           ,"Equipment.Vintage" = item50.final$EquipVintage_bins_MH
+                           ,"Mean_ID"           = item50.final$Mean_ID
+                           ,"SE_ID"             = item50.final$SE_ID
+                           ,"n_ID"              = item50.final$n_ID
+                           ,"Mean_MT"           = item50.final$Mean_MT
+                           ,"SE_MT"             = item50.final$SE_MT
+                           ,"n_MT"              = item50.final$n_MT
+                           ,"Mean_OR"           = item50.final$Mean_OR
+                           ,"SE_OR"             = item50.final$SE_OR
+                           ,"n_OR"              = item50.final$n_OR
+                           ,"Mean_WA"           = item50.final$Mean_WA
+                           ,"SE_WA"             = item50.final$SE_WA
+                           ,"n_WA"              = item50.final$n_WA
+                           ,"Mean_Region"       = item50.final$Mean_Region
+                           ,"SE_Region"         = item50.final$SE_Region
+                           ,"n_Region"          = item50.final$n_Region)
+
+# row ordering example code
+levels(item50.table$Equipment.Vintage)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2005"
+              ,"2006-2014"
+              ,"Post 2014"
+              ,"Vintage Unknown"
+              ,"All Vintages")
+item50.table <- item50.table %>% mutate(Equipment.Vintage = factor(Equipment.Vintage, levels = rowOrder)) %>% arrange(Equipment.Vintage)  
+item50.table <- data.frame(item50.table)
+
+item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
+
 exportTable(item50.table.MH, "MH", "Table 38", weighted = FALSE)
+
+
 
 
 
@@ -385,7 +487,8 @@ item52.dat3$count <- 1
 #average within houses
 item52.customer <- summarise(group_by(item52.dat3
                                       , CK_Cadmus_ID
-                                      , EquipVintage_bins)
+                                      , EquipVintage_bins
+                                      , EquipVintage_bins_MH)
                              ,y_bar_ilk  = mean(HSPF)
                              ,y_ilk      = sum(HSPF)
                              ,m_ilk      = sum(count)
@@ -410,6 +513,7 @@ item52.data <- weightedData(item52.dat5[-which(colnames(item52.dat5) %in% c("Gen
                                                                             ,"Heating.Efficiency.-.High"
                                                                             ,"HSPF"
                                                                             ,"EquipVintage_bins"
+                                                                            ,"EquipVintage_bins_MH"
                                                                             ,"Primary.Heating.System"
                                                                             ,"y_bar_ilk"
                                                                             ,"y_ilk"
@@ -421,13 +525,14 @@ item52.data <- left_join(item52.data, item52.dat5[which(colnames(item52.dat5) %i
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"HSPF"
                                                                                      ,"EquipVintage_bins"
+                                                                                     ,"EquipVintage_bins_MH"
                                                                                      ,"Primary.Heating.System"
                                                                                      ,"y_bar_ilk"
                                                                                      ,"y_ilk"
                                                                                      ,"m_ilk"))])
 item52.data$count <- 1
 ###############################
-# Weighted Analysis
+# Weighted Analysis - single family
 ###############################
 item52.final <- mean_one_group_domain(CustomerLevelData = item52.data
                                ,valueVariable = 'y_bar_ilk' 
@@ -446,12 +551,34 @@ item52.final <- item52.final %>% mutate(EquipVintage_bins = factor(EquipVintage_
 item52.final <- data.frame(item52.final)
 
 # Export table
-# SF = Table 59, MH = Table 39
 item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Family"),-1]
-item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
 
 # exportTable(item52.final.SF, "SF", "Table 59", weighted = TRUE)
+
+###############################
+# Weighted Analysis - manufactured
+###############################
+item52.final <- mean_one_group_domain(CustomerLevelData = item52.data
+                                      ,valueVariable = 'y_bar_ilk' 
+                                      ,byVariable    = 'EquipVintage_bins_MH'
+                                      ,aggregateRow  = "All Vintages")
+# row ordering example code
+unique(item52.final$EquipVintage_bins_MH)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2005"
+              ,"2006-2014"
+              ,"Post 2014"
+              ,"Vintage Unknown"
+              ,"All Vintages")
+item52.final <- item52.final %>% mutate(EquipVintage_bins_MH = factor(EquipVintage_bins_MH, levels = rowOrder)) %>% arrange(EquipVintage_bins_MH)  
+item52.final <- data.frame(item52.final)
+
+# Export table
+item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
+
 exportTable(item52.final.MH, "MH", "Table 39", weighted = TRUE)
+
 
 
 ###############################
@@ -477,9 +604,31 @@ item52.final <- data.frame(item52.final)
 # Export table
 # SF = Table 59, MH = Table 39
 item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Family"),-1]
-item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
 
 # exportTable(item52.final.SF, "SF", "Table 59", weighted = FALSE)
+
+###############################
+# unweighted Analysis - manufactured
+###############################
+item52.final <- mean_one_group_unweighted(CustomerLevelData = item52.data
+                                      ,valueVariable = 'y_bar_ilk' 
+                                      ,byVariable    = 'EquipVintage_bins_MH'
+                                      ,aggregateRow  = "All Vintages")
+# row ordering example code
+unique(item52.final$EquipVintage_bins_MH)
+rowOrder <- c("Pre 1990"
+              ,"1990-1999"
+              ,"2000-2005"
+              ,"2006-2014"
+              ,"Post 2014"
+              ,"Vintage Unknown"
+              ,"All Vintages")
+item52.final <- item52.final %>% mutate(EquipVintage_bins_MH = factor(EquipVintage_bins_MH, levels = rowOrder)) %>% arrange(EquipVintage_bins_MH)  
+item52.final <- data.frame(item52.final)
+
+# Export table
+item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
+
 exportTable(item52.final.MH, "MH", "Table 39", weighted = FALSE)
 
 

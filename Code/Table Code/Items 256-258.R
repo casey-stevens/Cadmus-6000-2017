@@ -184,7 +184,7 @@ item257.data <- left_join(item257.data, item257.merge[which(colnames(item257.mer
                                                                                            ,"Lamp.Category"
                                                                                            ,"SiteCount"))])
 item257.data$count <- 1
-
+length(unique(item257.data$CK_Cadmus_ID))
 ##############################
 # weighted analysis
 ##############################
@@ -250,7 +250,7 @@ exportTable(item257.table, "MF", "Table 49", weighted = TRUE)
 
 
 ##############################
-# weighted analysis
+# unweighted analysis
 ##############################
 item257.final <- proportions_two_groups_unweighted(CustomerLevelData = item257.data
                                            ,valueVariable = 'SiteCount'

@@ -85,7 +85,7 @@ tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
                                        ,groupingVariable = "HomeType"
                                        ,total.name = "All Types"
                                        ,weighted = TRUE)
-tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Manufactured")
+tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Multifamily")
                                   ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
 exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE)
 
@@ -262,6 +262,7 @@ TableVV.dat1 <- TableVV.dat[grep("yes|no",TableVV.dat$SITES_General_GENL_INFO_Sm
 unique(TableVV.dat$SITES_General_GENL_INFO_SmartHome_Devices_Y_N)
 
 TableVV.dat2 <- left_join(rbsa.dat, TableVV.dat1)
+TableVV.dat2 <- TableVV.dat2[grep("site",TableVV.dat2$CK_Building_ID,ignore.case = T),]
 
 TableVV.dat2$Ind <- 0
 TableVV.dat2$Ind[grep("yes",TableVV.dat2$SITES_General_GENL_INFO_SmartHome_Devices_Y_N,ignore.case = T)] <- 1
@@ -301,7 +302,7 @@ TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
                                        ,groupingVariable = "HomeType"
                                        ,total.name = "All Types"
                                        ,weighted = TRUE)
-TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Single Family")
+TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Multifamily")
                                   ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
 exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE)
 
@@ -332,6 +333,6 @@ TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
                                           ,groupingVariable = "HomeType"
                                           ,total.name = "All Types"
                                           ,weighted = FALSE)
-TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Single Family")
+TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Multifamily")
                                      ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
 exportTable(TableVV.table.MF,"MF","Table VV",weighted = FALSE)

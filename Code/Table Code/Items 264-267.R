@@ -455,7 +455,7 @@ item267.final <- rbind.data.frame(item267.summary, item267.all.categories, strin
 item267.cast <- dcast(setDT(item267.final)
                       ,formula = Clean.Room ~ Switch.Type
                       ,value.var = c("w.percent", "w.SE", "count", "n","N","EB"))
-
+names(item267.cast)
 item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.Room
                             ,"24.Hour.Operation"          = item267.cast$`w.percent_24 Hour Operation`
                             ,"24.Hour.Operation.SE"       = item267.cast$`w.SE_24 Hour Operation`
@@ -465,8 +465,8 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"Motion.Sensor.SE"           = item267.cast$`w.SE_Motion Sensor`
                             ,"Photo.Sensor"               = NA#item267.cast$`w.percent_Photo Sensor`
                             ,"Photo.Sensor.SE"            = NA#item267.cast$
-                            ,"Photo.and.Motion.Sensor"    = NA#item267.cast$
-                            ,"Photo.and.Motion.Sensor.SE" = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor"    = item267.cast$`w.percent_Motion & Light Sensor`
+                            ,"Photo.and.Motion.Sensor.SE" = item267.cast$`w.SE_Motion & Light Sensor`
                             ,"Timer Control"              = item267.cast$`w.percent_Timer Control`
                             ,"Timer Control.SE"           = item267.cast$`w.SE_Timer Control`
                             ,"Other"                      = NA#item267.cast$w.percent
@@ -478,7 +478,7 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"Manual.Switch.EB"           = item267.cast$`EB_Manual Switch`
                             ,"Motion.Sensor.EB"           = item267.cast$`EB_Motion Sensor`
                             ,"Photo.Sensor.EB"            = NA#item267.cast$
-                            ,"Photo.and.Motion.Sensor.EB" = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor.EB" = item267.cast$`EB_Motion & Light Sensor`
                             ,"Timer Control.EB"           = item267.cast$`EB_Timer Control`
                             ,"Other.EB"                   = NA#item267.cast$EB_Other
                             ,"Unknown.EB"                 = item267.cast$EB_Unknown
@@ -522,8 +522,8 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"Motion.Sensor.SE"           = item267.cast$`SE_Motion Sensor`
                             ,"Photo.Sensor"               = NA#item267.cast$`Percent_Photo Sensor`
                             ,"Photo.Sensor.SE"            = NA#item267.cast$
-                            ,"Photo.and.Motion.Sensor"    = NA#item267.cast$
-                            ,"Photo.and.Motion.Sensor.SE" = NA#item267.cast$
+                            ,"Photo.and.Motion.Sensor"    = item267.cast$`Percent_Motion & Light Sensor`
+                            ,"Photo.and.Motion.Sensor.SE" = item267.cast$`SE_Motion & Light Sensor`
                             ,"Timer Control"              = item267.cast$`Percent_Timer Control`
                             ,"Timer Control.SE"           = item267.cast$`SE_Timer Control`
                             ,"Other"                      = NA#item267.cast$Percent

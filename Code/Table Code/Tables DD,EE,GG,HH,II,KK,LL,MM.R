@@ -558,7 +558,7 @@ tableMM.dat0 <- tableMM.dat[grep("dryer",tableMM.dat$Type, ignore.case = T),]
 
 tableMM.merge <- left_join(rbsa.dat, tableMM.dat0, by = "CK_Cadmus_ID")
 
-tableMM.merge <- tableMM.merge[which((tableMM.merge$Dryer.Fuel %notin% c("Unknown",NA))),]
+tableMM.merge <- tableMM.merge[which((tableMM.merge$Dryer.Fuel %notin% c("N/A",NA))),]
 tableMM.merge$Dryer.Fuel <- trimws(tableMM.merge$Dryer.Fuel)
 
 ################################################
@@ -616,12 +616,41 @@ exportTable(tableMM.table.MH, "MH", "Table MM", weighted = TRUE)
 #######################
 # MULTIFAMILY
 #######################
-tableMM.final.MF <- proportions_one_group(CustomerLevelData = tableMM.data
+tableMM.final.MF <- proportionRowsAndColumns1(CustomerLevelData = tableMM.data
                                           ,valueVariable = 'Count'
-                                          ,groupingVariable = "Dryer.Fuel"
-                                          ,total.name = "All Fuel Types")
-tableMM.table.MF <- tableMM.final.MF[which(tableMM.final.MF$BuildingType == "Multifamily")
-                                     ,which(names(tableMM.final.MF) != "BuildingType")]
+                                          ,columnVariable = "HomeType"
+                                          ,rowVariable = "Dryer.Fuel"
+                                          ,aggregateColumnName = "All Types")
+tableMM.final.MF <- tableMM.final.MF[which(tableMM.final.MF$HomeType != "All Types"),]
+tableMM.final.MF$Dryer.Fuel[which(tableMM.final.MF$Dryer.Fuel == "Total")] <- "All Fuel Types"
+
+tableMM.cast.MF <- dcast(setDT(tableMM.final.MF)
+                         ,formula = BuildingType + HomeType ~ Dryer.Fuel
+                         ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+tableMM.cast.MF <- data.frame(tableMM.cast.MF)
+
+tableMM.cast.MF <- data.frame("BuildingType"        = tableMM.cast.MF$BuildingType
+                              ,"Home.Type"            = tableMM.cast.MF$HomeType
+                            ,"Electric"              = tableMM.cast.MF$w.percent_Electric
+                            ,"Electric.SE"           = tableMM.cast.MF$w.SE_Electric
+                            ,"Gas"                   = tableMM.cast.MF$`w.percent_Natural.Gas`
+                            ,"Gas.SE"                = tableMM.cast.MF$`w.SE_Natural.Gas`
+                            ,"Propane"               = tableMM.cast.MF$w.percent_Propane
+                            ,"Propane.SE"            = tableMM.cast.MF$w.SE_Propane
+                            ,"Unknown"               = tableMM.cast.MF$w.percent_Unknown
+                            ,"Unknown.SE"            = tableMM.cast.MF$w.SE_Unknown
+                            ,"All.Types"             = tableMM.cast.MF$`w.percent_All.Fuel.Types`
+                            ,"All.Types.SE"          = tableMM.cast.MF$`w.SE_All.Fuel.Types`
+                            ,"n"                     = tableMM.cast.MF$`n_All.Fuel.Types`
+                            ,"Electric.EB"           = tableMM.cast.MF$EB_Electric
+                            ,"Gas.EB"                = tableMM.cast.MF$`EB_Natural.Gas`
+                            ,"Propane.EB"            = tableMM.cast.MF$EB_Propane
+                            ,"Unknown.EB"            = tableMM.cast.MF$EB_Unknown
+                            ,"All.Types.EB"          = tableMM.cast.MF$`EB_All.Fuel.Types`
+)
+
+tableMM.table.MF <- tableMM.cast.MF[which(tableMM.cast.MF$BuildingType == "Multifamily")
+                                     ,which(names(tableMM.cast.MF) != "BuildingType")]
 exportTable(tableMM.table.MF, "MF","Table MM",weighted = TRUE)
 
 
@@ -667,13 +696,36 @@ exportTable(tableMM.table.MH, "MH", "Table MM", weighted = FALSE)
 #######################
 # MULTIFAMILY
 #######################
-tableMM.final.MF <- proportions_one_group(CustomerLevelData = tableMM.data
-                                          ,valueVariable = 'Count'
-                                          ,groupingVariable = "Dryer.Fuel"
-                                          ,total.name = "All Fuel Types"
-                                          ,weighted = FALSE)
-tableMM.table.MF <- tableMM.final.MF[which(tableMM.final.MF$BuildingType == "Multifamily")
-                                     ,which(names(tableMM.final.MF) != "BuildingType")]
+tableMM.final.MF <- proportions_two_groups_unweighted(CustomerLevelData = tableMM.data
+                                              ,valueVariable = 'Count'
+                                              ,columnVariable = "HomeType"
+                                              ,rowVariable = "Dryer.Fuel"
+                                              ,aggregateColumnName = "All Types")
+tableMM.final.MF <- tableMM.final.MF[which(tableMM.final.MF$HomeType != "All Types"),]
+tableMM.final.MF$Dryer.Fuel[which(tableMM.final.MF$Dryer.Fuel == "Total")] <- "All Fuel Types"
+
+tableMM.cast.MF <- dcast(setDT(tableMM.final.MF)
+                         ,formula = BuildingType + HomeType ~ Dryer.Fuel
+                         ,value.var = c("Percent","SE","Count","n"))
+tableMM.cast.MF <- data.frame(tableMM.cast.MF)
+
+tableMM.cast.MF <- data.frame("BuildingType"        = tableMM.cast.MF$BuildingType
+                              ,"Home.Type"            = tableMM.cast.MF$HomeType
+                              ,"Electric"              = tableMM.cast.MF$Percent_Electric
+                              ,"Electric.SE"           = tableMM.cast.MF$SE_Electric
+                              ,"Gas"                   = tableMM.cast.MF$`Percent_Natural.Gas`
+                              ,"Gas.SE"                = tableMM.cast.MF$`SE_Natural.Gas`
+                              ,"Propane"               = tableMM.cast.MF$Percent_Propane
+                              ,"Propane.SE"            = tableMM.cast.MF$SE_Propane
+                              ,"Unknown"               = tableMM.cast.MF$Percent_Unknown
+                              ,"Unknown.SE"            = tableMM.cast.MF$SE_Unknown
+                              ,"All.Types"             = tableMM.cast.MF$`Percent_All.Fuel.Types`
+                              ,"All.Types.SE"          = tableMM.cast.MF$`SE_All.Fuel.Types`
+                              ,"n"                     = tableMM.cast.MF$`n_All.Fuel.Types`
+)
+
+tableMM.table.MF <- tableMM.cast.MF[which(tableMM.cast.MF$BuildingType == "Multifamily")
+                                    ,which(names(tableMM.cast.MF) != "BuildingType")]
 exportTable(tableMM.table.MF, "MF","Table MM",weighted = FALSE)
 
 
@@ -787,12 +839,12 @@ exportTable(tableLL.table.MH, "MH", "Table LL", weighted = TRUE)
 #######################
 tableLL.final.MF <- proportions_one_group(CustomerLevelData = tableLL.data
                                           ,valueVariable = 'Ind'
-                                          ,groupingVariable = "HomeType"
+                                          ,groupingVariable = "Type"
                                           ,total.name = "All Types"
                                           ,weighted = TRUE)
 tableLL.table.MF <- tableLL.final.MF[which(tableLL.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableLL.final.MF) != "BuildingType")]
-exportTable(tableLL.table.MF, "MF","Table MM",weighted = TRUE)
+exportTable(tableLL.table.MF, "MF","Table LL",weighted = TRUE)
 
 
 
@@ -844,12 +896,12 @@ exportTable(tableLL.table.MH, "MH", "Table LL", weighted = FALSE)
 #######################
 tableLL.final.MF <- proportions_one_group(CustomerLevelData = tableLL.data
                                           ,valueVariable = 'Ind'
-                                          ,groupingVariable = "HomeType"
+                                          ,groupingVariable = "Type"
                                           ,total.name = "All Types"
                                           ,weighted = FALSE)
 tableLL.table.MF <- tableLL.final.MF[which(tableLL.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableLL.final.MF) != "BuildingType")]
-exportTable(tableLL.table.MF, "MF","Table MM",weighted = FALSE)
+exportTable(tableLL.table.MF, "MF","Table LL",weighted = FALSE)
 
 
 

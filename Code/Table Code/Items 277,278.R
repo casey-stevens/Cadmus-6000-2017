@@ -85,7 +85,7 @@ item277.final <- mean_one_group(CustomerLevelData = item277.data
                                 ,valueVariable = 'Ind'
                                 ,byVariable = 'HomeType'
                                 ,aggregateRow = 'All Sizes')
-
+item277.final <- item277.final[which(names(item277.final) != "BuildingType")]
 exportTable(item277.final, "MF", "Table 69", weighted = TRUE)
 
 
@@ -97,6 +97,7 @@ item277.final <- mean_one_group_unweighted(CustomerLevelData = item277.data
                                            ,byVariable = 'HomeType'
                                            ,aggregateRow = 'All Sizes')
 
+item277.final <- item277.final[which(names(item277.final) != "BuildingType")]
 exportTable(item277.final, "MF", "Table 69", weighted = FALSE)
 
 
@@ -170,8 +171,9 @@ item278.final <- mean_one_group(CustomerLevelData = item278.data
                                 ,valueVariable = 'Ind'
                                 ,byVariable = "INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership"
                                 ,aggregateRow = 'All Types')
+item278.final <- item278.final[which(names(item278.final) != "BuildingType")]
 
-exportTable(item278.final, "MF", "Table 69", weighted = TRUE)
+exportTable(item278.final, "MF", "Table 70", weighted = TRUE)
 
 
 ######################
@@ -181,7 +183,8 @@ item278.final <- mean_one_group_unweighted(CustomerLevelData = item278.data
                                            ,valueVariable = 'Ind'
                                            ,byVariable = 'INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership'
                                            ,aggregateRow = 'All Types')
+item278.final <- item278.final[which(names(item278.final) != "BuildingType")]
 
-exportTable(item278.final, "MF", "Table 69", weighted = FALSE)
+exportTable(item278.final, "MF", "Table 70", weighted = FALSE)
 
 

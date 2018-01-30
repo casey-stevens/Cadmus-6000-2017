@@ -38,6 +38,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 #############################################################################################
 item279.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"CK_SiteID"
+                                                                    # ,"Generic"
                                                                     ,"System.Type"
                                                                     ,"Heating.Fuel"
                                                                     ,"Primary.Heating.System"))]
@@ -50,11 +51,21 @@ item279.dat1 <- left_join(rbsa.dat, item279.dat0, by = "CK_Cadmus_ID")
 
 #subset to only multifamily units
 item279.dat2 <- item279.dat1[grep("Multifamily",item279.dat1$BuildingType),]
+item279.dat2 <- item279.dat2[grep("site",item279.dat2$CK_Building_ID,ignore.case = T),]
 
 #subset to only primary heating rows
 item279.dat3 <- unique(item279.dat2[which(item279.dat2$Primary.Heating.System == "Yes"),])
 which(duplicated(item279.dat3$CK_Cadmus_ID))
 item279.dat3$count <- 1
+
+item279.dat3$System.Type[grep("baseboard",item279.dat3$System.Type,ignore.case = T)] <- "Electric Baseboard"
+item279.dat3$System.Type[grep("fireplace",item279.dat3$System.Type,ignore.case = T)] <- "Stove/Fireplace"
+item279.dat3$System.Type[grep("package",item279.dat3$System.Type,ignore.case = T)] <- "Packaged HP"
+item279.dat3$System.Type[grep("ductless",item279.dat3$System.Type,ignore.case = T)] <- "Mini-split HP"
+item279.dat3$System.Type[grep("boiler",item279.dat3$System.Type,ignore.case = T)] <- "Boiler"
+item279.dat3$System.Type[grep("ceiling",item279.dat3$System.Type,ignore.case = T)] <- "Ceiling Radiant Heat"
+item279.dat3$System.Type[grep("plug in",item279.dat3$System.Type,ignore.case = T)] <- "Plug In Heater"
+unique(item279.dat3$System.Type)
 
 #remove NA in heating fuel types
 unique(item279.dat3$Heating.Fuel)
@@ -138,7 +149,7 @@ exportTable(item279.table, "MF", "Table 71", weighted = TRUE)
 
 
 ######################
-# weighted analysis
+# unweighted analysis
 ######################
 item279.summary <- proportions_two_groups_unweighted(CustomerLevelData = item279.data
                                              ,valueVariable = 'count'
@@ -212,45 +223,56 @@ item280.dat2 <- item280.dat1[grep("Multifamily",item280.dat1$BuildingType),]
 #subset to only primary heating rows
 item280.dat3 <- unique(item280.dat2[which(item280.dat2$Primary.Heating.System == "No"),])
 which(duplicated(item280.dat3$CK_Cadmus_ID))
+
+item280.dat3$System.Type[grep("baseboard",item280.dat3$System.Type,ignore.case = T)] <- "Electric Baseboard"
+item280.dat3$System.Type[grep("fireplace",item280.dat3$System.Type,ignore.case = T)] <- "Stove/Fireplace"
+item280.dat3$System.Type[grep("package",item280.dat3$System.Type,ignore.case = T)] <- "Packaged HP"
+item280.dat3$System.Type[grep("ductless",item280.dat3$System.Type,ignore.case = T)] <- "Mini-split HP"
+# item280.dat3$Primary.Heating.System[grep("fireplace",item280.dat3$Primary.Heating.System,ignore.case = T)] <- "Stove/Fireplace"
+unique(item280.dat3$System.Type)
+
+
 #remove NA in heating fuel types
 unique(item280.dat3$Heating.Fuel)
 item280.dat4 <- item280.dat3[-grep("other|unknown|hot water",item280.dat3$Heating.Fuel, ignore.case = T),]
 item280.dat4$Heating.Fuel[which(item280.dat4$Heating.Fuel == "Natural gas")] <- "Natural Gas"
 item280.dat4$Heating.Fuel[grep("wood",item280.dat4$Heating.Fuel, ignore.case = T)] <- "Wood"
-item280.dat4 <- item280.dat4[which(!is.na(item280.dat4$Heating.Fuel)),]
+item280.dat4 <- item280.dat4[which(item280.dat4$Heating.Fuel  %notin% c("N/A",NA,"None")),]
 unique(item280.dat4$Heating.Fuel)
 names(item280.dat4)
 
 
 item280.merge <- left_join(rbsa.dat, item280.dat4)
 item280.merge <- item280.merge[which(item280.merge$BuildingType == "Multifamily"),]
-item280.merge$Heating.Fuel[which(is.na(item280.merge$Heating.Fuel))] <- "None"
+item280.merge <- item280.merge[which(item280.merge$Heating.Fuel %notin% c("N/A",NA,"None")),]
+# item280.merge$Heating.Fuel[which(item280.merge$Heating.Fuel %in% c("N/A",NA))] <- "None"
 item280.merge$count <- 1
 
 
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
-item280.data <- weightedData(item280.dat4[which(colnames(item280.dat4) %notin% c("CK_SiteID"
+item280.data <- weightedData(item280.merge[which(colnames(item280.merge) %notin% c("CK_SiteID"
                                                                                  ,"System.Type"
                                                                                  ,"Primary.Heating.System"
                                                                                  ,"Heating.Fuel"
                                                                                  ,"count"))])
 
-item280.data <- left_join(item280.data, item280.dat4[which(colnames(item280.dat4) %in% c("CK_Cadmus_ID"
+item280.data <- left_join(item280.data, item280.merge[which(colnames(item280.merge) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
                                                                                          ,"System.Type"
                                                                                          ,"Primary.Heating.System"
                                                                                          ,"Heating.Fuel"
                                                                                          ,"count"))])
 item280.data$count <- 1
+item280.data$Ind <- 1
 
 
 ######################
 # weighted analysis
 ######################
 item280.summary <- proportionRowsAndColumns1(CustomerLevelData = item280.data
-                                             ,valueVariable = 'count'
+                                             ,valueVariable = 'Ind'
                                              ,columnVariable = 'System.Type'
                                              ,rowVariable = 'Heating.Fuel'
                                              ,aggregateColumnName = "All Systems")
@@ -281,7 +303,7 @@ exportTable(item280.table, "MF", "Table 72", weighted = TRUE)
 
 
 ######################
-# weighted analysis
+# unweighted analysis
 ######################
 item280.summary <- proportions_two_groups_unweighted(CustomerLevelData = item280.data
                                              ,valueVariable = 'count'

@@ -1431,7 +1431,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
-  }else if(columnVariable %in% c("System.Type", "TankSize", "Washer.Age","Heating_System")){
+  }else if(columnVariable %in% c("TankSize", "Washer.Age","Heating_System")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType","Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1446,7 +1446,33 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
-  }else {
+  }else if(columnVariable %in% c("System.Type")){
+    #Summarise
+    StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                 ,summarise
+                                                 ,count = sum(get(valueVariable))
+                                                 ,n_hj  = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    
+    #Summarise
+    StrataProportion         <- data.frame(ddply(StrataGroupedProportions
+                                                 , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                                 ,summarise
+                                                 ,total.count = sum(count)), stringsAsFactors = F)
+    
+    #Join Data
+    StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
+    
+    #Summarise
+    StrataGroupedProportions <- data.frame(ddply(StrataGroupedProportions
+                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                 ,summarise
+                                                 ,count = count
+                                                 ,n_hj  = n_hj
+                                                 ,p.h   = count / total.count), stringsAsFactors = F)
+    StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
+    
+  }else{
     #Summarise
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
@@ -1519,7 +1545,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #calculate weighted percent and weighted standard errors grouping by both column and row variables
   ####################################################################################################
   
-  if (columnVariable %in% c("Cooling.Zone","State") & valueVariable == "Ind"){
+  if (columnVariable %in% c("Cooling.Zone","State","System.Type") & valueVariable == "Ind"){
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
@@ -1555,10 +1581,10 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
                                                                          (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
-                                                 ,count     = sum(unique(count))
+                                                 ,count     = sum((count))
                                                  # ,col.N     = unique(columnVar.N.h)
-                                                 ,N         = sum(unique(N.h))
-                                                 ,n         = sum(unique(n_hj))
+                                                 ,N         = sum((N.h))
+                                                 ,n         = sum((n_hj))
                                                  ,EB   = w.SE * qt(1-(1-0.9)/2, n)
                                                  # ,n         = unique(columnVar.n.h)
     ), stringsAsFactors = F)

@@ -75,6 +75,13 @@ item243.dat2$Fuel[grep("N/A", item243.dat2$Fuel, ignore.case = T)] <- "Unknown"
 
 item243.dat2 <- item243.dat2[which(item243.dat2$Fuel != "Unknown"),]
 unique(item243.dat2$Fuel)
+unique(item243.dat2$System.Type)
+
+item243.dat2$System.Type[grep("Electric Baseboard|baseboard electric",item243.dat2$System.Type,ignore.case = T)] <- "Electric Baseboard"
+item243.dat2$System.Type[grep("zonal heat",item243.dat2$System.Type,ignore.case = T)] <- "Other Zonal Heat"
+item243.dat2$System.Type[grep("ductless",item243.dat2$System.Type,ignore.case = T)] <- "Mini-split HP"
+item243.dat2$System.Type[grep("furnace",item243.dat2$System.Type,ignore.case = T)] <- "Furnace"
+item243.dat2$System.Type[grep("boiler",item243.dat2$System.Type,ignore.case = T)] <- "Boiler"
 
 item243.dat3 <- unique(data.frame("CK_Cadmus_ID"      = item243.dat2$CK_Cadmus_ID
                                  ,"Heating_System"    = item243.dat2$System.Type
@@ -618,7 +625,7 @@ exportTable(item248.final.MF, "MF", "Table 40", weighted = FALSE)
 
 
 #############################################################################################
-#Item 249: DISTRIBUTION OF UNIT COOLING SYSTEMS / Table 40
+#Item 249: DISTRIBUTION OF COMMON AREA COOLING SYSTEMS / Table 41
 #############################################################################################
 item249.dat <- unique(mechanical.dat.MF[which(colnames(mechanical.dat.MF) %in% c("CK_Cadmus_ID",
                                                                                  "Cool.Iteration",

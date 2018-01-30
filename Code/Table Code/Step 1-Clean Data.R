@@ -119,7 +119,7 @@ rbsa.dat$BuildingType[grep("Manufa",rbsa.dat$BuildingType, ignore.case = T)]    
 unique(rbsa.dat$BuildingType)
 
 
-# rbsa.dat$BuildingTypeXX[grep("single wide",rbsa.dat$BuildingTypeXX, ignore.case = T)]       <- "Single Wide"
+rbsa.dat$BuildingTypeXX[grep("single wide",rbsa.dat$BuildingTypeXX, ignore.case = T)]       <- "Single Wide"
 
 
 #############################################################################################

@@ -245,7 +245,7 @@ tableAI.dat$count <- 1
 tableAI.dat0 <- tableAI.dat[which(tableAI.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 tableAI.dat1 <- left_join(rbsa.dat, tableAI.dat0, by = "CK_Cadmus_ID")
-
+tableAI.dat1 <- tableAI.dat1[grep("site",tableAI.dat1$CK_Building_ID,ignore.case = T),]
 tableAI.dat2 <- tableAI.dat1[grep("Water Heater",tableAI.dat1$Generic),]
 tableAI.dat2$Detailed.Type <- paste(tableAI.dat2$DHW.Type, tableAI.dat2$DHW.Technology, sep = "-")
 unique(tableAI.dat2$Detailed.Type)

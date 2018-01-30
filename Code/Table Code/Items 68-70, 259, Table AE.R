@@ -964,8 +964,8 @@ item259.table.MF <- proportions_one_group(CustomerLevelData = item259.data
                                           ,weighted         = TRUE)
 item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 
-item259.final.MF <- item259.table[which(item259.table$BuildingType == "Multifamily")
-                                ,-which(colnames(item259.table) %in% c("BuildingType"))]
+item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
+                                ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
 
 exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
 

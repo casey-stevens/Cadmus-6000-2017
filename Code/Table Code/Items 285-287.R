@@ -64,6 +64,7 @@ item285.dat2 <- item285.dat1[grep("site",item285.dat1$CK_SiteID,ignore.case = T)
 item285.dat3 <- unique(item285.dat2)
 
 item285.merge <- left_join(rbsa.dat, item285.dat3)
+item285.merge <- item285.merge[grep("site",item285.merge$CK_Building_ID,ignore.case = T),]
 item285.merge <- item285.merge[which(!is.na(item285.merge$Category)),]
 
 ######################################
@@ -87,7 +88,7 @@ item285.data$count <- 1
 ######################
 # weighted analysis
 ######################
-item285.final <- proportions_one_group_MF(CustomerLevelData = item285.data
+item285.final <- proportions_one_group(CustomerLevelData = item285.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'System.Type'
                                           ,total.name = 'Remove')
@@ -98,7 +99,7 @@ exportTable(item285.final, "MF", "Table 77", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
-item285.final <- proportions_one_group_MF(CustomerLevelData = item285.data
+item285.final <- proportions_one_group(CustomerLevelData = item285.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'System.Type'
                                           ,total.name = 'Remove'
@@ -247,7 +248,7 @@ item287.dat <- mechanical.dat5[,which(colnames(mechanical.dat5) %in% c("CK_Cadmu
                                                                        ,"DHW.Fuel"
                                                                        ,"Category"
                                                                        ,"DHW.Year.Manufactured"))]
-
+item287.dat1 <- item287.dat[grep("site",item287.dat$CK_SiteID,ignore.case = T),]
 
 item287.dat3 <- item287.dat[which(!is.na(item287.dat$DHW.Type)),]
 item287.dat3$Year <- as.numeric(as.character(item287.dat3$DHW.Year.Manufactured))
@@ -264,7 +265,9 @@ unique(item287.dat4$Vintage)
 item287.dat4$Count <- 1
 
 item287.merge <- left_join(rbsa.dat, item287.dat4)
-item287.merge <- item287.merge[-grep("bldg",item287.merge$CK_Building_ID,ignore.case = T),]
+item287.merge <- item287.merge[grep("site",item287.merge$CK_Building_ID,ignore.case = T),]
+item287.merge <- item287.merge[grep("multifamily",item287.merge$BuildingType,ignore.case = T),]
+item287.merge <- item287.merge[which(!duplicated(item287.merge$CK_Cadmus_ID)),]
 item287.merge <- item287.merge[which(!is.na(item287.merge$Vintage)),]
 
 ######################################
@@ -315,7 +318,7 @@ rowOrder <- c("Pre_1990"
               ,"All Vintages")
 item287.final <- item287.final %>% mutate(Vintage = factor(Vintage, levels = rowOrder)) %>% arrange(Vintage)  
 item287.final <- data.frame(item287.final)
-
+item287.final <- item287.final[which(names(item287.final) != "BuildingType")]
 
 exportTable(item287.final, "MF", "Table 79", weighted = TRUE)
 
@@ -339,6 +342,7 @@ rowOrder <- c("Pre_1990"
               ,"All Vintages")
 item287.final <- item287.final %>% mutate(Vintage = factor(Vintage, levels = rowOrder)) %>% arrange(Vintage)  
 item287.final <- data.frame(item287.final)
+item287.final <- item287.final[which(names(item287.final) != "BuildingType")]
 
 
 exportTable(item287.final, "MF", "Table 79", weighted = FALSE)

@@ -215,7 +215,10 @@ item274.table <- data.frame("Building.Size"      = item274.cast$HomeType
                             ,"Interior.Pools.SE" = item274.cast$w.SE_Indoor
                             ,"All.Pools"         = item274.cast$`w.percent_All Pools`
                             ,"All.Pools.SE"      = item274.cast$`w.SE_All Pools`
-                            ,"n"                 = item274.cast$`n_All Pools`) 
+                            ,"n"                 = item274.cast$`n_All Pools`
+                            ,"Exterior.Pools.EB" = item274.cast$EB_Outdoor
+                            ,"Interior.Pools.EB" = item274.cast$EB_Indoor
+                            ,"All.Pools.EB"      = item274.cast$`EB_All Pools`) 
 
 exportTable(item274.table, "MF", "Table 66", weighted = TRUE)
 

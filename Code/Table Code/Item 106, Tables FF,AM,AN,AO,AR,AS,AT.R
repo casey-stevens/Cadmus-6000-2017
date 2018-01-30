@@ -1283,10 +1283,11 @@ tableAT.data <- left_join(tableAT.data, tableAT.merge[which(colnames(tableAT.mer
                                                                                            ,"GPM.Measured.Site"               
                                                                                            ,"GPM_bins"
                                                                                            ,"count"))])
+tableAT.data$count <- 1
+tableAT.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
-tableAT.data$count <- 1
 tableAT.final <- proportionRowsAndColumns1(CustomerLevelData = tableAT.data
                                            ,valueVariable    = 'count'
                                            ,columnVariable   = 'State'
@@ -1351,7 +1352,7 @@ tableAT.table.MF <- proportions_one_group(CustomerLevelData    = tableAT.data
 
 tableAT.final.MF <- tableAT.table.MF[which(tableAT.table.MF$BuildingType == "Multifamily")
                                      ,-which(colnames(tableAT.table.MF) %in% c("BuildingType"))]
-exportTable(tableAT.final.MF, "MF", "Table AS", weighted = TRUE)
+exportTable(tableAT.final.MF, "MF", "Table AT", weighted = TRUE)
 
 
 
@@ -1417,4 +1418,4 @@ tableAT.table.MF <- proportions_one_group(CustomerLevelData    = tableAT.data
 
 tableAT.final.MF <- tableAT.table.MF[which(tableAT.table.MF$BuildingType == "Multifamily")
                                      ,-which(colnames(tableAT.table.MF) %in% c("BuildingType"))]
-exportTable(tableAT.final.MF, "MF", "Table AS", weighted = FALSE)
+exportTable(tableAT.final.MF, "MF", "Table AT", weighted = FALSE)

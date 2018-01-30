@@ -126,3 +126,18 @@ item224.dat[is.na(item224.dat)] <- 0
 # ,"EB_OR"          = item106.cast$EB_OR
 # ,"EB_WA"          = item106.cast$EB_WA
 # ,"EB_Region"      = item106.cast$EB_Region
+
+
+
+
+
+
+
+
+# For any primary or secondary heating systems
+itemXX.dat2$Generic[grep("Electric Baseboard",itemXX.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+itemXX.dat2$Generic[grep("zonal heat",itemXX.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+itemXX.dat2$Generic[grep("ductless",itemXX.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+itemXX.dat2$Generic[grep("furnace",itemXX.dat2$Generic,ignore.case = T)] <- "Furnace"
+itemXX.dat2$Generic[grep("boiler",itemXX.dat2$Generic,ignore.case = T)] <- "Boiler"
+itemXX.dat2$Generic[grep("Stove/Fireplace",itemXX.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"

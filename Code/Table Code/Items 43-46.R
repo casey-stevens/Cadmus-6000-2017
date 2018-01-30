@@ -25,7 +25,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export), sheet = 2)
+mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -69,8 +69,12 @@ for (ii in 1:nrow(item43.dat2)){
   }
 }
 
-item43.dat2$Generic[which(item43.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
-item43.dat2$Generic[which(item43.dat2$Generic == "Zonal Heat")] <- "Other Zonal Heat"
+item43.dat2$Generic[grep("Electric Baseboard",item43.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item43.dat2$Generic[grep("zonal heat",item43.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item43.dat2$Generic[grep("ductless",item43.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item43.dat2$Generic[grep("furnace",item43.dat2$Generic,ignore.case = T)] <- "Furnace"
+item43.dat2$Generic[grep("boiler",item43.dat2$Generic,ignore.case = T)] <- "Boiler"
+item43.dat2$Generic[grep("Stove/Fireplace",item43.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
 
 unique(item43.dat2$Generic)
 
@@ -171,7 +175,12 @@ for (ii in 1:nrow(item44.dat2)){
   }
 }
 
-item44.dat2$Generic[which(item44.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
+item44.dat2$Generic[grep("Electric Baseboard",item44.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item44.dat2$Generic[grep("zonal heat",item44.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item44.dat2$Generic[grep("ductless",item44.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item44.dat2$Generic[grep("furnace",item44.dat2$Generic,ignore.case = T)] <- "Furnace"
+item44.dat2$Generic[grep("boiler",item44.dat2$Generic,ignore.case = T)] <- "Boiler"
+item44.dat2$Generic[grep("Stove/Fireplace",item44.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
 
 
 item44.dat3 <- unique(data.frame("CK_Cadmus_ID" = item44.dat2$CK_Cadmus_ID
@@ -336,8 +345,12 @@ for (ii in 1:nrow(item43.dat2)){
   }
 }
 
-item43.dat2$Generic[which(item43.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
-item43.dat2$Generic[which(item43.dat2$Generic == "Zonal Heat")] <- "Other Zonal Heat"
+item45.dat2$Generic[grep("Electric Baseboard",item45.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item45.dat2$Generic[grep("zonal heat",item45.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item45.dat2$Generic[grep("ductless",item45.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item45.dat2$Generic[grep("furnace",item45.dat2$Generic,ignore.case = T)] <- "Furnace"
+item45.dat2$Generic[grep("boiler",item45.dat2$Generic,ignore.case = T)] <- "Boiler"
+item45.dat2$Generic[grep("Stove/Fireplace",item45.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
 
 unique(item43.dat2$Generic)
 
@@ -430,7 +443,12 @@ for (ii in 1:nrow(item46.dat2)){
   }
 }
 
-item46.dat2$Generic[which(item46.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
+item46.dat2$Generic[grep("Electric Baseboard",item46.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item46.dat2$Generic[grep("zonal heat",item46.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item46.dat2$Generic[grep("ductless",item46.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item46.dat2$Generic[grep("furnace",item46.dat2$Generic,ignore.case = T)] <- "Furnace"
+item46.dat2$Generic[grep("boiler",item46.dat2$Generic,ignore.case = T)] <- "Boiler"
+item46.dat2$Generic[grep("Stove/Fireplace",item46.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
 
 item46.dat3 <- unique(data.frame("CK_Cadmus_ID" = item46.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item46.dat2$Generic
