@@ -330,8 +330,8 @@ item137.dat2$QTY_bins <- item137.dat2$QTY
 item137.dat2$QTY_bins[which(item137.dat2$QTY == 0)] <- "None"
 item137.dat2$QTY_bins[which(item137.dat2$QTY >  0   & item137.dat2$QTY < 100)] <- "< 100 Gallons"
 item137.dat2$QTY_bins[which(item137.dat2$QTY >= 100 & item137.dat2$QTY < 251)] <- "100-250 Gallons"
-item137.dat2$QTY_bins[which(item137.dat2$QTY >= 250 & item137.dat2$QTY < 501)] <- "250-500 Gallons"
-item137.dat2$QTY_bins[which(item137.dat2$QTY >= 500 & item137.dat2$QTY < 1001)] <- "500-1000 Gallons"
+item137.dat2$QTY_bins[which(item137.dat2$QTY >= 251 & item137.dat2$QTY < 501)] <- "251-500 Gallons"
+item137.dat2$QTY_bins[which(item137.dat2$QTY >= 501 & item137.dat2$QTY < 1001)] <- "501-1000 Gallons"
 item137.dat2$QTY_bins[which(item137.dat2$QTY > 1000)] <- "> 1000 Gallons"
 unique(item137.dat2$QTY_bins)
 
@@ -388,8 +388,8 @@ stopifnot(sum(item137.table[which(item137.table$BuildingType == "Single Family")
 unique(item137.table$Annual.Oil.Fuel.Use)
 rowOrder <- c("< 100 Gallons"
               ,"100-250 Gallons"
-              ,"250-500 Gallons"
-              ,"500-1000 Gallons"
+              ,"251-500 Gallons"
+              ,"501-1000 Gallons"
               ,"> 1000 Gallons"
               ,"None"
               ,"Total")
@@ -445,8 +445,8 @@ stopifnot(sum(item137.table[which(item137.table$BuildingType == "Single Family")
 unique(item137.table$Annual.Oil.Fuel.Use)
 rowOrder <- c("< 100 Gallons"
               ,"100-250 Gallons"
-              ,"250-500 Gallons"
-              ,"500-1000 Gallons"
+              ,"251-500 Gallons"
+              ,"501-1000 Gallons"
               ,"> 1000 Gallons"
               ,"None"
               ,"Total")
@@ -489,8 +489,8 @@ item138.dat2$QTY_bins <- item138.dat2$QTY
 item138.dat2$QTY_bins[which(item138.dat2$QTY == 0)] <- "None"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >  0   & item138.dat2$QTY < 50)] <- "< 50 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >= 50  & item138.dat2$QTY < 251)] <- "50-250 Gallons"
-item138.dat2$QTY_bins[which(item138.dat2$QTY >= 250 & item138.dat2$QTY < 501)] <- "250-500 Gallons"
-item138.dat2$QTY_bins[which(item138.dat2$QTY >= 500 & item138.dat2$QTY < 1001)] <- "500-1000 Gallons"
+item138.dat2$QTY_bins[which(item138.dat2$QTY >= 251 & item138.dat2$QTY < 501)] <- "251-500 Gallons"
+item138.dat2$QTY_bins[which(item138.dat2$QTY >= 501 & item138.dat2$QTY < 1001)] <- "501-1000 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY > 1000)] <- "> 1000 Gallons"
 item138.dat2$QTY_bins[which(is.na(item138.dat2$QTY))] <- "None"
 
@@ -548,7 +548,7 @@ stopifnot(sum(item138.table[which(item138.table$BuildingType == "Single Family")
 unique(item138.table$Annual.Propane.Fuel.Use)
 rowOrder <- c("< 50 Gallons"
               ,"50-250 Gallons"
-              ,"250-500 Gallons"
+              ,"251-500 Gallons"
               ,"500-1000 Gallons"
               ,"> 1000 Gallons"
               ,"None"

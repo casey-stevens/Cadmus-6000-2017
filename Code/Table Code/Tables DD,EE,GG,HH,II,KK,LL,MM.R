@@ -348,6 +348,9 @@ tableII.merge <- left_join(rbsa.dat, tableII.dat0, by = "CK_Cadmus_ID")
 
 tableII.merge <- tableII.merge[which((tableII.merge$Power.Strip.Use %notin% c("Unknown",NA))),]
 tableII.merge$Power.Strip.Use <- trimws(tableII.merge$Power.Strip.Use)
+unique(tableII.merge$Power.Strip.Use)
+
+tableII.merge$Power.Strip.Use[grep("aquarium|charger", tableII.merge$Power.Strip.Use, ignore.case = T)] <- "Other"
 
 tableII.merge <- left_join(rbsa.dat, tableII.merge)
 tableII.merge <- tableII.merge[which(!is.na(tableII.merge$Power.Strip.Use)),]

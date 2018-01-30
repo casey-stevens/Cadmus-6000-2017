@@ -522,7 +522,7 @@ tableAG.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.data
                                              ,columnVariable = "State"
                                              ,rowVariable = "Lamp.Category"
                                              ,aggregateColumnName = "Region")
-tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
+# tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
 
 tableAG.cast <- dcast(setDT(tableAG.summary)
                       ,formula = BuildingType + Lamp.Category ~ State
@@ -552,6 +552,20 @@ tableAG.final <- data.frame("BuildingType"   = tableAG.cast$BuildingType
                             ,"Region.EB"      = tableAG.cast$EB_Region
 )
 
+unique(tableAG.final$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"Unknown"
+              ,"Total")
+tableAG.final <- tableAG.final %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAG.final <- data.frame(tableAG.final)
+
+
 tableAG.final.SF <- tableAG.final[which(tableAG.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAG.final) %in% c("BuildingType"))]
 tableAG.final.MH <- tableAG.final[which(tableAG.final$BuildingType == "Manufactured")
@@ -569,7 +583,7 @@ tableAG.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAG
                                              ,columnVariable = "State"
                                              ,rowVariable = "Lamp.Category"
                                              ,aggregateColumnName = "Region")
-tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
+# tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
 
 tableAG.cast <- dcast(setDT(tableAG.summary)
                       ,formula = BuildingType + Lamp.Category ~ State
@@ -594,6 +608,18 @@ tableAG.table <- data.frame("BuildingType"    = tableAG.cast$BuildingType
                             ,"Region.n"       = tableAG.cast$n_Region
 )
 
+unique(tableAG.final$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"Unknown"
+              ,"Total")
+tableAG.final <- tableAG.final %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAG.final <- data.frame(tableAG.final)
 
 tableAG.final.SF <- tableAG.table[which(tableAG.table$BuildingType == "Single Family")
                                   ,which(colnames(tableAG.table) %notin% c("BuildingType"))]

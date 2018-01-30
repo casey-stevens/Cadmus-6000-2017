@@ -106,9 +106,7 @@ unique(item145.dat2$Heating_Fuel)
 item145.dat3 <- item145.dat2 %>%
   filter(Heating_Fuel %notin% c("Unknown"
                                 , "Can't Determine"
-                                , "Hydronic Gas-Water Fan Heater"
-                                , "Hot Water from Water Heater"
-                                , "Other"))
+                                ,"N/A"))
 
 drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
                    "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
@@ -118,7 +116,10 @@ item145.dat4$Heating_Fuel[which(item145.dat4$Heating_Fuel %in% c("Wood",
                                                                  "Oil",
                                                                  "Pellets",
                                                                  "Other",
-                                                                 "Propane"))] <- "Other"
+                                                                 "Propane"
+                                                                 , "Hydronic Gas-Water Fan Heater"
+                                                                 , "Hot Water from Water Heater"
+                                                                 ,"Gas"))] <- "Other"
 unique(item145.dat4$Heating_Fuel)     
 item145.data <- weightedData(item145.dat4[-which(colnames(item145.dat4) %in% drop.columns)])
 
@@ -135,7 +136,7 @@ item145.data$EUI_Quartile[which(item145.data$EUI >= 3.9245651 & item145.data$EUI
 item145.data$EUI_Quartile[which(item145.data$EUI >= 6.7524004 & item145.data$EUI < 10.7592748)] <- 3
 
 #Export Quartiles
-billing.dat <- write.xlsx(item145.data, file = file.path(filepathBillingData, "EUI with Quartiles.xlsx"))
+# billing.dat <- write.xlsx(item145.data, file = file.path(filepathBillingData, "EUI with Quartiles.xlsx"))
 
 ##############################
 # Weighted Analysis
@@ -208,9 +209,6 @@ unique(item149.dat2$Heating_Fuel)
 item149.dat3 <- item149.dat2 %>%
   filter(Heating_Fuel %notin% c("Unknown"
                                 , "Can't Determine"
-                                , "Hydronic Gas-Water Fan Heater"
-                                , "Hot Water from Water Heater"
-                                , "Other"
                                 ,"N/A"))
 
 drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
@@ -222,7 +220,11 @@ item149.dat4$Heating_Fuel[which(item149.dat4$Heating_Fuel %in% c("Wood",
                                                                  "Oil",
                                                                  "Pellets",
                                                                  "Other",
-                                                                 "Propane"))] <- "Other"
+                                                                 "Propane"
+                                                                 , "Hydronic Gas-Water Fan Heater"
+                                                                 , "Hot Water from Water Heater"
+                                                                 , "Other"
+                                                                 ,"Electric"))] <- "Other"
 unique(item149.dat4$Heating_Fuel)     
 item149.data <- weightedData(item149.dat4[-which(colnames(item149.dat4) %in% drop.columns)])
 

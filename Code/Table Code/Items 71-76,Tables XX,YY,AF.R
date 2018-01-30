@@ -806,10 +806,10 @@ tableAF.table <- data.frame(tableAF.table)
 
 tableAF.final.SF <- tableAF.table[which(tableAF.table$BuildingType == "Single Family")
                                   ,which(colnames(tableAF.table) %notin% c("BuildingType"))]
-tableAF.final.SF <- tableAF.final.SF[which(tableAF.final.SF$Lamp.Category != "All Categories"),]
+# tableAF.final.SF <- tableAF.final.SF[which(tableAF.final.SF$Lamp.Category != "All Categories"),]
 tableAF.final.MH <- tableAF.table[which(tableAF.table$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAF.table) %in% c("BuildingType"))]
-tableAF.final.MH <- tableAF.final.MH[which(tableAF.final.MH$Lamp.Category != "All Categories"),]
+# tableAF.final.MH <- tableAF.final.MH[which(tableAF.final.MH$Lamp.Category != "All Categories"),]
 
 # exportTable(tableAF.final.SF, "SF", "Table AF", weighted = TRUE)
 exportTable(tableAF.final.MH, "MH", "Table AF", weighted = TRUE)
@@ -859,10 +859,10 @@ tableAF.table <- data.frame(tableAF.table)
 
 tableAF.final.SF <- tableAF.table[which(tableAF.table$BuildingType == "Single Family")
                                   ,which(colnames(tableAF.table) %notin% c("BuildingType"))]
-tableAF.final.SF <- tableAF.final.SF[which(tableAF.final.SF$Lamp.Category != "All Categories"),]
+# tableAF.final.SF <- tableAF.final.SF[which(tableAF.final.SF$Lamp.Category != "All Categories"),]
 tableAF.final.MH <- tableAF.table[which(tableAF.table$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAF.table) %in% c("BuildingType"))]
-tableAF.final.MH <- tableAF.final.MH[which(tableAF.final.MH$Lamp.Category != "All Categories"),]
+# tableAF.final.MH <- tableAF.final.MH[which(tableAF.final.MH$Lamp.Category != "All Categories"),]
 
 # exportTable(tableAF.final.SF, "SF", "Table AF", weighted = FALSE)
 exportTable(tableAF.final.MH, "MH", "Table AF", weighted = FALSE)

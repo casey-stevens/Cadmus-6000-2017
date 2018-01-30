@@ -138,7 +138,7 @@ item123.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %i
                                                                                      ,"INTRVW_CUST_RES_DemographicsDemo_HowManyOfThePeopleWhoLiveHereAreAged_19_45"
                                                                                      ,"INTRVW_CUST_RES_DemographicsDemo_HowManyOfThePeopleWhoLiveHereAreAged_46_64"
                                                                                      ,"INTRVW_CUST_RES_DemographicsDemo_HowManyOfThePeopleWhoLiveHereAreAged_65Older"
-                                                                                     ,""))])
+                                                                                     ,"Qty.Occupants"))])
 colnames(item123.dat) <- c("CK_Cadmus_ID"
                            ,"Age_1_5"
                            ,"Age_11_18"
@@ -146,7 +146,8 @@ colnames(item123.dat) <- c("CK_Cadmus_ID"
                            ,"Age_46_64"
                            ,"Age_6_10"
                            ,"Age_65_Older"
-                           ,"Age_Less_Than_1")
+                           ,"Age_Less_Than_1"
+                           ,"Qty.Occupants")
 item123.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -175,7 +176,8 @@ item123.dat2 <- item123.dat1[which(colnames(item123.dat1) %notin% c("Age_1_5"
 
 item123.melt <- melt(item123.dat2, measure.vars = c("Age_0_18"
                                                     , "Age_19_64"
-                                                    , "Age_65_Older"))
+                                                    , "Age_65_Older"
+                                                    , "Qty.Occupants"))
 colnames(item123.melt)[which(colnames(item123.melt) == "variable")] <- "Age.Category"
 
 item123.sum <- summarise(group_by(item123.melt, CK_Cadmus_ID, Age.Category)
@@ -198,13 +200,17 @@ item123.data$count <- 1
 #######################
 # Weighted Analysis
 #######################
-item123.cast <- mean_two_groups(CustomerLevelData = item123.data
+item123.summary <- mean_two_groups(CustomerLevelData = item123.data
                                 ,valueVariable    = 'Occupants'
                                 ,byVariableRow    = 'Age.Category'
                                 ,byVariableColumn = 'State'
                                 ,columnAggregate  = "Region"
                                 ,rowAggregate     = "Remove")
-item123.cast <- item123.cast[which(item123.cast$Age.Category != "Remove"),]
+item123.summary <- item123.summary[which(item123.summary$Age.Category != "Remove"),]
+item123.summary$Age.Category <- as.character(item123.summary$Age.Category)
+item123.summary$Age.Category[which(item123.summary$Age.Category == "Qty.Occupants")] <- "All Ages"
+
+item123.cast <- item123.summary
 
 item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
                             ,"Age.Category"   = item123.cast$Age.Category
@@ -242,13 +248,17 @@ exportTable(item123.final.MH, "MH", "Table 105", weighted = TRUE)
 #######################
 # Unweighted Analysis
 #######################
-item123.cast <-  mean_two_groups_unweighted(CustomerLevelData = item123.data
-                                            ,valueVariable    = 'Occupants'
-                                            ,byVariableRow    = 'Age.Category'
-                                            ,byVariableColumn = 'State'
-                                            ,columnAggregate  = "Region"
-                                            ,rowAggregate     = "Remove")
-item123.cast <- item123.cast[which(item123.cast$Age.Category != "Remove"),]
+item123.summary <- mean_two_groups_unweighted(CustomerLevelData = item123.data
+                                   ,valueVariable    = 'Occupants'
+                                   ,byVariableRow    = 'Age.Category'
+                                   ,byVariableColumn = 'State'
+                                   ,columnAggregate  = "Region"
+                                   ,rowAggregate     = "Remove")
+item123.summary <- item123.summary[which(item123.summary$Age.Category != "Remove"),]
+item123.summary$Age.Category <- as.character(item123.summary$Age.Category)
+item123.summary$Age.Category[which(item123.summary$Age.Category == "Qty.Occupants")] <- "All Ages"
+
+item123.cast <- item123.summary
 
 item123.table <- data.frame("BuildingType"    = item123.cast$BuildingType
                             ,"Age.Category"   = item123.cast$Age.Category
