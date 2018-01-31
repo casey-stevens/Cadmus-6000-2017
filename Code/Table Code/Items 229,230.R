@@ -199,14 +199,93 @@ exportTable(item229.table, "MF", "Table 21", weighted = FALSE)
 #subset to columns needed for analysis
 item230.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 ,"ENV_Construction_CONSTRUCTION_ConstructionType"
-                                                                ,"ENV_Construction_BLDG_STRUCTURE_TypeOfFrame"
-                                                                ,"Wall.Type"))]
+                                                                ,"ENV_Construction_BLDG_STRUCTURE_TypeOfFrame"))]
 item230.dat$count <- 1
 
 item230.dat0 <- item230.dat[which(item230.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item230.dat1 <- left_join(item230.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item230.dat1 <- left_join(rbsa.dat, item230.dat0, by = "CK_Cadmus_ID")
 
 #Subset to Multifamily
 item230.dat2 <- item230.dat1[grep("Multifamily", item230.dat1$BuildingType),]
 
+item230.dat3 <- item230.dat2[which(item230.dat2$ENV_Construction_BLDG_STRUCTURE_TypeOfFrame %notin% c("N/A",NA,0,"Unknown") & item230.dat2$ENV_Construction_CONSTRUCTION_ConstructionType %notin% c("N/A",NA,0,"Unknown")),]
+
+item230.dat3$Wall.Type.X <- item230.dat3$ENV_Construction_BLDG_STRUCTURE_TypeOfFrame
+item230.dat3$Structural.System <- item230.dat3$ENV_Construction_CONSTRUCTION_ConstructionType
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item230.data <- weightedData(item230.dat3[-which(colnames(item230.dat3) %in% c("ENV_Construction_BLDG_STRUCTURE_TypeOfFrame"
+                                                                               ,"ENV_Construction_CONSTRUCTION_ConstructionType"
+                                                                               ,"count"
+                                                                               ,"Wall.Type.X"
+                                                                               ,"Structural.System"))])
+item230.data <- left_join(item230.data, item230.dat3[which(colnames(item230.dat3) %in% c("CK_Cadmus_ID"
+                                                                                         ,"ENV_Construction_BLDG_STRUCTURE_TypeOfFrame"
+                                                                                         ,"ENV_Construction_CONSTRUCTION_ConstructionType"
+                                                                                         ,"count"
+                                                                                         ,"Wall.Type.X"
+                                                                                         ,"Structural.System"))])
+item230.data$Ind <- 1
+item230.data$Count <- 1
+colnames(item230.data)
+
+#######################
+# Weighted Analysis
+#######################
+item230.summary <- proportionRowsAndColumns1(CustomerLevelData = item230.data
+                                             ,valueVariable = 'Ind'
+                                             ,columnVariable = 'Structural.System'
+                                             ,rowVariable = 'Wall.Type.X'
+                                             ,aggregateColumnName = "All Systems")
+item230.summary <- item230.summary[which(item230.summary$Structural.System != "All Systems"),]
+
+item230.all.systems <- proportions_one_group(CustomerLevelData = item230.data
+                                           ,valueVariable = 'Ind'
+                                           ,groupingVariable = "Wall.Type.X"
+                                           ,total.name = "All Systems"
+                                           ,columnName = "Structural.System"
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+
+item230.final <- rbind.data.frame(item230.summary,item230.all.systems,stringsAsFactors = F)
+
+item230.cast <- dcast(setDT(item230.final)
+                      ,formula = BuildingType + Structural.System ~ Wall.Type.X
+                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+item230.cast$n <- item230.cast$n_Total
+item230.cast <- data.frame(item230.cast)
+item230.table <- item230.cast[-grep("Total|buildingtype",names(item230.cast),ignore.case = T)]
+
+exportTable(item230.table, "MF","Table 22",weighted = TRUE)
+
+#######################
+# Weighted Analysis
+#######################
+item230.summary <- proportions_two_groups_unweighted(CustomerLevelData = item230.data
+                                             ,valueVariable = 'Ind'
+                                             ,columnVariable = 'Structural.System'
+                                             ,rowVariable = 'Wall.Type.X'
+                                             ,aggregateColumnName = "All Systems")
+item230.summary <- item230.summary[which(item230.summary$Structural.System != "All Systems"),]
+
+item230.all.systems <- proportions_one_group(CustomerLevelData = item230.data
+                                             ,valueVariable = 'Ind'
+                                             ,groupingVariable = "Wall.Type.X"
+                                             ,total.name = "All Systems"
+                                             ,columnName = "Structural.System"
+                                             ,weighted = FALSE
+                                             ,two.prop.total = TRUE)
+
+item230.final <- rbind.data.frame(item230.summary,item230.all.systems,stringsAsFactors = F)
+
+item230.cast <- dcast(setDT(item230.final)
+                      ,formula = BuildingType + Structural.System ~ Wall.Type.X
+                      ,value.var = c("Percent","SE","Count","n"))
+item230.cast$n <- item230.cast$n_Total
+item230.cast <- data.frame(item230.cast)
+item230.table <- item230.cast[-grep("Total|buildingtype",names(item230.cast),ignore.case = T)]
+
+exportTable(item230.table, "MF","Table 22",weighted = FALSE)

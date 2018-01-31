@@ -2938,6 +2938,12 @@ exportTable(item175.table.MH, "MH", "Table 17", weighted = FALSE)
 #############################################################################################
 # Item 235: DISTRIBUTION OF WALL INSULATION BY WALL TYPE  (MF table 27)
 #############################################################################################
+#Read in data for analysis
+buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+buildings.dat$CK_Cadmus_ID <- trimws(toupper(buildings.dat$CK_Cadmus_ID))
+
+item235.bldg.dat <- buildings.dat[which(names(buildings.dat) %in% c(""))]
+
 item235.dat <- prep.dat7[which(prep.dat7$BuildingType == "Multifamily"),]
 
 
