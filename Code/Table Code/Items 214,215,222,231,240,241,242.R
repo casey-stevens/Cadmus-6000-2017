@@ -238,46 +238,163 @@ exportTable(item222.final.MF, "MF", "Table 14", weighted = FALSE)
 
 
 
-# #############################################################################################
-# #Item 231: MF Table 23
-# #############################################################################################
-# item231.dat <- one.line.bldg.dat[c(grep("%",names(one.line.bldg.dat)),
-#                                    which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID","Total.Window.Area")))]
-# for (i in 1:13){
-#   item231.dat[,i] <- as.numeric(as.character(item231.dat[,i]))
-# }
-# item231.dat[is.na(item231.dat)] <- 0
-# 
-# i = 2
-# for (i in 1:12){
-#   item231.dat[,i] <- item231.dat[,i] * item231.dat[,13]
-# }
-# 
-# #######################################################
-# # Updated up to here
-# #######################################################
-# 
-# item231.merge <- left_join(rbsa.dat.MF, item231.dat1)
-# item231.merge <- item231.merge[which(!is.na(item231.merge$Ind)),]
-# 
-# 
-# ######################################
-# #Pop and Sample Sizes for weights
-# ######################################
-# item231.data <- weightedData(item231.merge[which(colnames(item231.merge) %notin% c("Qty.Buildings.in.Complex"
-#                                                                                    ,"Total.Units.in.Building"
-#                                                                                    ,"Ind"))])
-# 
-# item231.data <- left_join(item231.data, item231.merge[which(colnames(item231.merge) %in% c("CK_Cadmus_ID"
-#                                                                                            ,"Qty.Buildings.in.Complex"
-#                                                                                            ,"Total.Units.in.Building"
-#                                                                                            ,"Ind"))])
-# item231.data$count <- 1
-# item231.data$Count <- item231.data$Total.Units.in.Building
-# 
-# #########################
-# # weighted analysis
-# #########################
+#############################################################################################
+#Item 231: MF Table 23
+#############################################################################################
+item231.dat <- one.line.bldg.dat[c(grep("%",names(one.line.bldg.dat)),
+                                   which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID","Total.Window.Area")))]
+for (i in 1:13){
+  item231.dat[,i] <- as.numeric(as.character(item231.dat[,i]))
+}
+item231.dat[is.na(item231.dat)] <- 0
+
+i = 2
+for (i in 1:12){
+  item231.dat[,i] <- item231.dat[,i] * item231.dat[,13]
+}
+
+item231.dat <- item231.dat[which(names(item231.dat) != "Total.Window.Area")]
+
+item231.melt <- melt(item231.dat, id.vars = "CK_Building_ID")
+item231.melt <- item231.melt[which(item231.melt$value > 0),]
+names(item231.melt) <- c("CK_Building_ID","Window.Type","Window.Area")
+
+item231.merge <- left_join(rbsa.dat.MF, item231.melt)
+item231.merge <- item231.merge[which(!is.na(item231.merge$Window.Area)),]
+item231.merge <- item231.merge[which(!is.na(item231.merge$HomeYearBuilt_MF)),]
+
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item231.data <- weightedData(item231.merge[which(colnames(item231.merge) %notin% c("Window.Type"
+                                                                                   ,"Window.Area"))])
+
+item231.data <- left_join(item231.data, item231.merge[which(colnames(item231.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Window.Type"
+                                                                                           ,"Window.Area"))])
+item231.data$count <- 1
+#########################
+# weighted analysis
+#########################
+item231.summary <- proportionRowsAndColumns1(CustomerLevelData = item231.data
+                                             ,valueVariable = 'Window.Area'
+                                             ,columnVariable = 'HomeYearBuilt_bins_MF'
+                                             ,rowVariable = 'Window.Type'
+                                             ,aggregateColumnName = 'Remove')
+item231.summary <- item231.summary[which(item231.summary$HomeYearBuilt_bins_MF != "Remove"),]
+
+item231.all.vintages <- proportions_one_group(CustomerLevelData = item231.data
+                                              ,valueVariable = 'Window.Area'
+                                              ,groupingVariable = 'Window.Type'
+                                              ,total.name = 'All Vintages'
+                                              ,columnName = "HomeYearBuilt_bins_MF"
+                                              ,weighted = TRUE
+                                              ,two.prop.total = TRUE)
+
+item231.final <- rbind.data.frame(item231.summary, item231.all.vintages)
+
+item231.cast <- dcast(setDT(item231.final)
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF ~ Window.Type
+                      ,value.var = c("w.percent","w.SE","count","N","n","EB"))
+
+item231.table <- data.frame("BuildingType"                          = item231.cast$BuildingType
+                            ,"Housing.Vintage"                      = item231.cast$HomeYearBuilt_bins_MF
+                            ,"Percent.Metal.Single"                 = item231.cast$`w.percent_%.Metal.+.Single`
+                            ,"SE.Metal.Single"                      = item231.cast$`w.SE_%.Metal.+.Single`
+                            ,"Percent.Metal.Double"                 = item231.cast$`w.percent_%.Metal.+.Double`
+                            ,"SE.Metal.Double"                      = item231.cast$`w.SE_%.Metal.+.Double`
+                            ,"Percent.Wood.Vinyl.Fiberglass.Single" = item231.cast$`w.percent_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
+                            ,"SE.Wood.Vinyl.Fiberglass.Single"      = item231.cast$`w.SE_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
+                            ,"Percent.Wood.Vinyl.Fiberglass.Double" = item231.cast$`w.percent_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
+                            ,"SE.Wood.Vinyl.Fiberglass.Double"      = item231.cast$`w.SE_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
+                            ,"Percent.Wood.Vinyl.Fiberglass.Other"  = item231.cast$`w.percent_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
+                            ,"SE.Wood.Vinyl.Fiberglass.Other"       = item231.cast$`w.SE_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
+                            ,"Percent.Other.Double"                 = item231.cast$`w.percent_%.Other.+.Double`
+                            ,"SE.Other.Double"                      = item231.cast$`w.SE_%.Other.+.Double`
+                            ,"Percent.Other.Other"                  = item231.cast$`w.percent_%.Other.+.Other`
+                            ,"SE.Other.Other"                       = item231.cast$`w.SE_%.Other.+.Other`
+                            ,"n"                                    = item231.cast$n_Total
+                            ,"EB.Metal.Single"                      = item231.cast$`EB_%.Metal.+.Single`
+                            ,"EB.Metal.Double"                      = item231.cast$`EB_%.Metal.+.Double`
+                            ,"EB.Wood.Vinyl.Fiberglass.Single"      = item231.cast$`EB_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
+                            ,"EB.Wood.Vinyl.Fiberglass.Double"      = item231.cast$`EB_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
+                            ,"EB.Wood.Vinyl.Fiberglass.Other"       = item231.cast$`EB_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
+                            ,"EB.Other.Double"                      = item231.cast$`EB_%.Other.+.Double`
+                            ,"EB.Other.Other"                       = item231.cast$`EB_%.Other.+.Other`)
+levels(item231.table$Housing.Vintage)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item231.table <- item231.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item231.table <- data.frame(item231.table)
+
+item231.table.MF <- item231.table[which(names(item231.table) != "BuildingType")]
+exportTable(item231.table.MF,"MF","Table 23",weighted = TRUE)
+
+
+#########################
+# unweighted analysis
+#########################
+item231.summary <- proportions_two_groups_unweighted(CustomerLevelData = item231.data
+                                             ,valueVariable = 'Window.Area'
+                                             ,columnVariable = 'HomeYearBuilt_bins_MF'
+                                             ,rowVariable = 'Window.Type'
+                                             ,aggregateColumnName = 'Remove')
+item231.summary <- item231.summary[which(item231.summary$HomeYearBuilt_bins_MF != "Remove"),]
+
+item231.all.vintages <- proportions_one_group(CustomerLevelData = item231.data
+                                              ,valueVariable = 'Window.Area'
+                                              ,groupingVariable = 'Window.Type'
+                                              ,total.name = 'All Vintages'
+                                              ,columnName = "HomeYearBuilt_bins_MF"
+                                              ,weighted = FALSE
+                                              ,two.prop.total = TRUE)
+
+item231.final <- rbind.data.frame(item231.summary, item231.all.vintages)
+
+item231.cast <- dcast(setDT(item231.final)
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF ~ Window.Type
+                      ,value.var = c("Percent","SE","Count","n"))
+
+item231.table <- data.frame("BuildingType"                          = item231.cast$BuildingType
+                            ,"Housing.Vintage"                      = item231.cast$HomeYearBuilt_bins_MF
+                            ,"Percent.Metal.Single"                 = item231.cast$`Percent_%.Metal.+.Single`
+                            ,"SE.Metal.Single"                      = item231.cast$`SE_%.Metal.+.Single`
+                            ,"Percent.Metal.Double"                 = item231.cast$`Percent_%.Metal.+.Double`
+                            ,"SE.Metal.Double"                      = item231.cast$`SE_%.Metal.+.Double`
+                            ,"Percent.Wood.Vinyl.Fiberglass.Single" = item231.cast$`Percent_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
+                            ,"SE.Wood.Vinyl.Fiberglass.Single"      = item231.cast$`SE_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
+                            ,"Percent.Wood.Vinyl.Fiberglass.Double" = item231.cast$`Percent_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
+                            ,"SE.Wood.Vinyl.Fiberglass.Double"      = item231.cast$`SE_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
+                            ,"Percent.Wood.Vinyl.Fiberglass.Other"  = item231.cast$`Percent_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
+                            ,"SE.Wood.Vinyl.Fiberglass.Other"       = item231.cast$`SE_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
+                            ,"Percent.Other.Double"                 = item231.cast$`Percent_%.Other.+.Double`
+                            ,"SE.Other.Double"                      = item231.cast$`SE_%.Other.+.Double`
+                            ,"Percent.Other.Other"                  = item231.cast$`Percent_%.Other.+.Other`
+                            ,"SE.Other.Other"                       = item231.cast$`SE_%.Other.+.Other`
+                            ,"n"                                    = item231.cast$n_Total)
+levels(item231.table$Housing.Vintage)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item231.table <- item231.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item231.table <- data.frame(item231.table)
+
+item231.table.MF <- item231.table[which(names(item231.table) != "BuildingType")]
+exportTable(item231.table.MF,"MF","Table 23",weighted = FALSE)
+
+
+
 
 
 
