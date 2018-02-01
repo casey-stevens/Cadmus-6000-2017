@@ -303,3 +303,36 @@ write.xlsx(rbsa.dat8, paste(filepathCleanData, paste("clean.rbsa.data", rundate,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#
+# SCL
+#
+#############################################################################################
+scl.dat <- rbsa.dat8[grep("SCL",rbsa.dat8$Territory, ignore.case = T),]
+scl.dat$Category <- "SCL GenPop"
+scl.li.dat <- rbsa.dat8[grep("SCL LI",rbsa.dat8$Territory, ignore.case = T),]
+scl.li.dat$Category <- "SCL LI"
+scl.eh.dat <- rbsa.dat8[grep("SCL EH",rbsa.dat8$Territory, ignore.case = T),]
+scl.eh.dat$Category <- "SCL EH"
+scl.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
+scl.ps.dat$Category <- "2017 RBSA PS"
+
+scl.data <- rbind.data.frame(scl.dat
+                             ,scl.li.dat
+                             ,scl.eh.dat
+                             ,scl.ps.dat)

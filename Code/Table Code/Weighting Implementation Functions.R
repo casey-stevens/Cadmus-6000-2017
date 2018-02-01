@@ -1086,22 +1086,26 @@ proportions_one_group <- function(CustomerLevelData
   # For Unweighted
   ###################################################################################################x
   } else {
-    item.tmp1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
-                                  ,n     = length(unique(CK_Cadmus_ID))
-                                  ,Count = sum(get(valueVariable))), stringsAsFactors = F)
-    
-    
-    item.tmp2 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
-                                  ,Total = "Total"
-                                  ,n     = length(unique(CK_Cadmus_ID))
-                                  ,Count = sum(get(valueVariable))), stringsAsFactors = F)
-    
-    # Convert column name
-    item.tmp2 <- ConvertColName(item.tmp2, 'Total', groupingVariable)
-    
-    item.combined <- rbind.data.frame(item.tmp1, item.tmp2, stringsAsFactors = F)
-    
-    
+    if (groupingVariable == "BuildingType") {
+      item.combined <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
+                                    ,n     = length(unique(CK_Cadmus_ID))
+                                    ,Count = sum(get(valueVariable))), stringsAsFactors = F)
+    }else{
+      item.tmp1 <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
+                                    ,n     = length(unique(CK_Cadmus_ID))
+                                    ,Count = sum(get(valueVariable))), stringsAsFactors = F)
+      
+      
+      item.tmp2 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
+                                    ,Total = "Total"
+                                    ,n     = length(unique(CK_Cadmus_ID))
+                                    ,Count = sum(get(valueVariable))), stringsAsFactors = F)
+      
+      # Convert column name
+      item.tmp2 <- ConvertColName(item.tmp2, 'Total', groupingVariable)
+      item.combined <- rbind.data.frame(item.tmp1, item.tmp2, stringsAsFactors = F)
+    }
+
     if(valueVariable == "StorageBulbs"){
       item.tmpyy <- data.frame(ddply(CustomerLevelData, c("BuildingType", "State"), summarise
                                      ,Total.Count   = sum(TotalBulbs)), stringsAsFactors = F)
@@ -1113,6 +1117,9 @@ proportions_one_group <- function(CustomerLevelData
     }else if(groupingVariable == "HomeType" & valueVariable == "Number.of.Units"){
       item.tmp3 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
                                      ,Total.Count = sum(Number.of.Units, na.rm = T)), stringsAsFactors = F)
+    }else if(groupingVariable == "BuildingType" & valueVariable == "Ind"){
+      item.tmp3 <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
+                                    ,Total.Count = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
     }else if(groupingVariable == "HomeType" & valueVariable != "Number.of.Units"){
       item.tmpyy <- data.frame(ddply(CustomerLevelData, c("BuildingType", "HomeType"), summarise
                                      ,Total.Count   = sum(Count)), stringsAsFactors = F)
@@ -1144,7 +1151,7 @@ proportions_one_group <- function(CustomerLevelData
     item.final <- data.frame(item.final, stringsAsFactors = F)
     
     
-    if(groupingVariable %in% c("State")){
+    if(groupingVariable %in% c("State", "BuildingType")){
       
       # this if statement is specifically to calculate the denominator for tables
       # where we want to know the percent of stored bulbs by bulb type

@@ -13,7 +13,8 @@
 #################################################################################
 
 
-exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weighted = TRUE, weights = NA, final = NA) {
+exportTable <- function(buildingTypeData, buildingTypeIndicator, osIndicator, tableName, weighted = TRUE, weights = NA, final = NA, OS = NA) {
+  if (OS = NA){
   if (weighted == TRUE){
     # if(!is.na(final)){
     #   Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
@@ -49,4 +50,23 @@ exportTable <- function(buildingTypeData, buildingTypeIndicator, tableName, weig
   #   writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 20)
   #   
   # }
+  } else {
+    if (weighted == TRUE){
+      library(openxlsx)
+      Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+      workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator, " - ", osIndicator,".xlsx", sep = ""), sep="/"))
+      
+      writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 2)
+      
+      saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator, " - ", osIndicator,".xlsx", sep = ""), sep="/"), overwrite = T)
+    }else{
+      library(openxlsx)
+      Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+      workbook.export <- loadWorkbook(file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator, " - ", osIndicator,".xlsx", sep = ""), sep="/"))
+      
+      writeData(workbook.export, sheet = tableName, x = buildingTypeData, startRow = 20)
+      
+      saveWorkbook(workbook.export, file = paste(outputFolder, paste("Tables in Excel - ",buildingTypeIndicator, " - ", osIndicator,".xlsx", sep = ""), sep="/"), overwrite = T)
+    }
+  }
 }

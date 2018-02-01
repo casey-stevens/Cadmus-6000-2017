@@ -24,10 +24,10 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-rbsa.dat.MF <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
-rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
-length(unique(rbsa.dat$CK_Cadmus_ID))
+rbsa.dat.orig <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
+rbsa.dat <- rbsa.dat.orig[grep("site",rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
+length(unique(rbsa.dat.orig$CK_Cadmus_ID))
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -538,15 +538,20 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 #
 ###################################################################################################################
 
-# rbsa.wall <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Cadmus_ID","BuildingType","HomeYearBuilt"))]
-# wall.merge <- left_join(rbsa.wall, prep.dat5)
+# rbsa.wall <- rbsa.dat.orig[which(colnames(rbsa.dat.orig) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
+# wall.merge <- left_join(rbsa.wall, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
+# wall.merge <- wall.merge[which(!is.na(wall.merge$uvalue)),]
 # #########export rvalues
 # ##  Write out confidence/precision info
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(wall.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Wall Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
 #            append = T, row.names = F, showNA = F)
-# write.xlsx(prep.dat7, paste(filepathCleaningDocs, "Insulation Exports", paste("one.line.insulation ", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
+
+
+
+
+
+
 
 
 
@@ -2975,6 +2980,7 @@ item235.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
 item235.dat$Wall.Type[grep("framed",item235.dat$Wall.Type,ignore.case = T)] <- "Frame"
 item235.dat$Wall.Type[grep("masonry|concrete",item235.dat$Wall.Type,ignore.case = T)] <- "Masonry/Concrete"
 item235.dat$Wall.Type[which(item235.dat$Wall.Type %notin% c("Frame","Masonry/Concrete"))] <- "Other"
+
 
 #Bin R values -- MF only
 item235.dat$rvalue.bins <- "Unknown"
