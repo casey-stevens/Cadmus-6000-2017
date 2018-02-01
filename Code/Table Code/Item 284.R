@@ -23,6 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 
 #Read in data for analysis
 mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
@@ -55,5 +56,14 @@ item284.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
 
 item284.dat1 <- unique(item284.dat[which(item284.dat$Generic == "Ducting"),])
 
-item284.dat2 <- left_join(item284.dat1, rbsa.dat, by = "CK_Cadmus_ID")
+item284.dat2 <- left_join(rbsa.dat.MF, item284.dat1,  by = "CK_Cadmus_ID")
 
+
+#####################################################
+# For Percentage of Ducts in Unconditioned Space
+#####################################################
+item284.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space <- as.numeric(as.character(item284.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space)) / 100
+item284.dat.percent <- item284.dat2[which(!is.na(item284.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space)),]
+item284.dat.percent <- item284.dat.percent[grep("site",item284.dat.percent$CK_Building_ID,ignore.case = T),]
+
+mean(item284.dat.percent$Percentage.of.Supply.Ducts.in.Conditioned.Space)
