@@ -49,6 +49,7 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 #############################################################################################
 #subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                             ,"CK_SiteID"
                                                              ,"PK_Envelope_ID"
                                                                , "Category"
                                                                , "Floor.Type"
@@ -198,12 +199,14 @@ prep.dat3$TMP_ID <- cumsum(prep.dat3$count)
 clean.insul1 <- unlist(strsplit(prep.dat3$Floor.Insulation.Thickness.1, " "))
 clean.insul2 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
 clean.insul1.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
                                    , "TMP_ID" = prep.dat3$TMP_ID
                                    , clean.insul2)
 dim(clean.insul1.1)
 
 clean.insul2 <- unlist(strsplit(prep.dat3$Floor.Insulation.Thickness.2, " "))
 clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
                                    , "TMP_ID" = prep.dat3$TMP_ID
                                    , as.data.frame(matrix(clean.insul2, ncol = 2, byrow = T)
                                                    , stringsAsFactors = F))
@@ -211,6 +214,7 @@ dim(clean.insul2.1)
 
 clean.insul3 <- unlist(strsplit(prep.dat3$Floor.Insulation.Thickness.3, " "))
 clean.insul3.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
                                    , "TMP_ID" = prep.dat3$TMP_ID
                                    , as.data.frame(matrix(clean.insul3, ncol = 2, byrow = T)
                                                    , stringsAsFactors = F))
@@ -219,6 +223,7 @@ dim(clean.insul3.1)
 clean.insul1.0 <- unlist(strsplit(prep.dat3$Slab.Insulation.Thickness.1, " "))
 clean.insul1.00 <- as.data.frame(matrix(clean.insul1.0, ncol = 2, byrow = T), stringsAsFactors = F)
 clean.insul1.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
                                    , "TMP_ID" = prep.dat3$TMP_ID
                                    , clean.insul1.00)
 dim(clean.insul1.2)
@@ -226,6 +231,7 @@ dim(clean.insul1.2)
 clean.insul2.0 <- unlist(strsplit(prep.dat3$Slab.Insulation.Thickness.2, " "))
 clean.insul2.00 <- as.data.frame(matrix(clean.insul2.0, ncol = 2, byrow = T), stringsAsFactors = F)
 clean.insul2.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
                                    , "TMP_ID" = prep.dat3$TMP_ID
                                    , clean.insul2.00)
 dim(clean.insul2.2)
@@ -233,17 +239,19 @@ dim(clean.insul2.2)
 clean.insul3.0 <- unlist(strsplit(prep.dat3$Slab.Insulation.Thickness.3, " "))
 clean.insul3.00 <- as.data.frame(matrix(clean.insul3.0, ncol = 2, byrow = T), stringsAsFactors = F)
 clean.insul3.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
+                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
                                    , "TMP_ID" = prep.dat3$TMP_ID
                                    , clean.insul3.00)
 dim(clean.insul3.2)
 
-clean.insul.join1 <- left_join(clean.insul1.1,    clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join2 <- left_join(clean.insul.join1, clean.insul3.1, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join3 <- left_join(clean.insul.join2, clean.insul1.2, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join4 <- left_join(clean.insul.join3, clean.insul2.2, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join5 <- left_join(clean.insul.join4, clean.insul3.2, by = c("CK_Cadmus_ID", "TMP_ID"))
+clean.insul.join1 <- left_join(clean.insul1.1,    clean.insul2.1, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
+clean.insul.join2 <- left_join(clean.insul.join1, clean.insul3.1, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
+clean.insul.join3 <- left_join(clean.insul.join2, clean.insul1.2, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
+clean.insul.join4 <- left_join(clean.insul.join3, clean.insul2.2, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
+clean.insul.join5 <- left_join(clean.insul.join4, clean.insul3.2, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
 
 colnames(clean.insul.join5) <- c("CK_Cadmus_ID"
+                                 ,"CK_SiteID"
                                  ,"TMP_ID"
                                  ,"floor.inches1"
                                  ,"Remove.1"
@@ -265,7 +273,7 @@ clean.thickness.data <- clean.insul.join5[-grep("Remove", colnames(clean.insul.j
 ###########################
 
 #make into dataframe
-prep.dat4 <- as.data.frame(left_join(prep.dat3, clean.thickness.data, by = c("CK_Cadmus_ID", "TMP_ID"))
+prep.dat4 <- as.data.frame(left_join(prep.dat3, clean.thickness.data, by = c("CK_SiteID", "TMP_ID"))
                            , stringsAsFactors = F) 
 # warning here is OK
 
@@ -408,7 +416,7 @@ prep.dat5 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               , stringsAsFactors = F)
 
-prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
+# prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
@@ -992,3 +1000,203 @@ exportTable(item176.table.MH, "MH", "Table 19", weighted = FALSE)
 ############################################################################################################
 # ITEM 239: DISTRIBUTION OF FLOOR INSULATION LEVELS BY FLOOR TYPE (MF Table 31)
 ############################################################################################################
+#weight the u factor per home -- where weights are the wall area within home
+weightedU <- summarise(group_by(prep.dat5, CK_SiteID, Floor.Type)
+                       ,aveUval = sum(Floor.Area * Floor.Insulation.Condition.1 * uvalue) / sum(Floor.Area * Floor.Insulation.Condition.1)
+)
+unique(weightedU$aveUval)
+
+
+#back-calculate the weight r values
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
+unique(weightedU$aveRval)
+unique(weightedU$aveUval)
+
+# get unique cadmus IDs and building types for this subset of data
+Floor.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_SiteID","BuildingType"))])
+
+# merge on ID and building types to weighted uFactor and rValue data
+prep.dat6 <- left_join(weightedU, Floor.unique, by = "CK_SiteID")
+
+#merge weighted u values onto cleaned RBSA data
+prep.dat7 <- left_join(prep.dat6, rbsa.dat.MF, by = c("CK_SiteID" = "CK_Building_ID"))
+item239.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
+unique(item239.dat$Floor.Type)
+
+#Bin R values -- MF only
+item239.dat$rvalue.bins <- "Unknown"
+item239.dat$rvalue.bins[which(item239.dat$aveRval ==  0)] <- "None"
+item239.dat$rvalue.bins[which(item239.dat$aveRval >  0   & item239.dat$aveRval < 4)]   <- "R0.R3"
+item239.dat$rvalue.bins[which(item239.dat$aveRval >= 4   & item239.dat$aveRval < 11)]  <- "R4.R10"
+item239.dat$rvalue.bins[which(item239.dat$aveRval >= 11  & item239.dat$aveRval < 16)]  <- "R11.R15"
+item239.dat$rvalue.bins[which(item239.dat$aveRval >= 16  & item239.dat$aveRval < 23)]  <- "R16.R22"
+item239.dat$rvalue.bins[which(item239.dat$aveRval >= 23  & item239.dat$aveRval < 28)]  <- "R23.R27"
+item239.dat$rvalue.bins[which(item239.dat$aveRval >= 28  & item239.dat$aveRval < 35)]  <- "R28.R35"
+unique(item239.dat$rvalue.bins)
+
+item239.dat$count <- 1
+
+item239.dat1 <- item239.dat[which(item239.dat$rvalue.bins != "Unknown"),]
+colnames(item239.dat1)
+
+item239.merge <- left_join(rbsa.dat.MF, item239.dat1)
+item239.merge <- item239.merge[which(!is.na(item239.merge$count)),]
+
+item239.data <- weightedData(unique(item239.merge[-which(colnames(item239.merge) %in% c("CK_SiteID"
+                                                                                        ,"Floor.Type"
+                                                                                        ,"aveUval"
+                                                                                        ,"aveRval"
+                                                                                        ,"rvalue.bins"
+                                                                                        ,"count"))]))
+item239.data <- left_join(item239.data, item239.merge[which(colnames(item239.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"CK_SiteID"
+                                                                                           ,"Floor.Type"
+                                                                                           ,"aveUval"
+                                                                                           ,"aveRval"
+                                                                                           ,"rvalue.bins"
+                                                                                           ,"count"))])
+
+
+
+################################
+# Weighted Analysis
+################################
+item239.summary <- proportionRowsAndColumns1(CustomerLevelData     = item239.data
+                                             , valueVariable       = 'count'
+                                             , columnVariable      = 'Floor.Type'
+                                             , rowVariable         = 'rvalue.bins'
+                                             , aggregateColumnName = "All Types"
+)
+item239.summary <- item239.summary[which(item239.summary$Floor.Type != "All Types"),]
+
+## Summary only for "All Frame Types"
+item239.all.frame.types <- proportions_one_group(CustomerLevelData = item239.data
+                                                 ,valueVariable    = "count"
+                                                 ,groupingVariable = "rvalue.bins"
+                                                 ,total.name       = "All Types"
+                                                 ,columnName       = "Floor.Type"
+                                                 ,weighted = TRUE
+                                                 ,two.prop.total = TRUE
+)
+
+#merge together!
+item239.final <- rbind.data.frame(item239.summary
+                                  , item239.all.frame.types, stringsAsFactors = F)
+
+
+##cast data
+item239.cast <- dcast(setDT(item239.final),
+                      formula   = BuildingType + Floor.Type ~ rvalue.bins,
+                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+#join all insulation levels onto rvalue summary
+item239.table <- data.frame("BuildingType"                  = item239.cast$BuildingType
+                            ,"Floor.Type"                   = item239.cast$Floor.Type
+                            ,"Percent.None"                 = item239.cast$w.percent_None
+                            ,"SE.None"                      = item239.cast$w.SE_None
+                            ,"Percent.R0.R3"                = NA#item239.cast$w.percent_R0.R3
+                            ,"SE.R0.R3"                     = NA#item239.cast$w.SE_R0.R3
+                            ,"Percent.R4.R10"               = item239.cast$w.percent_R4.R10
+                            ,"SE.R4.R10"                    = item239.cast$w.SE_R4.R10
+                            ,"Percent.R11.R15"              = item239.cast$w.percent_R11.R15
+                            ,"SE.R11.R15"                   = item239.cast$w.SE_R11.R15
+                            ,"Percent.R16.R22"              = item239.cast$w.percent_R16.R22
+                            ,"SE.R16.R22"                   = item239.cast$w.SE_R16.R22
+                            ,"Percent.R23.R27"              = item239.cast$w.percent_R23.R27
+                            ,"SE.R23.R27"                   = item239.cast$w.SE_R23.R27
+                            ,"Percent.R28.R35"              = item239.cast$w.percent_R28.R35
+                            ,"SE.R28.R35"                   = item239.cast$w.SE_R28.R35
+                            ,"n"                            = item239.cast$n_Total
+                            ,"EB.None"                      = item239.cast$EB_None
+                            ,"EB.R0.R3"                     = NA#item239.cast$EB_R0.R3
+                            ,"EB.R4.R10"                    = item239.cast$EB_R4.R10
+                            ,"EB.R11.R15"                   = item239.cast$EB_R11.R15
+                            ,"EB.R16.R22"                   = item239.cast$EB_R16.R22
+                            ,"EB.R23.R27"                   = item239.cast$EB_R23.R27
+                            ,"EB.R28.R35"                   = item239.cast$EB_R28.R35
+)
+# row ordering example code
+unique(item239.table$Floor.Type)
+rowOrder <- c("Crawlspace"
+              ,"Floor over other area"
+              ,"Basement"
+              ,"All Types")
+item239.table <- item239.table %>% mutate(Floor.Type = factor(Floor.Type, levels = rowOrder)) %>% arrange(Floor.Type)  
+item239.table <- data.frame(item239.table)
+
+
+item239.table.MF <- item239.table[which(item239.table$BuildingType == "Multifamily"),-1]
+
+
+#export table to correct workbook using exporting function
+exportTable(item239.table.MF, "MF", "Table 31", weighted = TRUE)
+
+
+
+################################
+# Unweighted Analysis
+################################
+item239.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item239.data
+                                             , valueVariable       = 'count'
+                                             , columnVariable      = 'Floor.Type'
+                                             , rowVariable         = 'rvalue.bins'
+                                             , aggregateColumnName = "All Types"
+)
+item239.summary <- item239.summary[which(item239.summary$Floor.Type != "All Types"),]
+
+## Summary only for "All Frame Types"
+item239.all.frame.types <- proportions_one_group(CustomerLevelData = item239.data
+                                                 ,valueVariable    = "count"
+                                                 ,groupingVariable = "rvalue.bins"
+                                                 ,total.name       = "All Types"
+                                                 ,columnName       = "Floor.Type"
+                                                 ,weighted = FALSE
+                                                 ,two.prop.total = TRUE
+)
+
+#merge together!
+item239.final <- rbind.data.frame(item239.summary
+                                  , item239.all.frame.types, stringsAsFactors = F)
+
+
+##cast data
+item239.cast <- dcast(setDT(item239.final),
+                      formula   = BuildingType + Floor.Type ~ rvalue.bins,
+                      value.var = c("Percent", "SE", "Count", "n"))
+
+#join all insulation levels onto rvalue summary
+item239.table <- data.frame("BuildingType"                  = item239.cast$BuildingType
+                            ,"Floor.Type"                   = item239.cast$Floor.Type
+                            ,"Percent.None"                 = item239.cast$Percent_None
+                            ,"SE.None"                      = item239.cast$SE_None
+                            ,"Percent.R0.R3"                = NA#item239.cast$Percent_R0.R3
+                            ,"SE.R0.R3"                     = NA#item239.cast$SE_R0.R3
+                            ,"Percent.R4.R10"               = item239.cast$Percent_R4.R10
+                            ,"SE.R4.R10"                    = item239.cast$SE_R4.R10
+                            ,"Percent.R11.R15"              = item239.cast$Percent_R11.R15
+                            ,"SE.R11.R15"                   = item239.cast$SE_R11.R15
+                            ,"Percent.R16.R22"              = item239.cast$Percent_R16.R22
+                            ,"SE.R16.R22"                   = item239.cast$SE_R16.R22
+                            ,"Percent.R23.R27"              = item239.cast$Percent_R23.R27
+                            ,"SE.R23.R27"                   = item239.cast$SE_R23.R27
+                            ,"Percent.R28.R35"              = item239.cast$Percent_R28.R35
+                            ,"SE.R28.R35"                   = item239.cast$SE_R28.R35
+                            ,"n"                            = item239.cast$n_Total
+)
+# row ordering example code
+unique(item239.table$Floor.Type)
+rowOrder <- c("Crawlspace"
+              ,"Floor over other area"
+              ,"Basement"
+              ,"All Types")
+item239.table <- item239.table %>% mutate(Floor.Type = factor(Floor.Type, levels = rowOrder)) %>% arrange(Floor.Type)  
+item239.table <- data.frame(item239.table)
+
+
+item239.table.MF <- item239.table[which(item239.table$BuildingType == "Multifamily"),-1]
+
+
+#export table to correct workbook using exporting function
+exportTable(item239.table.MF, "MF", "Table 31", weighted = FALSE)
