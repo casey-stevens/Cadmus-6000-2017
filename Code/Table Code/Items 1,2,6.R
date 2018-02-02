@@ -26,15 +26,12 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
-
-# Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
-
-# Read in clean SCL data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-rbsa.dat$CK_Building_ID <- rbsa.dat$Category
-rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+if(os.ind == "rbsa"){
+  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
+}else{
+  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
+  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+}
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
 #############################################################################################
@@ -111,63 +108,6 @@ exportTable(item1.table.MH, "MH", "Table 7", weighted = TRUE)
 
 
 ######################################
-# Weighted Analysis - OVERSAMPLES
-######################################
-item1.final <- proportionRowsAndColumns1(CustomerLevelData = item1.dat
-                                         ,valueVariable = 'count'
-                                         ,columnVariable = 'CK_Building_ID'
-                                         ,rowVariable = 'HomeType'
-                                         ,aggregateColumnName = "Region")
-
-#cast data into correct format
-item1.cast <- dcast(setDT(item1.final)
-                    ,formula = BuildingType + HomeType ~ CK_Building_ID
-                    ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
-
-#can add pop and sample sizes if needed in exported table
-item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
-                          ,"Home.Type"            = item1.cast$HomeType
-                          ,"Percent_2017.RBSA.PS" = item1.cast$`w.percent_2017 RBSA PS`
-                          ,"SE_2017.RBSA.PS"      = item1.cast$`w.SE_2017 RBSA PS`
-                          ,"n_2017.RBSA.PS"       = item1.cast$`n_2017 RBSA PS`
-                          ,"Percent_SCL.GenPop"   = item1.cast$`w.percent_SCL GenPop`
-                          ,"SE_SCL.GenPop"        = item1.cast$`w.SE_SCL GenPop`
-                          ,"n_SCL.GenPop"         = item1.cast$`n_SCL GenPop`
-                          ,"Percent_SCL.LI"       = item1.cast$`w.percent_SCL LI`
-                          ,"SE_SCL.LI"            = item1.cast$`w.SE_SCL LI`
-                          ,"n_SCL.LI"             = item1.cast$`n_SCL LI`
-                          ,"Percent_SCL.EH"       = item1.cast$`w.percent_SCL EH`
-                          ,"SE_SCL.EH"            = item1.cast$`w.SE_SCL EH`
-                          ,"n_SCL.EH"             = item1.cast$`n_SCL EH`
-                          ,"EB_2017.RBSA.PS"      = item1.cast$`EB_2017 RBSA PS`
-                          ,"EB_SCL.GenPop"        = item1.cast$`EB_SCL GenPop`
-                          ,"EB_SCL.LI"            = item1.cast$`EB_SCL LI`
-                          ,"EB_SCL.EH"            = item1.cast$`EB_SCL EH`)
-
-# row ordering example code
-levels(item1.table$Home.Type)
-rowOrder <- c("Single Family Detached"
-              ,"Duplex, Triplex, or Fourplex"
-              ,"Townhome or Rowhome"
-              ,"Apartment Building (3 or fewer floors)"
-              ,"Apartment Building (4 to 6 floors)"
-              ,"Apartment Building (More than 6 floors)"
-              ,"Single Wide"
-              ,"Double Wide"
-              ,"Triple Wide"
-              ,"Modular / Prefab"
-              ,"Total")
-item1.table <- item1.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
-item1.table <- data.frame(item1.table)
-
-
-### Split into respective tables
-item1.table.SF <- data.frame(item1.table[which(item1.table$BuildingType %in% c("Single Family")),-1], stringsAsFactors = F)
-exportTable(item1.table.SF,"SF","SCL","Table 8",weighted = T, OS = T)
-
-
-
-######################################
 # Unweighted Analysis
 ######################################
 item1.final.unweighted <- proportions_two_groups_unweighted(CustomerLevelData = item1.dat
@@ -227,65 +167,8 @@ item1.table.MH.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c(
 exportTable(item1.table.MH.unw, "MH", "Table 7", weighted = FALSE)
 
 
-######################################
-# Weighted Analysis - OVERSAMPLES
-######################################
-item1.final <- proportions_two_groups_unweighted(CustomerLevelData = item1.dat
-                                         ,valueVariable = 'count'
-                                         ,columnVariable = 'CK_Building_ID'
-                                         ,rowVariable = 'HomeType'
-                                         ,aggregateColumnName = "Region")
-
-#cast data into correct format
-item1.cast <- dcast(setDT(item1.final)
-                    ,formula = BuildingType + HomeType ~ CK_Building_ID
-                    ,value.var = c("Percent", "SE", "Count", "n"))
-
-#can add pop and sample sizes if needed in exported table
-item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
-                          ,"Home.Type"            = item1.cast$HomeType
-                          ,"Percent_2017.RBSA.PS" = item1.cast$`Percent_2017 RBSA PS`
-                          ,"SE_2017.RBSA.PS"      = item1.cast$`SE_2017 RBSA PS`
-                          ,"n_2017.RBSA.PS"       = item1.cast$`n_2017 RBSA PS`
-                          ,"Percent_SCL.GenPop"   = item1.cast$`Percent_SCL GenPop`
-                          ,"SE_SCL.GenPop"        = item1.cast$`SE_SCL GenPop`
-                          ,"n_SCL.GenPop"         = item1.cast$`n_SCL GenPop`
-                          ,"Percent_SCL.LI"       = item1.cast$`Percent_SCL LI`
-                          ,"SE_SCL.LI"            = item1.cast$`SE_SCL LI`
-                          ,"n_SCL.LI"             = item1.cast$`n_SCL LI`
-                          ,"Percent_SCL.EH"       = item1.cast$`Percent_SCL EH`
-                          ,"SE_SCL.EH"            = item1.cast$`SE_SCL EH`
-                          ,"n_SCL.EH"             = item1.cast$`n_SCL EH`)
-
-# row ordering example code
-levels(item1.table$Home.Type)
-rowOrder <- c("Single Family Detached"
-              ,"Duplex, Triplex, or Fourplex"
-              ,"Townhome or Rowhome"
-              ,"Apartment Building (3 or fewer floors)"
-              ,"Apartment Building (4 to 6 floors)"
-              ,"Apartment Building (More than 6 floors)"
-              ,"Single Wide"
-              ,"Double Wide"
-              ,"Triple Wide"
-              ,"Modular / Prefab"
-              ,"Total")
-item1.table <- item1.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
-item1.table <- data.frame(item1.table)
-
-
-### Split into respective tables
-item1.table.SF <- data.frame(item1.table[which(item1.table$BuildingType %in% c("Single Family")),-1], stringsAsFactors = F)
-exportTable(item1.table.SF,"SF","SCL","Table 8",weighted = F, OS = T)
-
-
-
-
-
 #############################################################################################
-# 
 # Item 2 : DISTRIBUTION OF HOMES BY VINTAGE AND STATE (SF Table 9, MH Table 8)
-# 
 #############################################################################################
 item2.dat <- weightedData(rbsa.dat[which(!is.na(rbsa.dat$HomeYearBuilt)),])
 
@@ -352,8 +235,6 @@ item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),
 exportTable(item2.table.MH, "MH", "Table 8", weighted = TRUE)
 
 
-
-
 ############################
 # Unweighted Analysis
 ############################
@@ -408,15 +289,8 @@ exportTable(item2.table.MH, "MH", "Table 8", weighted = FALSE)
 
 
 
-
-
-
-
-
 #############################################################################################
-#
 # Item 6: DISTRIBUTION OF HOMES BY BUILDING HEIGHT AND STATE (SF table 13)
-#
 #############################################################################################
 item6.dat <- weightedData(rbsa.dat[which(rbsa.dat$BuildingHeight %notin% c(NA, "N/A")),])
 item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.0))] <- "1 Story"
@@ -427,7 +301,7 @@ item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(3.0,4.0))] <- "3+
 unique(item6.dat$BuildingHeight)
 item6.dat$count <- 1
 
-
+unique(item6.dat$CK_Building_ID)
 
 ############################
 # weighted Analysis
@@ -527,3 +401,363 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 
 # exportTable(item6.table.SF, "SF", "Table 13", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################################################################################################
+#
+#
+# OVERSAMPLE ANALYSES
+# 
+#
+##################################################################################################
+#############################################################################################
+# Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
+#############################################################################################
+item1.dat0 <- rbsa.dat[which(!is.na(rbsa.dat$BuildingTypeXX)),]
+item1.dat <- weightedData(item1.dat0)
+
+item1.dat$count <- 1
+######################################
+# Weighted Analysis - OVERSAMPLES
+######################################
+item1.os.final <- proportionRowsAndColumns1(CustomerLevelData = item1.os.dat
+                                            ,valueVariable = 'count'
+                                            ,columnVariable = 'CK_Building_ID'
+                                            ,rowVariable = 'HomeType'
+                                            ,aggregateColumnName = "Region")
+
+#cast data into correct format
+item1.os.cast <- dcast(setDT(item1.os.final)
+                       ,formula = BuildingType + HomeType ~ CK_Building_ID
+                       ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+#can add pop and sample sizes if needed in exported table
+item1.os.table <- data.frame("BuildingType"          = item1.os.cast$BuildingType
+                             ,"Home.Type"            = item1.os.cast$HomeType
+                             ,"Percent_2017.RBSA.PS" = item1.os.cast$`w.percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item1.os.cast$`w.SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item1.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item1.os.cast$`w.percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item1.os.cast$`w.SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item1.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item1.os.cast$`w.percent_SCL LI`
+                             ,"SE_SCL.LI"            = item1.os.cast$`w.SE_SCL LI`
+                             ,"n_SCL.LI"             = item1.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item1.os.cast$`w.percent_SCL EH`
+                             ,"SE_SCL.EH"            = item1.os.cast$`w.SE_SCL EH`
+                             ,"n_SCL.EH"             = item1.os.cast$`n_SCL EH`
+                             ,"EB_2017.RBSA.PS"      = item1.os.cast$`EB_2017 RBSA PS`
+                             ,"EB_SCL.GenPop"        = item1.os.cast$`EB_SCL GenPop`
+                             ,"EB_SCL.LI"            = item1.os.cast$`EB_SCL LI`
+                             ,"EB_SCL.EH"            = item1.os.cast$`EB_SCL EH`)
+
+# row ordering example code
+levels(item1.os.table$Home.Type)
+rowOrder <- c("Single Family Detached"
+              ,"Duplex, Triplex, or Fourplex"
+              ,"Townhome or Rowhome"
+              ,"Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"Single Wide"
+              ,"Double Wide"
+              ,"Triple Wide"
+              ,"Modular / Prefab"
+              ,"Total")
+item1.os.table <- item1.os.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item1.os.table <- data.frame(item1.os.table)
+
+
+### Split into respective tables
+item1.os.table.SF <- data.frame(item1.os.table[which(item1.os.table$BuildingType %in% c("Single Family")),-1], stringsAsFactors = F)
+exportTable(item1.os.table.SF,"SF","SCL","Table 8",weighted = T, OS = T)
+######################################
+# unweighted Analysis - OVERSAMPLES
+######################################
+item1.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item1.dat
+                                                    ,valueVariable = 'count'
+                                                    ,columnVariable = 'CK_Building_ID'
+                                                    ,rowVariable = 'HomeType'
+                                                    ,aggregateColumnName = "Region")
+
+#cast data into correct format
+item1.os.cast <- dcast(setDT(item1.os.final)
+                       ,formula = BuildingType + HomeType ~ CK_Building_ID
+                       ,value.var = c("Percent", "SE", "Count", "n"))
+
+#can add pop and sample sizes if needed in exported table
+item1.os.table <- data.frame("BuildingType"          = item1.os.cast$BuildingType
+                             ,"Home.Type"            = item1.os.cast$HomeType
+                             ,"Percent_2017.RBSA.PS" = item1.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item1.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item1.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item1.os.cast$`Percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item1.os.cast$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item1.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item1.os.cast$`Percent_SCL LI`
+                             ,"SE_SCL.LI"            = item1.os.cast$`SE_SCL LI`
+                             ,"n_SCL.LI"             = item1.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item1.os.cast$`Percent_SCL EH`
+                             ,"SE_SCL.EH"            = item1.os.cast$`SE_SCL EH`
+                             ,"n_SCL.EH"             = item1.os.cast$`n_SCL EH`)
+
+# row ordering example code
+levels(item1.os.table$Home.Type)
+rowOrder <- c("Single Family Detached"
+              ,"Duplex, Triplex, or Fourplex"
+              ,"Townhome or Rowhome"
+              ,"Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"Single Wide"
+              ,"Double Wide"
+              ,"Triple Wide"
+              ,"Modular / Prefab"
+              ,"Total")
+item1.os.table <- item1.os.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item1.os.table <- data.frame(item1.os.table)
+
+
+### Split into respective tables
+item1.os.table.SF <- data.frame(item1.os.table[which(item1.os.table$BuildingType %in% c("Single Family")),-1], stringsAsFactors = F)
+exportTable(item1.os.table.SF,"SF","SCL","Table 8",weighted = F, OS = T)
+
+
+
+
+#############################################################################################
+# Item 2 : DISTRIBUTION OF HOMES BY VINTAGE AND STATE (SF Table 9, MH Table 8)
+#############################################################################################
+item2.dat <- weightedData(rbsa.dat[which(!is.na(rbsa.dat$HomeYearBuilt)),])
+
+item2.dat$count <- 1
+
+######################################
+# Weighted Analysis - OVERSAMPLES
+######################################
+item2.os.final <- proportionRowsAndColumns1(CustomerLevelData = item2.dat
+                                            ,valueVariable = 'count'
+                                            ,columnVariable = 'CK_Building_ID'
+                                            ,rowVariable = 'HomeYearBuilt_bins2'
+                                            ,aggregateColumnName = "Region")
+
+#cast data into correct format
+item2.os.cast <- dcast(setDT(item2.os.final)
+                       ,formula = BuildingType + HomeYearBuilt_bins2 ~ CK_Building_ID
+                       ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+#can add pop and sample sizes if needed in exported table
+item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
+                             ,"Housing.Vintage"      = item2.os.cast$HomeYearBuilt_bins2
+                             ,"Percent_2017.RBSA.PS" = item2.os.cast$`w.percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item2.os.cast$`w.SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item2.os.cast$`w.percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item2.os.cast$`w.SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item2.os.cast$`w.percent_SCL LI`
+                             ,"SE_SCL.LI"            = item2.os.cast$`w.SE_SCL LI`
+                             ,"n_SCL.LI"             = item2.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item2.os.cast$`w.percent_SCL EH`
+                             ,"SE_SCL.EH"            = item2.os.cast$`w.SE_SCL EH`
+                             ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`
+                             ,"EB_2017.RBSA.PS"      = item2.os.cast$`EB_2017 RBSA PS`
+                             ,"EB_SCL.GenPop"        = item2.os.cast$`EB_SCL GenPop`
+                             ,"EB_SCL.LI"            = item2.os.cast$`EB_SCL LI`
+                             ,"EB_SCL.EH"            = item2.os.cast$`EB_SCL EH`)
+
+# row ordering example code
+# row ordering example code
+levels(item2.os.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"Total")
+item2.os.table <- item2.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item2.os.table <- data.frame(item2.os.table)
+
+
+### Split into respective tables
+item2.os.table.SF <- data.frame(item2.os.table[which(item2.os.table$BuildingType %in% c("Single Family")),-1], stringsAsFactors = F)
+exportTable(item2.os.table.SF,"SF","SCL","Table 9",weighted = T, OS = T)
+######################################
+# unweighted Analysis - OVERSAMPLES
+######################################
+item2.os.final <- proportions_two_groups_unweighted(item2.dat
+                                                    , valueVariable = 'count'
+                                                    , columnVariable = 'CK_Building_ID'
+                                                    , rowVariable = 'HomeYearBuilt_bins2'
+                                                    , aggregateColumnName = "Region")
+
+item2.os.cast <- dcast(setDT(item2.os.final)
+                       ,formula = BuildingType + HomeYearBuilt_bins2 ~ CK_Building_ID
+                       ,value.var = c("Percent", "SE", "n", "Count"))
+
+#can add pop and sample sizes if needed in exported table
+item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
+                             ,"Home.Type"            = item2.os.cast$HomeType
+                             ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item2.os.cast$`Percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item2.os.cast$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item2.os.cast$`Percent_SCL LI`
+                             ,"SE_SCL.LI"            = item2.os.cast$`SE_SCL LI`
+                             ,"n_SCL.LI"             = item2.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item2.os.cast$`Percent_SCL EH`
+                             ,"SE_SCL.EH"            = item2.os.cast$`SE_SCL EH`
+                             ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`)
+
+# row ordering example code
+levels(item2.os.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"Total")
+item2.os.table <- item2.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item2.os.table <- data.frame(item2.os.table)
+
+item2.os.table.SF <- item2.os.table[which(item2.os.table$BuildingType == "Single Family"),-1]
+exportTable(item2.os.table.SF,"SF","SCL","Table 9",weighted = F, OS = T)
+
+
+
+
+#############################################################################################
+# Item 6: DISTRIBUTION OF HOMES BY BUILDING HEIGHT AND STATE (SF table 13)
+#############################################################################################
+item6.dat <- weightedData(rbsa.dat[which(rbsa.dat$BuildingHeight %notin% c(NA, "N/A")),])
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.0))] <- "1 Story"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.5))] <- "1.5 Stories"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.0))] <- "2 Stories"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.5))] <- "2.5 Stories"
+item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(3.0,4.0))] <- "3+ Stories"
+unique(item6.dat$BuildingHeight)
+item6.dat$count <- 1
+
+unique(item6.dat$CK_Building_ID)
+
+############################
+# weighted Analysis
+############################
+item6.os.final <- proportionRowsAndColumns1(item6.dat
+                                            , valueVariable = 'count'
+                                            , columnVariable = 'CK_Building_ID'
+                                            , rowVariable = 'BuildingHeight'
+                                            , aggregateColumnName = "Region"
+)
+
+colnames(item6.os.final) <- c("BuildingType"
+                              , "CK_Building_ID"
+                              , "BuildingHeight"
+                              , "Percent"
+                              , "SE"
+                              , "Count"
+                              , "N"
+                              , "n"
+                              , "EB")
+
+item6.os.cast <- dcast(setDT(item6.os.final)
+                       ,formula = BuildingType + BuildingHeight ~ CK_Building_ID
+                       ,value.var = c("Percent", "SE", "Count", "N", "n", "EB"))
+
+item6.os.table <- data.frame("BuildingType"       = item6.os.cast$BuildingType
+                             ,"Building.Height"      = item6.os.cast$BuildingHeight
+                             ,"Percent_2017.RBSA.PS" = item6.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item6.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item6.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item6.os.cast$`Percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item6.os.cast$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item6.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item6.os.cast$`Percent_SCL LI`
+                             ,"SE_SCL.LI"            = item6.os.cast$`SE_SCL LI`
+                             ,"n_SCL.LI"             = item6.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item6.os.cast$`Percent_SCL EH`
+                             ,"SE_SCL.EH"            = item6.os.cast$`SE_SCL EH`
+                             ,"n_SCL.EH"             = item6.os.cast$`n_SCL EH`
+                             ,"EB_2017.RBSA.PS"      = item6.os.cast$`EB_2017 RBSA PS`
+                             ,"EB_SCL.GenPop"        = item6.os.cast$`EB_SCL GenPop`
+                             ,"EB_SCL.LI"            = item6.os.cast$`EB_SCL LI`
+                             ,"EB_SCL.EH"            = item6.os.cast$`EB_SCL EH`)
+
+item6.os.table.SF <- item6.os.table[which(item6.os.table$BuildingType == "Single Family"),-1]
+
+exportTable(item6.os.table.SF, "SF", "SCL", "Table 13", weighted = TRUE, OS = TRUE)
+
+############################
+# Unweighted Analysis
+############################
+item6.os.final <- proportions_two_groups_unweighted(item6.os.dat
+                                                    , valueVariable = 'count'
+                                                    , columnVariable = 'CK_Building_ID'
+                                                    , rowVariable = 'BuildingHeight'
+                                                    , aggregateColumnName = "Region"
+)
+
+colnames(item6.os.final) <- c("BuildingType"
+                              , "CK_Building_ID"
+                              , "BuildingHeight"
+                              , "Count"
+                              , "n"
+                              , "Percent"
+                              , "SE")
+
+item6.os.cast <- dcast(setDT(item6.os.final)
+                       ,formula = BuildingType + BuildingHeight ~ CK_Building_ID
+                       ,value.var = c("Percent", "SE", "Count", "n"))
+
+item6.os.table <- data.frame("BuildingType"          = item6.os.cast$BuildingType
+                             ,"Building.Height"      = item6.os.cast$BuildingHeight
+                             ,"Percent_2017.RBSA.PS" = item6.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item6.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item6.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item6.os.cast$`Percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item6.os.cast$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item6.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item6.os.cast$`Percent_SCL LI`
+                             ,"SE_SCL.LI"            = item6.os.cast$`SE_SCL LI`
+                             ,"n_SCL.LI"             = item6.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item6.os.cast$`Percent_SCL EH`
+                             ,"SE_SCL.EH"            = item6.os.cast$`SE_SCL EH`
+                             ,"n_SCL.EH"             = item6.os.cast$`n_SCL EH`)
+
+item6.os.table.SF <- item6.os.table[which(item6.os.table$BuildingType == "Single Family"),-1]
+
+exportTable(item6.os.table.SF, "SF", "SCL", "Table 13", weighted = FALSE, OS = TRUE)

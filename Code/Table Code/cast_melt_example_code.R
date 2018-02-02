@@ -166,3 +166,20 @@ item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
                           ,"EB_SCL.GenPop"        = item1.cast$`EB_SCL GenPop`
                           ,"EB_SCL.LI"            = item1.cast$`EB_SCL LI`
                           ,"EB_SCL.EH"            = item1.cast$`EB_SCL EH`)
+
+
+#can add pop and sample sizes if needed in exported table
+item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
+                             ,"Home.Type"            = item2.os.cast$HomeType
+                             ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_SCL.GenPop"   = item2.os.cast$`Percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item2.os.cast$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item2.os.cast$`Percent_SCL LI`
+                             ,"SE_SCL.LI"            = item2.os.cast$`SE_SCL LI`
+                             ,"n_SCL.LI"             = item2.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item2.os.cast$`Percent_SCL EH`
+                             ,"SE_SCL.EH"            = item2.os.cast$`SE_SCL EH`
+                             ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`)

@@ -21,11 +21,12 @@ source("Code/Table Code/Export Function.R")
 "%notin%" <- Negate("%in%")
 
 
-# Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
-length(unique(rbsa.dat$CK_Cadmus_ID))
-length(unique(rbsa.dat$CK_Cadmus_ID[which(rbsa.dat$BuildingType == "Single Family")]))
+if(os.ind == "rbsa"){
+  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
+}else{
+  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
+  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+}
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -43,10 +44,6 @@ GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) %in%
 #############################################################################################
 # Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE 
 #############################################################################################
-#############################################################
-# Weighting Implementation function: Proportion, two groups
-#############################################################
-
 env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                             , "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
 colnames(env.dat) <- c("CK_Cadmus_ID"
@@ -415,3 +412,342 @@ item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufacture
 #             , weighted = FALSE)
 exportTable(item5.table.MH, "MH", "Table 11"
             , weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################################################################################################
+#
+#
+# OVERSAMPLE ANALYSES
+# 
+#
+##################################################################################################
+#############################################################################################
+# Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE 
+#############################################################################################
+env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                            , "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
+colnames(env.dat) <- c("CK_Cadmus_ID"
+                       , "FoundationType")
+env.dat1 <- env.dat[which(!(is.na(env.dat$FoundationType))),]
+env.dat1$FoundationType <- trimws(env.dat1$FoundationType)
+
+#merge table columns to generic columns
+item3.os.dat <- unique(left_join(rbsa.dat, env.dat1, by = "CK_Cadmus_ID"))
+
+# Clean Ground Contact types
+i=10
+item3.os.dat$GroundContact <- item3.os.dat$FoundationType
+for (i in 1:length(GroundContactTypes$Raw.data.categories)){
+  item3.os.dat$GroundContact[which(item3.os.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
+}
+item3.os.dat$GroundContact <- trimws(item3.os.dat$GroundContact)
+# End cleaning Step
+unique(item3.os.dat$GroundContact)
+
+item3.os.dat$GroundContact <- gsub("&gt;",">", item3.os.dat$GroundContact)
+
+# Remove unwanted ground contact types
+item3.os.dat1 <- item3.os.dat[which(item3.os.dat$GroundContact %notin% c("Remove", NA, 0)),]
+
+#subset to only single family for item 3
+item3.os.dat2 <- item3.os.dat1[which(item3.os.dat1$BuildingType == "Single Family"),]
+item3.os.dat2$count <- 1
+item3.os.customer <- summarise(group_by(item3.os.dat2, CK_Cadmus_ID, CK_Building_ID, GroundContact)
+                            ,m_ilk = sum(count))
+item3.os.merge <- left_join(rbsa.dat, item3.os.customer)
+item3.os.merge <- item3.os.merge[which(!is.na(item3.os.merge$m_ilk)),]
+
+
+
+#add weighting information
+item3.os.data <- weightedData(item3.os.merge[-which(colnames(item3.os.merge) %in% c("m_ilk"
+                                                                                    , "GroundContact"))])
+
+item3.os.data <- left_join(item3.os.data, unique(item3.os.merge[which(colnames(item3.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                               , "m_ilk"
+                                                                                               , "GroundContact"))]))
+
+item3.os.data$count <- 1
+colnames(item3.os.data)
+##############################
+# Weighted Analysis
+##############################
+item3.os.final <- proportions_two_groups_domain(CustomerLevelData  = item3.os.data
+                                             , valueVariable       = 'm_ilk'
+                                             , byVariableColumn    = 'CK_Building_ID'
+                                             , byVariableRow       = 'GroundContact'
+                                             , aggregateColumn     = "Region"
+                                             , aggregateRow        = "Total")
+item3.os.cast <- dcast(setDT(item3.os.final)
+                    ,formula = BuildingType + GroundContact ~ CK_Building_ID
+                    ,value.var = c("w.percent", "w.SE", "n", "EB"))
+
+item3.os.table <- data.frame("BuildingType"    = item3.os.cast$BuildingType
+                          ,"GroundContact"  = item3.os.cast$GroundContact
+                          ,"Percent_2017.RBSA.PS" = item3.os.cast$`w.percent_2017 RBSA PS`
+                          ,"SE_2017.RBSA.PS"      = item3.os.cast$`w.SE_2017 RBSA PS`
+                          ,"n_2017.RBSA.PS"       = item3.os.cast$`n_2017 RBSA PS`
+                          ,"Percent_SCL.GenPop"   = item3.os.cast$`w.percent_SCL GenPop`
+                          ,"SE_SCL.GenPop"        = item3.os.cast$`w.SE_SCL GenPop`
+                          ,"n_SCL.GenPop"         = item3.os.cast$`n_SCL GenPop`
+                          ,"Percent_SCL.LI"       = item3.os.cast$`w.percent_SCL LI`
+                          ,"SE_SCL.LI"            = item3.os.cast$`w.SE_SCL LI`
+                          ,"n_SCL.LI"             = item3.os.cast$`n_SCL LI`
+                          ,"Percent_SCL.EH"       = item3.os.cast$`w.percent_SCL EH`
+                          ,"SE_SCL.EH"            = item3.os.cast$`w.SE_SCL EH`
+                          ,"n_SCL.EH"             = item3.os.cast$`n_SCL EH`
+                          ,"EB_2017.RBSA.PS"      = item3.os.cast$`EB_2017 RBSA PS`
+                          ,"EB_SCL.GenPop"        = item3.os.cast$`EB_SCL GenPop`
+                          ,"EB_SCL.LI"            = item3.os.cast$`EB_SCL LI`
+                          ,"EB_SCL.EH"            = item3.os.cast$`EB_SCL EH`)
+
+item3.os.table.SF <- item3.os.table[which(item3.os.table$BuildingType == "Single Family"),-1]
+
+exportTable(item3.os.table.SF, "SF", "SCL", "Table 10", weighted = TRUE, OS = T)
+
+
+
+##############################
+# Unweighted Analysis
+##############################
+item3.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item3.os.data
+                                                 , valueVariable = 'count'
+                                                 , columnVariable = 'CK_Building_ID'
+                                                 , rowVariable = 'GroundContact'
+                                                 , aggregateColumnName = "Region")
+
+item3.os.cast <- dcast(setDT(item3.os.final)
+                    ,formula = BuildingType + GroundContact ~ CK_Building_ID
+                    ,value.var = c("Percent", "SE", "Count", "n"))
+
+item3.os.table <- data.frame("BuildingType"    = item3.os.cast$BuildingType
+                          ,"GroundContact"  = item3.os.cast$GroundContact
+                          ,"Percent_2017.RBSA.PS" = item3.os.cast$`Percent_2017 RBSA PS`
+                          ,"SE_2017.RBSA.PS"      = item3.os.cast$`SE_2017 RBSA PS`
+                          ,"n_2017.RBSA.PS"       = item3.os.cast$`n_2017 RBSA PS`
+                          ,"Percent_SCL.GenPop"   = item3.os.cast$`Percent_SCL GenPop`
+                          ,"SE_SCL.GenPop"        = item3.os.cast$`SE_SCL GenPop`
+                          ,"n_SCL.GenPop"         = item3.os.cast$`n_SCL GenPop`
+                          ,"Percent_SCL.LI"       = item3.os.cast$`Percent_SCL LI`
+                          ,"SE_SCL.LI"            = item3.os.cast$`SE_SCL LI`
+                          ,"n_SCL.LI"             = item3.os.cast$`n_SCL LI`
+                          ,"Percent_SCL.EH"       = item3.os.cast$`Percent_SCL EH`
+                          ,"SE_SCL.EH"            = item3.os.cast$`SE_SCL EH`
+                          ,"n_SCL.EH"             = item3.os.cast$`n_SCL EH`)
+
+item3.os.table.SF <- item3.os.table[which(item3.os.table$BuildingType == "Single Family"),-1]
+
+exportTable(item3.os.table.SF, "SF", "SCL", "Table 10", weighted = FALSE, OS = T)
+
+
+
+
+#############################################################################################
+# Item 4: AVERAGE CONDITIONED FLOOR AREA BY CK_Building_ID
+#############################################################################################
+env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                            , "Conditioned.Living.Area"))]
+colnames(env.dat) <- c("CK_Cadmus_ID"
+                       , "BldgLevel_Area_SqFt")
+
+#make conditioned area as.numeric
+env.dat$ConditionedArea <- as.numeric(as.character(env.dat$BldgLevel_Area_SqFt))
+
+#merge
+item4.os.dat <- left_join(rbsa.dat, env.dat, by = "CK_Cadmus_ID")
+length(unique(item4.os.dat$CK_Cadmus_ID))
+
+item4.os.dat1 <- item4.os.dat[which(item4.os.dat$BuildingType != "Multifamily"),]
+item4.os.dat2 <- item4.os.dat1[which(!is.na(item4.os.dat1$ConditionedArea)),]
+
+######################################################
+# Summarise data up to unique customer level
+######################################################
+item4.os.customer <- summarise(group_by(item4.os.dat2, CK_Cadmus_ID)
+                            ,siteAreaConditioned = sum(ConditionedArea))
+
+item4.os.merge <- left_join(rbsa.dat, item4.os.customer)
+item4.os.merge <- item4.os.merge[which(!is.na(item4.os.merge$siteAreaConditioned)),]
+
+
+item4.os.data <- weightedData(item4.os.merge[-which(colnames(item4.os.merge) %in% c("BldgLevel_Area_SqFt"
+                                                                           ,"siteAreaConditioned"))])
+item4.os.data <- left_join(item4.os.data, unique(item4.os.merge[which(colnames(item4.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                   ,"BldgLevel_Area_SqFt"
+                                                                                   , "siteAreaConditioned"))]))
+
+item4.os.data$count <- 1
+colnames(item4.os.data)
+
+##############################
+# Weighted Analysis
+##############################
+item4.os.final <- mean_one_group(CustomerLevelData = item4.os.data
+                              , valueVariable = 'siteAreaConditioned'
+                              , byVariable    = 'CK_Building_ID'
+                              , aggregateRow  = 'Region')
+
+
+item4.os.table.SF <- item4.os.final[which(item4.os.final$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item4.os.table.SF, "SF", "SCL", "Table 11", weighted = TRUE, OS = T)
+
+##############################
+# Unweighted Analysis
+##############################
+item4.os.final <- mean_one_group_unweighted(CustomerLevelData = item4.os.data
+                                         , valueVariable = 'siteAreaConditioned'
+                                         , byVariable    = 'CK_Building_ID'
+                                         , aggregateRow  = 'Region')
+
+
+item4.os.table.SF <- item4.os.final[which(item4.os.final$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item4.os.table.SF, "SF","SCL", "Table 11", weighted = FALSE, OS = T)
+
+
+
+
+##########################################################################
+# Item 5: AVERAGE CONDITIONED FLOOR AREA BY CK_Building_ID AND VINTAGE
+##########################################################################
+item5.os.dat <- rbsa.dat
+length(unique(item5.os.dat$CK_Cadmus_ID))
+
+item5.os.dat1 <- item5.os.dat[which(item5.os.dat$BuildingType != "Multifamily"),]
+item5.os.dat2 <- item5.os.dat1[which(!is.na(item5.os.dat1$Conditioned.Area)),]
+item5.os.dat2 <- item5.os.dat2[which(item5.os.dat2$Conditioned.Area > 0),]
+item5.os.dat3 <- item5.os.dat2[which(!is.na(item5.os.dat2$HomeYearBuilt)),]
+
+######################################################
+# Summarise data up to unique customer level
+######################################################
+item5.os.customer <- summarise(group_by(item5.os.dat3, CK_Cadmus_ID)
+                            ,siteAreaConditioned = sum(Conditioned.Area))
+
+item5.os.merge <- left_join(rbsa.dat, item5.os.customer)
+item5.os.merge <- item5.os.merge[which(!is.na(item5.os.merge$siteAreaConditioned)),]
+
+
+item5.os.data <- weightedData(item5.os.merge[which(colnames(item5.os.merge) %notin% c("BldgLevel_Area_SqFt"
+                                                                             ,"siteAreaConditioned"))])
+item5.os.data <- left_join(item5.os.data, item5.os.merge[which(colnames(item5.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                   , "BldgLevel_Area_SqFt"
+                                                                                   , "siteAreaConditioned"))])
+
+item5.os.data$count <- 1
+colnames(item5.os.data)
+
+
+##############################
+# Weighted Analysis
+##############################
+item5.os.final <- mean_two_groups(CustomerLevelData  = item5.os.data
+                               , valueVariable    = 'siteAreaConditioned'
+                               , byVariableRow    = 'HomeYearBuilt_bins2'
+                               , byVariableColumn = 'CK_Building_ID'
+                               , columnAggregate  = "Region"
+                               , rowAggregate     = "All Vintages"
+)
+
+item5.os.table <- data.frame("BuildingType"     = item5.os.final$BuildingType
+                          ,"HousingVintage"     = item5.os.final$HomeYearBuilt_bins2
+                          ,"Mean_2017.RBSA.PS"  = item5.os.final$`Mean_2017 RBSA PS`
+                          ,"SE_2017.RBSA.PS"    = item5.os.final$`SE_2017 RBSA PS`
+                          ,"n_2017.RBSA.PS"     = item5.os.final$`n_2017 RBSA PS`
+                          ,"Mean_SCL.GenPop"    = item5.os.final$`Mean_SCL GenPop`
+                          ,"SE_SCL.GenPop"      = item5.os.final$`SE_SCL GenPop`
+                          ,"n_SCL.GenPop"       = item5.os.final$`n_SCL GenPop`
+                          ,"Mean_SCL.LI"        = item5.os.final$`Mean_SCL LI`
+                          ,"SE_SCL.LI"          = item5.os.final$`SE_SCL LI`
+                          ,"n_SCL.LI"           = item5.os.final$`n_SCL LI`
+                          ,"Mean_SCL.EH"        = item5.os.final$`Mean_SCL EH`
+                          ,"SE_SCL.EH"          = item5.os.final$`SE_SCL EH`
+                          ,"n_SCL.EH"           = item5.os.final$`n_SCL EH`
+                          ,"EB_2017.RBSA.PS"    = item5.os.final$`EB_2017 RBSA PS`
+                          ,"EB_SCL.GenPop"      = item5.os.final$`EB_SCL GenPop`
+                          ,"EB_SCL.LI"          = item5.os.final$`EB_SCL LI`
+                          ,"EB_SCL.EH"          = item5.os.final$`EB_SCL EH`
+)
+
+# row ordering example code
+levels(item5.os.table$HousingVintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item5.os.table <- item5.os.table %>% mutate(HousingVintage = factor(HousingVintage, levels = rowOrder)) %>% arrange(HousingVintage)  
+item5.os.table <- data.frame(item5.os.table)
+
+item5.os.table.SF <- item5.os.table[which(item5.os.table$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item5.os.table.SF, "SF", "SCL", "Table 12", weighted = TRUE, OS = T)
+
+
+
+##############################
+# Unweighted Analysis
+##############################
+item5.os.final <- mean_two_groups_unweighted(CustomerLevelData  = item5.os.data
+                                          , valueVariable    = 'siteAreaConditioned'
+                                          , byVariableRow    = 'HomeYearBuilt_bins2'
+                                          , byVariableColumn = 'CK_Building_ID'
+                                          , columnAggregate  = "Region"
+                                          , rowAggregate     = "All Vintages")
+
+item5.os.table <- data.frame("BuildingType"     = item5.os.final$BuildingType
+                             ,"HousingVintage"     = item5.os.final$HomeYearBuilt_bins2
+                             ,"Mean_2017.RBSA.PS"  = item5.os.final$`Mean_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"    = item5.os.final$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"     = item5.os.final$`n_2017 RBSA PS`
+                             ,"Mean_SCL.GenPop"    = item5.os.final$`Mean_SCL GenPop`
+                             ,"SE_SCL.GenPop"      = item5.os.final$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"       = item5.os.final$`n_SCL GenPop`
+                             ,"Mean_SCL.LI"        = item5.os.final$`Mean_SCL LI`
+                             ,"SE_SCL.LI"          = item5.os.final$`SE_SCL LI`
+                             ,"n_SCL.LI"           = item5.os.final$`n_SCL LI`
+                             ,"Mean_SCL.EH"        = item5.os.final$`Mean_SCL EH`
+                             ,"SE_SCL.EH"          = item5.os.final$`SE_SCL EH`
+                             ,"n_SCL.EH"           = item5.os.final$`n_SCL EH`
+)
+# row ordering example code
+levels(item5.os.table$HousingVintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item5.os.table <- item5.os.table %>% mutate(HousingVintage = factor(HousingVintage, levels = rowOrder)) %>% arrange(HousingVintage)  
+item5.os.table <- data.frame(item5.os.table)
+
+item5.os.table.SF <- item5.os.table[which(item5.os.table$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item5.os.table.SF, "SF","SCL", "Table 12", weighted = FALSE, OS = T)
