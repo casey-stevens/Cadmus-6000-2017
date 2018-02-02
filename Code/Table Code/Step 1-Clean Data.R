@@ -337,7 +337,8 @@ scl.data <- rbind.data.frame(scl.dat
                              ,scl.eh.dat
                              ,scl.ps.dat)
 scl.data$CK_Building_ID <- NA
-scl.data <- unique(scl.data)
+scl.data <- unique(scl.data[which(scl.data$BuildingType == "Single Family"),])
+
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")

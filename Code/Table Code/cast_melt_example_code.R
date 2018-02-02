@@ -141,3 +141,28 @@ itemXX.dat2$Generic[grep("ductless",itemXX.dat2$Generic,ignore.case = T)] <- "Mi
 itemXX.dat2$Generic[grep("furnace",itemXX.dat2$Generic,ignore.case = T)] <- "Furnace"
 itemXX.dat2$Generic[grep("boiler",itemXX.dat2$Generic,ignore.case = T)] <- "Boiler"
 itemXX.dat2$Generic[grep("Stove/Fireplace",itemXX.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
+
+
+
+
+
+
+
+item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
+                          ,"Home.Type"            = item1.cast$HomeType
+                          ,"Percent_2017.RBSA.PS" = item1.cast$`w.percent_2017 RBSA PS`
+                          ,"SE_2017.RBSA.PS"      = item1.cast$`w.SE_2017 RBSA PS`
+                          ,"n_2017.RBSA.PS"       = item1.cast$`n_2017 RBSA PS`
+                          ,"Percent_SCL.GenPop"   = item1.cast$`w.percent_SCL GenPop`
+                          ,"SE_SCL.GenPop"        = item1.cast$`w.SE_SCL GenPop`
+                          ,"n_SCL.GenPop"         = item1.cast$`n_SCL GenPop`
+                          ,"Percent_SCL.LI"       = item1.cast$`w.percent_SCL LI`
+                          ,"SE_SCL.LI"            = item1.cast$`w.SE_SCL LI`
+                          ,"n_SCL.LI"             = item1.cast$`n_SCL LI`
+                          ,"Percent_SCL.EH"       = item1.cast$`w.percent_SCL EH`
+                          ,"SE_SCL.EH"            = item1.cast$`w.SE_SCL EH`
+                          ,"n_SCL.EH"             = item1.cast$`n_SCL EH`
+                          ,"EB_2017.RBSA.PS"      = item1.cast$`EB_2017 RBSA PS`
+                          ,"EB_SCL.GenPop"        = item1.cast$`EB_SCL GenPop`
+                          ,"EB_SCL.LI"            = item1.cast$`EB_SCL LI`
+                          ,"EB_SCL.EH"            = item1.cast$`EB_SCL EH`)

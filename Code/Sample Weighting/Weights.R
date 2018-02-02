@@ -400,18 +400,21 @@ popCounts.MF <- summarise(group_by(popCounts.1,
 #############################################################################################
 
 total.counts.SF <- full_join(popCounts.SF, sampCounts.SF, by = c("BuildingType"
-                                                                 # ,"State"
+                                                                 ,"State"
                                                                  ,"Region"
-                                                                 ,"Territory"))
+                                                                 ,"Territory"
+                                                                 ))
 
 total.counts.MH <- full_join(popCounts.MH, sampCounts.MH, by = c("BuildingType"
-                                                                 # ,"State"
+                                                                 ,"State"
                                                                  ,"Region"
-                                                                 ,"Territory"))
+                                                                 ,"Territory"
+                                                                 ))
 total.counts.MF <- full_join(popCounts.MF, sampCounts.MF, by = c("BuildingType"
-                                                                 # ,"State"
+                                                                 ,"State"
                                                                  ,"Region"
-                                                                 ,"Territory"))
+                                                                 ,"Territory"
+                                                                 ))
 
 ## check that there are no NA's in final sample sizes
 ## Put zero as a placeholder until final comes in
@@ -433,8 +436,8 @@ samp.dat.MF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamil
 
 samp.dat.final <- unique(rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F))
 samp.dat.final <- samp.dat.final[which(!is.na(samp.dat.final$N.h)),]
-samp.dat.final <- samp.dat.final[which(names(samp.dat.final) != "State.y")]
-names(samp.dat.final)[which(names(samp.dat.final) == "State.x")] <- "State"
+samp.dat.final <- samp.dat.final[which(names(samp.dat.final) != "Territory.y")]
+names(samp.dat.final)[which(names(samp.dat.final) == "Territory.x")] <- "Territory"
 samp.dat.final <- unique(samp.dat.final)
 unique(samp.dat.final$n.h)
 
