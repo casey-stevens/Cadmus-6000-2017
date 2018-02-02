@@ -36,6 +36,8 @@ filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight
 outputFolder          <- file.path(analysisFolder, "Tables from Previous RBSA Report")
 filepathBillingData   <- file.path(billingRootpath, "Preliminary Results")
 
+file.exists(filepathBillingData)
+
 stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder, filepathBillingData)))
 
 #File Names

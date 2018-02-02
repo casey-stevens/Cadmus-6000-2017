@@ -14,7 +14,7 @@
 
 
 exportTable <- function(buildingTypeData, buildingTypeIndicator, osIndicator, tableName, weighted = TRUE, weights = NA, final = NA, OS = NA) {
-  if (OS = NA){
+  if (is.na(OS)){
   if (weighted == TRUE){
     # if(!is.na(final)){
     #   Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")

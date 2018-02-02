@@ -336,3 +336,10 @@ scl.data <- rbind.data.frame(scl.dat
                              ,scl.li.dat
                              ,scl.eh.dat
                              ,scl.ps.dat)
+scl.data$CK_Building_ID <- NA
+scl.data <- unique(scl.data)
+
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)

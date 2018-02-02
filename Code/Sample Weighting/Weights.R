@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- weightedData(item4.merge[-which(colnames(item4.merge) %in% c("BldgLevel_Area_SqFt","siteAreaConditioned"))])
+# itemData <- item1.dat0
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -181,7 +181,8 @@ weightedData <- function(itemData){
   # Join ZIP codes to cleaned building type data
   samp.dat.0       <- cadmus.dat3
   # Join ZIP mapping to previous step
-  samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1)
+  samp.dat.1       <- left_join(samp.dat.0, zipMap.dat1, by = c("ZIPCode","Utility"))
+  samp.dat.1 <- samp.dat.1[which(names(samp.dat.1) != "State.y")]
   samp.dat.1$tally <- rep(1, nrow(samp.dat.1))
   head(samp.dat.1)  
   nrow(samp.dat.1)
@@ -399,15 +400,16 @@ popCounts.MF <- summarise(group_by(popCounts.1,
 #############################################################################################
 
 total.counts.SF <- full_join(popCounts.SF, sampCounts.SF, by = c("BuildingType"
-                                                                 ,"State"
+                                                                 # ,"State"
                                                                  ,"Region"
                                                                  ,"Territory"))
+
 total.counts.MH <- full_join(popCounts.MH, sampCounts.MH, by = c("BuildingType"
-                                                                 ,"State"
+                                                                 # ,"State"
                                                                  ,"Region"
                                                                  ,"Territory"))
 total.counts.MF <- full_join(popCounts.MF, sampCounts.MF, by = c("BuildingType"
-                                                                 ,"State"
+                                                                 # ,"State"
                                                                  ,"Region"
                                                                  ,"Territory"))
 
@@ -429,8 +431,11 @@ samp.dat.MH <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactur
 samp.dat.MF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),]
                          , total.counts.MF)
 
-samp.dat.final <- rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F)
+samp.dat.final <- unique(rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F))
 samp.dat.final <- samp.dat.final[which(!is.na(samp.dat.final$N.h)),]
+samp.dat.final <- samp.dat.final[which(names(samp.dat.final) != "State.y")]
+names(samp.dat.final)[which(names(samp.dat.final) == "State.x")] <- "State"
+samp.dat.final <- unique(samp.dat.final)
 unique(samp.dat.final$n.h)
 
 which(duplicated(samp.dat.final$CK_Cadmus_ID))

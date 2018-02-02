@@ -30,6 +30,12 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+
+# Read in clean SCL data
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+rbsa.dat$CK_Building_ID <- NA
+rbsa.dat$State <- rbsa.dat$Category
+rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
 #############################################################################################
 # Item 1 : DISTRIBUTION OF HOMES BY TYPE AND STATE (SF Table 8, MH Table 7)
 #############################################################################################
