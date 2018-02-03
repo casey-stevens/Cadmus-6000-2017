@@ -24,10 +24,15 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat.orig <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
-rbsa.dat <- rbsa.dat.orig[grep("site",rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
-length(unique(rbsa.dat.orig$CK_Cadmus_ID))
+if(os.ind == "rbsa"){
+  rbsa.dat.orig <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
+  rbsa.dat <- rbsa.dat.orig[grep("site",rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
+  rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
+}else{
+  rbsa.dat.orig <- rbsa.dat
+  rbsa.dat.orig$CK_Building_ID <- rbsa.dat.orig$Category
+  rbsa.dat.orig <- rbsa.dat.orig[which(names(rbsa.dat.orig) != "Category")]
+}
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -525,7 +530,7 @@ wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID",
 prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
 
 #merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat)
+prep.dat7 <- left_join(prep.dat6, rbsa.dat.orig)
 # prep.dat7.0 <- left_join(rbsa.dat, prep.dat5)
 # prep.dat7 <- left_join(prep.dat6, prep.dat7.0)
 prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0

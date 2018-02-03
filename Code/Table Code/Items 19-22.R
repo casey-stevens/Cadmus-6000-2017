@@ -92,11 +92,7 @@ item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item19.final.SF, "SF", "Table 26"
-            , weighted = TRUE)
-
-
-
+exportTable(item19.final.SF, "SF", "Table 26", weighted = TRUE)
 
 
 #####################################

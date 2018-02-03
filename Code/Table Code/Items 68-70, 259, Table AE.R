@@ -144,7 +144,7 @@ item68.table.MF <- item68.table.MF[which(item68.table.MF$Status != "Total"),]
 
 item68.final.MF <- item68.table.MF[which(item68.table.MF$BuildingType == "Multifamily")
                                 ,-which(colnames(item68.table.MF) %in% c("BuildingType"))]
-exportTable(item68.final.MF, "MF", "Table 81", weighted = TRUE)
+# exportTable(item68.final.MF, "MF", "Table 81", weighted = TRUE)
 
 
 #######################
@@ -201,7 +201,7 @@ item68.table.MF <- item68.table.MF[which(item68.table.MF$Status != "Total"),]
 
 item68.final.MF <- item68.table.MF[which(item68.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item68.table.MF) %in% c("BuildingType"))]
-exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
+# exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
 
 
 
@@ -325,7 +325,7 @@ item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
-exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
+# exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
 
 
 
@@ -382,7 +382,7 @@ item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
-exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
+# exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
 
 
 
@@ -561,8 +561,8 @@ item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily"
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 # exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
-# exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
-exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
+exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
+# exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
 
 
 #######################
@@ -655,8 +655,8 @@ item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily"
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 # exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
-# exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
-exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
+exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
+# exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
 
 
 
@@ -967,7 +967,7 @@ item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
                                 ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
 
-exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
+# exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
 
 
 #######################
@@ -982,4 +982,4 @@ item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 
 item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
-exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)
+# exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)

@@ -672,6 +672,7 @@ item53.data <- weightedData(item53.dat4[-which(colnames(item53.dat4) %in% c("Gen
                                                                              ,"Heating.Efficiency.-.High"      
                                                                              ,"HSPF"
                                                                              ,"EquipVintage_bins"
+                                                                             ,"EquipVintage_bins_MH"
                                                                              ,"HSPF_bins"                      
                                                                              ,"count"
                                                                             ,"Primary.Heating.System" ))])
@@ -682,6 +683,7 @@ item53.data <- left_join(item53.data, item53.dat4[which(colnames(item53.dat4) %i
                                                                                       ,"Heating.Efficiency.-.High"      
                                                                                       ,"HSPF"
                                                                                       ,"EquipVintage_bins"
+                                                                                      ,"EquipVintage_bins_MH"
                                                                                       ,"HSPF_bins"                      
                                                                                       ,"count"
                                                                                      ,"Primary.Heating.System"))])

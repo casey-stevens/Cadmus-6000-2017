@@ -150,9 +150,6 @@ itemXX.dat2$Generic[grep("Stove/Fireplace",itemXX.dat2$Generic,ignore.case = T)]
 
 item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
                           ,"Home.Type"            = item1.cast$HomeType
-                          ,"Percent_2017.RBSA.PS" = item1.cast$`w.percent_2017 RBSA PS`
-                          ,"SE_2017.RBSA.PS"      = item1.cast$`w.SE_2017 RBSA PS`
-                          ,"n_2017.RBSA.PS"       = item1.cast$`n_2017 RBSA PS`
                           ,"Percent_SCL.GenPop"   = item1.cast$`w.percent_SCL GenPop`
                           ,"SE_SCL.GenPop"        = item1.cast$`w.SE_SCL GenPop`
                           ,"n_SCL.GenPop"         = item1.cast$`n_SCL GenPop`
@@ -161,19 +158,19 @@ item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
                           ,"n_SCL.LI"             = item1.cast$`n_SCL LI`
                           ,"Percent_SCL.EH"       = item1.cast$`w.percent_SCL EH`
                           ,"SE_SCL.EH"            = item1.cast$`w.SE_SCL EH`
+                          ,"Percent_2017.RBSA.PS" = item1.cast$`w.percent_2017 RBSA PS`
+                          ,"SE_2017.RBSA.PS"      = item1.cast$`w.SE_2017 RBSA PS`
+                          ,"n_2017.RBSA.PS"       = item1.cast$`n_2017 RBSA PS`
                           ,"n_SCL.EH"             = item1.cast$`n_SCL EH`
-                          ,"EB_2017.RBSA.PS"      = item1.cast$`EB_2017 RBSA PS`
                           ,"EB_SCL.GenPop"        = item1.cast$`EB_SCL GenPop`
                           ,"EB_SCL.LI"            = item1.cast$`EB_SCL LI`
-                          ,"EB_SCL.EH"            = item1.cast$`EB_SCL EH`)
+                          ,"EB_SCL.EH"            = item1.cast$`EB_SCL EH`
+                          ,"EB_2017.RBSA.PS"      = item1.cast$`EB_2017 RBSA PS`)
 
 
 #can add pop and sample sizes if needed in exported table
 item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
                              ,"Home.Type"            = item2.os.cast$HomeType
-                             ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
-                             ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
-                             ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
                              ,"Percent_SCL.GenPop"   = item2.os.cast$`Percent_SCL GenPop`
                              ,"SE_SCL.GenPop"        = item2.os.cast$`SE_SCL GenPop`
                              ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
@@ -182,4 +179,7 @@ item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingTyp
                              ,"n_SCL.LI"             = item2.os.cast$`n_SCL LI`
                              ,"Percent_SCL.EH"       = item2.os.cast$`Percent_SCL EH`
                              ,"SE_SCL.EH"            = item2.os.cast$`SE_SCL EH`
-                             ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`)
+                             ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`
+                             ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`)
