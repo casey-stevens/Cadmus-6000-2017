@@ -80,6 +80,7 @@ item293.dat2$count <- 1
 
 item293.dat2$TotalQty <- item293.dat2$Large.Unusual.Load.Quantity * item293.dat2$count
 item293.dat2[is.na(item293.dat2)] <- 0
+unique(item293.dat2$TotalQty)
 
 item293.dat3 <- item293.dat2[grep("SITE",item293.dat2$CK_Building_ID),]
 
@@ -100,8 +101,9 @@ colnames(item293.melt) <- c("CK_Cadmus_ID", "Type", "Count")
 
 
 item293.merge <- left_join(rbsa.dat, item293.melt)
+item293.merge <- item293.merge[grep("site", item293.merge$CK_Building_ID, ignore.case = T),]
 item293.merge <- item293.merge[which(!is.na(item293.merge$Count)),]
-
+length(unique(item293.merge$CK_Cadmus_ID))
 ######################################
 #Pop and Sample Sizes for weights
 ######################################

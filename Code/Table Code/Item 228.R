@@ -86,7 +86,7 @@ rowOrder <- c("Pre 1955"
               ,"Post 2010"
               ,"All Vintages")
 item228.table <- item228.table %>% mutate(HomeYearBuilt_bins_MF = factor(HomeYearBuilt_bins_MF, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins_MF)  
-item228.table <- data.frame(item228.table)
+item228.table <- data.frame(item228.table[which(names(item228.table) != "BuildingType")])
 
 exportTable(item228.table, "MF", "Table 20", weighted = TRUE)
 
@@ -108,6 +108,6 @@ rowOrder <- c("Pre 1955"
               ,"Post 2010"
               ,"All Vintages")
 item228.table <- item228.table %>% mutate(HomeYearBuilt_bins_MF = factor(HomeYearBuilt_bins_MF, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins_MF)  
-item228.table <- data.frame(item228.table)
+item228.table <- data.frame(item228.table[which(names(item228.table) != "BuildingType")])
 
 exportTable(item228.table, "MF", "Table 20", weighted = FALSE)

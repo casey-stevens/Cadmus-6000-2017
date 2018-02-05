@@ -116,20 +116,20 @@ item213.final$HomeYearBuilt_bins_MF[which(item213.final$HomeYearBuilt_bins_MF ==
 
 item213.cast <- dcast(setDT(item213.final)
                       ,formula = BuildingType + HomeYearBuilt_bins_MF + n + N ~ HomeType
-                      ,value.var = c("w.percent", "w.SE", "count"))
+                      ,value.var = c("w.percent", "w.SE", "count", "EB"))
 colnames(item213.cast)
 item213.table <- data.frame("BuildingType"     = item213.cast$BuildingType
                             ,"Housing.Vintage" = item213.cast$HomeYearBuilt_bins_MF
                             ,"Low.Rise.1.3"    = item213.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low.Rise.SE"     = item213.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            # ,"Low.Rise.n"      = item213.cast$`count_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"    = item213.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.SE"     = item213.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            # ,"Mid.Rise.n"      = item213.cast$`count_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.7.Plus"= NA #item213.cast$
                             ,"High.Rise.SE"    = NA #item213.cast$
-                            # ,"High.Rise.n"     = NA #item213.cast$
                             ,"n"               = item213.cast$n
+                            ,"Low.Rise.EB"     = item213.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid.Rise.EB"     = item213.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High.Rise.EB"    = NA #item213.cast$
                             )
 # row ordering example code
 levels(item213.table$Housing.Vintage)
@@ -281,20 +281,25 @@ item217.final <- rbind.data.frame(item217.summary, item217.all.vintages, strings
 
 item217.cast <- dcast(setDT(item217.final)
                       ,formula = BuildingType + HomeYearBuilt_bins_MF + n + N ~ Number.of.Units
-                      ,value.var = c("w.percent","w.SE","count"))
-item217.table <- data.frame("BuildingType" = item217.cast$BuildingType
-                            ,"Housing.Vintage" = item217.cast$HomeYearBuilt_bins_MF
-                            ,"Percent.Studio"  = item217.cast$w.percent_Number.of.Studio.Units
-                            ,"SE.Studio"       = item217.cast$w.SE_Number.of.Studio.Units
-                            ,"Percent.One.Bedroom" = item217.cast$w.percent_Number.of.1.Bedroom.Units
-                            ,"SE.One.Bedroom"      = item217.cast$w.SE_Number.of.1.Bedroom.Units
-                            ,"Percent.Two.Bedroom" = item217.cast$w.percent_Number.of.2.Bedroom.Units
-                            ,"SE.Two.Bedroom"      = item217.cast$w.SE_Number.of.2.Bedroom.Units
-                            ,"Percent.Three.Bedroom" = item217.cast$w.percent_Number.of.3.Bedroom.Units
-                            ,"SE.Three.Bedroom"      = item217.cast$w.SE_Number.of.3.Bedroom.Units
+                      ,value.var = c("w.percent","w.SE","count","EB"))
+item217.table <- data.frame("BuildingType"                 = item217.cast$BuildingType
+                            ,"Housing.Vintage"             = item217.cast$HomeYearBuilt_bins_MF
+                            ,"Percent.Studio"              = item217.cast$w.percent_Number.of.Studio.Units
+                            ,"SE.Studio"                   = item217.cast$w.SE_Number.of.Studio.Units
+                            ,"Percent.One.Bedroom"         = item217.cast$w.percent_Number.of.1.Bedroom.Units
+                            ,"SE.One.Bedroom"              = item217.cast$w.SE_Number.of.1.Bedroom.Units
+                            ,"Percent.Two.Bedroom"         = item217.cast$w.percent_Number.of.2.Bedroom.Units
+                            ,"SE.Two.Bedroom"              = item217.cast$w.SE_Number.of.2.Bedroom.Units
+                            ,"Percent.Three.Bedroom"       = item217.cast$w.percent_Number.of.3.Bedroom.Units
+                            ,"SE.Three.Bedroom"            = item217.cast$w.SE_Number.of.3.Bedroom.Units
                             ,"Percent.Four.Plus.Bedrooms"  = item217.cast$w.percent_Number.of.4.Plus.Bedroom.Units
                             ,"SE.Four.Plus.Bedrooms"       = item217.cast$w.SE_Number.of.4.Plus.Bedroom.Units
-                            ,"n"                           = item217.cast$n)
+                            ,"n"                           = item217.cast$n
+                            ,"EB.Studio"                   = item217.cast$EB_Number.of.Studio.Units
+                            ,"EB.One.Bedroom"              = item217.cast$EB_Number.of.1.Bedroom.Units
+                            ,"EB.Two.Bedroom"              = item217.cast$EB_Number.of.2.Bedroom.Units
+                            ,"EB.Three.Bedroom"            = item217.cast$EB_Number.of.3.Bedroom.Units
+                            ,"EB.Four.Plus.Bedrooms"       = item217.cast$EB_Number.of.4.Plus.Bedroom.Units)
 # row ordering example code
 levels(item217.table$Housing.Vintage)
 rowOrder <- c("Pre 1955"

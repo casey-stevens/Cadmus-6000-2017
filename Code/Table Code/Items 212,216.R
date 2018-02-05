@@ -89,21 +89,21 @@ item212.final <- rbind.data.frame(item212.summary, item212.all.vintages, item212
 
 item212.cast <- dcast(setDT(item212.final)
                       ,formula = HomeYearBuilt_bins_MF ~ HomeType
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N", 'EB'))
 
 item212.table <- data.frame("Housing.Vintage" = item212.cast$HomeYearBuilt_bins_MF
                             ,"Low-Rise.(1-3)" = item212.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low-Rise.SE"    = item212.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            # ,"Low-Rise.n"     = item212.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid-Rise.(4-6)" = item212.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid-Rise.SE"    = item212.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            # ,"Mid-Rise.n"     = item212.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High-Rise.(7+)" = item212.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High-Rise.SE"   = item212.cast$`w.SE_Apartment Building (More than 6 floors)`
-                            # ,"High-Rise.n"    = item212.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"      = item212.cast$`w.percent_All Sizes`
                             ,"All.Sizes.SE"   = item212.cast$`w.SE_All Sizes`
-                            ,"n"    = item212.cast$`n_All Sizes`)
+                            ,"n"              = item212.cast$`n_All Sizes`
+                            ,"Low-Rise.EB"    = item212.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid-Rise.EB"    = item212.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High-Rise.EB"   = item212.cast$`EB_Apartment Building (More than 6 floors)`)
 
 # row ordering example code
 levels(item212.table$Housing.Vintage)
@@ -322,20 +322,20 @@ item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, item216.sa
 
 item216.cast <- dcast(setDT(item216.final)
                       ,formula = BuildingType + HomeType ~ Area.Type
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
-                            ,"HomeType"    = item216.cast$HomeType
-                            ,"Percent_Common.Area" = item216.cast$w.percent_Common.Area
-                            ,"SE_Common.Area"      = item216.cast$w.SE_Common.Area
-                            # ,"n_Common.Area"       = item216.cast$n_Common.Area
+item216.table <- data.frame("BuildingType"                  = item216.cast$BuildingType
+                            ,"HomeType"                     = item216.cast$HomeType
+                            ,"Percent_Common.Area"          = item216.cast$w.percent_Common.Area
+                            ,"SE_Common.Area"               = item216.cast$w.SE_Common.Area
                             ,"Percent_Non-Residential.Area" = item216.cast$w.percent_Total.Nonres.Floor.Area
                             ,"SE_Non-Residential.Area"      = item216.cast$w.SE_Total.Nonres.Floor.Area
-                            # ,"n_Non-Residential.Area"       = item216.cast$n_Total.Nonres.Floor.Area
                             ,"Percent_Residential.Area"     = item216.cast$w.percent_Total.Residential.Floor.Area
                             ,"SE_Residential.Area"          = item216.cast$w.SE_Total.Residential.Floor.Area
-                            # ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area
-                            ,"n" = item216.cast$n_Total
+                            ,"n"                            = item216.cast$n_Total
+                            ,"EB_Common.Area"               = item216.cast$EB_Common.Area
+                            ,"EB_Non-Residential.Area"      = item216.cast$EB_Total.Nonres.Floor.Area
+                            ,"EB_Residential.Area"          = item216.cast$EB_Total.Residential.Floor.Area
                             )
 
 # row ordering example code

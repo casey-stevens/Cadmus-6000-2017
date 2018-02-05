@@ -203,7 +203,7 @@ survey.final$Qty.Occupants <- as.numeric(item122.dat2$Qty.Occupants)
 survey.final <- survey.final[which(!is.na(item122.dat2$Qty.Occupants)),]
 
 ##### Now start doing the various summaries
-UsageDataSF <- results.dat2[which(results.dat2$BuildingType == "Single Family"),]
+UsageDataSF <- results.dat2[which(results.dat2$BuildingType == "Manufactured"),]
 UsageDataSF_2 <- UsageDataSF[-which(is.na(UsageDataSF$UsageNAC_kWh)),]
 UsageDataSF_3 <- UsageDataSF_2[which(UsageDataSF_2$Conditioned.Area > 0),]
 UsageDataSF_3$EUI <- UsageDataSF_3$UsageNAC_kWh/UsageDataSF_3$Conditioned.Area
@@ -229,16 +229,23 @@ for (ii in colnames(UsageDataSF_Final6)){
 UsageDataSF_Final7 <- left_join(rbsa.dat, UsageDataSF_Final6)
 UsageDataSF_Final7 <- UsageDataSF_Final7[which(!is.na(UsageDataSF_Final7$count)),]
 which(duplicated(UsageDataSF_Final7$CK_Cadmus_ID))
-
+View(UsageDataSF_Final7)
 
 unique(UsageDataSF_Final7$EUI)
 quantile(UsageDataSF_Final7$EUI)
 summary(UsageDataSF_Final7$EUI)
 
+#for single family
+# UsageDataSF_Final7$EUI_Quartile <- 4
+# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5486421)] <- 1
+# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5486421 & UsageDataSF_Final7$EUI < 5.9583333)] <- 2
+# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9583333 & UsageDataSF_Final7$EUI < 9.2550041)] <- 3
+
+#for Manufactured
 UsageDataSF_Final7$EUI_Quartile <- 4
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5486421)] <- 1
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5486421 & UsageDataSF_Final7$EUI < 5.9583333)] <- 2
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9583333 & UsageDataSF_Final7$EUI < 9.2550041)] <- 3
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 6.365929)] <- 1
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.365929 & UsageDataSF_Final7$EUI < 10.069864)] <- 2
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 10.069864 & UsageDataSF_Final7$EUI < 13.727086)] <- 3
 
 ###########################
 #Pull in weights
@@ -330,7 +337,8 @@ names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c
 #######################
 UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
 
-exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
+# exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
+exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
 
 
 
@@ -338,18 +346,19 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 
 
 
-FinalSummary <- summarize(group_by(UsageDataSF_Final7,UsageDataSF_Final7$EUI_Quartile),
-                          count = length(unique(CK_Cadmus_ID)),
-                          Avg_Area = mean(Conditioned.Area.x, na.rm =T),
-                          Total_Electric_Heat = sum(ElectricInd, na.rm = T),
-                          NonMissing_Elec_Heat = sum(!is.na(ElectricInd)),
-                          Avg_Eff_Lighting = sum(EfficientTotal, na.rm =T)/sum(TotalBulbs, na.rm =T) ,
-                          NonMissing_Lighting = sum(is.na(EfficientSaturation)),
-                          Total_AC = sum(Has_AC, na.rm = T),
-                          NonMissing_AC = sum(!is.na(Has_AC)),
-                          Electric_DHW = sum(Electric_DWH, na.rm = T),
-                          NonMissing_DHW = sum(!is.na(Electric_DWH)),
-                          Average_Number_Occupants = mean(Qty.Occupants, na.rm = T),
-                          NonMissing_People = sum(!is.na(Qty.Occupants)))
-exportTable(FinalSummary, "SF", "Table AL", weighted = FALSE)
+# FinalSummary <- summarize(group_by(UsageDataSF_Final7,UsageDataSF_Final7$EUI_Quartile),
+#                           count = length(unique(CK_Cadmus_ID)),
+#                           Avg_Area = mean(Conditioned.Area.x, na.rm =T),
+#                           Total_Electric_Heat = sum(ElectricInd, na.rm = T),
+#                           NonMissing_Elec_Heat = sum(!is.na(ElectricInd)),
+#                           Avg_Eff_Lighting = sum(EfficientTotal, na.rm =T)/sum(TotalBulbs, na.rm =T) ,
+#                           NonMissing_Lighting = sum(is.na(EfficientSaturation)),
+#                           Total_AC = sum(Has_AC, na.rm = T),
+#                           NonMissing_AC = sum(!is.na(Has_AC)),
+#                           Electric_DHW = sum(Electric_DWH, na.rm = T),
+#                           NonMissing_DHW = sum(!is.na(Electric_DWH)),
+#                           Average_Number_Occupants = mean(Qty.Occupants, na.rm = T),
+#                           NonMissing_People = sum(!is.na(Qty.Occupants)))
+# # exportTable(FinalSummary, "SF", "Table AL", weighted = FALSE)
+# exportTable(FinalSummary, "MH", "Table AL", weighted = FALSE)
 

@@ -87,11 +87,13 @@ item247.cast <- dcast(setDT(item247.summary)
                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
 item247.table <- data.frame("System.Type" = item247.cast$System.Type
-                            ,"Percent.Electric" = item247.cast$w.percent_Electric
-                            ,"SE.Electric"      = item247.cast$w.SE_Electric
+                            ,"Percent.Electric"  = item247.cast$w.percent_Electric
+                            ,"SE.Electric"       = item247.cast$w.SE_Electric
                             ,"Percent.All.Fuels" = item247.cast$`w.percent_All Fuel Types`
                             ,"SE.All.Fuels"      = item247.cast$`w.SE_All Fuel Types`
-                            ,"n"                 = item247.cast$`n_All Fuel Types`)
+                            ,"n"                 = item247.cast$`n_All Fuel Types`
+                            ,"EB.Electric"       = item247.cast$EB_Electric
+                            ,"EB.All.Fuels"      = item247.cast$`EB_All Fuel Types`)
 levels(item247.table$System.Type)
 rowOrder <- c("Boiler"
               ,"Electric Baseboard"

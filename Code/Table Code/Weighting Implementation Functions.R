@@ -1512,24 +1512,22 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #################################################################################
   #obtain the total population size for the strata and columnVariable combination
   #################################################################################
-  # if(columnVariable == "Clean.Room"){
-  #   StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
-  #                                                                       ,"State"
-  #                                                                       ,"Region"
-  #                                                                       ,"Territory"
-  #                                                                       ,columnVariable
-  #                                                                       ,rowVariable
-  #                                                                       ,"N.h"
-  #                                                                       ,"n.h"))])
-  #   columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType", columnVariable, rowVariable)
-  #                                        ,summarise
-  #                                        ,columnVar.N.h = sum(N.h)
-  #                                        ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
-  #   
-  #   #join strata data with weights by column grouping variable 
-  #   StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable, rowVariable))
-  #   
-  # }else{
+  if(columnVariable == "Heating_System"){
+    StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
+                                                                        ,"State"
+                                                                        ,"Region"
+                                                                        ,"Territory"
+                                                                        ,"N.h"
+                                                                        ,"n.h"))])
+    columnVarWeights <- data.frame(ddply(StrataData_n, c("BuildingType")
+                                         ,summarise
+                                         ,columnVar.N.h = sum(N.h)
+                                         ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
+
+    #join strata data with weights by column grouping variable
+    StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType"))
+
+  }else{
     StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
                                                                         ,"State"
                                                                         ,"Region"

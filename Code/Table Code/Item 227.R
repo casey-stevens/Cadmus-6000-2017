@@ -122,7 +122,7 @@ rowOrder <- c("Age_0_18"
               ,"Age_65_Older"
               ,"AllCategories")
 item227.final.MF <- item227.final.MF %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
-item227.final.MF <- data.frame(item227.final.MF)
+item227.final.MF <- data.frame(item227.final.MF[which(names(item227.final.MF) != "BuildingType")])
 
 exportTable(item227.final, "MF", "Table 19", weighted = TRUE)
 
@@ -145,7 +145,7 @@ rowOrder <- c("Age_0_18"
               ,"Age_65_Older"
               ,"AllCategories")
 item227.final.MF <- item227.final.MF %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
-item227.final.MF <- data.frame(item227.final.MF)
+item227.final.MF <- data.frame(item227.final.MF[which(names(item227.final.MF) != "BuildingType")])
 
 exportTable(item227.final.MF, "MF", "Table 19", weighted = FALSE)
 

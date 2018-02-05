@@ -97,7 +97,7 @@ item290.final <- mean_one_group(CustomerLevelData = item290.data
                                 ,valueVariable = 'Lamp.Count'
                                 ,byVariable = 'Lamp.Category'
                                 ,aggregateRow = "Remove")
-item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),]
+item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),which(names(item290.final) != "BuildingType")]
 
 exportTable(item290.final, "MF", "Table 82", weighted = TRUE)
 
@@ -109,7 +109,7 @@ item290.final <- mean_one_group_unweighted(CustomerLevelData = item290.data
                                 ,valueVariable = 'Lamp.Count'
                                 ,byVariable = 'Lamp.Category'
                                 ,aggregateRow = "Remove")
-item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),]
+item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),which(names(item290.final) != "BuildingType")]
 
 exportTable(item290.final, "MF", "Table 82", weighted = FALSE)
 

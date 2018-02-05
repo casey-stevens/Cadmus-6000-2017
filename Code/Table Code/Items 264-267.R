@@ -463,8 +463,8 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"Manual.Switch.SE"           = item267.cast$`w.SE_Manual Switch`
                             ,"Motion.Sensor"              = item267.cast$`w.percent_Motion Sensor`
                             ,"Motion.Sensor.SE"           = item267.cast$`w.SE_Motion Sensor`
-                            ,"Photo.Sensor"               = NA#item267.cast$`w.percent_Photo Sensor`
-                            ,"Photo.Sensor.SE"            = NA#item267.cast$
+                            ,"Photo.Sensor"               = item267.cast$`w.percent_Light Sensor`
+                            ,"Photo.Sensor.SE"            = item267.cast$`w.SE_Light Sensor`
                             ,"Photo.and.Motion.Sensor"    = item267.cast$`w.percent_Motion & Light Sensor`
                             ,"Photo.and.Motion.Sensor.SE" = item267.cast$`w.SE_Motion & Light Sensor`
                             ,"Timer Control"              = item267.cast$`w.percent_Timer Control`
@@ -477,7 +477,7 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"24.Hour.Operation.EB"       = item267.cast$`EB_24 Hour Operation`
                             ,"Manual.Switch.EB"           = item267.cast$`EB_Manual Switch`
                             ,"Motion.Sensor.EB"           = item267.cast$`EB_Motion Sensor`
-                            ,"Photo.Sensor.EB"            = NA#item267.cast$
+                            ,"Photo.Sensor.EB"            = item267.cast$`EB_Light Sensor`
                             ,"Photo.and.Motion.Sensor.EB" = item267.cast$`EB_Motion & Light Sensor`
                             ,"Timer Control.EB"           = item267.cast$`EB_Timer Control`
                             ,"Other.EB"                   = NA#item267.cast$EB_Other
@@ -485,7 +485,6 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             )
 
 exportTable(item267.table, "MF", "Table 59", weighted = TRUE)
-
 
 ######################
 # weighted analysis
@@ -520,8 +519,8 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"Manual.Switch.SE"           = item267.cast$`SE_Manual Switch`
                             ,"Motion.Sensor"              = item267.cast$`Percent_Motion Sensor`
                             ,"Motion.Sensor.SE"           = item267.cast$`SE_Motion Sensor`
-                            ,"Photo.Sensor"               = NA#item267.cast$`Percent_Photo Sensor`
-                            ,"Photo.Sensor.SE"            = NA#item267.cast$
+                            ,"Photo.Sensor"               = item267.cast$`Percent_Light Sensor`
+                            ,"Photo.Sensor.SE"            = item267.cast$`SE_Light Sensor`
                             ,"Photo.and.Motion.Sensor"    = item267.cast$`Percent_Motion & Light Sensor`
                             ,"Photo.and.Motion.Sensor.SE" = item267.cast$`SE_Motion & Light Sensor`
                             ,"Timer Control"              = item267.cast$`Percent_Timer Control`

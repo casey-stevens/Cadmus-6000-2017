@@ -208,9 +208,9 @@ colnames(item129.dat2)
 ################################################
 item129.data <- weightedData(item129.dat2[-which(colnames(item129.dat2) %in% c("Thermostat_Setpoint"
                                                                                  ,"count"))])
-item129.data <- left_join(item129.data, item129.dat2[which(colnames(item129.dat2) %in% c("CK_Cadmus_ID"
+item129.data <- left_join(item129.data, unique(item129.dat2[which(colnames(item129.dat2) %in% c("CK_Cadmus_ID"
                                                                                            ,"Thermostat_Setpoint"
-                                                                                           ,"count"))])
+                                                                                           ,"count"))]))
 
 item129.data$count <- 1
 #######################
@@ -290,8 +290,8 @@ item130.merge <- item130.merge[which(!is.na(item130.merge$Ind)),]
 # Adding pop and sample sizes for weights
 ################################################
 item130.data <- weightedData(item130.merge[-which(colnames(item130.merge) %in% c("Ind"))])
-item130.data <- left_join(item130.data, item130.merge[which(colnames(item130.merge) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Ind"))])
+item130.data <- left_join(item130.data, unique(item130.merge[which(colnames(item130.merge) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Ind"))]))
 item130.data$count <- 1
 item130.data$Count <- 1
 #######################
@@ -369,8 +369,8 @@ item131.merge <- item131.merge[which(!is.na(item131.merge$Heating.Setback)),]
 # Adding pop and sample sizes for weights
 ################################################
 item131.data <- weightedData(item131.merge[-which(colnames(item131.merge) %in% c("Heating.Setback"))])
-item131.data <- left_join(item131.data, item131.merge[which(colnames(item131.merge) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Heating.Setback"))])
+item131.data <- left_join(item131.data, unique(item131.merge[which(colnames(item131.merge) %in% c("CK_Cadmus_ID"
+                                                                                         ,"Heating.Setback"))]))
 
 item131.data$count <- 1
 #######################

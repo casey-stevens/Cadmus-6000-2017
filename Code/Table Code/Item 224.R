@@ -101,7 +101,7 @@ item224.summary <- item224.summary[which(item224.summary$Nonres.Type != "Total")
 
 item224.cast <- dcast(setDT(item224.summary)
                       ,formula = Nonres.Type ~ HomeType
-                      ,value.var = c("w.percent","w.SE", "count", "n", "N"))
+                      ,value.var = c("w.percent","w.SE", "count", "n", "N","EB"))
 
 item224.table <- data.frame("Nonresidential_Use_Type"  = item224.cast$Nonres.Type
                             ,"Low_Rise_1.3_Percent"    = item224.cast$`w.percent_Apartment Building (3 or fewer floors)`
@@ -116,6 +116,10 @@ item224.table <- data.frame("Nonresidential_Use_Type"  = item224.cast$Nonres.Typ
                             ,"All_Sizes_Percent"       = item224.cast$`w.percent_All Sizes`
                             ,"All_Sizes_SE"            = item224.cast$`w.SE_All Sizes`
                             ,"All_Sizes_n"             = item224.cast$`n_All Sizes`
+                            ,"Low_Rise_EB"             = item224.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid_Rise_EB"             = item224.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_EB"            = item224.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_EB"            = item224.cast$`EB_All Sizes`
                               )
 exportTable(item224.table, "MF", "Table 16", weighted = TRUE)
 

@@ -74,7 +74,7 @@ item276.final <- mean_one_group(CustomerLevelData = item276.data
                                 ,valueVariable = 'Ind'
                                 ,byVariable = 'HomeType'
                                 ,aggregateRow = 'All Sizes')
-
+item276.final <- item276.final[which(names(item276.final) != "BuildingType")]
 exportTable(item276.final, "MF", "Table 68", weighted = TRUE)
 
 
@@ -85,5 +85,6 @@ item276.final <- mean_one_group_unweighted(CustomerLevelData = item276.data
                                 ,valueVariable = 'Ind'
                                 ,byVariable = 'HomeType'
                                 ,aggregateRow = 'All Sizes')
+item276.final <- item276.final[which(names(item276.final) != "BuildingType")]
 
 exportTable(item276.final, "MF", "Table 68", weighted = FALSE)

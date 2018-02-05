@@ -65,9 +65,9 @@ item132.dat2 <- item132.dat2.0[which(item132.dat2.0$Thermostat_Setpoint != 0),]
 ################################################
 item132.data <- weightedData(item132.dat2[-which(colnames(item132.dat2) %in% c("Thermostat_Setpoint"
                                                                                ,"count"))])
-item132.data <- left_join(item132.data, item132.dat2[which(colnames(item132.dat2) %in% c("CK_Cadmus_ID"
+item132.data <- left_join(item132.data, unique(item132.dat2[which(colnames(item132.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Thermostat_Setpoint"
-                                                                                         ,"count"))])
+                                                                                         ,"count"))]))
 
 item132.data$count <- 1
 #######################
@@ -147,8 +147,8 @@ item133.merge <- item133.merge[which(!is.na(item133.merge$Ind)),]
 # Adding pop and sample sizes for weights
 ################################################
 item133.data <- weightedData(item133.merge[-which(colnames(item133.merge) %in% c("Ind"))])
-item133.data <- left_join(item133.data, item133.merge[which(colnames(item133.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))])
+item133.data <- left_join(item133.data, unique(item133.merge[which(colnames(item133.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))]))
 item133.data$count <- 1
 item133.data$Count <- 1
 #######################
@@ -226,8 +226,8 @@ tableAU.merge <- tableAU.merge[which(!is.na(tableAU.merge$Cooling.Setup)),]
 # Adding pop and sample sizes for weights
 ################################################
 tableAU.data <- weightedData(tableAU.merge[-which(colnames(tableAU.merge) %in% c("Cooling.Setup"))])
-tableAU.data <- left_join(tableAU.data, tableAU.merge[which(colnames(tableAU.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Cooling.Setup"))])
+tableAU.data <- left_join(tableAU.data, unique(tableAU.merge[which(colnames(tableAU.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Cooling.Setup"))]))
 
 tableAU.data$count <- 1
 #######################

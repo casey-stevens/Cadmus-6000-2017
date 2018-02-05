@@ -144,6 +144,10 @@ item220.table <- data.frame("Room_Type"             = item220.cast$Clean.Room
                             ,"All_Sizes_Mean"       = item220.cast$`Mean_All Sizes`
                             ,"All_Sizes_SE"         = item220.cast$`SE_All Sizes`
                             ,"n"                    = item220.cast$`n_All Sizes`
+                            ,"Low_Rise_EB"          = item220.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid_Rise_EB"          = item220.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_EB"         = NA #item220.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_EB"         = item220.cast$`EB_All Sizes`
                             )
 
 levels(item220.table$Room_Type)

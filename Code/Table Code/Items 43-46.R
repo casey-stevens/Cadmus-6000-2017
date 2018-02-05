@@ -58,9 +58,9 @@ item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "No")
 unique(item43.dat2$`System.Sub-Type`)
 
 for (ii in 1:nrow(item43.dat2)){
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-    item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
-  }
+  # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
+  # }
   if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
     item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
@@ -127,7 +127,7 @@ item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured
 exportTable(item43.final.MH, "MH", "Table 32", weighted = TRUE)
 
 #########################
-# Weighted Analysis
+# unWeighted Analysis
 #########################
 item43.final <- proportions_one_group(CustomerLevelData  = item43.data
                                       , valueVariable    = 'count'
@@ -435,9 +435,9 @@ item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural Gas")]      
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Fuel oil/kerosene")] <- "Oil"
 
 for (ii in 1:nrow(item46.dat2)){
-  if (item46.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-    item46.dat2$Generic[ii] <- item46.dat2$`System.Sub-Type`[ii]
-  }
+  # if (item46.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item46.dat2$Generic[ii] <- item46.dat2$`System.Sub-Type`[ii]
+  # }
   if (item46.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
     item46.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }

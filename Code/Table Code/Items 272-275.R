@@ -78,6 +78,8 @@ item272.final <- proportions_one_group(CustomerLevelData = item272.data
                                           ,groupingVariable = 'HomeType'
                                           ,total.name = "All Sizes"
                                           ,weighted = TRUE)
+item272.final <- item272.final[which(names(item272.final) != "BuildingType")]
+
 exportTable(item272.final, "MF", "Table 64", weighted = TRUE)
 
 
@@ -89,6 +91,7 @@ item272.final <- proportions_one_group(CustomerLevelData = item272.data
                                           ,groupingVariable = 'HomeType'
                                           ,total.name = "All Sizes"
                                           ,weighted = FALSE)
+item272.final <- item272.final[which(names(item272.final) != "BuildingType")]
 exportTable(item272.final, "MF", "Table 64", weighted = FALSE)
 
 

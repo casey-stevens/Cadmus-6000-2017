@@ -102,19 +102,19 @@ item192.final <- rbind.data.frame(item192.summary
 item192.cast <- dcast(setDT(item192.final),
                       formula   = BuildingType + HomeType ~ MECH_Ducting_DUCTS_CrossoverCondition,
                       value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-
+names(item192.cast)
 item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
                             ,"Home.Type"         = item192.cast$HomeType
                             ,"Percent.Connected" = item192.cast$w.percent_Connected
                             ,"SE.Connected"      = item192.cast$w.SE_Connected
                             ,"Percent.Partially.Connected" = NA #item192.cast$w.percent_Partially.Connected
                             ,"SE.Partially.Connected"      = NA #item192.cast$w.SE_Partially.Connected
-                            ,"Percent.Disconnected"        = NA #item192.cast$w.percent_Disconnected
-                            ,"SE.Disconnected"             = NA #item192.cast$w.SE_Disconnected
+                            ,"Percent.Disconnected"        = item192.cast$w.percent_Disconnected
+                            ,"SE.Disconnected"             = item192.cast$w.SE_Disconnected
                             ,"n"                           = item192.cast$n_Total
                             ,"EB.Connected"                = item192.cast$EB_Connected
                             ,"EB.Partially.Connected"      = NA #item192.cast$EB_Partially.Connected
-                            ,"EB.Disconnected"             = NA #item192.cast$EB_Disconnected
+                            ,"EB.Disconnected"             = item192.cast$EB_Disconnected
                             )
 
 # row ordering example code
@@ -179,8 +179,8 @@ item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
                             ,"SE.Connected"      = item192.cast$SE_Connected
                             ,"Percent.Partially.Connected" = NA #item192.cast$w.percent_Partially.Connected
                             ,"SE.Partially.Connected"      = NA #item192.cast$w.SE_Partially.Connected
-                            ,"Percent.Disconnected" = NA #item192.cast$w.percent_Disconnected
-                            ,"SE.Disconnected"      = NA #item192.cast$w.SE_Disconnected
+                            ,"Percent.Disconnected" = item192.cast$w.percent_Disconnected
+                            ,"SE.Disconnected"      = item192.cast$w.SE_Disconnected
                             ,"n"                    = item192.cast$`n_All Types`
 )
 

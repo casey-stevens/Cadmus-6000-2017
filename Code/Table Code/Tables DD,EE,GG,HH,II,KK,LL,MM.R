@@ -113,6 +113,7 @@ rowOrder <- c("Manual thermostat - Analog"
               ,"Smart/Wi-Fi thermostat"
               ,"Wi-Fi enabled thermostat"
               ,"None"
+              ,"Unknown"
               ,"Total")
 tableDD.table <- tableDD.table %>% mutate(Thermostat.Type = factor(Thermostat.Type, levels = rowOrder)) %>% arrange(Thermostat.Type)  
 tableDD.table <- data.frame(tableDD.table)
@@ -178,6 +179,7 @@ rowOrder <- c("Hand remote"
               ,"Smart/Wi-Fi thermostat"
               ,"Wi-Fi enabled thermostat"
               ,"None"
+              ,"Unknown"
               ,"Total")
 tableDD.table <- tableDD.table %>% mutate(Thermostat.Type = factor(Thermostat.Type, levels = rowOrder)) %>% arrange(Thermostat.Type)  
 tableDD.table <- data.frame(tableDD.table)
@@ -561,7 +563,7 @@ tableMM.dat0 <- tableMM.dat[grep("dryer",tableMM.dat$Type, ignore.case = T),]
 
 tableMM.merge <- left_join(rbsa.dat, tableMM.dat0, by = "CK_Cadmus_ID")
 
-tableMM.merge <- tableMM.merge[which((tableMM.merge$Dryer.Fuel %notin% c("N/A",NA))),]
+tableMM.merge <- tableMM.merge[which((tableMM.merge$Dryer.Fuel %notin% c("N/A",NA,"Unknown"))),]
 tableMM.merge$Dryer.Fuel <- trimws(tableMM.merge$Dryer.Fuel)
 
 ################################################

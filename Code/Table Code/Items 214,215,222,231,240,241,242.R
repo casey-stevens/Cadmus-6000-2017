@@ -494,8 +494,21 @@ item241.data$count <- 1
 #########################
 item241.final <- mean_one_group(CustomerLevelData = item241.data
                                 ,valueVariable = "UA.per.unit"
-                                ,byVariable = "HomeType"
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = "HomeYearBuilt_bins_MF"
+                                ,aggregateRow = "All Vintages")
+
+levels(item241.final$HomeYearBuilt_bins_MF)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item241.final <- item241.final %>% mutate(HomeYearBuilt_bins_MF = factor(HomeYearBuilt_bins_MF, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins_MF)  
+item241.final <- data.frame(item241.final)
+
 item241.final.MF <- item241.final[which(names(item241.final) != "BuildingType")]
 
 exportTable(item241.final.MF, "MF", "Table 33", weighted = TRUE)
@@ -505,8 +518,21 @@ exportTable(item241.final.MF, "MF", "Table 33", weighted = TRUE)
 #########################
 item241.final <- mean_one_group_unweighted(CustomerLevelData = item241.data
                                            ,valueVariable = "UA.per.unit"
-                                           ,byVariable = "HomeType"
-                                           ,aggregateRow = "All Sizes")
+                                           ,byVariable = "HomeYearBuilt_bins_MF"
+                                           ,aggregateRow = "All Vintages")
+
+levels(item241.final$HomeYearBuilt_bins_MF)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item241.final <- item241.final %>% mutate(HomeYearBuilt_bins_MF = factor(HomeYearBuilt_bins_MF, levels = rowOrder)) %>% arrange(HomeYearBuilt_bins_MF)  
+item241.final <- data.frame(item241.final)
+
 item241.final.MF <- item241.final[which(names(item241.final) != "BuildingType")]
 
 exportTable(item241.final.MF, "MF", "Table 33", weighted = FALSE)
@@ -517,16 +543,17 @@ exportTable(item241.final.MF, "MF", "Table 33", weighted = FALSE)
 #Item 242: MF table 34
 #############################################################################################
 item242.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
-                                                                          ,"Whole.House.UA"))]
+                                                                          ,"Whole.House.UA"
+                                                                          ,"Conditioned.Area"))]
 
 item242.dat$Whole.House.UA <- as.numeric(as.character(item242.dat$Whole.House.UA))
-item242.dat$Total.Units.in.Building <- as.numeric(as.character(item242.dat$Total.Units.in.Building))
 
-item242.dat1 <- item242.dat[which(!is.na(item242.dat$Whole.House.UA)),]
+item242.dat0 <- item242.dat[which(item242.dat$Conditioned.Area > 0),]
 
-item242.dat1$UA.per.area <- item242.dat1$Whole.House.UA / item242.dat1$Conditioned.Area
+item242.dat1 <- item242.dat0[which(!is.na(item242.dat0$Whole.House.UA)),]
+item242.dat1$UA.per.area <- item242.dat1$Whole.House.UA / as.numeric(item242.dat1$Conditioned.Area)
 
-item242.merge <- left_join(rbsa.dat.MF, item242.dat1)
+item242.merge <- left_join(rbsa.dat.MF, item242.dat1, by = "CK_Building_ID")
 item242.merge <- item242.merge[which(!is.na(item242.merge$UA.per.area)),]
 
 
@@ -534,11 +561,13 @@ item242.merge <- item242.merge[which(!is.na(item242.merge$UA.per.area)),]
 #Pop and Sample Sizes for weights
 ######################################
 item242.data <- weightedData(item242.merge[which(colnames(item242.merge) %notin% c("Whole.House.UA"
-                                                                                   ,"UA.per.area"))])
+                                                                                   ,"UA.per.area"
+                                                                                   ,"Conditioned.Area.y"))])
 
 item242.data <- left_join(item242.data, item242.merge[which(colnames(item242.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Whole.House.UA"
-                                                                                           ,"UA.per.area"))])
+                                                                                           ,"UA.per.area"
+                                                                                           ,"Conditioned.Area.y"))])
 item242.data$count <- 1
 
 #########################

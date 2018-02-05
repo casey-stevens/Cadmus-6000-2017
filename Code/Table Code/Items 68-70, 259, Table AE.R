@@ -130,7 +130,7 @@ item68.final.MH <- item68.table[which(item68.table$BuildingType == "Manufactured
                                 ,-which(colnames(item68.table) %in% c("BuildingType"))]
 
 # exportTable(item68.final.SF, "SF", "Table 75", weighted = TRUE)
-exportTable(item68.final.MH, "MH", "Table 54", weighted = TRUE)
+# exportTable(item68.final.MH, "MH", "Table 54", weighted = TRUE)
 
 
 ################################################################################
@@ -144,7 +144,7 @@ item68.table.MF <- item68.table.MF[which(item68.table.MF$Status != "Total"),]
 
 item68.final.MF <- item68.table.MF[which(item68.table.MF$BuildingType == "Multifamily")
                                 ,-which(colnames(item68.table.MF) %in% c("BuildingType"))]
-# exportTable(item68.final.MF, "MF", "Table 81", weighted = TRUE)
+exportTable(item68.final.MF, "MF", "Table 81", weighted = TRUE)
 
 
 #######################
@@ -186,7 +186,7 @@ item68.final.MH <- item68.table[which(item68.table$BuildingType == "Manufactured
                                 ,-which(colnames(item68.table) %in% c("BuildingType"))]
 
 # exportTable(item68.final.SF, "SF", "Table 75", weighted = FALSE)
-exportTable(item68.final.MH, "MH", "Table 54", weighted = FALSE)
+# exportTable(item68.final.MH, "MH", "Table 54", weighted = FALSE)
 
 
 ################################################################################
@@ -201,7 +201,7 @@ item68.table.MF <- item68.table.MF[which(item68.table.MF$Status != "Total"),]
 
 item68.final.MF <- item68.table.MF[which(item68.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item68.table.MF) %in% c("BuildingType"))]
-# exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
+exportTable(item68.final.MF, "MF", "Table 81", weighted = FALSE)
 
 
 
@@ -244,7 +244,7 @@ unique(item69.dat3$Lamp.Category)
 
 
 item69.merge <- left_join(rbsa.dat, item69.dat3)
-item69.merge <- item69.merge[which(item69.merge$Lamp.Category %notin% c("N/A", NA)),]
+item69.merge <- item69.merge[which(item69.merge$Lamp.Category %notin% c("N/A", NA, "Unknown")),]
 item69.merge <- item69.merge[which(item69.merge$Lamps %notin% c("Unknown", "N/A", NA)),]
 
 
@@ -311,7 +311,7 @@ item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
 # exportTable(item69.final.SF, "SF", "Table 76", weighted = TRUE)
-exportTable(item69.final.MH, "MH", "Table 55", weighted = TRUE)
+# exportTable(item69.final.MH, "MH", "Table 55", weighted = TRUE)
 
 ################################################################################
 # For Multifamily
@@ -325,7 +325,7 @@ item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
-# exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
+exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
 
 
 
@@ -368,7 +368,7 @@ item69.final.MH <- item69.table[which(item69.table$BuildingType == "Manufactured
                                 ,-which(colnames(item69.table) %in% c("BuildingType"))]
 
 # exportTable(item69.final.SF, "SF", "Table 76", weighted = FALSE)
-exportTable(item69.final.MH, "MH", "Table 55", weighted = FALSE)
+# exportTable(item69.final.MH, "MH", "Table 55", weighted = FALSE)
 
 ################################################################################
 # For Multifamily
@@ -382,7 +382,7 @@ item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
-# exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
+exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
 
 
 
@@ -426,7 +426,7 @@ item70.dat3 <- item70.dat2[which(item70.dat2$Lamps %notin% c("N/A",NA)),]
 
 #check lamp types
 unique(item70.dat3$Lamp.Category)
-item70.dat4 <- item70.dat3#[which(item70.dat3$Lamp.Category != "Unknown"),]
+item70.dat4 <- item70.dat3[which(item70.dat3$Lamp.Category != "Unknown"),]
 
 
 item70.merge <- left_join(rbsa.dat, item70.dat4)
@@ -499,30 +499,23 @@ item70.final <- rbind.data.frame(item70.summary, item70.all.room.types, item70.s
 item70.cast <- dcast(setDT(item70.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-
+names(item70.cast)
 item70.table <- data.frame("BuildingType"                  = item70.cast$BuildingType
                            ,"Room.Type"                    = item70.cast$Clean.Room
                            ,"Percent_CFL"                  = item70.cast$`w.percent_Compact Fluorescent`
                            ,"SE_CFL"                       = item70.cast$`w.SE_Compact Fluorescent`
-                           # ,"n_CFL"                        = item70.cast$`n_Compact Fluorescent`
                            ,"Percent_Halogen"              = item70.cast$w.percent_Halogen
                            ,"SE_Halogen"                   = item70.cast$w.SE_Halogen
-                           # ,"n_Halogen"                    = item70.cast$n_Halogen
                            ,"Percent_Incandescent"         = item70.cast$w.percent_Incandescent
                            ,"SE_Incandescent"              = item70.cast$w.SE_Incandescent
-                           # ,"n_Incandescent"               = item70.cast$n_Incandescent
                            ,"Percent_Incandescent.Halogen" = item70.cast$`w.percent_Incandescent / Halogen`
                            ,"SE_Incandescent.Halogen"      = item70.cast$`w.SE_Incandescent / Halogen`
-                           # ,"n_Incandescent.Halogen"       = item70.cast$`n_Incandescent / Halogen`
                            ,"Percent_LED"                  = item70.cast$`w.percent_Light Emitting Diode`
                            ,"SE_LED"                       = item70.cast$`w.SE_Light Emitting Diode`
-                           # ,"n_LED"                        = item70.cast$`n_Light Emitting Diode`
                            ,"Percent_LF"                   = item70.cast$`w.percent_Linear Fluorescent`
                            ,"SE_LF"                        = item70.cast$`w.SE_Linear Fluorescent`
-                           # ,"n_LF"                         = item70.cast$`n_Linear Fluorescent`
                            ,"Percent_Other"                = item70.cast$w.percent_Other
                            ,"SE_Other"                     = item70.cast$w.SE_Other
-                           # ,"n_Other"                      = item70.cast$n_Other
                            ,"n"                            = item70.cast$`n_All Categories`
                            ,"EB_CFL"                       = item70.cast$`EB_Compact Fluorescent`
                            ,"EB_Halogen"                   = item70.cast$EB_Halogen
@@ -561,8 +554,8 @@ item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily"
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 # exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
-exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
-# exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
+# exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
+exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
 
 
 #######################
@@ -655,8 +648,8 @@ item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily"
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 # exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
-exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
-# exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
+# exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
+exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
 
 
 
@@ -967,7 +960,7 @@ item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
                                 ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
 
-# exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
+exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
 
 
 #######################
@@ -982,4 +975,4 @@ item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 
 item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
-# exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)
+exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)

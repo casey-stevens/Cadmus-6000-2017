@@ -92,7 +92,7 @@ item285.final <- proportions_one_group(CustomerLevelData = item285.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'System.Type'
                                           ,total.name = 'Remove')
-item285.final <- item285.final[which(item285.final$System.Type != "Total"),]
+item285.final <- item285.final[which(item285.final$System.Type != "Total"),which(names(item285.final) != "BuildingType")]
 
 exportTable(item285.final, "MF", "Table 77", weighted = TRUE)
 
@@ -104,7 +104,7 @@ item285.final <- proportions_one_group(CustomerLevelData = item285.data
                                           ,groupingVariable = 'System.Type'
                                           ,total.name = 'Remove'
                                           ,weighted = FALSE)
-item285.final <- item285.final[which(item285.final$System.Type != "Total"),]
+item285.final <- item285.final[which(item285.final$System.Type != "Total"),which(names(item285.final) != "BuildingType")]
 
 exportTable(item285.final, "MF", "Table 77", weighted = FALSE)
 

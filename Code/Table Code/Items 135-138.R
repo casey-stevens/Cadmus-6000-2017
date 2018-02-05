@@ -485,15 +485,13 @@ item138.dat1 <- summarise(group_by(item138.dat0, CK_Cadmus_ID)
 item138.dat2 <- left_join(rbsa.dat, item138.dat1, by = "CK_Cadmus_ID")
 item138.dat2 <- item138.dat2[which(!is.na(item138.dat2$QTY)),]
 
-item138.dat2$QTY_bins <- item138.dat2$QTY
-item138.dat2$QTY_bins[which(item138.dat2$QTY == 0)] <- "None"
+item138.dat2$QTY_bins <- "None"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >  0   & item138.dat2$QTY < 50)] <- "< 50 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >= 50  & item138.dat2$QTY < 251)] <- "50-250 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >= 251 & item138.dat2$QTY < 501)] <- "251-500 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY >= 501 & item138.dat2$QTY < 1001)] <- "501-1000 Gallons"
 item138.dat2$QTY_bins[which(item138.dat2$QTY > 1000)] <- "> 1000 Gallons"
-item138.dat2$QTY_bins[which(is.na(item138.dat2$QTY))] <- "None"
-
+unique(item138.dat2$QTY_bins)
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -549,7 +547,7 @@ unique(item138.table$Annual.Propane.Fuel.Use)
 rowOrder <- c("< 50 Gallons"
               ,"50-250 Gallons"
               ,"251-500 Gallons"
-              ,"500-1000 Gallons"
+              ,"501-1000 Gallons"
               ,"> 1000 Gallons"
               ,"None"
               ,"Total")

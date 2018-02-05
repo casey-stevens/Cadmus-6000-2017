@@ -78,7 +78,7 @@ item225.final <- proportionRowsAndColumns1(CustomerLevelData = item225.data
                                            ,rowVariable      = 'Ownership'
                                            ,aggregateColumnName = "Remove")
 item225.final <- item225.final[which(item225.final$HomeType != "Remove"),]
-item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
+# item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
 
 
 item225.all.sizes <- proportions_one_group_MF(CustomerLevelData = item225.data
@@ -88,27 +88,31 @@ item225.all.sizes <- proportions_one_group_MF(CustomerLevelData = item225.data
                                               ,columnName = "HomeType"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item225.all.sizes <- item225.all.sizes[which(item225.all.sizes$Ownership != "Total"),]
+# item225.all.sizes <- item225.all.sizes[which(item225.all.sizes$Ownership != "Total"),]
 
 item225.final <- rbind.data.frame(item225.final, item225.all.sizes, stringsAsFactors = F)
 
 item225.cast <- dcast(setDT(item225.final)
                       ,formula = Ownership ~ HomeType
-                      ,value.var = c("w.percent","w.SE", "count","n","N"))
+                      ,value.var = c("w.percent","w.SE", "count","n","N", "EB"))
 
 item225.table <- data.frame("Ownership"                = item225.cast$Ownership
                             ,"Low_Rise_1.3_Percent"    = item225.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low_Rise_SE"             = item225.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"High_Rise_count"         = item225.cast$`count_Apartment Building (3 or fewer floors)`
+                            ,"High_Rise_n"             = item225.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid_Rise_4.6_Percent"    = item225.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid_Rise_SE"             = item225.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_count"         = item225.cast$`count_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_n"             = item225.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High_Rise_7Plus_Percent" = NA#item225.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High_Rise_SE"            = NA#item225.cast$`w.SE_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_count"         = NA#item225.cast$
+                            ,"High_Rise_n"             = NA#item225.cast$
                             ,"All_Sizes_Percent"       = item225.cast$`w.percent_All Sizes`
                             ,"All_Sizes_SE"            = item225.cast$`w.SE_All Sizes`
-                            ,"All_Sizes_count"         = item225.cast$`count_All Sizes`)
+                            ,"All_Sizes_n"             = item225.cast$`n_All Sizes`
+                            ,"Low_Rise_EB"             = item225.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid_Rise_EB"             = item225.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High_Rise_EB"            = NA#item225.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All_Sizes_EB"            = item225.cast$`EB_All Sizes`)
 
 exportTable(item225.table, "MF", "Table 17", weighted = TRUE)
 #######################
@@ -120,7 +124,7 @@ item225.final <- proportions_two_groups_unweighted(CustomerLevelData = item225.d
                                            ,rowVariable      = 'Ownership'
                                            ,aggregateColumnName = "Remove")
 item225.final <- item225.final[which(item225.final$HomeType != "Remove"),]
-item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
+# item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
 
 
 item225.all.sizes <- proportions_one_group_MF(CustomerLevelData = item225.data
@@ -130,7 +134,7 @@ item225.all.sizes <- proportions_one_group_MF(CustomerLevelData = item225.data
                                               ,columnName = "HomeType"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item225.all.sizes <- item225.all.sizes[which(item225.all.sizes$Ownership != "Total"),]
+# item225.all.sizes <- item225.all.sizes[which(item225.all.sizes$Ownership != "Total"),]
 
 item225.final <- rbind.data.frame(item225.final, item225.all.sizes, stringsAsFactors = F)
 

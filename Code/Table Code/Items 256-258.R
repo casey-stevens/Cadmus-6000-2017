@@ -196,7 +196,7 @@ item257.final <- proportionRowsAndColumns1(CustomerLevelData = item257.data
 item257.final <- item257.final[which(item257.final$HomeType != "Remove"),]
 # item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
 
-item257.all.sizes <- proportions_one_group_MF(CustomerLevelData = item257.data
+item257.all.sizes <- proportions_one_group(CustomerLevelData = item257.data
                                               ,valueVariable = 'SiteCount'
                                               ,groupingVariable = 'Lamp.Category'
                                               ,total.name = 'All Sizes'
@@ -260,7 +260,7 @@ item257.final <- proportions_two_groups_unweighted(CustomerLevelData = item257.d
 item257.final <- item257.final[which(item257.final$HomeType != "Remove"),]
 # item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
 
-item257.all.sizes <- proportions_one_group_MF(CustomerLevelData = item257.data
+item257.all.sizes <- proportions_one_group(CustomerLevelData = item257.data
                                               ,valueVariable = 'SiteCount'
                                               ,groupingVariable = 'Lamp.Category'
                                               ,total.name = 'All Sizes'

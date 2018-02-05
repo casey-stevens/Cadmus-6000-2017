@@ -273,7 +273,11 @@ item262.table <- data.frame("Common.Area.Room.Type" = item262.cast$Clean.Room
                             ,"High.Rise.7.Plus.n"   = item262.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes.Mean"       = item262.cast$`Mean_All Sizes`
                             ,"All.Sizes.SE"         = item262.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"          = item262.cast$`n_All Sizes`)
+                            ,"All.Sizes.n"          = item262.cast$`n_All Sizes`
+                            ,"Low.Rise.1.3.EB"      = item262.cast$`EB_Apartment Building (3 or fewer floors)`
+                            ,"Mid.Rise.4.6.EB"      = item262.cast$`EB_Apartment Building (4 to 6 floors)`
+                            ,"High.Rise.7.Plus.EB"  = item262.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"All.Sizes.EB"         = item262.cast$`EB_All Sizes`)
 
 exportTable(item262.table, "MF", "Table 54", weighted = TRUE)
 
@@ -340,7 +344,7 @@ item263.data <- left_join(item263.data, item263.merge[which(colnames(item263.mer
                                                                                            ,"Site.Wattage"
                                                                                            ,"Switch.Type"))])
 item263.data$count <- 1
-
+length(unique(item263.data$CK_Cadmus_ID))
 
 #############################
 # weighted analysis
