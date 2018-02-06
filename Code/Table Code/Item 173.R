@@ -25,9 +25,9 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 #clean cadmus IDs
-sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
+sites.dat$CK_Cadmus_ID <- trimws(toupper(sites.dat$CK_Cadmus_ID))
 
 
 
@@ -35,9 +35,10 @@ sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus
 #Item 173: DISTRIBUTION OF HOMES BY AGE/STANDARD AND STATE (MH TABLE 9)
 #############################################################################################
 #subset to columns needed for analysis
-item173.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Age.and.Construction.Standard"
-                                                                                     ,""))])
+item173.dat <- unique(sites.dat[which(colnames(sites.dat) %in% c("CK_Cadmus_ID"
+                                                                 ,"SITE_Construction_CONSTRUCTION_STANDARD_AgeAndConstructionStandard"
+                                                                 ,""))])
+names(item173.dat) <- c("CK_Cadmus_ID", "Age.and.Construction.Standard")
 item173.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -49,8 +50,7 @@ unique(item173.dat1$Age.and.Construction.Standard)
 
 item173.dat2 <- item173.dat1[which(!(is.na(item173.dat1$Age.and.Construction.Standard))),]
 item173.dat3 <- item173.dat2[which(item173.dat2$Age.and.Construction.Standard %notin% c("N/A", "Unknown", "1977")),]
-item173.dat3$Age.and.Construction.Standard[which(item173.dat3$Age.and.Construction.Standard == "1995 to current, NEEM ; 2000 to current, EnergyStar")] <- "1995 to current, NEEM 2000 to current, EnergyStar"
-
+unique(item173.dat3$Age.and.Construction.Standard)
 
 ################################################
 # Adding pop and sample sizes for weights

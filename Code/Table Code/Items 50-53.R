@@ -17,7 +17,7 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
-
+"%notin%" <- Negate("%in%")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -531,6 +531,7 @@ item52.data <- left_join(item52.data, item52.dat5[which(colnames(item52.dat5) %i
                                                                                      ,"y_ilk"
                                                                                      ,"m_ilk"))])
 item52.data$count <- 1
+length(unique(item52.data$CK_Cadmus_ID[which(item52.data$BuildingType == "Manufactured")]))
 ###############################
 # Weighted Analysis - single family
 ###############################

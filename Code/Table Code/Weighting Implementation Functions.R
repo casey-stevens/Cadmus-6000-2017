@@ -1542,7 +1542,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     #join strata data with weights by column grouping variable 
     StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType",columnVariable))
     
-  # }
+  }
 
   
   

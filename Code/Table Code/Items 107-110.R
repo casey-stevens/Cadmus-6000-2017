@@ -293,7 +293,7 @@ item109.data <- left_join(item109.data, item109.customer[which(colnames(item109.
                                                                                                  ,"count"
                                                                                                  ,"EquipVintage_bins"))])
 
-
+length(unique(item109.data$CK_Cadmus_ID[which(item109.data$BuildingType == "Manufactured")]))
 #####################
 # Weighted analysis
 #####################

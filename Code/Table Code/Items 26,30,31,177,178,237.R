@@ -60,7 +60,7 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                 , "Ceiling.Insulation.Type.3"
                                                                 , "Ceiling.Insulation.Thickness.3"
                                                                 , "Ceiling.Insulation.Condition.3"))]
-prep.dat0 <- prep.dat[which(prep.dat$`Ceiling.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
+prep.dat0 <- prep.dat[which(prep.dat$`Ceiling.Insulated?` %in% c("Yes", "No", "Datapoint not asked for")),]
 prep.dat1.0 <- prep.dat0[which(!(is.na(as.numeric(as.character(prep.dat0$Ceiling.Area))))),]
 prep.dat1.2 <- prep.dat1.0[which(prep.dat1.0$Ceiling.Insulation.Thickness.1 != "Unknown"),]
 
@@ -321,7 +321,7 @@ unique(prep.dat5$uvalue)
 #make area numeric
 prep.dat5$uvalue       <- as.numeric(as.character(prep.dat5$uvalue))
 prep.dat5$Ceiling.Area <- as.numeric(as.character(prep.dat5$Ceiling.Area))
-
+names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 #weight the u factor per home -- where weights are the wall area within home
 weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Ceiling.Type)
                        ,aveUval = sum(Ceiling.Area * Ceiling.Insulation.Condition.1 * uvalue) / sum(Ceiling.Area * Ceiling.Insulation.Condition.1)

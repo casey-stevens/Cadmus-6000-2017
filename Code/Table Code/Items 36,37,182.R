@@ -293,13 +293,13 @@ exportTable(item37.table.MH, "MH","Table 26",weighted = FALSE)
 #Item 182: AVERAGE HEAT-LOSS RATE BY AGE/STANDARD AND STATE (MH table 25)
 #############################################################################################
 #Read in data for analysis
-sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 #clean cadmus IDs
-sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
+sites.dat$CK_Cadmus_ID <- trimws(toupper(sites.dat$CK_Cadmus_ID))
 
-item182.sites <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Age.and.Construction.Standard"))])
-
+item182.sites <- unique(sites.dat[which(colnames(sites.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"SITE_Construction_CONSTRUCTION_STANDARD_AgeAndConstructionStandard"))])
+names(item182.sites) <- c("CK_Cadmus_ID", "Age.and.Construction.Standard")
 item182.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Whole.House.UA"))]
 item182.dat0 <- left_join(item182.sites, item182.dat)
@@ -315,7 +315,7 @@ item182.dat4$Normalized.Heat.Loss.Rate <- item182.dat4$Whole.House.UA / item182.
 item182.dat5 <- item182.dat4[which(!is.na(item182.dat4$Normalized.Heat.Loss.Rate)),]
 
 
-item182.dat5$Age.and.Construction.Standard[grep("EnergyStar", item182.dat5$Age.and.Construction.Standard)] <- "1995 to current, NEEM 2000 to current, EnergyStar"
+unique(item182.dat5$Age.and.Construction.Standard)
 
 ################################################
 # Adding pop and sample sizes for weights

@@ -18,7 +18,7 @@ source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
-if(os.ind == "rbsa"){
+if(osIndicator == "rbsa"){
   rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
 }else{
   rbsa.dat$CK_Building_ID <- rbsa.dat$Category
@@ -354,7 +354,7 @@ item7.os.final <- mean_one_group(CustomerLevelData = item7.os.data
 item7.os.final.SF <- item7.os.final[which(item7.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item7.os.final.SF, "SF", "SCL", "Table 14", weighted = TRUE, OS = T)
+exportTable(item7.os.final.SF, "SF", osIndicator = "SCL", "Table 14", weighted = TRUE, OS = T)
 
 ################################
 # Unweighted Analysis
@@ -367,7 +367,7 @@ item7.os.final <- mean_one_group_unweighted(CustomerLevelData = item7.os.data
 item7.os.final.SF <- item7.os.final[which(item7.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item7.os.final.SF, "SF", "SCL", "Table 14", weighted = FALSE, OS = T)
+exportTable(item7.os.final.SF, "SF", osIndicator = "SCL", "Table 14", weighted = FALSE, OS = T)
 
 
 
@@ -419,7 +419,7 @@ item8.os.final <- mean_one_group(CustomerLevelData = item8.os.data
 item8.os.final.SF <- item8.os.final[which(item8.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item8.os.final.SF, "SF", "SCL", "Table 15", weighted = TRUE, OS = T)
+exportTable(item8.os.final.SF, "SF", "Table 15", weighted = TRUE, osIndicator = "SCL", OS = T)
 
 ################################
 # Unweighted Analysis
@@ -432,7 +432,7 @@ item8.os.final <- mean_one_group_unweighted(CustomerLevelData = item8.os.data
 item8.os.final.SF <- item8.os.final[which(item8.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item8.os.final.SF, "SF", "SCL", "Table 15", weighted = FALSE, OS = T)
+exportTable(item8.os.final.SF, "SF", "Table 15", weighted = FALSE, osIndicator = "SCL", OS = T)
 
 
 
@@ -535,7 +535,7 @@ item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
 item9.os.final.SF <- item9.os.table[which(item9.os.table$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item9.os.final.SF, "SF", "SCL", "Table 16", weighted = TRUE, OS = T)
+exportTable(item9.os.final.SF, "SF", "Table 16", weighted = TRUE, osIndicator = "SCL", OS = T)
 
 ################################
 # Unweighted Analysis
@@ -566,5 +566,5 @@ item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
 item9.os.final.SF <- item9.os.table[which(item9.os.table$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item9.os.final.SF, "SF", "SCL", "Table 16", weighted = FALSE, OS = T)
+exportTable(item9.os.final.SF, "SF", "Table 16", weighted = FALSE, osIndicator = "SCL", OS = T)
 
