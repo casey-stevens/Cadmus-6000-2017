@@ -671,31 +671,26 @@ item10.cast <- dcast(setDT(item10.final),
                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 #join all insulation levels onto rvalue summary
-item10.table <- data.frame("BuildingType"     = item10.cast$BuildingType
-                           ,"Wall.Type"       = item10.cast$Wall.Type
-                           ,"Percent.R0"      = item10.cast$w.percent_R0
-                           ,"SE.R0"           = item10.cast$w.SE_R0
-                           # ,"n.R0"            = item10.cast$n_R0
-                           ,"Percent.R1.R10"  = item10.cast$w.percent_R1.R10
-                           ,"SE.R1.R10"       = item10.cast$w.SE_R1.R10
-                           # ,"n.R1.R10"        = item10.cast$n_R1.R10
-                           ,"Percent.R11.R16" = item10.cast$w.percent_R11.R16
-                           ,"SE.R11.R16"      = item10.cast$w.SE_R11.R16
-                           # ,"n.R11.R16"       = item10.cast$n_R11.R16
-                           ,"Percent.R17.R22" = item10.cast$w.percent_R17.R22
-                           ,"SE.R17.R22"      = item10.cast$w.SE_R17.R22
-                           # ,"n.R17.R22"       = item10.cast$n_R17.R22
-                           ,"Percent.RGT22"   = item10.cast$w.percent_RGT22
-                           ,"SE.RGT22"        = item10.cast$w.SE_RGT22
-                           # ,"n.RGT22"         = item10.cast$n_RGT22
+item10.table <- data.frame("BuildingType"                   = item10.cast$BuildingType
+                           ,"Wall.Type"                     = item10.cast$Wall.Type
+                           ,"Percent.R0"                    = item10.cast$w.percent_R0
+                           ,"SE.R0"                         = item10.cast$w.SE_R0
+                           ,"Percent.R1.R10"                = item10.cast$w.percent_R1.R10
+                           ,"SE.R1.R10"                     = item10.cast$w.SE_R1.R10
+                           ,"Percent.R11.R16"               = item10.cast$w.percent_R11.R16
+                           ,"SE.R11.R16"                    = item10.cast$w.SE_R11.R16
+                           ,"Percent.R17.R22"               = item10.cast$w.percent_R17.R22
+                           ,"SE.R17.R22"                    = item10.cast$w.SE_R17.R22
+                           ,"Percent.RGT22"                 = item10.cast$w.percent_RGT22
+                           ,"SE.RGT22"                      = item10.cast$w.SE_RGT22
                            ,"Percent_All Insulation Levels" = item10.cast$`w.percent_All Insulation Levels`
                            ,"SE.All Insulation Levels"      = item10.cast$`w.SE_All Insulation Levels`
-                           ,"n"       = item10.cast$`n_All Insulation Levels`
-                           ,"EB.R0"           = item10.cast$EB_R0
-                           ,"EB.R1.R10"       = item10.cast$EB_R1.R10
-                           ,"EB.R11.R16"      = item10.cast$EB_R11.R16
-                           ,"EB.R17.R22"      = item10.cast$EB_R17.R22
-                           ,"EB.RGT22"        = item10.cast$EB_RGT22
+                           ,"n"                             = item10.cast$`n_All Insulation Levels`
+                           ,"EB.R0"                         = item10.cast$EB_R0
+                           ,"EB.R1.R10"                     = item10.cast$EB_R1.R10
+                           ,"EB.R11.R16"                    = item10.cast$EB_R11.R16
+                           ,"EB.R17.R22"                    = item10.cast$EB_R17.R22
+                           ,"EB.RGT22"                      = item10.cast$EB_RGT22
                            ,"EB.All Insulation Levels"      = item10.cast$`EB_All Insulation Levels`
                            )
 
@@ -2424,6 +2419,7 @@ exportTable(item16.table.SF, "SF", "Table 23"
 # Item 18: DISTRIBUTION OF OBSERVED WALL SHEATHING INSULATION BY FRAMING TYPE (SF table 25)
 #############################################################################################
 item18.dat <- prep.dat4.9#[which(prep.dat4.9$Wall.Type %notin% c("Masonry", "Masonry (Basement)", "Adiabatic")),]
+names(item18.dat)[which(names(item18.dat) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 item18.dat <- item18.dat[which(!is.na(item18.dat$Wall.Type)),]
 
 item18.dat$Insulation.Levels <- item18.dat$exterior.inches1
@@ -2431,7 +2427,7 @@ unique(item18.dat$Insulation.Levels)
 
 item18.merge <- left_join(rbsa.dat, item18.dat)
 
-item18.customer <- summarise(group_by(item18.merge, CK_Cadmus_ID, BuildingType, State, Wall.Type)
+item18.customer <- summarise(group_by(item18.merge, CK_Cadmus_ID, Wall.Type)
                              ,insulation.levels = sum(Insulation.Levels))
 
 item18.customer$insulation.levels[which(item18.customer$insulation.levels == 0)] <- "None"
@@ -2488,34 +2484,22 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Wall.Type"         = item18.cast$Wall.Type
                            ,"Percent_0.25_inch" = item18.cast$w.percent_0.25
                            ,"SE_0.25_inch"      = item18.cast$w.SE_0.25
-                           # ,"n_0.25_inch"       = item18.cast$n_0.25
                            ,"Percent_0.5_inch"  = item18.cast$w.percent_0.5
                            ,"SE_0.5_inch"       = item18.cast$w.SE_0.5
-                           # ,"n_0.5_inch"        = item18.cast$n_0.5
                            ,"Percent_0.75_inch" = item18.cast$w.percent_0.75
                            ,"SE_0.75_inch"      = item18.cast$w.SE_0.75
-                           # ,"n_0.75_inch"       = item18.cast$n_0.75
                            ,"Percent_1_inch"    = item18.cast$w.percent_1
                            ,"SE_1_inch"         = item18.cast$w.SE_1
-                           # ,"n_1_inch"          = item18.cast$n_1
                            ,"Percent_1.5_inch"  = item18.cast$w.percent_1.5
                            ,"SE_1.5_inch"       = item18.cast$w.SE_1.5
-                           # ,"n_1.5_inch"        = item18.cast$n_1.5
                            ,"Percent_2_inch"    = item18.cast$w.percent_2
                            ,"SE_2_inch"         = item18.cast$w.SE_2
-                           # ,"n_2_inch"          = item18.cast$n_2
                            ,"Percent_3_inch"    = item18.cast$w.percent_3
                            ,"SE_3_inch"         = item18.cast$w.SE_3
-                           # ,"n_3_inch"          = item18.cast$n_3
                            ,"Percent_4_inch"    = item18.cast$w.percent_4
                            ,"SE_4_inch"         = item18.cast$w.SE_4
-                           # ,"n_4_inch"          = item18.cast$n_4
-                           ,"Percent_5.5_inch"  = item18.cast$w.percent_5.5
-                           ,"SE_5.5_inch"       = item18.cast$w.SE_5.5
-                           # ,"n_5.5_inch"        = item18.cast$n_5.5
                            ,"Percent_None"      = item18.cast$w.percent_None
                            ,"SE_None"           = item18.cast$w.SE_None
-                           # ,"n_None"            = item18.cast$n_None
                            ,"n"                 = item18.cast$n_Total
                            ,"EB_0.25_inch"      = item18.cast$EB_0.25
                            ,"EB_0.5_inch"       = item18.cast$EB_0.5
@@ -2525,7 +2509,6 @@ item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"EB_2_inch"         = item18.cast$EB_2
                            ,"EB_3_inch"         = item18.cast$EB_3
                            ,"EB_4_inch"         = item18.cast$EB_4
-                           ,"EB_5.5_inch"       = item18.cast$EB_5.5
                            ,"EB_None"           = item18.cast$EB_None
 )
 
@@ -2585,40 +2568,26 @@ item18.cast <- dcast(setDT(item18.final),
                      formula   = BuildingType +  Wall.Type ~ insulation.levels, sum,
                      value.var = c("Percent", "SE", "Count","n"))
 
-
-
 item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Wall.Type"         = item18.cast$Wall.Type
                            ,"Percent_0.25_inch" = item18.cast$Percent_0.25
                            ,"SE_0.25_inch"      = item18.cast$SE_0.25
-                           # ,"n_0.25_inch"       = item18.cast$n_0.25
                            ,"Percent_0.5_inch"  = item18.cast$Percent_0.5
                            ,"SE_0.5_inch"       = item18.cast$SE_0.5
-                           # ,"n_0.5_inch"        = item18.cast$n_0.5
                            ,"Percent_0.75_inch" = item18.cast$Percent_0.75
                            ,"SE_0.75_inch"      = item18.cast$SE_0.75
-                           # ,"n_0.75_inch"       = item18.cast$n_0.75
                            ,"Percent_1_inch"    = item18.cast$Percent_1
                            ,"SE_1_inch"         = item18.cast$SE_1
-                           # ,"n_1_inch"          = item18.cast$n_1
                            ,"Percent_1.5_inch"  = item18.cast$Percent_1.5
                            ,"SE_1.5_inch"       = item18.cast$SE_1.5
-                           # ,"n_1.5_inch"        = item18.cast$n_1.5
                            ,"Percent_2_inch"    = item18.cast$Percent_2
                            ,"SE_2_inch"         = item18.cast$SE_2
-                           # ,"n_2_inch"          = item18.cast$n_2
                            ,"Percent_3_inch"    = item18.cast$Percent_3
                            ,"SE_3_inch"         = item18.cast$SE_3
-                           # ,"n_3_inch"          = item18.cast$n_3
                            ,"Percent_4_inch"    = item18.cast$Percent_4
                            ,"SE_4_inch"         = item18.cast$SE_4
-                           # ,"n_4_inch"          = item18.cast$n_4
-                           ,"Percent_5.5_inch"  = item18.cast$Percent_5.5
-                           ,"SE_5.5_inch"       = item18.cast$SE_5.5
-                           # ,"n_5.5_inch"        = item18.cast$n_5.5
                            ,"Percent_None"      = item18.cast$Percent_None
                            ,"SE_None"           = item18.cast$SE_None
-                           # ,"n_None"            = item18.cast$n_None
                            ,"n"                 = item18.cast$n_Total
 )
 
@@ -2697,6 +2666,7 @@ colnames(item17.dat3)
 
 item17.merge <- left_join(rbsa.dat, item17.dat3)
 item17.merge <- item17.merge[which(!is.na(item17.merge$count)),]
+item17.merge <- item17.merge[which(!is.na(item17.merge$HomeYearBuilt)),]
 
 item17.data <- weightedData(unique(item17.merge[-which(colnames(item17.merge) %in% c("Wall.Type"
                                                                                      ,"aveUval"
@@ -2759,19 +2729,14 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
                            ,"Housing.Vintage" = item17.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item17.cast$w.percent_None
                            ,"SE.None"         = item17.cast$w.SE_None
-                           # ,"n.None"          = item17.cast$n_None
                            ,"Percent.R1.R9"   = item17.cast$w.percent_R1.R9
                            ,"SE.R1.R9"        = item17.cast$w.SE_R1.R9
-                           # ,"n.R1.R9"         = item17.cast$n_R1.R9
                            ,"Percent.R10.R15" = item17.cast$w.percent_R10.R15
                            ,"SE.R10.R15"      = item17.cast$w.SE_R10.R15
-                           # ,"n.R10.R15"       = item17.cast$n_R10.R15
                            ,"Percent.R16.R20" = item17.cast$w.percent_R16.R20
                            ,"SE.R16.R20"      = item17.cast$w.SE_R16.R20
-                           # ,"n.R16.R20"       = item17.cast$n_R16.R20
                            ,"Percent.RGT21"   = item17.cast$w.percent_RGT21
                            ,"SE.RGT21"        = item17.cast$w.SE_RGT21
-                           # ,"n.RGT21"         = item17.cast$n_RGT21
                            ,"n"               = item17.cast$`n_All Housing Vintages`
                            ,'EB.None'         = item17.cast$EB_None
                            ,"EB.R1.R9"        = item17.cast$EB_R1.R9
@@ -2848,19 +2813,14 @@ item17.table <- data.frame("BuildingType"     = item17.cast$BuildingType
                            ,"Housing.Vintage" = item17.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item17.cast$Percent_None
                            ,"SE.None"         = item17.cast$SE_None
-                           # ,"n.None"          = item17.cast$n_None
                            ,"Percent.R1.R9"   = item17.cast$Percent_R1.R9
                            ,"SE.R1.R9"        = item17.cast$SE_R1.R9
-                           # ,"n.R1.R9"         = item17.cast$n_R1.R9
                            ,"Percent.R10.R15" = item17.cast$Percent_R10.R15
                            ,"SE.R10.R15"      = item17.cast$SE_R10.R15
-                           # ,"n.R10.R15"       = item17.cast$n_R10.R15
                            ,"Percent.R16.R20" = item17.cast$Percent_R16.R20
                            ,"SE.R16.R20"      = item17.cast$SE_R16.R20
-                           # ,"n.R16.R20"       = item17.cast$n_R16.R20
                            ,"Percent.RGT21"   = item17.cast$Percent_RGT21
                            ,"SE.RGT21"        = item17.cast$SE_RGT21
-                           # ,"n.RGT21"         = item17.cast$n_RGT21
                            ,"n"               = item17.cast$`n_All Housing Vintages`
 )
 

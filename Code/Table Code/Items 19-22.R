@@ -23,9 +23,12 @@ source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
-# Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID))
+if(os.ind == "rbsa"){
+  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
+}else{
+  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
+  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+}
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -333,3 +336,347 @@ item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Famil
 #export data
 exportTable(item22.final.SF, "SF", "Table 29"
             , weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS - MUST CHANGE SOURCECODE SCRIPT 
+#   TO IDENTIFY WHICH OVERSAMPLE YOU ARE USING
+#
+#
+#############################################################################################
+
+#############################################################################################
+# Item 19: PERCENTAGE OF HOMES WITH BASEMENTS BY CK_Building_ID (SF table 26)
+#############################################################################################
+item19.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"Floor.Type"
+                                                               ,"Floor.Sub-Type"))]
+
+item19.os.dat1 <- left_join(rbsa.dat, item19.os.dat, by = "CK_Cadmus_ID")
+
+#subset to only single family homes
+item19.os.dat2 <- item19.os.dat1[which(item19.os.dat1$BuildingType == "Single Family"),]
+item19.os.dat2$count <- 1
+
+item19.os.dat2$Ind <- 0
+item19.os.dat2$Ind[which(item19.os.dat2$Floor.Type == "Basement")] <- 1
+
+item19.os.dat3 <- unique(item19.os.dat2[which(item19.os.dat2$Ind == 1),])
+
+item19.os.dat3 <- item19.os.dat3[-which(duplicated(item19.os.dat3$CK_Cadmus_ID)),]
+
+item19.os.merge <- left_join(rbsa.dat, item19.os.dat3)
+
+item19.os.merge1 <- item19.os.merge[-which(item19.os.merge$`Floor.Sub-Type` == "Unknown"),]
+item19.os.merge1 <- item19.os.merge1[which(item19.os.merge1$BuildingType == "Single Family"),]
+# apply weights to the subset of the data
+item19.os.data <- weightedData(item19.os.merge1[which(colnames(item19.os.merge1) %notin% c("count"
+                                                                                  ,"Floor.Type"
+                                                                                  ,"Floor.Sub-Type"
+                                                                                  ,"Ind"
+                                                                                  ,"cond.ind"))])
+#merge back on measured variable
+item19.os.data <- left_join(item19.os.data, item19.os.merge1[which(colnames(item19.os.merge1) %in% c("CK_Cadmus_ID"
+                                                                                         ,"count"
+                                                                                         ,"Floor.Type"
+                                                                                         ,"Floor.Sub-Type"
+                                                                                         ,"Ind"
+                                                                                         ,"cond.ind"))])
+
+item19.os.data$Ind[which(is.na(item19.os.data$Ind))] <- 0
+item19.os.data$Ind <- as.numeric(as.character(item19.os.data$Ind))
+item19.os.data$Count <- 1
+item19.os.data$count <- 1
+
+which(duplicated(item19.os.data$CK_Cadmus_ID))
+#####################################
+# Weighted Analysis
+#####################################
+item19.os.final <- proportions_one_group(CustomerLevelData  = item19.os.data
+                                      , valueVariable    = 'Ind'
+                                      , groupingVariable = 'CK_Building_ID'
+                                      , total.name       = "Remove"
+                                      , weighted = TRUE, osIndicator = "SCL", OS = T)
+item19.os.final <- item19.os.final[which(item19.os.final$CK_Building_ID != "Total"),]
+
+#subset by home type
+item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Single Family"),-which(colnames(item19.os.final) %in% c("BuildingType"))]
+
+
+#export data
+exportTable(item19.os.final.SF, "SF", "Table 26", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+
+#####################################
+# Unweighted Analysis
+#####################################
+item19.os.final <- proportions_one_group(CustomerLevelData  = item19.os.data
+                                      , valueVariable    = 'Ind'
+                                      , groupingVariable = 'CK_Building_ID'
+                                      , total.name       = "Remove"
+                                      , weighted = FALSE, osIndicator = "SCL", OS = T)
+item19.os.final <- item19.os.final[which(item19.os.final$CK_Building_ID != "Total"),]
+
+#subset by home type
+item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Single Family"),-which(colnames(item19.os.final) %in% c("BuildingType"))]
+
+
+#export data
+exportTable(item19.os.final.SF, "SF", "Table 26"
+            , weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+
+
+#############################################################################################
+# Item 20: PERCENTAGE OF BASEMENTS THAT ARE CONDITIONED BY CK_Building_ID (SF table 27)
+#############################################################################################
+item20.os.dat <- item20.os.merge1[which(item20.os.merge1$Floor.Type == "Basement"),]
+
+# apply weights to the subset of the data
+item20.os.data <- weightedData(item20.os.dat[which(colnames(item20.os.dat) %notin% c("count"
+                                                                            ,"Floor.Type"
+                                                                            ,"Floor.Sub-Type"
+                                                                            ,"Ind"
+                                                                            ,"cond.ind"))])
+#merge back on measured variable
+item20.os.data <- left_join(item20.os.data, item20.os.dat[which(colnames(item20.os.dat) %in% c("CK_Cadmus_ID"
+                                                                                   ,"count"
+                                                                                   ,"Floor.Type"
+                                                                                   ,"Floor.Sub-Type"
+                                                                                   ,"Ind"
+                                                                                   ,"cond.ind"))])
+
+item20.os.data$Ind[which(is.na(item20.os.data$Ind))] <- 0
+item20.os.data$Ind <- as.numeric(as.character(item20.os.data$Ind))
+item20.os.data$cond.ind <- 0
+item20.os.data$cond.ind[which(item20.os.data$`Floor.Sub-Type` == "Conditioned")] <- 1
+item20.os.data$count        <- 1
+
+
+#####################################
+# Weighted Analysis
+#####################################
+item20.os.final <- proportions_one_group(CustomerLevelData  = item20.os.data
+                                      , valueVariable    = 'cond.ind'
+                                      , groupingVariable = 'CK_Building_ID'
+                                      , total.name       = "Region"
+                                      , weighted = TRUE, osIndicator = "SCL", OS = T)
+item20.os.final <- item20.os.final[which(item20.os.final$CK_Building_ID != "Total"),]
+
+#subset by home type
+item20.os.final.SF <- item20.os.final[which(item20.os.final$BuildingType == "Single Family"),-1]
+
+
+#export data
+exportTable(item20.os.final.SF, "SF", "Table 27", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+
+
+#####################################
+# Unweighted Analysis
+#####################################
+item20.os.final <- proportions_one_group(CustomerLevelData  = item20.os.data
+                                      , valueVariable    = 'cond.ind'
+                                      , groupingVariable = 'CK_Building_ID'
+                                      , total.name       = "Region"
+                                      , weighted = FALSE, osIndicator = "SCL", OS = T)
+item20.os.final <- item20.os.final[which(item20.os.final$CK_Building_ID != "Total"),]
+
+#subset by home type
+item20.os.final.SF <- item20.os.final[which(item20.os.final$BuildingType == "Single Family"),
+                                -which(colnames(item20.os.final) %in% c("Remove", "BuildingType"))]
+
+
+#export data
+exportTable(item20.os.final.SF, "SF", "Table 27", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+# Item 21: DISTRIBUTION OF BASEMENT SLAB INSULATION BY INSULATION LEVEL (SF table 28)
+#############################################################################################
+item21.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               ,"ENV_Foundation_BSMT_SlabInsulated_Y_N"
+                                                               ,"ENV_Foundation_BSMT_SlabInsulationThickness"))]
+colnames(item21.os.dat)
+colnames(item21.os.dat) <- c("CK_Cadmus_ID", "BSMT_Slab_Insulated", "BSMT_Slab_Thickness")
+unique(item21.os.dat$BSMT_Slab_Insulated)
+unique(item21.os.dat$BSMT_Slab_Thickness)
+
+
+item21.os.dat1 <- item21.os.dat[which(item21.os.dat$BSMT_Slab_Insulated %in% c("Yes", "No")),]
+item21.os.dat1$BSMT_Slab_Thickness[which(item21.os.dat1$BSMT_Slab_Insulated == "No")] <- "None"
+unique(item21.os.dat1$BSMT_Slab_Thickness)
+
+
+item21.os.merge <- left_join(rbsa.dat, item21.os.dat1)
+item21.os.merge <- item21.os.merge[which(!is.na(item21.os.merge$BSMT_Slab_Thickness)),]
+item21.os.merge <- unique(item21.os.merge[which(item21.os.merge$BSMT_Slab_Thickness != "Unknown"),])
+
+
+# apply weights to the subset of the data
+item21.os.data <- weightedData(item21.os.merge[which(colnames(item21.os.merge) %notin% c("BSMT_Slab_Insulated"
+                                                                                ,"BSMT_Slab_Thickness"))])
+#merge back on measured variable
+item21.os.data <- left_join(item21.os.data, item21.os.merge[which(colnames(item21.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"BSMT_Slab_Insulated"
+                                                                                       ,"BSMT_Slab_Thickness"))])
+item21.os.data$count <- 1
+item21.os.data$Count <- 1
+
+#####################################
+# Weighted Analysis
+#####################################
+item21.os.summary <- proportionRowsAndColumns1(CustomerLevelData = item21.os.data
+                                               ,valueVariable = "count"
+                                               ,columnVariable = "CK_Building_ID"
+                                               ,rowVariable = "BSMT_Slab_Thickness"
+                                               ,aggregateColumnName = "Remove")
+item21.os.summary <- item21.os.summary[which(item21.os.summary$CK_Building_ID != "Remove"),]
+
+if(os.ind == "rbsa"){
+  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
+}else{
+  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
+  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+}
+
+item21.cast <- dcast(setDT(item21.os.summary)
+                     ,formula = CK_Building_ID ~ BSMT_Slab_Thickness
+                     ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+
+#export data
+exportTable(item21.cast, "SF", "Table 28", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#####################################
+# Unweighted Analysis
+#####################################
+item21.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = item21.os.data
+                                               ,valueVariable = "count"
+                                               ,columnVariable = "CK_Building_ID"
+                                               ,rowVariable = "BSMT_Slab_Thickness"
+                                               ,aggregateColumnName = "Remove")
+item21.os.summary <- item21.os.summary[which(item21.os.summary$CK_Building_ID != "Remove"),]
+
+item21.cast <- dcast(setDT(item21.os.summary)
+                     ,formula = CK_Building_ID ~ BSMT_Slab_Thickness
+                     ,value.var = c("Percent","SE","Count","n"))
+
+#export data
+exportTable(item21.cast, "SF", "Table 28", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+
+
+
+#############################################################################################
+# Item 22: PERCENTAGE OF HOMES WITH FLOOR AREA OVER CRAWLSPACE BY CK_Building_ID (SF table 29)
+#############################################################################################
+#subset envelope data to necessary columns
+item22.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                               , "Foundation"
+                                                               , "Conditioned.Living.Area"))]
+
+item22.os.dat1 <- unique(item22.os.dat[grep("crawl|Crawl", item22.os.dat$Foundation),])
+
+if(os.ind == "rbsa"){
+  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
+}else{
+  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
+  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+}
+
+item22.os.merge <- left_join(rbsa.dat, item22.os.dat1, by = "CK_Cadmus_ID")
+item22.os.merge <- item22.os.merge[which(item22.os.merge$BuildingType == "Single Family"),]
+item22.os.merge$count <- 1
+item22.os.merge$FloorOverCrawl <- 0
+item22.os.merge$FloorOverCrawl[which(item22.os.merge$Foundation == "Crawlspace")] <- 1
+
+
+# apply weights to the subset of the data
+item22.os.data <- weightedData(item22.os.merge[which(colnames(item22.os.merge) %notin% c("count"
+                                                                                ,"Foundation"
+                                                                                ,"Conditioned.Living.Area"
+                                                                                ,"FloorOverCrawl"))])
+#merge back on measured variable
+item22.os.data <- left_join(item22.os.data, unique(item22.os.merge[which(colnames(item22.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"count"
+                                                                                       ,"Foundation"
+                                                                                       ,"Conditioned.Living.Area"
+                                                                                       ,"FloorOverCrawl"))]))
+
+unique(item22.os.data$FloorOverCrawl)
+item22.os.data$Ind <- item22.os.data$FloorOverCrawl
+item22.os.data$Count <- 1
+#####################################
+# Weighted Analysis
+#####################################
+item22.os.final <- proportions_one_group(CustomerLevelData  = item22.os.data
+                                      , valueVariable    = 'Ind'
+                                      , groupingVariable = 'CK_Building_ID'
+                                      , total.name       = "Region"
+                                      , weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#subset by home type
+item22.os.final.SF <- item22.os.final[which(item22.os.final$BuildingType == "Single Family")
+                                ,-which(colnames(item22.os.final) %in% c("BuildingType"))]
+
+#export data
+exportTable(item22.os.final.SF, "SF", "Table 29", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#####################################
+# Unweighted Analysis
+#####################################
+item22.os.final <- proportions_one_group(CustomerLevelData  = item22.os.data
+                                      , valueVariable    = 'Ind'
+                                      , groupingVariable = 'CK_Building_ID'
+                                      , total.name       = "Region"
+                                      , weighted = FALSE, osIndicator = "SCL", OS = T)
+
+#subset by home type
+item22.os.final.SF <- item22.os.final[which(item22.os.final$BuildingType == "Single Family")
+                                ,which(colnames(item22.os.final) %notin% c("BuildingType"))]
+
+#export data
+exportTable(item22.os.final.SF, "SF", "Table 29", weighted = FALSE, osIndicator = "SCL", OS = T)

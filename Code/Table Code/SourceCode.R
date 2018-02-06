@@ -60,5 +60,5 @@ stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
 
 
 # Read in clean RBSA data
-os.ind <- "scl"
+os.ind <- "rbsa"
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))

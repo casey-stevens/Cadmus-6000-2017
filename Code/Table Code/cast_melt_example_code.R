@@ -144,6 +144,12 @@ itemXX.dat2$Generic[grep("Stove/Fireplace",itemXX.dat2$Generic,ignore.case = T)]
 
 
 
+if(os.ind == "rbsa"){
+  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
+}else{
+  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
+  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
+}
 
 
 
