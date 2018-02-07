@@ -154,24 +154,24 @@ if(os.ind == "rbsa"){
 
 
 
-item1.table <- data.frame("BuildingType"          = item1.cast$BuildingType
-                          ,"Home.Type"            = item1.cast$HomeType
-                          ,"Percent_SCL.GenPop"   = item1.cast$`w.percent_SCL GenPop`
-                          ,"SE_SCL.GenPop"        = item1.cast$`w.SE_SCL GenPop`
-                          ,"n_SCL.GenPop"         = item1.cast$`n_SCL GenPop`
-                          ,"Percent_SCL.LI"       = item1.cast$`w.percent_SCL LI`
-                          ,"SE_SCL.LI"            = item1.cast$`w.SE_SCL LI`
-                          ,"n_SCL.LI"             = item1.cast$`n_SCL LI`
-                          ,"Percent_SCL.EH"       = item1.cast$`w.percent_SCL EH`
-                          ,"SE_SCL.EH"            = item1.cast$`w.SE_SCL EH`
-                          ,"Percent_2017.RBSA.PS" = item1.cast$`w.percent_2017 RBSA PS`
-                          ,"SE_2017.RBSA.PS"      = item1.cast$`w.SE_2017 RBSA PS`
-                          ,"n_2017.RBSA.PS"       = item1.cast$`n_2017 RBSA PS`
-                          ,"n_SCL.EH"             = item1.cast$`n_SCL EH`
-                          ,"EB_SCL.GenPop"        = item1.cast$`EB_SCL GenPop`
-                          ,"EB_SCL.LI"            = item1.cast$`EB_SCL LI`
-                          ,"EB_SCL.EH"            = item1.cast$`EB_SCL EH`
-                          ,"EB_2017.RBSA.PS"      = item1.cast$`EB_2017 RBSA PS`)
+item1.os.table <- data.frame("BuildingType"          = item1.os.cast$BuildingType
+                          ,"Home.Type"            = item1.os.cast$HomeType
+                          ,"Percent_SCL.GenPop"   = item1.os.cast$`w.percent_SCL GenPop`
+                          ,"SE_SCL.GenPop"        = item1.os.cast$`w.SE_SCL GenPop`
+                          ,"n_SCL.GenPop"         = item1.os.cast$`n_SCL GenPop`
+                          ,"Percent_SCL.LI"       = item1.os.cast$`w.percent_SCL LI`
+                          ,"SE_SCL.LI"            = item1.os.cast$`w.SE_SCL LI`
+                          ,"n_SCL.LI"             = item1.os.cast$`n_SCL LI`
+                          ,"Percent_SCL.EH"       = item1.os.cast$`w.percent_SCL EH`
+                          ,"SE_SCL.EH"            = item1.os.cast$`w.SE_SCL EH`
+                          ,"n_SCL.EH"             = item1.os.cast$`n_SCL EH`
+                          ,"Percent_2017.RBSA.PS" = item1.os.cast$`w.percent_2017 RBSA PS`
+                          ,"SE_2017.RBSA.PS"      = item1.os.cast$`w.SE_2017 RBSA PS`
+                          ,"n_2017.RBSA.PS"       = item1.os.cast$`n_2017 RBSA PS`
+                          ,"EB_SCL.GenPop"        = item1.os.cast$`EB_SCL GenPop`
+                          ,"EB_SCL.LI"            = item1.os.cast$`EB_SCL LI`
+                          ,"EB_SCL.EH"            = item1.os.cast$`EB_SCL EH`
+                          ,"EB_2017.RBSA.PS"      = item1.os.cast$`EB_2017 RBSA PS`)
 
 
 #can add pop and sample sizes if needed in exported table
@@ -189,3 +189,97 @@ item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingTyp
                              ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
                              ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
                              ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`)
+
+item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
+                              ,"Mean_SCL.GenPop"      = item35.os.cast$Mean_SCL.GenPop
+                              ,"SE_SCL.GenPop"        = item35.os.cast$SE_SCL.GenPop
+                              ,"n_SCL.GenPop"         = item35.os.cast$n_SCL.GenPop
+                              ,"Mean_SCL.LI"          = item35.os.cast$Mean_SCL.LI
+                              ,"SE_SCL.LI"            = item35.os.cast$SE_SCL.LI
+                              ,"n_SCL.LI"             = item35.os.cast$n_SCL.LI
+                              ,"Mean_SCL.EH"          = item35.os.cast$Mean_SCL.EH
+                              ,"SE_SCL.EH"            = item35.os.cast$SE_SCL.EH
+                              ,"n_SCL.EH"             = item35.os.cast$n_SCL.EH
+                              ,"Mean_2017.RBSA.PS"    = item35.os.cast$Mean_2017.RBSA.PS
+                              ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
+                              ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS
+                              ,"EB_SCL.GenPop"        = item35.os.cast$EB_SCL.GenPop
+                              ,"EB_SCL.LI"            = item35.os.cast$EB_SCL.LI
+                              ,"EB_SCL.EH"            = item35.os.cast$EB_SCL.EH
+                              ,"EB_2017.RBSA.PS"      = item35.os.cast$EB_2017.RBSA.PS)
+
+item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
+                              ,"Mean_SCL.GenPop"      = item35.os.cast$Mean_SCL.GenPop
+                              ,"SE_SCL.GenPop"        = item35.os.cast$SE_SCL.GenPop
+                              ,"n_SCL.GenPop"         = item35.os.cast$n_SCL.GenPop
+                              ,"Mean_SCL.LI"          = item35.os.cast$Mean_SCL.LI
+                              ,"SE_SCL.LI"            = item35.os.cast$SE_SCL.LI
+                              ,"n_SCL.LI"             = item35.os.cast$n_SCL.LI
+                              ,"Mean_SCL.EH"          = item35.os.cast$Mean_SCL.EH
+                              ,"SE_SCL.EH"            = item35.os.cast$SE_SCL.EH
+                              ,"n_SCL.EH"             = item35.os.cast$n_SCL.EH
+                              ,"Mean_2017.RBSA.PS"    = item35.os.cast$Mean_2017.RBSA.PS
+                              ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
+                              ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS)
+
+
+item40.os.table <- data.frame("BuildingType"          = item40.os.cast$BuildingType
+                              ,"Home.Type"            = item40.os.cast$HomeType
+                              ,"Mean_SCL.GenPop"      = item40.os.cast$`Mean_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item40.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item40.os.cast$`n_SCL GenPop`
+                              ,"Mean_SCL.LI"          = item40.os.cast$`Mean_SCL LI`
+                              ,"SE_SCL.LI"            = item40.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item40.os.cast$`n_SCL LI`
+                              ,"Mean_SCL.EH"          = item40.os.cast$`Mean_SCL EH`
+                              ,"SE_SCL.EH"            = item40.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item40.os.cast$`n_SCL EH`
+                              ,"Mean_2017.RBSA.PS"    = item40.os.cast$`Mean_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item40.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item40.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item40.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item40.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item40.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item40.os.cast$`EB_2017 RBSA PS`)
+
+
+item40.os.table <- data.frame("BuildingType"          = item40.os.cast$BuildingType
+                              ,"Home.Type"            = item40.os.cast$HomeType
+                              ,"Mean_SCL.GenPop"      = item40.os.cast$`Mean_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item40.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item40.os.cast$`n_SCL GenPop`
+                              ,"Mean_SCL.LI"          = item40.os.cast$`Mean_SCL LI`
+                              ,"SE_SCL.LI"            = item40.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item40.os.cast$`n_SCL LI`
+                              ,"Mean_SCL.EH"          = item40.os.cast$`Mean_SCL EH`
+                              ,"SE_SCL.EH"            = item40.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item40.os.cast$`n_SCL EH`
+                              ,"Mean_2017.RBSA.PS"    = item40.os.cast$`Mean_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item40.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item40.os.cast$`n_2017 RBSA PS`)
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+
+
+
+# row ordering example code
+levels(itemXX.os.table$Sample)
+rowOrder <- c("SCL GenPop"
+              ,"SCL LI"
+              ,"SCL EH"
+              ,"2017 RBSA PS")
+itemXX.os.table <- itemXX.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+itemXX.os.table <- data.frame(itemXX.os.table)

@@ -367,3 +367,238 @@ item55.table.MH <- item55.table[which(item55.table$BuildingType == "Manufactured
 
 # exportTable(item55.table.SF, "SF", "Table 62", weighted = FALSE)
 exportTable(item55.table.MH, "MH", "Table 42", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+################################################################################################
+# ITEM 54 (and item 190 for MH): PERCENTAGE OF HOMES WITH COOLING EQUIPMENT BY CK_Building_ID (SF table 61)
+################################################################################################
+#subset to columns needed for analysis
+item54.os.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Provides"))]
+item54.os.dat1 <- unique(item54.os.dat[grep("cooling",item54.os.dat$Provides, ignore.case = T),])
+which(duplicated(item54.os.dat1$CK_Cadmus_ID))
+item54.os.dat1.1 <- item54.os.dat1[-which(duplicated(item54.os.dat1$CK_Cadmus_ID)),]
+
+item54.os.dat2 <- left_join(scl.dat, item54.os.dat1.1)
+
+item54.os.dat2$Ind <- 0
+item54.os.dat2$Ind[which(!is.na(item54.os.dat2$Provides))] <- 1
+unique(item54.os.dat2$Ind)
+
+##########################################
+# add pop and sample sizes by strata
+##########################################
+item54.os.data <- weightedData(item54.os.dat2[-which(colnames(item54.os.dat2) %in% c("Provides"
+                                                                            ,"Ind"))])
+item54.os.data <- left_join(item54.os.data, unique(item54.os.dat2[which(colnames(item54.os.dat2) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Provides"
+                                                                                     ,"Ind"))]))
+item54.os.data$Count <- 1
+
+
+##############################
+# Weighted Analysis
+##############################
+item54.os.table <- proportions_one_group(CustomerLevelData = item54.os.data
+                                           ,valueVariable = 'Ind'
+                                           ,groupingVariable = "CK_Building_ID"
+                                           ,total.name = "Remove")
+item54.os.table <- item54.os.table[which(item54.os.table$CK_Building_ID != "Total"),]
+
+item54.os.table.SF <- item54.os.table[which(item54.os.table$BuildingType == "Single Family")
+                                ,which(colnames(item54.os.table) %notin% c("BuildingType"))]
+
+exportTable(item54.os.table.SF, "SF", "Table 61", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+##############################
+# unweighted Analysis
+##############################
+item54.os.table <- proportions_one_group(CustomerLevelData = item54.os.data
+                                         ,valueVariable = 'Ind'
+                                         ,groupingVariable = "CK_Building_ID"
+                                         ,total.name = "Remove"
+                                         ,weighted = FALSE)
+item54.os.table <- item54.os.table[which(item54.os.table$CK_Building_ID != "Total"),]
+
+item54.os.table.SF <- item54.os.table[which(item54.os.table$BuildingType == "Single Family")
+                                      ,which(colnames(item54.os.table) %notin% c("BuildingType"))]
+
+exportTable(item54.os.table.SF, "SF", "Table 61", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+
+################################################################################################
+# ITEM 55: DISTRIBUTION OF PRIMARY COOLING SYSTEMS BY TYPE AND CK_Building_ID (SF table 61)
+################################################################################################
+#subset to columns needed for analysis
+item55.os.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Primary.Cooling.System"
+                                                                   ,"System.Type"))]
+item55.os.dat1 <- unique(item55.os.dat[grep("yes",item55.os.dat$Primary.Cooling.System, ignore.case = T),])
+unique(item55.os.dat1$CK_Cadmus_ID[which(duplicated(item55.os.dat1$CK_Cadmus_ID))])
+item55.os.dat1 <- item55.os.dat1[which(item55.os.dat1$System.Type %notin% c("N/A",NA)),]
+item55.os.dat1$System.Type[grep("ductless",item55.os.dat1$System.Type, ignore.case = T)] <- "Mini-split HP"
+item55.os.dat1$System.Type[which(item55.os.dat1$System.Type == "Heat Pump")] <- "Air Source Heat Pump"
+
+item55.os.dat2 <- left_join(scl.dat, item55.os.dat1) #item55.os.dat1.2
+
+item55.os.dat2$Dist.Ind <- 0
+item55.os.dat2$Dist.Ind[which(!is.na(item55.os.dat2$Primary.Cooling.System))] <- 1
+unique(item55.os.dat2$Dist.Ind)
+unique(item55.os.dat2$System.Type)
+
+item55.os.dat3 <- item55.os.dat2[which(!is.na(item55.os.dat2$System.Type)),]
+
+##########################################
+# add pop and sample sizes by strata
+##########################################
+item55.os.data <- weightedData(item55.os.dat3[-which(colnames(item55.os.dat3) %in% c("Primary.Cooling.System"
+                                                                            ,"System.Type"
+                                                                            ,"Dist.Ind"))])
+item55.os.data <- left_join(item55.os.data, unique(item55.os.dat3[which(colnames(item55.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Primary.Cooling.System"
+                                                                                     ,"System.Type"
+                                                                                     ,"Dist.Ind"))]))
+item55.os.data$Count <- 1
+item55.os.data$count <- 1
+
+##############################
+# Weighted Analysis
+##############################
+item55.os.summary <- proportionRowsAndColumns1(CustomerLevelData = item55.os.data
+                                            ,valueVariable = 'Dist.Ind'
+                                            ,columnVariable = 'CK_Building_ID'
+                                            ,rowVariable = 'System.Type'
+                                            ,aggregateColumnName = "Total")
+item55.os.summary <- item55.os.summary[which(item55.os.summary$CK_Building_ID != "Total"),]
+
+item55.os.final <- item55.os.summary
+
+item55.os.cast <- dcast(setDT(item55.os.final)
+                     ,formula = BuildingType + System.Type ~ CK_Building_ID
+                     ,value.var = c("w.percent","w.SE","count","N","n","EB"))
+
+item55.os.table <- data.frame("BuildingType"          = item55.os.cast$BuildingType
+                              ,"Cooling.System.Type"  = item55.os.cast$System.Type
+                              ,"Percent_SCL.GenPop"   = item55.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item55.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item55.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item55.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item55.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item55.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item55.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item55.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item55.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item55.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item55.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item55.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item55.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item55.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item55.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item55.os.cast$`EB_2017 RBSA PS`)
+# row ordering example code
+levels(item55.os.table$Cooling.System.Type)
+rowOrder <- c("Packaged AC"
+              ,"Packaged HP"
+              ,"Central AC"
+              ,"Evaporative Cooling"
+              ,"Water Source Heat Pump"
+              ,"Air Source Heat Pump"
+              ,"Mini-split HP"
+              ,"Mini-split AC"
+              ,"Furnace"
+              ,"GeoThermal Heat Pump"
+              ,"Total")
+item55.os.table <- item55.os.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
+item55.os.table <- data.frame(item55.os.table)
+
+item55.os.table.SF <- item55.os.table[which(item55.os.table$BuildingType == "Single Family")
+                                ,which(colnames(item55.os.table) %notin% c("BuildingType"))]
+
+exportTable(item55.os.table.SF, "SF", "Table 62", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+##############################
+# unweighted Analysis
+##############################
+item55.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = item55.os.data
+                                               ,valueVariable = 'Dist.Ind'
+                                               ,columnVariable = 'CK_Building_ID'
+                                               ,rowVariable = 'System.Type'
+                                               ,aggregateColumnName = "Total")
+item55.os.summary <- item55.os.summary[which(item55.os.summary$CK_Building_ID != "Total"),]
+
+item55.os.final <- item55.os.summary
+
+item55.os.cast <- dcast(setDT(item55.os.final)
+                        ,formula = BuildingType + System.Type ~ CK_Building_ID
+                        ,value.var = c("Percent","SE","Count","n"))
+
+item55.os.table <- data.frame("BuildingType"          = item55.os.cast$BuildingType
+                              ,"Cooling.System.Type"  = item55.os.cast$System.Type
+                              ,"Percent_SCL.GenPop"   = item55.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item55.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item55.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item55.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item55.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item55.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item55.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item55.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item55.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item55.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item55.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item55.os.cast$`n_2017 RBSA PS`)
+# row ordering example code
+levels(item55.os.table$Cooling.System.Type)
+rowOrder <- c("Packaged AC"
+              ,"Packaged HP"
+              ,"Central AC"
+              ,"Evaporative Cooling"
+              ,"Water Source Heat Pump"
+              ,"Air Source Heat Pump"
+              ,"Mini-split HP"
+              ,"Mini-split AC"
+              ,"Furnace"
+              ,"GeoThermal Heat Pump"
+              ,"Total")
+item55.os.table <- item55.os.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
+item55.os.table <- data.frame(item55.os.table)
+
+item55.os.table.SF <- item55.os.table[which(item55.os.table$BuildingType == "Single Family")
+                                      ,which(colnames(item55.os.table) %notin% c("BuildingType"))]
+
+exportTable(item55.os.table.SF, "SF", "Table 62", weighted = FALSE, osIndicator = "SCL", OS = T)

@@ -575,3 +575,578 @@ item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured
 
 # exportTable(item46.final.SF, "SF", "Table 53", weighted = FALSE)
 exportTable(item46.final.MH, "MH", "Table 35", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+#############################################################################################
+#Item 43: DISTRIBUTION OF PRIMARY HEATING SYSTEMS (SF table 50, MF table 35)
+#############################################################################################
+item43.os.dat <- mechanical.dat1
+
+#remove datapoint not asked for and repeated header lines
+item43.os.dat1 <- item43.os.dat[which(item43.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item43.os.dat2 <- item43.os.dat1[which(item43.os.dat1$Primary.Heating.System %in% c("Yes", "No")),]
+#check uniques
+unique(item43.os.dat2$Primary.Heating.System)
+
+
+
+item43.os.dat2$Heating.System.Ind <- item43.os.dat2$Primary.Heating.System
+item43.os.dat2$Heating.System.Ind[which(item43.os.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
+item43.os.dat2$Heating.System.Ind[which(item43.os.dat2$Primary.Heating.System == "No")]  <- "Secondary Heating System"
+
+unique(item43.os.dat2$`System.Sub-Type`)
+
+for (ii in 1:nrow(item43.os.dat2)){
+  # if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item43.os.dat2$Generic[ii] <- item43.os.dat2$`System.Sub-Type`[ii]
+  # }
+  if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item43.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+  if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
+    item43.os.dat2$Generic[ii] <- "Plug-In Heaters"
+  }
+}
+
+item43.os.dat2$Generic[grep("Electric Baseboard",item43.os.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item43.os.dat2$Generic[grep("zonal heat",item43.os.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item43.os.dat2$Generic[grep("ductless",item43.os.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item43.os.dat2$Generic[grep("furnace",item43.os.dat2$Generic,ignore.case = T)] <- "Furnace"
+item43.os.dat2$Generic[grep("boiler",item43.os.dat2$Generic,ignore.case = T)] <- "Boiler"
+item43.os.dat2$Generic[grep("Stove/Fireplace",item43.os.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
+
+unique(item43.os.dat2$Generic)
+
+item43.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item43.os.dat2$CK_Cadmus_ID
+                                 ,"Heating_Type"       = item43.os.dat2$Generic
+                                 ,"Primary_Secondary"  = item43.os.dat2$Heating.System.Ind))
+### Clean heating type
+unique(item43.os.dat3$Heating_Type)
+# item43.os.dat3$Heating_Type[grep("geo", item43.os.dat3$Heating_Type, ignore.case = T)] <- "Geothermal Heat Pump"
+
+item43.os.dat4 <- left_join(scl.dat, item43.os.dat3, by = "CK_Cadmus_ID")
+unique(item43.os.dat4$Primary_Secondary)
+item43.os.dat5 <- unique(item43.os.dat4[which(item43.os.dat4$Primary_Secondary == "Primary Heating System"),])
+unique(item43.os.dat5$Primary_Secondary)
+
+
+length(unique(item43.os.dat5$CK_Cadmus_ID[which(item43.os.dat5$BuildingType == "Single Family")]))
+nrow(item43.os.dat5[which(item43.os.dat5$BuildingType == "Single Family"),])
+dup.ids <- data.frame(item43.os.dat5$CK_Cadmus_ID[which(duplicated(item43.os.dat5$CK_Cadmus_ID) & item43.os.dat5$BuildingType == "Single Family")])
+item43.os.dat5$count <- 1
+
+item43.os.dat6 <- item43.os.dat5[which(item43.os.dat5$Heating_Type %notin% c("N/A",NA)),]
+unique(item43.os.dat6$Heating_Type)
+
+item43.os.data <- weightedData(item43.os.dat6[-which(colnames(item43.os.dat6) %in% c("Heating_Type"
+                                                                            ,"Primary_Secondary"
+                                                                            ,"count"))])
+item43.os.data <- left_join(item43.os.data, item43.os.dat6[which(colnames(item43.os.dat6) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Heating_Type"
+                                                                                     ,"Primary_Secondary"
+                                                                                     ,"count"))])
+
+#########################
+# Weighted Analysis
+#########################
+item43.os.final <- proportionRowsAndColumns1(CustomerLevelData  = item43.os.data
+                                      , valueVariable    = 'count'
+                                      ,columnVariable = "CK_Building_ID"
+                                      , rowVariable = 'Heating_Type'
+                                      ,aggregateColumnName = "Remove")
+item43.os.final <- item43.os.final[which(item43.os.final$CK_Building_ID != "Remove"),]
+
+item43.os.cast <- dcast(setDT(item43.os.final)
+                        ,formula = Heating_Type ~ CK_Building_ID
+                        ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+
+item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
+                             ,"Percent_SCL.GenPop"   = item43.os.cast$`w.percent_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item43.os.cast$`w.SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item43.os.cast$`n_SCL GenPop`
+                             ,"Percent_SCL.LI"       = item43.os.cast$`w.percent_SCL LI`
+                             ,"SE_SCL.LI"            = item43.os.cast$`w.SE_SCL LI`
+                             ,"n_SCL.LI"             = item43.os.cast$`n_SCL LI`
+                             ,"Percent_SCL.EH"       = item43.os.cast$`w.percent_SCL EH`
+                             ,"SE_SCL.EH"            = item43.os.cast$`w.SE_SCL EH`
+                             ,"n_SCL.EH"             = item43.os.cast$`n_SCL EH`
+                             ,"Percent_2017.RBSA.PS" = item43.os.cast$`w.percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item43.os.cast$`w.SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item43.os.cast$`n_2017 RBSA PS`
+                             ,"EB_SCL.GenPop"        = item43.os.cast$`EB_SCL GenPop`
+                             ,"EB_SCL.LI"            = item43.os.cast$`EB_SCL LI`
+                             ,"EB_SCL.EH"            = item43.os.cast$`EB_SCL EH`
+                             ,"EB_2017.RBSA.PS"      = item43.os.cast$`EB_2017 RBSA PS`)
+
+exportTable(item43.os.table, "SF", "Table 50", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#########################
+# unWeighted Analysis
+#########################
+item43.os.final <- proportions_two_groups_unweighted(CustomerLevelData  = item43.os.data
+                                             , valueVariable    = 'count'
+                                             ,columnVariable = "CK_Building_ID"
+                                             , rowVariable = 'Heating_Type'
+                                             ,aggregateColumnName = "Remove")
+item43.os.final <- item43.os.final[which(item43.os.final$CK_Building_ID != "Remove"),]
+
+item43.os.cast <- dcast(setDT(item43.os.final)
+                        ,formula = Heating_Type ~ CK_Building_ID
+                        ,value.var = c("Percent","SE","Count","n"))
+
+item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
+                              ,"Percent_SCL.GenPop"   = item43.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item43.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item43.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item43.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item43.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item43.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item43.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item43.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item43.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item43.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item43.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item43.os.cast$`n_2017 RBSA PS`)
+
+exportTable(item43.os.table, "SF", "Table 50", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+#############################################################################################
+#Item 44: DISTRIBUTION OF FUEL CHOICE FOR PRIMARY HEATING SYSTEMS BY CK_Building_ID  (SF table 51)
+#############################################################################################
+item44.os.dat <- mechanical.dat1
+
+#remove datapoint not asked for and repeated header lines
+item44.os.dat1 <- item44.os.dat[which(item44.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item44.os.dat2 <- item44.os.dat1[which(item44.os.dat1$Primary.Heating.System %in% c("Yes", "No")),]
+#check uniques
+unique(item44.os.dat2$Primary.Heating.System)
+
+item44.os.dat2$Heating.System.Ind <- item44.os.dat2$Primary.Heating.System
+item44.os.dat2$Heating.System.Ind[which(item44.os.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
+item44.os.dat2$Heating.System.Ind[which(item44.os.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
+item44.os.dat2$Heating.Fuel[which(item44.os.dat2$Heating.Fuel == "Natural gas")]    <- "Natural Gas"
+item44.os.dat2$Heating.Fuel[which(item44.os.dat2$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
+item44.os.dat2$Heating.Fuel[which(item44.os.dat2$Heating.Fuel == "Wood (cord)")]    <- "Wood"
+unique(item44.os.dat2$Heating.Fuel)
+
+for (ii in 1:nrow(item44.os.dat2)){
+  if (item44.os.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+    item44.os.dat2$Generic[ii] <- item44.os.dat2$`System.Sub-Type`[ii]
+  }
+  if (item44.os.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item44.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+item44.os.dat2$Generic[grep("Electric Baseboard",item44.os.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item44.os.dat2$Generic[grep("zonal heat",item44.os.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item44.os.dat2$Generic[grep("ductless",item44.os.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item44.os.dat2$Generic[grep("furnace",item44.os.dat2$Generic,ignore.case = T)] <- "Furnace"
+item44.os.dat2$Generic[grep("boiler",item44.os.dat2$Generic,ignore.case = T)] <- "Boiler"
+item44.os.dat2$Generic[grep("Stove/Fireplace",item44.os.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
+
+
+item44.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item44.os.dat2$CK_Cadmus_ID
+                                 ,"Heating_Type" = item44.os.dat2$Generic
+                                 ,"Heating_Fuel" = item44.os.dat2$Heating.Fuel
+                                 ,"Primary_Secondary" = item44.os.dat2$Heating.System.Ind))
+
+item44.os.dat4 <- left_join(scl.dat, item44.os.dat3, by = "CK_Cadmus_ID")
+
+item44.os.dat5 <- item44.os.dat4[which(item44.os.dat4$Primary_Secondary == "Primary Heating System"),]
+length(unique(item44.os.dat5$CK_Cadmus_ID))
+item44.os.dat5$count <- 1
+
+unique(item44.os.dat5$Heating_Fuel)
+item44.os.dat5$Heating_Fuel[which(item44.os.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
+item44.os.dat5$Heating_Fuel[which(item44.os.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
+
+# Remove entries with missing fuel types
+item44.os.dat6 <- item44.os.dat5 %>%
+  filter(Heating_Fuel %notin% c("N/A",NA))
+
+unique(item44.os.dat6$Heating_Fuel)
+
+item44.os.dat7 <- item44.os.dat6 %>%
+  filter(Heating_Fuel %notin% c("Unknown"
+                                , "Can't Determine"
+                                , "Hydronic Gas-Water Fan Heater"
+                                , "Hot Water from Water Heater"
+                                , "Other"))
+
+
+item44.os.data <- weightedData(item44.os.dat7[-which(colnames(item44.os.dat7) %in% c("Heating_Type"
+                                                                            ,"Heating_Fuel"
+                                                                            ,"Primary_Secondary"
+                                                                            ,"count"))])
+
+item44.os.data <- left_join(item44.os.data, item44.os.dat7[which(colnames(item44.os.dat7) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Heating_Type"
+                                                                                     ,"Heating_Fuel"
+                                                                                     ,"Primary_Secondary"
+                                                                                     ,"count"))])
+################################
+# Weighted Analysis
+################################
+item44.os.final <- proportionRowsAndColumns1(CustomerLevelData = item44.os.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'CK_Building_ID'
+                                          , rowVariable         = 'Heating_Fuel'
+                                          , aggregateColumnName = 'Region')
+
+item44.os.cast <- dcast(setDT(item44.os.final)
+                     , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
+                              ,"Percent_SCL.GenPop"   = item44.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item44.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item44.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item44.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item44.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item44.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item44.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item44.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item44.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item44.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item44.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item44.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item44.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item44.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item44.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item44.os.cast$`EB_2017 RBSA PS`
+)
+
+exportTable(item44.os.table, "SF", "Table 51", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#############################
+# Unweighted Analysis
+#############################
+item44.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item44.os.data
+                                                  , valueVariable       = 'count'
+                                                  , columnVariable      = 'CK_Building_ID'
+                                                  , rowVariable         = 'Heating_Fuel'
+                                                  , aggregateColumnName = 'Region')
+
+item44.os.cast <- dcast(setDT(item44.os.final)
+                     , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
+                     , value.var = c("Percent", "SE", "Count", "n"))
+
+
+item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
+                              ,"Percent_SCL.GenPop"   = item44.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item44.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item44.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item44.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item44.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item44.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item44.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item44.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item44.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item44.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item44.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item44.os.cast$`n_2017 RBSA PS`)
+
+exportTable(item44.os.table, "SF", "Table 51", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+#Item 45: DISTRIBUTION OF SECONDARY HEATING SYSTEMS (SF table 52)
+#############################################################################################
+item45.os.dat <- mechanical.dat1
+
+#remove datapoint not asked for and repeated header lines
+item45.os.dat1 <- item45.os.dat[which(item45.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item45.os.dat2 <- item45.os.dat1[which(item45.os.dat1$Primary.Heating.System %in% c("Yes", "No")),]
+#check uniques
+unique(item45.os.dat2$Primary.Heating.System)
+
+item45.os.dat2$Heating.System.Ind <- item45.os.dat2$Primary.Heating.System
+item45.os.dat2$Heating.System.Ind[which(item45.os.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
+item45.os.dat2$Heating.System.Ind[which(item45.os.dat2$Primary.Heating.System ==  "No")] <- "Secondary Heating System"
+
+
+for (ii in 1:nrow(item43.os.dat2)){
+  # if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item43.os.dat2$Generic[ii] <- item43.os.dat2$`System.Sub-Type`[ii]
+  # }
+  if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item43.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+  if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
+    item43.os.dat2$Generic[ii] <- "Plug-In Heaters"
+  }
+}
+
+item45.os.dat2$Generic[grep("Electric Baseboard",item45.os.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item45.os.dat2$Generic[grep("zonal heat",item45.os.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item45.os.dat2$Generic[grep("ductless",item45.os.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item45.os.dat2$Generic[grep("furnace",item45.os.dat2$Generic,ignore.case = T)] <- "Furnace"
+item45.os.dat2$Generic[grep("boiler",item45.os.dat2$Generic,ignore.case = T)] <- "Boiler"
+item45.os.dat2$Generic[grep("Stove/Fireplace",item45.os.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
+
+unique(item43.os.dat2$Generic)
+
+item45.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item45.os.dat2$CK_Cadmus_ID
+                                 ,"Heating_Type" = item45.os.dat2$Generic
+                                 ,"Primary_Secondary" = item45.os.dat2$Heating.System.Ind))
+item45.os.dat3 <- item45.os.dat3[which(item45.os.dat3$Heating_Type %notin% c("N/A",NA)),]
+
+item45.os.dat4 <- left_join(scl.dat, item45.os.dat3, by = "CK_Cadmus_ID")
+
+item45.os.dat5 <- item45.os.dat4[which(item45.os.dat4$Primary_Secondary == "Secondary Heating System"),]
+length(unique(item45.os.dat5$CK_Cadmus_ID))
+item45.os.dat5$count <- 1
+
+
+item45.os.data <- weightedData(item45.os.dat5[-which(colnames(item45.os.dat5) %in% c("Heating_Type"
+                                                                            ,"Primary_Secondary"
+                                                                            ,"count"))])
+
+item45.os.data <- left_join(item45.os.data, item45.os.dat5[which(colnames(item45.os.dat5) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Heating_Type"
+                                                                                     ,"Primary_Secondary"
+                                                                                     ,"count"))])
+
+################################
+# Weighted Analysis
+################################
+item45.os.final <- proportionRowsAndColumns1(CustomerLevelData  = item45.os.data
+                                             , valueVariable    = 'count'
+                                             ,columnVariable = "CK_Building_ID"
+                                             , rowVariable = 'Heating_Type'
+                                             ,aggregateColumnName = "Remove")
+item45.os.final <- item45.os.final[which(item45.os.final$CK_Building_ID != "Remove"),]
+
+item45.os.cast <- dcast(setDT(item45.os.final)
+                        ,formula = Heating_Type ~ CK_Building_ID
+                        ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+
+item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
+                              ,"Percent_SCL.GenPop"   = item45.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item45.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item45.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item45.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item45.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item45.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item45.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item45.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item45.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item45.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item45.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item45.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item45.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item45.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item45.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item45.os.cast$`EB_2017 RBSA PS`)
+
+exportTable(item45.os.table, "SF", "Table 52", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#########################
+# unWeighted Analysis
+#########################
+item45.os.final <- proportions_two_groups_unweighted(CustomerLevelData  = item45.os.data
+                                                     , valueVariable    = 'count'
+                                                     ,columnVariable = "CK_Building_ID"
+                                                     , rowVariable = 'Heating_Type'
+                                                     ,aggregateColumnName = "Remove")
+item45.os.final <- item45.os.final[which(item45.os.final$CK_Building_ID != "Remove"),]
+
+item45.os.cast <- dcast(setDT(item45.os.final)
+                        ,formula = Heating_Type ~ CK_Building_ID
+                        ,value.var = c("Percent","SE","Count","n"))
+
+item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
+                              ,"Percent_SCL.GenPop"   = item45.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item45.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item45.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item45.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item45.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item45.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item45.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item45.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item45.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item45.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item45.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item45.os.cast$`n_2017 RBSA PS`)
+
+exportTable(item45.os.table, "SF", "Table 52", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+
+#############################################################################################
+#Item 46: DISTRIBUTION OF FUEL CHOICE FOR SECONDARY HEATING SYSTEMS BY CK_Building_ID  (SF table 51)
+#############################################################################################
+item46.os.dat <- mechanical.dat1
+
+#remove datapoint not asked for and repeated header lines
+item46.os.dat1 <- item46.os.dat[which(item46.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+item46.os.dat2 <- item46.os.dat1[which(item46.os.dat1$Primary.Heating.System %in% c("Yes", "No")),]
+#check uniques
+unique(item46.os.dat2$Primary.Heating.System)
+
+item46.os.dat2$Heating.System.Ind <- item46.os.dat2$Primary.Heating.System
+item46.os.dat2$Heating.System.Ind[which(item46.os.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
+item46.os.dat2$Heating.System.Ind[which(item46.os.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
+item46.os.dat2$Heating.Fuel[which(item46.os.dat2$Heating.Fuel == "Natural gas")]       <- "Natural Gas"
+item46.os.dat2$Heating.Fuel[which(item46.os.dat2$Heating.Fuel == "Natural Gas")]       <- "Gas"
+item46.os.dat2$Heating.Fuel[which(item46.os.dat2$Heating.Fuel == "Fuel oil/kerosene")] <- "Oil"
+
+for (ii in 1:nrow(item46.os.dat2)){
+  # if (item46.os.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item46.os.dat2$Generic[ii] <- item46.os.dat2$`System.Sub-Type`[ii]
+  # }
+  if (item46.os.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item46.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+item46.os.dat2$Generic[grep("Electric Baseboard",item46.os.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item46.os.dat2$Generic[grep("zonal heat",item46.os.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item46.os.dat2$Generic[grep("ductless",item46.os.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
+item46.os.dat2$Generic[grep("furnace",item46.os.dat2$Generic,ignore.case = T)] <- "Furnace"
+item46.os.dat2$Generic[grep("boiler",item46.os.dat2$Generic,ignore.case = T)] <- "Boiler"
+item46.os.dat2$Generic[grep("Stove/Fireplace",item46.os.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
+
+item46.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item46.os.dat2$CK_Cadmus_ID
+                                 ,"Heating_Type" = item46.os.dat2$Generic
+                                 ,"Heating_Fuel" = item46.os.dat2$Heating.Fuel
+                                 ,"Primary_Secondary" = item46.os.dat2$Heating.System.Ind))
+
+item46.os.dat3 <- item46.os.dat3[which(item46.os.dat3$Heating_Type %notin% c("N/A",NA)),]
+# Check heating type
+unique(item46.os.dat3$Heating_Type)
+
+item46.os.dat4 <- left_join(scl.dat, item46.os.dat3, by = "CK_Cadmus_ID")
+
+item46.os.dat5 <- item46.os.dat4[which(item46.os.dat4$Primary_Secondary == "Secondary Heating System"),]
+length(unique(item46.os.dat5$CK_Cadmus_ID))
+item46.os.dat5$count <- 1
+
+# Remove entries with missing fuel types
+unique(item46.os.dat5$Heating_Fuel)
+item46.os.dat6 <- item46.os.dat5 %>%
+  filter(Heating_Fuel %notin% c("N/A",NA))
+item46.os.dat7 <- item46.os.dat6 %>%
+  filter(Heating_Fuel %notin% c("Unknown"
+                                , "Can't Determine"
+                                , "Hydronic Gas-Water Fan Heater"
+                                , "Hot Water from Water Heater"
+                                , "Other"))
+
+
+item46.os.data <- weightedData(item46.os.dat7[-which(colnames(item46.os.dat7) %in% c("Heating_Type"
+                                                                            ,"Heating_Fuel"
+                                                                            ,"Primary_Secondary"
+                                                                            ,"count"))])
+
+item46.os.data <- left_join(item46.os.data, item46.os.dat7[which(colnames(item46.os.dat7) %in% c("CK_Cadmus_ID"
+                                                                                     ,"Heating_Type"
+                                                                                     ,"Heating_Fuel"
+                                                                                     ,"Primary_Secondary"
+                                                                                     ,"count"))])
+
+################################
+# weighted Analysis
+################################
+item46.os.final <- proportionRowsAndColumns1(CustomerLevelData = item46.os.data
+                                          , valueVariable       = 'count'
+                                          , columnVariable      = 'CK_Building_ID'
+                                          , rowVariable         = 'Heating_Fuel'
+                                          , aggregateColumnName = 'Region')
+
+item46.os.cast <- dcast(setDT(item46.os.final)
+                     , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
+                              ,"Percent_SCL.GenPop"   = item46.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item46.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item46.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item46.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item46.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item46.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item46.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item46.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item46.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item46.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item46.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item46.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item46.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item46.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item46.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item46.os.cast$`EB_2017 RBSA PS`
+)
+
+exportTable(item46.os.table, "SF", "Table 53", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+
+################################
+# Unweighted Analysis
+################################
+item46.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item46.os.data
+                                                  , valueVariable       = 'count'
+                                                  , columnVariable      = 'CK_Building_ID'
+                                                  , rowVariable         = 'Heating_Fuel'
+                                                  , aggregateColumnName = 'Region')
+
+item46.os.cast <- dcast(setDT(item46.os.final)
+                     , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
+                     , value.var = c("Percent", "SE", "Count", "n"))
+
+item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
+                              ,"Percent_SCL.GenPop"   = item46.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item46.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item46.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item46.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item46.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item46.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item46.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item46.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item46.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item46.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item46.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item46.os.cast$`n_2017 RBSA PS`)
+
+exportTable(item46.os.table, "SF", "Table 53", weighted = FALSE, osIndicator = "SCL", OS = T)

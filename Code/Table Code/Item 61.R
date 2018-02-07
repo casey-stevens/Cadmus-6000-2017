@@ -96,7 +96,7 @@ prep.dat3 <- prep.data.duct1
 ###########################
 
 for(i in 1:ncol(prep.dat3)){
-  prep.dat3[,i] <- ifelse(prep.dat3[,i] == "-- Datapoint not asked for --", NA, prep.dat3[,i])
+  prep.dat3[,i] <- ifelse(prep.dat3[,i] == "Datapoint not asked for", NA, prep.dat3[,i])
 }
 
 #cleaning for wall.cavity
@@ -202,12 +202,17 @@ prep.dat4$Duct.Runs.rvalues3 <- prep.dat4$Duct.Runs.Insulation.Type.3
 #fix names that are not in R value table
 prep.dat4$Duct.Plenum.rvalues1[grep("Foil|foil", prep.dat4$Duct.Plenum.rvalues1)]  <- "Foil-faced polyurethane foam board"
 prep.dat4$Duct.Plenum.rvalues1[grep("Foam board", prep.dat4$Duct.Plenum.rvalues1)] <- "Extruded polystyrene foam board"
+prep.dat4$Duct.Plenum.rvalues1[grep("Reflective", prep.dat4$Duct.Plenum.rvalues1)] <- "Unknown"
+prep.dat4$Duct.Plenum.rvalues1[grep("Paper backed", prep.dat4$Duct.Plenum.rvalues1)] <- "Blown fiberglass"
 prep.dat4$Duct.Plenum.rvalues1[grep("N/A|None", prep.dat4$Duct.Plenum.rvalues1)] <- NA
 prep.dat4$Duct.Plenum.rvalues2[grep("Foil|foil", prep.dat4$Duct.Plenum.rvalues2)]  <- "Foil-faced polyurethane foam board"
 prep.dat4$Duct.Plenum.rvalues2[grep("N/A|None", prep.dat4$Duct.Plenum.rvalues2)] <- NA
 prep.dat4$Duct.Plenum.rvalues3[grep("Foil|foil", prep.dat4$Duct.Plenum.rvalues3)]  <- "Foil-faced polyurethane foam board"
 prep.dat4$Duct.Plenum.rvalues3[grep("N/A|None", prep.dat4$Duct.Plenum.rvalues3)] <- NA
 
+prep.dat4$Duct.Plenum.rvalues1 <- as.numeric(as.character(prep.dat4$Duct.Plenum.rvalues1))
+prep.dat4$Duct.Plenum.rvalues2 <- as.numeric(as.character(prep.dat4$Duct.Plenum.rvalues2))
+prep.dat4$Duct.Plenum.rvalues3 <- as.numeric(as.character(prep.dat4$Duct.Plenum.rvalues3))
 prep.dat4$Duct.Runs.rvalues1 <- as.numeric(as.character(gsub("R", "", prep.dat4$Duct.Runs.rvalues1)))
 prep.dat4$Duct.Runs.rvalues2 <- as.numeric(as.character(gsub("R", "", prep.dat4$Duct.Runs.rvalues2)))
 prep.dat4$Duct.Runs.rvalues3 <- as.numeric(as.character(gsub("R", "", prep.dat4$Duct.Runs.rvalues3)))
@@ -316,7 +321,8 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$Duct.Plenum.rvalues1[na.ind] * prep.
 unique(prep.dat5$total.r.val)
 
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (1 + prep.dat5$total.r.val)
+prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
+prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
 unique(prep.dat5$uvalue)
 
 #make area numeric
@@ -330,7 +336,9 @@ weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
 )
 
 #back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval))) - 1
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
 unique(weightedU$aveRval)
 
 # get unique cadmus IDs and building types for this subset of data
@@ -409,3 +417,152 @@ item61.final <- proportions_one_group(CustomerLevelData = item61.data
 item61.final.SF <- item61.final[which(item61.final$BuildingType == "Single Family"), -which(colnames(item61.final) %in% c("BuildingType", "Duct.Insulation.Level", "Total.Count"))]
 exportTable(item61.final.SF, "SF", "Table 68", FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+############################################################################################################
+## Item 61
+############################################################################################################
+#merge weighted u values onto cleaned RBSA data
+prep.dat7 <- left_join(scl.dat, prep.dat6)
+prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
+prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
+
+item61.os.dat <- prep.dat7
+
+#Bin R values -- SF only
+item61.os.dat$rvalue.bins <- "Unknown"
+item61.os.dat$rvalue.bins[which(item61.os.dat$aveRval == 0)] <- "None"
+item61.os.dat$rvalue.bins[which(item61.os.dat$aveRval >  0 & item61.os.dat$aveRval < 5)]  <- "R1.R4"
+item61.os.dat$rvalue.bins[which(item61.os.dat$aveRval >= 5 & item61.os.dat$aveRval < 8)]  <- "R5.R7"
+item61.os.dat$rvalue.bins[which(item61.os.dat$aveRval >= 8 & item61.os.dat$aveRval < 11)]  <- "R8.R10"
+item61.os.dat$rvalue.bins[which(item61.os.dat$aveRval >= 11)] <- "RGT10"
+unique(item61.os.dat$rvalue.bins)
+
+item61.os.dat$count <- 1
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item61.os.data <- weightedData(item61.os.dat[-which(colnames(item61.os.dat) %in% c("System.Type"
+                                                                          ,"aveUval"
+                                                                          ,"aveRval"
+                                                                          ,"rvalue.bins"
+                                                                          ,"count"))])
+item61.os.data <- left_join(item61.os.data, item61.os.dat[which(colnames(item61.os.dat) %in% c("CK_Cadmus_ID"
+                                                                                   ,"System.Type"
+                                                                                   ,"aveUval"
+                                                                                   ,"aveRval"
+                                                                                   ,"rvalue.bins"
+                                                                                   ,"count"))])
+
+#######################
+# Weighted Analysis
+#######################
+item61.os.final <- proportionRowsAndColumns1(CustomerLevelData = item61.os.data
+                                             ,valueVariable = "count"
+                                             ,columnVariable = "CK_Building_ID"
+                                             ,rowVariable = "rvalue.bins"
+                                             ,aggregateColumnName = "Remove")
+item61.os.final <- item61.os.final[which(item61.os.final$CK_Building_ID != "Remove"),]
+
+item61.os.cast <- dcast(setDT(item61.os.final)
+                        ,formula = BuildingType + rvalue.bins ~ CK_Building_ID
+                        ,value.var = c("w.percent","w.SE","n","EB"))
+
+item61.os.table <- data.frame("BuildingType"          = item61.os.cast$BuildingType
+                              ,"Insulation.Levels"    = item61.os.cast$rvalue.bins
+                              ,"Percent_SCL.GenPop"   = item61.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item61.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item61.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item61.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item61.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item61.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item61.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item61.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item61.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item61.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item61.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item61.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item61.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item61.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item61.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item61.os.cast$`EB_2017 RBSA PS`)
+
+item61.os.final.SF <- item61.os.table[which(item61.os.table$BuildingType == "Single Family")
+                                , -which(colnames(item61.os.table) %in% c("BuildingType"))]
+
+exportTable(item61.os.final.SF, "SF", "Table 68", TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+item61.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item61.os.data
+                                             ,valueVariable = "count"
+                                             ,columnVariable = "CK_Building_ID"
+                                             ,rowVariable = "rvalue.bins"
+                                             ,aggregateColumnName = "Remove")
+item61.os.final <- item61.os.final[which(item61.os.final$CK_Building_ID != "Remove"),]
+
+item61.os.cast <- dcast(setDT(item61.os.final)
+                        ,formula = BuildingType + rvalue.bins ~ CK_Building_ID
+                        ,value.var = c("Percent","SE","n"))
+
+item61.os.table <- data.frame("BuildingType"          = item61.os.cast$BuildingType
+                              ,"Insulation.Levels"    = item61.os.cast$rvalue.bins
+                              ,"Percent_SCL.GenPop"   = item61.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item61.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item61.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item61.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item61.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item61.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item61.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item61.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item61.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item61.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item61.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item61.os.cast$`n_2017 RBSA PS`)
+
+item61.os.final.SF <- item61.os.table[which(item61.os.table$BuildingType == "Single Family")
+                                      , -which(colnames(item61.os.table) %in% c("BuildingType"))]
+
+exportTable(item61.os.final.SF, "SF", "Table 68", FALSE, osIndicator = "SCL", OS = T)

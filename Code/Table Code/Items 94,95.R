@@ -186,3 +186,290 @@ item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured
 
 # exportTable(item95.final.SF, "SF", "Table 102", weighted = FALSE)
 exportTable(item95.final.MH, "MH", "Table 83", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+#############################################################################################
+#Item 94: DISTRIBUTION OF COOK TOP FUEL BY TYPE (SF table 101, MH table 82)
+#############################################################################################
+#subset to columns needed for analysis
+item94.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Type"
+                                                                   ,"Stove.Fuel"))]
+item94.os.dat$count <- 1
+
+item94.os.dat0 <- item94.os.dat[which(item94.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+item94.os.dat1 <- left_join(scl.dat, item94.os.dat0, by = "CK_Cadmus_ID")
+item94.os.dat2 <- item94.os.dat1[which(item94.os.dat1$Type == "Stove/Oven"),]
+
+item94.os.dat3 <- item94.os.dat2[which(item94.os.dat2$Stove.Fuel %notin% c("No Stove", "No Cooktop", NA)),]
+item94.os.dat3$Stove.Fuel[which(item94.os.dat3$Stove.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item94.os.data <- weightedData(item94.os.dat3[-which(colnames(item94.os.dat3) %in% c("count"
+                                                                            ,"Type"
+                                                                            ,"Stove.Fuel"))])
+item94.os.data <- left_join(item94.os.data, unique(item94.os.dat3[which(colnames(item94.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"count"
+                                                                                     ,"Type"
+                                                                                     ,"Stove.Fuel"))]))
+item94.os.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+item94.os.final <- proportionRowsAndColumns1(CustomerLevelData = item94.os.data
+                                             ,valueVariable    = 'count'
+                                             ,columnVariable = "CK_Building_ID"
+                                             ,rowVariable = 'Stove.Fuel'
+                                             ,aggregateColumnName = "Remove")
+item94.os.final <- item94.os.final[which(item94.os.final$CK_Building_ID != "Remove"),]
+
+item94.os.cast <- dcast(setDT(item94.os.final)
+                        ,formula = BuildingType + Stove.Fuel ~ CK_Building_ID
+                        ,value.var = c("w.percent", "w.SE", "n", "EB"))
+
+item94.os.final <- data.frame("BuildingType"          = item94.os.cast$BuildingType
+                              ,"Stove.Fuel"           = item94.os.cast$Stove.Fuel
+                              ,"Percent_SCL.GenPop"   = item94.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item94.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item94.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item94.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item94.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item94.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item94.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item94.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item94.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item94.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item94.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item94.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item94.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item94.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item94.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item94.os.cast$`EB_2017 RBSA PS`)
+
+unique(item94.os.final$Stove.Fuel)
+rowOrder <- c("Electric"
+              ,"Gas"
+              ,"Propane"
+              ,"Other"
+              ,"Total")
+item94.os.final <- item94.os.final %>% mutate(Stove.Fuel = factor(Stove.Fuel, levels = rowOrder)) %>% arrange(Stove.Fuel)  
+item94.os.final <- data.frame(item94.os.final)
+
+item94.os.final.SF <- item94.os.final[which(item94.os.final$BuildingType == "Single Family")
+                                ,-which(colnames(item94.os.final) %in% c("BuildingType"))]
+
+exportTable(item94.os.final.SF, "SF", "Table 101", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+item94.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item94.os.data
+                                             ,valueVariable    = 'count'
+                                             ,columnVariable = "CK_Building_ID"
+                                             ,rowVariable = 'Stove.Fuel'
+                                             ,aggregateColumnName = "Remove")
+item94.os.final <- item94.os.final[which(item94.os.final$CK_Building_ID != "Remove"),]
+
+item94.os.cast <- dcast(setDT(item94.os.final)
+                        ,formula = BuildingType + Stove.Fuel ~ CK_Building_ID
+                        ,value.var = c("Percent", "SE", "n"))
+
+item94.os.final <- data.frame("BuildingType"          = item94.os.cast$BuildingType
+                              ,"Stove.Fuel"           = item94.os.cast$Stove.Fuel
+                              ,"Percent_SCL.GenPop"   = item94.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item94.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item94.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item94.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item94.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item94.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item94.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item94.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item94.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item94.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item94.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item94.os.cast$`n_2017 RBSA PS`)
+
+unique(item94.os.final$Stove.Fuel)
+rowOrder <- c("Electric"
+              ,"Gas"
+              ,"Propane"
+              ,"Other"
+              ,"Total")
+item94.os.final <- item94.os.final %>% mutate(Stove.Fuel = factor(Stove.Fuel, levels = rowOrder)) %>% arrange(Stove.Fuel)  
+item94.os.final <- data.frame(item94.os.final)
+
+item94.os.final.SF <- item94.os.final[which(item94.os.final$BuildingType == "Single Family")
+                                      ,-which(colnames(item94.os.final) %in% c("BuildingType"))]
+
+exportTable(item94.os.final.SF, "SF", "Table 101", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+#Item 95: DISTRIBUTION OF STOVE FUEL BY TYPE (SF table 102, MH table 83)
+#############################################################################################
+#subset to columns needed for analysis
+item95.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                   ,"Type"
+                                                                   ,"Oven.Fuel"
+                                                                   ,""))]
+item95.os.dat$count <- 1
+
+item95.os.dat0 <- item95.os.dat[which(item95.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+item95.os.dat1 <- left_join(scl.dat, item95.os.dat0, by = "CK_Cadmus_ID")
+item95.os.dat2 <- item95.os.dat1[which(item95.os.dat1$Type == "Stove/Oven"),]
+unique(item95.os.dat2$Oven.Fuel)
+item95.os.dat3 <- item95.os.dat2[which(item95.os.dat2$Oven.Fuel %notin% c("No Oven", "No Cooktop", "No Stove", NA)),]
+
+item95.os.dat3$Oven.Fuel[which(item95.os.dat3$Oven.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item95.os.data <- weightedData(item95.os.dat3[-which(colnames(item95.os.dat3) %in% c("count"
+                                                                            ,"Type"
+                                                                            ,"Oven.Fuel"))])
+item95.os.data <- left_join(item95.os.data, unique(item95.os.dat3[which(colnames(item95.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                     ,"count"
+                                                                                     ,"Type"
+                                                                                     ,"Oven.Fuel"))]))
+item95.os.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+item95.os.final <- proportionRowsAndColumns1(CustomerLevelData = item95.os.data
+                                             ,valueVariable    = 'count'
+                                             ,columnVariable = "CK_Building_ID"
+                                             ,rowVariable = 'Oven.Fuel'
+                                             ,aggregateColumnName = "Remove")
+item95.os.final <- item95.os.final[which(item95.os.final$CK_Building_ID != "Remove"),]
+
+item95.os.cast <- dcast(setDT(item95.os.final)
+                        ,formula = BuildingType + Oven.Fuel ~ CK_Building_ID
+                        ,value.var = c("w.percent", "w.SE", "n", "EB"))
+
+item95.os.final <- data.frame("BuildingType"          = item95.os.cast$BuildingType
+                              ,"Oven.Fuel"           = item95.os.cast$Oven.Fuel
+                              ,"Percent_SCL.GenPop"   = item95.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item95.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item95.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item95.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item95.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item95.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item95.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item95.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item95.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item95.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item95.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item95.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item95.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item95.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item95.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item95.os.cast$`EB_2017 RBSA PS`)
+
+unique(item95.os.final$Oven.Fuel)
+rowOrder <- c("Electric"
+              ,"Gas"
+              ,"Propane"
+              ,"Other"
+              ,"Total")
+item95.os.final <- item95.os.final %>% mutate(Oven.Fuel = factor(Oven.Fuel, levels = rowOrder)) %>% arrange(Oven.Fuel)  
+item95.os.final <- data.frame(item95.os.final)
+
+item95.os.final.SF <- item95.os.final[which(item95.os.final$BuildingType == "Single Family")
+                                      ,-which(colnames(item95.os.final) %in% c("BuildingType"))]
+
+exportTable(item95.os.final.SF, "SF", "Table 102", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+item95.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item95.os.data
+                                                     ,valueVariable    = 'count'
+                                                     ,columnVariable = "CK_Building_ID"
+                                                     ,rowVariable = 'Oven.Fuel'
+                                                     ,aggregateColumnName = "Remove")
+item95.os.final <- item95.os.final[which(item95.os.final$CK_Building_ID != "Remove"),]
+
+item95.os.cast <- dcast(setDT(item95.os.final)
+                        ,formula = BuildingType + Oven.Fuel ~ CK_Building_ID
+                        ,value.var = c("Percent", "SE", "n"))
+
+item95.os.final <- data.frame("BuildingType"          = item95.os.cast$BuildingType
+                              ,"Oven.Fuel"           = item95.os.cast$Oven.Fuel
+                              ,"Percent_SCL.GenPop"   = item95.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item95.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item95.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item95.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item95.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item95.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item95.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item95.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item95.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item95.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item95.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item95.os.cast$`n_2017 RBSA PS`)
+
+unique(item95.os.final$Oven.Fuel)
+rowOrder <- c("Electric"
+              ,"Gas"
+              ,"Propane"
+              ,"Other"
+              ,"Total")
+item95.os.final <- item95.os.final %>% mutate(Oven.Fuel = factor(Oven.Fuel, levels = rowOrder)) %>% arrange(Oven.Fuel)  
+item95.os.final <- data.frame(item95.os.final)
+
+item95.os.final.SF <- item95.os.final[which(item95.os.final$BuildingType == "Single Family")
+                                      ,-which(colnames(item95.os.final) %in% c("BuildingType"))]
+
+exportTable(item95.os.final.SF, "SF", "Table 102", weighted = FALSE, osIndicator = "SCL", OS = T)

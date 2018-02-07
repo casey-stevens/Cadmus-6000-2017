@@ -516,46 +516,441 @@ exportTable(item41.final.MH, "MH", "Table 30", weighted = FALSE)
 
 
 
-# #############################################################################################
-# #Item 42: AVERAGE INFILTRATION RATE BY STATE, ASHRAE 62.2 (SF table 49, MH table 31)
-# #############################################################################################
-# item42.dat  <- item38.data
-# 
-# item42.dat$ACH50 <- item42.dat$P50_CFM * 60 / item42.dat$Conditioned.Volume
-# 
-# item42.dat1 <- item42.dat[which(item42.dat$ACH50 != "Inf"),] #only 665/961 have a recorded conditioned floor volume
-# 
-# item42.dat1$Infiltration.Rate <- item42.dat1$ACH50 / 20
-# # item42.dat1$Infiltration.Rate.ASHRAE.62.2 <- 
-# 
-# ######################
-# # weighted analysis
-# ######################
-# item42.final <- mean_one_group(CustomerLevelData = item42.dat1
-#                                ,valueVariable = 'Infiltration.Rate.ASHRAE.62.2'
-#                                ,byVariable = 'State'
-#                                ,aggregateRow = "Region")
-# 
-# item42.final.SF <- item42.final[which(item42.final$BuildingType == "Single Family")
-#                                 ,which(colnames(item42.final) %notin% c("BuildingType"))]
-# exportTable(item42.final.SF, "SF", "Table 49", weighted = TRUE)
-# 
-# item42.final.MH <- item42.final[which(item42.final$BuildingType == "Manufactured")
-#                                 ,which(colnames(item42.final) %notin% c("BuildingType"))]
-# exportTable(item42.final.MH, "MH", "Table 31", weighted = TRUE)
-# 
-# ######################
-# # unweighted analysis
-# ######################
-# item42.final <- mean_one_group_unweighted(CustomerLevelData = item42.dat1
-#                                           ,valueVariable = 'Infiltration.Rate.ASHRAE.62.2'
-#                                           ,byVariable = 'State'
-#                                           ,aggregateRow = "Region")
-# 
-# item42.final.SF <- item42.final[which(item42.final$BuildingType == "Single Family")
-#                                 ,which(colnames(item42.final) %notin% c("BuildingType"))]
-# exportTable(item42.final.SF, "SF", "Table 49", weighted = FALSE)
-# 
-# item42.final.MH <- item42.final[which(item42.final$BuildingType == "Manufactured")
-#                                 ,which(colnames(item42.final) %notin% c("BuildingType"))]
-# exportTable(item42.final.MH, "MH", "Table 31", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+
+##############################################################################################################################
+#
+# Prep for items 38 - 40
+#
+##############################################################################################################################
+mech.dat.sub <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                     ,"MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
+                                                                     ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
+                                                                     ,"MECH_Blower_DOOR_P25_HousePressure_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_P25_HousePressure_SecondTrial"
+                                                                     ,"MECH_Blower_DOOR_P25_FanPressure_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_P25_FanPressure_SecondTrial"
+                                                                     ,"MECH_Blower_DOOR_P50_CFM_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_P50_CFM_SecondTrial"
+                                                                     ,"MECH_Blower_DOOR_P50_HousePressure_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_P50_HousePressure_SecondTrial"
+                                                                     ,"MECH_Blower_DOOR_P50_FanPressure_FirstTrial"
+                                                                     ,"MECH_Blower_DOOR_P50_FanPressure_SecondTrial"))]
+
+mech.dat.sub1 <- left_join(scl.dat, mech.dat.sub, by = "CK_Cadmus_ID")
+length(unique(mech.dat.sub1$CK_Cadmus_ID))
+mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_SecondTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_CFM_SecondTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P50_HousePressure_SecondTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_FirstTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_FirstTrial))
+mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_SecondTrial <- as.numeric(as.character(mech.dat.sub1$MECH_Blower_DOOR_P25_HousePressure_SecondTrial))
+
+mech.dat.sub2 <- mech.dat.sub1[which(!is.na(mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_FirstTrial | mech.dat.sub1$MECH_Blower_DOOR_P50_CFM_SecondTrial)),]
+mech.dat.sub3 <- mech.dat.sub2[which(!is.na(mech.dat.sub2$MECH_Blower_DOOR_P25_CFM_FirstTrial | mech.dat.sub2$MECH_Blower_DOOR_P25_CFM_SecondTrial)),]
+mech.dat.sub4 <- mech.dat.sub3[which(!is.na(mech.dat.sub3$MECH_Blower_DOOR_P50_HousePressure_FirstTrial | mech.dat.sub3$MECH_Blower_DOOR_P50_HousePressure_SecondTrial)),]
+mech.dat.sub5 <- mech.dat.sub4[which(!is.na(mech.dat.sub4$MECH_Blower_DOOR_P25_HousePressure_FirstTrial | mech.dat.sub4$MECH_Blower_DOOR_P25_HousePressure_SecondTrial)),]
+
+mech.dat.sub5$MECH_Blower_DOOR_P50_CFM_FirstTrial            <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P50_CFM_FirstTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P25_CFM_FirstTrial            <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P25_CFM_FirstTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P50_HousePressure_FirstTrial  <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P50_HousePressure_FirstTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P25_HousePressure_FirstTrial  <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P25_HousePressure_FirstTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P50_FanPressure_FirstTrial    <- abs(as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P50_FanPressure_FirstTrial)))
+mech.dat.sub5$MECH_Blower_DOOR_P25_FanPressure_FirstTrial    <- abs(as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P25_FanPressure_FirstTrial)))
+mech.dat.sub5$MECH_Blower_DOOR_P50_CFM_SecondTrial           <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P50_CFM_SecondTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P25_CFM_SecondTrial           <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P25_CFM_SecondTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P50_HousePressure_SecondTrial <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P50_HousePressure_SecondTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P25_HousePressure_SecondTrial <- as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P25_HousePressure_SecondTrial))
+mech.dat.sub5$MECH_Blower_DOOR_P50_FanPressure_SecondTrial   <- abs(as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P50_FanPressure_SecondTrial)))
+mech.dat.sub5$MECH_Blower_DOOR_P25_FanPressure_SecondTrial   <- abs(as.numeric(as.character(mech.dat.sub5$MECH_Blower_DOOR_P25_FanPressure_SecondTrial)))
+
+length(unique(mech.dat.sub5$CK_Cadmus_ID))
+
+mech.dat.sub6 <- mech.dat.sub5[which(mech.dat.sub5$MECH_Blower_DOOR_P25_FanPressure_FirstTrial    >= 26 | 
+                                       mech.dat.sub5$MECH_Blower_DOOR_P25_FanPressure_SecondTrial >= 26 &
+                                       mech.dat.sub5$MECH_Blower_DOOR_P50_FanPressure_FirstTrial  >= 26 |
+                                       mech.dat.sub5$MECH_Blower_DOOR_P50_FanPressure_SecondTrial >= 26),]
+
+
+#############################################################################################
+#Item 38: AVERAGE BLOWER DOOR AIR FLOW BY CK_Building_ID  (SF table 45, MH table 27)
+#############################################################################################
+item38.os.dat  <- mech.dat.sub6
+item38.os.dat$Flow.Exponent.FirstTrial  <- log(item38.os.dat$MECH_Blower_DOOR_P50_CFM_FirstTrial / item38.os.dat$MECH_Blower_DOOR_P25_CFM_FirstTrial) / log(item38.os.dat$MECH_Blower_DOOR_P50_HousePressure_FirstTrial / item38.os.dat$MECH_Blower_DOOR_P25_HousePressure_FirstTrial)
+item38.os.dat$Flow.Exponent.SecondTrial <- log(item38.os.dat$MECH_Blower_DOOR_P50_CFM_SecondTrial / item38.os.dat$MECH_Blower_DOOR_P25_CFM_SecondTrial) / log(item38.os.dat$MECH_Blower_DOOR_P50_HousePressure_SecondTrial / item38.os.dat$MECH_Blower_DOOR_P25_HousePressure_SecondTrial)
+
+item38.os.dat1 <- item38.os.dat[which(item38.os.dat$Flow.Exponent.FirstTrial >= 0.5 & item38.os.dat$Flow.Exponent.FirstTrial <= 0.75 | item38.os.dat$Flow.Exponent.SecondTrial >= 0.5 & item38.os.dat$Flow.Exponent.SecondTrial <= 0.75 ),]
+item38.os.dat1$Flow.Exponent <- item38.os.dat1$Flow.Exponent.FirstTrial
+item38.os.dat1$Flow.Exponent[which(is.na(item38.os.dat1$Flow.Exponent))] <- 0
+item38.os.dat1$P50_CFM       <- item38.os.dat1$MECH_Blower_DOOR_P50_CFM_FirstTrial
+item38.os.dat1$P50_CFM[which(is.na(item38.os.dat1$P50_CFM))] <- 0
+item38.os.dat1$P50_HousePressure       <- item38.os.dat1$MECH_Blower_DOOR_P50_HousePressure_FirstTrial
+item38.os.dat1$P50_HousePressure[which(is.na(item38.os.dat1$P50_HousePressure))] <- 0
+
+for (ii in 1:length(item38.os.dat1$Flow.Exponent)){
+  if (item38.os.dat1$Flow.Exponent[ii] < 0.5 | item38.os.dat1$Flow.Exponent[ii] > 0.75){
+    item38.os.dat1$Flow.Exponent[ii]     <- item38.os.dat1$Flow.Exponent.SecondTrial[ii]
+    item38.os.dat1$P50_CFM[ii]           <- item38.os.dat1$MECH_Blower_DOOR_P50_CFM_SecondTrial[ii]
+    item38.os.dat1$P50_HousePressure[ii] <- item38.os.dat1$MECH_Blower_DOOR_P50_HousePressure_SecondTrial[ii]
+  }
+}
+
+item38.os.dat1$CFM50 <- item38.os.dat1$P50_CFM * (50 / abs(item38.os.dat1$P50_HousePressure)) ^ item38.os.dat1$Flow.Exponent
+item38.os.dat2 <- item38.os.dat1
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item38.os.data <- weightedData(item38.os.dat2[which(colnames(item38.os.dat2) %notin% c("MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+                                                                              ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
+                                                                              ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
+                                                                              ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
+                                                                              ,"MECH_Blower_DOOR_P25_HousePressure_FirstTrial"
+                                                                              ,"MECH_Blower_DOOR_P25_HousePressure_SecondTrial"   
+                                                                              ,"MECH_Blower_DOOR_P25_FanPressure_FirstTrial"
+                                                                              ,"MECH_Blower_DOOR_P25_FanPressure_SecondTrial"
+                                                                              ,"MECH_Blower_DOOR_P50_CFM_FirstTrial"
+                                                                              ,"MECH_Blower_DOOR_P50_CFM_SecondTrial"
+                                                                              ,"MECH_Blower_DOOR_P50_HousePressure_FirstTrial"    
+                                                                              ,"MECH_Blower_DOOR_P50_HousePressure_SecondTrial"
+                                                                              ,"MECH_Blower_DOOR_P50_FanPressure_FirstTrial"
+                                                                              ,"MECH_Blower_DOOR_P50_FanPressure_SecondTrial"
+                                                                              ,"Flow.Exponent.FirstTrial"
+                                                                              ,"Flow.Exponent.SecondTrial"
+                                                                              ,"Flow.Exponent"
+                                                                              ,"P50_CFM"
+                                                                              ,"P50_HousePressure"
+                                                                              ,"CFM50"))])
+
+item38.os.data <- left_join(item38.os.data, item38.os.dat2[which(colnames(item38.os.dat2) %in% c("CK_Cadmus_ID"
+                                                                                     ,"MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+                                                                                     ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
+                                                                                     ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
+                                                                                     ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
+                                                                                     ,"MECH_Blower_DOOR_P25_HousePressure_FirstTrial"
+                                                                                     ,"MECH_Blower_DOOR_P25_HousePressure_SecondTrial"   
+                                                                                     ,"MECH_Blower_DOOR_P25_FanPressure_FirstTrial"
+                                                                                     ,"MECH_Blower_DOOR_P25_FanPressure_SecondTrial"
+                                                                                     ,"MECH_Blower_DOOR_P50_CFM_FirstTrial"
+                                                                                     ,"MECH_Blower_DOOR_P50_CFM_SecondTrial"
+                                                                                     ,"MECH_Blower_DOOR_P50_HousePressure_FirstTrial"    
+                                                                                     ,"MECH_Blower_DOOR_P50_HousePressure_SecondTrial"
+                                                                                     ,"MECH_Blower_DOOR_P50_FanPressure_FirstTrial"
+                                                                                     ,"MECH_Blower_DOOR_P50_FanPressure_SecondTrial"
+                                                                                     ,"Flow.Exponent.FirstTrial"
+                                                                                     ,"Flow.Exponent.SecondTrial"
+                                                                                     ,"Flow.Exponent"
+                                                                                     ,"P50_CFM"
+                                                                                     ,"P50_HousePressure"
+                                                                                     ,"CFM50"))])
+item38.os.data$count <- 1
+
+######################
+# weighted analysis
+######################
+item38.os.final <- mean_one_group(CustomerLevelData = item38.os.data
+                               ,valueVariable = 'CFM50'
+                               ,byVariable    = 'CK_Building_ID'
+                               ,aggregateRow  = "Remove")
+
+item38.os.final.SF <- item38.os.final[which(item38.os.final$CK_Building_ID != "Remove")
+                                ,which(colnames(item38.os.final) %notin% c("BuildingType"))]
+
+exportTable(item38.os.final.SF, "SF", "Table 45", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+######################
+# unweighted analysis
+######################
+item38.os.final <- mean_one_group_unweighted(CustomerLevelData = item38.os.data
+                                          ,valueVariable = 'CFM50'
+                                          ,byVariable = 'CK_Building_ID'
+                                          ,aggregateRow = "Remove")
+
+item38.os.final.SF <- item38.os.final[which(item38.os.final$CK_Building_ID != "Remove")
+                                ,which(colnames(item38.os.final) %notin% c("BuildingType"))]
+
+exportTable(item38.os.final.SF, "SF", "Table 45", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+#Item 39: AVERAGE BLOWER DOOR AIR FLOW BY CK_Building_ID  (SF table 46, MH table 28)
+#############################################################################################
+item39.os.dat  <- item38.os.data
+
+item39.os.dat$ACH50 <- item39.os.dat$P50_CFM * 60 / item39.os.dat$Conditioned.Volume
+
+item39.os.dat1 <- item39.os.dat[which(item39.os.dat$ACH50 != "Inf"),]
+
+######################
+# weighted analysis
+######################
+item39.os.final <- mean_one_group(CustomerLevelData = item39.os.dat1
+                               ,valueVariable = 'ACH50'
+                               ,byVariable = 'CK_Building_ID'
+                               ,aggregateRow = "Remove")
+
+item39.os.final.SF <- item39.os.final[which(item39.os.final$CK_Building_ID != "Remove")
+                                ,which(colnames(item39.os.final) %notin% c("BuildingType"))]
+exportTable(item39.os.final.SF, "SF", "Table 46", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+######################
+# unweighted analysis
+######################
+item39.os.final <- mean_one_group_unweighted(CustomerLevelData = item39.os.dat1
+                                          ,valueVariable = 'ACH50'
+                                          ,byVariable = 'CK_Building_ID'
+                                          ,aggregateRow = "Remove")
+
+item39.os.final.SF <- item39.os.final[which(item39.os.final$CK_Building_ID != "Remove")
+                                ,which(colnames(item39.os.final) %notin% c("BuildingType"))]
+exportTable(item39.os.final.SF, "SF", "Table 46", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+#Item 40: AVERAGE BLOWER DOOR AIR FLOW BY HOME VINTAGE (SF table 47, MH table 29)
+#############################################################################################
+item40.os.dat  <- item38.os.dat1[which(!is.na(item38.os.dat1$HomeYearBuilt)),]
+
+item40.os.dat$count <- 1
+
+
+item40.os.dat$ACH50 <- item40.os.dat$P50_CFM * 60 / item40.os.dat$Conditioned.Volume
+
+item40.os.dat1 <- item40.os.dat[which(item40.os.dat$ACH50 != "Inf"),] #only 883/959 have a recorded conditioned floor volume
+
+
+#average within houses
+item40.os.customer <- summarise(group_by(item40.os.dat1
+                                      , CK_Cadmus_ID
+                                      , HomeYearBuilt)
+                             ,y_bar_ilk  = mean(ACH50)
+                             ,y_ilk      = sum(ACH50)
+                             ,m_ilk      = sum(count)
+)
+
+item40.os.merge <- left_join(scl.dat, item40.os.customer)
+item40.os.merge <- item40.os.merge[which(!is.na(item40.os.merge$y_bar_ilk)),]
+
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item40.os.data <- weightedData(item40.os.merge[which(colnames(item40.os.merge) %notin% c("MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+                                                                                ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
+                                                                                ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
+                                                                                ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
+                                                                                ,"MECH_Blower_DOOR_P25_HousePressure_FirstTrial"
+                                                                                ,"MECH_Blower_DOOR_P25_HousePressure_SecondTrial"   
+                                                                                ,"MECH_Blower_DOOR_P25_FanPressure_FirstTrial"
+                                                                                ,"MECH_Blower_DOOR_P25_FanPressure_SecondTrial"
+                                                                                ,"MECH_Blower_DOOR_P50_CFM_FirstTrial"
+                                                                                ,"MECH_Blower_DOOR_P50_CFM_SecondTrial"
+                                                                                ,"MECH_Blower_DOOR_P50_HousePressure_FirstTrial"    
+                                                                                ,"MECH_Blower_DOOR_P50_HousePressure_SecondTrial"
+                                                                                ,"MECH_Blower_DOOR_P50_FanPressure_FirstTrial"
+                                                                                ,"MECH_Blower_DOOR_P50_FanPressure_SecondTrial"
+                                                                                ,"Flow.Exponent.FirstTrial"
+                                                                                ,"Flow.Exponent.SecondTrial"
+                                                                                ,"Flow.Exponent"
+                                                                                ,"P50_CFM"
+                                                                                ,"P50_HousePressure"
+                                                                                ,"CFM50"
+                                                                                ,"ACH50"
+                                                                                ,"y_bar_ilk"
+                                                                                ,"y_ilk"
+                                                                                ,"m_ilk"))])
+
+item40.os.data <- left_join(item40.os.data, item40.os.merge[which(colnames(item40.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
+                                                                                       ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
+                                                                                       ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
+                                                                                       ,"MECH_Blower_DOOR_P25_CFM_SecondTrial"
+                                                                                       ,"MECH_Blower_DOOR_P25_HousePressure_FirstTrial"
+                                                                                       ,"MECH_Blower_DOOR_P25_HousePressure_SecondTrial"   
+                                                                                       ,"MECH_Blower_DOOR_P25_FanPressure_FirstTrial"
+                                                                                       ,"MECH_Blower_DOOR_P25_FanPressure_SecondTrial"
+                                                                                       ,"MECH_Blower_DOOR_P50_CFM_FirstTrial"
+                                                                                       ,"MECH_Blower_DOOR_P50_CFM_SecondTrial"
+                                                                                       ,"MECH_Blower_DOOR_P50_HousePressure_FirstTrial"    
+                                                                                       ,"MECH_Blower_DOOR_P50_HousePressure_SecondTrial"
+                                                                                       ,"MECH_Blower_DOOR_P50_FanPressure_FirstTrial"
+                                                                                       ,"MECH_Blower_DOOR_P50_FanPressure_SecondTrial"
+                                                                                       ,"Flow.Exponent.FirstTrial"
+                                                                                       ,"Flow.Exponent.SecondTrial"
+                                                                                       ,"Flow.Exponent"
+                                                                                       ,"P50_CFM"
+                                                                                       ,"P50_HousePressure"
+                                                                                       ,"CFM50"
+                                                                                       ,"ACH50"
+                                                                                       ,"y_bar_ilk"
+                                                                                       ,"y_ilk"
+                                                                                       ,"m_ilk"))])
+#############################################################################################
+# For Single Family
+#############################################################################################
+######################
+# weighted analysis
+######################
+item40.os.cast <- mean_two_groups(CustomerLevelData = item40.os.data
+                                      ,valueVariable = 'y_bar_ilk'
+                                   ,byVariableRow = "HomeYearBuilt_bins4"
+                                   ,byVariableColumn = "CK_Building_ID"
+                                   ,columnAggregate = "Remove"
+                                   ,rowAggregate = "All Vintages")
+
+item40.os.final <- data.frame("BuildingType"          = item40.os.cast$BuildingType
+                             ,"Housing.Vintage"      = item40.os.cast$HomeYearBuilt_bins4
+                             ,"Mean_SCL.GenPop"      = item40.os.cast$`Mean_SCL GenPop`
+                             ,"SE_SCL.GenPop"        = item40.os.cast$`SE_SCL GenPop`
+                             ,"n_SCL.GenPop"         = item40.os.cast$`n_SCL GenPop`
+                             ,"Mean_SCL.LI"          = item40.os.cast$`Mean_SCL LI`
+                             ,"SE_SCL.LI"            = item40.os.cast$`SE_SCL LI`
+                             ,"n_SCL.LI"             = item40.os.cast$`n_SCL LI`
+                             ,"Mean_SCL.EH"          = item40.os.cast$`Mean_SCL EH`
+                             ,"SE_SCL.EH"            = item40.os.cast$`SE_SCL EH`
+                             ,"n_SCL.EH"             = item40.os.cast$`n_SCL EH`
+                             ,"Mean_2017.RBSA.PS"    = item40.os.cast$`Mean_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item40.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item40.os.cast$`n_2017 RBSA PS`
+                             ,"EB_SCL.GenPop"        = item40.os.cast$`EB_SCL GenPop`
+                             ,"EB_SCL.LI"            = item40.os.cast$`EB_SCL LI`
+                             ,"EB_SCL.EH"            = item40.os.cast$`EB_SCL EH`
+                             ,"EB_2017.RBSA.PS"      = item40.os.cast$`EB_2017 RBSA PS`)
+
+unique(item40.os.final$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1985"
+              ,"1986-1990"
+              ,"1991-1995"
+              ,"1996-2000"
+              ,"2001-2005"
+              ,"2006-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item40.os.final <- item40.os.final %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item40.os.final <- data.frame(item40.os.final)
+
+item40.os.final.SF <- item40.os.final[,which(colnames(item40.os.final) %notin% c("BuildingType"))]
+exportTable(item40.os.final.SF, "SF", "Table 47", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+######################
+# unweighted analysis
+######################
+item40.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item40.os.data
+                                  ,valueVariable = 'y_bar_ilk'
+                                  ,byVariableRow = "HomeYearBuilt_bins4"
+                                  ,byVariableColumn = "CK_Building_ID"
+                                  ,columnAggregate = "Remove"
+                                  ,rowAggregate = "All Vintages")
+
+item40.os.final <- data.frame("BuildingType"          = item40.os.cast$BuildingType
+                              ,"Housing.Vintage"      = item40.os.cast$HomeYearBuilt_bins4
+                              ,"Mean_SCL.GenPop"      = item40.os.cast$`Mean_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item40.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item40.os.cast$`n_SCL GenPop`
+                              ,"Mean_SCL.LI"          = item40.os.cast$`Mean_SCL LI`
+                              ,"SE_SCL.LI"            = item40.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item40.os.cast$`n_SCL LI`
+                              ,"Mean_SCL.EH"          = item40.os.cast$`Mean_SCL EH`
+                              ,"SE_SCL.EH"            = item40.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item40.os.cast$`n_SCL EH`
+                              ,"Mean_2017.RBSA.PS"    = item40.os.cast$`Mean_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item40.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item40.os.cast$`n_2017 RBSA PS`)
+
+unique(item40.os.final$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1985"
+              ,"1986-1990"
+              ,"1991-1995"
+              ,"1996-2000"
+              ,"2001-2005"
+              ,"2006-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item40.os.final <- item40.os.final %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item40.os.final <- data.frame(item40.os.final)
+
+item40.os.final.SF <- item40.os.final[,which(colnames(item40.os.final) %notin% c("BuildingType"))]
+exportTable(item40.os.final.SF, "SF", "Table 47", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+#Item 41: AVERAGE INFILTRATION RATE BY CK_Building_ID, ACH50 DIVIDED BY 20 (SF table 48, MH table 30)
+#############################################################################################
+item41.os.dat  <- item38.os.data
+
+item41.os.dat$ACH50 <- item41.os.dat$P50_CFM * 60 / item41.os.dat$Conditioned.Volume
+
+item41.os.dat1 <- item41.os.dat[which(item41.os.dat$ACH50 != "Inf"),] #only 665/961 have a recorded conditioned floor volume
+
+item41.os.dat1$Infiltration.Rate <- item41.os.dat1$ACH50 / 20
+
+######################
+# weighted analysis
+######################
+item41.os.final <- mean_one_group(CustomerLevelData = item41.os.dat1
+                               ,valueVariable = 'Infiltration.Rate'
+                               ,byVariable = 'CK_Building_ID'
+                               ,aggregateRow = "Remove")
+
+item41.os.final.SF <- item41.os.final[which(item41.os.final$CK_Building_ID != "Remove")
+                                ,which(colnames(item41.os.final) %notin% c("BuildingType"))]
+exportTable(item41.os.final.SF, "SF", "Table 48", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+######################
+# unweighted analysis
+######################
+item41.os.final <- mean_one_group_unweighted(CustomerLevelData = item41.os.dat1
+                                          ,valueVariable = 'Infiltration.Rate'
+                                          ,byVariable = 'CK_Building_ID'
+                                          ,aggregateRow = "Remove")
+
+item41.os.final.SF <- item41.os.final[which(item41.os.final$CK_Building_ID != "Remove")
+                                ,which(colnames(item41.os.final) %notin% c("BuildingType"))]
+exportTable(item41.os.final.SF, "SF", "Table 48", weighted = FALSE, osIndicator = "SCL", OS = T)
+

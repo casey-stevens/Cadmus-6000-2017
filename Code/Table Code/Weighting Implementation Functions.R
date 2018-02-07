@@ -1393,7 +1393,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #####################################################################
   # If state is the column variable, we need to perform all analyses without it included as a group_by variable
   # Otherwise it will duplicate the State column
-  if (columnVariable == "State") {
+  if (columnVariable %in% "State") {
     if(valueVariable == "Ind"){
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", rowVariable)
@@ -1432,7 +1432,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
     
     # Analysis for any column variable that is not state should include columnVariable as a grouping variable
-  }else if(columnVariable %in% c("Cooling.Zone") & valueVariable == "Ind"){
+  }else if(columnVariable %in% c("Cooling.Zone", "CK_Building_ID") & valueVariable == "Ind"){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
                                                  , summarise
