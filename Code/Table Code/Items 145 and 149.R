@@ -36,7 +36,7 @@ results.dat <- merge(rbsa.dat, billing.dat,
 results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -285,3 +285,256 @@ item149.table.MH <- item149.final[which(item149.final$BuildingType %in% c("Manuf
 
 # exportTable(item149.table.SF, "SF", "Table 156", weighted = FALSE)
 exportTable(item149.table.MH, "MH", "Table 131", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+results.dat <- merge(scl.dat, billing.dat, 
+                     by = "CK_Cadmus_ID")
+
+results.dat2 <- results.dat
+
+### Bring in primary system fuel types
+mechanical.dat <- read.xlsx(mechanical.export)
+mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
+
+mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                        ,"Generic"
+                                                                        ,"Primary.Heating.System"
+                                                                        ,"Heating.Fuel",
+                                                                        "System.Sub-Type"))]
+
+#remove datapoint not asked for and repeated header lines
+mechanical.dat1 <- mechanical.dat1[which(mechanical.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+mechanical.dat2 <- mechanical.dat1[which(mechanical.dat1$Primary.Heating.System %in% c("Yes", "No")),]
+#check uniques
+unique(mechanical.dat2$Primary.Heating.System)
+
+mechanical.dat2$Heating.System.Ind <- mechanical.dat2$Primary.Heating.System
+mechanical.dat2$Heating.System.Ind[which(mechanical.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
+mechanical.dat2$Heating.System.Ind[which(mechanical.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
+mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Natural gas")]    <- "Natural Gas"
+mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
+mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (cord)")]    <- "Wood"
+unique(mechanical.dat2$Heating.Fuel)
+
+for (ii in 1:nrow(mechanical.dat2)){
+  # if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
+  # }
+  if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    mechanical.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+}
+
+mechanical.dat2$Generic[which(mechanical.dat2$Generic == "Electric Baseboard")] <- "Electric Baseboard and Wall Heaters"
+
+
+mechanical.dat3 <- unique(data.frame("CK_Cadmus_ID" = mechanical.dat2$CK_Cadmus_ID
+                                     ,"Heating_Type" = mechanical.dat2$Generic
+                                     ,"Heating_Fuel" = mechanical.dat2$Heating.Fuel
+                                     ,"Primary_Secondary" = mechanical.dat2$Heating.System.Ind,
+                                     stringsAsFactors = F))
+
+mechanical.dat4 <- left_join(scl.dat, mechanical.dat3, by = "CK_Cadmus_ID")
+
+mechanical.dat5 <- mechanical.dat4[which(mechanical.dat4$Primary_Secondary == "Primary Heating System"),]
+length(unique(mechanical.dat5$CK_Cadmus_ID))
+mechanical.dat5$count <- 1
+
+unique(mechanical.dat5$Heating_Fuel)
+mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
+mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
+mecahnical.dat.final <- 
+  mechanical.dat5[which(colnames(mechanical.dat5) %in% c("CK_Cadmus_ID", "Heating_Fuel"))]
+
+final.data <- unique(left_join(results.dat2, mecahnical.dat.final))
+# There are four people with multiple heating systems wil run with this for now
+
+#############################################################################################
+# Item 145: AVERAGE ELECTRIC EUI PER HOME BY HEATING FUEL TYPE AND CK_Building_ID  - TABLE 152, Table 127
+#############################################################################################
+item145.os.dat <- final.data[which(final.data$UsageNAC_kWh > 0),]
+unique(item145.os.dat$Heating_Fuel)
+# Remove entries with missing fuel types
+item145.os.dat2 <- item145.os.dat %>%
+  filter(!is.na(Heating_Fuel))
+
+unique(item145.os.dat2$Heating_Fuel)
+
+item145.os.dat3 <- item145.os.dat2 %>%
+  filter(Heating_Fuel %notin% c("Unknown"
+                                , "Can't Determine"
+                                ,"N/A"))
+
+drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
+                  "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
+item145.os.dat4 <- item145.os.dat3[which(item145.os.dat3$Conditioned.Area > 0),]
+unique(item145.os.dat4$Heating_Fuel)     
+item145.os.dat4$Heating_Fuel[which(item145.os.dat4$Heating_Fuel %in% c("Wood",
+                                                                 "Oil",
+                                                                 "Pellets",
+                                                                 "Other",
+                                                                 "Propane"
+                                                                 , "Hydronic Gas-Water Fan Heater"
+                                                                 , "Hot Water from Water Heater"
+                                                                 ,"Gas"))] <- "Other"
+unique(item145.os.dat4$Heating_Fuel)     
+item145.os.data <- weightedData(item145.os.dat4[-which(colnames(item145.os.dat4) %in% drop.columns)])
+
+item145.os.data <- left_join(item145.os.data, item145.os.dat4[c(1, which(colnames(item145.os.dat4) %in% drop.columns))])
+
+item145.os.data$EUI <- item145.os.data$UsageNAC_kWh/item145.os.data$Conditioned.Area
+
+#Create Quartiles
+quartiles <- quantile(item145.os.data$EUI)
+item145.os.data$EUI_Quartile <- 4
+
+item145.os.data$EUI_Quartile[which(item145.os.data$EUI >= 0 & item145.os.data$EUI < 3.9245651)] <- 1
+item145.os.data$EUI_Quartile[which(item145.os.data$EUI >= 3.9245651 & item145.os.data$EUI < 6.7524004)] <- 2
+item145.os.data$EUI_Quartile[which(item145.os.data$EUI >= 6.7524004 & item145.os.data$EUI < 10.7592748)] <- 3
+
+##############################
+# Weighted Analysis
+##############################
+item145.os.final <- mean_two_groups(CustomerLevelData  = item145.os.data
+                                 , valueVariable    = 'EUI'
+                                 , byVariableRow    = 'CK_Building_ID'
+                                 , byVariableColumn = 'Heating_Fuel'
+                                 , columnAggregate  = "All Homes"
+                                 , rowAggregate     = "Remove")
+item145.os.final <- item145.os.final[which(item145.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+
+item145.os.table.SF <- item145.os.final[which(item145.os.final$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item145.os.table.SF, "SF", "Table 152", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+##############################
+# Unweighted Analysis
+##############################
+item145.os.final <- mean_two_groups_unweighted(CustomerLevelData  = item145.os.data
+                                            , valueVariable    = 'EUI'
+                                            , byVariableRow    = 'CK_Building_ID'
+                                            , byVariableColumn = 'Heating_Fuel'
+                                            , columnAggregate  = "All Homes"
+                                            , rowAggregate     = "Remove")
+item145.os.final <- item145.os.final[which(item145.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+
+item145.os.table.SF <- item145.os.final[which(item145.os.final$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item145.os.table.SF, "SF", "Table 152", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+# Item 149: AVERAGE GAS EUI PER HOME BY HEATING FUEL AND CK_Building_ID  - SF TABLE 156, MH TABLE 131
+#############################################################################################
+item149.os.dat <- final.data[which(final.data$UsageNAC_therms > 0),]
+unique(item149.os.dat$Heating_Fuel)
+# Remove entries with missing fuel types
+item149.os.dat2 <- item149.os.dat %>%
+  filter(!is.na(Heating_Fuel))
+
+unique(item149.os.dat2$Heating_Fuel)
+
+item149.os.dat3 <- item149.os.dat2 %>%
+  filter(Heating_Fuel %notin% c("Unknown"
+                                , "Can't Determine"
+                                ,"N/A"))
+
+drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh", 
+                  "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
+
+item149.os.dat4 <- item149.os.dat3[which(item149.os.dat3$Conditioned.Area > 0),]
+unique(item149.os.dat4$Heating_Fuel)     
+item149.os.dat4$Heating_Fuel[which(item149.os.dat4$Heating_Fuel %in% c("Wood",
+                                                                 "Oil",
+                                                                 "Pellets",
+                                                                 "Other",
+                                                                 "Propane"
+                                                                 , "Hydronic Gas-Water Fan Heater"
+                                                                 , "Hot Water from Water Heater"
+                                                                 , "Other"
+                                                                 ,"Electric"))] <- "Other"
+unique(item149.os.dat4$Heating_Fuel)     
+item149.os.data <- weightedData(item149.os.dat4[-which(colnames(item149.os.dat4) %in% drop.columns)])
+
+item149.os.data <- left_join(item149.os.data, item149.os.dat4[c(1, which(colnames(item149.os.dat4) %in% drop.columns))])
+
+item149.os.data$EUI <- item149.os.data$UsageNAC_therms/item149.os.data$Conditioned.Area
+
+##############################
+# Weighted Analysis
+##############################
+item149.os.final <- mean_two_groups(CustomerLevelData  = item149.os.data
+                                 , valueVariable    = 'EUI'
+                                 , byVariableRow    = 'CK_Building_ID'
+                                 , byVariableColumn = 'Heating_Fuel'
+                                 , columnAggregate  = "All Homes"
+                                 , rowAggregate     = "Remove")
+
+item149.os.final <- item149.os.final[which(item149.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+
+item149.os.table.SF <- item149.os.final[which(item149.os.final$BuildingType %in% c("Single Family")),-1]
+
+exportTable(item149.os.table.SF, "SF", "Table 156", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+##############################
+# Unweighted Analysis
+##############################
+item149.os.final <- mean_two_groups_unweighted(CustomerLevelData  = item149.os.data
+                                            , valueVariable    = 'EUI'
+                                            , byVariableRow    = 'CK_Building_ID'
+                                            , byVariableColumn = 'Heating_Fuel'
+                                            , columnAggregate  = "All Homes"
+                                            , rowAggregate     = "Remove")
+
+item149.os.table.SF <- item149.os.final[which(item149.os.final$BuildingType %in% c("Single Family")),-1]
+
+item149.os.final <- item149.os.final[which(item149.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+
+exportTable(item149.os.table.SF, "SF", "Table 156", weighted = FALSE, osIndicator = "SCL", OS = T)

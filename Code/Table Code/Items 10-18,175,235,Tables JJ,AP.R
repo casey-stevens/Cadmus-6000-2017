@@ -24,15 +24,10 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-if(os.ind == "rbsa"){
-  rbsa.dat.orig <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
-  rbsa.dat <- rbsa.dat.orig[grep("site",rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
-  rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
-}else{
-  rbsa.dat.orig <- rbsa.dat
-  rbsa.dat.orig$CK_Building_ID <- rbsa.dat.orig$Category
-  rbsa.dat.orig <- rbsa.dat.orig[which(names(rbsa.dat.orig) != "Category")]
-}
+rbsa.dat.orig <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat.orig[grep("site",rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
+rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.case = T),]
+
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -543,14 +538,14 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 #
 ###################################################################################################################
 
-# rbsa.wall <- rbsa.dat.orig[which(colnames(rbsa.dat.orig) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
-# wall.merge <- left_join(rbsa.wall, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
-# wall.merge <- wall.merge[which(!is.na(wall.merge$uvalue)),]
-# #########export rvalues
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(wall.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Wall Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
+rbsa.wall <- rbsa.dat.orig[which(colnames(rbsa.dat.orig) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
+wall.merge <- left_join(rbsa.wall, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
+wall.merge <- wall.merge[which(!is.na(wall.merge$uvalue)),]
+#########export rvalues
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(wall.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Wall Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 
 
 
@@ -1034,10 +1029,10 @@ unique(item12.dat1$rvalue.bins.SF)
 
 #Bin R values -- MH only
 item12.dat1$rvalue.bins.MH <- "Unknown"
-item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval >= 0  & item12.dat1$aveRval <  9)]  <- "R0.R8"
-item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval >= 9  & item12.dat1$aveRval < 15)]  <- "R9.R14"
-item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval >= 15 & item12.dat1$aveRval < 22)]  <- "R15.R21"
-item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval >= 22)]  <- "R22.R30"
+item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval >= 0  & item12.dat1$aveRval <=  8)]  <- "R0.R8"
+item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval > 8  & item12.dat1$aveRval <= 14)]  <- "R9.R14"
+item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval > 14 & item12.dat1$aveRval <= 21)]  <- "R15.R21"
+item12.dat1$rvalue.bins.MH[which(item12.dat1$aveRval > 21)]  <- "R22.R30"
 unique(item12.dat1$rvalue.bins.MH)
 
 
@@ -1445,10 +1440,10 @@ unique(tableAP.dat1$rvalue.bins.SF)
 
 #Bin R values -- MH only
 tableAP.dat1$rvalue.bins.MH <- "Unknown"
-tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 0  & tableAP.dat1$aveRval <  9)]  <- "R0.R8"
-tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 9  & tableAP.dat1$aveRval < 15)]  <- "R9.R14"
-tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 15 & tableAP.dat1$aveRval < 22)]  <- "R15.R21"
-tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 22)]  <- "R22.R30"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval >= 0  & tableAP.dat1$aveRval <=  8)]  <- "R0.R8"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval > 8  & tableAP.dat1$aveRval <= 14)]  <- "R9.R14"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval > 14 & tableAP.dat1$aveRval <= 21)]  <- "R15.R21"
+tableAP.dat1$rvalue.bins.MH[which(tableAP.dat1$aveRval > 21)]  <- "R22.R30"
 unique(tableAP.dat1$rvalue.bins.MH)
 
 

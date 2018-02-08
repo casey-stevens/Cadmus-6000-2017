@@ -59,6 +59,7 @@ billing.data               <- "RBSA Usages Compiled Final_2018-01-16.xlsx"
 stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
 
 
-# Read in clean RBSA data
-os.ind <- "scl"
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+# # Read in clean RBSA data
+# os.ind <- "rbsa"
+# rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')

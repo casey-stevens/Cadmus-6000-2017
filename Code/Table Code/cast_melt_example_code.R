@@ -273,8 +273,6 @@ scl.dat$CK_Building_ID <- scl.dat$Category
 scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 
 
-
-
 # row ordering example code
 levels(itemXX.os.table$Sample)
 rowOrder <- c("SCL GenPop"

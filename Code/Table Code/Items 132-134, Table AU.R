@@ -334,3 +334,322 @@ item134.final.MH <- item134.final[which(item134.final$BuildingType == "Manufactu
 # exportTable(item134.final.SF, "SF", "Table 141", weighted = FALSE)
 exportTable(item134.final.MH, "MH", "Table 116", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+#############################################################################################
+#Item 132: AVERAGE COOLING THERMOSTAT SETPOINT BY CK_Building_ID (SF table 139, MH table 114)
+#############################################################################################
+#subset to columns needed for analysis
+item132.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouCoolYourHomeWhatTemperatureDoYouTryToMaintain"
+                                                                                     ,""))])
+colnames(item132.os.dat) <- c("CK_Cadmus_ID"
+                           ,"Thermostat_Setpoint")
+item132.os.dat$count <- 1
+item132.os.dat$Thermostat_Setpoint <- as.numeric(as.character(item132.os.dat$Thermostat_Setpoint))
+#remove any repeat header rows from exporting
+item132.os.dat0 <- item132.os.dat[which(item132.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+#merge together analysis data with cleaned scl data
+item132.os.dat1 <- left_join(scl.dat, item132.os.dat0, by = "CK_Cadmus_ID")
+
+
+unique(item132.os.dat1$Thermostat_Setpoint)
+
+item132.os.dat2.0 <- item132.os.dat1[which(!(is.na(item132.os.dat1$Thermostat_Setpoint))),]
+item132.os.dat2 <- item132.os.dat2.0[which(item132.os.dat2.0$Thermostat_Setpoint != 0),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item132.os.data <- weightedData(item132.os.dat2[-which(colnames(item132.os.dat2) %in% c("Thermostat_Setpoint"
+                                                                               ,"count"))])
+item132.os.data <- left_join(item132.os.data, unique(item132.os.dat2[which(colnames(item132.os.dat2) %in% c("CK_Cadmus_ID"
+                                                                                                ,"Thermostat_Setpoint"
+                                                                                                ,"count"))]))
+
+item132.os.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item132.os.final <- mean_one_group(item132.os.data
+                                ,valueVariable = 'Thermostat_Setpoint'
+                                ,byVariable = 'CK_Building_ID'
+                                ,aggregateRow = 'Remove')
+item132.os.final <- item132.os.final[which(item132.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+item132.os.final.SF <- item132.os.final[which(item132.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item132.os.final) %in% c("BuildingType"))]
+
+exportTable(item132.os.final.SF, "SF", "Table 139", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+item132.os.final <- mean_one_group_unweighted(item132.os.data
+                                           ,valueVariable = 'Thermostat_Setpoint'
+                                           ,byVariable = 'CK_Building_ID'
+                                           ,aggregateRow = 'Remove')
+item132.os.final <- item132.os.final[which(item132.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+item132.os.final.SF <- item132.os.final[which(item132.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item132.os.final) %in% c("BuildingType"))]
+
+exportTable(item132.os.final.SF, "SF", "Table 139", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+
+#############################################################################################
+#Item 133: PERCENTAGE OF HOMES REPORTING A COOLING THERMOSTAT SETUP BY CK_Building_ID (SF table 140, MH table 115)
+#############################################################################################
+#subset to columns needed for analysis
+item133.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouCoolYourHomeWhatTemperatureDoYouTryToMaintain"
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForCooling"))])
+colnames(item133.os.dat) <- c("CK_Cadmus_ID", "Thermostat_Setpoint", "Nighttime_Cooling")
+item133.os.dat$count <- 1
+
+#remove any repeat header rows from exporting
+item133.os.dat0 <- item133.os.dat[which(item133.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+#merge together analysis data with cleaned scl data
+item133.os.dat1 <- left_join(item133.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+
+item133.os.dat2.0 <- item133.os.dat1[which(!(is.na(item133.os.dat1$Thermostat_Setpoint))),]
+item133.os.dat2 <- item133.os.dat2.0[which(item133.os.dat2.0$Thermostat_Setpoint != 0),]
+unique(item133.os.dat2$Thermostat_Setpoint)
+unique(item133.os.dat2$Nighttime_Cooling)
+
+item133.os.dat3.0 <- item133.os.dat2[which(!(is.na(item133.os.dat2$Nighttime_Cooling))),]
+item133.os.dat3 <- item133.os.dat3.0[which(item133.os.dat3.0$Nighttime_Cooling != 0),]
+
+item133.os.dat3$Cooling.Setup <- 0
+item133.os.dat3$Cooling.Setup[which(item133.os.dat3$Nighttime_Cooling > item133.os.dat3$Thermostat_Setpoint)] <- 1
+
+item133.os.sum <- summarise(group_by(item133.os.dat3, CK_Cadmus_ID)
+                         ,Ind = sum(Cooling.Setup))
+
+item133.os.merge <- left_join(scl.dat, item133.os.sum)
+item133.os.merge <- item133.os.merge[which(!is.na(item133.os.merge$Ind)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item133.os.data <- weightedData(item133.os.merge[-which(colnames(item133.os.merge) %in% c("Ind"))])
+item133.os.data <- left_join(item133.os.data, unique(item133.os.merge[which(colnames(item133.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                  ,"Ind"))]))
+item133.os.data$count <- 1
+item133.os.data$Count <- 1
+#######################
+# Weighted Analysis
+#######################
+item133.os.final <- proportions_one_group(CustomerLevelData = item133.os.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'CK_Building_ID'
+                                       ,total.name = "Remove"
+                                       ,weighted = TRUE)
+item133.os.final <- item133.os.final[which(item133.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+item133.os.final.SF <- item133.os.final[which(item133.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item133.os.final) %in% c("BuildingType"))]
+
+exportTable(item133.os.final.SF, "SF", "Table 140", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+item133.os.final <- proportions_one_group(CustomerLevelData = item133.os.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'CK_Building_ID'
+                                       ,total.name = "Remove"
+                                       ,weighted = FALSE)
+item133.os.final <- item133.os.final[which(item133.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+item133.os.final.SF <- item133.os.final[which(item133.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item133.os.final) %in% c("BuildingType"))]
+
+exportTable(item133.os.final.SF, "SF", "Table 140", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+# Table AU: AVERAGE SIZE OF COOLING SETBACK BY CK_Building_ID (SF table 138, MH table 113)
+#############################################################################################
+#subset to columns needed for analysis
+tableAU.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouCoolYourHomeWhatTemperatureDoYouTryToMaintain"
+                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseTemp_WhenYouGoToBedWhatDoYouSetTheThermostatToForCooling"))])
+colnames(tableAU.os.dat) <- c("CK_Cadmus_ID", "Thermostat_Setpoint", "Nighttime_Cooling")
+tableAU.os.dat$Thermostat_Setpoint <- as.numeric(as.character(tableAU.os.dat$Thermostat_Setpoint))
+tableAU.os.dat$Nighttime_Cooling <- as.numeric(as.character(tableAU.os.dat$Nighttime_Cooling))
+tableAU.os.dat$count <- 1
+
+#remove any repeat header rows from exporting
+tableAU.os.dat0 <- tableAU.os.dat[which(tableAU.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+#merge together analysis data with cleaned scl data
+tableAU.os.dat1 <- left_join(tableAU.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+
+tableAU.os.dat2.0 <- tableAU.os.dat1[which(!(is.na(tableAU.os.dat1$Thermostat_Setpoint))),]
+tableAU.os.dat2 <- tableAU.os.dat2.0[which(tableAU.os.dat2.0$Thermostat_Setpoint != 0),]
+unique(tableAU.os.dat2$Thermostat_Setpoint)
+unique(tableAU.os.dat2$Nighttime_Cooling)
+
+tableAU.os.dat3.0 <- tableAU.os.dat2[which(!(is.na(tableAU.os.dat2$Nighttime_Cooling))),]
+tableAU.os.dat3 <- tableAU.os.dat3.0[which(tableAU.os.dat3.0$Nighttime_Cooling != 0),]
+
+tableAU.os.dat3$Cooling.Setup <- tableAU.os.dat3$Thermostat_Setpoint - tableAU.os.dat3$Nighttime_Cooling
+
+tableAU.os.dat4 <- tableAU.os.dat3[which(colnames(tableAU.os.dat3) %in% c("CK_Cadmus_ID", "Cooling.Setup"))]
+tableAU.os.sum <- summarise(group_by(tableAU.os.dat4, CK_Cadmus_ID)
+                         ,Cooling.Setup = sum(Cooling.Setup))
+
+tableAU.os.merge <- left_join(scl.dat, tableAU.os.sum)
+tableAU.os.merge <- tableAU.os.merge[which(!is.na(tableAU.os.merge$Cooling.Setup)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAU.os.data <- weightedData(tableAU.os.merge[-which(colnames(tableAU.os.merge) %in% c("Cooling.Setup"))])
+tableAU.os.data <- left_join(tableAU.os.data, unique(tableAU.os.merge[which(colnames(tableAU.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                  ,"Cooling.Setup"))]))
+
+tableAU.os.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+tableAU.os.final <- mean_one_group(tableAU.os.data
+                                ,valueVariable = 'Cooling.Setup'
+                                ,byVariable = 'CK_Building_ID'
+                                ,aggregateRow = 'Remove')
+tableAU.os.final <- tableAU.os.final[which(tableAU.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+tableAU.os.final.SF <- tableAU.os.final[which(tableAU.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAU.os.final) %in% c("BuildingType"))]
+
+exportTable(tableAU.os.final.SF, "SF", "Table AU", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+tableAU.os.final <- mean_one_group_unweighted(tableAU.os.data
+                                           ,valueVariable = 'Cooling.Setup'
+                                           ,byVariable = 'CK_Building_ID'
+                                           ,aggregateRow = 'Remove')
+tableAU.os.final <- tableAU.os.final[which(tableAU.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+tableAU.os.final.SF <- tableAU.os.final[which(tableAU.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAU.os.final) %in% c("BuildingType"))]
+
+exportTable(tableAU.os.final.SF, "SF", "Table AU", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+
+#############################################################################################
+#Item 134: PERCENTAGE OF HOUSEHOLDS REPORTING GAS SERVICE BY CK_Building_ID (SF table 141, MH table 116)
+#############################################################################################
+#subset to columns needed for analysis
+item134.os.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+                                                            ,"Does.your.home.use.natural.gas?"
+                                                            ,""))]
+colnames(item134.os.dat) <- c("Natural.Gas.Use", "CK_Cadmus_ID")
+
+#merge together analysis data with cleaned scl data
+item134.os.dat1 <- left_join(scl.dat, item134.os.dat, by = "CK_Cadmus_ID")
+unique(item134.os.dat1$Natural.Gas.Use)
+
+item134.os.dat2 <- item134.os.dat1[which(item134.os.dat1$Natural.Gas.Use %in% c("Yes", "No")),]
+
+item134.os.dat2$Gas.Count <- 0
+item134.os.dat2$Gas.Count[which(item134.os.dat2$Natural.Gas.Use == "Yes")] <- 1
+
+item134.os.sum <- summarise(group_by(item134.os.dat2, CK_Cadmus_ID)
+                         ,Ind = sum(unique(Gas.Count)))
+
+item134.os.merge <- left_join(scl.dat, item134.os.sum)
+item134.os.merge <- item134.os.merge[which(!is.na(item134.os.merge$Ind)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item134.os.data <- weightedData(item134.os.merge[-which(colnames(item134.os.merge) %in% c("Ind"))])
+item134.os.data <- left_join(item134.os.data, unique(item134.os.merge[which(colnames(item134.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Ind"))]))
+item134.os.data$Count <- 1
+#######################
+# Weighted Analysis
+#######################
+item134.os.final <- proportions_one_group(CustomerLevelData = item134.os.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'CK_Building_ID'
+                                       ,total.name = "Remove"
+                                       ,weighted = TRUE)
+item134.os.final <- item134.os.final[which(item134.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+item134.os.final.SF <- item134.os.final[which(item134.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item134.os.final) %in% c("BuildingType"))]
+
+exportTable(item134.os.final.SF, "SF", "Table 141", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+item134.os.final <- proportions_one_group(CustomerLevelData = item134.os.data
+                                       ,valueVariable = 'Ind'
+                                       ,groupingVariable = 'CK_Building_ID'
+                                       ,total.name = "Remove"
+                                       ,weighted = FALSE)
+item134.os.final <- item134.os.final[which(item134.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+item134.os.final.SF <- item134.os.final[which(item134.os.final$BuildingType == "Single Family")
+                                  ,-which(colnames(item134.os.final) %in% c("BuildingType"))]
+
+exportTable(item134.os.final.SF, "SF", "Table 141", weighted = FALSE, osIndicator = "SCL", OS = T)
