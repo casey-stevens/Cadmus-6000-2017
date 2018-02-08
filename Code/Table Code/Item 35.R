@@ -351,7 +351,7 @@ item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
                               ,"EB_2017.RBSA.PS"      = item35.os.cast$EB_2017.RBSA.PS)
 
 
-exportTable(item35.os.final.SF, "SF", "Table 42", weighted = TRUE, osIndicator = "SCL",OS = T)
+exportTable(item35.os.table, "SF", "Table 42", weighted = TRUE, osIndicator = "SCL",OS = T)
 
 
 
@@ -383,6 +383,6 @@ item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
                               ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
                               ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS)
 
-exportTable(item35.os.final.SF, "SF", "Table 42", weighted = FALSE, osIndicator = "SCL",OS = T)
+exportTable(item35.os.table, "SF", "Table 42", weighted = FALSE, osIndicator = "SCL",OS = T)
 
 

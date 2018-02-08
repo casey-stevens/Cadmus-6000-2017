@@ -23,12 +23,8 @@ source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
-if(os.ind == "rbsa"){
-  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
-}else{
-  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
-  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
-}
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
 
 #Read in data for analysis
 envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
@@ -379,6 +375,11 @@ exportTable(item22.final.SF, "SF", "Table 29"
 #
 #
 #############################################################################################
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 
 #############################################################################################
 # Item 19: PERCENTAGE OF HOMES WITH BASEMENTS BY CK_Building_ID (SF table 26)
@@ -387,7 +388,7 @@ item19.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Floor.Type"
                                                                ,"Floor.Sub-Type"))]
 
-item19.os.dat1 <- left_join(rbsa.dat, item19.os.dat, by = "CK_Cadmus_ID")
+item19.os.dat1 <- left_join(scl.dat, item19.os.dat, by = "CK_Cadmus_ID")
 
 #subset to only single family homes
 item19.os.dat2 <- item19.os.dat1[which(item19.os.dat1$BuildingType == "Single Family"),]
@@ -400,7 +401,7 @@ item19.os.dat3 <- unique(item19.os.dat2[which(item19.os.dat2$Ind == 1),])
 
 item19.os.dat3 <- item19.os.dat3[-which(duplicated(item19.os.dat3$CK_Cadmus_ID)),]
 
-item19.os.merge <- left_join(rbsa.dat, item19.os.dat3)
+item19.os.merge <- left_join(scl.dat, item19.os.dat3)
 
 item19.os.merge1 <- item19.os.merge[-which(item19.os.merge$`Floor.Sub-Type` == "Unknown"),]
 item19.os.merge1 <- item19.os.merge1[which(item19.os.merge1$BuildingType == "Single Family"),]
@@ -431,11 +432,12 @@ item19.os.final <- proportions_one_group(CustomerLevelData  = item19.os.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
-                                      , weighted = TRUE, osIndicator = "SCL", OS = T)
+                                      , weighted = TRUE)
 item19.os.final <- item19.os.final[which(item19.os.final$CK_Building_ID != "Total"),]
 
 #subset by home type
-item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Single Family"),-which(colnames(item19.os.final) %in% c("BuildingType"))]
+item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Single Family")
+                                      ,-which(colnames(item19.os.final) %in% c("BuildingType"))]
 
 
 #export data
@@ -449,7 +451,7 @@ item19.os.final <- proportions_one_group(CustomerLevelData  = item19.os.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
-                                      , weighted = FALSE, osIndicator = "SCL", OS = T)
+                                      , weighted = FALSE)
 item19.os.final <- item19.os.final[which(item19.os.final$CK_Building_ID != "Total"),]
 
 #subset by home type
@@ -457,8 +459,7 @@ item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Sin
 
 
 #export data
-exportTable(item19.os.final.SF, "SF", "Table 26"
-            , weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item19.os.final.SF, "SF", "Table 26", weighted = FALSE, osIndicator = "SCL", OS = T)
 
 
 
@@ -468,7 +469,7 @@ exportTable(item19.os.final.SF, "SF", "Table 26"
 #############################################################################################
 # Item 20: PERCENTAGE OF BASEMENTS THAT ARE CONDITIONED BY CK_Building_ID (SF table 27)
 #############################################################################################
-item20.os.dat <- item20.os.merge1[which(item20.os.merge1$Floor.Type == "Basement"),]
+item20.os.dat <- item19.os.merge1[which(item19.os.merge1$Floor.Type == "Basement"),]
 
 # apply weights to the subset of the data
 item20.os.data <- weightedData(item20.os.dat[which(colnames(item20.os.dat) %notin% c("count"
@@ -498,7 +499,7 @@ item20.os.final <- proportions_one_group(CustomerLevelData  = item20.os.data
                                       , valueVariable    = 'cond.ind'
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Region"
-                                      , weighted = TRUE, osIndicator = "SCL", OS = T)
+                                      , weighted = TRUE)
 item20.os.final <- item20.os.final[which(item20.os.final$CK_Building_ID != "Total"),]
 
 #subset by home type
@@ -517,7 +518,7 @@ item20.os.final <- proportions_one_group(CustomerLevelData  = item20.os.data
                                       , valueVariable    = 'cond.ind'
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Region"
-                                      , weighted = FALSE, osIndicator = "SCL", OS = T)
+                                      , weighted = FALSE)
 item20.os.final <- item20.os.final[which(item20.os.final$CK_Building_ID != "Total"),]
 
 #subset by home type
@@ -548,7 +549,7 @@ item21.os.dat1$BSMT_Slab_Thickness[which(item21.os.dat1$BSMT_Slab_Insulated == "
 unique(item21.os.dat1$BSMT_Slab_Thickness)
 
 
-item21.os.merge <- left_join(rbsa.dat, item21.os.dat1)
+item21.os.merge <- left_join(scl.dat, item21.os.dat1)
 item21.os.merge <- item21.os.merge[which(!is.na(item21.os.merge$BSMT_Slab_Thickness)),]
 item21.os.merge <- unique(item21.os.merge[which(item21.os.merge$BSMT_Slab_Thickness != "Unknown"),])
 
@@ -572,13 +573,6 @@ item21.os.summary <- proportionRowsAndColumns1(CustomerLevelData = item21.os.dat
                                                ,rowVariable = "BSMT_Slab_Thickness"
                                                ,aggregateColumnName = "Remove")
 item21.os.summary <- item21.os.summary[which(item21.os.summary$CK_Building_ID != "Remove"),]
-
-if(os.ind == "rbsa"){
-  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
-}else{
-  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
-  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
-}
 
 item21.cast <- dcast(setDT(item21.os.summary)
                      ,formula = CK_Building_ID ~ BSMT_Slab_Thickness
@@ -620,14 +614,7 @@ item22.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
 
 item22.os.dat1 <- unique(item22.os.dat[grep("crawl|Crawl", item22.os.dat$Foundation),])
 
-if(os.ind == "rbsa"){
-  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
-}else{
-  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
-  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
-}
-
-item22.os.merge <- left_join(rbsa.dat, item22.os.dat1, by = "CK_Cadmus_ID")
+item22.os.merge <- left_join(scl.dat, item22.os.dat1, by = "CK_Cadmus_ID")
 item22.os.merge <- item22.os.merge[which(item22.os.merge$BuildingType == "Single Family"),]
 item22.os.merge$count <- 1
 item22.os.merge$FloorOverCrawl <- 0
@@ -656,7 +643,8 @@ item22.os.final <- proportions_one_group(CustomerLevelData  = item22.os.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Region"
-                                      , weighted = TRUE, osIndicator = "SCL", OS = T)
+                                      , weighted = TRUE)
+item22.os.final <- item22.os.final[which(item22.os.final$CK_Building_ID != "Total"),]
 
 #subset by home type
 item22.os.final.SF <- item22.os.final[which(item22.os.final$BuildingType == "Single Family")
@@ -672,8 +660,8 @@ item22.os.final <- proportions_one_group(CustomerLevelData  = item22.os.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Region"
-                                      , weighted = FALSE, osIndicator = "SCL", OS = T)
-
+                                      , weighted = FALSE)
+item22.os.final <- item22.os.final[which(item22.os.final$CK_Building_ID != "Total"),]
 #subset by home type
 item22.os.final.SF <- item22.os.final[which(item22.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item22.os.final) %notin% c("BuildingType"))]

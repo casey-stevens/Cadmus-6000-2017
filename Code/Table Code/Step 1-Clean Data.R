@@ -12,21 +12,12 @@
 # Need to run this before any other scripts can be ran
 #
 #############################################################################################
-
-
 ##  Clear variables
 rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
-
-# SourcePath <- "C:/Users/Casey.Stevens/Documents/Git/Cadmus-6000-2017/Cadmus-6000-2017/Code/Table Code"
-# source(file.path(SourcePath, "SourceCode.R"))
-
 source("Code/Table Code/SourceCode.R")
-
-
-
 
 #############################################################################################
 # Import and Subset Data

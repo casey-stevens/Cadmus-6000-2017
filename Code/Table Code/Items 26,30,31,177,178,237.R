@@ -1171,47 +1171,41 @@ item26.os.final <- rbind.data.frame(item26.os.summary
                                      , stringsAsFactors = F)
 
 item26.os.cast <- dcast(setDT(item26.os.final),
-                         formula   = CK_Building_ID ~ rvalue.bins.SF,
+                         formula   = rvalue.bins.SF ~ CK_Building_ID,
                          value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item26.os.cast)
-item26.os.table <- data.frame("Sample"           = item26.os.cast$CK_Building_ID
-                              ,"Percent.R0"      = item26.os.cast$w.percent_R0
-                              ,"SE.R0"           = item26.os.cast$w.SE_R0
-                              ,"Percent.R1.R10"  = item26.os.cast$w.percent_R1.R10  
-                              ,"SE.R1.R10"       = item26.os.cast$w.SE_R1.R10
-                              ,"Percent.R11.R15" = item26.os.cast$w.percent_R11.R15  
-                              ,"SE.R11.R15"      = item26.os.cast$w.SE_R11.R15
-                              ,"Percent.R16.R20" = item26.os.cast$w.percent_R16.R20
-                              ,"SE.R16.R20"      = item26.os.cast$w.SE_R16.R20
-                              ,"Percent.R21.R25" = item26.os.cast$w.percent_R21.R25
-                              ,"SE.R21.R25"      = item26.os.cast$w.SE_R21.R25
-                              ,"Percent.R26.R30" = item26.os.cast$w.percent_R26.R30
-                              ,"SE.R26.R30"      = item26.os.cast$w.SE_R26.R30
-                              ,"Percent.R31.R40" = item26.os.cast$w.percent_R31.R40
-                              ,"SE.R31.R40"      = item26.os.cast$w.SE_R31.R40
-                              ,"Percent.R41.R50" = item26.os.cast$w.percent_R41.R50
-                              ,"SE.R41.R50"      = item26.os.cast$w.SE_R41.R50
-                              ,"Percent.RGT36"   = item26.os.cast$w.percent_RGT50
-                              ,"SE.RGT36"        = item26.os.cast$w.SE_RGT50
-                              ,"n"               = item26.os.cast$`n_Total`
-                              ,'EB.R0'           = item26.os.cast$EB_R0
-                              ,'EB.R1.R10'       = item26.os.cast$EB_R1.R10
-                              ,'EB.R11.R15'      = item26.os.cast$EB_R11.R15
-                              ,'EB.R16.R20'      = item26.os.cast$EB_R16.R20
-                              ,'EB.R21.R25'      = item26.os.cast$EB_R21.R25
-                              ,'EB.R26.R30'      = item26.os.cast$EB_R26.R30
-                              ,'EB.R31.R40'      = item26.os.cast$EB_R31.R40
-                              ,'EB.R41.R50'      = item26.os.cast$EB_R41.R50
-                              ,'EB.RGT50'        = item26.os.cast$EB_RGT50
+item26.os.table <- data.frame("Insulation.Level"      = item26.os.cast$rvalue.bins.SF
+                               ,"Percent_SCL.GenPop"   = item26.os.cast$`w.percent_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item26.os.cast$`w.SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item26.os.cast$`n_SCL GenPop`
+                               ,"Percent_SCL.LI"       = item26.os.cast$`w.percent_SCL LI`
+                               ,"SE_SCL.LI"            = item26.os.cast$`w.SE_SCL LI`
+                               ,"n_SCL.LI"             = item26.os.cast$`n_SCL LI`
+                               ,"Percent_SCL.EH"       = item26.os.cast$`w.percent_SCL EH`
+                               ,"SE_SCL.EH"            = item26.os.cast$`w.SE_SCL EH`
+                               ,"n_SCL.EH"             = item26.os.cast$`n_SCL EH`
+                               ,"Percent_2017.RBSA.PS" = item26.os.cast$`w.percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item26.os.cast$`w.SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item26.os.cast$`n_2017 RBSA PS`
+                               ,"EB_SCL.GenPop"        = item26.os.cast$`EB_SCL GenPop`
+                               ,"EB_SCL.LI"            = item26.os.cast$`EB_SCL LI`
+                               ,"EB_SCL.EH"            = item26.os.cast$`EB_SCL EH`
+                               ,"EB_2017.RBSA.PS"      = item26.os.cast$`EB_2017 RBSA PS`
 )
 
 # row ordering example code
-levels(item26.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-item26.os.table <- item26.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(item26.os.table$Insulation.Level)
+rowOrder <- c("R0"
+              ,"R1.R10"
+              ,"R11.R15"
+              ,"R16.R20"
+              ,"R21.R25"
+              ,"R26.R30"
+              ,"R31.R40"
+              ,"R41.R50"
+              ,"RGT50"
+              ,"Total")
+item26.os.table <- item26.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item26.os.table <- data.frame(item26.os.table)
 
 #export table to correct workbook using exporting function
@@ -1246,38 +1240,37 @@ item26.os.final <- rbind.data.frame(item26.os.summary
                                      , stringsAsFactors = F)
 
 item26.os.cast <- dcast(setDT(item26.os.final),
-                         formula   = CK_Building_ID ~ rvalue.bins.SF,
-                         value.var = c("Percent", "SE", "Count", "n"))
+                        formula   = rvalue.bins.SF ~ CK_Building_ID,
+                        value.var = c("Percent", "SE","n"))
 names(item26.os.cast)
-item26.os.table <- data.frame("Sample"           = item26.os.cast$CK_Building_ID
-                              ,"Percent.R0"      = item26.os.cast$Percent_R0
-                              ,"SE.R0"           = item26.os.cast$SE_R0
-                              ,"Percent.R1.R10"  = item26.os.cast$Percent_R1.R10  
-                              ,"SE.R1.R10"       = item26.os.cast$SE_R1.R10
-                              ,"Percent.R11.R15" = item26.os.cast$Percent_R11.R15  
-                              ,"SE.R11.R15"      = item26.os.cast$SE_R11.R15
-                              ,"Percent.R16.R20" = item26.os.cast$Percent_R16.R20
-                              ,"SE.R16.R20"      = item26.os.cast$SE_R16.R20
-                              ,"Percent.R21.R25" = item26.os.cast$Percent_R21.R25
-                              ,"SE.R21.R25"      = item26.os.cast$SE_R21.R25
-                              ,"Percent.R26.R30" = item26.os.cast$Percent_R26.R30
-                              ,"SE.R26.R30"      = item26.os.cast$SE_R26.R30
-                              ,"Percent.R31.R40" = item26.os.cast$Percent_R31.R40
-                              ,"SE.R31.R40"      = item26.os.cast$SE_R31.R40
-                              ,"Percent.R41.R50" = item26.os.cast$Percent_R41.R50
-                              ,"SE.R41.R50"      = item26.os.cast$SE_R41.R50
-                              ,"Percent.RGT36"   = item26.os.cast$Percent_RGT50
-                              ,"SE.RGT36"        = item26.os.cast$SE_RGT50
-                              ,"n"               = item26.os.cast$`n_Total`
+item26.os.table <- data.frame("Insulation.Level"      = item26.os.cast$rvalue.bins.SF
+                              ,"Percent_SCL.GenPop"   = item26.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item26.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item26.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item26.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item26.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item26.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item26.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item26.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item26.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item26.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item26.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item26.os.cast$`n_2017 RBSA PS`
 )
 
 # row ordering example code
-levels(item26.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-item26.os.table <- item26.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(item26.os.table$Insulation.Level)
+rowOrder <- c("R0"
+              ,"R1.R10"
+              ,"R11.R15"
+              ,"R16.R20"
+              ,"R21.R25"
+              ,"R26.R30"
+              ,"R31.R40"
+              ,"R41.R50"
+              ,"RGT50"
+              ,"Total")
+item26.os.table <- item26.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item26.os.table <- data.frame(item26.os.table)
 
 #export table to correct workbook using exporting function
@@ -1350,44 +1343,43 @@ item30.os.final <- rbind.data.frame(item30.os.summary
                                     , stringsAsFactors = F)
 
 item30.os.cast <- dcast(setDT(item30.os.final),
-                        formula   = CK_Building_ID ~ rvalue.bins,
+                        formula   = rvalue.bins ~ CK_Building_ID,
                         value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item30.os.cast)
-item30.os.table <- data.frame("Sample"           = item30.os.cast$CK_Building_ID
-                              ,"Percent.R0"      = item30.os.cast$w.percent_R0
-                              ,"SE.R0"           = item30.os.cast$w.SE_R0
-                              ,"Percent.R1.R15"  = item30.os.cast$w.percent_R1.R15  
-                              ,"SE.R1.R15"       = item30.os.cast$w.SE_R1.R15
-                              ,"Percent.R16.R20" = item30.os.cast$w.percent_R16.R20
-                              ,"SE.R16.R20"      = item30.os.cast$w.SE_R16.R20
-                              ,"Percent.R21.R25" = item30.os.cast$w.percent_R21.R25
-                              ,"SE.R21.R25"      = item30.os.cast$w.SE_R21.R25
-                              ,"Percent.R26.R30" = NA#item30.os.cast$w.percent_R26.R30
-                              ,"SE.R26.R30"      = NA#item30.os.cast$w.SE_R26.R30
-                              ,"Percent.R31.R40" = item30.os.cast$w.percent_R31.R40
-                              ,"SE.R31.R40"      = item30.os.cast$w.SE_R31.R40
-                              ,"Percent.R41.R50" = NA#item30.os.cast$w.percent_R41.R50
-                              ,"SE.R41.R50"      = NA#item30.os.cast$w.SE_R41.R50
-                              ,"n"               = item30.os.cast$`n_Total`
-                              ,'EB.R0'           = item30.os.cast$EB_R0
-                              ,'EB.R1.R15'       = item30.os.cast$EB_R1.R15
-                              ,'EB.R16.R20'      = item30.os.cast$EB_R16.R20
-                              ,'EB.R21.R25'      = item30.os.cast$EB_R21.R25
-                              ,'EB.R26.R30'      = NA#item30.os.cast$EB_R26.R30
-                              ,'EB.R31.R40'      = item30.os.cast$EB_R31.R40
-                              ,'EB.R41.R50'      = NA#item30.os.cast$EB_R41.R50
+item30.os.table <- data.frame("Insulation.Level"      = item30.os.cast$rvalue.bins
+                              ,"Percent_SCL.GenPop"   = item30.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item30.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item30.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item30.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item30.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item30.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item30.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item30.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item30.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item30.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item30.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item30.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item30.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item30.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item30.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item30.os.cast$`EB_2017 RBSA PS`
 )
 
 # row ordering example code
-levels(item30.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-item30.os.table <- item30.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(item30.os.table$Insulation.Level)
+rowOrder <- c("R0"
+              ,"R1.R15"
+              ,"R16.R20"
+              ,"R21.R25"
+              ,"R26.R30"
+              ,"R31.R40"
+              ,"R41.R50"
+              ,"RGT50"
+              ,"Total")
+item30.os.table <- item30.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item30.os.table <- data.frame(item30.os.table)
 
-exportTable(item30.os.final.SF, "SF", "Table 37", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item30.os.table, "SF", "Table 37", weighted = TRUE, osIndicator = "SCL", OS = T)
 
 ##############################
 # Unweighted Analysis
@@ -1418,37 +1410,39 @@ item30.os.final <- rbind.data.frame(item30.os.summary
                                     , stringsAsFactors = F)
 
 item30.os.cast <- dcast(setDT(item30.os.final),
-                        formula   = CK_Building_ID ~ rvalue.bins,
-                        value.var = c("Percent", "SE", "Count", "n"))
+                        formula   = rvalue.bins ~ CK_Building_ID,
+                        value.var = c("Percent", "SE","n"))
 names(item30.os.cast)
-item30.os.table <- data.frame("Sample"           = item30.os.cast$CK_Building_ID
-                              ,"Percent.R0"      = item30.os.cast$Percent_R0
-                              ,"SE.R0"           = item30.os.cast$SE_R0
-                              ,"Percent.R1.R15"  = item30.os.cast$Percent_R1.R15  
-                              ,"SE.R1.R15"       = item30.os.cast$SE_R1.R15
-                              ,"Percent.R16.R20" = item30.os.cast$Percent_R16.R20
-                              ,"SE.R16.R20"      = item30.os.cast$SE_R16.R20
-                              ,"Percent.R21.R25" = item30.os.cast$Percent_R21.R25
-                              ,"SE.R21.R25"      = item30.os.cast$SE_R21.R25
-                              ,"Percent.R26.R30" = NA#item30.os.cast$Percent_R26.R30
-                              ,"SE.R26.R30"      = NA#item30.os.cast$SE_R26.R30
-                              ,"Percent.R31.R40" = item30.os.cast$Percent_R31.R40
-                              ,"SE.R31.R40"      = item30.os.cast$SE_R31.R40
-                              ,"Percent.R41.R50" = NA#item30.os.cast$Percent_R41.R50
-                              ,"SE.R41.R50"      = NA#item30.os.cast$SE_R41.R50
-                              ,"n"               = item30.os.cast$`n_Total`
+item30.os.table <- data.frame("Insulation.Level"      = item30.os.cast$rvalue.bins
+                              ,"Percent_SCL.GenPop"   = item30.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item30.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item30.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item30.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item30.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item30.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item30.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = item30.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item30.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item30.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item30.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item30.os.cast$`n_2017 RBSA PS`
 )
 
 # row ordering example code
-levels(item30.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-item30.os.table <- item30.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(item30.os.table$Insulation.Level)
+rowOrder <- c("R0"
+              ,"R1.R15"
+              ,"R16.R20"
+              ,"R21.R25"
+              ,"R26.R30"
+              ,"R31.R40"
+              ,"R41.R50"
+              ,"RGT50"
+              ,"Total")
+item30.os.table <- item30.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item30.os.table <- data.frame(item30.os.table)
 
-exportTable(item30.os.final.SF, "SF", "Table 37", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item30.os.table, "SF", "Table 37", weighted = FALSE, osIndicator = "SCL", OS = T)
 
 
 
@@ -1495,6 +1489,25 @@ item31.os.cast <- dcast(setDT(item31.os.final)
                         ,formula = Ceiling.Insulation.Thickness.1 ~ CK_Building_ID
                         ,value.var = c("w.percent","w.SE","n","EB"))
 
+
+item31.os.table <- data.frame("Home.Type"            = item31.os.cast$Ceiling.Insulation.Thickness.1
+                              ,"Percent_SCL.GenPop"   = item31.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item31.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item31.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = NA#item31.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = NA#item31.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = NA#item31.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = NA#item31.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = NA#item31.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = NA#item31.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item31.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item31.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item31.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item31.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = NA#item31.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = NA#item31.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item31.os.cast$`EB_2017 RBSA PS`)
+
 exportTable(item31.os.cast, "SF", "Table 38", weighted = TRUE, osIndicator = "SCL", OS = T)
 
 ##############################
@@ -1510,5 +1523,21 @@ item31.os.final <- item31.os.final[which(item31.os.final$CK_Building_ID != "Remo
 item31.os.cast <- dcast(setDT(item31.os.final)
                         ,formula = Ceiling.Insulation.Thickness.1 ~ CK_Building_ID
                         ,value.var = c("Percent","SE","n"))
+
+
+item31.os.table <- data.frame("Home.Type"            = item31.os.cast$Ceiling.Insulation.Thickness.1
+                              ,"Percent_SCL.GenPop"   = item31.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item31.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item31.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = NA#item31.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = NA#item31.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = NA#item31.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = NA#item31.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = NA#item31.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = NA#item31.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item31.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item31.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item31.os.cast$`n_2017 RBSA PS`)
+
 
 exportTable(item31.os.cast, "SF", "Table 38", weighted = FALSE, osIndicator = "SCL", OS = T)

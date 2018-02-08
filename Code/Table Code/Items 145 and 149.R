@@ -338,6 +338,8 @@ results.dat <- merge(scl.dat, billing.dat,
 results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+
 mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -440,13 +442,31 @@ item145.os.data$EUI_Quartile[which(item145.os.data$EUI >= 6.7524004 & item145.os
 ##############################
 # Weighted Analysis
 ##############################
-item145.os.final <- mean_two_groups(CustomerLevelData  = item145.os.data
+item145.os.cast <- mean_two_groups(CustomerLevelData  = item145.os.data
                                  , valueVariable    = 'EUI'
-                                 , byVariableRow    = 'CK_Building_ID'
-                                 , byVariableColumn = 'Heating_Fuel'
-                                 , columnAggregate  = "All Homes"
-                                 , rowAggregate     = "Remove")
-item145.os.final <- item145.os.final[which(item145.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+                                 , byVariableRow    = 'Heating_Fuel'
+                                 , byVariableColumn = 'CK_Building_ID'
+                                 , columnAggregate  = "Remove"
+                                 , rowAggregate     = "Total")
+
+item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
+                              ,"Heating.Fuel"            = item145.os.cast$Heating_Fuel
+                              ,"Mean_SCL.GenPop"      = item145.os.cast$`Mean_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item145.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item145.os.cast$`n_SCL GenPop`
+                              ,"Mean_SCL.LI"          = item145.os.cast$`Mean_SCL LI`
+                              ,"SE_SCL.LI"            = item145.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item145.os.cast$`n_SCL LI`
+                              ,"Mean_SCL.EH"          = item145.os.cast$`Mean_SCL EH`
+                              ,"SE_SCL.EH"            = item145.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = item145.os.cast$`n_SCL EH`
+                              ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item145.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item145.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item145.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item145.os.cast$`EB_2017 RBSA PS`)
 
 item145.os.table.SF <- item145.os.final[which(item145.os.final$BuildingType %in% c("Single Family")),-1]
 
@@ -455,14 +475,27 @@ exportTable(item145.os.table.SF, "SF", "Table 152", weighted = TRUE, osIndicator
 ##############################
 # Unweighted Analysis
 ##############################
-item145.os.final <- mean_two_groups_unweighted(CustomerLevelData  = item145.os.data
-                                            , valueVariable    = 'EUI'
-                                            , byVariableRow    = 'CK_Building_ID'
-                                            , byVariableColumn = 'Heating_Fuel'
-                                            , columnAggregate  = "All Homes"
-                                            , rowAggregate     = "Remove")
-item145.os.final <- item145.os.final[which(item145.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+item145.os.cast <- mean_two_groups_unweighted(CustomerLevelData  = item145.os.data
+                                   , valueVariable    = 'EUI'
+                                   , byVariableRow    = 'Heating_Fuel'
+                                   , byVariableColumn = 'CK_Building_ID'
+                                   , columnAggregate  = "Remove"
+                                   , rowAggregate     = "Total")
 
+item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
+                               ,"Heating.Fuel"            = item145.os.cast$Heating_Fuel
+                               ,"Mean_SCL.GenPop"      = item145.os.cast$`Mean_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item145.os.cast$`SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item145.os.cast$`n_SCL GenPop`
+                               ,"Mean_SCL.LI"          = item145.os.cast$`Mean_SCL LI`
+                               ,"SE_SCL.LI"            = item145.os.cast$`SE_SCL LI`
+                               ,"n_SCL.LI"             = item145.os.cast$`n_SCL LI`
+                               ,"Mean_SCL.EH"          = item145.os.cast$`Mean_SCL EH`
+                               ,"SE_SCL.EH"            = item145.os.cast$`SE_SCL EH`
+                               ,"n_SCL.EH"             = item145.os.cast$`n_SCL EH`
+                               ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`)
 item145.os.table.SF <- item145.os.final[which(item145.os.final$BuildingType %in% c("Single Family")),-1]
 
 exportTable(item145.os.table.SF, "SF", "Table 152", weighted = FALSE, osIndicator = "SCL", OS = T)
@@ -510,15 +543,31 @@ item149.os.data$EUI <- item149.os.data$UsageNAC_therms/item149.os.data$Condition
 ##############################
 # Weighted Analysis
 ##############################
-item149.os.final <- mean_two_groups(CustomerLevelData  = item149.os.data
-                                 , valueVariable    = 'EUI'
-                                 , byVariableRow    = 'CK_Building_ID'
-                                 , byVariableColumn = 'Heating_Fuel'
-                                 , columnAggregate  = "All Homes"
-                                 , rowAggregate     = "Remove")
+item149.os.cast <- mean_two_groups(CustomerLevelData  = item149.os.data
+                                   , valueVariable    = 'EUI'
+                                   , byVariableRow    = 'Heating_Fuel'
+                                   , byVariableColumn = 'CK_Building_ID'
+                                   , columnAggregate  = "Remove"
+                                   , rowAggregate     = "Total")
 
-item149.os.final <- item149.os.final[which(item149.os.final$CK_Building_ID %notin% c("Remove","Total")),]
-
+item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
+                               ,"Heating.Fuel"            = item149.os.cast$Heating_Fuel
+                               ,"Mean_SCL.GenPop"      = item149.os.cast$`Mean_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item149.os.cast$`SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item149.os.cast$`n_SCL GenPop`
+                               ,"Mean_SCL.LI"          = item149.os.cast$`Mean_SCL LI`
+                               ,"SE_SCL.LI"            = item149.os.cast$`SE_SCL LI`
+                               ,"n_SCL.LI"             = item149.os.cast$`n_SCL LI`
+                               ,"Mean_SCL.EH"          = item149.os.cast$`Mean_SCL EH`
+                               ,"SE_SCL.EH"            = item149.os.cast$`SE_SCL EH`
+                               ,"n_SCL.EH"             = item149.os.cast$`n_SCL EH`
+                               ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`
+                               ,"EB_SCL.GenPop"        = item149.os.cast$`EB_SCL GenPop`
+                               ,"EB_SCL.LI"            = item149.os.cast$`EB_SCL LI`
+                               ,"EB_SCL.EH"            = item149.os.cast$`EB_SCL EH`
+                               ,"EB_2017.RBSA.PS"      = item149.os.cast$`EB_2017 RBSA PS`)
 item149.os.table.SF <- item149.os.final[which(item149.os.final$BuildingType %in% c("Single Family")),-1]
 
 exportTable(item149.os.table.SF, "SF", "Table 156", weighted = TRUE, osIndicator = "SCL", OS = T)
@@ -526,15 +575,28 @@ exportTable(item149.os.table.SF, "SF", "Table 156", weighted = TRUE, osIndicator
 ##############################
 # Unweighted Analysis
 ##############################
-item149.os.final <- mean_two_groups_unweighted(CustomerLevelData  = item149.os.data
-                                            , valueVariable    = 'EUI'
-                                            , byVariableRow    = 'CK_Building_ID'
-                                            , byVariableColumn = 'Heating_Fuel'
-                                            , columnAggregate  = "All Homes"
-                                            , rowAggregate     = "Remove")
+item149.os.cast <- mean_two_groups_unweighted(CustomerLevelData  = item149.os.data
+                                   , valueVariable    = 'EUI'
+                                   , byVariableRow    = 'Heating_Fuel'
+                                   , byVariableColumn = 'CK_Building_ID'
+                                   , columnAggregate  = "Remove"
+                                   , rowAggregate     = "Total")
+
+item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
+                               ,"Heating.Fuel"            = item149.os.cast$Heating_Fuel
+                               ,"Mean_SCL.GenPop"      = item149.os.cast$`Mean_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item149.os.cast$`SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item149.os.cast$`n_SCL GenPop`
+                               ,"Mean_SCL.LI"          = item149.os.cast$`Mean_SCL LI`
+                               ,"SE_SCL.LI"            = item149.os.cast$`SE_SCL LI`
+                               ,"n_SCL.LI"             = item149.os.cast$`n_SCL LI`
+                               ,"Mean_SCL.EH"          = item149.os.cast$`Mean_SCL EH`
+                               ,"SE_SCL.EH"            = item149.os.cast$`SE_SCL EH`
+                               ,"n_SCL.EH"             = item149.os.cast$`n_SCL EH`
+                               ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`)
 
 item149.os.table.SF <- item149.os.final[which(item149.os.final$BuildingType %in% c("Single Family")),-1]
-
-item149.os.final <- item149.os.final[which(item149.os.final$CK_Building_ID %notin% c("Remove","Total")),]
 
 exportTable(item149.os.table.SF, "SF", "Table 156", weighted = FALSE, osIndicator = "SCL", OS = T)

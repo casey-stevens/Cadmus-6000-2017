@@ -1482,48 +1482,44 @@ item23A.os.final <- rbind.data.frame(item23A.os.summary
                                     , stringsAsFactors = F)
 
 item23A.os.cast <- dcast(setDT(item23A.os.final),
-                        formula   = CK_Building_ID ~ rvalue.bins.SF,
+                        formula   = rvalue.bins.SF ~ CK_Building_ID,
                         value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item23A.os.cast)
-item23A.os.table <- data.frame("Sample"           = item23A.os.cast$CK_Building_ID
-                               ,"Percent.None"    = item23A.os.cast$w.percent_None
-                               ,"SE.None"         = item23A.os.cast$w.SE_None
-                               ,"Percent.R1.R3"   = item23A.os.cast$w.percent_R1.R3  
-                               ,"SE.R1.R3"        = item23A.os.cast$w.SE_R1.R3
-                               ,"Percent.R4.R10"  = item23A.os.cast$w.percent_R4.R10  
-                               ,"SE.R4.R10"       = item23A.os.cast$w.SE_R4.R10
-                               ,"Percent.R11.R15" = item23A.os.cast$w.percent_R11.R15
-                               ,"SE.R11.R15"      = item23A.os.cast$w.SE_R11.R15
-                               ,"Percent.R16.R22" = item23A.os.cast$w.percent_R16.R22
-                               ,"SE.R16.R22"      = item23A.os.cast$w.SE_R16.R22
-                               ,"Percent.R23.R27" = item23A.os.cast$w.percent_R23.R27
-                               ,"SE.R23.R27"      = item23A.os.cast$w.SE_R23.R27
-                               ,"Percent.R28.R35" = item23A.os.cast$w.percent_R28.R35
-                               ,"SE.R28.R35"      = item23A.os.cast$w.SE_R28.R35
-                               ,"Percent.RGT36"   = item23A.os.cast$w.percent_RGT36
-                               ,"SE.RGT36"        = item23A.os.cast$w.SE_RGT36
-                               ,"n"               = item23A.os.cast$`n_Total`
-                               ,'EB.None'         = item23A.os.cast$EB_None
-                               ,'EB.R1.R3'        = item23A.os.cast$EB_R1.R3
-                               ,'EB.R4.R10'       = item23A.os.cast$EB_R4.R10
-                               ,'EB.R11.R15'      = item23A.os.cast$EB_R11.R15
-                               ,'EB.R16.R22'      = item23A.os.cast$EB_R16.R22
-                               ,'EB.R23.R27'      = item23A.os.cast$EB_R23.R27
-                               ,'EB.R28.R35'      = item23A.os.cast$EB_R28.R35
-                               ,'EB.RGT36'        = item23A.os.cast$EB_RGT36
+item23A.os.table <- data.frame("Insulation.Level"      = item23A.os.cast$rvalue.bins.SF
+                               ,"Percent_SCL.GenPop"   = item23A.os.cast$`w.percent_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item23A.os.cast$`w.SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item23A.os.cast$`n_SCL GenPop`
+                               ,"Percent_SCL.LI"       = item23A.os.cast$`w.percent_SCL LI`
+                               ,"SE_SCL.LI"            = item23A.os.cast$`w.SE_SCL LI`
+                               ,"n_SCL.LI"             = item23A.os.cast$`n_SCL LI`
+                               ,"Percent_SCL.EH"       = item23A.os.cast$`w.percent_SCL EH`
+                               ,"SE_SCL.EH"            = item23A.os.cast$`w.SE_SCL EH`
+                               ,"n_SCL.EH"             = item23A.os.cast$`n_SCL EH`
+                               ,"Percent_2017.RBSA.PS" = item23A.os.cast$`w.percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item23A.os.cast$`w.SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item23A.os.cast$`n_2017 RBSA PS`
+                               ,"EB_SCL.GenPop"        = item23A.os.cast$`EB_SCL GenPop`
+                               ,"EB_SCL.LI"            = item23A.os.cast$`EB_SCL LI`
+                               ,"EB_SCL.EH"            = item23A.os.cast$`EB_SCL EH`
+                               ,"EB_2017.RBSA.PS"      = item23A.os.cast$`EB_2017 RBSA PS`
 )
 
 # row ordering example code
-levels(item23A.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-item23A.os.table <- item23A.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(item23A.os.table$Insulation.Level)
+rowOrder <- c("None"
+              ,"R1.R3"
+              ,"R4.R10"
+              ,"R11.R15"
+              ,"R16.R22"
+              ,"R23.R27"
+              ,"R28.R35"
+              ,"RGT36"
+              ,"Total")
+item23A.os.table <- item23A.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item23A.os.table <- data.frame(item23A.os.table)
 
 #export table to correct workbook using exporting function
-exportTable(item23A.os.table, "SF", "Table 30", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item23A.os.table, "SF", "Table 30A", weighted = TRUE, osIndicator = "SCL", OS = T)
 
 ######################
 # Unweighted - Single Family
@@ -1554,38 +1550,37 @@ item23A.os.final <- rbind.data.frame(item23A.os.summary
                                      , stringsAsFactors = F)
 
 item23A.os.cast <- dcast(setDT(item23A.os.final),
-                        formula   = CK_Building_ID ~ rvalue.bins.SF,
+                        formula   = rvalue.bins.SF ~ CK_Building_ID,
                         value.var = c("Percent", "SE", "Count", "n"))
 names(item23A.os.cast)
-item23A.os.table <- data.frame("Sample"           = item23A.os.cast$CK_Building_ID
-                               ,"Percent.None"    = item23A.os.cast$Percent_None
-                               ,"SE.None"         = item23A.os.cast$SE_None
-                               ,"Percent.R1.R3"   = item23A.os.cast$Percent_R1.R3  
-                               ,"SE.R1.R3"        = item23A.os.cast$SE_R1.R3
-                               ,"Percent.R4.R10"  = item23A.os.cast$Percent_R4.R10  
-                               ,"SE.R4.R10"       = item23A.os.cast$SE_R4.R10
-                               ,"Percent.R11.R15" = item23A.os.cast$Percent_R11.R15
-                               ,"SE.R11.R15"      = item23A.os.cast$SE_R11.R15
-                               ,"Percent.R16.R22" = item23A.os.cast$Percent_R16.R22
-                               ,"SE.R16.R22"      = item23A.os.cast$SE_R16.R22
-                               ,"Percent.R23.R27" = item23A.os.cast$Percent_R23.R27
-                               ,"SE.R23.R27"      = item23A.os.cast$SE_R23.R27
-                               ,"Percent.R28.R35" = item23A.os.cast$Percent_R28.R35
-                               ,"SE.R28.R35"      = item23A.os.cast$SE_R28.R35
-                               ,"Percent.RGT36"   = item23A.os.cast$Percent_RGT36
-                               ,"SE.RGT36"        = item23A.os.cast$SE_RGT36
-                               ,"n"               = item23A.os.cast$`n_Total`
+item23A.os.table <- data.frame("Insulation.Level" = item23A.os.cast$rvalue.bins.SF
+                               ,"Percent_SCL.GenPop"   = item23A.os.cast$`Percent_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item23A.os.cast$`SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item23A.os.cast$`n_SCL GenPop`
+                               ,"Percent_SCL.LI"       = item23A.os.cast$`Percent_SCL LI`
+                               ,"SE_SCL.LI"            = item23A.os.cast$`SE_SCL LI`
+                               ,"n_SCL.LI"             = item23A.os.cast$`n_SCL LI`
+                               ,"Percent_SCL.EH"       = item23A.os.cast$`Percent_SCL EH`
+                               ,"SE_SCL.EH"            = item23A.os.cast$`SE_SCL EH`
+                               ,"n_SCL.EH"             = item23A.os.cast$`n_SCL EH`
+                               ,"Percent_2017.RBSA.PS" = item23A.os.cast$`Percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item23A.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item23A.os.cast$`n_2017 RBSA PS`
 )
 
 # row ordering example code
-levels(item23A.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-item23A.os.table <- item23A.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(item23A.os.table$Insulation.Level)
+rowOrder <- c("None"
+              ,"R1.R3"
+              ,"R4.R10"
+              ,"R11.R15"
+              ,"R16.R22"
+              ,"R23.R27"
+              ,"R28.R35"
+              ,"RGT36"
+              ,"Total")
+item23A.os.table <- item23A.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item23A.os.table <- data.frame(item23A.os.table)
-
 #export table to correct workbook using exporting function
-exportTable(item23A.os.table, "SF", "Table 30", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item23A.os.table, "SF", "Table 30A", weighted = FALSE, osIndicator = "SCL", OS = T)
 

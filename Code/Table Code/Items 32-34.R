@@ -564,7 +564,7 @@ item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, leve
 item32.os.table <- data.frame(item32.os.table)
 
 
-exportTable(item32.os.final.SF, "SF", "Table 39", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item32.os.table, "SF", "Table 39", weighted = TRUE, osIndicator = "SCL", OS = T)
 
 
 
@@ -608,7 +608,7 @@ rowOrder <- c("Metal"
 item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, levels = rowOrder)) %>% arrange(Door.Type)  
 item32.os.table <- data.frame(item32.os.table)
 
-exportTable(item32.os.final.SF, "SF", "Table 39", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item32.os.table, "SF", "Table 39", weighted = FALSE, osIndicator = "SCL", OS = T)
 
 
 

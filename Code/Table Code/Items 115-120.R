@@ -732,7 +732,7 @@ item117.os.data <- left_join(item117.os.data, unique(item117.os.merge[which(coln
                                                                                            ,"Ind"
                                                                                            ,"Site.Count"))]))
 
-item117.os.data$Count <- 1
+item117.os.data$count <- 1
 #######################
 # Weighted Analysis
 #######################

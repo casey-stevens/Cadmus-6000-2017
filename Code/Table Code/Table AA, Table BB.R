@@ -26,7 +26,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -203,3 +204,195 @@ tableBB.final.MH <- tableBB.final[which(tableBB.final$BuildingType == "Manufactu
 # exportTable(tableBB.final.SF, "SF", "Table BB", weighted = FALSE)
 exportTable(tableBB.final.MH, "MH", "Table BB", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean scl data
+scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
+length(unique(scl.dat$CK_Cadmus_ID))
+scl.dat$CK_Building_ID <- scl.dat$Category
+scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+
+#############################################################################################
+#Table AA
+#############################################################################################
+#subset to columns needed for analysis
+tableAA.os.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                    ,"System.Type"
+                                                                    ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                    ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                    ,"MECH_TrueFLow_NSOP"
+                                                                    ,"MECH_TrueFLow_TFSOP"
+                                                                    ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                    ,"Primary.Heating.System"))]
+str(tableAA.os.dat)
+tableAA.os.dat1 <- tableAA.os.dat[which(!is.na(tableAA.os.dat$MECH_TrueFLow_NSOP)),]
+tableAA.os.dat2 <- tableAA.os.dat1[which(!is.na(tableAA.os.dat1$MECH_TrueFLow_SOP_NoFilter)),]
+
+tableAA.os.dat2$MECH_TrueFLow_NSOP <- as.numeric(as.character(tableAA.os.dat2$MECH_TrueFLow_NSOP))
+tableAA.os.dat2$MECH_TrueFLow_Plate14_PressureDifference <- as.numeric(as.character(tableAA.os.dat2$MECH_TrueFLow_Plate14_PressureDifference))
+tableAA.os.dat2$MECH_TrueFLow_Plate20_PressureDifference <- as.numeric(as.character(tableAA.os.dat2$MECH_TrueFLow_Plate20_PressureDifference))
+tableAA.os.dat2$MECH_TrueFLow_SOP_NoFilter <- as.numeric(as.character(tableAA.os.dat2$MECH_TrueFLow_SOP_NoFilter))
+tableAA.os.dat2$MECH_TrueFLow_TFSOP <- as.numeric(as.character(tableAA.os.dat2$MECH_TrueFLow_TFSOP))
+
+
+ii=145
+for(ii in 1:nrow(tableAA.os.dat2)){
+  if(!is.na(tableAA.os.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])){
+    tableAA.os.dat2$Flow[ii] <- sqrt(tableAA.os.dat2$MECH_TrueFLow_NSOP[ii] / tableAA.os.dat2$MECH_TrueFLow_SOP_NoFilter[ii]) * (115 * sqrt(abs(tableAA.os.dat2$MECH_TrueFLow_Plate14_PressureDifference[ii])))
+  }else{
+    tableAA.os.dat2$Flow[ii] <- sqrt(tableAA.os.dat2$MECH_TrueFLow_NSOP[ii] / tableAA.os.dat2$MECH_TrueFLow_SOP_NoFilter[ii]) * (154 * sqrt(abs(tableAA.os.dat2$MECH_TrueFLow_Plate20_PressureDifference[ii])))
+  }
+}
+
+unique(tableAA.os.dat2$Flow)
+tableAA.os.dat3 <- tableAA.os.dat2[which(tableAA.os.dat2$Flow %notin% c("NaN",NA)),]
+
+tableAA.os.merge <- left_join(scl.dat, tableAA.os.dat3)
+tableAA.os.merge <- tableAA.os.merge[which(!is.na(tableAA.os.merge$Flow)),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAA.os.data <- weightedData(tableAA.os.merge[-which(colnames(tableAA.os.merge) %in% c("MECH_TrueFLow_NSOP"
+                                                                                 ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                                 ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                                 ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                                 ,"MECH_TrueFLow_TFSOP"
+                                                                                 ,"System.Type"
+                                                                                 ,"Flow"
+                                                                                 ,"Primary.Heating.System"))])
+tableAA.os.data <- left_join(tableAA.os.data, unique(tableAA.os.merge[which(colnames(tableAA.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"MECH_TrueFLow_NSOP"
+                                                                                           ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                                           ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                                           ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                                           ,"MECH_TrueFLow_TFSOP"
+                                                                                           ,"System.Type"
+                                                                                           ,"Flow"
+                                                                                           ,"Primary.Heating.System"))]))
+tableAA.os.data$count <- 1
+colnames(tableAA.os.data)
+#######################
+# Weighted Analysis
+#######################
+tableAA.os.final <- mean_one_group(CustomerLevelData = tableAA.os.data
+                                ,valueVariable = 'Flow'
+                                ,byVariable = 'CK_Building_ID'
+                                ,aggregateRow = 'Remove')
+tableAA.os.final <- tableAA.os.final[which(tableAA.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+tableAA.os.final.SF <- tableAA.os.final[which(tableAA.os.final$BuildingType == "Single Family")
+                                  ,which(colnames(tableAA.os.final) %notin% c("BuildingType"))]
+
+exportTable(tableAA.os.final.SF, "SF", "Table AA", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# unweighted Analysis
+#######################
+tableAA.os.final <- mean_one_group_unweighted(CustomerLevelData = tableAA.os.data
+                                           ,valueVariable = 'Flow'
+                                           ,byVariable = 'CK_Building_ID'
+                                           ,aggregateRow = 'Remove')
+tableAA.os.final <- tableAA.os.final[which(tableAA.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+tableAA.os.final.SF <- tableAA.os.final[which(tableAA.os.final$BuildingType == "Single Family")
+                                  ,which(colnames(tableAA.os.final) %notin% c("BuildingType"))]
+
+exportTable(tableAA.os.final.SF, "SF", "Table AA", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+#############################################################################################
+#Item 63: AVERAGE DUCT LEAKAGE TOTAL FLOW (NORMALIZED BY HOUSE AREA) BY CK_Building_ID (SF table 70)
+#############################################################################################
+tableBB.os.dat <- tableAA.os.merge
+tableBB.os.dat$Normalized.Flow <- as.numeric(as.character(tableBB.os.dat$Flow)) / as.numeric(as.character(tableBB.os.dat$Conditioned.Area))
+tableBB.os.dat1 <- tableBB.os.dat[which(!is.na(tableBB.os.dat$Normalized.Flow)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableBB.os.data <- weightedData(tableBB.os.dat1[-which(colnames(tableBB.os.dat1) %in% c("MECH_TrueFLow_NSOP"
+                                                                               ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                               ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                               ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                               ,"MECH_TrueFLow_TFSOP"
+                                                                               ,"Primary.Heating.System"
+                                                                               ,"System.Type"
+                                                                               ,"Flow"
+                                                                               ,"Normalized.Flow"))])
+tableBB.os.data <- left_join(tableBB.os.data, unique(tableBB.os.dat1[which(colnames(tableBB.os.dat1) %in% c("CK_Cadmus_ID"
+                                                                                         ,"MECH_TrueFLow_NSOP"
+                                                                                         ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                                         ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                                         ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                                         ,"MECH_TrueFLow_TFSOP"
+                                                                                         ,"Primary.Heating.System"
+                                                                                         ,"System.Type"
+                                                                                         ,"Flow"
+                                                                                         ,"Normalized.Flow"))]))
+tableBB.os.data$count <- 1
+colnames(tableBB.os.data)
+
+#######################
+# Weighted Analysis
+#######################
+tableBB.os.final <- mean_one_group(CustomerLevelData = tableBB.os.data
+                                ,valueVariable = 'Normalized.Flow'
+                                ,byVariable = 'CK_Building_ID'
+                                ,aggregateRow = 'Remove')
+tableBB.os.final <- tableBB.os.final[which(tableBB.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+
+tableBB.os.final.SF <- tableBB.os.final[which(tableBB.os.final$BuildingType == "Single Family")
+                                  ,which(colnames(tableBB.os.final) %notin% c("BuildingType"))]
+
+exportTable(tableBB.os.final.SF, "SF", "Table BB", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+#######################
+# unweighted Analysis
+#######################
+tableBB.os.final <- mean_one_group_unweighted(CustomerLevelData = tableBB.os.data
+                                           ,valueVariable = 'Normalized.Flow'
+                                           ,byVariable = 'CK_Building_ID'
+                                           ,aggregateRow = 'Remove')
+tableBB.os.final <- tableBB.os.final[which(tableBB.os.final$CK_Building_ID %notin% c("Remove","Total")),]
+tableBB.os.final.SF <- tableBB.os.final[which(tableBB.os.final$BuildingType == "Single Family")
+                                  ,which(colnames(tableBB.os.final) %notin% c("BuildingType"))]
+
+exportTable(tableBB.os.final.SF, "SF", "Table BB", weighted = FALSE, osIndicator = "SCL", OS = T)
