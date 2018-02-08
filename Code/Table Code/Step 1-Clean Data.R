@@ -12,7 +12,7 @@
 # Need to run this before any other scripts can be ran
 #
 #############################################################################################
-##  Clear variables
+#  Clear variables
 rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)

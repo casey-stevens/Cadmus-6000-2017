@@ -356,14 +356,14 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 
 
-# rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
-# ceiling.merge <- left_join(rbsa.ceiling, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
-# ceiling.merge <- ceiling.merge[which(!is.na(ceiling.merge$uvalue)),]
-# #########export rvalues
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
+rbsa.ceiling <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
+ceiling.merge <- left_join(rbsa.ceiling, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
+ceiling.merge <- ceiling.merge[which(!is.na(ceiling.merge$uvalue)),]
+#########export rvalues
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 
 
 
@@ -592,13 +592,13 @@ exportTable(item31.final.SF, "SF", "Table 38", weighted = FALSE)
 #############################################################################################
 item177.dat <- prep.dat7[which(prep.dat7$BuildingType == "Manufactured"),]
 
-#Bin R values -- SF only
+#
 item177.dat$rvalue.bins <- "Unknown"
-item177.dat$rvalue.bins[which(item177.dat$aveRval >= 0  & item177.dat$aveRval < 9) ]  <- "R0.R8"
-item177.dat$rvalue.bins[which(item177.dat$aveRval >= 9  & item177.dat$aveRval < 15)]  <- "R9.R14"
-item177.dat$rvalue.bins[which(item177.dat$aveRval >= 15 & item177.dat$aveRval < 22)]  <- "R15.R21"
-item177.dat$rvalue.bins[which(item177.dat$aveRval >= 22 & item177.dat$aveRval < 31)]  <- "R22.R30"
-item177.dat$rvalue.bins[which(item177.dat$aveRval >= 31)]  <- "R31.R40"
+item177.dat$rvalue.bins[which(item177.dat$aveRval >= 0  & item177.dat$aveRval <=  8)]  <- "R0.R8"
+item177.dat$rvalue.bins[which(item177.dat$aveRval > 8  & item177.dat$aveRval <= 14)]  <- "R9.R14"
+item177.dat$rvalue.bins[which(item177.dat$aveRval > 14 & item177.dat$aveRval <= 21)]  <- "R15.R21"
+item177.dat$rvalue.bins[which(item177.dat$aveRval > 21  & item177.dat$aveRval <= 30)]  <- "R22.R30"
+item177.dat$rvalue.bins[which(item177.dat$aveRval > 30)]  <- "R31.R40"
 unique(item177.dat$rvalue.bins)
 
 item177.merge <- left_join(rbsa.dat, item177.dat)

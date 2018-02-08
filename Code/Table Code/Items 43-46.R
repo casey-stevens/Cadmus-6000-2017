@@ -25,7 +25,10 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx'
+              , mechanical.export
+              , mode = 'wb')
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -64,7 +67,7 @@ for (ii in 1:nrow(item43.dat2)){
   if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
     item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater")){
     item43.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
@@ -333,26 +336,30 @@ item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System == "Yes"
 item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System ==  "No")] <- "Secondary Heating System"
 
 
-for (ii in 1:nrow(item43.dat2)){
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-    item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
+for (ii in 1:nrow(item45.dat2)){
+  # if (item45.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item45.dat2$Generic[ii] <- item45.dat2$`System.Sub-Type`[ii]
+  # }
+  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+    item45.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
-    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
-  }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
-    item43.dat2$Generic[ii] <- "Plug-In Heaters"
+  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
+    item45.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
 
-item45.dat2$Generic[grep("Electric Baseboard",item45.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item45.dat2$Generic[grep("baseboard",item45.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item45.dat2$Generic[grep("zonal heat",item45.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
+item45.dat2$Generic[grep("plug in|plug-in",item45.dat2$Generic,ignore.case = T)] <- "Plug-In Heaters"
+item45.dat2$Generic[which(item45.dat2$Generic == "Heat Pump")] <- "Air Source Heat Pump"
 item45.dat2$Generic[grep("ductless",item45.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
 item45.dat2$Generic[grep("furnace",item45.dat2$Generic,ignore.case = T)] <- "Furnace"
 item45.dat2$Generic[grep("boiler",item45.dat2$Generic,ignore.case = T)] <- "Boiler"
+item45.dat2$Generic[grep("Packaged AC",item45.dat2$Generic,ignore.case = T)] <- "Packaged AC"
 item45.dat2$Generic[grep("Stove/Fireplace",item45.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
+item45.dat2$Generic[which(item45.dat2$Generic == "Package Terminal Heat Pump")] <- "Packaged HP"
 
-unique(item43.dat2$Generic)
+unique(item45.dat2$Generic)
 
 item45.dat3 <- unique(data.frame("CK_Cadmus_ID" = item45.dat2$CK_Cadmus_ID
                                  ,"Heating_Type" = item45.dat2$Generic

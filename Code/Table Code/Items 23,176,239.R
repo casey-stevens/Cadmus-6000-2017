@@ -479,14 +479,14 @@ prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 
 
-# rbsa.floor <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
-# floor.merge <- left_join(rbsa.floor, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
-# floor.merge <- floor.merge[which(!is.na(floor.merge$uvalue)),]
-# #########export rvalues
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(floor.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Floor Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
+rbsa.floor <- rbsa.dat[which(colnames(rbsa.dat) %in% c("CK_Building_ID","BuildingType","HomeYearBuilt"))]
+floor.merge <- left_join(rbsa.floor, prep.dat5, by = c("CK_Building_ID" = "CK_SiteID"))
+floor.merge <- floor.merge[which(!is.na(floor.merge$uvalue)),]
+#########export rvalues
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(floor.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Floor Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 
 
 
