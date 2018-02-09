@@ -335,3 +335,61 @@ scl.data <- unique(scl.data[which(scl.data$BuildingType == "Single Family"),])
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
+
+
+
+#############################################################################################
+#
+# SCL
+#
+#############################################################################################
+scl.dat <- rbsa.dat8[grep("SCL",rbsa.dat8$Territory, ignore.case = T),]
+scl.dat$Category <- "SCL GenPop"
+scl.li.dat <- rbsa.dat8[grep("SCL LI",rbsa.dat8$Territory, ignore.case = T),]
+scl.li.dat$Category <- "SCL LI"
+scl.eh.dat <- rbsa.dat8[grep("SCL EH",rbsa.dat8$Territory, ignore.case = T),]
+scl.eh.dat$Category <- "SCL EH"
+scl.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
+scl.ps.dat$Category <- "2017 RBSA PS"
+
+scl.data <- rbind.data.frame(scl.dat
+                             ,scl.li.dat
+                             ,scl.eh.dat
+                             ,scl.ps.dat)
+scl.data$CK_Building_ID <- NA
+scl.data <- unique(scl.data[which(scl.data$BuildingType == "Single Family"),])
+
+
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
+
+
+
+
+
+#############################################################################################
+#
+# SnoPUD
+#
+#############################################################################################
+snopud.dat <- rbsa.dat8[grep("snopud",rbsa.dat8$Territory, ignore.case = T),]
+snopud.dat$Category <- "SnoPUD"
+snopud.rbsa.dat <- rbsa.dat8[grep("single family",rbsa.dat8$BuildingType, ignore.case = T),]
+snopud.rbsa.dat <- snopud.rbsa.dat[grep("site", snopud.rbsa.dat$CK_Building_ID, ignore.case = T),]
+snopud.rbsa.dat$Category <- "2017 RBSA NW"
+snopud.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
+snopud.ps.dat$Category <- "2017 RBSA PS"
+
+snopud.data <- rbind.data.frame(snopud.dat
+                             ,snopud.rbsa.dat
+                             ,snopud.ps.dat)
+snopud.data$CK_Building_ID <- NA
+snopud.data <- unique(snopud.data[which(snopud.data$BuildingType == "Single Family"),])
+
+
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(snopud.data, paste(filepathCleanData, paste("clean.snopud.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)

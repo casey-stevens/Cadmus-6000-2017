@@ -144,16 +144,6 @@ itemXX.dat2$Generic[grep("Stove/Fireplace",itemXX.dat2$Generic,ignore.case = T)]
 
 
 
-if(os.ind == "rbsa"){
-  rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
-}else{
-  rbsa.dat$CK_Building_ID <- rbsa.dat$Category
-  rbsa.dat <- rbsa.dat[which(names(rbsa.dat) != "Category")]
-}
-
-
-
-
 item1.os.table <- data.frame("BuildingType"          = item1.os.cast$BuildingType
                           ,"Home.Type"            = item1.os.cast$HomeType
                           ,"Percent_SCL.GenPop"   = item1.os.cast$`w.percent_SCL GenPop`
@@ -281,3 +271,43 @@ rowOrder <- c("SCL GenPop"
               ,"2017 RBSA PS")
 itemXX.os.table <- itemXX.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
 itemXX.os.table <- data.frame(itemXX.os.table)
+
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
+
+
+
+
+
+#can add pop and sample sizes if needed in exported table
+item1.os.table <- data.frame("BuildingType"             = item1.os.cast$BuildingType
+                             ,"Home.Type"               = item1.os.cast$HomeType
+                             ,"Percent_SnoPUD"          = item1.os.cast$`w.percent_SnoPUD`
+                             ,"SE_SnoPUD"               = item1.os.cast$`w.SE_SnoPUD`
+                             ,"n_SnoPUD"                = item1.os.cast$`n_SnoPUD`
+                             ,"Percent_2017.RBSA.PS"    = item1.os.cast$`w.percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"         = item1.os.cast$`w.SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"          = item1.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_RBSA.NW"         = item1.os.cast$`w.percent_2017 RBSA NW`
+                             ,"SE_RBSA.NW"              = item1.os.cast$`w.SE_2017 RBSA NW`
+                             ,"n_RBSA.NW"               = item1.os.cast$`n_2017 RBSA NW`
+                             ,"EB_SnoPUD"               = item1.os.cast$`EB_SnoPUD`
+                             ,"EB_2017.RBSA.PS"         = item1.os.cast$`EB_2017 RBSA PS`
+                             ,"EB_RBSA.NW"              = item1.os.cast$`EB_2017 RBSA NW`)
+#can add pop and sample sizes if needed in exported table
+item1.os.table <- data.frame("BuildingType"             = item1.os.cast$BuildingType
+                             ,"Home.Type"               = item1.os.cast$HomeType
+                             ,"Percent_SnoPUD"          = item1.os.cast$`Percent_SnoPUD`
+                             ,"SE_SnoPUD"               = item1.os.cast$`SE_SnoPUD`
+                             ,"n_SnoPUD"                = item1.os.cast$`n_SnoPUD`
+                             ,"Percent_2017.RBSA.PS"    = item1.os.cast$`Percent_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"         = item1.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"          = item1.os.cast$`n_2017 RBSA PS`
+                             ,"Percent_RBSA.NW"         = item1.os.cast$`Percent_2017 RBSA NW`
+                             ,"SE_RBSA.NW"              = item1.os.cast$`SE_2017 RBSA NW`
+                             ,"n_RBSA.NW"               = item1.os.cast$`n_2017 RBSA NW`)
