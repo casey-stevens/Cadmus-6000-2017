@@ -29,7 +29,7 @@ rbsa.dat.MF   <- rbsa.dat.bldg[grep("multifamily",rbsa.dat.bldg$BuildingType, ig
 #Read in data for analysis
 one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
 #clean cadmus IDs
-one.line.bldg.dat$CK_Building_ID <- trimws(toupper(one.line.bldg.dat$CK_BuildingID))
+one.line.bldg.dat$CK_Building_ID <- trimws(toupper(one.line.bldg.dat$REMOVE.COLUMN))
 
 #Read in data for analysis
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))

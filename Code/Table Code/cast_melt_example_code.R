@@ -256,21 +256,37 @@ item40.os.table <- data.frame("BuildingType"          = item40.os.cast$BuildingT
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
+############################################################################################################
 
 # row ordering example code
-levels(itemXX.os.table$Sample)
-rowOrder <- c("SCL GenPop"
-              ,"SCL LI"
-              ,"SCL EH"
-              ,"2017 RBSA PS")
-itemXX.os.table <- itemXX.os.table %>% mutate(Sample = factor(Sample, levels = rowOrder)) %>% arrange(Sample)  
+levels(itemXX.os.table$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA MW")
+}
+itemXX.os.table <- itemXX.os.table %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
 itemXX.os.table <- data.frame(itemXX.os.table)
+
+
+
+
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+
+
 
 
 
@@ -311,3 +327,33 @@ item1.os.table <- data.frame("BuildingType"             = item1.os.cast$Building
                              ,"Percent_RBSA.NW"         = item1.os.cast$`Percent_2017 RBSA NW`
                              ,"SE_RBSA.NW"              = item1.os.cast$`SE_2017 RBSA NW`
                              ,"n_RBSA.NW"               = item1.os.cast$`n_2017 RBSA NW`)
+
+
+item5.os.table <- data.frame("BuildingType"     = item5.os.cast$BuildingType
+                             ,"HousingVintage"     = item5.os.cast$HomeYearBuilt_bins2
+                             ,"Mean_SnoPUD"          = item5.os.cast$`Mean_SnoPUD`
+                             ,"SE_SnoPUD"            = item5.os.cast$`SE_SnoPUD`
+                             ,"n_SnoPUD"             = item5.os.cast$`n_SnoPUD`
+                             ,"Mean_2017.RBSA.PS"    = item5.os.cast$`Mean_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item5.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item5.os.cast$`n_2017 RBSA PS`
+                             ,"Mean_RBSA.NW"         = item5.os.cast$`Mean_2017 RBSA NW`
+                             ,"SE_RBSA.NW"           = item5.os.cast$`SE_2017 RBSA NW`
+                             ,"n_RBSA.NW"            = item5.os.cast$`n_2017 RBSA NW`
+                             ,"EB_SnoPUD"            = item5.os.cast$`EB_SnoPUD`
+                             ,"EB_2017.RBSA.PS"      = item5.os.cast$`EB_2017 RBSA PS`
+                             ,"EB_RBSA.NW"           = item5.os.cast$`EB_2017 RBSA NW`
+)
+
+item5.os.table <- data.frame("BuildingType"     = item5.os.cast$BuildingType
+                             ,"HousingVintage"     = item5.os.cast$HomeYearBuilt_bins2
+                             ,"Mean_SnoPUD"          = item5.os.cast$`Mean_SnoPUD`
+                             ,"SE_SnoPUD"            = item5.os.cast$`SE_SnoPUD`
+                             ,"n_SnoPUD"             = item5.os.cast$`n_SnoPUD`
+                             ,"Mean_2017.RBSA.PS"    = item5.os.cast$`Mean_2017 RBSA PS`
+                             ,"SE_2017.RBSA.PS"      = item5.os.cast$`SE_2017 RBSA PS`
+                             ,"n_2017.RBSA.PS"       = item5.os.cast$`n_2017 RBSA PS`
+                             ,"Mean_RBSA.NW"         = item5.os.cast$`Mean_2017 RBSA NW`
+                             ,"SE_RBSA.NW"           = item5.os.cast$`SE_2017 RBSA NW`
+                             ,"n_RBSA.NW"            = item5.os.cast$`n_2017 RBSA NW`
+)

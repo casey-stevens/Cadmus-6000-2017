@@ -27,7 +27,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
@@ -64,146 +65,64 @@ prep.dat0 <- prep.dat[which(prep.dat$`Ceiling.Insulated?` %in% c("Yes", "No", "D
 prep.dat1.0 <- prep.dat0[which(!(is.na(as.numeric(as.character(prep.dat0$Ceiling.Area))))),]
 prep.dat1.2 <- prep.dat1.0[which(prep.dat1.0$Ceiling.Insulation.Thickness.1 != "Unknown"),]
 
-#review types
-unique(prep.dat1.2$Ceiling.Insulation.Type.1)
-unique(prep.dat1.2$Ceiling.Insulation.Type.2)
-unique(prep.dat1.2$Ceiling.Insulation.Type.3) #nothing in this column
-
-#review insulation thicknesses
-unique(prep.dat1.2$Ceiling.Insulation.Thickness.1)
-unique(prep.dat1.2$Ceiling.Insulation.Thickness.2)
-unique(prep.dat1.2$Ceiling.Insulation.Thickness.3)
-
-#review conditions
-unique(prep.dat1.2$Ceiling.Insulation.Condition.1)
-unique(prep.dat1.2$Ceiling.Insulation.Condition.2)
-unique(prep.dat1.2$Ceiling.Insulation.Condition.3)
-
 #assign new dataset
 prep.dat3 <- prep.dat1.2
 
-###########################
-# Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
-###########################
-
+#######################################################
+# Cleaning Steps
+#######################################################
+# replace datapoint not asked for with blank
 for(i in 1:ncol(prep.dat3)){
   prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("-- Datapoint not asked for --","Datapoint not asked for"), NA, prep.dat3[,i])
 }
 
-#cleaning for wall.cavity
-prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-prep.dat3$Ceiling.Insulation.Thickness.1[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.1))] <- "N/A N/A"
-prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "12")] <- "12 inches"
-prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "5.5")] <- "5.5 inches"
-prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "20 or more inches")] <- "20 inches"
-prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
-prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
-prep.dat3$Ceiling.Insulation.Thickness.2[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.2))] <- "N/A N/A"
-prep.dat3$Ceiling.Insulation.Thickness.2[which(prep.dat3$Ceiling.Insulation.Thickness.2 == "20 or more inches")] <- "20 inches"
-prep.dat3$Ceiling.Insulation.Thickness.3[which(prep.dat3$Ceiling.Insulation.Thickness.3 == "Unknown")] <- "Unknown Unknown"
-prep.dat3$Ceiling.Insulation.Thickness.3[which(prep.dat3$Ceiling.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
-prep.dat3$Ceiling.Insulation.Thickness.3[which(is.na(prep.dat3$Ceiling.Insulation.Thickness.3))] <- "N/A N/A"
-unique(prep.dat3$Ceiling.Insulation.Thickness.1)
-unique(prep.dat3$Ceiling.Insulation.Thickness.2)
-unique(prep.dat3$Ceiling.Insulation.Thickness.3)
-
-#Clean Condition unknown values
-prep.dat3$Ceiling.Insulation.Condition.1[which(prep.dat3$Ceiling.Insulation.Condition.1 == "Unknown")] <- "100%"
-prep.dat3$Ceiling.Insulation.Condition.2[which(prep.dat3$Ceiling.Insulation.Condition.2 == "Unknown")] <- "100%"
-prep.dat3$Ceiling.Insulation.Condition.3[which(prep.dat3$Ceiling.Insulation.Condition.3 == "Unknown")] <- "100%"
-
-prep.dat3$Ceiling.Insulation.Condition.1[which(is.na(prep.dat3$Ceiling.Insulation.Condition.1) & prep.dat3$Ceiling.Insulation.Thickness.1 != "N/A N/A")] <- "100%"
-prep.dat3$Ceiling.Insulation.Condition.2[which(is.na(prep.dat3$Ceiling.Insulation.Condition.2) & prep.dat3$Ceiling.Insulation.Thickness.2 != "N/A N/A")] <- "100%"
-prep.dat3$Ceiling.Insulation.Condition.3[which(is.na(prep.dat3$Ceiling.Insulation.Condition.3) & prep.dat3$Ceiling.Insulation.Thickness.3 != "N/A N/A")] <- "100%"
-
-prep.dat3$Ceiling.Insulation.Condition.1[which(prep.dat3$`Ceiling.Insulated?` == "No")] <- "0%"
-
-
-#remove percent signs and make numeric
-prep.dat3$Ceiling.Insulation.Condition.1 <- gsub("%", "", prep.dat3$Ceiling.Insulation.Condition.1)
-prep.dat3$Ceiling.Insulation.Condition.1 <- as.numeric(as.character(prep.dat3$Ceiling.Insulation.Condition.1))
-prep.dat3$Ceiling.Insulation.Condition.2 <- gsub("%", "", prep.dat3$Ceiling.Insulation.Condition.2)
-prep.dat3$Ceiling.Insulation.Condition.2 <- as.numeric(as.character(prep.dat3$Ceiling.Insulation.Condition.2))
-prep.dat3$Ceiling.Insulation.Condition.3 <- gsub("%", "", prep.dat3$Ceiling.Insulation.Condition.3)
-prep.dat3$Ceiling.Insulation.Condition.3 <- as.numeric(as.character(prep.dat3$Ceiling.Insulation.Condition.3))
-
-# add new ID variable for merging -- don't know if we need this
-prep.dat3$count <- 1
-prep.dat3$TMP_ID <- cumsum(prep.dat3$count)
-
-prep.dat3$Ceiling.Insulation.Thickness.1[which(prep.dat3$Ceiling.Insulation.Thickness.1 == "20 or more inches")] <- "20 inches"
-
-clean.insul1 <- unlist(strsplit(prep.dat3$Ceiling.Insulation.Thickness.1, " "))
-clean.insul1.1 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
-clean.insul1.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , clean.insul1.1)
-dim(clean.insul1.1)
-
-clean.insul2 <- unlist(strsplit(prep.dat3$Ceiling.Insulation.Thickness.2, " "))
-clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul2, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul2.1)
-
-clean.insul3 <- unlist(strsplit(prep.dat3$Ceiling.Insulation.Thickness.3, " "))
-clean.insul3.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   ,"CK_Building_ID" = prep.dat3$CK_SiteID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul3, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul3.1)
-
-
-clean.insul.join1 <- left_join(clean.insul1.2,    clean.insul2.1, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
-clean.insul.join2 <- left_join(clean.insul.join1, clean.insul3.1, by = c("CK_Cadmus_ID","CK_Building_ID", "TMP_ID"))
-
-colnames(clean.insul.join2) <- c("CK_Cadmus_ID"
-                                 ,"CK_SiteID"
-                                 ,"TMP_ID"
-                                 ,"ceiling.inches1"
-                                 ,"Remove.1"
-                                 ,"ceiling.inches2"
-                                 ,"Remove.2"
-                                 ,"ceiling.inches3"
-                                 ,"Remove.3")
-
-clean.thickness.data <- clean.insul.join2[-grep("Remove", colnames(clean.insul.join2))]
-
-###########################
-# End cleaning step
-###########################
-
-#make into dataframe
-prep.dat4 <- as.data.frame(left_join(prep.dat3, clean.thickness.data, by = c("CK_SiteID", "TMP_ID"))
-                           , stringsAsFactors = F) 
-# warning here is OK
-
-###########################
-# Cleaning inches and rvalue information
-###########################
-# make numeric
-prep.dat4$ceiling.inches1   <- as.numeric(as.character(prep.dat4$ceiling.inches1)) # warning here is OK
-prep.dat4$ceiling.inches2   <- as.numeric(as.character(prep.dat4$ceiling.inches2)) # warning here is OK
-prep.dat4$ceiling.inches3   <- as.numeric(as.character(prep.dat4$ceiling.inches3)) # warning here is OK
-
-#replace any inches that are NA with zeros
-for(i in grep("inches", colnames(prep.dat4))){
-  prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
+# replace Unknown or NA in Condition columns with 1 (or 100%)
+for (i in grep("condition", names(prep.dat3), ignore.case = T)){
+  prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("Unknown","N/A"), 1, prep.dat3[,i])
 }
 
+# when Ceiling or slab insulated columns = No, make condition 0%
+prep.dat3$Ceiling.Insulation.Condition.1[which(prep.dat3$`Ceiling.Insulated?` == "No")] <- "0%"
+
+# Make thickness columns numeric
+for (i in grep("thickness", names(prep.dat3), ignore.case = T)){
+  prep.dat3[,i] <- as.numeric(as.character(prep.dat3[,i]))
+}
+
+#######################################################
+# Cleaning and re-naming inches and rvalue information
+#######################################################
+prep.dat4 <- prep.dat3
+# make numeric
+prep.dat4$ceiling.inches1 <- prep.dat4$Ceiling.Insulation.Thickness.1
+prep.dat4$ceiling.inches2 <- prep.dat4$Ceiling.Insulation.Thickness.2
+prep.dat4$ceiling.inches3 <- prep.dat4$Ceiling.Insulation.Thickness.3
 #update column names
 prep.dat4$ceiling.rvalues1 <- prep.dat4$Ceiling.Insulation.Type.1
 prep.dat4$ceiling.rvalues2 <- prep.dat4$Ceiling.Insulation.Type.2
 prep.dat4$ceiling.rvalues3 <- prep.dat4$Ceiling.Insulation.Type.3
 
+#replace any inches that are NA with zeros
+for(i in grep("inches|rvalues", colnames(prep.dat4))){
+  prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
+}
+
 #fix names that are not in R value table
-prep.dat4$ceiling.rvalues1[which(prep.dat4$ceiling.rvalues1 == "Extruded polystyrene foam board (pink or blue)")] <- "Extruded polystyrene foam board"
-prep.dat4$ceiling.rvalues1[which(prep.dat4$ceiling.rvalues1 == "Other")]                                          <- "Unknown"
-prep.dat4$ceiling.rvalues2[which(prep.dat4$ceiling.rvalues2 == "Expanded polystyrene foam board (white)")]        <- "Expanded polystyrene foam board"
+prep.dat4$ceiling.rvalues1[grep("extruded", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Extruded polystyrene foam board"
+prep.dat4$ceiling.rvalues1[grep("Expanded", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Expanded polystyrene foam board"
+prep.dat4$ceiling.rvalues1[grep("other|unknown", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Unknown"
+prep.dat4$ceiling.rvalues1[grep("wood", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Wood shavings"
+prep.dat4$ceiling.rvalues1[grep("rock", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Rock wool"
+unique(prep.dat4$ceiling.rvalues1)
+prep.dat4$ceiling.rvalues2[grep("extruded", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Extruded polystyrene foam board"
+prep.dat4$ceiling.rvalues2[grep("Expanded", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Expanded polystyrene foam board"
+prep.dat4$ceiling.rvalues2[grep("other|unknown", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Unknown"
+prep.dat4$ceiling.rvalues2[grep("wood", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Wood shavings"
+prep.dat4$ceiling.rvalues2[grep("rock|wool", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Rock Wool"
+prep.dat4$ceiling.rvalues2[grep("None", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "0"
+prep.dat4$ceiling.rvalues2[which(prep.dat4$ceiling.rvalues2 %in% c("Foil-faced polyiscyanurate foam board", "Foil-faced fiberglass insulation"))] <- "Foil-faced polyisocyanurate foam board"
+unique(prep.dat4$ceiling.rvalues2)
+prep.dat4$ceiling.rvalues3[which(prep.dat4$ceiling.rvalues3 %in% c("Foil-faced polyiscyanurate foam board", "Foil-faced fiberglass insulation"))] <- "Foil-faced polyisocyanurate foam board"
 
 ###########################
 # End cleaning step
@@ -226,7 +145,6 @@ unique(prep.dat4$ceiling.rvalues1)
 unique(prep.dat4$ceiling.rvalues2)
 unique(prep.dat4$ceiling.rvalues3)
 
-
 prep.dat4$ceiling.rvalues1[which(prep.dat4$`Ceiling.Insulated?` == "No")] <- 0
 prep.dat4$ceiling.rvalues2[which(prep.dat4$`Ceiling.Insulated?` == "No")] <- 0
 prep.dat4$ceiling.rvalues3[which(prep.dat4$`Ceiling.Insulated?` == "No")] <- 0
@@ -239,19 +157,14 @@ prep.dat4$ceiling.inches3[which(prep.dat4$`Ceiling.Insulated?` == "No")] <- 0
 for(i in grep("inches|rvalues", colnames(prep.dat4))){
   prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
 }
-
-
 #make all inches and rvalue columns numeric
 for(i in grep("inches|rvalues", colnames(prep.dat4))){
   prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
 }
-
 #replace any inches and rvalues that are NA with zeros
 for(i in grep("inches|rvalues", colnames(prep.dat4))){
   prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
 }
-
-
 #make all inches and rvalue columns numeric
 for(i in grep("inches|rvalues", colnames(prep.dat4))){
   prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
@@ -259,10 +172,8 @@ for(i in grep("inches|rvalues", colnames(prep.dat4))){
 
 prep.dat4.5 <- prep.dat4
 
-
 #create total.r.value column
 prep.dat4.5$total.r.val <- NA
-
 
 #check uniques -- None should be NA
 unique(prep.dat4.5$ceiling.rvalues1)
@@ -271,17 +182,6 @@ unique(prep.dat4.5$ceiling.rvalues3)
 unique(prep.dat4.5$ceiling.inches1)
 unique(prep.dat4.5$ceiling.inches2)
 unique(prep.dat4.5$ceiling.inches3)
-
-## Clean condition values
-prep.dat4.5$Ceiling.Insulation.Condition.1   <- as.character(prep.dat4.5$Ceiling.Insulation.Condition.1)
-prep.dat4.5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat4.5$Ceiling.Insulation.Condition.1))] <- "NA"
-unique(prep.dat4.5$Ceiling.Insulation.Condition.1)
-
-for(ii in 1:nrow(prep.dat4.5)){
-  if(prep.dat4.5$Ceiling.Insulation.Condition.1[ii] %notin% c("1","0.75", "0.9")){
-    prep.dat4.5$Ceiling.Insulation.Condition.1[ii] <- as.numeric(prep.dat4.5$Ceiling.Insulation.Condition.1)[ii] / 100
-  }
-}
 
 prep.dat4.5$Ceiling.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Ceiling.Insulation.Condition.1))
 
@@ -297,13 +197,10 @@ prep.dat5 <- rbind.data.frame(prep.dat4.5
                               , stringsAsFactors = F)
 
 prep.dat5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat5$Ceiling.Insulation.Condition.1))] <- 1 
-# prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
-
-
 #calculate the weighted r value
 na.ind <- which(is.na(prep.dat5$total.r.val))
 prep.dat5$total.r.val[na.ind] <- (prep.dat5$ceiling.rvalues1[na.ind] * prep.dat5$ceiling.inches1[na.ind]) +  
@@ -361,9 +258,9 @@ ceiling.merge <- left_join(rbsa.ceiling, prep.dat5, by = c("CK_Building_ID" = "C
 ceiling.merge <- ceiling.merge[which(!is.na(ceiling.merge$uvalue)),]
 #########export rvalues
 ##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(ceiling.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Ceiling Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 

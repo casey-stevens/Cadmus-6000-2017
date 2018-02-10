@@ -62,4 +62,10 @@ stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
 # # Read in clean RBSA data
 # os.ind <- "rbsa"
 # rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData ,paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+
+
+# For Mechanical
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+
+# For Envelope
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
