@@ -305,7 +305,7 @@ floor.merge <- floor.merge[which(!is.na(floor.merge$uvalue)),]
 ############################################################################################################
 # ITEM 23: DISTRIBUTION OF FLOOR INSULATION BY HOME VINTAGE (SF Table 30, MH Table 18)
 ############################################################################################################
-item23.dat <- prep.dat7
+item23.dat <- prep.dat7[grep("site", prep.dat7$CK_Building_ID, ignore.case = T),]
 
 item23.dat1 <- item23.dat[which(!(is.na(item23.dat$HomeYearBuilt_bins3))),]
 
@@ -404,29 +404,21 @@ item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,"Housing.Vintage" = item23.cast$HomeYearBuilt_bins3
                            ,"Percent.None"    = item23.cast$w.percent_None
                            ,"SE.None"         = item23.cast$w.SE_None
-                           # ,"n.None"          = item23.cast$n_None
                            ,"Percent.R1.R3"   = item23.cast$w.percent_R1.R3  
                            ,"SE.R1.R3"        = item23.cast$w.SE_R1.R3
-                           # ,"n.R1.R3"         = item23.cast$n_R1.R3
                            ,"Percent.R4.R10"  = item23.cast$w.percent_R4.R10  
                            ,"SE.R4.R10"       = item23.cast$w.SE_R4.R10
-                           # ,"n.R4.R10"        = item23.cast$n_R4.R10
                            ,"Percent.R11.R15" = item23.cast$w.percent_R11.R15
                            ,"SE.R11.R15"      = item23.cast$w.SE_R11.R15
-                           # ,"n.R11.R15"       = item23.cast$n_R11.R15
                            ,"Percent.R16.R22" = item23.cast$w.percent_R16.R22
                            ,"SE.R16.R22"      = item23.cast$w.SE_R16.R22
-                           # ,"n.R16.R22"       = item23.cast$n_R16.R22
                            ,"Percent.R23.R27" = item23.cast$w.percent_R23.R27
                            ,"SE.R23.R27"      = item23.cast$w.SE_R23.R27
-                           # ,"n.R23.R27"       = NA #item23.cast$n_R23.R27
                            ,"Percent.R28.R35" = item23.cast$w.percent_R28.R35
                            ,"SE.R28.R35"      = item23.cast$w.SE_R28.R35
-                           # ,"n.R28.R35"       = item23.cast$n_R28.R35
                            ,"Percent.RGT36"   = item23.cast$w.percent_RGT36
                            ,"SE.RGT36"        = item23.cast$w.SE_RGT36
-                           # ,"n.RGT36"         = item23.cast$n_RGT36
-                           ,"n"                 = item23.cast$`n_All Housing Vintages`
+                           ,"n"               = item23.cast$`n_All Housing Vintages`
                            ,'EB.None'         = item23.cast$EB_None
                            ,'EB.R1.R3'        = item23.cast$EB_R1.R3
                            ,'EB.R4.R10'       = item23.cast$EB_R4.R10
@@ -452,8 +444,7 @@ item23.table <- data.frame(item23.table)
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.SF, "SF", "Table 30"
-            , weighted = TRUE)
+exportTable(item23.table.SF, "SF", "Table 30", weighted = TRUE)
 
 ######################
 # Unweighted - Single Family
@@ -626,7 +617,7 @@ item23.table <- data.frame(item23.table)
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
+# exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
 
 
 ######################
@@ -708,7 +699,7 @@ item23.table <- data.frame(item23.table)
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
+# exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 
 
 

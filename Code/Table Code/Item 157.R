@@ -32,7 +32,7 @@ envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 

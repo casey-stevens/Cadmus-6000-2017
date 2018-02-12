@@ -191,8 +191,9 @@ tableAK.final <- mean_one_group(CustomerLevelData = tableAK.data
                                ,aggregateRow = "All Systems")
 tableAK.final.SF <- tableAK.final[which(tableAK.final$BuildingType == "Single Family"),-which(colnames(tableAK.final) == "BuildingType")]
 tableAK.final.MH <- tableAK.final[which(tableAK.final$BuildingType == "Manufactured"),-which(colnames(tableAK.final) == "BuildingType")]
-# exportTable(tableAK.final.SF, "SF", "Table AK", weighted = TRUE)
-exportTable(tableAK.final.MH, "MH", "Table AK", weighted = TRUE)
+
+exportTable(tableAK.final.SF, "SF", "Table AK", weighted = TRUE)
+# exportTable(tableAK.final.MH, "MH", "Table AK", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -203,8 +204,9 @@ tableAK.final <- mean_one_group_unweighted(CustomerLevelData = tableAK.data
                                 ,aggregateRow = "All Systems")
 tableAK.final.SF <- tableAK.final[which(tableAK.final$BuildingType == "Single Family"),-which(colnames(tableAK.final) == "BuildingType")]
 tableAK.final.MH <- tableAK.final[which(tableAK.final$BuildingType == "Manufactured"),-which(colnames(tableAK.final) == "BuildingType")]
-# exportTable(tableAK.final.SF, "SF", "Table AK", weighted = FALSE)
-exportTable(tableAK.final.MH, "MH", "Table AK", weighted = FALSE)
+
+exportTable(tableAK.final.SF, "SF", "Table AK", weighted = FALSE)
+# exportTable(tableAK.final.MH, "MH", "Table AK", weighted = FALSE)
 
 
 

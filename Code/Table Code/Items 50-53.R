@@ -91,7 +91,6 @@ item50.dat3 <- item50.dat2[which(item50.dat2$`Heating.Efficiency.-.High` != "Unk
 
 #make heating efficiency information numeric
 item50.dat3$`Heating.Efficiency.-.High` <- as.numeric(as.character(item50.dat3$`Heating.Efficiency.-.High`))
-item50.dat3$`Heating.Efficiency.-.High` <- item50.dat3$`Heating.Efficiency.-.High` / 100
 unique(item50.dat3$`Heating.Efficiency.-.High`)
 item50.dat3$count <- 1
 
@@ -229,7 +228,7 @@ item50.table <- data.frame(item50.table)
 
 item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
 
-exportTable(item50.table.MH, "MH", "Table 38", weighted = TRUE)
+# exportTable(item50.table.MH, "MH", "Table 38", weighted = TRUE)
 
 
 
@@ -280,7 +279,7 @@ item50.table <- data.frame(item50.table)
 #subset to only the relevant building types for this item
 item50.table.SF <- item50.table[which(item50.table$BuildingType == "Single Family"),-which(colnames(item50.table) %in% c("BuildingType"))]
 
-# exportTable(item50.table.SF, "SF", "Table 57", weighted = FALSE)
+exportTable(item50.table.SF, "SF", "Table 57", weighted = FALSE)
 
 ###########################
 # unWeighted Analysis - Manufactured
@@ -327,7 +326,7 @@ item50.table <- data.frame(item50.table)
 
 item50.table.MH <- item50.table[which(item50.table$BuildingType == "Manufactured") , -which(colnames(item50.table) %in% c("BuildingType"))]
 
-exportTable(item50.table.MH, "MH", "Table 38", weighted = FALSE)
+# exportTable(item50.table.MH, "MH", "Table 38", weighted = FALSE)
 
 
 
@@ -410,7 +409,8 @@ item51.table <- data.frame(item51.table)
 
 #subset to only the relevant building types for this item
 item51.table.SF <- item51.table[which(item51.table$BuildingType %in% c("Single Family")),-1]
-# exportTable(item51.table.SF, "SF", "Table 58", weighted = TRUE)
+
+exportTable(item51.table.SF, "SF", "Table 58", weighted = TRUE)
 
 ##########################
 # Unweighted Analysis
@@ -459,7 +459,8 @@ item51.table <- data.frame(item51.table)
 
 #subset to only the relevant building types for this item
 item51.table.SF <- item51.table[which(item51.table$BuildingType %in% c("Single Family")),-1]
-# exportTable(item51.table.SF, "SF", "Table 58", weighted = FALSE)
+
+exportTable(item51.table.SF, "SF", "Table 58", weighted = FALSE)
 
 
 
@@ -554,7 +555,7 @@ item52.final <- data.frame(item52.final)
 # Export table
 item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Family"),-1]
 
-# exportTable(item52.final.SF, "SF", "Table 59", weighted = TRUE)
+exportTable(item52.final.SF, "SF", "Table 59", weighted = TRUE)
 
 ###############################
 # Weighted Analysis - manufactured
@@ -578,7 +579,7 @@ item52.final <- data.frame(item52.final)
 # Export table
 item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item52.final.MH, "MH", "Table 39", weighted = TRUE)
+# exportTable(item52.final.MH, "MH", "Table 39", weighted = TRUE)
 
 
 
@@ -606,7 +607,7 @@ item52.final <- data.frame(item52.final)
 # SF = Table 59, MH = Table 39
 item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Family"),-1]
 
-# exportTable(item52.final.SF, "SF", "Table 59", weighted = FALSE)
+exportTable(item52.final.SF, "SF", "Table 59", weighted = FALSE)
 
 ###############################
 # unweighted Analysis - manufactured
@@ -630,7 +631,7 @@ item52.final <- data.frame(item52.final)
 # Export table
 item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item52.final.MH, "MH", "Table 39", weighted = FALSE)
+# exportTable(item52.final.MH, "MH", "Table 39", weighted = FALSE)
 
 
 
@@ -732,8 +733,8 @@ item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
 item53.table.SF <- item53.table[which(item53.table$BuildingType %in% c("Single Family")),-1]
 item53.table.MH <- item53.table[which(item53.table$BuildingType %in% c("Manufactured")),-1]
 
-# exportTable(item53.table.SF, "SF", "Table 60", weighted = TRUE)
-exportTable(item53.table.MH, "MH", "Table 40", weighted = TRUE)
+exportTable(item53.table.SF, "SF", "Table 60", weighted = TRUE)
+# exportTable(item53.table.MH, "MH", "Table 40", weighted = TRUE)
 
 
 ########################
@@ -774,8 +775,8 @@ item53.table <- data.frame("BuildingType"    = item53.cast$BuildingType
 item53.table.SF <- item53.table[which(item53.table$BuildingType %in% c("Single Family")),-1]
 item53.table.MH <- item53.table[which(item53.table$BuildingType %in% c("Manufactured")),-1]
 
-# exportTable(item53.table.SF, "SF", "Table 60", weighted = FALSE)
-exportTable(item53.table.MH, "MH", "Table 40", weighted = FALSE)
+exportTable(item53.table.SF, "SF", "Table 60", weighted = FALSE)
+# exportTable(item53.table.MH, "MH", "Table 40", weighted = FALSE)
 
 
 

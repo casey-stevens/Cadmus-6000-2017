@@ -36,7 +36,7 @@ results.dat <- left_join(rbsa.dat, billing.dat, by = "CK_Cadmus_ID")
 results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -203,7 +203,7 @@ survey.final$Qty.Occupants <- as.numeric(item122.dat2$Qty.Occupants)
 survey.final <- survey.final[which(!is.na(item122.dat2$Qty.Occupants)),]
 
 ##### Now start doing the various summaries
-UsageDataSF <- results.dat2[which(results.dat2$BuildingType == "Manufactured"),]
+UsageDataSF <- results.dat2[which(results.dat2$BuildingType == "Single Family"),]
 UsageDataSF_2 <- UsageDataSF[-which(is.na(UsageDataSF$UsageNAC_kWh)),]
 UsageDataSF_3 <- UsageDataSF_2[which(UsageDataSF_2$Conditioned.Area > 0),]
 UsageDataSF_3$EUI <- UsageDataSF_3$UsageNAC_kWh/UsageDataSF_3$Conditioned.Area
@@ -236,16 +236,16 @@ quantile(UsageDataSF_Final7$EUI)
 summary(UsageDataSF_Final7$EUI)
 
 #for single family
-# UsageDataSF_Final7$EUI_Quartile <- 4
-# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5486421)] <- 1
-# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5486421 & UsageDataSF_Final7$EUI < 5.9583333)] <- 2
-# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9583333 & UsageDataSF_Final7$EUI < 9.2550041)] <- 3
-
-#for Manufactured
 UsageDataSF_Final7$EUI_Quartile <- 4
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 6.365929)] <- 1
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.365929 & UsageDataSF_Final7$EUI < 10.069864)] <- 2
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 10.069864 & UsageDataSF_Final7$EUI < 13.727086)] <- 3
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5344431)] <- 1
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5344431 & UsageDataSF_Final7$EUI < 5.9624753)] <- 2
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9624753 & UsageDataSF_Final7$EUI < 9.2508641)] <- 3
+
+#for manufactured
+# UsageDataSF_Final7$EUI_Quartile <- 4
+# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 6.365929)] <- 1
+# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.365929 & UsageDataSF_Final7$EUI < 10.069864)] <- 2
+# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 10.069864 & UsageDataSF_Final7$EUI < 13.727086)] <- 3
 
 ###########################
 #Pull in weights
@@ -337,8 +337,8 @@ names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c
 #######################
 UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
 
-# exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
-exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
+exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
+# exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
 
 
 

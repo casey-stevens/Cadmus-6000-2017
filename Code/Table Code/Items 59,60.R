@@ -145,17 +145,16 @@ item60.dat2 <- item60.dat1[which(item60.dat1$Percentage.of.Supply.Ducts.in.Condi
 item60.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space <- as.numeric(as.character(item60.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space))
 
 #Create Unconditioned Space Percent
-item60.dat2$PercentDuctsUnconditionedSpace <- 100 - item60.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space
+item60.dat2$PercentDuctsUnconditionedSpace <- 1 - item60.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space
 #double check these make sense
 item60.dat2$PercentDuctsUnconditionedSpace
-
 
 #create percent ducts unconditioned space bins
 item60.dat2$UnconditionedBins <- "MISSING"
 item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace == 0)] <- "None"
-item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 1 & item60.dat2$PercentDuctsUnconditionedSpace < 51)] <- "1-50%"
-item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 51 & item60.dat2$PercentDuctsUnconditionedSpace < 100)] <- "51-99%"
-item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 100)] <- "100%"
+item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 0.01 & item60.dat2$PercentDuctsUnconditionedSpace < 0.51)] <- "1-50%"
+item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 0.51 & item60.dat2$PercentDuctsUnconditionedSpace < 1)] <- "51-99%"
+item60.dat2$UnconditionedBins[which(item60.dat2$PercentDuctsUnconditionedSpace >= 1)] <- "100%"
 unique(item60.dat2$UnconditionedBins)
 item60.dat2$count <- 1
 

@@ -107,8 +107,8 @@ item124.final.SF <- item124.table[which(item124.table$BuildingType == "Single Fa
 item124.final.MH <- item124.table[which(item124.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item124.table) %in% c("BuildingType"))]
 
-# exportTable(item124.final.SF, "SF", "Table 131", weighted = TRUE)
-exportTable(item124.final.MH, "MH", "Table 106", weighted = TRUE)
+exportTable(item124.final.SF, "SF", "Table 131", weighted = TRUE)
+# exportTable(item124.final.MH, "MH", "Table 106", weighted = TRUE)
 
 
 #######################
@@ -152,8 +152,8 @@ item124.final.SF <- item124.table[which(item124.table$BuildingType == "Single Fa
 item124.final.MH <- item124.table[which(item124.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item124.table) %in% c("BuildingType"))]
 
-# exportTable(item124.final.SF, "SF", "Table 131", weighted = FALSE)
-exportTable(item124.final.MH, "MH", "Table 106", weighted = FALSE)
+exportTable(item124.final.SF, "SF", "Table 131", weighted = FALSE)
+# exportTable(item124.final.MH, "MH", "Table 106", weighted = FALSE)
 
 
 
@@ -211,8 +211,8 @@ item125.final.SF <- item125.final[which(item125.final$BuildingType == "Single Fa
 item125.final.MH <- item125.final[which(item125.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item125.final) %in% c("BuildingType"))]
 
-# exportTable(item125.final.SF, "SF", "Table 132", weighted = TRUE)
-exportTable(item125.final.MH, "MH", "Table 107", weighted = TRUE)
+exportTable(item125.final.SF, "SF", "Table 132", weighted = TRUE)
+# exportTable(item125.final.MH, "MH", "Table 107", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -228,8 +228,8 @@ item125.final.SF <- item125.final[which(item125.final$BuildingType == "Single Fa
 item125.final.MH <- item125.final[which(item125.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item125.final) %in% c("BuildingType"))]
 
-# exportTable(item125.final.SF, "SF", "Table 132", weighted = FALSE)
-exportTable(item125.final.MH, "MH", "Table 107", weighted = FALSE)
+exportTable(item125.final.SF, "SF", "Table 132", weighted = FALSE)
+# exportTable(item125.final.MH, "MH", "Table 107", weighted = FALSE)
 
 
 
@@ -240,18 +240,18 @@ exportTable(item125.final.MH, "MH", "Table 107", weighted = FALSE)
 #############################################################################################
 #Item 126: PERCENTAGE OF HOMES WITH HOME OFFICES BY STATE (SF table 133, MH table 108)
 #############################################################################################
-#subset to columns needed for analysis
-item126.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                     ,""
-                                                                                     ,""))])
-colnames(item126.dat) <- c("CK_Cadmus_ID", "")
-item126.dat$count <- 1
-
-#remove any repeat header rows from exporting
-item126.dat0 <- item126.dat[which(item126.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-
-#merge together analysis data with cleaned RBSA data
-item126.dat1 <- left_join(item126.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+# #subset to columns needed for analysis
+# item126.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+#                                                                                      ,""
+#                                                                                      ,""))])
+# colnames(item126.dat) <- c("CK_Cadmus_ID", "")
+# item126.dat$count <- 1
+# 
+# #remove any repeat header rows from exporting
+# item126.dat0 <- item126.dat[which(item126.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+# 
+# #merge together analysis data with cleaned RBSA data
+# item126.dat1 <- left_join(item126.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 # 
 # unique(item126.dat1$)
 # 
@@ -345,8 +345,8 @@ item127.final.SF <- item127.table[which(item127.table$BuildingType == "Single Fa
 item127.final.MH <- item127.table[which(item127.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item127.table) %in% c("BuildingType"))]
 
-# exportTable(item127.final.SF, "SF", "Table 134", weighted = TRUE)
-exportTable(item127.final.MH, "MH", "Table 109", weighted = TRUE)
+exportTable(item127.final.SF, "SF", "Table 134", weighted = TRUE)
+# exportTable(item127.final.MH, "MH", "Table 109", weighted = TRUE)
 
 
 #######################
@@ -398,8 +398,8 @@ item127.final.SF <- item127.table[which(item127.table$BuildingType == "Single Fa
 item127.final.MH <- item127.table[which(item127.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item127.table) %in% c("BuildingType"))]
 
-# exportTable(item127.final.SF, "SF", "Table 134", weighted = FALSE)
-exportTable(item127.final.MH, "MH", "Table 109", weighted = FALSE)
+exportTable(item127.final.SF, "SF", "Table 134", weighted = FALSE)
+# exportTable(item127.final.MH, "MH", "Table 109", weighted = FALSE)
 
 
 
@@ -452,8 +452,8 @@ tableAD.final.SF <- tableAD.final[which(tableAD.final$BuildingType == "Single Fa
 tableAD.final.MH <- tableAD.final[which(tableAD.final$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAD.final) %in% c("BuildingType"))]
 
-# exportTable(tableAD.final.SF, "SF", "Table AD", weighted = TRUE)
-exportTable(tableAD.final.MH, "MH", "Table AD", weighted = TRUE)
+exportTable(tableAD.final.SF, "SF", "Table AD", weighted = TRUE)
+# exportTable(tableAD.final.MH, "MH", "Table AD", weighted = TRUE)
 
 #######################
 # MULTIFAMILY
@@ -464,7 +464,7 @@ tableAD.final.MF <- proportions_one_group(CustomerLevelData = tableAD.data
                                        ,total.name = "All Types")
 tableAD.final.MF <- tableAD.final.MF[which(tableAD.final.MF$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAD.final.MF) %in% c("BuildingType"))]
-exportTable(tableAD.final.MF, "MF", "Table AD", weighted = TRUE)
+# exportTable(tableAD.final.MF, "MF", "Table AD", weighted = TRUE)
 
 
 
@@ -486,8 +486,8 @@ tableAD.final.SF <- tableAD.final[which(tableAD.final$BuildingType == "Single Fa
 tableAD.final.MH <- tableAD.final[which(tableAD.final$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAD.final) %in% c("BuildingType"))]
 
-# exportTable(tableAD.final.SF, "SF", "Table AD", weighted = FALSE)
-exportTable(tableAD.final.MH, "MH", "Table AD", weighted = FALSE)
+exportTable(tableAD.final.SF, "SF", "Table AD", weighted = FALSE)
+# exportTable(tableAD.final.MH, "MH", "Table AD", weighted = FALSE)
 
 #######################
 # MULTIFAMILY
@@ -499,7 +499,7 @@ tableAD.final.MF <- proportions_one_group(CustomerLevelData = tableAD.data
                                           ,weighted = FALSE)
 tableAD.final.MF <- tableAD.final.MF[which(tableAD.final.MF$BuildingType == "Multifamily")
                                      ,-which(colnames(tableAD.final.MF) %in% c("BuildingType"))]
-exportTable(tableAD.final.MF, "MF", "Table AD", weighted = FALSE)
+# exportTable(tableAD.final.MF, "MF", "Table AD", weighted = FALSE)
 
 
 

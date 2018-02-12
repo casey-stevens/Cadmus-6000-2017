@@ -227,8 +227,8 @@ item4.final <- mean_one_group(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-# exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
-exportTable(item4.table.MH, "MH", "Table 10", weighted = TRUE)
+exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
+# exportTable(item4.table.MH, "MH", "Table 10", weighted = TRUE)
 
 
 
@@ -244,8 +244,8 @@ item4.final <- mean_one_group_unweighted(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-# exportTable(item4.table.SF, "SF", "Table 11", weighted = FALSE)
-exportTable(item4.table.MH, "MH", "Table 10", weighted = FALSE)
+exportTable(item4.table.SF, "SF", "Table 11", weighted = FALSE)
+# exportTable(item4.table.MH, "MH", "Table 10", weighted = FALSE)
 
 
 
@@ -352,12 +352,8 @@ item5.table <- data.frame(item5.table)
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
-# exportTable(item5.table.SF, "SF", "Table 12"
-#             , weighted = TRUE)
-exportTable(item5.table.MH, "MH", "Table 11"
-            , weighted = TRUE)
-# exportTable(item5.table.SF, "SF", "Table 12"
-#             , weighted = TRUE, final = TRUE)
+exportTable(item5.table.SF, "SF", "Table 12", weighted = TRUE)
+# exportTable(item5.table.MH, "MH", "Table 11", weighted = TRUE)
 
 
 
@@ -406,10 +402,8 @@ item5.table <- data.frame(item5.table)
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
-# exportTable(item5.table.SF, "SF", "Table 12"
-#             , weighted = FALSE)
-exportTable(item5.table.MH, "MH", "Table 11"
-            , weighted = FALSE)
+exportTable(item5.table.SF, "SF", "Table 12", weighted = FALSE)
+# exportTable(item5.table.MH, "MH", "Table 11", weighted = FALSE)
 
 
 

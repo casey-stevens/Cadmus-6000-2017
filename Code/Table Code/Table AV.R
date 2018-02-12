@@ -100,7 +100,7 @@ tableAV.final.MH <- tableAV.table[which(tableAV.table$BuildingType == "Manufactu
                                   ,-which(colnames(tableAV.table) %in% c("BuildingType"))]
 
 exportTable(tableAV.final.SF, "SF", "Table AV", weighted = TRUE)
-exportTable(tableAV.final.MH, "MH", "Table AV", weighted = TRUE)
+# exportTable(tableAV.final.MH, "MH", "Table AV", weighted = TRUE)
 
 
 #######################
@@ -142,7 +142,7 @@ tableAV.final.MH <- tableAV.table[which(tableAV.table$BuildingType == "Manufactu
                                   ,-which(colnames(tableAV.table) %in% c("BuildingType"))]
 
 exportTable(tableAV.final.SF, "SF", "Table AV", weighted = FALSE)
-exportTable(tableAV.final.MH, "MH", "Table AV", weighted = FALSE)
+# exportTable(tableAV.final.MH, "MH", "Table AV", weighted = FALSE)
 
 
 

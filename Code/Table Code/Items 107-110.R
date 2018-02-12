@@ -74,8 +74,8 @@ item107.final.MH <- item107.final[which(item107.final$BuildingType == "Manufactu
                                   ,-which(colnames(item107.final) %in% c("BuildingType"
                                                                          ,"Count"))]
 
-# exportTable(item107.final.SF, "SF", "Table 114", weighted = TRUE)
-exportTable(item107.final.MH, "MH", "Table 89", weighted = TRUE)
+exportTable(item107.final.SF, "SF", "Table 114", weighted = TRUE)
+# exportTable(item107.final.MH, "MH", "Table 89", weighted = TRUE)
 
 
 
@@ -94,8 +94,8 @@ item107.final.MH <- item107.final[which(item107.final$BuildingType == "Manufactu
                                   ,-which(colnames(item107.final) %in% c("BuildingType"
                                                                          ,"Count"))]
 
-# exportTable(item107.final.SF, "SF", "Table 114", weighted = FALSE)
-exportTable(item107.final.MH, "MH", "Table 89", weighted = FALSE)
+exportTable(item107.final.SF, "SF", "Table 114", weighted = FALSE)
+# exportTable(item107.final.MH, "MH", "Table 89", weighted = FALSE)
 
 
 
@@ -190,8 +190,8 @@ item108.final.MH <- item108.table[which(item108.table$BuildingType == "Manufactu
                                                                          ,"Count"))]
 
 
-# exportTable(item108.final.SF, "SF", "Table 115", weighted = TRUE)
-exportTable(item108.final.MH, "MH", "Table 90", weighted = TRUE)
+exportTable(item108.final.SF, "SF", "Table 115", weighted = TRUE)
+# exportTable(item108.final.MH, "MH", "Table 90", weighted = TRUE)
 
 
 ##############
@@ -224,8 +224,8 @@ item108.final.MH <- item108.table[which(item108.table$BuildingType == "Manufactu
                                                                          ,"Count"))]
 
 
-# exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
-exportTable(item108.final.MH, "MH", "Table 90", weighted = FALSE)
+exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
+# exportTable(item108.final.MH, "MH", "Table 90", weighted = FALSE)
 
 
 
@@ -324,22 +324,16 @@ item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Vintage"        = item109.cast$EquipVintage_bins
                             ,"Percent_CRT"    = item109.cast$w.percent_CRT
                             ,"SE_CRT"         = item109.cast$w.SE_CRT
-                            # ,"n_CRT"          = item109.cast$n_CRT
                             ,"Percent_LED"    = item109.cast$w.percent_LED
                             ,"SE_LED"         = item109.cast$w.SE_LED
-                            # ,"n_LED"          = item109.cast$n_LED
                             ,"Percent_LCD"    = item109.cast$w.percent_LCD
                             ,"SE_LCD"         = item109.cast$w.SE_LCD
-                            # ,"n_LCD"          = item109.cast$n_LCD
                             ,"Percent_LED.LCD"= item109.cast$`w.percent_LED LCD`
                             ,"SE_LED.LCD"     = item109.cast$`w.SE_LED LCD`
-                            # ,"n_LED.LCD"      = item109.cast$`n_LED LCD`
                             ,"Percent_Plasma" = item109.cast$w.percent_Plasma
                             ,"SE_Plasma"      = item109.cast$w.SE_Plasma
-                            # ,"n_Plasma"       = item109.cast$n_Plasma
                             ,"Percent_Other"  = item109.cast$w.percent_Other
                             ,"SE_Other"       = item109.cast$w.SE_Other
-                            # ,"n_Other"        = item109.cast$n_Other
                             ,"n"              = item109.cast$n_Total
                             ,"EB_CRT"         = item109.cast$EB_CRT
                             ,"EB_LED"         = item109.cast$EB_LED
@@ -368,8 +362,8 @@ item109.final.MH <- item109.table[which(item109.table$BuildingType == "Manufactu
                                   ,-which(colnames(item109.table) %in% c("BuildingType"))]
 
 
-# exportTable(item109.final.SF, "SF", "Table 116", weighted = TRUE)
-exportTable(item109.final.MH, "MH", "Table 91", weighted = TRUE)
+exportTable(item109.final.SF, "SF", "Table 116", weighted = TRUE)
+# exportTable(item109.final.MH, "MH", "Table 91", weighted = TRUE)
 
 
 #####################
@@ -402,23 +396,17 @@ item109.table <- data.frame("BuildingType"    = item109.cast$BuildingType
                             ,"Vintage"        = item109.cast$EquipVintage_bins
                             ,"Percent_CRT"    = item109.cast$Percent_CRT
                             ,"SE_CRT"         = item109.cast$SE_CRT
-                            # ,"Count_CRT"      = item109.cast$Count_CRT
                             ,"Percent_LED"    = item109.cast$Percent_LED
                             ,"SE_LED"         = item109.cast$SE_LED
-                            # ,"Count_LED"      = item109.cast$Count_LED
                             ,"Percent_LCD"    = item109.cast$Percent_LCD
                             ,"SE_LCD"         = item109.cast$SE_LCD
-                            # ,"Count_LCD"      = item109.cast$Count_LCD
                             ,"Percent_LED.LCD"= item109.cast$`Percent_LED LCD`
                             ,"SE_LED.LCD"     = item109.cast$`SE_LED LCD`
-                            # ,"Count_LED.LCD"  = item109.cast$`Count_LED LCD`
                             ,"Percent_Plasma" = item109.cast$Percent_Plasma
                             ,"SE_Plasma"      = item109.cast$SE_Plasma
-                            # ,"Count_Plasma"   = item109.cast$Count_Plasma
                             ,"Percent_Other"  = item109.cast$Percent_Other
                             ,"SE_Other"       = item109.cast$SE_Other
-                            # ,"Count_Other"    = item109.cast$Count_Other
-                            ,"n"     = item109.cast$n_Total
+                            ,"n"              = item109.cast$n_Total
                             )
 
 
@@ -441,8 +429,8 @@ item109.final.MH <- item109.table[which(item109.table$BuildingType == "Manufactu
                                   ,-which(colnames(item109.table) %in% c("BuildingType"))]
 
 
-# exportTable(item109.final.SF, "SF", "Table 116", weighted = FALSE)
-exportTable(item109.final.MH, "MH", "Table 91", weighted = FALSE)
+exportTable(item109.final.SF, "SF", "Table 116", weighted = FALSE)
+# exportTable(item109.final.MH, "MH", "Table 91", weighted = FALSE)
 
 
 
@@ -504,11 +492,11 @@ item110.final    <- proportions_one_group_domain(CustomerLevelData = item110.dat
                                                  ,aggregateRow     = "Total")
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"))]
-# exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
+exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"))]
-exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
+# exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
 
 
 ##############
@@ -525,13 +513,13 @@ item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Fa
                                   ,-which(colnames(item110.final) %in% c("BuildingType"
                                                                          ,"Room"
                                                                          ,"Total.Count"))]
-# exportTable(item110.final.SF, "SF", "Table 117", weighted = FALSE)
+exportTable(item110.final.SF, "SF", "Table 117", weighted = FALSE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"
                                                                          ,"Room"
                                                                          ,"Total.Count"))]
-exportTable(item110.final.MH, "MH", "Table 92", weighted = FALSE)
+# exportTable(item110.final.MH, "MH", "Table 92", weighted = FALSE)
 
 
 

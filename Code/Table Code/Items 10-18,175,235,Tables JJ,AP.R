@@ -504,8 +504,7 @@ item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Famil
 
 
 #export table to correct workbook using exporting function
-exportTable(item10.table.SF, "SF", "Table 17"
-            , weighted = TRUE)
+exportTable(item10.table.SF, "SF", "Table 17", weighted = TRUE)
 
 
 
@@ -590,8 +589,7 @@ item10.table <- data.frame(item10.table)
 item10.table.SF <- item10.table[which(item10.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item10.table.SF, "SF", "Table 17"
-            , weighted = FALSE)
+exportTable(item10.table.SF, "SF", "Table 17", weighted = FALSE)
 
 
 
@@ -661,13 +659,9 @@ item11.final <- rbind.data.frame(item11.by.vinage, item11.across.vintages, strin
 # remove incorrect all housing vintage rows (labelled "Remove")
 item11.final <- item11.final[which(item11.final$HomeYearBuilt_bins3 != "Remove"),]
 
-
-
 item11.cast <- dcast(setDT(item11.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
                      value.var = c("w.percent", "w.SE", "count","n","N","EB"))
-
-
 
 item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
@@ -701,13 +695,10 @@ item11.table <- item11.table %>% mutate(Housing.Vintage = factor(Housing.Vintage
 item11.table <- data.frame(item11.table)
 
 
-item11.table.SF            <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
+item11.table.SF <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item11.table.SF, "SF", "Table 18"
-            , weighted = TRUE)
-
-
+exportTable(item11.table.SF, "SF", "Table 18", weighted = TRUE)
 
 
 #############################
@@ -733,13 +724,9 @@ item11.final <- rbind.data.frame(item11.by.vinage, item11.across.vintages, strin
 # remove incorrect all housing vintage rows (labelled "Remove")
 item11.final <- item11.final[which(item11.final$HomeYearBuilt_bins3 != "Remove"),]
 
-
-
 item11.cast <- dcast(setDT(item11.final),
                      formula   = BuildingType +  HomeYearBuilt_bins3 ~ Wall.Type, sum,
                      value.var = c("Percent", "SE", "Count","n"))
-
-
 
 item11.table <- data.frame("BuildingType"     = item11.cast$BuildingType
                            ,"Housing.Vintage" = item11.cast$HomeYearBuilt_bins3
@@ -770,10 +757,7 @@ item11.table <- data.frame(item11.table)
 item11.table.SF <- item11.table[which(item11.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item11.table.SF, "SF", "Table 18"
-            , weighted = FALSE)
-
-
+exportTable(item11.table.SF, "SF", "Table 18", weighted = FALSE)
 
 
 
@@ -783,7 +767,7 @@ exportTable(item11.table.SF, "SF", "Table 18"
 #############################################################################################
 # Item 12: DISTRIBUTION OF WALL INSULATION LEVELS BY HOME VINTAGE  (SF table 19, MH table 16)
 #############################################################################################
-prep.item12.dat <- prep.dat5#[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
+prep.item12.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
 prep.item12.weightedU <- summarise(group_by(prep.item12.dat, CK_Cadmus_ID, Wall.Type)
@@ -806,8 +790,6 @@ prep.item12.dat1 <- left_join(prep.item12.weightedU, prep.item12.wall.unique, by
 prep.item12.dat2 <- left_join(prep.item12.dat1, rbsa.dat)
 prep.item12.dat2$aveUval[which(is.na(prep.item12.dat2$aveUval))] <- 0
 prep.item12.dat2$aveRval[which(is.na(prep.item12.dat2$aveRval))] <- 0
-
-
 
 
 ## Note: For this table, you must run up to prep.dat7 for the cleaned data
@@ -935,8 +917,7 @@ item12.table <- data.frame(item12.table)
 item12.table.SF <- item12.table[which(item12.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item12.table.SF, "SF", "Table 19"
-            , weighted = TRUE)
+exportTable(item12.table.SF, "SF", "Table 19", weighted = TRUE)
 
 
 
@@ -1017,9 +998,6 @@ item12.table.SF <- item12.table[which(item12.table$BuildingType == "Single Famil
 
 #export table to correct workbook using exporting function
 exportTable(item12.table.SF, "SF", "Table 19", weighted = FALSE)
-
-
-
 
 
 
@@ -1108,7 +1086,7 @@ item12.table <- data.frame(item12.table)
 item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item12.table.MH, "MH", "Table 16", weighted = TRUE)
+# exportTable(item12.table.MH, "MH", "Table 16", weighted = TRUE)
 
 
 ############################################################################################################
@@ -1189,7 +1167,7 @@ item12.table <- data.frame(item12.table)
 item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item12.table.MH, "MH", "Table 16", weighted = FALSE)
+# exportTable(item12.table.MH, "MH", "Table 16", weighted = FALSE)
 
 
 
@@ -1392,7 +1370,7 @@ tableAP.table <- data.frame("BuildingType"       = tableAP.cast$BuildingType
 tableAP.table.MH <- tableAP.table[which(tableAP.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(tableAP.table.MH, "MH", "Table AP", weighted = TRUE)
+# exportTable(tableAP.table.MH, "MH", "Table AP", weighted = TRUE)
 
 
 
@@ -1432,7 +1410,7 @@ tableAP.table <- data.frame("BuildingType"       = tableAP.cast$BuildingType
 tableAP.table.MH <- tableAP.table[which(tableAP.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(tableAP.table.MH, "MH", "Table AP", weighted = FALSE)
+# exportTable(tableAP.table.MH, "MH", "Table AP", weighted = FALSE)
 
 
 
@@ -2186,13 +2164,10 @@ item18.final <- rbind.data.frame(item18.by.frame.type, item18.across.frame.types
 # remove incorrect all housing vintage rows (labelled "Remove")
 item18.final <- item18.final[which(item18.final$Wall.Type != "Remove"),]
 
-
-
 item18.cast <- dcast(setDT(item18.final),
                      formula   = BuildingType +  Wall.Type ~ insulation.levels,
                      value.var = c("w.percent", "w.SE", "count","n","N", "EB"))
 names(item18.cast)
-
 
 item18.table <- data.frame("BuildingType"       = item18.cast$BuildingType
                            ,"Wall.Type"         = item18.cast$Wall.Type

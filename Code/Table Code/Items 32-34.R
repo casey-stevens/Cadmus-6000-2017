@@ -11,26 +11,21 @@ rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
+"%notin%" <- Negate("%in%")
+
 # Source codes
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
-
 #Read in data for analysis
 windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
 windows.doors.dat$CK_Cadmus_ID <- trimws(toupper(windows.doors.dat$CK_Cadmus_ID))
-
-
-
-
-
 
 
 

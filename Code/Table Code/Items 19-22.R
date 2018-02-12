@@ -27,7 +27,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
 
 #Read in data for analysis
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 
@@ -110,9 +111,7 @@ item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item19.final.SF, "SF", "Table 26"
-            , weighted = FALSE)
-
+exportTable(item19.final.SF, "SF", "Table 26", weighted = FALSE)
 
 
 
@@ -158,10 +157,7 @@ item20.final.SF <- item20.final[which(item20.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item20.final.SF, "SF", "Table 27"
-            , weighted = TRUE)
-
-
+exportTable(item20.final.SF, "SF", "Table 27", weighted = TRUE)
 
 #####################################
 # Unweighted Analysis
@@ -178,8 +174,7 @@ item20.final.SF <- item20.final[which(item20.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item20.final.SF, "SF", "Table 27"
-            , weighted = FALSE)
+exportTable(item20.final.SF, "SF", "Table 27", weighted = FALSE)
 
 
 
@@ -216,7 +211,6 @@ item21.data <- left_join(item21.data, item21.merge[which(colnames(item21.merge) 
 item21.data$count <- 1
 item21.data$Count <- 1
 
-
 #####################################
 # Weighted Analysis
 #####################################
@@ -232,11 +226,7 @@ item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item21.final.SF, "SF", "Table 28"
-            , weighted = TRUE)
-
-
-
+exportTable(item21.final.SF, "SF", "Table 28", weighted = TRUE)
 
 #####################################
 # Unweighted Analysis
@@ -254,9 +244,7 @@ item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item21.final.SF, "SF", "Table 28"
-            , weighted = FALSE)
-
+exportTable(item21.final.SF, "SF", "Table 28", weighted = FALSE)
 
 
 
@@ -310,10 +298,7 @@ item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item22.final.SF, "SF", "Table 29"
-            , weighted = TRUE)
-
-
+exportTable(item22.final.SF, "SF", "Table 29", weighted = TRUE)
 
 #####################################
 # Unweighted Analysis
@@ -330,8 +315,7 @@ item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item22.final.SF, "SF", "Table 29"
-            , weighted = FALSE)
+exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 
 
 

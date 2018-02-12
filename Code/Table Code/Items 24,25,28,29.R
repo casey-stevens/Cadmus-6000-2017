@@ -23,7 +23,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 # Bring in clean ground contact types

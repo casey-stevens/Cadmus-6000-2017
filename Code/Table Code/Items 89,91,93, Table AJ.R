@@ -83,8 +83,8 @@ item89.final <- data.frame(item89.final)
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item89.final.SF, "SF", "Table 96", weighted = TRUE)
-exportTable(item89.final.MH, "MH", "Table 77", weighted = TRUE)
+exportTable(item89.final.SF, "SF", "Table 96", weighted = TRUE)
+# exportTable(item89.final.MH, "MH", "Table 77", weighted = TRUE)
 
 
 ###############################
@@ -109,8 +109,8 @@ item89.final <- data.frame(item89.final)
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item89.final.SF, "SF", "Table 96", weighted = FALSE)
-exportTable(item89.final.MH, "MH", "Table 77", weighted = FALSE)
+exportTable(item89.final.SF, "SF", "Table 96", weighted = FALSE)
+# exportTable(item89.final.MH, "MH", "Table 77", weighted = FALSE)
 
 
 
@@ -160,8 +160,8 @@ tableAJ.final <- data.frame(tableAJ.final)
 tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Family"),-1]
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
-exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
+exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
+# exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
 
 ###############################
 # MULTIFAMILY
@@ -172,7 +172,7 @@ tableAJ.final.MF <- mean_one_group(CustomerLevelData = tableAJ.data
                                 ,aggregateRow  = "All Types")
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
-exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
+# exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
 
 
 ###############################
@@ -196,8 +196,8 @@ tableAJ.final <- data.frame(tableAJ.final)
 tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Family"),-1]
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
-exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
+exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
+# exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
 
 ###############################
 # MULTIFAMILY
@@ -208,7 +208,7 @@ tableAJ.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAJ.data
                                    ,aggregateRow  = "All Types")
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
-exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
+# exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
 
 
 
@@ -231,7 +231,7 @@ item91.dat1 <- left_join(rbsa.dat, item91.dat0, by = "CK_Cadmus_ID")
 item91.dat2 <- item91.dat1[which(item91.dat1$Clothes.Washes.Per.Week != "No Washing Machine"),]
 item91.dat2$Clothes.Washes.Per.Week   <- as.numeric(as.character(item91.dat2$Clothes.Washes.Per.Week))
 item91.dat2$Percent.Loads.Go.In.Dryer <- as.numeric(as.character(item91.dat2$Percent.Loads.Go.In.Dryer))
-item91.dat2$Dryer.Loads.Per.Week <- item91.dat2$Clothes.Washes.Per.Week * (item91.dat2$Percent.Loads.Go.In.Dryer / 100)
+item91.dat2$Dryer.Loads.Per.Week <- item91.dat2$Clothes.Washes.Per.Week * (item91.dat2$Percent.Loads.Go.In.Dryer)
 
 item91.dat2$Dryer.Loads.Per.Wash <- item91.dat2$Dryer.Loads.Per.Week / item91.dat2$Clothes.Washes.Per.Week
 unique(item91.dat2$Dryer.Loads.Per.Wash)
@@ -267,8 +267,8 @@ item91.final.SF <- item91.final[which(item91.final$BuildingType == "Single Famil
 item91.final.MH <- item91.final[which(item91.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item91.final) %in% c("BuildingType"))]
 
-# exportTable(item91.final.SF, "SF", "Table 98", weighted = TRUE)
-exportTable(item91.final.MH, "MH", "Table 79", weighted = TRUE)
+exportTable(item91.final.SF, "SF", "Table 98", weighted = TRUE)
+# exportTable(item91.final.MH, "MH", "Table 79", weighted = TRUE)
 
 
 #######################
@@ -284,8 +284,8 @@ item91.final.SF <- item91.final[which(item91.final$BuildingType == "Single Famil
 item91.final.MH <- item91.final[which(item91.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item91.final) %in% c("BuildingType"))]
 
-# exportTable(item91.final.SF, "SF", "Table 98", weighted = FALSE)
-exportTable(item91.final.MH, "MH", "Table 79", weighted = FALSE)
+exportTable(item91.final.SF, "SF", "Table 98", weighted = FALSE)
+# exportTable(item91.final.MH, "MH", "Table 79", weighted = FALSE)
 
 
 
@@ -342,8 +342,8 @@ item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Famil
 item93.final.MH <- item93.final[which(item93.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item93.final) %in% c("BuildingType"))]
 
-# exportTable(item93.final.SF, "SF", "Table 100", weighted = TRUE)
-exportTable(item93.final.MH, "MH", "Table 81", weighted = TRUE)
+exportTable(item93.final.SF, "SF", "Table 100", weighted = TRUE)
+# exportTable(item93.final.MH, "MH", "Table 81", weighted = TRUE)
 
 ###############################
 # Unweighted Analysis
@@ -369,8 +369,8 @@ item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Famil
 item93.final.MH <- item93.final[which(item93.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item93.final) %in% c("BuildingType"))]
 
-# exportTable(item93.final.SF, "SF", "Table 100", weighted = FALSE)
-exportTable(item93.final.MH, "MH", "Table 81", weighted = FALSE)
+exportTable(item93.final.SF, "SF", "Table 100", weighted = FALSE)
+# exportTable(item93.final.MH, "MH", "Table 81", weighted = FALSE)
 
 
 

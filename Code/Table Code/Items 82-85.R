@@ -36,7 +36,7 @@ appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 item82.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                    ,"Type"
                                                                    ,"APPLIANCE_FRIDGE_FREEZER_Type"
-                                                                   ,"Refrigerator.Freezer.Size"))]
+                                                                   ,"Refrigerator/Freezer.Size"))]
 names(item82.dat)
 
 item82.dat0 <- item82.dat[which(item82.dat$APPLIANCE_FRIDGE_FREEZER_Type %notin% c("N/A",NA,"Unknown")),]
@@ -65,12 +65,12 @@ item82.dat3 <- item82.dat2[which(item82.dat2$Type == "Refrigerator"),]
 ######################################
 item82.data <- weightedData(item82.dat3[which(colnames(item82.dat3) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                               ,"Type"
-                                                                              ,"Refrigerator.Freezer.Size"))])
+                                                                              ,"Refrigerator/Freezer.Size"))])
 
 item82.data <- left_join(item82.data, item82.dat3[which(colnames(item82.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                      ,"Type"
-                                                                                     ,"Refrigerator.Freezer.Size"))])
+                                                                                     ,"Refrigerator/Freezer.Size"))])
 item82.data$count <- 1
 
 
@@ -101,8 +101,8 @@ item82.final.SF <- item82.final[which(item82.final$BuildingType == "Single Famil
 item82.final.MH <- item82.final[which(item82.final$BuildingType == "Manufactured")
                                 ,which(colnames(item82.final) %notin% c("BuildingType"))]
 
-# exportTable(item82.final.SF, "SF", "Table 89", weighted = TRUE)
-exportTable(item82.final.MH, "MH", "Table 70", weighted = TRUE)
+exportTable(item82.final.SF, "SF", "Table 89", weighted = TRUE)
+# exportTable(item82.final.MH, "MH", "Table 70", weighted = TRUE)
 
 ######################
 # unweighted analysis
@@ -133,8 +133,8 @@ item82.final.SF <- item82.final[which(item82.final$BuildingType == "Single Famil
 item82.final.MH <- item82.final[which(item82.final$BuildingType == "Manufactured")
                                 ,which(colnames(item82.final) %notin% c("BuildingType"))]
 
-# exportTable(item82.final.SF, "SF", "Table 89", weighted = FALSE)
-exportTable(item82.final.MH, "MH", "Table 70", weighted = FALSE)
+exportTable(item82.final.SF, "SF", "Table 89", weighted = FALSE)
+# exportTable(item82.final.MH, "MH", "Table 70", weighted = FALSE)
 
 
 
@@ -146,34 +146,33 @@ exportTable(item82.final.MH, "MH", "Table 70", weighted = FALSE)
 #Item 83: AVERAGE REFRIGERATOR VOLUME BY TYPE (SF table 90, MH table 71)
 #############################################################################################
 #subset to columns needed for analysis
-item83.dat <- item82.dat3[-grep("unknown",item82.dat3$`Refrigerator.Freezer.Size`, ignore.case = T),]
+item83.dat <- item82.dat3[-grep("unknown",item82.dat3$`Refrigerator/Freezer.Size`, ignore.case = T),]
+
 names(item83.dat)
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item83.data <- weightedData(item83.dat[which(colnames(item83.dat) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                             ,"Type"
-                                                                            ,"Refrigerator.Freezer.Size"))])
+                                                                            ,"Refrigerator/Freezer.Size"))])
 
 item83.data <- left_join(item83.data, item83.dat[which(colnames(item83.dat) %in% c("CK_Cadmus_ID"
                                                                                    ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                    ,"Type"
-                                                                                   ,"Refrigerator.Freezer.Size"))])
+                                                                                   ,"Refrigerator/Freezer.Size"))])
 item83.data$count <- 1
 
-item83.data$`Refrigerator.Freezer.Size` <- gsub(" cu ft", "", item83.data$`Refrigerator.Freezer.Size`)
-item83.data$`Refrigerator.Freezer.Size` <- gsub("cu ft", "", item83.data$`Refrigerator.Freezer.Size`)
-item83.data$`Refrigerator.Freezer.Size` <- gsub(" ", "", item83.data$`Refrigerator.Freezer.Size`)
-item83.data$`Refrigerator.Freezer.Size` <- gsub("18..61", "18.61", item83.data$`Refrigerator.Freezer.Size`)
-item83.data$`Refrigerator.Freezer.Size` <- gsub("19..1", "19.1", item83.data$`Refrigerator.Freezer.Size`)
-unique(item83.data$`Refrigerator.Freezer.Size`)
-item83.data$`Refrigerator.Freezer.Size` <- as.numeric(as.character(item83.data$`Refrigerator.Freezer.Size`))
+item83.data$`Refrigerator/Freezer.Size` <- gsub(" ", "", item83.data$`Refrigerator/Freezer.Size`)
+item83.data$`Refrigerator/Freezer.Size` <- gsub("18..61", "18.61", item83.data$`Refrigerator/Freezer.Size`)
+item83.data$`Refrigerator/Freezer.Size` <- gsub("19..1", "19.1", item83.data$`Refrigerator/Freezer.Size`)
+unique(item83.data$`Refrigerator/Freezer.Size`)
+item83.data$`Refrigerator/Freezer.Size` <- as.numeric(as.character(item83.data$`Refrigerator/Freezer.Size`))
 
 ######################
 # weighted analysis
 ######################
 item83.final <- mean_one_group(CustomerLevelData = item83.data
-                               ,valueVariable = 'Refrigerator.Freezer.Size'
+                               ,valueVariable = 'Refrigerator/Freezer.Size'
                                ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                ,aggregateRow = "All Refrigerator Types")
 
@@ -197,14 +196,14 @@ item83.final.SF <- item83.final[which(item83.final$BuildingType == "Single Famil
 item83.final.MH <- item83.final[which(item83.final$BuildingType == "Manufactured")
                                 ,which(colnames(item83.final) %notin% c("BuildingType"))]
 
-# exportTable(item83.final.SF, "SF", "Table 90", weighted = TRUE)
-exportTable(item83.final.MH, "MH", "Table 71", weighted = TRUE)
+exportTable(item83.final.SF, "SF", "Table 90", weighted = TRUE)
+# exportTable(item83.final.MH, "MH", "Table 71", weighted = TRUE)
 
 ######################
 # unweighted analysis
 ######################
 item83.final <- mean_one_group_unweighted(CustomerLevelData = item83.data
-                                          ,valueVariable = 'Refrigerator.Freezer.Size'
+                                          ,valueVariable = 'Refrigerator/Freezer.Size'
                                           ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                           ,aggregateRow = "All Refrigerator Types")
 
@@ -227,8 +226,8 @@ item83.final.SF <- item83.final[which(item83.final$BuildingType == "Single Famil
 item83.final.MH <- item83.final[which(item83.final$BuildingType == "Manufactured")
                                 ,which(colnames(item83.final) %notin% c("BuildingType"))]
 
-# exportTable(item83.final.SF, "SF", "Table 90", weighted = FALSE)
-exportTable(item83.final.MH, "MH", "Table 71", weighted = FALSE)
+exportTable(item83.final.SF, "SF", "Table 90", weighted = FALSE)
+# exportTable(item83.final.MH, "MH", "Table 71", weighted = FALSE)
 
 
 
@@ -244,12 +243,12 @@ item84.dat <- item82.dat2[which(item82.dat2$Type == "Freezer"),]
 ######################################
 item84.data <- weightedData(item84.dat[which(colnames(item84.dat) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                               ,"Type"
-                                                                              ,"Refrigerator.Freezer.Size"))])
+                                                                              ,"Refrigerator/Freezer.Size"))])
 
 item84.data <- left_join(item84.data, item84.dat[which(colnames(item84.dat) %in% c("CK_Cadmus_ID"
                                                                                      ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                      ,"Type"
-                                                                                     ,"Refrigerator.Freezer.Size"))])
+                                                                                     ,"Refrigerator/Freezer.Size"))])
 item84.data$count <- 1
 
 
@@ -266,8 +265,8 @@ item84.final.SF <- item84.final[which(item84.final$BuildingType == "Single Famil
 item84.final.MH <- item84.final[which(item84.final$BuildingType == "Manufactured")
                                 ,which(colnames(item84.final) %notin% c("BuildingType"))]
 
-# exportTable(item84.final.SF, "SF", "Table 91", weighted = TRUE)
-exportTable(item84.final.MH, "MH", "Table 72", weighted = TRUE)
+exportTable(item84.final.SF, "SF", "Table 91", weighted = TRUE)
+# exportTable(item84.final.MH, "MH", "Table 72", weighted = TRUE)
 
 
 ######################
@@ -284,8 +283,8 @@ item84.final.SF <- item84.final[which(item84.final$BuildingType == "Single Famil
 item84.final.MH <- item84.final[which(item84.final$BuildingType == "Manufactured")
                                 ,which(colnames(item84.final) %notin% c("BuildingType"))]
 
-# exportTable(item84.final.SF, "SF", "Table 91", weighted = FALSE)
-exportTable(item84.final.MH, "MH", "Table 72", weighted = FALSE)
+exportTable(item84.final.SF, "SF", "Table 91", weighted = FALSE)
+# exportTable(item84.final.MH, "MH", "Table 72", weighted = FALSE)
 
 
 
@@ -296,32 +295,32 @@ exportTable(item84.final.MH, "MH", "Table 72", weighted = FALSE)
 #Item 85: AVERAGE FREEZER VOLUME BY TYPE (SF table 92, MH table 73)
 #############################################################################################
 item85.dat <- item82.dat2[which(item82.dat2$Type == "Freezer"),]
-item85.dat1 <- item85.dat[-grep("unknown",item85.dat$`Refrigerator.Freezer.Size`, ignore.case = T),]
+item85.dat1 <- item85.dat[-grep("unknown",item85.dat$`Refrigerator/Freezer.Size`, ignore.case = T),]
 
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item85.data <- weightedData(item85.dat1[which(colnames(item85.dat1) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                               ,"Type"
-                                                                              ,"Refrigerator.Freezer.Size"))])
+                                                                              ,"Refrigerator/Freezer.Size"))])
 
 item85.data <- left_join(item85.data, item85.dat1[which(colnames(item85.dat1) %in% c("CK_Cadmus_ID"
                                                                                      ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                      ,"Type"
-                                                                                     ,"Refrigerator.Freezer.Size"))])
+                                                                                     ,"Refrigerator/Freezer.Size"))])
 item85.data$count <- 1
 
-item85.data$`Refrigerator.Freezer.Size` <- gsub(" cu ft", "", item85.data$`Refrigerator.Freezer.Size`)
-item85.data$`Refrigerator.Freezer.Size` <- gsub("cu ft", "", item85.data$`Refrigerator.Freezer.Size`)
-item85.data$`Refrigerator.Freezer.Size` <- gsub(" ", "", item85.data$`Refrigerator.Freezer.Size`)
-unique(item85.data$`Refrigerator.Freezer.Size`)
-item85.data$`Refrigerator.Freezer.Size` <- as.numeric(as.character(item85.data$`Refrigerator.Freezer.Size`))
+item85.data$`Refrigerator/Freezer.Size` <- gsub(" cu ft", "", item85.data$`Refrigerator/Freezer.Size`)
+item85.data$`Refrigerator/Freezer.Size` <- gsub("cu ft", "", item85.data$`Refrigerator/Freezer.Size`)
+item85.data$`Refrigerator/Freezer.Size` <- gsub(" ", "", item85.data$`Refrigerator/Freezer.Size`)
+unique(item85.data$`Refrigerator/Freezer.Size`)
+item85.data$`Refrigerator/Freezer.Size` <- as.numeric(as.character(item85.data$`Refrigerator/Freezer.Size`))
 
 ######################
 # weighted analysis
 ######################
 item85.final <- mean_one_group(CustomerLevelData = item85.data
-                               ,valueVariable = 'Refrigerator.Freezer.Size'
+                               ,valueVariable = 'Refrigerator/Freezer.Size'
                                ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                ,aggregateRow = "All Refrigerator Types")
 
@@ -330,14 +329,14 @@ item85.final.SF <- item85.final[which(item85.final$BuildingType == "Single Famil
 item85.final.MH <- item85.final[which(item85.final$BuildingType == "Manufactured")
                                 ,which(colnames(item85.final) %notin% c("BuildingType"))]
 
-# exportTable(item85.final.SF, "SF", "Table 92", weighted = TRUE)
-exportTable(item85.final.MH, "MH", "Table 73", weighted = TRUE)
+exportTable(item85.final.SF, "SF", "Table 92", weighted = TRUE)
+# exportTable(item85.final.MH, "MH", "Table 73", weighted = TRUE)
 
 ######################
 # unweighted analysis
 ######################
 item85.final <- mean_one_group_unweighted(CustomerLevelData = item85.data
-                                          ,valueVariable = 'Refrigerator.Freezer.Size'
+                                          ,valueVariable = 'Refrigerator/Freezer.Size'
                                           ,byVariable = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                           ,aggregateRow = "All Refrigerator Types")
 
@@ -346,8 +345,8 @@ item85.final.SF <- item85.final[which(item85.final$BuildingType == "Single Famil
 item85.final.MH <- item85.final[which(item85.final$BuildingType == "Manufactured")
                                 ,which(colnames(item85.final) %notin% c("BuildingType"))]
 
-# exportTable(item85.final.SF, "SF", "Table 92", weighted = FALSE)
-exportTable(item85.final.MH, "MH", "Table 73", weighted = FALSE)
+exportTable(item85.final.SF, "SF", "Table 92", weighted = FALSE)
+# exportTable(item85.final.MH, "MH", "Table 73", weighted = FALSE)
 
 
 

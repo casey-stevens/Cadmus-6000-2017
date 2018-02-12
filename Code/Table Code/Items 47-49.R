@@ -25,7 +25,8 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 #subset to columns needed for the analysis of items 47,48,49
@@ -50,7 +51,7 @@ item47.dat2 <- left_join(rbsa.dat, item47.dat1, by = "CK_Cadmus_ID")
 item47.dat3 <- item47.dat2[which(item47.dat2$Generic %notin% c("N/A",NA)),]
 
 unique(item47.dat3$Heating.Fuel)
-item47.dat3$Heating.Fuel[grep("gas|kerosene", item47.dat3$Heating.Fuel, ignore.case = T)] <- "Gas"
+item47.dat3$Heating.Fuel[grep("gas", item47.dat3$Heating.Fuel, ignore.case = T)] <- "Gas"
 unique(item47.dat3$Heating.Fuel)
 
 item47.dat4 <- item47.dat3[which(item47.dat3$Heating.Fuel %notin% c("Other"
@@ -88,8 +89,8 @@ item47.final.SF <- item47.final[which(item47.final$BuildingType == "Single Famil
 item47.final.MH <- item47.final[which(item47.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item47.final) %in% c("BuildingType"))]
 
-# exportTable(item47.final.SF, "SF", "Table 54", weighted = TRUE)
-exportTable(item47.final.MH, "MH", "Table 36", weighted = TRUE)
+exportTable(item47.final.SF, "SF", "Table 54", weighted = TRUE)
+# exportTable(item47.final.MH, "MH", "Table 36", weighted = TRUE)
 
 
 ################################
@@ -106,8 +107,8 @@ item47.final.SF <- item47.final[which(item47.final$BuildingType == "Single Famil
 item47.final.MH <- item47.final[which(item47.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item47.final) %in% c("BuildingType"))]
 
-# exportTable(item47.final.SF, "SF", "Table 54", weighted = FALSE)
-exportTable(item47.final.MH, "MH", "Table 36", weighted = FALSE)
+exportTable(item47.final.SF, "SF", "Table 54", weighted = FALSE)
+# exportTable(item47.final.MH, "MH", "Table 36", weighted = FALSE)
 
 
 
@@ -152,7 +153,7 @@ item48.final <- proportions_one_group(CustomerLevelData  = item48.data
 item48.final.SF <- item48.final[which(item48.final$BuildingType == "Single Family")
                                 ,-which(colnames(item48.final) %in% c("BuildingType"))]
 
-# exportTable(item48.final.SF, "SF", "Table 55", weighted = TRUE)
+exportTable(item48.final.SF, "SF", "Table 55", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -167,7 +168,7 @@ item48.final <- proportions_one_group(CustomerLevelData  = item48.data
 item48.final.SF <- item48.final[which(item48.final$BuildingType == "Single Family")
                                 ,-which(colnames(item48.final) %in% c("BuildingType"))]
 
-# exportTable(item48.final.SF, "SF", "Table 55", weighted = FALSE)
+exportTable(item48.final.SF, "SF", "Table 55", weighted = FALSE)
 
 
 
@@ -219,8 +220,8 @@ item49.final.SF <- item49.final[which(item49.final$BuildingType == "Single Famil
 item49.final.MH <- item49.final[which(item49.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item49.final) %in% c("BuildingType"))]
 
-# exportTable(item49.final.SF, "SF", "Table 56", weighted = TRUE)
-exportTable(item49.final.MH, "MH", "Table 37", weighted = TRUE)
+exportTable(item49.final.SF, "SF", "Table 56", weighted = TRUE)
+# exportTable(item49.final.MH, "MH", "Table 37", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -236,8 +237,8 @@ item49.final.SF <- item49.final[which(item49.final$BuildingType == "Single Famil
 item49.final.MH <- item49.final[which(item49.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item49.final) %in% c("BuildingType"))]
 
-# exportTable(item49.final.SF, "SF", "Table 56", weighted = FALSE)
-exportTable(item49.final.MH, "MH", "Table 37", weighted = FALSE)
+exportTable(item49.final.SF, "SF", "Table 56", weighted = FALSE)
+# exportTable(item49.final.MH, "MH", "Table 37", weighted = FALSE)
 
 
 
@@ -286,7 +287,7 @@ item47.os.dat2 <- left_join(scl.dat, item47.os.dat1, by = "CK_Cadmus_ID")
 item47.os.dat3 <- item47.os.dat2[which(item47.os.dat2$Generic %notin% c("N/A",NA)),]
 
 unique(item47.os.dat3$Heating.Fuel)
-item47.os.dat3$Heating.Fuel[grep("gas|kerosene", item47.os.dat3$Heating.Fuel, ignore.case = T)] <- "Gas"
+item47.os.dat3$Heating.Fuel[grep("gas", item47.os.dat3$Heating.Fuel, ignore.case = T)] <- "Gas"
 unique(item47.os.dat3$Heating.Fuel)
 
 item47.os.dat4 <- item47.os.dat3[which(item47.os.dat3$Heating.Fuel %notin% c("Other"

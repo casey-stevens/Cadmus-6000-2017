@@ -43,7 +43,8 @@ windows.dat2 <- windows.dat1[which(windows.dat1$Type == "Window"),]
 colnames(windows.dat2) <- c("CK_Cadmus_ID", "Window_Type", "Window_Area", "Window_QTY", "Frame_Body_Type", "Glazing_Type")
 
 #read in Envelope data for SF table
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 # add indicator of whether a site has a basement or not

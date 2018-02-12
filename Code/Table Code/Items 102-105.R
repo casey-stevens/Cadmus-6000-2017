@@ -26,7 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -108,12 +108,8 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"DHW.Fuel"             = item102.cast$DHW.Fuel
                             ,"Percent_0.50.Gallons" = item102.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item102.cast$`w.SE_0-55 Gallons`
-                            # ,"Count_0.50.Gallons"   = item102.cast$`count_0-55 Gallons`
-                            # ,"n_0.50.Gallons"       = item102.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item102.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item102.cast$`w.SE_>55 Gallons`
-                            # ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
-                            # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
                             ,n = item102.cast$n_Total
                             ,"EB_0.50.Gallons"      = item102.cast$`EB_0-55 Gallons`
                             ,"EB_GT50.Gallons"      = item102.cast$`EB_>55 Gallons`
@@ -165,12 +161,8 @@ item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"DHW.Fuel"             = item102.cast$DHW.Fuel
                             ,"Percent_0.50.Gallons" = item102.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item102.cast$`w.SE_0-55 Gallons`
-                            # ,"Count_0.50.Gallons"   = item102.cast$`count_0-55 Gallons`
-                            # ,"n_0.50.Gallons"       = item102.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item102.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item102.cast$`w.SE_>55 Gallons`
-                            # ,"Count_GT50.Gallons"   = item102.cast$`count_>55 Gallons`
-                            # ,"n_GT50.Gallons"       = item102.cast$`n_>55 Gallons`
                             ,"n" = item102.cast$n_Total
 )
 
@@ -283,12 +275,8 @@ item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
                             ,"DHW.Location"         = item103.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item103.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item103.cast$`w.SE_0-55 Gallons`
-                            # ,"Count_0.50.Gallons"   = item103.cast$`count_0-55 Gallons`
-                            # ,"n_0.50.Gallons"       = item103.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item103.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item103.cast$`w.SE_>55 Gallons`
-                            # ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
-                            # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
                             ,"n" = item103.cast$n_Total
                             ,"EB_0.50.Gallons"      = item103.cast$`EB_0-55 Gallons`
                             ,"EB_GT50.Gallons"      = item103.cast$`EB_>55 Gallons`
@@ -341,12 +329,8 @@ item103.table <- data.frame("BuildingType"          = item103.cast$BuildingType
                             ,"DHW.Location"         = item103.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item103.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item103.cast$`w.SE_0-55 Gallons`
-                            # ,"Count_0.50.Gallons"   = item103.cast$`count_0-55 Gallons`
-                            # ,"n_0.50.Gallons"       = item103.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item103.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item103.cast$`w.SE_>55 Gallons`
-                            # ,"Count_GT50.Gallons"   = item103.cast$`count_>55 Gallons`
-                            # ,"n_GT50.Gallons"       = item103.cast$`n_>55 Gallons`
                             ,"n" = item103.cast$n_Total
 )
 
@@ -460,12 +444,8 @@ item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
                             ,"DHW.Location"         = item104.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item104.cast$`w.percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item104.cast$`w.SE_0-55 Gallons`
-                            # ,"Count_0.50.Gallons"   = item104.cast$`count_0-55 Gallons`
-                            # ,"n_0.50.Gallons"       = item104.cast$`n_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item104.cast$`w.percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item104.cast$`w.SE_>55 Gallons`
-                            # ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
-                            # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
                             ,"n" = item104.cast$n_Total
                             ,"EB_0.50.Gallons"      = item104.cast$`EB_0-55 Gallons`
                             ,"EB_GT50.Gallons"      = item104.cast$`EB_>55 Gallons`
@@ -519,8 +499,6 @@ item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
                             ,"SE_0.50.Gallons"      = item104.cast$`SE_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item104.cast$`Percent_>55 Gallons`
                             ,"SE_GT50.Gallons"      = item104.cast$`SE_>55 Gallons`
-                            # ,"Count_GT50.Gallons"   = item104.cast$`count_>55 Gallons`
-                            # ,"n_GT50.Gallons"       = item104.cast$`n_>55 Gallons`
                             ,"n" = item104.cast$n_Total
 )
 
@@ -627,8 +605,8 @@ item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Fa
 item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item105.table) %in% c("BuildingType"))]
 
-# exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
-exportTable(item105.final.MH, "MH", "Table 87", weighted = TRUE)
+exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
+# exportTable(item105.final.MH, "MH", "Table 87", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -657,8 +635,8 @@ item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Fa
 item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item105.table) %in% c("BuildingType"))]
 
-# exportTable(item105.final.SF, "SF", "Table 112", weighted = FALSE)
-exportTable(item105.final.MH, "MH", "Table 87", weighted = FALSE)
+exportTable(item105.final.SF, "SF", "Table 112", weighted = FALSE)
+# exportTable(item105.final.MH, "MH", "Table 87", weighted = FALSE)
 
 
 

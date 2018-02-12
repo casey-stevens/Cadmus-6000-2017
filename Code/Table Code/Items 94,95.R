@@ -85,8 +85,8 @@ item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Famil
 item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item94.final) %in% c("BuildingType"))]
 
-# exportTable(item94.final.SF, "SF", "Table 101", weighted = TRUE)
-exportTable(item94.final.MH, "MH", "Table 82", weighted = TRUE)
+exportTable(item94.final.SF, "SF", "Table 101", weighted = TRUE)
+# exportTable(item94.final.MH, "MH", "Table 82", weighted = TRUE)
 
 
 #######################
@@ -114,8 +114,8 @@ item94.final.SF <- item94.final[which(item94.final$BuildingType == "Single Famil
 item94.final.MH <- item94.final[which(item94.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item94.final) %in% c("BuildingType"))]
 
-# exportTable(item94.final.SF, "SF", "Table 101", weighted = FALSE)
-exportTable(item94.final.MH, "MH", "Table 82", weighted = FALSE)
+exportTable(item94.final.SF, "SF", "Table 101", weighted = FALSE)
+# exportTable(item94.final.MH, "MH", "Table 82", weighted = FALSE)
 
 
 
@@ -166,8 +166,8 @@ item95.final.SF <- item95.final[which(item95.final$BuildingType == "Single Famil
 item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item95.final) %in% c("BuildingType"))]
 
-# exportTable(item95.final.SF, "SF", "Table 102", weighted = TRUE)
-exportTable(item95.final.MH, "MH", "Table 83", weighted = TRUE)
+exportTable(item95.final.SF, "SF", "Table 102", weighted = TRUE)
+# exportTable(item95.final.MH, "MH", "Table 83", weighted = TRUE)
 
 
 #######################
@@ -184,8 +184,8 @@ item95.final.SF <- item95.final[which(item95.final$BuildingType == "Single Famil
 item95.final.MH <- item95.final[which(item95.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item95.final) %in% c("BuildingType"))]
 
-# exportTable(item95.final.SF, "SF", "Table 102", weighted = FALSE)
-exportTable(item95.final.MH, "MH", "Table 83", weighted = FALSE)
+exportTable(item95.final.SF, "SF", "Table 102", weighted = FALSE)
+# exportTable(item95.final.MH, "MH", "Table 83", weighted = FALSE)
 
 
 

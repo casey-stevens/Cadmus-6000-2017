@@ -87,6 +87,7 @@ item160.mechanical <- item160.merge
 
 #subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
+                                                             ,"CK_SiteID"
                                                              ,"PK_Envelope_ID"
                                                              , "Category"
                                                              , "Wall.Type"
@@ -117,41 +118,14 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                              , "Furred.Wall.Insulation.Type"                                   
                                                              , "Furred.Wall.Insulation.Thickness" ))]
 
-prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "-- Datapoint not asked for --")),]
+prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "Datapoint not asked for")),]
 prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
 prep.dat0$`Furred.Wall.Insulated?`  [which(prep.dat0$`Furred.Wall.Insulated?`   != "Yes" & prep.dat0$Wall.Type %in%    c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
-prep.dat0.1 <- prep.dat0[which(!(is.na(prep.dat0$Wall.Area))),]
-prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area != "Unknown"),]
-prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 %notin% c("Unknown",NA)),]
-prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1  %in% c("Unknown",NA)),]
-prep.dat1.0 <- prep.dat1.2[-which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %in% c("Unknown",NA)),]
-
-#review types
-unique(prep.dat1.0$Wall.Cavity.Insulation.Type.1)
-unique(prep.dat1.0$Wall.Cavity.Insulation.Type.2)
-unique(prep.dat1.0$Wall.Cavity.Insulation.Type.3) #nothing in this column
-unique(prep.dat1.0$Wall.Exterior.Insulation.Type.1)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Type.2) #nothing in this column
-unique(prep.dat1.0$Wall.Exterior.Insulation.Type.3) #nothing in this column
-unique(prep.dat1.0$Furred.Wall.Insulation.Type)
-
-#review insulation thicknesses
-unique(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1)
-unique(prep.dat1.0$Wall.Cavity.Insulation.Thickness.2)
-unique(prep.dat1.0$Wall.Cavity.Insulation.Thickness.3)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Thickness.1)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Thickness.2)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Thickness.3)
-unique(prep.dat1.0$Furred.Wall.Insulation.Thickness)
-
-#review conditions
-unique(prep.dat1.0$Wall.Cavity.Insulation.Condition.1)
-unique(prep.dat1.0$Wall.Cavity.Insulation.Condition.2)
-unique(prep.dat1.0$Wall.Cavity.Insulation.Condition.3)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Condition.1)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Condition.2)
-unique(prep.dat1.0$Wall.Exterior.Insulation.Condition.3)
-unique(prep.dat1.0$Wall.Type)
+prep.dat0.1 <- prep.dat0[which(prep.dat0$Wall.Area %notin% c("N/A",NA)),]
+prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area %notin% c("Unknown")),]
+prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 %notin% c("Unknown",NA,"N/A")),]
+prep.dat1.2 <- prep.dat1.1[which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1  %notin% c("Unknown",NA)),]
+prep.dat1.0 <- prep.dat1.2[which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %notin% c("Unknown",NA)),]
 
 #remove unneccesary wall types
 prep.dat2 <- prep.dat1.0[which(prep.dat1.0$Wall.Type %notin% c("Adiabatic", "Knee Wall")),] #"Masonry","Masonry (Basement)","ICF","Other","SIP","Log"
@@ -165,216 +139,65 @@ unique(prep.dat2$Wall.Type)
 #assign new dataset
 prep.dat3 <- prep.dat2
 
-###########################
-# Cleaning Step: Set up unknown and N/A insulation thickness information in order to separate the # from the word "inches" in R
-###########################
-
+#######################################################
+# Cleaning Steps
+#######################################################
+# replace datapoint not asked for with blank
 for(i in 1:ncol(prep.dat3)){
-  prep.dat3[,i] <- ifelse(prep.dat3[,i] == "-- Datapoint not asked for --", NA, prep.dat3[,i])
+  prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("-- Datapoint not asked for --","Datapoint not asked for"), NA, prep.dat3[,i])
 }
 
-#cleaning for wall.cavity
-prep.dat3$Wall.Cavity.Insulation.Thickness.1[which(prep.dat3$Wall.Cavity.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-prep.dat3$Wall.Cavity.Insulation.Thickness.1[which(is.na(prep.dat3$Wall.Cavity.Insulation.Thickness.1))] <- "N/A N/A"
-prep.dat3$Wall.Cavity.Insulation.Thickness.1[which(prep.dat3$Wall.Cavity.Insulation.Thickness.1 == "Unknown")] <- "Unknown Unknown"
-prep.dat3$Wall.Cavity.Insulation.Thickness.2[which(prep.dat3$Wall.Cavity.Insulation.Thickness.2 == "Unknown")] <- "Unknown Unknown"
-prep.dat3$Wall.Cavity.Insulation.Thickness.2[which(prep.dat3$Wall.Cavity.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
-prep.dat3$Wall.Cavity.Insulation.Thickness.2[which(is.na(prep.dat3$Wall.Cavity.Insulation.Thickness.2))] <- "N/A N/A"
-prep.dat3$Wall.Cavity.Insulation.Thickness.3[which(prep.dat3$Wall.Cavity.Insulation.Thickness.3 == "Unknown")] <- "Unknown Unknown"
-prep.dat3$Wall.Cavity.Insulation.Thickness.3[which(prep.dat3$Wall.Cavity.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
-prep.dat3$Wall.Cavity.Insulation.Thickness.3[which(is.na(prep.dat3$Wall.Cavity.Insulation.Thickness.3))] <- "N/A N/A"
-unique(prep.dat3$Wall.Cavity.Insulation.Thickness.1)
-unique(prep.dat3$Wall.Cavity.Insulation.Thickness.2)
-unique(prep.dat3$Wall.Cavity.Insulation.Thickness.3)
+# replace Unknown or NA in Condition columns with 1 (or 100%)
+for (i in grep("condition", names(prep.dat3), ignore.case = T)){
+  prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("Unknown","N/A"), 1, prep.dat3[,i])
+}
 
-#cleaning for wall exterior
-prep.dat3$Wall.Exterior.Insulation.Thickness.1[which(prep.dat3$Wall.Exterior.Insulation.Thickness.1 == "N/A")] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.1[which(is.na(prep.dat3$Wall.Exterior.Insulation.Thickness.1))] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.1[which(prep.dat3$Wall.Exterior.Insulation.Thickness.1 == "Unknown")] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.2[which(prep.dat3$Wall.Exterior.Insulation.Thickness.2 == "N/A")] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.2[which(is.na(prep.dat3$Wall.Exterior.Insulation.Thickness.2))] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.2[which(prep.dat3$Wall.Exterior.Insulation.Thickness.2 == "Unknown")] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.3[which(prep.dat3$Wall.Exterior.Insulation.Thickness.3 == "N/A")] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.3[which(is.na(prep.dat3$Wall.Exterior.Insulation.Thickness.3))] <- "N/A N/A"
-prep.dat3$Wall.Exterior.Insulation.Thickness.1[which(prep.dat3$Wall.Exterior.Insulation.Thickness.1 == "1.5")] <- "1.5 inches"
-prep.dat3$Wall.Exterior.Insulation.Thickness.3[which(prep.dat3$Wall.Exterior.Insulation.Thickness.3 == "Unknown")] <- "N/A N/A"
-unique(prep.dat3$Wall.Exterior.Insulation.Thickness.1)
-unique(prep.dat3$Wall.Exterior.Insulation.Thickness.2)
-unique(prep.dat3$Wall.Exterior.Insulation.Thickness.3)
-
-#cleaning for furred wall
-prep.dat3$Furred.Wall.Insulation.Thickness[which(prep.dat3$Furred.Wall.Insulation.Thickness == "N/A")] <- "N/A N/A"
-prep.dat3$Furred.Wall.Insulation.Thickness[which(is.na(prep.dat3$Furred.Wall.Insulation.Thickness))] <- "N/A N/A"
-prep.dat3$Furred.Wall.Insulation.Thickness[which(prep.dat3$Furred.Wall.Insulation.Thickness == "Unknown")] <- "N/A N/A"
-prep.dat3$Furred.Wall.Insulation.Thickness[which(prep.dat3$Furred.Wall.Insulation.Thickness == "10in")] <- "10 inches"
-prep.dat3$Furred.Wall.Insulation.Thickness[which(prep.dat3$Furred.Wall.Insulation.Thickness == "1.5")] <- "1.5 inches"
-unique(prep.dat3$Furred.Wall.Insulation.Thickness)
-
-
-#Clean Condition unknown values
-prep.dat3$Wall.Cavity.Insulation.Condition.1[which(prep.dat3$Wall.Cavity.Insulation.Condition.1 == "Unknown")] <- "100%"
-prep.dat3$Wall.Cavity.Insulation.Condition.2[which(prep.dat3$Wall.Cavity.Insulation.Condition.2 == "Unknown")] <- "100%"
-prep.dat3$Wall.Cavity.Insulation.Condition.3[which(prep.dat3$Wall.Cavity.Insulation.Condition.3 == "Unknown")] <- "100%"
-prep.dat3$Wall.Exterior.Insulation.Condition.1[which(prep.dat3$Wall.Exterior.Insulation.Condition.1 == "Unknown")] <- "100%"
-prep.dat3$Wall.Exterior.Insulation.Condition.2[which(prep.dat3$Wall.Exterior.Insulation.Condition.2 == "Unknown")] <- "100%"
-prep.dat3$Wall.Exterior.Insulation.Condition.3[which(prep.dat3$Wall.Exterior.Insulation.Condition.3 == "Unknown")] <- "100%"
-
-prep.dat3$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat3$Wall.Cavity.Insulation.Condition.1) & prep.dat3$Wall.Cavity.Insulation.Thickness.1 != "N/A N/A")] <- "100%"
-prep.dat3$Wall.Cavity.Insulation.Condition.2[which(is.na(prep.dat3$Wall.Cavity.Insulation.Condition.2) & prep.dat3$Wall.Cavity.Insulation.Thickness.2 != "N/A N/A")] <- "100%"
-prep.dat3$Wall.Cavity.Insulation.Condition.3[which(is.na(prep.dat3$Wall.Cavity.Insulation.Condition.3) & prep.dat3$Wall.Cavity.Insulation.Thickness.3 != "N/A N/A")] <- "100%"
-prep.dat3$Wall.Exterior.Insulation.Condition.1[which(is.na(prep.dat3$Wall.Exterior.Insulation.Condition.1) & prep.dat3$Wall.Exterior.Insulation.Thickness.1 != "N/A N/A")] <- "100%"
-prep.dat3$Wall.Exterior.Insulation.Condition.2[which(is.na(prep.dat3$Wall.Exterior.Insulation.Condition.2) & prep.dat3$Wall.Exterior.Insulation.Thickness.2 != "N/A N/A")] <- "100%"
-prep.dat3$Wall.Exterior.Insulation.Condition.3[which(is.na(prep.dat3$Wall.Exterior.Insulation.Condition.3) & prep.dat3$Wall.Exterior.Insulation.Thickness.3 != "N/A N/A")] <- "100%"
-
+# when cavity or exterior insulated columns = No, make condition 0%
 prep.dat3$Wall.Cavity.Insulation.Condition.1[which(prep.dat3$`Wall.Cavity.Insulated?` == "No")] <- "0%"
 prep.dat3$Wall.Exterior.Insulation.Condition.1[which(prep.dat3$`Wall.Exterior.Insulated?` == "No")] <- "0%"
 
-#remove percent signs and make numeric
-prep.dat3$Wall.Cavity.Insulation.Condition.1 <- gsub("%", "", prep.dat3$Wall.Cavity.Insulation.Condition.1)
-prep.dat3$Wall.Cavity.Insulation.Condition.1 <- as.numeric(as.character(prep.dat3$Wall.Cavity.Insulation.Condition.1))
-prep.dat3$Wall.Cavity.Insulation.Condition.2 <- gsub("%", "", prep.dat3$Wall.Cavity.Insulation.Condition.2)
-prep.dat3$Wall.Cavity.Insulation.Condition.2 <- as.numeric(as.character(prep.dat3$Wall.Cavity.Insulation.Condition.2))
-prep.dat3$Wall.Cavity.Insulation.Condition.3 <- gsub("%", "", prep.dat3$Wall.Cavity.Insulation.Condition.3)
-prep.dat3$Wall.Cavity.Insulation.Condition.3 <- as.numeric(as.character(prep.dat3$Wall.Cavity.Insulation.Condition.3))
+# Make thickness columns numeric
+for (i in grep("thickness", names(prep.dat3), ignore.case = T)){
+  prep.dat3[,i] <- as.numeric(as.character(prep.dat3[,i]))
+}
 
-prep.dat3$Wall.Exterior.Insulation.Condition.1 <- gsub("%", "", prep.dat3$Wall.Exterior.Insulation.Condition.1)
-prep.dat3$Wall.Exterior.Insulation.Condition.1 <- as.numeric(as.character(prep.dat3$Wall.Exterior.Insulation.Condition.1))
-prep.dat3$Wall.Exterior.Insulation.Condition.2 <- gsub("%", "", prep.dat3$Wall.Exterior.Insulation.Condition.2)
-prep.dat3$Wall.Exterior.Insulation.Condition.2 <- as.numeric(as.character(prep.dat3$Wall.Exterior.Insulation.Condition.2))
-prep.dat3$Wall.Exterior.Insulation.Condition.3 <- gsub("%", "", prep.dat3$Wall.Exterior.Insulation.Condition.3)
-prep.dat3$Wall.Exterior.Insulation.Condition.3 <- as.numeric(as.character(prep.dat3$Wall.Exterior.Insulation.Condition.3))
-
-
-# add new ID variable for merging -- don't know if we need this
-prep.dat3$count <- 1
-prep.dat3$TMP_ID <- cumsum(prep.dat3$count)
-
-## r-values ##
-clean.insul1 <- unlist(strsplit(prep.dat3$Wall.Cavity.Insulation.Thickness.1, " "))
-clean.insul2 <- as.data.frame(matrix(clean.insul1, ncol = 2, byrow = T), stringsAsFactors = F)
-clean.insul1.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , clean.insul2)
-dim(clean.insul1.1)
-
-clean.insul2 <- unlist(strsplit(prep.dat3$Wall.Cavity.Insulation.Thickness.2, " "))
-clean.insul2.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul2, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul2.1)
-
-clean.insul3 <- unlist(strsplit(prep.dat3$Wall.Cavity.Insulation.Thickness.3, " "))
-clean.insul3.1 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul3, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul3.1)
-
-clean.insul1.0 <- unlist(strsplit(prep.dat3$Wall.Exterior.Insulation.Thickness.1, " "))
-clean.insul1.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , as.data.frame(matrix(clean.insul1.0, ncol = 2, byrow = T)
-                                                   , stringsAsFactors = F))
-dim(clean.insul1.2)
-
-clean.insul2.0 <- unlist(strsplit(prep.dat3$Wall.Exterior.Insulation.Thickness.2, " "))
-clean.insul2.00 <- as.data.frame(matrix(clean.insul2.0, ncol = 2, byrow = T), stringsAsFactors = F)
-clean.insul2.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , clean.insul2.00)
-dim(clean.insul2.2)
-
-clean.insul3.0 <- unlist(strsplit(prep.dat3$Wall.Exterior.Insulation.Thickness.3, " "))
-clean.insul3.00 <- as.data.frame(matrix(clean.insul3.0, ncol = 2, byrow = T), stringsAsFactors = F)
-clean.insul3.2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                   , "TMP_ID" = prep.dat3$TMP_ID
-                                   , clean.insul3.00)
-dim(clean.insul3.2)
-
-clean.insul.furred0 <- unlist(strsplit(prep.dat3$Furred.Wall.Insulation.Thickness, " "))
-clean.insul.furred00 <- as.data.frame(matrix(clean.insul.furred0, ncol = 2, byrow = T), stringsAsFactors = F)
-clean.insul.furred2 <- cbind.data.frame("CK_Cadmus_ID" = prep.dat3$CK_Cadmus_ID
-                                        , "TMP_ID" = prep.dat3$TMP_ID
-                                        , clean.insul.furred00)
-dim(clean.insul.furred2)
-
-clean.insul.join1 <- left_join(clean.insul1.1,    clean.insul2.1, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join2 <- left_join(clean.insul.join1, clean.insul3.1, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join3 <- left_join(clean.insul.join2, clean.insul1.2, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join4 <- left_join(clean.insul.join3, clean.insul2.2, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join5 <- left_join(clean.insul.join4, clean.insul3.2, by = c("CK_Cadmus_ID", "TMP_ID"))
-clean.insul.join6 <- left_join(clean.insul.join5, clean.insul.furred2, by = c("CK_Cadmus_ID", "TMP_ID"))
-
-colnames(clean.insul.join6) <- c("CK_Cadmus_ID"
-                                 ,"TMP_ID"
-                                 ,"cavity.inches1"
-                                 ,"Remove.1"
-                                 ,"cavity.inches2"
-                                 ,"Remove.2"
-                                 ,"cavity.inches3"
-                                 ,"Remove.3"
-                                 ,"exterior.inches1"
-                                 ,"Remove.1"
-                                 ,"exterior.inches2"
-                                 ,"Remove.2"
-                                 ,"exterior.inches3"
-                                 ,"Remove.3"
-                                 ,"furred.inches"
-                                 ,"Remove")
-clean.insul.join7 <- clean.insul.join6[-which(clean.insul.join6$cavity.inches1 %in% c("Unknown", "N/A", "N/A N/A") & clean.insul.join6$exterior.inches1 %in% c("Unknown", "N/A", "N/A N/A") & clean.insul.join6$furred.inches %in% c("Unknown", "N/A", "N/A N/A")),]
-
-clean.thickness.data <- clean.insul.join7[-grep("Remove", colnames(clean.insul.join7))]
-
-
-###########################
-# End cleaning step
-###########################
-
-#make into dataframe
-prep.dat4 <- as.data.frame(left_join(prep.dat3, clean.thickness.data, by = c("CK_Cadmus_ID", "TMP_ID"))
-                           , stringsAsFactors = F) 
-# warning here is OK
-
-###########################
-# Cleaning inches and rvalue information
-###########################
-
+#######################################################
+# Cleaning and re-naming inches and rvalue information
+#######################################################
+prep.dat4 <- prep.dat3
 # make numeric
-prep.dat4$cavity.inches1   <- as.numeric(as.character(prep.dat4$cavity.inches1)) # warning here is OK
-prep.dat4$cavity.inches2   <- as.numeric(as.character(prep.dat4$cavity.inches2)) # warning here is OK
-prep.dat4$cavity.inches3   <- as.numeric(as.character(prep.dat4$cavity.inches3)) # warning here is OK
-prep.dat4$exterior.inches1 <- as.numeric(as.character(prep.dat4$exterior.inches1)) # warning here is OK
-prep.dat4$exterior.inches2 <- as.numeric(as.character(prep.dat4$exterior.inches2)) # warning here is OK
-prep.dat4$exterior.inches3 <- as.numeric(as.character(prep.dat4$exterior.inches3)) # warning here is OK
-prep.dat4$furred.inches    <- as.numeric(as.character(prep.dat4$furred.inches))
-
+prep.dat4$cavity.inches1   <- prep.dat4$Wall.Cavity.Insulation.Thickness.1
+prep.dat4$cavity.inches2   <- prep.dat4$Wall.Cavity.Insulation.Thickness.2
+prep.dat4$cavity.inches3   <- prep.dat4$Wall.Cavity.Insulation.Thickness.3
+prep.dat4$exterior.inches1 <- prep.dat4$Wall.Exterior.Insulation.Thickness.1
+prep.dat4$exterior.inches2 <- prep.dat4$Wall.Exterior.Insulation.Thickness.2
+prep.dat4$exterior.inches3 <- prep.dat4$Wall.Exterior.Insulation.Thickness.3
+prep.dat4$furred.inches    <- prep.dat4$Furred.Wall.Insulation.Thickness
+#update column names
+prep.dat4$cavity.rvalues1   <- prep.dat4$Wall.Cavity.Insulation.Type.1
+prep.dat4$cavity.rvalues2   <- prep.dat4$Wall.Cavity.Insulation.Type.2
+prep.dat4$cavity.rvalues3   <- prep.dat4$Wall.Cavity.Insulation.Type.3
+prep.dat4$exterior.rvalues1 <- prep.dat4$Wall.Exterior.Insulation.Type.1
+prep.dat4$exterior.rvalues2 <- prep.dat4$Wall.Exterior.Insulation.Type.2
+prep.dat4$exterior.rvalues3 <- prep.dat4$Wall.Exterior.Insulation.Type.3
+prep.dat4$furred.rvalues    <- prep.dat4$Furred.Wall.Insulation.Type
 #replace any inches that are NA with zeros
 for(i in grep("inches|rval", colnames(prep.dat4))){
   prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
 }
-
-#update column names
-prep.dat4$cavity.rvalues1 <- prep.dat4$Wall.Cavity.Insulation.Type.1
-prep.dat4$cavity.rvalues2 <- prep.dat4$Wall.Cavity.Insulation.Type.2
-prep.dat4$cavity.rvalues3 <- prep.dat4$Wall.Cavity.Insulation.Type.3
-prep.dat4$exterior.rvalues1 <- prep.dat4$Wall.Exterior.Insulation.Type.1
-prep.dat4$exterior.rvalues2 <- prep.dat4$Wall.Exterior.Insulation.Type.2
-prep.dat4$exterior.rvalues3 <- prep.dat4$Wall.Exterior.Insulation.Type.3
-prep.dat4$furred.rvalues <- prep.dat4$Furred.Wall.Insulation.Type
 
 #fix names that are not in R value table
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Fiberglass or mineral wool batts")] <- "Mineral wool batts"
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Unknown fiberglass")]               <- "Unknown"
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "-- Datapoint not asked for --")]    <- NA
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "None")]                             <- NA
-prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "N/A")]                              <- NA
+prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 %in% c("N/A","NA"))]                    <- NA
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Expanded polystyrene foam board (white)")] <- "Expanded polystyrene foam board"
 prep.dat4$cavity.rvalues1[grep('unknown', prep.dat4$cavity.rvalues1, ignore.case = T)] <- "Unknown"
 prep.dat4$cavity.rvalues1[which(prep.dat4$cavity.rvalues1 == "Extruded polystyrene foam board (pink or blue)")] <- "Extruded polystyrene foam board"
 
 prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "Extruded polystyrene (blue)")]      <- "Extruded polystyrene foam board"
-prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "N/A")]                              <- NA
+prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 %in% c("N/A","NA"))]                    <- NA
 prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "-- Datapoint not asked for --")]    <- NA
 prep.dat4$cavity.rvalues2[which(prep.dat4$cavity.rvalues2 == "Expanded polystyrene foam board (white)")] <- "Expanded polystyrene foam board"
 prep.dat4$cavity.rvalues2[grep('unknown', prep.dat4$cavity.rvalues2, ignore.case = T)] <- "Unknown"
@@ -429,19 +252,14 @@ prep.dat4$furred.inches[which(prep.dat4$`Furred.Wall.Insulated?` == "No")] <- 0
 for(i in grep("inches|rval", colnames(prep.dat4))){
   prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
 }
-
-
 #make all inches and rvalue columns numeric
 for(i in grep("inches|rval", colnames(prep.dat4))){
   prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
 }
-
 #replace any inches and rvalues that are NA with zeros
 for(i in grep("inches|rval", colnames(prep.dat4))){
   prep.dat4[,i] <- ifelse(is.na(prep.dat4[,i]), 0, prep.dat4[,i])
 }
-
-
 #make all inches and rvalue columns numeric
 for(i in grep("inches|rval", colnames(prep.dat4))){
   prep.dat4[,i] <- as.numeric(as.character(prep.dat4[,i]))
@@ -464,9 +282,11 @@ unique(prep.dat4.5$exterior.rvalues2)
 unique(prep.dat4.5$exterior.rvalues3)
 unique(prep.dat4.5$furred.rvalues)
 
-prep.dat4.5$Wall.Cavity.Insulation.Condition.1   <- prep.dat4.5$Wall.Cavity.Insulation.Condition.1 / 100
-prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- prep.dat4.5$Wall.Exterior.Insulation.Condition.1 / 100
-
+#####################################################
+# For condition information
+#####################################################
+prep.dat4.5$Wall.Cavity.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Wall.Cavity.Insulation.Condition.1))
+prep.dat4.5$Wall.Exterior.Insulation.Condition.1 <- as.numeric(as.character(prep.dat4.5$Wall.Exterior.Insulation.Condition.1))
 
 # clean up condition information - 
 # this creates a line item for any condition less than 100%, 
@@ -491,12 +311,13 @@ prep.dat4.9 <- rbind.data.frame(prep.dat4.5
                                 , stringsAsFactors = F)
 prep.dat4.9$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat4.9$Wall.Cavity.Insulation.Condition.1))] <- 1
 prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Type)),]
-prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
+names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
+# prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
+
+
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
-
-
 #calculate the weighted r value
 na.ind <- which(is.na(prep.dat5$total.r.val))
 prep.dat5$total.r.val[na.ind] <- (prep.dat5$cavity.rvalues1[na.ind] * prep.dat5$cavity.inches1[na.ind]) +  
@@ -541,12 +362,11 @@ wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID",
 prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
 
 #merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat)
+prep.dat7 <- left_join(prep.dat6, rbsa.dat.orig)
 # prep.dat7.0 <- left_join(rbsa.dat, prep.dat5)
 # prep.dat7 <- left_join(prep.dat6, prep.dat7.0)
 prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
 prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
-
 ###################################################################################################################
 #
 #

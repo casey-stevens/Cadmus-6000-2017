@@ -74,8 +74,8 @@ tableRR.table.SF <- tableRR.table[which(tableRR.table$BuildingType == "Single Fa
 tableRR.table.MH <- tableRR.table[which(tableRR.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableRR.table) %notin% c("BuildingType"))]
 
-# exportTable(tableRR.table.SF, "SF", "Table RR", weighted = TRUE)
-exportTable(tableRR.table.MH, "MH", "Table RR", weighted = TRUE)
+exportTable(tableRR.table.SF, "SF", "Table RR", weighted = TRUE)
+# exportTable(tableRR.table.MH, "MH", "Table RR", weighted = TRUE)
 
 #######################
 # MULTIFAMILY
@@ -87,7 +87,7 @@ tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
                                        ,weighted = TRUE)
 tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Multifamily")
                                   ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
-exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE)
+# exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE)
 
 
 
@@ -104,8 +104,8 @@ tableRR.table.SF <- tableRR.table[which(tableRR.table$BuildingType == "Single Fa
 tableRR.table.MH <- tableRR.table[which(tableRR.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableRR.table) %notin% c("BuildingType"))]
 
-# exportTable(tableRR.table.SF, "SF", "Table RR", weighted = FALSE)
-exportTable(tableRR.table.MH, "MH", "Table RR", weighted = FALSE)
+exportTable(tableRR.table.SF, "SF", "Table RR", weighted = FALSE)
+# exportTable(tableRR.table.MH, "MH", "Table RR", weighted = FALSE)
 
 #######################
 # MULTIFAMILY
@@ -117,7 +117,7 @@ tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
                                           ,weighted = FALSE)
 tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Multifamily")
                                      ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
-exportTable(tableRR.table.MF, "MF", "Table RR", weighted = FALSE)
+# exportTable(tableRR.table.MF, "MF", "Table RR", weighted = FALSE)
 
 
 
@@ -162,8 +162,8 @@ tableTT.table.SF <- tableTT.table[which(tableTT.table$BuildingType == "Single Fa
 tableTT.table.MH <- tableTT.table[which(tableTT.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableTT.table) %notin% c("BuildingType"))]
 
-# exportTable(tableTT.table.SF, "SF", "Table TT", weighted = TRUE)
-exportTable(tableTT.table.MH, "MH", "Table TT", weighted = TRUE)
+exportTable(tableTT.table.SF, "SF", "Table TT", weighted = TRUE)
+# exportTable(tableTT.table.MH, "MH", "Table TT", weighted = TRUE)
 
 
 #######################
@@ -179,8 +179,8 @@ tableTT.table.SF <- tableTT.table[which(tableTT.table$BuildingType == "Single Fa
 tableTT.table.MH <- tableTT.table[which(tableTT.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableTT.table) %notin% c("BuildingType"))]
 
-# exportTable(tableTT.table.SF, "SF", "Table TT", weighted = FALSE)
-exportTable(tableTT.table.MH, "MH", "Table TT", weighted = FALSE)
+exportTable(tableTT.table.SF, "SF", "Table TT", weighted = FALSE)
+# exportTable(tableTT.table.MH, "MH", "Table TT", weighted = FALSE)
 
 
 
@@ -226,8 +226,8 @@ TableUU.table.SF <- TableUU.table[which(TableUU.table$BuildingType == "Single Fa
 TableUU.table.MH <- TableUU.table[which(TableUU.table$BuildingType == "Manufactured")
                                   ,which(colnames(TableUU.table) %notin% c("BuildingType"))]
 
-# exportTable(TableUU.table.SF, "SF", "Table UU", weighted = TRUE)
-exportTable(TableUU.table.MH, "MH", "Table UU", weighted = TRUE)
+exportTable(TableUU.table.SF, "SF", "Table UU", weighted = TRUE)
+# exportTable(TableUU.table.MH, "MH", "Table UU", weighted = TRUE)
 
 
 #######################
@@ -243,8 +243,8 @@ TableUU.table.SF <- TableUU.table[which(TableUU.table$BuildingType == "Single Fa
 TableUU.table.MH <- TableUU.table[which(TableUU.table$BuildingType == "Manufactured")
                                   ,which(colnames(TableUU.table) %notin% c("BuildingType"))]
 
-# exportTable(TableUU.table.SF, "SF", "Table UU", weighted = FALSE)
-exportTable(TableUU.table.MH, "MH", "Table UU", weighted = FALSE)
+exportTable(TableUU.table.SF, "SF", "Table UU", weighted = FALSE)
+# exportTable(TableUU.table.MH, "MH", "Table UU", weighted = FALSE)
 
 
 
@@ -291,8 +291,8 @@ TableVV.table.SF <- TableVV.table[which(TableVV.table$BuildingType == "Single Fa
 TableVV.table.MH <- TableVV.table[which(TableVV.table$BuildingType == "Manufactured")
                                   ,which(colnames(TableVV.table) %notin% c("BuildingType"))]
 
-# exportTable(TableVV.table.SF, "SF", "Table VV", weighted = TRUE)
-exportTable(TableVV.table.MH, "MH", "Table VV", weighted = TRUE)
+exportTable(TableVV.table.SF, "SF", "Table VV", weighted = TRUE)
+# exportTable(TableVV.table.MH, "MH", "Table VV", weighted = TRUE)
 
 #######################
 # MULTIFAMILY
@@ -304,7 +304,7 @@ TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
                                        ,weighted = TRUE)
 TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Multifamily")
                                   ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
-exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE)
+# exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE)
 
 
 
@@ -321,8 +321,8 @@ TableVV.table.SF <- TableVV.table[which(TableVV.table$BuildingType == "Single Fa
 TableVV.table.MH <- TableVV.table[which(TableVV.table$BuildingType == "Manufactured")
                                   ,which(colnames(TableVV.table) %notin% c("BuildingType"))]
 
-# exportTable(TableVV.table.SF, "SF", "Table VV", weighted = FALSE)
-exportTable(TableVV.table.MH, "MH", "Table VV", weighted = FALSE)
+exportTable(TableVV.table.SF, "SF", "Table VV", weighted = FALSE)
+# exportTable(TableVV.table.MH, "MH", "Table VV", weighted = FALSE)
 
 
 #######################
@@ -335,7 +335,7 @@ TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
                                           ,weighted = FALSE)
 TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Multifamily")
                                      ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
-exportTable(TableVV.table.MF,"MF","Table VV",weighted = FALSE)
+# exportTable(TableVV.table.MF,"MF","Table VV",weighted = FALSE)
 
 
 

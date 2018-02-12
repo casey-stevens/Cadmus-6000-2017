@@ -106,8 +106,8 @@ item36.table.SF <- item36.table[which(item36.table$BuildingType == "Single Famil
 item36.table.MH <- item36.table[which(item36.table$BuildingType == "Manufactured"),
                                 -which(colnames(item36.table) == "BuildingType")]
 
-# exportTable(item36.table.SF, "SF","Table 43",weighted = TRUE)
-exportTable(item36.table.MH, "MH","Table 24",weighted = TRUE)
+exportTable(item36.table.SF, "SF","Table 43",weighted = TRUE)
+# exportTable(item36.table.MH, "MH","Table 24",weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -153,8 +153,8 @@ item36.table.SF <- item36.table[which(item36.table$BuildingType == "Single Famil
 item36.table.MH <- item36.table[which(item36.table$BuildingType == "Manufactured"),
                                 -which(colnames(item36.table) == "BuildingType")]
 
-# exportTable(item36.table.SF, "SF","Table 43",weighted = FALSE)
-exportTable(item36.table.MH, "MH","Table 24",weighted = FALSE)
+exportTable(item36.table.SF, "SF","Table 43",weighted = FALSE)
+# exportTable(item36.table.MH, "MH","Table 24",weighted = FALSE)
 
 
 
@@ -230,8 +230,8 @@ item37.table.SF <- item37.table[which(item37.table$BuildingType == "Single Famil
 item37.table.MH <- item37.table[which(item37.table$BuildingType == "Manufactured"),
                                 -which(colnames(item37.table) == "BuildingType")]
 
-# exportTable(item37.table.SF, "SF","Table 44",weighted = TRUE)
-exportTable(item37.table.MH, "MH","Table 26",weighted = TRUE)
+exportTable(item37.table.SF, "SF","Table 44",weighted = TRUE)
+# exportTable(item37.table.MH, "MH","Table 26",weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -277,8 +277,8 @@ item37.table.SF <- item37.table[which(item37.table$BuildingType == "Single Famil
 item37.table.MH <- item37.table[which(item37.table$BuildingType == "Manufactured"),
                                 -which(colnames(item37.table) == "BuildingType")]
 
-# exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
-exportTable(item37.table.MH, "MH","Table 26",weighted = FALSE)
+exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
+# exportTable(item37.table.MH, "MH","Table 26",weighted = FALSE)
 
 
 

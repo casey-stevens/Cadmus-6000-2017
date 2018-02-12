@@ -84,8 +84,8 @@ item115.final.SF <- item115.final[which(item115.final$BuildingType == "Single Fa
 item115.final.MH <- item115.final[which(item115.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item115.final) %in% c("BuildingType"))]
 
-# exportTable(item115.final.SF, "SF", "Table 122", weighted = TRUE)
-exportTable(item115.final.MH, "MH", "Table 97", weighted = TRUE)
+exportTable(item115.final.SF, "SF", "Table 122", weighted = TRUE)
+# exportTable(item115.final.MH, "MH", "Table 97", weighted = TRUE)
 
 
 #######################
@@ -102,8 +102,8 @@ item115.final.SF <- item115.final[which(item115.final$BuildingType == "Single Fa
 item115.final.MH <- item115.final[which(item115.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item115.final) %in% c("BuildingType"))]
 
-# exportTable(item115.final.SF, "SF", "Table 122", weighted = FALSE)
-exportTable(item115.final.MH, "MH", "Table 97", weighted = FALSE)
+exportTable(item115.final.SF, "SF", "Table 122", weighted = FALSE)
+# exportTable(item115.final.MH, "MH", "Table 97", weighted = FALSE)
 
 
 
@@ -161,8 +161,8 @@ item116.final.SF <- item116.final[which(item116.final$BuildingType == "Single Fa
 item116.final.MH <- item116.final[which(item116.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item116.final) %in% c("BuildingType"))]
 
-# exportTable(item116.final.SF, "SF", "Table 123", weighted = TRUE)
-exportTable(item116.final.MH, "MH", "Table 98", weighted = TRUE)
+exportTable(item116.final.SF, "SF", "Table 123", weighted = TRUE)
+# exportTable(item116.final.MH, "MH", "Table 98", weighted = TRUE)
 
 
 
@@ -179,8 +179,8 @@ item116.final.SF <- item116.final[which(item116.final$BuildingType == "Single Fa
 item116.final.MH <- item116.final[which(item116.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item116.final) %in% c("BuildingType"))]
 
-# exportTable(item116.final.SF, "SF", "Table 123", weighted = FALSE)
-exportTable(item116.final.MH, "MH", "Table 98", weighted = FALSE)
+exportTable(item116.final.SF, "SF", "Table 123", weighted = FALSE)
+# exportTable(item116.final.MH, "MH", "Table 98", weighted = FALSE)
 
 
 
@@ -240,8 +240,8 @@ item117.final.SF <- item117.final[which(item117.final$BuildingType == "Single Fa
 item117.final.MH <- item117.final[which(item117.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item117.final) %in% c("BuildingType"))]
 
-# exportTable(item117.final.SF, "SF", "Table 124", weighted = TRUE)
-exportTable(item117.final.MH, "MH", "Table 99", weighted = TRUE)
+exportTable(item117.final.SF, "SF", "Table 124", weighted = TRUE)
+# exportTable(item117.final.MH, "MH", "Table 99", weighted = TRUE)
 
 
 
@@ -258,8 +258,8 @@ item117.final.SF <- item117.final[which(item117.final$BuildingType == "Single Fa
 item117.final.MH <- item117.final[which(item117.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item117.final) %in% c("BuildingType"))]
 
-# exportTable(item117.final.SF, "SF", "Table 124", weighted = FALSE)
-exportTable(item117.final.MH, "MH", "Table 99", weighted = FALSE)
+exportTable(item117.final.SF, "SF", "Table 124", weighted = FALSE)
+# exportTable(item117.final.MH, "MH", "Table 99", weighted = FALSE)
 
 
 
@@ -318,8 +318,8 @@ item118.final.SF <- item118.final[which(item118.final$BuildingType == "Single Fa
 item118.final.MH <- item118.final[which(item118.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item118.final) %in% c("BuildingType"))]
 
-# exportTable(item118.final.SF, "SF", "Table 125", weighted = TRUE)
-exportTable(item118.final.MH, "MH", "Table 100", weighted = TRUE)
+exportTable(item118.final.SF, "SF", "Table 125", weighted = TRUE)
+# exportTable(item118.final.MH, "MH", "Table 100", weighted = TRUE)
 
 
 #######################
@@ -336,8 +336,8 @@ item118.final.SF <- item118.final[which(item118.final$BuildingType == "Single Fa
 item118.final.MH <- item118.final[which(item118.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item118.final) %in% c("BuildingType"))]
 
-# exportTable(item118.final.SF, "SF", "Table 125", weighted = FALSE)
-exportTable(item118.final.MH, "MH", "Table 100", weighted = FALSE)
+exportTable(item118.final.SF, "SF", "Table 125", weighted = FALSE)
+# exportTable(item118.final.MH, "MH", "Table 100", weighted = FALSE)
 
 
 
@@ -396,8 +396,8 @@ item119.final.SF <- item119.final[which(item119.final$BuildingType == "Single Fa
 item119.final.MH <- item119.final[which(item119.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item119.final) %in% c("BuildingType"))]
 
-# exportTable(item119.final.SF, "SF", "Table 126", weighted = TRUE)
-exportTable(item119.final.MH, "MH", "Table 101", weighted = TRUE)
+exportTable(item119.final.SF, "SF", "Table 126", weighted = TRUE)
+# exportTable(item119.final.MH, "MH", "Table 101", weighted = TRUE)
 
 
 
@@ -414,8 +414,8 @@ item119.final.SF <- item119.final[which(item119.final$BuildingType == "Single Fa
 item119.final.MH <- item119.final[which(item119.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item119.final) %in% c("BuildingType"))]
 
-# exportTable(item119.final.SF, "SF", "Table 126", weighted = FALSE)
-exportTable(item119.final.MH, "MH", "Table 101", weighted = FALSE)
+exportTable(item119.final.SF, "SF", "Table 126", weighted = FALSE)
+# exportTable(item119.final.MH, "MH", "Table 101", weighted = FALSE)
 
 
 
@@ -489,8 +489,8 @@ item120.final.SF <- item120.final[which(item120.final$BuildingType == "Single Fa
 item120.final.MH <- item120.final[which(item120.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item120.final) %in% c("BuildingType"))]
 
-# exportTable(item120.final.SF, "SF", "Table 127", weighted = TRUE)
-exportTable(item120.final.MH, "MH", "Table 102", weighted = TRUE)
+exportTable(item120.final.SF, "SF", "Table 127", weighted = TRUE)
+# exportTable(item120.final.MH, "MH", "Table 102", weighted = TRUE)
 
 
 
@@ -507,8 +507,8 @@ item120.final.SF <- item120.final[which(item120.final$BuildingType == "Single Fa
 item120.final.MH <- item120.final[which(item120.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item120.final) %in% c("BuildingType"))]
 
-# exportTable(item120.final.SF, "SF", "Table 127", weighted = FALSE)
-exportTable(item120.final.MH, "MH", "Table 102", weighted = FALSE)
+exportTable(item120.final.SF, "SF", "Table 127", weighted = FALSE)
+# exportTable(item120.final.MH, "MH", "Table 102", weighted = FALSE)
 
 
 
