@@ -1061,9 +1061,11 @@ proportions_one_group <- function(CustomerLevelData
                                            ,w.percent = sum(w.percent)
                                            ,w.SE      = NA
                                            ,count     = sum(count, na.rm = T)
-                                           ,n         = sum(n)
                                            ,N         = sum(unique(N), na.rm = T)
-                                           ,EB        = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
+                                           ,EB        = NA), stringsAsFactors = F)
+          SampleSizes <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise
+                                          ,n         = length(unique(CK_Cadmus_ID))))
+          ColumnTotals <- left_join(ColumnTotals, SampleSizes)
         }
       }## End loops for distribution and percentage tables
       
