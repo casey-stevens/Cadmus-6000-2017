@@ -124,7 +124,7 @@ tableDD.table.MH <- tableDD.table[which(tableDD.table$BuildingType == "Manufactu
                                   ,which(colnames(tableDD.table) %notin% c("BuildingType"))]
 
 exportTable(tableDD.table.SF, "SF", "Table DD", weighted = TRUE)
-# exportTable(tableDD.table.MH, "MH", "Table DD", weighted = TRUE)
+exportTable(tableDD.table.MH, "MH", "Table DD", weighted = TRUE)
 
 #######################
 # MULTIFAMILY
@@ -135,7 +135,7 @@ tableDD.final.MF <- proportions_one_group(CustomerLevelData = tableDD.data
                                           ,total.name = "All Types")
 tableDD.table.MF <- tableDD.final.MF[which(tableDD.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableDD.final.MF) != "BuildingType")]
-# exportTable(tableDD.table.MF, "MF", "Table DD", weighted = TRUE)
+exportTable(tableDD.table.MF, "MF", "Table DD", weighted = TRUE)
 
 
 #######################
@@ -190,7 +190,7 @@ tableDD.table.MH <- tableDD.table[which(tableDD.table$BuildingType == "Manufactu
                                   ,which(colnames(tableDD.table) %notin% c("BuildingType"))]
 
 exportTable(tableDD.table.SF, "SF", "Table DD", weighted = FALSE)
-# exportTable(tableDD.table.MH, "MH", "Table DD", weighted = FALSE)
+exportTable(tableDD.table.MH, "MH", "Table DD", weighted = FALSE)
 
 #######################
 # MULTIFAMILY
@@ -202,7 +202,7 @@ tableDD.final.MF <- proportions_one_group(CustomerLevelData = tableDD.data
                                           ,weighted = FALSE)
 tableDD.table.MF <- tableDD.final.MF[which(tableDD.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableDD.final.MF) != "BuildingType")]
-# exportTable(tableDD.table.MF, "MF", "Table DD", weighted = FALSE)
+exportTable(tableDD.table.MF, "MF", "Table DD", weighted = FALSE)
 
 
 

@@ -124,31 +124,35 @@ item133.dat0 <- item133.dat[which(item133.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
 item133.dat1 <- left_join(item133.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item133.dat1$Thermostat_Setpoint <- as.numeric(as.character(item133.dat1$Thermostat_Setpoint))
+item133.dat1$Nighttime_Cooling <- as.numeric(as.character(item133.dat1$Nighttime_Cooling))
+
 
 item133.dat2.0 <- item133.dat1[which(!(is.na(item133.dat1$Thermostat_Setpoint))),]
-item133.dat2 <- item133.dat2.0[which(item133.dat2.0$Thermostat_Setpoint != 0),]
+item133.dat2 <- item133.dat2.0[which(item133.dat2.0$Thermostat_Setpoint > 0),]
 unique(item133.dat2$Thermostat_Setpoint)
 unique(item133.dat2$Nighttime_Cooling)
 
 item133.dat3.0 <- item133.dat2[which(!(is.na(item133.dat2$Nighttime_Cooling))),]
-item133.dat3 <- item133.dat3.0[which(item133.dat3.0$Nighttime_Cooling != 0),]
+item133.dat3 <- item133.dat3.0[which(item133.dat3.0$Nighttime_Cooling > 0),]
 
 item133.dat3$Cooling.Setup <- 0
 item133.dat3$Cooling.Setup[which(item133.dat3$Nighttime_Cooling > item133.dat3$Thermostat_Setpoint)] <- 1
 
 item133.sum <- summarise(group_by(item133.dat3, CK_Cadmus_ID)
-                         ,Ind = sum(Cooling.Setup))
+                         ,Ind = sum(unique(Cooling.Setup)))
+unique(item133.sum$Ind)
 
 item133.merge <- left_join(rbsa.dat, item133.sum)
 item133.merge <- item133.merge[which(!is.na(item133.merge$Ind)),]
+# item133.merge$Ind[which(is.na(item133.merge$Ind))] <- 0
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 item133.data <- weightedData(item133.merge[-which(colnames(item133.merge) %in% c("Ind"))])
-item133.data <- left_join(item133.data, unique(item133.merge[which(colnames(item133.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))]))
+item133.data <- left_join(item133.data, unique(item133.merge[which(colnames(item133.merge) %in% c("CK_Cadmus_ID","Ind"))]))
 item133.data$count <- 1
 item133.data$Count <- 1
 #######################
@@ -206,12 +210,12 @@ tableAU.dat0 <- tableAU.dat[which(tableAU.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 tableAU.dat1 <- left_join(tableAU.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 tableAU.dat2.0 <- tableAU.dat1[which(!(is.na(tableAU.dat1$Thermostat_Setpoint))),]
-tableAU.dat2 <- tableAU.dat2.0[which(tableAU.dat2.0$Thermostat_Setpoint != 0),]
+tableAU.dat2 <- tableAU.dat2.0[which(tableAU.dat2.0$Thermostat_Setpoint > 0),]
 unique(tableAU.dat2$Thermostat_Setpoint)
 unique(tableAU.dat2$Nighttime_Cooling)
 
 tableAU.dat3.0 <- tableAU.dat2[which(!(is.na(tableAU.dat2$Nighttime_Cooling))),]
-tableAU.dat3 <- tableAU.dat3.0[which(tableAU.dat3.0$Nighttime_Cooling != 0),]
+tableAU.dat3 <- tableAU.dat3.0[which(tableAU.dat3.0$Nighttime_Cooling > 0),]
 
 tableAU.dat3$Cooling.Setup <- tableAU.dat3$Nighttime_Cooling - tableAU.dat3$Thermostat_Setpoint
 

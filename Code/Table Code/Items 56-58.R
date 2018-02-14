@@ -34,8 +34,9 @@ mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadm
                                                                         ,"SEER"
                                                                         ,"Component.1.Year.of.Manufacture"
                                                                         ,"Seasonal./.Portable.Equipment?"))]
+unique(mechanical.dat1$Component.1.Year.of.Manufacture)
 #remove any irrelevant equipment vintages (datapoint not asked for)
-mechanical.dat2 <- mechanical.dat1[which(mechanical.dat1$Component.1.Year.of.Manufacture != "-- Datapoint not asked for --"),]
+mechanical.dat2 <- mechanical.dat1#[which(mechanical.dat1$Component.1.Year.of.Manufacture != "Datapoint not asked for"),]
 #remove any NA equipment vintages
 mechanical.dat2$Component.1.Year.of.Manufacture <- as.numeric(as.character(mechanical.dat2$Component.1.Year.of.Manufacture))
 # mechanical.dat2[which(is.na(mechanical.dat2$Component.1.Year.of.Manufacture))] <- "Vintage Unknown"

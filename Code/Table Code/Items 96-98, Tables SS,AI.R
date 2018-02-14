@@ -26,6 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
 mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
@@ -331,11 +332,11 @@ item98.dat0 <- item98.dat[which(item98.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item98.dat1 <- left_join(rbsa.dat, item98.dat0, by = "CK_Cadmus_ID")
 
 item98.dat2 <- item98.dat1[grep("Water Heater",item98.dat1$Generic),]
+unique(item98.dat2$DHW.Location)
+item98.dat3 <- item98.dat2#[which(item98.dat2$DHW.Location != "Unknown"),]
 
-item98.dat3 <- item98.dat2[which(item98.dat2$DHW.Location != "Unknown"),]
-
-item98.dat3$DHW.Location[grep("Crawl",item98.dat3$DHW.Location)] <- "Crawlspace"
-item98.dat3$DHW.Location[grep("In building",item98.dat3$DHW.Location)] <- "Main House"
+item98.dat3$DHW.Location[grep("Crawl",item98.dat3$DHW.Location, ignore.case = T)] <- "Crawlspace"
+item98.dat3$DHW.Location[grep("In building|in unit|kitchen|bedroom|bathroom|closet|laundry",item98.dat3$DHW.Location, ignore.case = T)] <- "Main House"
 
 item98.dat3$DHW.Location[which(item98.dat3$DHW.Location %notin% c("Crawlspace"
                                                                   ,"Basement"
@@ -343,7 +344,7 @@ item98.dat3$DHW.Location[which(item98.dat3$DHW.Location %notin% c("Crawlspace"
                                                                   ,"Main House"))] <- "Other"
 
 unique(item98.dat3$DHW.Location)
-
+length(unique(item98.dat3$CK_Cadmus_ID[which(item98.dat3$BuildingType == "Single Family")]))
 
 ################################################
 # Adding pop and sample sizes for weights

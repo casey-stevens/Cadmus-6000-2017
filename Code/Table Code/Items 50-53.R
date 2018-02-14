@@ -40,7 +40,7 @@ mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadm
 mechanical.dat1$Heating.Fuel[which(mechanical.dat1$Heating.Fuel == "Natural gas")] <- "Natural Gas"
 mechanical.dat1 <- mechanical.dat1[which(mechanical.dat1$Primary.Heating.System == "Yes"),]
 #remove any irrelevant equipment vintages (datapoint not asked for)
-mechanical.dat2 <- mechanical.dat1[which(mechanical.dat1$Component.1.Year.of.Manufacture != "-- Datapoint not asked for --"),]
+mechanical.dat2 <- mechanical.dat1#[which(mechanical.dat1$Component.1.Year.of.Manufacture != "Datapoint not asked for"),]
 #remove any NA equipment vintages
 mechanical.dat2$Component.1.Year.of.Manufacture <- as.numeric(as.character(mechanical.dat2$Component.1.Year.of.Manufacture))
 # mechanical.dat2[which(is.na(mechanical.dat2$Component.1.Year.of.Manufacture))] <- "Vintage Unknown"
@@ -76,7 +76,7 @@ unique(mechanical.dat3$EquipVintage_bins_MH)
 item50.dat <- mechanical.dat3[which(mechanical.dat3$CK_Cadmus_ID != "BUILDING"),]
 
 #remove any irrelevant heating efficiency datapoints (datapoint not asked for)
-item50.dat1 <- item50.dat[which(item50.dat$`Heating.Efficiency.-.High` != "-- Datapoint not asked for --"),]
+item50.dat1 <- item50.dat#[which(item50.dat$`Heating.Efficiency.-.High` != "Datapoint not asked for"),]
 
 #remove any repeated header lines
 item50.dat2 <- item50.dat1[which(item50.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -474,7 +474,7 @@ exportTable(item51.table.SF, "SF", "Table 58", weighted = FALSE)
 item52.dat <- mechanical.dat3[which(mechanical.dat3$CK_Cadmus_ID != "BUILDING"),]
 
 #remove any irrelevant HSPF datapoints (could not collect)
-item52.dat1 <- item52.dat[which(item52.dat$HSPF != "Could Not Collect"),]
+item52.dat1 <- item52.dat#[which(item52.dat$HSPF != "Could Not Collect"),]
 
 #remove any repeated header lines
 item52.dat2 <- item52.dat1[which(item52.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]
@@ -644,7 +644,7 @@ item52.final.MH <- item52.final[which(item52.final$BuildingType == "Manufactured
 item53.dat <- mechanical.dat3[which(mechanical.dat3$CK_Cadmus_ID != "BUILDING"),]
 
 #remove any irrelevant HSPF datapoints (could not collect)
-item53.dat1 <- item53.dat[which(item53.dat$HSPF != "Could Not Collect"),]
+item53.dat1 <- item53.dat#[which(item53.dat$HSPF != "Could Not Collect"),]
 
 #remove any repeated header lines
 item53.dat2 <- item53.dat1[which(item53.dat1$CK_Cadmus_ID != "CK_CADMUS_ID"),]

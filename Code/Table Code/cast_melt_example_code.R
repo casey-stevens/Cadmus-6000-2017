@@ -267,7 +267,7 @@ os.dat <- os.dat[which(names(os.dat) != "Category")]
 ############################################################################################################
 
 # row ordering example code
-levels(itemXX.os.table$CK_Building_ID)
+levels(itemXX.os.final$CK_Building_ID)
 if(os.ind == "scl"){
   rowOrder <- c("SCL GenPop"
                 ,"SCL LI"
@@ -276,10 +276,10 @@ if(os.ind == "scl"){
 }else if(os.ind == "snopud"){
   rowOrder <- c("SnoPUD"
                 ,"2017 RBSA PS"
-                ,"2017 RBSA MW")
+                ,"2017 RBSA NW")
 }
-itemXX.os.table <- itemXX.os.table %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-itemXX.os.table <- data.frame(itemXX.os.table)
+itemXX.os.final <- itemXX.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+itemXX.os.final <- data.frame(itemXX.os.final)
 
 
 

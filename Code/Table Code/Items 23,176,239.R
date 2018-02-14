@@ -990,12 +990,14 @@ exportTable(item239.table.MF, "MF", "Table 31", weighted = FALSE)
 #
 #
 ############################################################################################################
-
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+subset.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 ############################################################################################################
 # ITEM 23: DISTRIBUTION OF FLOOR INSULATION BY HOME VINTAGE (SF Table 30, MH Table 18)
@@ -1023,8 +1025,8 @@ item23.os.dat1$count <- 1
 colnames(item23.os.dat1)
 item23.os.dat1 <- item23.os.dat1[which(names(item23.os.dat1) != "CK_Building_ID")]
 
-item23.os.merge <- left_join(scl.dat, item23.os.dat1)
-item23.os.merge <- item23.os.merge[which(item23.os.merge$CK_Building_ID == "SCL GenPop"),]
+item23.os.merge <- left_join(os.dat, item23.os.dat1)
+item23.os.merge <- item23.os.merge[which(item23.os.merge$CK_Building_ID == subset.ind),]
 item23.os.merge <- item23.os.merge[which(!is.na(item23.os.merge$count)),]
 
 item23.os.data <- weightedData(unique(item23.os.merge[which(colnames(item23.os.merge) %notin% c("Wall.Type"
@@ -1092,8 +1094,8 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,"SE.R1.R3"        = item23.os.cast$w.SE_R1.R3
                               ,"Percent.R4.R10"  = item23.os.cast$w.percent_R4.R10  
                               ,"SE.R4.R10"       = item23.os.cast$w.SE_R4.R10
-                              ,"Percent.R11.R15" = item23.os.cast$w.percent_R11.R15
-                              ,"SE.R11.R15"      = item23.os.cast$w.SE_R11.R15
+                              ,"Percent.R11.R15" = NA#item23.os.cast$w.percent_R11.R15
+                              ,"SE.R11.R15"      = NA#item23.os.cast$w.SE_R11.R15
                               ,"Percent.R16.R22" = item23.os.cast$w.percent_R16.R22
                               ,"SE.R16.R22"      = item23.os.cast$w.SE_R16.R22
                               ,"Percent.R23.R27" = item23.os.cast$w.percent_R23.R27
@@ -1106,7 +1108,7 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,'EB.None'         = item23.os.cast$EB_None
                               ,'EB.R1.R3'        = item23.os.cast$EB_R1.R3
                               ,'EB.R4.R10'       = item23.os.cast$EB_R4.R10
-                              ,'EB.R11.R15'      = item23.os.cast$EB_R11.R15
+                              ,'EB.R11.R15'      = NA#item23.os.cast$EB_R11.R15
                               ,'EB.R16.R22'      = item23.os.cast$EB_R16.R22
                               ,'EB.R23.R27'      = item23.os.cast$EB_R23.R27
                               ,'EB.R28.R35'      = item23.os.cast$EB_R28.R35
@@ -1125,7 +1127,7 @@ item23.os.table <- item23.os.table %>% mutate(Housing.Vintage = factor(Housing.V
 item23.os.table <- data.frame(item23.os.table)
 
 #export table to correct workbook using exporting function
-exportTable(item23.os.table, "SF", "Table 30", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item23.os.table, "SF", "Table 30", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ######################
 # Unweighted - Single Family
@@ -1178,8 +1180,8 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,"SE.R1.R3"        = item23.os.cast$SE_R1.R3
                               ,"Percent.R4.R10"  = item23.os.cast$Percent_R4.R10  
                               ,"SE.R4.R10"       = item23.os.cast$SE_R4.R10
-                              ,"Percent.R11.R15" = item23.os.cast$Percent_R11.R15
-                              ,"SE.R11.R15"      = item23.os.cast$SE_R11.R15
+                              ,"Percent.R11.R15" = NA#item23.os.cast$Percent_R11.R15
+                              ,"SE.R11.R15"      = NA#item23.os.cast$SE_R11.R15
                               ,"Percent.R16.R22" = item23.os.cast$Percent_R16.R22
                               ,"SE.R16.R22"      = item23.os.cast$SE_R16.R22
                               ,"Percent.R23.R27" = item23.os.cast$Percent_R23.R27
@@ -1204,7 +1206,7 @@ item23.os.table <- item23.os.table %>% mutate(Housing.Vintage = factor(Housing.V
 item23.os.table <- data.frame(item23.os.table)
 
 #export table to correct workbook using exporting function
-exportTable(item23.os.table, "SF", "Table 30", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item23.os.table, "SF", "Table 30", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1233,7 +1235,7 @@ item23A.os.dat1$count <- 1
 colnames(item23A.os.dat1)
 item23A.os.dat1 <- item23A.os.dat1[which(names(item23A.os.dat1) != "CK_Building_ID")]
 
-item23A.os.merge <- left_join(scl.dat, item23A.os.dat1)
+item23A.os.merge <- left_join(os.dat, item23A.os.dat1)
 item23A.os.merge <- item23A.os.merge[which(!is.na(item23A.os.merge$count)),]
 
 item23A.os.data <- weightedData(unique(item23A.os.merge[which(colnames(item23A.os.merge) %notin% c("Wall.Type"
@@ -1281,24 +1283,44 @@ item23A.os.cast <- dcast(setDT(item23A.os.final),
                         formula   = rvalue.bins.SF ~ CK_Building_ID,
                         value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item23A.os.cast)
-item23A.os.table <- data.frame("Insulation.Level"      = item23A.os.cast$rvalue.bins.SF
-                               ,"Percent_SCL.GenPop"   = item23A.os.cast$`w.percent_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = item23A.os.cast$`w.SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = item23A.os.cast$`n_SCL GenPop`
-                               ,"Percent_SCL.LI"       = item23A.os.cast$`w.percent_SCL LI`
-                               ,"SE_SCL.LI"            = item23A.os.cast$`w.SE_SCL LI`
-                               ,"n_SCL.LI"             = item23A.os.cast$`n_SCL LI`
-                               ,"Percent_SCL.EH"       = item23A.os.cast$`w.percent_SCL EH`
-                               ,"SE_SCL.EH"            = item23A.os.cast$`w.SE_SCL EH`
-                               ,"n_SCL.EH"             = item23A.os.cast$`n_SCL EH`
-                               ,"Percent_2017.RBSA.PS" = item23A.os.cast$`w.percent_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item23A.os.cast$`w.SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item23A.os.cast$`n_2017 RBSA PS`
-                               ,"EB_SCL.GenPop"        = item23A.os.cast$`EB_SCL GenPop`
-                               ,"EB_SCL.LI"            = item23A.os.cast$`EB_SCL LI`
-                               ,"EB_SCL.EH"            = item23A.os.cast$`EB_SCL EH`
-                               ,"EB_2017.RBSA.PS"      = item23A.os.cast$`EB_2017 RBSA PS`
-)
+
+if(os.ind == "scl"){
+  item23A.os.table <- data.frame("Insulation.Level"      = item23A.os.cast$rvalue.bins.SF
+                                 ,"Percent_SCL.GenPop"   = item23A.os.cast$`w.percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item23A.os.cast$`w.SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item23A.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = item23A.os.cast$`w.percent_SCL LI`
+                                 ,"SE_SCL.LI"            = item23A.os.cast$`w.SE_SCL LI`
+                                 ,"n_SCL.LI"             = item23A.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = item23A.os.cast$`w.percent_SCL EH`
+                                 ,"SE_SCL.EH"            = item23A.os.cast$`w.SE_SCL EH`
+                                 ,"n_SCL.EH"             = item23A.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = item23A.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item23A.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item23A.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = item23A.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = item23A.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = item23A.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = item23A.os.cast$`EB_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  item23A.os.table <- data.frame("Insulation.Level"      = item23A.os.cast$rvalue.bins.SF
+                                 ,"Percent_SnoPUD"          = item23A.os.cast$`w.percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = item23A.os.cast$`w.SE_SnoPUD`
+                                 ,"n_SnoPUD"                = item23A.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = item23A.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = item23A.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = item23A.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = item23A.os.cast$`w.percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = item23A.os.cast$`w.SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = item23A.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"               = item23A.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"         = item23A.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"              = item23A.os.cast$`EB_2017 RBSA NW`
+  )
+  
+}
 
 # row ordering example code
 levels(item23A.os.table$Insulation.Level)
@@ -1315,7 +1337,7 @@ item23A.os.table <- item23A.os.table %>% mutate(Insulation.Level = factor(Insula
 item23A.os.table <- data.frame(item23A.os.table)
 
 #export table to correct workbook using exporting function
-exportTable(item23A.os.table, "SF", "Table 30A", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item23A.os.table, "SF", "Table 30A", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ######################
 # Unweighted - Single Family
@@ -1349,20 +1371,37 @@ item23A.os.cast <- dcast(setDT(item23A.os.final),
                         formula   = rvalue.bins.SF ~ CK_Building_ID,
                         value.var = c("Percent", "SE", "Count", "n"))
 names(item23A.os.cast)
-item23A.os.table <- data.frame("Insulation.Level" = item23A.os.cast$rvalue.bins.SF
-                               ,"Percent_SCL.GenPop"   = item23A.os.cast$`Percent_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = item23A.os.cast$`SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = item23A.os.cast$`n_SCL GenPop`
-                               ,"Percent_SCL.LI"       = item23A.os.cast$`Percent_SCL LI`
-                               ,"SE_SCL.LI"            = item23A.os.cast$`SE_SCL LI`
-                               ,"n_SCL.LI"             = item23A.os.cast$`n_SCL LI`
-                               ,"Percent_SCL.EH"       = item23A.os.cast$`Percent_SCL EH`
-                               ,"SE_SCL.EH"            = item23A.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item23A.os.cast$`n_SCL EH`
-                               ,"Percent_2017.RBSA.PS" = item23A.os.cast$`Percent_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item23A.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item23A.os.cast$`n_2017 RBSA PS`
-)
+
+if(os.ind == "scl"){
+  item23A.os.table <- data.frame("Insulation.Level" = item23A.os.cast$rvalue.bins.SF
+                                 ,"Percent_SCL.GenPop"   = item23A.os.cast$`Percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item23A.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item23A.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = item23A.os.cast$`Percent_SCL LI`
+                                 ,"SE_SCL.LI"            = item23A.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item23A.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = item23A.os.cast$`Percent_SCL EH`
+                                 ,"SE_SCL.EH"            = item23A.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item23A.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = item23A.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item23A.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item23A.os.cast$`n_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  item23A.os.table <- data.frame("Insulation.Level" = item23A.os.cast$rvalue.bins.SF
+                                 ,"Percent_SnoPUD"          = item23A.os.cast$`Percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = item23A.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"                = item23A.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = item23A.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = item23A.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = item23A.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = item23A.os.cast$`Percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = item23A.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = item23A.os.cast$`n_2017 RBSA NW`
+  )
+  
+}
 
 # row ordering example code
 levels(item23A.os.table$Insulation.Level)
@@ -1378,5 +1417,5 @@ rowOrder <- c("None"
 item23A.os.table <- item23A.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 item23A.os.table <- data.frame(item23A.os.table)
 #export table to correct workbook using exporting function
-exportTable(item23A.os.table, "SF", "Table 30A", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item23A.os.table, "SF", "Table 30A", weighted = FALSE, osIndicator = export.ind, OS = T)
 

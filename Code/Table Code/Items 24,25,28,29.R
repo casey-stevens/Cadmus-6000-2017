@@ -326,19 +326,21 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
-
+# Read in clean os data
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+subset.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 # Item 24: PERCENTAGE OF CRAWLSPACES WITH INSULATED WALLS BY CK_Building_ID (SF table 31)
 #############################################################################################
 item24.os.dat <- envelope.dat[grep("CK_Cadmus_ID|Crawlspace", colnames(envelope.dat))]
 
-item24.os.dat1 <- left_join(scl.dat, item24.os.dat, by = "CK_Cadmus_ID")
+item24.os.dat1 <- left_join(os.dat, item24.os.dat, by = "CK_Cadmus_ID")
 length(unique(item24.os.dat1$CK_Cadmus_ID))
 
 item24.os.dat2 <- item24.os.dat1[which(item24.os.dat1$`Crawlspace.Walls.Insulated?` %in% c("Yes", "No")),]
@@ -397,10 +399,11 @@ item24.os.final <- proportions_one_group(CustomerLevelData  = item24.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = TRUE)
+item24.os.final <- item24.os.final[which(item24.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item24.os.final.SF <- item24.os.final[which(item24.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item24.os.final.SF, "SF", "Table 31", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item24.os.final.SF, "SF", "Table 31", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 ##################################
@@ -411,10 +414,11 @@ item24.os.final <- proportions_one_group(CustomerLevelData  = item24.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
+item24.os.final <- item24.os.final[which(item24.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item24.os.final.SF <- item24.os.final[which(item24.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item24.os.final.SF, "SF", "Table 31", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item24.os.final.SF, "SF", "Table 31", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -426,7 +430,7 @@ exportTable(item24.os.final.SF, "SF", "Table 31", weighted = FALSE, osIndicator 
 #############################################################################################
 item25.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "Ceiling.Type"))]
 
-item25.os.dat0 <- left_join(scl.dat, item25.os.dat, by = "CK_Cadmus_ID")
+item25.os.dat0 <- left_join(os.dat, item25.os.dat, by = "CK_Cadmus_ID")
 
 item25.os.dat1 <- item25.os.dat0[which(item25.os.dat0$BuildingType == "Single Family"),]  # used to be item25.os.dat00
 
@@ -436,7 +440,7 @@ item25.os.dat1$Ceiling.Type.Indicator[which(item25.os.dat1$Ceiling.Type == 'Atti
 item25.os.summary <- summarise(group_by(item25.os.dat1, CK_Cadmus_ID)
                             ,Ceiling.Ind = sum(unique(Ceiling.Type.Indicator)))
 
-item25.os.merge <- left_join(scl.dat, item25.os.summary)
+item25.os.merge <- left_join(os.dat, item25.os.summary)
 item25.os.merge <- item25.os.merge[which(!is.na(item25.os.merge$Ceiling.Ind)),]
 
 
@@ -455,10 +459,11 @@ item25.os.final <- proportions_one_group(CustomerLevelData  = item25.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = TRUE)
+item25.os.final <- item25.os.final[which(item25.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item25.os.final.SF <- item25.os.final[which(item25.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item25.os.final.SF, "SF", "Table 32", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item25.os.final.SF, "SF", "Table 32", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ##################################
 # Unweighted
@@ -468,11 +473,12 @@ item25.os.final <- proportions_one_group(CustomerLevelData  = item25.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
+item25.os.final <- item25.os.final[which(item25.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item25.os.final.SF <- item25.os.final[which(item25.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.os.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
 
-exportTable(item25.os.final.SF, "SF", "Table 32", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item25.os.final.SF, "SF", "Table 32", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -482,7 +488,7 @@ exportTable(item25.os.final.SF, "SF", "Table 32", weighted = FALSE, osIndicator 
 #############################################################################################
 item28.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "Ceiling.Type"))]
 
-item28.os.dat0 <- left_join(scl.dat, item28.os.dat, by = "CK_Cadmus_ID")
+item28.os.dat0 <- left_join(os.dat, item28.os.dat, by = "CK_Cadmus_ID")
 
 item28.os.dat1 <- item28.os.dat0[which(item28.os.dat0$BuildingType == "Single Family"),] # used to be item28.os.dat00
 
@@ -492,7 +498,7 @@ item28.os.dat1$Ceiling.Type.Indicator[which(item28.os.dat1$Ceiling.Type == 'Slop
 item28.os.summary <- summarise(group_by(item28.os.dat1, CK_Cadmus_ID)
                             ,Ceiling.Ind = sum(unique(Ceiling.Type.Indicator)))
 
-item28.os.merge <- left_join(scl.dat, item28.os.summary)
+item28.os.merge <- left_join(os.dat, item28.os.summary)
 item28.os.merge <- item28.os.merge[which(!is.na(item28.os.merge$Ceiling.Ind)),]
 
 
@@ -511,10 +517,11 @@ item28.os.final <- proportions_one_group(CustomerLevelData  = item28.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = TRUE)
+item28.os.final <- item28.os.final[which(item28.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item28.os.final.SF <- item28.os.final[which(item28.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item28.os.final.SF, "SF", "Table 35", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item28.os.final.SF, "SF", "Table 35", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ##################################
 # Unweighted
@@ -524,11 +531,12 @@ item28.os.final <- proportions_one_group(CustomerLevelData  = item28.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
+item28.os.final <- item28.os.final[which(item28.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item28.os.final.SF <- item28.os.final[which(item28.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.os.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
 
-exportTable(item28.os.final.SF, "SF", "Table 35", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item28.os.final.SF, "SF", "Table 35", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -539,7 +547,7 @@ exportTable(item28.os.final.SF, "SF", "Table 35", weighted = FALSE, osIndicator 
 #############################################################################################
 item29.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID", "Ceiling.Type"))]
 
-item29.os.dat0 <- left_join(scl.dat, item29.os.dat, by = "CK_Cadmus_ID")
+item29.os.dat0 <- left_join(os.dat, item29.os.dat, by = "CK_Cadmus_ID")
 
 item29.os.dat1 <- item29.os.dat0[which(item29.os.dat0$BuildingType == "Single Family"),]  # used to be item28.os.dat00
 
@@ -549,7 +557,7 @@ item29.os.dat1$Ceiling.Type.Indicator[which(item29.os.dat1$Ceiling.Type == 'Roof
 item29.os.summary <- summarise(group_by(item29.os.dat1, CK_Cadmus_ID)
                             ,Ceiling.Ind = sum(unique(Ceiling.Type.Indicator)))
 
-item29.os.merge <- left_join(scl.dat, item29.os.summary)
+item29.os.merge <- left_join(os.dat, item29.os.summary)
 item29.os.merge <- item29.os.merge[which(!is.na(item29.os.merge$Ceiling.Ind)),]
 
 item29.os.data <- weightedData(item29.os.merge[-which(colnames(item29.os.merge) %in% c("Ceiling.Ind"))])
@@ -568,10 +576,11 @@ item29.os.final <- proportions_one_group(CustomerLevelData  = item29.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = TRUE)
+item29.os.final <- item29.os.final[which(item29.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item29.os.final.SF <- item29.os.final[which(item29.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item29.os.final.SF, "SF", "Table 36", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item29.os.final.SF, "SF", "Table 36", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 ##################################
@@ -582,9 +591,10 @@ item29.os.final <- proportions_one_group(CustomerLevelData  = item29.os.data
                                       , groupingVariable = 'CK_Building_ID'
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
+item29.os.final <- item29.os.final[which(item29.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
 item29.os.final.SF <- item29.os.final[which(item29.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.os.final) %in% c("BuildingType"))]
 
 
-exportTable(item29.os.final.SF, "SF", "Table 36", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item29.os.final.SF, "SF", "Table 36", weighted = FALSE, osIndicator = export.ind, OS = T)

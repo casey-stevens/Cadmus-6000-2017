@@ -289,12 +289,7 @@ exportTable(item2.table.SF, "SF", "Table 9", weighted = FALSE)
 #############################################################################################
 # Item 6: DISTRIBUTION OF HOMES BY BUILDING HEIGHT AND STATE (SF table 13)
 #############################################################################################
-item6.dat <- weightedData(rbsa.dat[which(rbsa.dat$BuildingHeight %notin% c(NA, "N/A")),])
-item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.0))] <- "1 Story"
-item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(1.5))] <- "1.5 Stories"
-item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.0))] <- "2 Stories"
-item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(2.5))] <- "2.5 Stories"
-item6.dat$BuildingHeight[which(item6.dat$BuildingHeight %in% c(3.0,4.0))] <- "3+ Stories"
+item6.dat <- weightedData(rbsa.dat[which(rbsa.dat$BuildingHeight %notin% c(NA, "N/A",0)),])
 unique(item6.dat$BuildingHeight)
 item6.dat$count <- 1
 
@@ -745,12 +740,7 @@ exportTable(item2.os.table.SF,"SF","Table 9",weighted = F, osIndicator = export.
 #############################################################################################
 # Item 6: DISTRIBUTION OF HOMES BY BUILDING HEIGHT AND STATE (SF table 13)
 #############################################################################################
-item6.os.dat <- weightedData(os.dat[which(os.dat$BuildingHeight %notin% c(NA, "N/A")),])
-item6.os.dat$BuildingHeight[which(item6.os.dat$BuildingHeight %in% c(1.0))] <- "1 Story"
-item6.os.dat$BuildingHeight[which(item6.os.dat$BuildingHeight %in% c(1.5))] <- "1.5 Stories"
-item6.os.dat$BuildingHeight[which(item6.os.dat$BuildingHeight %in% c(2.0))] <- "2 Stories"
-item6.os.dat$BuildingHeight[which(item6.os.dat$BuildingHeight %in% c(2.5))] <- "2.5 Stories"
-item6.os.dat$BuildingHeight[which(item6.os.dat$BuildingHeight %in% c(3.0,4.0))] <- "3+ Stories"
+item6.os.dat <- weightedData(os.dat[which(os.dat$BuildingHeight %notin% c(NA, "N/A",0)),])
 unique(item6.os.dat$BuildingHeight)
 item6.os.dat$count <- 1
 

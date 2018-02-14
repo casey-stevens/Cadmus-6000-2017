@@ -359,11 +359,14 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 #
 #
 #############################################################################################
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+subset.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 # Item 19: PERCENTAGE OF HOMES WITH BASEMENTS BY CK_Building_ID (SF table 26)
@@ -372,7 +375,7 @@ item19.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Floor.Type"
                                                                ,"Floor.Sub-Type"))]
 
-item19.os.dat1 <- left_join(scl.dat, item19.os.dat, by = "CK_Cadmus_ID")
+item19.os.dat1 <- left_join(os.dat, item19.os.dat, by = "CK_Cadmus_ID")
 
 #subset to only single family homes
 item19.os.dat2 <- item19.os.dat1[which(item19.os.dat1$BuildingType == "Single Family"),]
@@ -385,7 +388,7 @@ item19.os.dat3 <- unique(item19.os.dat2[which(item19.os.dat2$Ind == 1),])
 
 item19.os.dat3 <- item19.os.dat3[-which(duplicated(item19.os.dat3$CK_Cadmus_ID)),]
 
-item19.os.merge <- left_join(scl.dat, item19.os.dat3)
+item19.os.merge <- left_join(os.dat, item19.os.dat3)
 
 item19.os.merge1 <- item19.os.merge[-which(item19.os.merge$`Floor.Sub-Type` == "Unknown"),]
 item19.os.merge1 <- item19.os.merge1[which(item19.os.merge1$BuildingType == "Single Family"),]
@@ -419,13 +422,28 @@ item19.os.final <- proportions_one_group(CustomerLevelData  = item19.os.data
                                       , weighted = TRUE)
 item19.os.final <- item19.os.final[which(item19.os.final$CK_Building_ID != "Total"),]
 
+# row ordering example code
+levels(item19.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item19.os.final <- item19.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item19.os.final <- data.frame(item19.os.final)
+
 #subset by home type
 item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Single Family")
                                       ,-which(colnames(item19.os.final) %in% c("BuildingType"))]
 
 
 #export data
-exportTable(item19.os.final.SF, "SF", "Table 26", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item19.os.final.SF, "SF", "Table 26", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #####################################
@@ -438,12 +456,27 @@ item19.os.final <- proportions_one_group(CustomerLevelData  = item19.os.data
                                       , weighted = FALSE)
 item19.os.final <- item19.os.final[which(item19.os.final$CK_Building_ID != "Total"),]
 
+# row ordering example code
+levels(item19.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item19.os.final <- item19.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item19.os.final <- data.frame(item19.os.final)
+
 #subset by home type
 item19.os.final.SF <- item19.os.final[which(item19.os.final$BuildingType == "Single Family"),-which(colnames(item19.os.final) %in% c("BuildingType"))]
 
 
 #export data
-exportTable(item19.os.final.SF, "SF", "Table 26", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item19.os.final.SF, "SF", "Table 26", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -486,12 +519,27 @@ item20.os.final <- proportions_one_group(CustomerLevelData  = item20.os.data
                                       , weighted = TRUE)
 item20.os.final <- item20.os.final[which(item20.os.final$CK_Building_ID != "Total"),]
 
+# row ordering example code
+levels(item20.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item20.os.final <- item20.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item20.os.final <- data.frame(item20.os.final)
+
 #subset by home type
 item20.os.final.SF <- item20.os.final[which(item20.os.final$BuildingType == "Single Family"),-1]
 
 
 #export data
-exportTable(item20.os.final.SF, "SF", "Table 27", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item20.os.final.SF, "SF", "Table 27", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -505,13 +553,27 @@ item20.os.final <- proportions_one_group(CustomerLevelData  = item20.os.data
                                       , weighted = FALSE)
 item20.os.final <- item20.os.final[which(item20.os.final$CK_Building_ID != "Total"),]
 
+levels(item20.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item20.os.final <- item20.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item20.os.final <- data.frame(item20.os.final)
+
 #subset by home type
 item20.os.final.SF <- item20.os.final[which(item20.os.final$BuildingType == "Single Family"),
                                 -which(colnames(item20.os.final) %in% c("Remove", "BuildingType"))]
 
 
 #export data
-exportTable(item20.os.final.SF, "SF", "Table 27", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item20.os.final.SF, "SF", "Table 27", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -533,7 +595,7 @@ item21.os.dat1$BSMT_Slab_Thickness[which(item21.os.dat1$BSMT_Slab_Insulated == "
 unique(item21.os.dat1$BSMT_Slab_Thickness)
 
 
-item21.os.merge <- left_join(scl.dat, item21.os.dat1)
+item21.os.merge <- left_join(os.dat, item21.os.dat1)
 item21.os.merge <- item21.os.merge[which(!is.na(item21.os.merge$BSMT_Slab_Thickness)),]
 item21.os.merge <- unique(item21.os.merge[which(item21.os.merge$BSMT_Slab_Thickness != "Unknown"),])
 
@@ -558,12 +620,26 @@ item21.os.summary <- proportionRowsAndColumns1(CustomerLevelData = item21.os.dat
                                                ,aggregateColumnName = "Remove")
 item21.os.summary <- item21.os.summary[which(item21.os.summary$CK_Building_ID != "Remove"),]
 
+levels(item21.os.summary$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item21.os.summary <- item21.os.summary %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item21.os.summary <- data.frame(item21.os.summary)
+
 item21.cast <- dcast(setDT(item21.os.summary)
                      ,formula = CK_Building_ID ~ BSMT_Slab_Thickness
                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
 #export data
-exportTable(item21.cast, "SF", "Table 28", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item21.cast, "SF", "Table 28", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #####################################
 # Unweighted Analysis
@@ -575,12 +651,26 @@ item21.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = item2
                                                ,aggregateColumnName = "Remove")
 item21.os.summary <- item21.os.summary[which(item21.os.summary$CK_Building_ID != "Remove"),]
 
+levels(item21.os.summary$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item21.os.summary <- item21.os.summary %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item21.os.summary <- data.frame(item21.os.summary)
+
 item21.cast <- dcast(setDT(item21.os.summary)
                      ,formula = CK_Building_ID ~ BSMT_Slab_Thickness
                      ,value.var = c("Percent","SE","Count","n"))
 
 #export data
-exportTable(item21.cast, "SF", "Table 28", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item21.cast, "SF", "Table 28", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -598,7 +688,7 @@ item22.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
 
 item22.os.dat1 <- unique(item22.os.dat[grep("crawl|Crawl", item22.os.dat$Foundation),])
 
-item22.os.merge <- left_join(scl.dat, item22.os.dat1, by = "CK_Cadmus_ID")
+item22.os.merge <- left_join(os.dat, item22.os.dat1, by = "CK_Cadmus_ID")
 item22.os.merge <- item22.os.merge[which(item22.os.merge$BuildingType == "Single Family"),]
 item22.os.merge$count <- 1
 item22.os.merge$FloorOverCrawl <- 0
@@ -630,12 +720,26 @@ item22.os.final <- proportions_one_group(CustomerLevelData  = item22.os.data
                                       , weighted = TRUE)
 item22.os.final <- item22.os.final[which(item22.os.final$CK_Building_ID != "Total"),]
 
+levels(item22.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item22.os.final <- item22.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item22.os.final <- data.frame(item22.os.final)
+
 #subset by home type
 item22.os.final.SF <- item22.os.final[which(item22.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item22.os.final) %in% c("BuildingType"))]
 
 #export data
-exportTable(item22.os.final.SF, "SF", "Table 29", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item22.os.final.SF, "SF", "Table 29", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #####################################
 # Unweighted Analysis
@@ -646,9 +750,24 @@ item22.os.final <- proportions_one_group(CustomerLevelData  = item22.os.data
                                       , total.name       = "Region"
                                       , weighted = FALSE)
 item22.os.final <- item22.os.final[which(item22.os.final$CK_Building_ID != "Total"),]
+
+levels(item22.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item22.os.final <- item22.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item22.os.final <- data.frame(item22.os.final)
+
 #subset by home type
 item22.os.final.SF <- item22.os.final[which(item22.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item22.os.final) %notin% c("BuildingType"))]
 
 #export data
-exportTable(item22.os.final.SF, "SF", "Table 29", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item22.os.final.SF, "SF", "Table 29", weighted = FALSE, osIndicator = export.ind, OS = T)

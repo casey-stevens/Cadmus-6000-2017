@@ -26,6 +26,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
 mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
@@ -184,21 +185,9 @@ item55.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID
 item55.dat1 <- unique(item55.dat[grep("yes",item55.dat$Primary.Cooling.System, ignore.case = T),])
 unique(item55.dat1$CK_Cadmus_ID[which(duplicated(item55.dat1$CK_Cadmus_ID))])
 item55.dat1 <- item55.dat1[which(item55.dat1$System.Type %notin% c("N/A",NA)),]
-item55.dat1$System.Type[grep("ductless",item55.dat1$System.Type, ignore.case = T)] <- "Mini-split HP"
-item55.dat1$System.Type[which(item55.dat1$System.Type == "Heat Pump")] <- "Air Source Heat Pump"
-# #fix duplicate primary cooling systems
-# #Manual fixes:
-# item55.dat1$System.Type[which(item55.dat1$CK_Cadmus_ID == "RBS56461 OS BPA")] <- "Air Source Heat Pump"
-# item55.dat1$System.Type[which(item55.dat1$CK_Cadmus_ID == "WS30180 CORE")]    <- "Mini-split HP"
-# item55.dat1.1 <- unique(item55.dat1)
-# 
-# dup.ind <- item55.dat1.1$CK_Cadmus_ID[which(duplicated(item55.dat1.1$CK_Cadmus_ID))]
-# item55.dat1.1$System.Type[which(item55.dat1.1$CK_Cadmus_ID %in% dup.ind)] <- "Central AC"
-# 
-# item55.dat1.2 <- unique(item55.dat1.1)
-# item55.dat1.2$CK_Cadmus_ID[which(duplicated(item55.dat1.2$CK_Cadmus_ID))]
+unique(item55.dat1$System.Type)
 
-item55.dat2 <- left_join(rbsa.dat, item55.dat1) #item55.dat1.2
+item55.dat2 <- left_join(rbsa.dat, item55.dat1)
 
 item55.dat2$Dist.Ind <- 0
 item55.dat2$Dist.Ind[which(!is.na(item55.dat2$Primary.Cooling.System))] <- 1
@@ -225,11 +214,11 @@ item55.data$count <- 1
 ##############################
 item55.summary <- proportionRowsAndColumns1(CustomerLevelData = item55.data
                                             ,valueVariable = 'Dist.Ind'
-                                            ,columnVariable = 'System.Type'
-                                            ,rowVariable = 'Cooling.Zone'
+                                            ,columnVariable = 'Cooling.Zone'
+                                            ,rowVariable = 'System.Type'
                                             ,aggregateColumnName = "Total")
-# item55.summary <- item55.summary[which(item55.summary$Cooling.Zone != "Total"),]
-item55.summary <- item55.summary[which(item55.summary$System.Type != "Total"),]
+item55.summary <- item55.summary[which(item55.summary$Cooling.Zone != "Total"),]
+# item55.summary <- item55.summary[which(item55.summary$System.Type != "Total"),]
 
 item55.all.cooling.zones <- proportions_one_group(CustomerLevelData = item55.data
                                                   ,valueVariable = 'Dist.Ind'
@@ -238,17 +227,8 @@ item55.all.cooling.zones <- proportions_one_group(CustomerLevelData = item55.dat
                                                   ,columnName = 'Cooling.Zone'
                                                   ,weighted = TRUE
                                                   ,two.prop.total = TRUE)
-item55.all.cooling.zones$System.Type[which(item55.all.cooling.zones$System.Type=="Total")] <- "All Types"
-item55.all.system.types <- proportions_one_group(CustomerLevelData = item55.data
-                                                  ,valueVariable = 'Dist.Ind'
-                                                  ,groupingVariable = 'Cooling.Zone'
-                                                  ,total.name = 'All Types'
-                                                  ,columnName = 'System.Type'
-                                                  ,weighted = TRUE
-                                                  ,two.prop.total = TRUE)
-item55.all.system.types$System.Type[which(item55.all.system.types$System.Type=="Total")] <- "All Cooling Zones"
 
-item55.final <- rbind.data.frame(item55.summary, item55.all.cooling.zones,item55.all.system.types, stringsAsFactors = F)
+item55.final <- rbind.data.frame(item55.summary, item55.all.cooling.zones, stringsAsFactors = F)
 
 item55.cast <- dcast(setDT(item55.final)
                      ,formula = BuildingType + System.Type ~ Cooling.Zone
@@ -258,13 +238,13 @@ item55.table <- data.frame("BuildingType"               = item55.cast$BuildingTy
                            ,"Cooling.System.Type"       = item55.cast$System.Type
                            ,"Percent.Cooling.Zone.1"    = item55.cast$w.percent_1
                            ,"SE.Cooling.Zone.1"         = item55.cast$w.SE_1
-                           # ,"n.Cooling.Zone.1"          = item55.cast$n_1
+                           ,"n.Cooling.Zone.1"          = item55.cast$n_1
                            ,"Percent.Cooling.Zone.2"    = item55.cast$w.percent_2
                            ,"SE.Cooling.Zone.2"         = item55.cast$w.SE_2
-                           # ,"n.Cooling.Zone.2"          = item55.cast$n_2
+                           ,"n.Cooling.Zone.2"          = item55.cast$n_2
                            ,"Percent.Cooling.Zone.3"    = item55.cast$w.percent_3
                            ,"SE.Cooling.Zone.3"         = item55.cast$w.SE_3
-                           # ,"n.Cooling.Zone.3"          = item55.cast$n_3
+                           ,"n.Cooling.Zone.3"          = item55.cast$n_3
                            ,"Percent.All.Cooling.Zones" = item55.cast$`w.percent_All Cooling Zones`
                            ,"SE.All.Cooling.Zones"      = item55.cast$`w.SE_All Cooling Zones`
                            ,"n.All.Cooling.Zones"       = item55.cast$`n_All Cooling Zones`
@@ -284,28 +264,24 @@ rowOrder <- c("Packaged AC"
               ,"Mini-split AC"
               ,"Furnace"
               ,"GeoThermal Heat Pump"
-              ,"All Types")
+              ,"Total")
 item55.table <- item55.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item55.table <- data.frame(item55.table)
 
 item55.table.SF <- item55.table[which(item55.table$BuildingType == "Single Family")
                                 ,which(colnames(item55.table) %notin% c("BuildingType"))]
-item55.table.MH <- item55.table[which(item55.table$BuildingType == "Manufactured")
-                                ,which(colnames(item55.table) %notin% c("BuildingType"))]
 
 exportTable(item55.table.SF, "SF", "Table 62", weighted = TRUE)
-# exportTable(item55.table.MH, "MH", "Table 42", weighted = TRUE)
 
 ##############################
 # unweighted Analysis
 ##############################
 item55.summary <- proportions_two_groups_unweighted(CustomerLevelData = item55.data
                                             ,valueVariable = 'Dist.Ind'
-                                            ,columnVariable = 'System.Type'
-                                            ,rowVariable = 'Cooling.Zone'
+                                            ,columnVariable = 'Cooling.Zone'
+                                            ,rowVariable = 'System.Type'
                                             ,aggregateColumnName = "Total")
-# item55.summary <- item55.summary[which(item55.summary$Cooling.Zone != "Total"),]
-item55.summary <- item55.summary[which(item55.summary$System.Type != "Total"),]
+item55.summary <- item55.summary[which(item55.summary$Cooling.Zone != "Total"),]
 
 item55.all.cooling.zones <- proportions_one_group(CustomerLevelData = item55.data
                                                   ,valueVariable = 'Dist.Ind'
@@ -314,17 +290,8 @@ item55.all.cooling.zones <- proportions_one_group(CustomerLevelData = item55.dat
                                                   ,columnName = 'Cooling.Zone'
                                                   ,weighted = FALSE
                                                   ,two.prop.total = TRUE)
-item55.all.cooling.zones$System.Type[which(item55.all.cooling.zones$System.Type=="Total")] <- "All Types"
-item55.all.system.types <- proportions_one_group(CustomerLevelData = item55.data
-                                                 ,valueVariable = 'Dist.Ind'
-                                                 ,groupingVariable = 'Cooling.Zone'
-                                                 ,total.name = 'All Types'
-                                                 ,columnName = 'System.Type'
-                                                 ,weighted = FALSE
-                                                 ,two.prop.total = TRUE)
-item55.all.system.types$System.Type[which(item55.all.system.types$System.Type=="Total")] <- "All Cooling Zones"
 
-item55.final <- rbind.data.frame(item55.summary, item55.all.cooling.zones,item55.all.system.types, stringsAsFactors = F)
+item55.final <- rbind.data.frame(item55.summary, item55.all.cooling.zones, stringsAsFactors = F)
 
 item55.cast <- dcast(setDT(item55.final)
                      ,formula = BuildingType + System.Type ~ Cooling.Zone
@@ -334,13 +301,13 @@ item55.table <- data.frame("BuildingType"               = item55.cast$BuildingTy
                            ,"Cooling.System.Type"       = item55.cast$System.Type
                            ,"Percent.Cooling.Zone.1"    = item55.cast$Percent_1
                            ,"SE.Cooling.Zone.1"         = item55.cast$SE_1
-                           # ,"n.Cooling.Zone.1"          = item55.cast$n_1
+                           ,"n.Cooling.Zone.1"          = item55.cast$n_1
                            ,"Percent.Cooling.Zone.2"    = item55.cast$Percent_2
                            ,"SE.Cooling.Zone.2"         = item55.cast$SE_2
-                           # ,"n.Cooling.Zone.2"          = item55.cast$n_2
+                           ,"n.Cooling.Zone.2"          = item55.cast$n_2
                            ,"Percent.Cooling.Zone.3"    = item55.cast$Percent_3
                            ,"SE.Cooling.Zone.3"         = item55.cast$SE_3
-                           # ,"n.Cooling.Zone.3"          = item55.cast$n_3
+                           ,"n.Cooling.Zone.3"          = item55.cast$n_3
                            ,"Percent.All.Cooling.Zones" = item55.cast$`Percent_All Cooling Zones`
                            ,"SE.All.Cooling.Zones"      = item55.cast$`SE_All Cooling Zones`
                            ,"n.All.Cooling.Zones"       = item55.cast$`n_All Cooling Zones`)
@@ -356,19 +323,155 @@ rowOrder <- c("Packaged AC"
               ,"Mini-split AC"
               ,"Furnace"
               ,"GeoThermal Heat Pump"
-              ,"All Types")
+              ,"Total")
 item55.table <- item55.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item55.table <- data.frame(item55.table)
 
 item55.table.SF <- item55.table[which(item55.table$BuildingType == "Single Family")
                                 ,which(colnames(item55.table) %notin% c("BuildingType"))]
-item55.table.MH <- item55.table[which(item55.table$BuildingType == "Manufactured")
-                                ,which(colnames(item55.table) %notin% c("BuildingType"))]
 
 exportTable(item55.table.SF, "SF", "Table 62", weighted = FALSE)
-# exportTable(item55.table.MH, "MH", "Table 42", weighted = FALSE)
 
 
+
+
+
+
+##############################
+# Weighted Analysis - item 190 (MH)
+##############################
+item190.summary <- proportionRowsAndColumns1(CustomerLevelData = item55.data
+                                            ,valueVariable = 'Dist.Ind'
+                                            ,columnVariable = 'System.Type'
+                                            ,rowVariable = 'Cooling.Zone'
+                                            ,aggregateColumnName = "Total")
+# item190.summary <- item190.summary[which(item190.summary$Cooling.Zone != "Total"),]
+item190.summary <- item190.summary[which(item190.summary$System.Type != "Total"),]
+
+item190.all.cooling.zones <- proportions_one_group(CustomerLevelData = item55.data
+                                                  ,valueVariable = 'Dist.Ind'
+                                                  ,groupingVariable = 'System.Type'
+                                                  ,total.name = 'All Cooling Zones'
+                                                  ,columnName = 'Cooling.Zone'
+                                                  ,weighted = TRUE
+                                                  ,two.prop.total = TRUE)
+item190.all.cooling.zones$System.Type[which(item190.all.cooling.zones$System.Type=="Total")] <- "All Types"
+item190.all.system.types <- proportions_one_group(CustomerLevelData = item55.data
+                                                 ,valueVariable = 'Dist.Ind'
+                                                 ,groupingVariable = 'Cooling.Zone'
+                                                 ,total.name = 'All Types'
+                                                 ,columnName = 'System.Type'
+                                                 ,weighted = TRUE
+                                                 ,two.prop.total = TRUE)
+item190.all.system.types$System.Type[which(item190.all.system.types$System.Type=="Total")] <- "All Cooling Zones"
+
+item190.final <- rbind.data.frame(item190.summary, item190.all.cooling.zones,item190.all.system.types, stringsAsFactors = F)
+
+item190.cast <- dcast(setDT(item190.final)
+                     ,formula = BuildingType + System.Type ~ Cooling.Zone
+                     ,value.var = c("w.percent","w.SE","count","N","n","EB"))
+
+item190.table <- data.frame("BuildingType"               = item190.cast$BuildingType
+                           ,"Cooling.System.Type"       = item190.cast$System.Type
+                           ,"Percent.Cooling.Zone.1"    = item190.cast$w.percent_1
+                           ,"SE.Cooling.Zone.1"         = item190.cast$w.SE_1
+                           ,"Percent.Cooling.Zone.2"    = item190.cast$w.percent_2
+                           ,"SE.Cooling.Zone.2"         = item190.cast$w.SE_2
+                           ,"Percent.Cooling.Zone.3"    = item190.cast$w.percent_3
+                           ,"SE.Cooling.Zone.3"         = item190.cast$w.SE_3
+                           ,"Percent.All.Cooling.Zones" = item190.cast$`w.percent_All Cooling Zones`
+                           ,"SE.All.Cooling.Zones"      = item190.cast$`w.SE_All Cooling Zones`
+                           ,"n.All.Cooling.Zones"       = item190.cast$`n_All Cooling Zones`
+                           ,"EB_Cooling.Zone.1"         = item190.cast$EB_1
+                           ,"EB_Cooling.Zone.2"         = item190.cast$EB_2
+                           ,"EB_Cooling.Zone.3"         = item190.cast$EB_3
+                           ,"EB_All.Cooling.Zones"      = item190.cast$`EB_All Cooling Zones`)
+# row ordering example code
+levels(item190.table$Cooling.System.Type)
+rowOrder <- c("Packaged AC"
+              ,"Packaged HP"
+              ,"Central AC"
+              ,"Evaporative Cooling"
+              ,"Water Source Heat Pump"
+              ,"Air Source Heat Pump"
+              ,"Mini-split HP"
+              ,"Mini-split AC"
+              ,"Furnace"
+              ,"GeoThermal Heat Pump"
+              ,"All Types")
+item190.table <- item190.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
+item190.table <- data.frame(item190.table)
+
+item190.table.MH <- item190.table[which(item190.table$BuildingType == "Manufactured")
+                                ,which(colnames(item190.table) %notin% c("BuildingType"))]
+
+# exportTable(item190.table.MH, "MH", "Table 42", weighted = TRUE)
+
+##############################
+# unweighted Analysis
+##############################
+item190.summary <- proportions_two_groups_unweighted(CustomerLevelData = item55.data
+                                                    ,valueVariable = 'Dist.Ind'
+                                                    ,columnVariable = 'System.Type'
+                                                    ,rowVariable = 'Cooling.Zone'
+                                                    ,aggregateColumnName = "Total")
+# item190.summary <- item190.summary[which(item190.summary$Cooling.Zone != "Total"),]
+item190.summary <- item190.summary[which(item190.summary$System.Type != "Total"),]
+
+item190.all.cooling.zones <- proportions_one_group(CustomerLevelData = item55.data
+                                                  ,valueVariable = 'Dist.Ind'
+                                                  ,groupingVariable = 'System.Type'
+                                                  ,total.name = 'All Cooling Zones'
+                                                  ,columnName = 'Cooling.Zone'
+                                                  ,weighted = FALSE
+                                                  ,two.prop.total = TRUE)
+item190.all.cooling.zones$System.Type[which(item190.all.cooling.zones$System.Type=="Total")] <- "All Types"
+item190.all.system.types <- proportions_one_group(CustomerLevelData = item55.data
+                                                 ,valueVariable = 'Dist.Ind'
+                                                 ,groupingVariable = 'Cooling.Zone'
+                                                 ,total.name = 'All Types'
+                                                 ,columnName = 'System.Type'
+                                                 ,weighted = FALSE
+                                                 ,two.prop.total = TRUE)
+item190.all.system.types$System.Type[which(item190.all.system.types$System.Type=="Total")] <- "All Cooling Zones"
+
+item190.final <- rbind.data.frame(item190.summary, item190.all.cooling.zones,item190.all.system.types, stringsAsFactors = F)
+
+item190.cast <- dcast(setDT(item190.final)
+                     ,formula = BuildingType + System.Type ~ Cooling.Zone
+                     ,value.var = c("Percent","SE","Count","n"))
+
+item190.table <- data.frame("BuildingType"               = item190.cast$BuildingType
+                           ,"Cooling.System.Type"       = item190.cast$System.Type
+                           ,"Percent.Cooling.Zone.1"    = item190.cast$Percent_1
+                           ,"SE.Cooling.Zone.1"         = item190.cast$SE_1
+                           ,"Percent.Cooling.Zone.2"    = item190.cast$Percent_2
+                           ,"SE.Cooling.Zone.2"         = item190.cast$SE_2
+                           ,"Percent.Cooling.Zone.3"    = item190.cast$Percent_3
+                           ,"SE.Cooling.Zone.3"         = item190.cast$SE_3
+                           ,"Percent.All.Cooling.Zones" = item190.cast$`Percent_All Cooling Zones`
+                           ,"SE.All.Cooling.Zones"      = item190.cast$`SE_All Cooling Zones`
+                           ,"n.All.Cooling.Zones"       = item190.cast$`n_All Cooling Zones`)
+# row ordering example code
+levels(item190.table$Cooling.System.Type)
+rowOrder <- c("Packaged AC"
+              ,"Packaged HP"
+              ,"Central AC"
+              ,"Evaporative Cooling"
+              ,"Water Source Heat Pump"
+              ,"Air Source Heat Pump"
+              ,"Mini-split HP"
+              ,"Mini-split AC"
+              ,"Furnace"
+              ,"GeoThermal Heat Pump"
+              ,"All Types")
+item190.table <- item190.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
+item190.table <- data.frame(item190.table)
+
+item190.table.MH <- item190.table[which(item190.table$BuildingType == "Manufactured")
+                                ,which(colnames(item190.table) %notin% c("BuildingType"))]
+
+# exportTable(item190.table.MH, "MH", "Table 42", weighted = FALSE)
 
 
 

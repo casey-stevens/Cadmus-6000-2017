@@ -11,6 +11,8 @@ rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
+"%notin%" <- Negate("%in%")
+
 # Source codes
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
@@ -322,7 +324,7 @@ room.tmp <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID"
                                                      , "Iteration"
                                                      , "Clean.Type"
                                                      , "Area"))]
-item7.os.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
+item7.os.dat <- left_join(os.dat, room.tmp, by = "CK_Cadmus_ID")
 
 #remove building information
 item7.os.dat1 <- item7.os.dat[grep("SITE", item7.os.dat$Iteration),]
@@ -336,7 +338,7 @@ item7.os.customer <- summarise(group_by(item7.os.dat2
                                      , CK_Cadmus_ID)
                             ,CountRooms = sum(count))
 
-item7.os.merge <- left_join(rbsa.dat, item7.os.customer)
+item7.os.merge <- left_join(os.dat, item7.os.customer)
 item7.os.merge$CountRooms[which(is.na(item7.os.merge$CountRooms))] <- 0
 
 # apply weights to the subset of the data
@@ -352,12 +354,29 @@ item7.os.data$count <- 1
 item7.os.final <- mean_one_group(CustomerLevelData = item7.os.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'CK_Building_ID'
-                              , aggregateRow  = 'Region')
+                              , aggregateRow  = 'Remove')
+item7.os.final <- item7.os.final[which(item7.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+# row ordering example code
+levels(item7.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item7.os.final <- item7.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item7.os.final <- data.frame(item7.os.final)
+
 #subset by home type
 item7.os.final.SF <- item7.os.final[which(item7.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item7.os.final.SF, "SF", osIndicator = "SCL", "Table 14", weighted = TRUE, OS = T)
+exportTable(item7.os.final.SF, "SF", "Table 14", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ################################
 # Unweighted Analysis
@@ -365,12 +384,29 @@ exportTable(item7.os.final.SF, "SF", osIndicator = "SCL", "Table 14", weighted =
 item7.os.final <- mean_one_group_unweighted(CustomerLevelData = item7.os.data
                                          , valueVariable = 'CountRooms'
                                          , byVariable    = 'CK_Building_ID'
-                                         , aggregateRow  = 'Region')
+                                         , aggregateRow  = 'Remove')
+item7.os.final <- item7.os.final[which(item7.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+# row ordering example code
+levels(item7.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item7.os.final <- item7.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item7.os.final <- data.frame(item7.os.final)
+
 #subset by home type
 item7.os.final.SF <- item7.os.final[which(item7.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item7.os.final.SF, "SF", osIndicator = "SCL", "Table 14", weighted = FALSE, OS = T)
+exportTable(item7.os.final.SF, "SF", "Table 14", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -383,7 +419,7 @@ room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID"
                                                       , "Iteration"
                                                       , "Clean.Type"
                                                       , "Area"))]
-item8.os.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
+item8.os.dat <- left_join(os.dat, room.tmp, by = "CK_Cadmus_ID")
 
 #remove building information
 item8.os.dat1 <- item8.os.dat[grep("SITE", item8.os.dat$Iteration),]
@@ -400,7 +436,7 @@ item8.os.customer <- summarise(group_by(item8.os.dat2
                                      , CK_Building_ID)
                             ,CountRooms = sum(count))
 
-item8.os.merge <- left_join(rbsa.dat, item8.os.customer)
+item8.os.merge <- left_join(os.dat, item8.os.customer)
 item8.os.merge$CountRooms[which(is.na(item8.os.merge$CountRooms))] <- 0
 
 # apply weights to the subset of the data
@@ -417,12 +453,29 @@ item8.os.data$count <- 1
 item8.os.final <- mean_one_group(CustomerLevelData = item8.os.data
                               , valueVariable = 'CountRooms'
                               , byVariable    = 'CK_Building_ID'
-                              , aggregateRow  = "Region")
+                              , aggregateRow  = "Remove")
+item8.os.final <- item8.os.final[which(item8.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+# row ordering example code
+levels(item8.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item8.os.final <- item8.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item8.os.final <- data.frame(item8.os.final)
+
 #subset by home type
 item8.os.final.SF <- item8.os.final[which(item8.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item8.os.final.SF, "SF", "Table 15", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item8.os.final.SF, "SF", "Table 15", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ################################
 # Unweighted Analysis
@@ -430,12 +483,29 @@ exportTable(item8.os.final.SF, "SF", "Table 15", weighted = TRUE, osIndicator = 
 item8.os.final <- mean_one_group_unweighted(CustomerLevelData = item8.os.data
                                          , valueVariable = 'CountRooms'
                                          , byVariable    = 'CK_Building_ID'
-                                         , aggregateRow  = "Region")
+                                         , aggregateRow  = "Remove")
+item8.os.final <- item8.os.final[which(item8.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+# row ordering example code
+levels(item8.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item8.os.final <- item8.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item8.os.final <- data.frame(item8.os.final)
+
 #subset by home type
 item8.os.final.SF <- item8.os.final[which(item8.os.final$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item8.os.final.SF, "SF", "Table 15", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item8.os.final.SF, "SF", "Table 15", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -447,7 +517,7 @@ room.tmp  <- room.dat[which(colnames(room.dat) %in% c("CK_Cadmus_ID"
                                                       , "Iteration"
                                                       , "Clean.Type"
                                                       , "Area"))]
-item9.os.dat <- left_join(rbsa.dat, room.tmp, by = "CK_Cadmus_ID")
+item9.os.dat <- left_join(os.dat, room.tmp, by = "CK_Cadmus_ID")
 
 item9.os.dat$count <- 1
 item9.os.dat$Area <- as.numeric(as.character(item9.os.dat$Area))
@@ -474,7 +544,7 @@ item9.os.customer <- summarise(group_by(item9.os.dat1
                             ,m_ilk      = sum(count)
 )
 
-item9.os.merge <- left_join(rbsa.dat, item9.os.customer)
+item9.os.merge <- left_join(os.dat, item9.os.customer)
 item9.os.merge <- item9.os.merge[which(!is.na(item9.os.merge$y_ilk)),]
 
 # apply weights to the subset of the data
@@ -514,60 +584,92 @@ item9.os.cast <- mean_two_groups(CustomerLevelData = item9.os.data
                                   , rowAggregate  = "All Room Types"
                                   , columnAggregate = "Remove")
 
-item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
-                          ,"Room.Type"            = item9.os.cast$Clean.Type
-                          ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
-                          ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
-                          ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
-                          ,"Mean_SCL.GenPop"      = item9.os.cast$`Mean_SCL GenPop`
-                          ,"SE_SCL.GenPop"        = item9.os.cast$`SE_SCL GenPop`
-                          ,"n_SCL.GenPop"         = item9.os.cast$`n_SCL GenPop`
-                          ,"Mean_SCL.LI"          = item9.os.cast$`Mean_SCL LI`
-                          ,"SE_SCL.LI"            = item9.os.cast$`SE_SCL LI`
-                          ,"n_SCL.LI"             = item9.os.cast$`n_SCL LI`
-                          ,"Mean_SCL.EH"          = item9.os.cast$`Mean_SCL EH`
-                          ,"SE_SCL.EH"            = item9.os.cast$`SE_SCL EH`
-                          ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`
-                          ,"EB_2017.RBSA.PS"      = item9.os.cast$`EB_2017 RBSA PS`
-                          ,"EB_SCL.GenPop"        = item9.os.cast$`EB_SCL GenPop`
-                          ,"EB_SCL.LI"            = item9.os.cast$`EB_SCL LI`
-                          ,"EB_SCL.EH"            = item9.os.cast$`EB_SCL EH`)
+if(os.ind == "scl"){
+  item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
+                               ,"Room.Type"            = item9.os.cast$Clean.Type
+                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
+                               ,"Mean_SCL.GenPop"      = item9.os.cast$`Mean_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item9.os.cast$`SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item9.os.cast$`n_SCL GenPop`
+                               ,"Mean_SCL.LI"          = item9.os.cast$`Mean_SCL LI`
+                               ,"SE_SCL.LI"            = item9.os.cast$`SE_SCL LI`
+                               ,"n_SCL.LI"             = item9.os.cast$`n_SCL LI`
+                               ,"Mean_SCL.EH"          = item9.os.cast$`Mean_SCL EH`
+                               ,"SE_SCL.EH"            = item9.os.cast$`SE_SCL EH`
+                               ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`
+                               ,"EB_2017.RBSA.PS"      = item9.os.cast$`EB_2017 RBSA PS`
+                               ,"EB_SCL.GenPop"        = item9.os.cast$`EB_SCL GenPop`
+                               ,"EB_SCL.LI"            = item9.os.cast$`EB_SCL LI`
+                               ,"EB_SCL.EH"            = item9.os.cast$`EB_SCL EH`)
+}else if(os.ind == "snopud"){
+  item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
+                               ,"Room.Type"            = item9.os.cast$Clean.Type
+                               ,"Mean_SnoPUD"          = item9.os.cast$`Mean_SnoPUD`
+                               ,"SE_SnoPUD"            = item9.os.cast$`SE_SnoPUD`
+                               ,"n_SnoPUD"             = item9.os.cast$`n_SnoPUD`
+                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
+                               ,"Mean_RBSA.NW"         = item9.os.cast$`Mean_2017 RBSA NW`
+                               ,"SE_RBSA.NW"           = item9.os.cast$`SE_2017 RBSA NW`
+                               ,"n_RBSA.NW"            = item9.os.cast$`n_2017 RBSA NW`
+                               ,"EB_SnoPUD"            = item9.os.cast$`EB_SnoPUD`
+                               ,"EB_2017.RBSA.PS"      = item9.os.cast$`EB_2017 RBSA PS`
+                               ,"EB_RBSA.NW"           = item9.os.cast$`EB_2017 RBSA NW`)
+}
+
 
 
 #subset by home type
 item9.os.final.SF <- item9.os.table[which(item9.os.table$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item9.os.final.SF, "SF", "Table 16", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item9.os.final.SF, "SF", "Table 16", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ################################
 # Unweighted Analysis
 ################################
-item9.os.cast <- mean_two_groups(CustomerLevelData = item9.os.data
+item9.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item9.os.data
                                  , valueVariable = 'y_bar_ilk'
                                  , byVariableRow = 'Clean.Type'
                                  , byVariableColumn    = 'CK_Building_ID'
                                  , rowAggregate  = "All Room Types"
                                  , columnAggregate = "Remove")
 
-item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
-                             ,"Room.Type"            = item9.os.cast$Clean.Type
-                             ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
-                             ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
-                             ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
-                             ,"Mean_SCL.GenPop"      = item9.os.cast$`Mean_SCL GenPop`
-                             ,"SE_SCL.GenPop"        = item9.os.cast$`SE_SCL GenPop`
-                             ,"n_SCL.GenPop"         = item9.os.cast$`n_SCL GenPop`
-                             ,"Mean_SCL.LI"          = item9.os.cast$`Mean_SCL LI`
-                             ,"SE_SCL.LI"            = item9.os.cast$`SE_SCL LI`
-                             ,"n_SCL.LI"             = item9.os.cast$`n_SCL LI`
-                             ,"Mean_SCL.EH"          = item9.os.cast$`Mean_SCL EH`
-                             ,"SE_SCL.EH"            = item9.os.cast$`SE_SCL EH`
-                             ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`)
+if(os.ind == "scl"){
+  item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
+                               ,"Room.Type"            = item9.os.cast$Clean.Type
+                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
+                               ,"Mean_SCL.GenPop"      = item9.os.cast$`Mean_SCL GenPop`
+                               ,"SE_SCL.GenPop"        = item9.os.cast$`SE_SCL GenPop`
+                               ,"n_SCL.GenPop"         = item9.os.cast$`n_SCL GenPop`
+                               ,"Mean_SCL.LI"          = item9.os.cast$`Mean_SCL LI`
+                               ,"SE_SCL.LI"            = item9.os.cast$`SE_SCL LI`
+                               ,"n_SCL.LI"             = item9.os.cast$`n_SCL LI`
+                               ,"Mean_SCL.EH"          = item9.os.cast$`Mean_SCL EH`
+                               ,"SE_SCL.EH"            = item9.os.cast$`SE_SCL EH`
+                               ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`)
+}else if(os.ind == "snopud"){
+  item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
+                               ,"Room.Type"            = item9.os.cast$Clean.Type
+                               ,"Mean_SnoPUD"          = item9.os.cast$`Mean_SnoPUD`
+                               ,"SE_SnoPUD"            = item9.os.cast$`SE_SnoPUD`
+                               ,"n_SnoPUD"             = item9.os.cast$`n_SnoPUD`
+                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
+                               ,"Mean_RBSA.NW"         = item9.os.cast$`Mean_2017 RBSA NW`
+                               ,"SE_RBSA.NW"           = item9.os.cast$`SE_2017 RBSA NW`
+                               ,"n_RBSA.NW"            = item9.os.cast$`n_2017 RBSA NW`)
+}
 
 #subset by home type
 item9.os.final.SF <- item9.os.table[which(item9.os.table$BuildingType == "Single Family"),-1]
 
 #export data
-exportTable(item9.os.final.SF, "SF", "Table 16", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item9.os.final.SF, "SF", "Table 16", weighted = FALSE, osIndicator = export.ind, OS = T)
 

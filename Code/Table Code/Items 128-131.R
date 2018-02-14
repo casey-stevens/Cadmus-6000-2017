@@ -267,20 +267,22 @@ item130.dat0 <- item130.dat[which(item130.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
 item130.dat1 <- left_join(item130.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+item130.dat1$Thermostat_Setpoint <- as.numeric(as.character(item130.dat1$Thermostat_Setpoint))
+item130.dat1$Nighttime_Heating <- as.numeric(as.character(item130.dat1$Nighttime_Heating))
 
 item130.dat2.0 <- item130.dat1[which(!(is.na(item130.dat1$Thermostat_Setpoint))),]
-item130.dat2 <- item130.dat2.0[which(item130.dat2.0$Thermostat_Setpoint != 0),]
+item130.dat2 <- item130.dat2.0[which(item130.dat2.0$Thermostat_Setpoint > 0),]
 unique(item130.dat2$Thermostat_Setpoint)
 unique(item130.dat2$Nighttime_Heating)
 
 item130.dat3.0 <- item130.dat2[which(!(is.na(item130.dat2$Nighttime_Heating))),]
-item130.dat3 <- item130.dat3.0[which(item130.dat3.0$Nighttime_Heating != 0),]
+item130.dat3 <- item130.dat3.0[which(item130.dat3.0$Nighttime_Heating > 0),]
 
 item130.dat3$Heating.Setback <- 0
 item130.dat3$Heating.Setback[which(item130.dat3$Nighttime_Heating < item130.dat3$Thermostat_Setpoint)] <- 1
 
 item130.sum <- summarise(group_by(item130.dat3, CK_Cadmus_ID)
-                         ,Ind = sum(Heating.Setback))
+                         ,Ind = sum(unique(Heating.Setback)))
 
 item130.merge <- left_join(rbsa.dat, item130.sum)
 item130.merge <- item130.merge[which(!is.na(item130.merge$Ind)),]
@@ -352,12 +354,12 @@ item131.dat0 <- item131.dat[which(item131.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item131.dat1 <- left_join(item131.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 
 item131.dat2.0 <- item131.dat1[which(!(is.na(item131.dat1$Thermostat_Setpoint))),]
-item131.dat2 <- item131.dat2.0[which(item131.dat2.0$Thermostat_Setpoint != 0),]
+item131.dat2 <- item131.dat2.0[which(item131.dat2.0$Thermostat_Setpoint > 0),]
 unique(item131.dat2$Thermostat_Setpoint)
 unique(item131.dat2$Nighttime_Heating)
 
 item131.dat3.0 <- item131.dat2[which(!(is.na(item131.dat2$Nighttime_Heating))),]
-item131.dat3 <- item131.dat3.0[which(item131.dat3.0$Nighttime_Heating != 0),]
+item131.dat3 <- item131.dat3.0[which(item131.dat3.0$Nighttime_Heating > 0),]
 
 item131.dat3$Heating.Setback <- item131.dat3$Thermostat_Setpoint - item131.dat3$Nighttime_Heating
 item131.dat4 <- item131.dat3[which(colnames(item131.dat3) %in% c("CK_Cadmus_ID", "Heating.Setback"))]

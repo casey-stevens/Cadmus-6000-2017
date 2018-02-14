@@ -59,10 +59,8 @@ drop.for.weighting <- c("Cadmus.ID",
 
 item154.weighted <- weightedData(item154.data[-c(which(colnames(item154.data) %in% 
                                                          drop.for.weighting))])
-item154.weighted <- 
-  left_join(item154.weighted, item154.data[c(1,
-                                             c(which(colnames(item154.data) %in% 
-                                                       drop.for.weighting)))])
+item154.weighted <- left_join(item154.weighted, item154.data[c(1,c(which(colnames(item154.data) %in% 
+                                                                           drop.for.weighting)))])
 
 ################################
 # Weighted Analysis1
