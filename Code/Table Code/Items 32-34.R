@@ -528,28 +528,48 @@ item32.os.final <- item32.os.final[which(item32.os.final$CK_Building_ID != "Remo
 item32.os.cast <- dcast(setDT(item32.os.final)
                         ,formula = Framing.Categories ~ CK_Building_ID
                         ,value.var = c("w.percent","w.SE","n","EB"))
+names(item32.os.cast)
 
-item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
-                              ,"Percent_SCL.GenPop"   = item32.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item32.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item32.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item32.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item32.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item32.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item32.os.cast$`w.SE_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item32.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item32.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`
-                              ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
-                              ,"EB_SCL.GenPop"        = item32.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item32.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item32.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item32.os.cast$`EB_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
+                                ,"Percent_SCL.GenPop"   = item32.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item32.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item32.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item32.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item32.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item32.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item32.os.cast$`w.SE_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item32.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item32.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`
+                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
+                                ,"EB_SCL.GenPop"        = item32.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item32.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item32.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item32.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
+                                ,"Percent_SnoPUD"          = item32.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item32.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item32.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item32.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item32.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item32.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item32.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item32.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item32.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item32.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item32.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item32.os.cast$`EB_2017 RBSA NW`)  
+}
+
+
 
 # row ordering example code
 levels(item32.os.table$Door.Type)
-rowOrder <- c("Metal"
+rowOrder <- c("Garage Door with Glazing"
+              ,"Metal"
               ,"Metal with Glazing"
               ,"Other"
               ,"Other with Glazing"
@@ -560,7 +580,7 @@ item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, leve
 item32.os.table <- data.frame(item32.os.table)
 
 
-exportTable(item32.os.table, "SF", "Table 39", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item32.os.table, "SF", "Table 39", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -604,7 +624,7 @@ rowOrder <- c("Metal"
 item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, levels = rowOrder)) %>% arrange(Door.Type)  
 item32.os.table <- data.frame(item32.os.table)
 
-exportTable(item32.os.table, "SF", "Table 39", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item32.os.table, "SF", "Table 39", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -730,7 +750,7 @@ item33.os.table <- data.frame(item33.os.table)
 
 item33.os.final.SF <- item33.os.table[which(item33.os.table$BuildingType == "Single Family"),-which(colnames(item33.os.table) %in% c("BuildingType"))]
 
-exportTable(item33.os.final.SF, "SF", "Table 40", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item33.os.final.SF, "SF", "Table 40", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #################################
@@ -780,7 +800,7 @@ item33.os.table <- data.frame(item33.os.table)
 item33.os.final.SF <- item33.os.table[which(item33.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item33.os.table) %in% c("BuildingType"))]
 
-exportTable(item33.os.final.SF, "SF", "Table 40", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item33.os.final.SF, "SF", "Table 40", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -839,7 +859,7 @@ item34.os.final <- proportions_one_group(CustomerLevelData  = item34.os.data
 item34.os.final <- item34.os.final[which(item34.os.final$CK_Building_ID != "Total"),]
 item34.os.final.SF <- item34.os.final[which(item34.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item34.os.final.SF, "SF", "Table 41", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item34.os.final.SF, "SF", "Table 41", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ###############################
 # Weighted Analysis
@@ -854,5 +874,5 @@ item34.os.final <- item34.os.final[which(item34.os.final$CK_Building_ID != "Tota
 item34.os.final.SF <- item34.os.final[which(item34.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item34.os.final) %in% c("BuildingType"))]
 
-exportTable(item34.os.final.SF, "SF", "Table 41", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item34.os.final.SF, "SF", "Table 41", weighted = FALSE, osIndicator = export.ind, OS = T)
 
