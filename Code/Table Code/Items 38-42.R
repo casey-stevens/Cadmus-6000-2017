@@ -190,11 +190,11 @@ item38.final <- mean_one_group(CustomerLevelData = item38.data
 
 item38.final.SF <- item38.final[which(item38.final$BuildingType == "Single Family")
                                 ,which(colnames(item38.final) %notin% c("BuildingType"))]
-exportTable(item38.final.SF, "SF", "Table 45", weighted = TRUE)
+# exportTable(item38.final.SF, "SF", "Table 45", weighted = TRUE)
 
 item38.final.MH <- item38.final[which(item38.final$BuildingType == "Manufactured")
                                 ,which(colnames(item38.final) %notin% c("BuildingType"))]
-# exportTable(item38.final.MH, "MH", "Table 27", weighted = TRUE)
+exportTable(item38.final.MH, "MH", "Table 27", weighted = TRUE)
 
 
 ######################
@@ -207,11 +207,11 @@ item38.final <- mean_one_group_unweighted(CustomerLevelData = item38.data
 
 item38.final.SF <- item38.final[which(item38.final$BuildingType == "Single Family")
                                 ,which(colnames(item38.final) %notin% c("BuildingType"))]
-exportTable(item38.final.SF, "SF", "Table 45", weighted = FALSE)
+# exportTable(item38.final.SF, "SF", "Table 45", weighted = FALSE)
 
 item38.final.MH <- item38.final[which(item38.final$BuildingType == "Manufactured")
                                 ,which(colnames(item38.final) %notin% c("BuildingType"))]
-# exportTable(item38.final.MH, "MH", "Table 27", weighted = FALSE)
+exportTable(item38.final.MH, "MH", "Table 27", weighted = FALSE)
 
 
 
@@ -240,11 +240,11 @@ item39.final <- mean_one_group(CustomerLevelData = item39.dat1
 
 item39.final.SF <- item39.final[which(item39.final$BuildingType == "Single Family")
                                 ,which(colnames(item39.final) %notin% c("BuildingType"))]
-exportTable(item39.final.SF, "SF", "Table 46", weighted = TRUE)
+# exportTable(item39.final.SF, "SF", "Table 46", weighted = TRUE)
 
 item39.final.MH <- item39.final[which(item39.final$BuildingType == "Manufactured")
                                 ,which(colnames(item39.final) %notin% c("BuildingType"))]
-# exportTable(item39.final.MH, "MH", "Table 28", weighted = TRUE)
+exportTable(item39.final.MH, "MH", "Table 28", weighted = TRUE)
 
 ######################
 # unweighted analysis
@@ -256,11 +256,11 @@ item39.final <- mean_one_group_unweighted(CustomerLevelData = item39.dat1
 
 item39.final.SF <- item39.final[which(item39.final$BuildingType == "Single Family")
                                 ,which(colnames(item39.final) %notin% c("BuildingType"))]
-exportTable(item39.final.SF, "SF", "Table 46", weighted = FALSE)
+# exportTable(item39.final.SF, "SF", "Table 46", weighted = FALSE)
 
 item39.final.MH <- item39.final[which(item39.final$BuildingType == "Manufactured")
                                 ,which(colnames(item39.final) %notin% c("BuildingType"))]
-# exportTable(item39.final.MH, "MH", "Table 28", weighted = FALSE)
+exportTable(item39.final.MH, "MH", "Table 28", weighted = FALSE)
 
 
 
@@ -377,7 +377,7 @@ item40.final <- data.frame(item40.final)
 
 item40.final.SF <- item40.final[which(item40.final$BuildingType == "Single Family")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
-exportTable(item40.final.SF, "SF", "Table 47", weighted = TRUE)
+# exportTable(item40.final.SF, "SF", "Table 47", weighted = TRUE)
 
 ######################
 # unweighted analysis
@@ -405,7 +405,7 @@ item40.final <- data.frame(item40.final)
 
 item40.final.SF <- item40.final[which(item40.final$BuildingType == "Single Family")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
-exportTable(item40.final.SF, "SF", "Table 47", weighted = FALSE)
+# exportTable(item40.final.SF, "SF", "Table 47", weighted = FALSE)
 
 
 #############################################################################################
@@ -435,7 +435,7 @@ item40.final <- data.frame(item40.final)
 
 item40.final.MH <- item40.final[which(item40.final$BuildingType == "Manufactured")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
-# exportTable(item40.final.MH, "MH", "Table 29", weighted = TRUE)
+exportTable(item40.final.MH, "MH", "Table 29", weighted = TRUE)
 
 ######################
 # unweighted analysis
@@ -460,7 +460,7 @@ item40.final <- data.frame(item40.final)
 
 item40.final.MH <- item40.final[which(item40.final$BuildingType == "Manufactured")
                                 ,which(colnames(item40.final) %notin% c("BuildingType"))]
-# exportTable(item40.final.MH, "MH", "Table 29", weighted = FALSE)
+exportTable(item40.final.MH, "MH", "Table 29", weighted = FALSE)
 
 
 
@@ -490,11 +490,11 @@ item41.final <- mean_one_group(CustomerLevelData = item41.dat1
 
 item41.final.SF <- item41.final[which(item41.final$BuildingType == "Single Family")
                                 ,which(colnames(item41.final) %notin% c("BuildingType"))]
-exportTable(item41.final.SF, "SF", "Table 48", weighted = TRUE)
+# exportTable(item41.final.SF, "SF", "Table 48", weighted = TRUE)
 
 item41.final.MH <- item41.final[which(item41.final$BuildingType == "Manufactured")
                                 ,which(colnames(item41.final) %notin% c("BuildingType"))]
-# exportTable(item41.final.MH, "MH", "Table 30", weighted = TRUE)
+exportTable(item41.final.MH, "MH", "Table 30", weighted = TRUE)
 
 ######################
 # unweighted analysis
@@ -506,11 +506,11 @@ item41.final <- mean_one_group_unweighted(CustomerLevelData = item41.dat1
 
 item41.final.SF <- item41.final[which(item41.final$BuildingType == "Single Family")
                                 ,which(colnames(item41.final) %notin% c("BuildingType"))]
-exportTable(item41.final.SF, "SF", "Table 48", weighted = FALSE)
+# exportTable(item41.final.SF, "SF", "Table 48", weighted = FALSE)
 
 item41.final.MH <- item41.final[which(item41.final$BuildingType == "Manufactured")
                                 ,which(colnames(item41.final) %notin% c("BuildingType"))]
-# exportTable(item41.final.MH, "MH", "Table 30", weighted = FALSE)
+exportTable(item41.final.MH, "MH", "Table 30", weighted = FALSE)
 
 
 
