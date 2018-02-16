@@ -221,10 +221,13 @@ exportTable(item35.final.SF, "SF", "Table 42", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+subset.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 35: 
@@ -233,15 +236,15 @@ scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 # Fist average within homes, then average across homes within building type and floor area? I think so...
 
 #windows
-item35.os.windows  <- left_join(scl.dat, windows.dat2, by = "CK_Cadmus_ID")
+item35.os.windows  <- left_join(os.dat, windows.dat2, by = "CK_Cadmus_ID")
 length(unique(item35.os.windows$CK_Cadmus_ID))
 
 #floor area (SF ONLY)
-item35.os.ENV <- left_join(scl.dat, envelope.dat1, by = "CK_Cadmus_ID")
+item35.os.ENV <- left_join(os.dat, envelope.dat1, by = "CK_Cadmus_ID")
 length(unique(item35.os.ENV$CK_Cadmus_ID))
 
 #room area (MH only)
-item35.os.rooms    <- left_join(scl.dat, rooms.dat2, by = "CK_Cadmus_ID")
+item35.os.rooms    <- left_join(os.dat, rooms.dat2, by = "CK_Cadmus_ID")
 length(unique(item35.os.rooms$CK_Cadmus_ID))
 
 
@@ -267,7 +270,7 @@ item35.os.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Floor.Type"
                                                                ,"Floor.Sub-Type"))]
 
-item35.os.dat1 <- left_join(scl.dat, item35.os.dat, by = "CK_Cadmus_ID")
+item35.os.dat1 <- left_join(os.dat, item35.os.dat, by = "CK_Cadmus_ID")
 
 #subset to only single family homes
 item35.os.dat2 <- item35.os.dat1[which(item35.os.dat1$BuildingType == "Single Family"),]
@@ -277,7 +280,7 @@ item35.os.dat2$Ind <- 0
 item35.os.dat2$Ind[which(item35.os.dat2$Floor.Type == "Basement")] <- 1
 
 item35.os.dat3 <- unique(item35.os.dat2[which(item35.os.dat2$Ind == 1),])
-item35.os.dat4 <- left_join(scl.dat, item35.os.dat3)
+item35.os.dat4 <- left_join(os.dat, item35.os.dat3)
 item35.os.dat4$Ind[which(is.na(item35.os.dat4$Ind))] <- 0
 
 
@@ -296,7 +299,7 @@ item35.os.dat2$Basement <- item35.os.dat2$Ind
 item35.os.dat2$Basement[which(item35.os.dat2$Ind == 0)] <- "Home without Basements"
 item35.os.dat2$Basement[which(item35.os.dat2$Ind == 1)] <- "Home with Basements"
 
-item35.os.merge <- left_join(scl.dat, item35.os.dat2)
+item35.os.merge <- left_join(os.dat, item35.os.dat2)
 item35.os.merge <- item35.os.merge[which(!is.na(item35.os.merge$Basement)),]
 
 
@@ -331,28 +334,47 @@ item35.os.final <- mean_two_groups(CustomerLevelData = item35.os.data
 remove.ind <- names(item35.os.final)[grep("Remove",names(item35.os.final))]
 item35.os.final <- data.frame(item35.os.final)
 item35.os.cast <- item35.os.final[which(names(item35.os.final) %notin% remove.ind)]
+
 names(item35.os.cast)
 
-item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
-                              ,"Mean_SCL.GenPop"      = item35.os.cast$Mean_SCL.GenPop
-                              ,"SE_SCL.GenPop"        = item35.os.cast$SE_SCL.GenPop
-                              ,"n_SCL.GenPop"         = item35.os.cast$n_SCL.GenPop
-                              ,"Mean_SCL.LI"          = item35.os.cast$Mean_SCL.LI
-                              ,"SE_SCL.LI"            = item35.os.cast$SE_SCL.LI
-                              ,"n_SCL.LI"             = item35.os.cast$n_SCL.LI
-                              ,"Mean_SCL.EH"          = item35.os.cast$Mean_SCL.EH
-                              ,"SE_SCL.EH"            = item35.os.cast$SE_SCL.EH
-                              ,"n_SCL.EH"             = item35.os.cast$n_SCL.EH
-                              ,"Mean_2017.RBSA.PS"    = item35.os.cast$Mean_2017.RBSA.PS
-                              ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
-                              ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS
-                              ,"EB_SCL.GenPop"        = item35.os.cast$EB_SCL.GenPop
-                              ,"EB_SCL.LI"            = item35.os.cast$EB_SCL.LI
-                              ,"EB_SCL.EH"            = item35.os.cast$EB_SCL.EH
-                              ,"EB_2017.RBSA.PS"      = item35.os.cast$EB_2017.RBSA.PS)
+if(os.ind == "scl"){
+  item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
+                                ,"Mean_SCL.GenPop"      = item35.os.cast$Mean_SCL.GenPop
+                                ,"SE_SCL.GenPop"        = item35.os.cast$SE_SCL.GenPop
+                                ,"n_SCL.GenPop"         = item35.os.cast$n_SCL.GenPop
+                                ,"Mean_SCL.LI"          = item35.os.cast$Mean_SCL.LI
+                                ,"SE_SCL.LI"            = item35.os.cast$SE_SCL.LI
+                                ,"n_SCL.LI"             = item35.os.cast$n_SCL.LI
+                                ,"Mean_SCL.EH"          = item35.os.cast$Mean_SCL.EH
+                                ,"SE_SCL.EH"            = item35.os.cast$SE_SCL.EH
+                                ,"n_SCL.EH"             = item35.os.cast$n_SCL.EH
+                                ,"Mean_2017.RBSA.PS"    = item35.os.cast$Mean_2017.RBSA.PS
+                                ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
+                                ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS
+                                ,"EB_SCL.GenPop"        = item35.os.cast$EB_SCL.GenPop
+                                ,"EB_SCL.LI"            = item35.os.cast$EB_SCL.LI
+                                ,"EB_SCL.EH"            = item35.os.cast$EB_SCL.EH
+                                ,"EB_2017.RBSA.PS"      = item35.os.cast$EB_2017.RBSA.PS)
+}else if(os.ind == "snopud"){
+  item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
+                                ,"Mean_SnoPUD"          = item35.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item35.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item35.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item35.os.cast$`Mean_2017.RBSA.PS`
+                                ,"SE_2017.RBSA.PS"      = item35.os.cast$`SE_2017.RBSA.PS`
+                                ,"n_2017.RBSA.PS"       = item35.os.cast$`n_2017.RBSA.PS`
+                                ,"Mean_RBSA.NW"         = item35.os.cast$`Mean_2017.RBSA.NW`
+                                ,"SE_RBSA.NW"           = item35.os.cast$`SE_2017.RBSA.NW`
+                                ,"n_RBSA.NW"            = item35.os.cast$`n_2017.RBSA.NW`
+                                ,"EB_SnoPUD"            = item35.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item35.os.cast$`EB_2017.RBSA.PS`
+                                ,"EB_RBSA.NW"           = item35.os.cast$`EB_2017.RBSA.NW`)
+}
 
 
-exportTable(item35.os.table, "SF", "Table 42", weighted = TRUE, osIndicator = "SCL",OS = T)
+
+
+exportTable(item35.os.table, "SF", "Table 42", weighted = TRUE, osIndicator = export.ind,OS = T)
 
 
 
@@ -368,22 +390,38 @@ item35.os.final <- mean_two_groups_unweighted(CustomerLevelData = item35.os.data
 remove.ind <- names(item35.os.final)[grep("Remove",names(item35.os.final))]
 item35.os.final <- data.frame(item35.os.final)
 item35.os.cast <- item35.os.final[which(names(item35.os.final) %notin% remove.ind)]
+
 names(item35.os.cast)
 
-item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
-                              ,"Mean_SCL.GenPop"      = item35.os.cast$Mean_SCL.GenPop
-                              ,"SE_SCL.GenPop"        = item35.os.cast$SE_SCL.GenPop
-                              ,"n_SCL.GenPop"         = item35.os.cast$n_SCL.GenPop
-                              ,"Mean_SCL.LI"          = item35.os.cast$Mean_SCL.LI
-                              ,"SE_SCL.LI"            = item35.os.cast$SE_SCL.LI
-                              ,"n_SCL.LI"             = item35.os.cast$n_SCL.LI
-                              ,"Mean_SCL.EH"          = item35.os.cast$Mean_SCL.EH
-                              ,"SE_SCL.EH"            = item35.os.cast$SE_SCL.EH
-                              ,"n_SCL.EH"             = item35.os.cast$n_SCL.EH
-                              ,"Mean_2017.RBSA.PS"    = item35.os.cast$Mean_2017.RBSA.PS
-                              ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
-                              ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS)
+if(os.ind == "scl"){
+  item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
+                                ,"Mean_SCL.GenPop"      = item35.os.cast$Mean_SCL.GenPop
+                                ,"SE_SCL.GenPop"        = item35.os.cast$SE_SCL.GenPop
+                                ,"n_SCL.GenPop"         = item35.os.cast$n_SCL.GenPop
+                                ,"Mean_SCL.LI"          = item35.os.cast$Mean_SCL.LI
+                                ,"SE_SCL.LI"            = item35.os.cast$SE_SCL.LI
+                                ,"n_SCL.LI"             = item35.os.cast$n_SCL.LI
+                                ,"Mean_SCL.EH"          = item35.os.cast$Mean_SCL.EH
+                                ,"SE_SCL.EH"            = item35.os.cast$SE_SCL.EH
+                                ,"n_SCL.EH"             = item35.os.cast$n_SCL.EH
+                                ,"Mean_2017.RBSA.PS"    = item35.os.cast$Mean_2017.RBSA.PS
+                                ,"SE_2017.RBSA.PS"      = item35.os.cast$SE_2017.RBSA.PS
+                                ,"n_2017.RBSA.PS"       = item35.os.cast$n_2017.RBSA.PS)
+}else if(os.ind == "snopud"){
+  item35.os.table <- data.frame("Basement.Type"        = item35.os.cast$Basement
+                                ,"Mean_SnoPUD"          = item35.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item35.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item35.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item35.os.cast$`Mean_2017.RBSA.PS`
+                                ,"SE_2017.RBSA.PS"      = item35.os.cast$`SE_2017.RBSA.PS`
+                                ,"n_2017.RBSA.PS"       = item35.os.cast$`n_2017.RBSA.PS`
+                                ,"Mean_RBSA.NW"         = item35.os.cast$`Mean_2017.RBSA.NW`
+                                ,"SE_RBSA.NW"           = item35.os.cast$`SE_2017.RBSA.NW`
+                                ,"n_RBSA.NW"            = item35.os.cast$`n_2017.RBSA.NW`)
+}
 
-exportTable(item35.os.table, "SF", "Table 42", weighted = FALSE, osIndicator = "SCL",OS = T)
+
+
+exportTable(item35.os.table, "SF", "Table 42", weighted = FALSE, osIndicator = export.ind,OS = T)
 
 
