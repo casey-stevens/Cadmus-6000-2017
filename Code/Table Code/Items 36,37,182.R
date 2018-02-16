@@ -441,17 +441,20 @@ exportTable(item182.table.MH, "MH","Table 25",weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+subset.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 36: AVERAGE NORMALIZED HEAT-LOSS RATE BY VINTAGE AND CK_Building_ID (SF table 43, MH table 24)
 #############################################################################################
 item36.os.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Whole.House.UA"))]
-item36.os.dat1 <- left_join(scl.dat, item36.os.dat)
+item36.os.dat1 <- left_join(os.dat, item36.os.dat)
 item36.os.dat1$Whole.House.UA <- as.numeric(as.character(item36.os.dat1$Whole.House.UA))
 
 item36.os.dat2 <- item36.os.dat1[which(!is.na(item36.os.dat1$Whole.House.UA)),]
@@ -480,24 +483,44 @@ item36.os.cast <- mean_two_groups(CustomerLevelData = item36.os.data
                                ,byVariableColumn = "CK_Building_ID"
                                ,columnAggregate = "Remove"
                                ,rowAggregate = "All Vintages")
+
 names(item36.os.cast)
-item36.os.table <- data.frame("Housing.Vintage" = item36.os.cast$HomeYearBuilt_bins3
-                              ,"Mean_SCL.GenPop"      = item36.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item36.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item36.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item36.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item36.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item36.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item36.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item36.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item36.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item36.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item36.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item36.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item36.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item36.os.cast$`EB_2017 RBSA PS`)
+
+if(os.ind == "scl"){
+  item36.os.table <- data.frame("Housing.Vintage" = item36.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SCL.GenPop"      = item36.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item36.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item36.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item36.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item36.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item36.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item36.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item36.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item36.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item36.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item36.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item36.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item36.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item36.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item36.os.table <- data.frame("Housing.Vintage" = item36.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SnoPUD"          = item36.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item36.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item36.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item36.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item36.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item36.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item36.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item36.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item36.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item36.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 levels(item36.os.table$Housing.Vintage)
 rowOrder <- c("Pre 1981"
@@ -509,7 +532,7 @@ rowOrder <- c("Pre 1981"
 item36.os.table <- item36.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 item36.os.table <- data.frame(item36.os.table)
 
-exportTable(item36.os.table, "SF","Table 43",weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item36.os.table, "SF","Table 43",weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -520,20 +543,34 @@ item36.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item36.os.data
                                           ,byVariableColumn = "CK_Building_ID"
                                           ,columnAggregate = "Region"
                                           ,rowAggregate = "All Vintages")
+names(item36.os.cast)
 
-item36.os.table <- data.frame("Housing.Vintage"       = item36.os.cast$HomeYearBuilt_bins3
-                              ,"Mean_SCL.GenPop"      = item36.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item36.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item36.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item36.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item36.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item36.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item36.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item36.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item36.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item36.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item36.os.table <- data.frame("Housing.Vintage"       = item36.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SCL.GenPop"      = item36.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item36.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item36.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item36.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item36.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item36.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item36.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item36.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item36.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item36.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item36.os.table <- data.frame("Housing.Vintage"       = item36.os.cast$HomeYearBuilt_bins3
+                                ,"SE_SnoPUD"            = item36.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item36.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item36.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item36.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item36.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item36.os.cast$`n_2017 RBSA NW`)
+}
+
 
 levels(item36.os.table$Housing.Vintage)
 rowOrder <- c("Pre 1981"
@@ -545,7 +582,7 @@ rowOrder <- c("Pre 1981"
 item36.os.table <- item36.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 item36.os.table <- data.frame(item36.os.table)
 
-exportTable(item36.os.table, "SF","Table 43",weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item36.os.table, "SF","Table 43",weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -557,7 +594,7 @@ exportTable(item36.os.table, "SF","Table 43",weighted = FALSE, osIndicator = "SC
 #############################################################################################
 item37.os.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Whole.House.UA"))]
-item37.os.dat1 <- left_join(scl.dat, item37.os.dat)
+item37.os.dat1 <- left_join(os.dat, item37.os.dat)
 item37.os.dat1$Whole.House.UA <- as.numeric(as.character(item37.os.dat1$Whole.House.UA))
 item37.os.dat2 <- item37.os.dat1[which(item37.os.dat1$Whole.House.UA %notin% c("N/A",NA)),]
 
@@ -580,23 +617,43 @@ item37.os.cast <- mean_two_groups(CustomerLevelData = item37.os.data
                                ,columnAggregate  = "Remove"
                                ,rowAggregate     = "All Vintages")
 
-item37.os.table <- data.frame("Housing.Vintage" = item37.os.cast$HomeYearBuilt_bins3
-                              ,"Mean_SCL.GenPop"      = item37.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item37.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item37.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item37.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item37.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item37.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item37.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item37.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item37.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item37.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item37.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item37.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item37.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item37.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item37.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item37.os.cast$`EB_2017 RBSA PS`)
+names(item37.os.cast)
+
+if(os.ind == "scl"){
+  item37.os.table <- data.frame("Housing.Vintage" = item37.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SCL.GenPop"      = item37.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item37.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item37.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item37.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item37.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item37.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item37.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item37.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item37.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item37.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item37.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item37.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item37.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item37.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item37.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item37.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item37.os.table <- data.frame("Housing.Vintage" = item37.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SnoPUD"          = item37.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item37.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item37.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item37.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item37.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item37.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item37.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item37.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item37.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item37.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item37.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item37.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 levels(item37.os.table$Housing.Vintage)
 rowOrder <- c("Pre 1981"
@@ -608,7 +665,7 @@ rowOrder <- c("Pre 1981"
 item37.os.table <- item37.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 item37.os.table <- data.frame(item37.os.table)
 
-exportTable(item37.os.table, "SF","Table 44",weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item37.os.table, "SF","Table 44",weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -620,19 +677,36 @@ item37.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item37.os.data
                                           ,columnAggregate  = "Region"
                                           ,rowAggregate     = "All Vintages")
 
-item37.os.table <- data.frame("Housing.Vintage" = item37.os.cast$HomeYearBuilt_bins3
-                              ,"Mean_SCL.GenPop"      = item37.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item37.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item37.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item37.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item37.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item37.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item37.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item37.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item37.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item37.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item37.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item37.os.cast$`n_2017 RBSA PS`)
+names(item37.os.cast)
+
+if(os.ind == "scl"){
+  item37.os.table <- data.frame("Housing.Vintage" = item37.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SCL.GenPop"      = item37.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item37.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item37.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item37.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item37.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item37.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item37.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item37.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item37.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item37.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item37.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item37.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item37.os.table <- data.frame("Housing.Vintage" = item37.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SnoPUD"          = item37.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item37.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item37.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item37.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item37.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item37.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item37.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item37.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item37.os.cast$`n_2017 RBSA NW`)
+}
+
+
 
 levels(item37.os.table$Housing.Vintage)
 rowOrder <- c("Pre 1981"
@@ -644,4 +718,4 @@ rowOrder <- c("Pre 1981"
 item37.os.table <- item37.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 item37.os.table <- data.frame(item37.os.table)
 
-exportTable(item37.os.table, "SF","Table 44",weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item37.os.table, "SF","Table 44",weighted = FALSE, osIndicator = export.ind, OS = T)
