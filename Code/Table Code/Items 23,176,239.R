@@ -618,7 +618,7 @@ item23.table <- data.frame(item23.table)
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-# exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
+exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
 
 
 ######################
@@ -700,7 +700,7 @@ item23.table <- data.frame(item23.table)
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-# exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
+exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 
 
 
