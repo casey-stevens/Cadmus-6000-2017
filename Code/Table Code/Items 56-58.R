@@ -137,7 +137,7 @@ item56.final <- mean_one_group_domain(CustomerLevelData = item56.data
 # Export table
 item56.final.SF <- item56.final[which(item56.final$BuildingType == "Single Family"),-1]
 
-exportTable(item56.final.SF, "SF", "Table 63", weighted = TRUE)
+# exportTable(item56.final.SF, "SF", "Table 63", weighted = TRUE)
 
 ################################
 # Weighted Analysis - manufactured
@@ -151,7 +151,7 @@ item56.final <- mean_one_group_domain(CustomerLevelData = item56.data
 # Export table
 item56.final.MH <- item56.final[which(item56.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item56.final.MH, "MH", "Table 43", weighted = TRUE)
+exportTable(item56.final.MH, "MH", "Table 43", weighted = TRUE)
 
 
 
@@ -166,7 +166,7 @@ item56.final <- mean_one_group_unweighted(CustomerLevelData = item56.data
 # Export table
 item56.final.SF <- item56.final[which(item56.final$BuildingType == "Single Family"),-1]
 
-exportTable(item56.final.SF, "SF", "Table 63", weighted = FALSE)
+# exportTable(item56.final.SF, "SF", "Table 63", weighted = FALSE)
 
 ################################
 # Unweighted Analysis
@@ -179,7 +179,7 @@ item56.final <- mean_one_group_unweighted(CustomerLevelData = item56.data
 # Export table
 item56.final.MH <- item56.final[which(item56.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item56.final.MH, "MH", "Table 43", weighted = FALSE)
+exportTable(item56.final.MH, "MH", "Table 43", weighted = FALSE)
 
 
 
@@ -273,7 +273,7 @@ item57.final <- data.frame(item57.final)
 # Export table
 item57.final.SF <- item57.final[which(item57.final$BuildingType == "Single Family"),-1]
 
-exportTable(item57.final.SF, "SF", "Table 64",weighted = TRUE)
+# exportTable(item57.final.SF, "SF", "Table 64",weighted = TRUE)
 
 ########################
 # Weighted Analysis - manufactured
@@ -299,7 +299,7 @@ item57.final <- data.frame(item57.final)
 # Export table
 item57.final.MH <- item57.final[which(item57.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item57.final.MH, "MH", "Table 44",weighted = TRUE)
+exportTable(item57.final.MH, "MH", "Table 44",weighted = TRUE)
 
 
 
@@ -326,7 +326,7 @@ item57.final <- data.frame(item57.final)
 # Export table
 item57.final.SF <- item57.final[which(item57.final$BuildingType == "Single Family"),-1]
 
-exportTable(item57.final.SF, "SF", "Table 64",weighted = FALSE)
+# exportTable(item57.final.SF, "SF", "Table 64",weighted = FALSE)
 
 ########################
 # Unweighted Analysis - manufactured
@@ -351,7 +351,7 @@ item57.final <- data.frame(item57.final)
 # Export table
 item57.final.MH <- item57.final[which(item57.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item57.final.MH, "MH", "Table 44",weighted = FALSE)
+exportTable(item57.final.MH, "MH", "Table 44",weighted = FALSE)
 
  
 
@@ -407,8 +407,8 @@ item58.final <- mean_one_group(CustomerLevelData = item58.data
 item58.final.SF <- item58.final[which(item58.final$BuildingType == "Single Family"),-1]
 item58.final.MH <- item58.final[which(item58.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item58.final.SF, "SF", "Table 65", weighted = TRUE)
-# exportTable(item58.final.MH, "MH", "Table 45", weighted = TRUE)
+# exportTable(item58.final.SF, "SF", "Table 65", weighted = TRUE)
+exportTable(item58.final.MH, "MH", "Table 45", weighted = TRUE)
 
 
 
@@ -426,8 +426,8 @@ item58.final <- mean_one_group_unweighted(CustomerLevelData = item58.data
 item58.final.SF <- item58.final[which(item58.final$BuildingType == "Single Family"),-1]
 item58.final.MH <- item58.final[which(item58.final$BuildingType == "Manufactured"),-1]
 
-exportTable(item58.final.SF, "SF", "Table 65", weighted = FALSE)
-# exportTable(item58.final.MH, "MH", "Table 45", weighted = FALSE)
+# exportTable(item58.final.SF, "SF", "Table 65", weighted = FALSE)
+exportTable(item58.final.MH, "MH", "Table 45", weighted = FALSE)
 
 
 
