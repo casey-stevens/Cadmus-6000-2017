@@ -74,8 +74,8 @@ item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family")
 item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),-1]
 
 #export data
-exportTable(item7.final.SF, "SF", "Table 14", weighted = TRUE)
-# exportTable(item7.final.MH, "MH", "Table 12", weighted = TRUE)
+# exportTable(item7.final.SF, "SF", "Table 14", weighted = TRUE)
+exportTable(item7.final.MH, "MH", "Table 12", weighted = TRUE)
 
 
 
@@ -91,8 +91,8 @@ item7.final <- mean_one_group_unweighted(CustomerLevelData = item7.data
 item7.final.SF <- item7.final[which(item7.final$BuildingType == "Single Family"),-1]
 item7.final.MH <- item7.final[which(item7.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item7.final.SF, "SF", "Table 14", weighted = FALSE)
-# exportTable(item7.final.MH, "MH", "Table 12", weighted = FALSE)
+# exportTable(item7.final.SF, "SF", "Table 14", weighted = FALSE)
+exportTable(item7.final.MH, "MH", "Table 12", weighted = FALSE)
 
 
 
@@ -145,8 +145,8 @@ item8.final <- mean_one_group(CustomerLevelData = item8.data
 item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),-1]
 item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item8.final.SF, "SF", "Table 15", weighted = TRUE)
-# exportTable(item8.final.MH, "MH", "Table 13", weighted = TRUE)
+# exportTable(item8.final.SF, "SF", "Table 15", weighted = TRUE)
+exportTable(item8.final.MH, "MH", "Table 13", weighted = TRUE)
 
 
 
@@ -163,8 +163,8 @@ item8.final <- mean_one_group_unweighted(CustomerLevelData = item8.data
 item8.final.SF <- item8.final[which(item8.final$BuildingType == "Single Family"),-1]
 item8.final.MH <- item8.final[which(item8.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item8.final.SF, "SF", "Table 15", weighted = FALSE)
-# exportTable(item8.final.MH, "MH", "Table 13", weighted = FALSE)
+# exportTable(item8.final.SF, "SF", "Table 15", weighted = FALSE)
+exportTable(item8.final.MH, "MH", "Table 13", weighted = FALSE)
 
 
 
@@ -249,8 +249,8 @@ item9.final.MH <- item9.final[which(item9.final$BuildingType == "Manufactured"),
 
 
 #export data
-exportTable(item9.final.SF, "SF", "Table 16", weighted = TRUE)
-# exportTable(item9.final.MH, "MH", "Table 14", weighted = TRUE)
+# exportTable(item9.final.SF, "SF", "Table 16", weighted = TRUE)
+exportTable(item9.final.MH, "MH", "Table 14", weighted = TRUE)
 
 
 ################################
@@ -268,8 +268,8 @@ item9.final.MH <- item9.final[which(item9.final$BuildingType == "Manufactured"),
 
 
 #export data
-exportTable(item9.final.SF, "SF", "Table 16", weighted = FALSE)
-# exportTable(item9.final.MH, "MH", "Table 14", weighted = FALSE)
+# exportTable(item9.final.SF, "SF", "Table 16", weighted = FALSE)
+exportTable(item9.final.MH, "MH", "Table 14", weighted = FALSE)
 
 
 

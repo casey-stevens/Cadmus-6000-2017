@@ -342,9 +342,9 @@ wall.merge <- data.frame(left_join(rbsa.wall, prep.dat4.9, by = c("CK_Building_I
 wall.merge <- wall.merge[which(!is.na(wall.merge$uvalue)),]
 #########export rvalues
 ##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(wall.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Wall Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(wall.merge, paste(filepathCleaningDocs, "Insulation Exports", paste("Wall Insulation Values ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 
@@ -1088,7 +1088,7 @@ item12.table <- data.frame(item12.table)
 item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-# exportTable(item12.table.MH, "MH", "Table 16", weighted = TRUE)
+exportTable(item12.table.MH, "MH", "Table 16", weighted = TRUE)
 
 
 ############################################################################################################
@@ -1169,7 +1169,7 @@ item12.table <- data.frame(item12.table)
 item12.table.MH <- item12.table[which(item12.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-# exportTable(item12.table.MH, "MH", "Table 16", weighted = FALSE)
+exportTable(item12.table.MH, "MH", "Table 16", weighted = FALSE)
 
 
 
@@ -1372,7 +1372,7 @@ tableAP.table <- data.frame("BuildingType"       = tableAP.cast$BuildingType
 tableAP.table.MH <- tableAP.table[which(tableAP.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-# exportTable(tableAP.table.MH, "MH", "Table AP", weighted = TRUE)
+exportTable(tableAP.table.MH, "MH", "Table AP", weighted = TRUE)
 
 
 
@@ -1412,7 +1412,7 @@ tableAP.table <- data.frame("BuildingType"       = tableAP.cast$BuildingType
 tableAP.table.MH <- tableAP.table[which(tableAP.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-# exportTable(tableAP.table.MH, "MH", "Table AP", weighted = FALSE)
+exportTable(tableAP.table.MH, "MH", "Table AP", weighted = FALSE)
 
 
 

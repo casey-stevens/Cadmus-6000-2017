@@ -32,6 +32,9 @@ envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK_Cadmus_ID)))
 
+one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
+one.line.dat$CK_Cadmus_ID <- trimws(toupper(one.line.dat$Cadmus.ID))
+
 # Bring in clean ground contact types
 GroundContactTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "Ground Contact Types.xlsx"), sheet = 1)
 GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) %in% c("Raw.data.categories", "Final"))]
@@ -42,30 +45,32 @@ GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) %in%
 #############################################################################################
 # Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE 
 #############################################################################################
-env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                            , "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
-colnames(env.dat) <- c("CK_Cadmus_ID"
-                       , "FoundationType")
+
+env.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
+                                                            , "Foundation.Type"))]
+colnames(env.dat) <- c("FoundationType","CK_Cadmus_ID")
 env.dat1 <- env.dat[which(!(is.na(env.dat$FoundationType))),]
 env.dat1$FoundationType <- trimws(env.dat1$FoundationType)
 
 #merge table columns to generic columns
 item3.dat <- unique(left_join(rbsa.dat, env.dat1, by = "CK_Cadmus_ID"))
 
+unique(item3.dat$FoundationType)
 
+length(unique(item3.dat$CK_Cadmus_ID[which(item3.dat$FoundationType == "Other")]))
 
-# Clean Ground Contact types
-i=10
+# # Clean Ground Contact types
+# i=10
 item3.dat$GroundContact <- item3.dat$FoundationType
-for (i in 1:length(GroundContactTypes$Raw.data.categories)){
-  item3.dat$GroundContact[which(item3.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
-}
-item3.dat$GroundContact <- trimws(item3.dat$GroundContact)
-# End cleaning Step
-unique(item3.dat$GroundContact)
-
-item3.dat$GroundContact <- gsub("&gt; ",">", item3.dat$GroundContact)
-item3.dat$GroundContact[grep("90% crawl", item3.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace" 
+# for (i in 1:length(GroundContactTypes$Raw.data.categories)){
+#   item3.dat$GroundContact[which(item3.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
+# }
+# item3.dat$GroundContact <- trimws(item3.dat$GroundContact)
+# # End cleaning Step
+# unique(item3.dat$GroundContact)
+# 
+# item3.dat$GroundContact <- gsub("&gt; ",">", item3.dat$GroundContact)
+# item3.dat$GroundContact[grep("90% crawl", item3.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace"
 
 # Remove unwanted ground contact types
 item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA, 0)),]
@@ -128,7 +133,7 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
-exportTable(item3.table.SF, "SF", "Table 10", weighted = TRUE)
+# exportTable(item3.table.SF, "SF", "Table 10", weighted = TRUE)
 
 
 
@@ -165,7 +170,7 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
-exportTable(item3.table.SF, "SF", "Table 10", weighted = FALSE)
+# exportTable(item3.table.SF, "SF", "Table 10", weighted = FALSE)
 
 
 
@@ -228,8 +233,8 @@ item4.final <- mean_one_group(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
-# exportTable(item4.table.MH, "MH", "Table 10", weighted = TRUE)
+# exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
+exportTable(item4.table.MH, "MH", "Table 10", weighted = TRUE)
 
 
 
@@ -245,8 +250,8 @@ item4.final <- mean_one_group_unweighted(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item4.table.SF, "SF", "Table 11", weighted = FALSE)
-# exportTable(item4.table.MH, "MH", "Table 10", weighted = FALSE)
+# exportTable(item4.table.SF, "SF", "Table 11", weighted = FALSE)
+exportTable(item4.table.MH, "MH", "Table 10", weighted = FALSE)
 
 
 
@@ -353,8 +358,8 @@ item5.table <- data.frame(item5.table)
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item5.table.SF, "SF", "Table 12", weighted = TRUE)
-# exportTable(item5.table.MH, "MH", "Table 11", weighted = TRUE)
+# exportTable(item5.table.SF, "SF", "Table 12", weighted = TRUE)
+exportTable(item5.table.MH, "MH", "Table 11", weighted = TRUE)
 
 
 
@@ -403,8 +408,8 @@ item5.table <- data.frame(item5.table)
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item5.table.SF, "SF", "Table 12", weighted = FALSE)
-# exportTable(item5.table.MH, "MH", "Table 11", weighted = FALSE)
+# exportTable(item5.table.SF, "SF", "Table 12", weighted = FALSE)
+exportTable(item5.table.MH, "MH", "Table 11", weighted = FALSE)
 
 
 
