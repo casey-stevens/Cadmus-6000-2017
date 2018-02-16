@@ -439,17 +439,18 @@ exportTable(item34.final.SF, "SF", "Table 41", weighted = FALSE)
 #
 #
 ############################################################################################################
-
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+subset.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 32: DISTRIBUTION OF DOOR TYPES
 #############################################################################################
-
 item32.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
                                                                          ,"Type"
                                                                          ,"Sub-Type"
@@ -457,7 +458,7 @@ item32.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_
                                                                          ,"Quantity"
                                                                          ,"Frame./.Body.Type"
                                                                          ,"Glazing.Type"))]
-item32.os.dat1 <- left_join(scl.dat, item32.os.dat, by = "CK_Cadmus_ID")
+item32.os.dat1 <- left_join(os.dat, item32.os.dat, by = "CK_Cadmus_ID")
 length(unique(item32.os.dat1$CK_Cadmus_ID)) 
 
 #subset to only doors
@@ -620,7 +621,7 @@ item33.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_
                                                                          ,"Quantity"
                                                                          ,"Frame./.Body.Type"
                                                                          ,"Glazing.Type"))]
-item33.os.dat1 <- left_join(scl.dat, item33.os.dat, by = "CK_Cadmus_ID")
+item33.os.dat1 <- left_join(os.dat, item33.os.dat, by = "CK_Cadmus_ID")
 length(unique(item33.os.dat1$CK_Cadmus_ID))
 
 #subset to only windows
@@ -796,7 +797,7 @@ item34.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_
                                                                          ,"Quantity"
                                                                          ,"Frame./.Body.Type"
                                                                          ,"Glazing.Type"))]
-item34.os.dat1 <- left_join(scl.dat, item34.os.dat, by = "CK_Cadmus_ID")
+item34.os.dat1 <- left_join(os.dat, item34.os.dat, by = "CK_Cadmus_ID")
 length(unique(item34.os.dat1$CK_Cadmus_ID))
 
 item34.os.dat1$Indicator <- 0
@@ -805,7 +806,7 @@ item34.os.dat1$Indicator[grep("storm",item34.os.dat1$Type, ignore.case = T)] <- 
 item34.os.summary <- summarise(group_by(item34.os.dat1, CK_Cadmus_ID)
                             ,Ind = sum(unique(Indicator)))
 
-item34.os.merge <- left_join(scl.dat, item34.os.summary)
+item34.os.merge <- left_join(os.dat, item34.os.summary)
 item34.os.merge <- item34.os.merge[which(!is.na(item34.os.merge$Ind)),]
 
 
