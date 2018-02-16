@@ -31,10 +31,6 @@ appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.exp
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
-
-names(appliances.dat)
-colnames(appliances.dat)[grep("wifi", colnames(appliances.dat), ignore.case = T)]
-
 #############################################################################################
 #Item 90: DISTRIBUTION OF CLOTHES DRYERS BY VINTAGE (SF table 97, MH table 78)
 #############################################################################################

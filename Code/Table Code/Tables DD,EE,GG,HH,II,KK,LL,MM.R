@@ -50,9 +50,9 @@ tableDD.merge <- left_join(rbsa.dat, tableDD.dat0, by = "CK_Cadmus_ID")
 tableDD.merge <- tableDD.merge[which(!is.na(tableDD.merge$Thermostat.Type)),]
 
 unique(tableDD.merge$Thermostat.Type)
-tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual thermostat - Digital"
-tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable thermostat"
-tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual thermostat - Analog"
+tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual Thermostat - Digital"
+tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable Thermostat"
+tableDD.merge$Thermostat.Type[which(tableDD.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual Thermostat - Analog"
 
 
 
@@ -106,12 +106,12 @@ tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
 )
 
 levels(tableDD.table$Thermostat.Type)
-rowOrder <- c("Manual thermostat - Analog"
-              ,"Manual thermostat - Digital"
-              ,"Programmable thermostat"
-              ,"Smart thermostat"
-              ,"Smart/Wi-Fi thermostat"
-              ,"Wi-Fi enabled thermostat"
+rowOrder <- c("Manual Thermostat - Analog"
+              ,"Manual Thermostat - Digital"
+              ,"Programmable Thermostat"
+              ,"Smart Thermostat"
+              ,"Smart/Wi-Fi Thermostat"
+              ,"Wi-Fi Enabled Thermostat"
               ,"None"
               ,"Unknown"
               ,"Total")
@@ -124,7 +124,7 @@ tableDD.table.MH <- tableDD.table[which(tableDD.table$BuildingType == "Manufactu
                                   ,which(colnames(tableDD.table) %notin% c("BuildingType"))]
 
 exportTable(tableDD.table.SF, "SF", "Table DD", weighted = TRUE)
-exportTable(tableDD.table.MH, "MH", "Table DD", weighted = TRUE)
+# exportTable(tableDD.table.MH, "MH", "Table DD", weighted = TRUE)
 
 #######################
 # MULTIFAMILY
@@ -135,7 +135,7 @@ tableDD.final.MF <- proportions_one_group(CustomerLevelData = tableDD.data
                                           ,total.name = "All Types")
 tableDD.table.MF <- tableDD.final.MF[which(tableDD.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableDD.final.MF) != "BuildingType")]
-exportTable(tableDD.table.MF, "MF", "Table DD", weighted = TRUE)
+# exportTable(tableDD.table.MF, "MF", "Table DD", weighted = TRUE)
 
 
 #######################
@@ -171,13 +171,12 @@ tableDD.table <- data.frame("BuildingType"    = tableDD.cast$BuildingType
 )
 
 levels(tableDD.table$Thermostat.Type)
-rowOrder <- c("Hand remote"
-              ,"Manual thermostat - Analog"
-              ,"Manual thermostat - Digital"
-              ,"Programmable thermostat"
-              ,"Smart thermostat"
-              ,"Smart/Wi-Fi thermostat"
-              ,"Wi-Fi enabled thermostat"
+rowOrder <- c("Manual Thermostat - Analog"
+              ,"Manual Thermostat - Digital"
+              ,"Programmable Thermostat"
+              ,"Smart Thermostat"
+              ,"Smart/Wi-Fi Thermostat"
+              ,"Wi-Fi Enabled Thermostat"
               ,"None"
               ,"Unknown"
               ,"Total")
@@ -190,7 +189,7 @@ tableDD.table.MH <- tableDD.table[which(tableDD.table$BuildingType == "Manufactu
                                   ,which(colnames(tableDD.table) %notin% c("BuildingType"))]
 
 exportTable(tableDD.table.SF, "SF", "Table DD", weighted = FALSE)
-exportTable(tableDD.table.MH, "MH", "Table DD", weighted = FALSE)
+# exportTable(tableDD.table.MH, "MH", "Table DD", weighted = FALSE)
 
 #######################
 # MULTIFAMILY
@@ -202,7 +201,7 @@ tableDD.final.MF <- proportions_one_group(CustomerLevelData = tableDD.data
                                           ,weighted = FALSE)
 tableDD.table.MF <- tableDD.final.MF[which(tableDD.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableDD.final.MF) != "BuildingType")]
-exportTable(tableDD.table.MF, "MF", "Table DD", weighted = FALSE)
+# exportTable(tableDD.table.MF, "MF", "Table DD", weighted = FALSE)
 
 
 

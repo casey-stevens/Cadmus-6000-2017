@@ -60,9 +60,9 @@ mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (cord)"
 unique(mechanical.dat2$Heating.Fuel)
 
 for (ii in 1:nrow(mechanical.dat2)){
-  if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-    mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
-  }
+  # if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
+  # }
   if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
     mechanical.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }

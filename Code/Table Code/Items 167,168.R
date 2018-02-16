@@ -25,7 +25,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -79,6 +79,9 @@ item167.merge <- item167.merge[which(!is.na(item167.merge$Heating.Fuel)),]
 item167.mechanical <- item167.merge
 
 
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(item167.data, paste(filepathCleaningDocs, "Insulation Exports", paste("UA Cadmus IDs ", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 
 
 

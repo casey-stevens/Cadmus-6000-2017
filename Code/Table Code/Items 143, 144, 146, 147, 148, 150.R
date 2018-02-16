@@ -85,7 +85,6 @@ length(unique(mechanical.dat5$CK_Cadmus_ID))
 mechanical.dat5$count <- 1
 
 unique(mechanical.dat5$Heating_Fuel)
-mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
 mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
 
 #############################################################################################

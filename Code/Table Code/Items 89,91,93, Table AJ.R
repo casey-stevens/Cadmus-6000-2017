@@ -25,13 +25,13 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
+
 #Read in data for analysis
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
-
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
-appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
 #############################################################################################
 #Item 89: AVERAGE NUMBER OF CLOTHES WASHER LOADS PER WEEK BY STATE (SF table 96, MH table 77)
@@ -130,6 +130,7 @@ tableAJ.dat1$Washer.Size <- as.numeric(as.character(tableAJ.dat1$Washer.Size))
 unique(tableAJ.dat1$Washer.Size)
 
 tableAJ.dat2 <- left_join(rbsa.dat, tableAJ.dat1, by = "CK_Cadmus_ID")
+tableAJ.dat2 <- tableAJ.dat2[which(!is.na(tableAJ.dat2$Washer.Size)),]
 tableAJ.dat2$CK_Cadmus_ID[which(duplicated(tableAJ.dat2$CK_Cadmus_ID))]
 
 # Weighting

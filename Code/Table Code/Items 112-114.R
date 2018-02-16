@@ -162,7 +162,7 @@ exportTable(item113.final.SF, "SF", "Table 120", weighted = TRUE)
 
 
 #######################
-# Weighted Analysis
+# unWeighted Analysis
 #######################
 item113.final <- proportions_one_group(CustomerLevelData = item113.data
                                        ,valueVariable = 'Ind'

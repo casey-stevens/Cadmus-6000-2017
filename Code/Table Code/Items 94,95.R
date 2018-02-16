@@ -44,9 +44,11 @@ item94.dat0 <- item94.dat[which(item94.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 item94.dat1 <- left_join(rbsa.dat, item94.dat0, by = "CK_Cadmus_ID")
 item94.dat2 <- item94.dat1[which(item94.dat1$Type == "Stove/Oven"),]
-
-item94.dat3 <- item94.dat2[which(item94.dat2$Stove.Fuel %notin% c("No Stove", "No Cooktop", NA)),]
+unique(item94.dat2$Stove.Fuel)
+item94.dat2$Stove.Fuel[which(item94.dat2$Stove.Fuel %in% c("Gas", "gas", "natural gas", "Natural Gas"))] <- "Gas"
+item94.dat3 <- item94.dat2[which(item94.dat2$Stove.Fuel %notin% c("No oven ", "No oven", "No Oven", "No Cooktop", "No Stove", NA)),]
 item94.dat3$Stove.Fuel[which(item94.dat3$Stove.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
+unique(item94.dat3$Stove.Fuel)
 
 
 ################################################
@@ -136,9 +138,12 @@ item95.dat0 <- item95.dat[which(item95.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item95.dat1 <- left_join(rbsa.dat, item95.dat0, by = "CK_Cadmus_ID")
 item95.dat2 <- item95.dat1[which(item95.dat1$Type == "Stove/Oven"),]
 unique(item95.dat2$Oven.Fuel)
-item95.dat3 <- item95.dat2[which(item95.dat2$Oven.Fuel %notin% c("No Oven", "No Cooktop", "No Stove", NA)),]
+item95.dat2$Oven.Fuel[which(item95.dat2$Oven.Fuel %in% c("Gas", "gas", "natural gas", "Natural Gas"))] <- "Gas"
+item95.dat3 <- item95.dat2[which(item95.dat2$Oven.Fuel %notin% c("No oven ", "No oven", "No Oven", "No Cooktop", "No Stove", NA)),]
+unique(item95.dat3$Oven.Fuel)
 
 item95.dat3$Oven.Fuel[which(item95.dat3$Oven.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
+unique(item95.dat3$Oven.Fuel)
 
 
 ################################################

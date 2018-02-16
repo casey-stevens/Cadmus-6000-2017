@@ -51,28 +51,28 @@ item43.dat1 <- item43.dat[which(item43.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item43.dat2 <- item43.dat1[which(item43.dat1$Primary.Heating.System %in% c("Yes", "No")),]
 #check uniques
 unique(item43.dat2$Primary.Heating.System)
-
+unique(item43.dat2$Generic)
 
 
 item43.dat2$Heating.System.Ind <- item43.dat2$Primary.Heating.System
 item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
 item43.dat2$Heating.System.Ind[which(item43.dat2$Primary.Heating.System == "No")]  <- "Secondary Heating System"
 
-unique(item43.dat2$`System.Sub-Type`)
+item43.dat2$`System.Sub-Type`[grep("plug-in|plug in", item43.dat2$`System.Sub-Type`, ignore.case = T)]
 
 for (ii in 1:nrow(item43.dat2)){
   # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
   #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
   # }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
     item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater")){
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
     item43.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
 
-item43.dat2$Generic[grep("Electric Baseboard",item43.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
+item43.dat2$Generic[grep("Baseboard",item43.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item43.dat2$Generic[grep("zonal heat",item43.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
 item43.dat2$Generic[grep("ductless",item43.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
 item43.dat2$Generic[grep("furnace",item43.dat2$Generic,ignore.case = T)] <- "Furnace"
@@ -96,8 +96,10 @@ unique(item43.dat5$Primary_Secondary)
 
 length(unique(item43.dat5$CK_Cadmus_ID[which(item43.dat5$BuildingType == "Single Family")]))
 nrow(item43.dat5[which(item43.dat5$BuildingType == "Single Family"),])
-dup.ids <- data.frame(item43.dat5$CK_Cadmus_ID[which(duplicated(item43.dat5$CK_Cadmus_ID) & item43.dat5$BuildingType == "Single Family")])
+dup.ids <- item43.dat5$CK_Cadmus_ID[which(duplicated(item43.dat5$CK_Cadmus_ID) & item43.dat5$BuildingType == "Single Family")]
 item43.dat5$count <- 1
+
+item43.duplicates <- item43.dat5[which(item43.dat5$CK_Cadmus_ID %in% dup.ids),]
 
 item43.dat6 <- item43.dat5[which(item43.dat5$Heating_Type %notin% c("N/A",NA)),]
 unique(item43.dat6$Heating_Type)
@@ -126,8 +128,8 @@ item43.final.SF <- item43.final[which(item43.final$BuildingType == "Single Famil
 item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item43.final) %in% c("BuildingType"))]
 
-# exportTable(item43.final.SF, "SF", "Table 50", weighted = TRUE)
-exportTable(item43.final.MH, "MH", "Table 32", weighted = TRUE)
+exportTable(item43.final.SF, "SF", "Table 50", weighted = TRUE)
+# exportTable(item43.final.MH, "MH", "Table 32", weighted = TRUE)
 
 #########################
 # unWeighted Analysis
@@ -145,8 +147,8 @@ item43.final.SF <- item43.final[which(item43.final$BuildingType == "Single Famil
 item43.final.MH <- item43.final[which(item43.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item43.final) %in% c("BuildingType"))]
 
-# exportTable(item43.final.SF, "SF", "Table 50", weighted = FALSE)
-exportTable(item43.final.MH, "MH", "Table 32", weighted = FALSE)
+exportTable(item43.final.SF, "SF", "Table 50", weighted = FALSE)
+# exportTable(item43.final.MH, "MH", "Table 32", weighted = FALSE)
 
 
 
@@ -169,15 +171,17 @@ item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Wood (pellets)")] <-
 item44.dat2$Heating.Fuel[which(item44.dat2$Heating.Fuel == "Wood (cord)")]    <- "Wood"
 unique(item44.dat2$Heating.Fuel)
 
-for (ii in 1:nrow(item44.dat2)){
-  # if (item44.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-  #   item44.dat2$Generic[ii] <- item44.dat2$`System.Sub-Type`[ii]
+for (ii in 1:nrow(item43.dat2)){
+  # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
   # }
-  if (item44.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
-    item44.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+    item43.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
-
 item44.dat2$Generic[grep("Electric Baseboard",item44.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item44.dat2$Generic[grep("zonal heat",item44.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
 item44.dat2$Generic[grep("ductless",item44.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
@@ -270,8 +274,8 @@ item44.final.SF <- item44.table[which(item44.table$BuildingType == "Single Famil
 item44.final.MH <- item44.table[which(item44.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item44.table) %in% c("BuildingType"))]
 
-# exportTable(item44.final.SF, "SF", "Table 51", weighted = TRUE)
-exportTable(item44.final.MH, "MH", "Table 33", weighted = TRUE)
+exportTable(item44.final.SF, "SF", "Table 51", weighted = TRUE)
+# exportTable(item44.final.MH, "MH", "Table 33", weighted = TRUE)
 
 #############################
 # Unweighted Analysis
@@ -312,8 +316,8 @@ item44.final.SF <- item44.table[which(item44.table$BuildingType == "Single Famil
 item44.final.MH <- item44.table[which(item44.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item44.table) %in% c("BuildingType"))]
 
-# exportTable(item44.final.SF, "SF", "Table 51", weighted = FALSE)
-exportTable(item44.final.MH, "MH", "Table 33", weighted = FALSE)
+exportTable(item44.final.SF, "SF", "Table 51", weighted = FALSE)
+# exportTable(item44.final.MH, "MH", "Table 33", weighted = FALSE)
 
 
 
@@ -335,25 +339,25 @@ item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System == "Yes"
 item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System ==  "No")] <- "Secondary Heating System"
 
 
-for (ii in 1:nrow(item45.dat2)){
-  # if (item45.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-  #   item45.dat2$Generic[ii] <- item45.dat2$`System.Sub-Type`[ii]
+for (ii in 1:nrow(item43.dat2)){
+  # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
   # }
-  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
-    item45.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
-  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater")){
-    item45.dat2$Generic[ii] <- "Plug-In Heaters"
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+    item43.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
-
+unique(item45.dat2$Generic)
 item45.dat2$Generic[grep("baseboard",item45.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item45.dat2$Generic[grep("zonal heat",item45.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
 item45.dat2$Generic[grep("plug in|plug-in",item45.dat2$Generic,ignore.case = T)] <- "Plug-In Heaters"
 item45.dat2$Generic[which(item45.dat2$Generic == "Heat Pump")] <- "Air Source Heat Pump"
 item45.dat2$Generic[grep("ductless",item45.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
 item45.dat2$Generic[grep("furnace",item45.dat2$Generic,ignore.case = T)] <- "Furnace"
-item45.dat2$Generic[grep("boiler",item45.dat2$Generic,ignore.case = T)] <- "Boiler"
+item45.dat2$Generic[grep("boiler|storage water heater",item45.dat2$Generic,ignore.case = T)] <- "Boiler"
 item45.dat2$Generic[grep("Packaged AC",item45.dat2$Generic,ignore.case = T)] <- "Packaged AC"
 item45.dat2$Generic[grep("Stove/Fireplace",item45.dat2$Generic,ignore.case = T)] <- "Stove/Fireplace"
 item45.dat2$Generic[which(item45.dat2$Generic == "Package Terminal Heat Pump")] <- "Packaged HP"
@@ -395,8 +399,8 @@ item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Famil
 item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item45.final) %in% c("BuildingType"))]
 
-# exportTable(item45.final.SF, "SF", "Table 52", weighted = TRUE)
-exportTable(item45.final.MH, "MH", "Table 34", weighted = TRUE)
+exportTable(item45.final.SF, "SF", "Table 52", weighted = TRUE)
+# exportTable(item45.final.MH, "MH", "Table 34", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -413,8 +417,8 @@ item45.final.SF <- item45.final[which(item45.final$BuildingType == "Single Famil
 item45.final.MH <- item45.final[which(item45.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item45.final) %in% c("BuildingType"))]
 
-# exportTable(item45.final.SF, "SF", "Table 52", weighted = FALSE)
-exportTable(item45.final.MH, "MH", "Table 34", weighted = FALSE)
+exportTable(item45.final.SF, "SF", "Table 52", weighted = FALSE)
+# exportTable(item45.final.MH, "MH", "Table 34", weighted = FALSE)
 
 
 
@@ -438,15 +442,17 @@ item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural gas")]      
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural Gas")]       <- "Gas"
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Fuel oil/kerosene")] <- "Oil"
 
-for (ii in 1:nrow(item46.dat2)){
-  # if (item46.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-  #   item46.dat2$Generic[ii] <- item46.dat2$`System.Sub-Type`[ii]
+for (ii in 1:nrow(item43.dat2)){
+  # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
   # }
-  if (item46.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
-    item46.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+    item43.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
-
 item46.dat2$Generic[grep("Electric Baseboard",item46.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item46.dat2$Generic[grep("zonal heat",item46.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
 item46.dat2$Generic[grep("ductless",item46.dat2$Generic,ignore.case = T)] <- "Mini-split HP"
@@ -537,8 +543,8 @@ item46.final.SF <- item46.table[which(item46.table$BuildingType == "Single Famil
 item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item46.table) %in% c("BuildingType"))]
 
-# exportTable(item46.final.SF, "SF", "Table 53", weighted = TRUE)
-exportTable(item46.final.MH, "MH", "Table 35", weighted = TRUE)
+exportTable(item46.final.SF, "SF", "Table 53", weighted = TRUE)
+# exportTable(item46.final.MH, "MH", "Table 35", weighted = TRUE)
 
 
 ################################
@@ -579,8 +585,8 @@ item46.final.SF <- item46.table[which(item46.table$BuildingType == "Single Famil
 item46.final.MH <- item46.table[which(item46.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item46.table) %in% c("BuildingType"))]
 
-# exportTable(item46.final.SF, "SF", "Table 53", weighted = FALSE)
-exportTable(item46.final.MH, "MH", "Table 35", weighted = FALSE)
+exportTable(item46.final.SF, "SF", "Table 53", weighted = FALSE)
+# exportTable(item46.final.MH, "MH", "Table 35", weighted = FALSE)
 
 
 

@@ -64,8 +64,8 @@ item99.dat3$Heating.Fuel[grep("Gas",item99.dat3$Heating.Fuel, ignore.case = T)] 
 item99.dat3$Heating.Fuel[grep("unk|N/A|Other|from|can't",item99.dat3$Heating.Fuel, ignore.case = T)] <- NA
 item99.dat3$Heating.Fuel[grep("oil|kero",item99.dat3$Heating.Fuel, ignore.case = T)]                 <- "Oil"
 item99.dat3$Heating.Fuel[grep("Elect",item99.dat3$Heating.Fuel, ignore.case = T)]                    <- "Electric"
-item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (pellets)")]                        <- "Pellets"
-item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (cord)")]                           <- "Wood"
+item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (Pellets)")]                        <- "Pellets"
+item99.dat3$Heating.Fuel[which(item99.dat3$Heating.Fuel == "Wood (Cord)")]                           <- "Wood"
 
 item99.dat4 <- item99.dat3[which(!is.na(item99.dat3$Heating.Fuel)),]
 
@@ -79,11 +79,6 @@ item99.sum1 <- summarise(group_by(item99.heat, CK_Cadmus_ID, BuildingType, Heati
 
 item99.sum1$Count <- 1
 unique(item99.sum1$Heating.Fuel)
-
-# #manual heating fuel types for sites with only zonal heat
-# item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS60190 OS BPA")] <- "Pellets"
-# item99.sum1$Heating.Fuel[which(item99.sum1$CK_Cadmus_ID == "RBS73757 OS BPA")] <- "Pellets"
-
 item99.unique <- unique(item99.sum1)
 
 #find duplicates of 
@@ -111,6 +106,7 @@ item99.join <- left_join(rbsa.dat, item99.merge2)
 item99.join <- item99.join[which(!is.na(item99.join$Heating.Fuel)),]
 item99.join1 <- item99.join[which(item99.join$DHW.Location != "Unknown"),]
 
+unique(item99.join$DHW.Location)
 item99.join1$DHW.Location[grep("Crawl",item99.join1$DHW.Location)] <- "Crawlspace"
 item99.join1$DHW.Location[grep("In building",item99.join1$DHW.Location)] <- "Main House"
 
@@ -133,6 +129,146 @@ item99.data <- left_join(item99.data, item99.join1[which(colnames(item99.join1) 
                                                                                        ,"DHW.Count"
                                                                                        ,"DHW.Location"
                                                                                        ,"Heat.Count"))])
+#################################
+# Single Family Analysis
+#################################
+#######################
+# Weighted Analysis
+#######################
+item99.summary <- proportionRowsAndColumns1(CustomerLevelData = item99.data
+                                            ,valueVariable    = 'DHW.Count'
+                                            ,columnVariable   = 'Heating.Fuel'
+                                            ,rowVariable      = 'DHW.Location'
+                                            ,aggregateColumnName = "Remove")
+item99.summary <- item99.summary[which(item99.summary$Heating.Fuel %notin% c("Remove")),]
+
+item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
+                                          ,valueVariable = "DHW.Count"
+                                          ,groupingVariable = "DHW.Location"
+                                          ,total.name = "All Fuels"
+                                          ,columnName = "Heating.Fuel"
+                                          ,weighted = TRUE
+                                          ,two.prop.total = TRUE)
+
+item99.final <- rbind.data.frame(item99.summary, item99.all.fuels, stringsAsFactors = F)
+
+item99.cast <- dcast(setDT(item99.final)
+                     ,formula = BuildingType + DHW.Location ~ Heating.Fuel
+                     ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+names(item99.cast)
+item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
+                           ,"DHW.Location"        = item99.cast$DHW.Location
+                           ,"Percent.Electric"    = item99.cast$w.percent_Electric
+                           ,"SE.Electric"         = item99.cast$w.SE_Electric
+                           ,"n.Electric"          = item99.cast$n_Electric
+                           ,"Percent.Natural.Gas" = item99.cast$w.percent_Gas
+                           ,"SE.Natural.Gas"      = item99.cast$w.SE_Gas
+                           ,"n.Gas"               = item99.cast$n_Gas
+                           ,"Percent.Oil"         = item99.cast$w.percent_Oil
+                           ,"SE.Oil"              = item99.cast$w.SE_Oil
+                           ,"n.Oil"               = item99.cast$n_Oil
+                           ,"Percent.Pellets"     = item99.cast$w.percent_Pellets
+                           ,"SE.Pellets"          = item99.cast$w.SE_Pellets
+                           ,"n.Pellets"           = item99.cast$n_Pellets
+                           ,"Percent.Propane"     = item99.cast$w.percent_Propane
+                           ,"SE.Propane"          = item99.cast$w.SE_Propane
+                           ,"n.Propane"           = item99.cast$n_Propane
+                           ,"Percent.Wood"        = item99.cast$w.percent_Wood
+                           ,"SE.Wood"             = item99.cast$w.SE_Wood
+                           ,"n.Wood"              = item99.cast$n_Wood
+                           ,"Percent.All.Heating.Fuel.Types" = item99.cast$`w.percent_All Fuels`
+                           ,"SE.All.Heating.Fuel.Types"      = item99.cast$`w.SE_All Fuels`
+                           ,"n.All.Heating.Fuel.Types"       = item99.cast$`n_All Fuels`
+                           ,"EB_Electric"          = item99.cast$EB_Electric
+                           ,"EB_Gas"               = item99.cast$EB_Gas
+                           ,"EB_Oil"               = item99.cast$EB_Oil
+                           ,"EB_Pellets"           = item99.cast$EB_Pellets
+                           ,"EB_Propane"           = item99.cast$EB_Propane
+                           ,"EB_Wood"              = item99.cast$EB_Wood
+                           ,"EB_All.Heating.Fuels" = item99.cast$`EB_All Fuels`)
+
+levels(item99.table$DHW.Location)
+rowOrder <- c("Basement"
+              ,"Crawlspace"
+              ,"Garage"
+              ,"Other"
+              ,"Main House"
+              ,"Total")
+item99.table <- item99.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
+item99.table <- data.frame(item99.table)
+
+item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Family")
+                                ,-which(colnames(item99.table) %in% c("BuildingType"))]
+exportTable(item99.final.SF, "SF", "Table 106", weighted = TRUE)
+
+
+#######################
+# unweighted Analysis
+#######################
+item99.summary <- proportions_two_groups_unweighted(CustomerLevelData = item99.data
+                                                    ,valueVariable    = 'DHW.Count'
+                                                    ,columnVariable   = 'Heating.Fuel'
+                                                    ,rowVariable      = 'DHW.Location'
+                                                    ,aggregateColumnName = "Remove")
+item99.summary <- item99.summary[which(item99.summary$Heating.Fuel %notin% c("Remove")),]
+
+item99.all.fuels <- proportions_one_group(CustomerLevelData = item99.data
+                                          ,valueVariable = "DHW.Count"
+                                          ,groupingVariable = "DHW.Location"
+                                          ,total.name = "All Fuels"
+                                          ,columnName = "Heating.Fuel"
+                                          ,weighted = FALSE
+                                          ,two.prop.total = TRUE)
+
+item99.final <- rbind.data.frame(item99.summary, item99.all.fuels, stringsAsFactors = F)
+
+item99.cast <- dcast(setDT(item99.final)
+                     ,formula = BuildingType + DHW.Location ~ Heating.Fuel
+                     ,value.var = c("Percent", "SE", "Count", "n"))
+
+item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
+                           ,"DHW.Location"        = item99.cast$DHW.Location
+                           ,"Percent.Electric"    = item99.cast$Percent_Electric
+                           ,"SE.Electric"         = item99.cast$SE_Electric
+                           ,"n.Electric"          = item99.cast$n_Electric
+                           ,"Percent.Natural.Gas" = item99.cast$Percent_Gas
+                           ,"SE.Natural.Gas"      = item99.cast$SE_Gas
+                           ,"n.Gas"               = item99.cast$n_Gas
+                           ,"Percent.Oil"         = item99.cast$Percent_Oil
+                           ,"SE.Oil"              = item99.cast$SE_Oil
+                           ,"n.Oil"               = item99.cast$n_Oil
+                           ,"Percent.Pellets"     = item99.cast$Percent_Pellets
+                           ,"SE.Pellets"          = item99.cast$SE_Pellets
+                           ,"n.Pellets"           = item99.cast$n_Pellets
+                           ,"Percent.Propane"     = item99.cast$Percent_Propane
+                           ,"SE.Propane"          = item99.cast$SE_Propane
+                           ,"n.Propane"           = item99.cast$n_Propane
+                           ,"Percent.Wood"        = item99.cast$Percent_Wood
+                           ,"SE.Wood"             = item99.cast$SE_Wood
+                           ,"n.Wood"              = item99.cast$n_Wood
+                           ,"Percent.All.Heating.Fuel.Types" = item99.cast$`Percent_All Fuels`
+                           ,"SE.All.Heating.Fuel.Types"      = item99.cast$`SE_All Fuels`
+                           ,"n_All.Heating.Fuel.Types"       = item99.cast$`n_All Fuels`)
+
+levels(item99.table$DHW.Location)
+rowOrder <- c("Basement"
+              ,"Crawlspace"
+              ,"Garage"
+              ,"Other"
+              ,"Main House"
+              ,"All Locations")
+item99.table <- item99.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
+item99.table <- data.frame(item99.table)
+
+item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Family")
+                                ,-which(colnames(item99.table) %in% c("BuildingType"))]
+
+exportTable(item99.final.SF, "SF", "Table 106", weighted = FALSE)
+
+
+#################################
+# Manufactured Analysis
+#################################
 #######################
 # Weighted Analysis
 #######################
@@ -167,7 +303,7 @@ item99.final <- rbind.data.frame(item99.summary, item99.all.fuels, item99.locati
 item99.cast <- dcast(setDT(item99.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-
+names(item99.cast)
 item99.table <- data.frame("BuildingType"         = item99.cast$BuildingType
                            ,"DHW.Location"        = item99.cast$DHW.Location
                            ,"Percent.Electric"    = item99.cast$w.percent_Electric
@@ -209,15 +345,10 @@ rowOrder <- c("Basement"
 item99.table <- item99.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
 item99.table <- data.frame(item99.table)
 
-item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Family")
-                                ,-which(colnames(item99.table) %in% c("BuildingType"))]
 item99.final.MH <- item99.table[which(item99.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item99.table) %in% c("BuildingType"))]
 
-exportTable(item99.final.SF, "SF", "Table 106", weighted = TRUE)
 # exportTable(item99.final.MH, "MH", "Table 86", weighted = TRUE)
-
-
 
 #######################
 # unweighted Analysis
@@ -288,13 +419,9 @@ rowOrder <- c("Basement"
 item99.table <- item99.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
 item99.table <- data.frame(item99.table)
 
-
-item99.final.SF <- item99.table[which(item99.table$BuildingType == "Single Family")
-                                ,-which(colnames(item99.table) %in% c("BuildingType"))]
 item99.final.MH <- item99.table[which(item99.table$BuildingType == "Manufactured")
                                 ,-which(colnames(item99.table) %in% c("BuildingType"))]
 
-exportTable(item99.final.SF, "SF", "Table 106", weighted = FALSE)
 # exportTable(item99.final.MH, "MH", "Table 86", weighted = FALSE)
 
 
@@ -335,8 +462,8 @@ item100.dat3$Heating.Fuel[grep("Gas|gas",item100.dat3$Heating.Fuel)] <- "Gas"
 item100.dat3$Heating.Fuel[grep("unk|Unk|N/A|Other|from",item100.dat3$Heating.Fuel)] <- NA
 item100.dat3$Heating.Fuel[grep("oil|Oil|kero|Kero",item100.dat3$Heating.Fuel)] <- "Oil"
 item100.dat3$Heating.Fuel[grep("Elect|elect",item100.dat3$Heating.Fuel)] <- "Electric"
-item100.dat3$Heating.Fuel[which(item100.dat3$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
-item100.dat3$Heating.Fuel[which(item100.dat3$Heating.Fuel == "Wood (cord)")] <- "Wood"
+item100.dat3$Heating.Fuel[which(item100.dat3$Heating.Fuel == "Wood (Pellets)")] <- "Pellets"
+item100.dat3$Heating.Fuel[which(item100.dat3$Heating.Fuel == "Wood (Cord)")] <- "Wood"
 
 item100.dat4 <- item100.dat3[which(!is.na(item100.dat3$Heating.Fuel)),]
 

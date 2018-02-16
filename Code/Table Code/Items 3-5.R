@@ -64,7 +64,8 @@ item3.dat$GroundContact <- trimws(item3.dat$GroundContact)
 # End cleaning Step
 unique(item3.dat$GroundContact)
 
-item3.dat$GroundContact <- gsub("&gt;",">", item3.dat$GroundContact)
+item3.dat$GroundContact <- gsub("&gt; ",">", item3.dat$GroundContact)
+item3.dat$GroundContact[grep("90% crawl", item3.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace" 
 
 # Remove unwanted ground contact types
 item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA, 0)),]

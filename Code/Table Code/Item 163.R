@@ -123,11 +123,12 @@ unique(prep.dat0$`Floor.Insulated?`)
 prep.dat0$`Slab.Insulated?`[which(prep.dat0$`Slab.Insulated?` != "Yes")] <- "No" ###treat anything not Yes as No
 
 prep.dat1.0 <- prep.dat0[which(!is.na(as.numeric(as.character(prep.dat0$Floor.Area)))),]
-prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Floor.Insulation.Thickness.1 != "Unknown"),]
-prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Slab.Insulation.Thickness.1 == "Unknown"),]
+
+prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Floor.Insulation.Thickness.1 %notin% c("Unknown")),]
+# prep.dat1.2 <- prep.dat1.1[-which(prep.dat1.1$Slab.Insulation.Thickness.1 == "Unknown"),]
 
 #assign new dataset
-prep.dat3 <- prep.dat1.2
+prep.dat3 <- prep.dat1.1
 
 #######################################################
 # Cleaning Steps

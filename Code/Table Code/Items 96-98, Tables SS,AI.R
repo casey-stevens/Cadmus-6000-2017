@@ -516,11 +516,11 @@ tableSS.table <- data.frame("BuildingType"       = tableSS.cast$BuildingType
                            ,"Mean_Region"       = tableSS.cast$Mean_Region
                            ,"SE_Region"         = tableSS.cast$SE_Region
                            ,"n_Region"          = tableSS.cast$n_Region
-                           ,"EB_ID"             = item96.cast$EB_ID
-                           ,"EB_MT"             = item96.cast$EB_MT
-                           ,"EB_OR"             = item96.cast$EB_OR
-                           ,"EB_WA"             = item96.cast$EB_WA
-                           ,"EB_Region"         = item96.cast$EB_Region
+                           ,"EB_ID"             = tableSS.cast$EB_ID
+                           ,"EB_MT"             = tableSS.cast$EB_MT
+                           ,"EB_OR"             = tableSS.cast$EB_OR
+                           ,"EB_WA"             = tableSS.cast$EB_WA
+                           ,"EB_Region"         = tableSS.cast$EB_Region
 )
 
 # row ordering example code

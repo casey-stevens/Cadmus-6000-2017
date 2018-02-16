@@ -146,16 +146,20 @@ central_Ac.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadm
                                                                         ,"Provides", "System.Type"))]
 
 central_Ac.dat1$AC <- 0
+unique(central_Ac.dat1$System.Type)
 central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pump",
+                                                            "Central Ac", 
                                                             "Central AC", 
-                                                            "Packaged AC",
+                                                            "Packaged Ac",
                                                             "Evaporative Cooling",
                                                             "GeoThermal Heat Pump",
-                                                            "Mini-split AC", 
+                                                            "Mini-Split Ac", 
                                                             "Water Source Heat Pump", 
-                                                            "Mini-split HP", 
-                                                            "Packaged HP",
-                                                            "Air Handler"))] <- 1
+                                                            "Mini-Split Hp", 
+                                                            "Packaged Hp",
+                                                            "Air Handler"
+                                                            ,"Package Terminal Heat Pump"
+                                                            ,"Packaged Unit"))] <- 1
 
 central_Ac.dat2 <- summarize(group_by(central_Ac.dat1,CK_Cadmus_ID),
                              ACtotal = sum(AC))
@@ -229,7 +233,7 @@ for (ii in colnames(UsageDataSF_Final6)){
 UsageDataSF_Final7 <- left_join(rbsa.dat, UsageDataSF_Final6)
 UsageDataSF_Final7 <- UsageDataSF_Final7[which(!is.na(UsageDataSF_Final7$count)),]
 which(duplicated(UsageDataSF_Final7$CK_Cadmus_ID))
-View(UsageDataSF_Final7)
+# View(UsageDataSF_Final7)
 
 unique(UsageDataSF_Final7$EUI)
 quantile(UsageDataSF_Final7$EUI)

@@ -118,17 +118,20 @@ prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                              , "Furred.Wall.Insulation.Type"                                   
                                                              , "Furred.Wall.Insulation.Thickness" ))]
 
-prep.dat0 <- prep.dat[which(prep.dat$`Wall.Cavity.Insulated?` %in% c("Yes", "No", "Datapoint not asked for")),]
+prep.dat0 <- prep.dat[which(prep.dat$Category %in% c("Wall")),]
 prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
 prep.dat0$`Furred.Wall.Insulated?`  [which(prep.dat0$`Furred.Wall.Insulated?`   != "Yes" & prep.dat0$Wall.Type %in%    c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
-prep.dat0.1 <- prep.dat0[which(prep.dat0$Wall.Area %notin% c("N/A",NA)),]
-prep.dat1.0 <- prep.dat0.1[which(prep.dat0.1$Wall.Area %notin% c("Unknown")),]
-prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$Wall.Cavity.Insulation.Thickness.1 %notin% c("Unknown",NA,"N/A")),]
-prep.dat1.2 <- prep.dat1.1[which(prep.dat1.1$Wall.Exterior.Insulation.Thickness.1  %notin% c("Unknown",NA)),]
-prep.dat1.0 <- prep.dat1.2[which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %notin% c("Unknown",NA)),]
+
+prep.dat0$Wall.Area <- as.numeric(as.character(prep.dat0$Wall.Area))
+prep.dat1.0 <- prep.dat0[which(!is.na(prep.dat0$Wall.Area)),]
+
+prep.dat1.1 <- prep.dat1.0[which(prep.dat1.0$`Wall.Cavity.Insulated?` %notin% c("Unknown")),]
+prep.dat1 <- prep.dat1.1[-which(prep.dat1.1$`Wall.Cavity.Insulated?` == "Yes" & prep.dat1.1$Wall.Cavity.Insulation.Thickness.1 %in% c("Unknown",NA,"N/A")),]
+# prep.dat1 <- prep.dat1.2[which(prep.dat1.2$Furred.Wall.Insulation.Thickness  %notin% c("Unknown",NA,"N/A")),]
+
 
 #remove unneccesary wall types
-prep.dat2 <- prep.dat1.0[which(prep.dat1.0$Wall.Type %notin% c("Adiabatic", "Knee Wall")),] #"Masonry","Masonry (Basement)","ICF","Other","SIP","Log"
+prep.dat2 <- prep.dat1#[which(prep.dat1$Wall.Type %notin% c("Adiabatic", "Knee Wall")),] #"Masonry","Masonry (Basement)","ICF","Other","SIP","Log"
 unique(prep.dat2$Wall.Type)
 
 #create "Alternative" category
@@ -305,41 +308,40 @@ prep.condition.sub2$exterior.rvalues1 <- 0
 prep.condition.sub2$total.r.val <- NA
 
 
-prep.dat4.9 <- rbind.data.frame(prep.dat4.5
+prep.dat4.8 <- rbind.data.frame(prep.dat4.5
                                 ,prep.condition.sub1
                                 ,prep.condition.sub2
                                 , stringsAsFactors = F)
-prep.dat4.9$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat4.9$Wall.Cavity.Insulation.Condition.1))] <- 1
-prep.dat5 <- prep.dat4.9[which(!is.na(prep.dat4.9$Wall.Type)),]
-names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
-# prep.dat5 <- prep.dat5[which(prep.dat5$CK_Cadmus_ID != "BUILDING"),]
-
+prep.dat4.8$Wall.Cavity.Insulation.Condition.1[which(is.na(prep.dat4.8$Wall.Cavity.Insulation.Condition.1))] <- 1
+prep.dat4.9 <- prep.dat4.8[which(!is.na(prep.dat4.8$Wall.Type)),]
+names(prep.dat4.9)[which(names(prep.dat4.9) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
+# prep.dat4.9 <- prep.dat4.9[which(prep.dat4.9$CK_Cadmus_ID != "BUILDING"),]
 
 ###########################
 # Analysis: Calculate weighted R values by site, convert to U values
 ###########################
 #calculate the weighted r value
-na.ind <- which(is.na(prep.dat5$total.r.val))
-prep.dat5$total.r.val[na.ind] <- (prep.dat5$cavity.rvalues1[na.ind] * prep.dat5$cavity.inches1[na.ind]) +  
-  (prep.dat5$cavity.rvalues2[na.ind]   * prep.dat5$cavity.inches2[na.ind]) +  
-  (prep.dat5$cavity.rvalues3[na.ind]   * prep.dat5$cavity.inches3[na.ind]) + 
-  (prep.dat5$exterior.rvalues1[na.ind] * prep.dat5$exterior.inches1[na.ind]) + 
-  (prep.dat5$exterior.rvalues2[na.ind] * prep.dat5$exterior.inches2[na.ind]) + 
-  (prep.dat5$exterior.rvalues3[na.ind] * prep.dat5$exterior.inches3[na.ind]) +
-  (prep.dat5$furred.rvalues[na.ind]    * prep.dat5$furred.inches[na.ind])
+na.ind <- which(is.na(prep.dat4.9$total.r.val))
+prep.dat4.9$total.r.val[na.ind] <- (prep.dat4.9$cavity.rvalues1[na.ind] * prep.dat4.9$cavity.inches1[na.ind]) +  
+  (prep.dat4.9$cavity.rvalues2[na.ind]   * prep.dat4.9$cavity.inches2[na.ind]) +  
+  (prep.dat4.9$cavity.rvalues3[na.ind]   * prep.dat4.9$cavity.inches3[na.ind]) + 
+  (prep.dat4.9$exterior.rvalues1[na.ind] * prep.dat4.9$exterior.inches1[na.ind]) + 
+  (prep.dat4.9$exterior.rvalues2[na.ind] * prep.dat4.9$exterior.inches2[na.ind]) + 
+  (prep.dat4.9$exterior.rvalues3[na.ind] * prep.dat4.9$exterior.inches3[na.ind]) +
+  (prep.dat4.9$furred.rvalues[na.ind]    * prep.dat4.9$furred.inches[na.ind])
 
 #check -- NOTE -- NONE SHOULD BE NA
-unique(prep.dat5$total.r.val)
-# prep.dat5$total.r.val[which(prep.dat5$Wall.Type == "ICF")]
-
+unique(prep.dat4.9$total.r.val)
+# prep.dat4.9$total.r.val[which(prep.dat4.9$Wall.Type == "ICF")]
 #caluclate u factors = inverse of Rvalue
-prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
-prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
-unique(prep.dat5$uvalue)
+prep.dat4.9$uvalue <- 1 / (prep.dat4.9$total.r.val)
+prep.dat4.9$uvalue[which(prep.dat4.9$uvalue == "Inf")] <- 1
+unique(prep.dat4.9$uvalue)
 
 #make area numeric
-prep.dat5$uvalue    <- as.numeric(as.character(prep.dat5$uvalue))
-prep.dat5$Wall.Area <- as.numeric(as.character(prep.dat5$Wall.Area))
+prep.dat4.9$uvalue    <- as.numeric(as.character(prep.dat4.9$uvalue))
+prep.dat4.9$Wall.Area <- as.numeric(as.character(prep.dat4.9$Wall.Area))
+prep.dat5 <- prep.dat4.9[which(prep.dat4.9$Wall.Type %notin% c("Adiabatic", "Knee Wall")),]
 
 #weight the u factor per home -- where weights are the wall area within home
 weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)

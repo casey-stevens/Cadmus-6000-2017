@@ -717,7 +717,7 @@ tableAM.dat1 <- left_join(tableAM.dat0, rbsa.dat, by = "CK_Cadmus_ID")
 tableAM.dat1$GPM_Measured <- as.numeric(as.character(tableAM.dat1$GPM_Measured))
 tableAM.dat2 <- tableAM.dat1[which(!(is.na(tableAM.dat1$GPM_Measured))),]
 unique(tableAM.dat2$GPM_Measured)
-
+unique(tableAM.dat2$Fixture.Type)
 tableAM.dat3 <- tableAM.dat2[grep("bathroom|faucet|shower",tableAM.dat2$Fixture.Type,ignore.case = T),]
 tableAM.dat3$count <- 1
 tableAM.dat3$Count <- 1

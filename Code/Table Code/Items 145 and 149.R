@@ -55,14 +55,14 @@ mechanical.dat2$Heating.System.Ind <- mechanical.dat2$Primary.Heating.System
 mechanical.dat2$Heating.System.Ind[which(mechanical.dat2$Primary.Heating.System == "Yes")] <- "Primary Heating System"
 mechanical.dat2$Heating.System.Ind[which(mechanical.dat2$Primary.Heating.System == "No")] <- "Secondary Heating System"
 mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Natural gas")]    <- "Natural Gas"
-mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
-mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (cord)")]    <- "Wood"
+mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (Pellets)")] <- "Pellets"
+mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (Cord)")]    <- "Wood"
 unique(mechanical.dat2$Heating.Fuel)
 
 for (ii in 1:nrow(mechanical.dat2)){
-  if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-    mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
-  }
+  # if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+  #   mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
+  # }
   if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
     mechanical.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
@@ -84,7 +84,6 @@ length(unique(mechanical.dat5$CK_Cadmus_ID))
 mechanical.dat5$count <- 1
 
 unique(mechanical.dat5$Heating_Fuel)
-mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
 mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
 mecahnical.dat.final <- 
   mechanical.dat5[which(colnames(mechanical.dat5) %in% c("CK_Cadmus_ID", "Heating_Fuel"))]
@@ -112,14 +111,7 @@ drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
                    "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
 item145.dat4 <- item145.dat3[which(item145.dat3$Conditioned.Area > 0),]
 unique(item145.dat4$Heating_Fuel)     
-item145.dat4$Heating_Fuel[which(item145.dat4$Heating_Fuel %in% c("Wood",
-                                                                 "Oil",
-                                                                 "Pellets",
-                                                                 "Other",
-                                                                 "Propane"
-                                                                 , "Hydronic Gas-Water Fan Heater"
-                                                                 , "Hot Water from Water Heater"
-                                                                 ,"Gas"))] <- "Other"
+item145.dat4$Heating_Fuel[which(item145.dat4$Heating_Fuel %notin% c("Electric"))] <- "Other"
 unique(item145.dat4$Heating_Fuel)     
 item145.data <- weightedData(item145.dat4[-which(colnames(item145.dat4) %in% drop.columns)])
 
@@ -131,9 +123,9 @@ item145.data$EUI <- item145.data$UsageNAC_kWh/item145.data$Conditioned.Area
 quartiles <- quantile(item145.data$EUI)
 item145.data$EUI_Quartile <- 4
 
-item145.data$EUI_Quartile[which(item145.data$EUI >= 0 & item145.data$EUI < 3.9245651)] <- 1
-item145.data$EUI_Quartile[which(item145.data$EUI >= 3.9245651 & item145.data$EUI < 6.7524004)] <- 2
-item145.data$EUI_Quartile[which(item145.data$EUI >= 6.7524004 & item145.data$EUI < 10.7592748)] <- 3
+item145.data$EUI_Quartile[which(item145.data$EUI >= 0 & item145.data$EUI < 3.9625758)] <- 1
+item145.data$EUI_Quartile[which(item145.data$EUI >= 3.9625758 & item145.data$EUI < 6.7381069)] <- 2
+item145.data$EUI_Quartile[which(item145.data$EUI >= 6.7381069 & item145.data$EUI < 10.6681793)] <- 3
 
 #Export Quartiles
 # billing.dat <- write.xlsx(item145.data, file = file.path(filepathBillingData, "EUI with Quartiles.xlsx"))
@@ -216,15 +208,7 @@ drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
 
 item149.dat4 <- item149.dat3[which(item149.dat3$Conditioned.Area > 0),]
 unique(item149.dat4$Heating_Fuel)     
-item149.dat4$Heating_Fuel[which(item149.dat4$Heating_Fuel %in% c("Wood",
-                                                                 "Oil",
-                                                                 "Pellets",
-                                                                 "Other",
-                                                                 "Propane"
-                                                                 , "Hydronic Gas-Water Fan Heater"
-                                                                 , "Hot Water from Water Heater"
-                                                                 , "Other"
-                                                                 ,"Electric"))] <- "Other"
+item149.dat4$Heating_Fuel[which(item149.dat4$Heating_Fuel %notin% c("Gas"))] <- "Other"
 unique(item149.dat4$Heating_Fuel)     
 item149.data <- weightedData(item149.dat4[-which(colnames(item149.dat4) %in% drop.columns)])
 

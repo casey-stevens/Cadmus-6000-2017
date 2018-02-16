@@ -27,7 +27,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+envelope.dat <- read.xlsx(envelope.export)
 #clean cadmus IDs
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
@@ -74,8 +74,8 @@ for (i in 1:length(item157.dat$GroundContact)){
 ###########################
 item157.dat$GroundContact <- trimws(item157.dat$GroundContact)
 unique(item157.dat$GroundContact)
-item3.dat$GroundContact <- gsub("&gt;",">", item3.dat$GroundContact)
-
+item157.dat$GroundContact <- gsub("&gt; ",">", item157.dat$GroundContact)
+item157.dat$GroundContact[grep("90% crawl", item157.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace" 
 
 item157.dat1 <- item157.dat[which(!(is.na(item157.dat$GroundContact))),]
 item157.dat2 <- item157.dat1[which(item157.dat1$GroundContact  %notin% c("Remove", NA, 0)),]

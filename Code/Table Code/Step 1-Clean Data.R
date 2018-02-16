@@ -31,12 +31,12 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "HomeYearBuilt"      = one.line.dat$Year.Built
                             , "State"              = one.line.dat$State
                             , "Detailed.Region"    = one.line.dat$Region
-                            # , "BuildingHeight"     = one.line.dat$N.Floors
                             , "Conditioned.Area"   = one.line.dat$Conditioned.Area
                             , "Conditioned.Volume" = one.line.dat$Conditioned.Volume
                             , "Cooling.Zone"       = one.line.dat$Cooling.Zone
                             , "ZIP"                = one.line.dat$Zip
                             ,"Territory"           = one.line.dat$Strata.Territory
+                            , "BuildingHeight"     = one.line.dat$N.Floors
                             , stringsAsFactors     = F)
 building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
                               ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
@@ -49,17 +49,17 @@ building.id.dat <- building.id.dat[which(!is.na(building.id.dat$CK_Building_ID))
 one.line.dat1 <- left_join(building.id.dat, one.line.dat1)
 names(one.line.dat1)
 
-site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
-site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
-                        , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
-                        , stringsAsFactors  = F)
+# site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
+# site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
+#                         , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
+#                         , stringsAsFactors  = F)
+# 
+# one.line.dat1$CK_Cadmus_ID <- trimws(toupper(one.line.dat1$CK_Cadmus_ID))
+# site.dat0$CK_Cadmus_ID     <- trimws(toupper(site.dat0$CK_Cadmus_ID))
 
-one.line.dat1$CK_Cadmus_ID <- trimws(toupper(one.line.dat1$CK_Cadmus_ID))
-site.dat0$CK_Cadmus_ID     <- trimws(toupper(site.dat0$CK_Cadmus_ID))
 
-
-site.dat1 <- left_join(one.line.dat1, site.dat0)
-length(unique(site.dat1$CK_Cadmus_ID)) #2068
+site.dat1 <- one.line.dat1#left_join(one.line.dat1, site.dat0)
+length(unique(site.dat1$CK_Cadmus_ID)) #2055
 
 #############################################################################################
 # Clean States
@@ -260,7 +260,7 @@ rbsa.dat5 <- rbsa.dat4
 rbsa.dat6 <- unique(rbsa.dat5[which(!(is.na(rbsa.dat5$BuildingType))),])
   
   #QAQC - are the number of unique IDs equal to the number of rows in the dataset?
-  stopifnot(length(unique(rbsa.dat6$CK_Cadmus_ID)) == nrow(rbsa.dat6))
+  # stopifnot(length(unique(rbsa.dat6$CK_Cadmus_ID)) == nrow(rbsa.dat6))
   
     #if not, identify where the duplicates are occurring
     dup.ind1 <- unique(rbsa.dat6$CK_Cadmus_ID[which(duplicated(rbsa.dat6$CK_Cadmus_ID))])
@@ -283,6 +283,7 @@ rbsa.dat7 <- unique(rbsa.dat6)
   rbsa.dat.mf <- rbsa.dat7[which(rbsa.dat7$BuildingType == "Multifamily"),]
 
 rbsa.dat8 <- rbind.data.frame(rbsa.dat.sf.mh, rbsa.dat.mf, stringsAsFactors = F)
+rbsa.dat8$CK_Cadmus_ID <- trimws(toupper(rbsa.dat8$CK_Cadmus_ID))
 #############################################################################################
 # Write out cleaned building type information
 #############################################################################################
