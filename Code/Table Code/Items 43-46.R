@@ -619,10 +619,12 @@ exportTable(item46.final.MH, "MH", "Table 35", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.ind <- "snopud"
+export.ind <- "SnoPUD"
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 43: DISTRIBUTION OF PRIMARY HEATING SYSTEMS (SF table 50, MF table 35)
@@ -671,7 +673,7 @@ item43.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item43.os.dat2$CK_Cadmus_ID
 unique(item43.os.dat3$Heating_Type)
 # item43.os.dat3$Heating_Type[grep("geo", item43.os.dat3$Heating_Type, ignore.case = T)] <- "Geothermal Heat Pump"
 
-item43.os.dat4 <- left_join(scl.dat, item43.os.dat3, by = "CK_Cadmus_ID")
+item43.os.dat4 <- left_join(os.dat, item43.os.dat3, by = "CK_Cadmus_ID")
 unique(item43.os.dat4$Primary_Secondary)
 item43.os.dat5 <- unique(item43.os.dat4[which(item43.os.dat4$Primary_Secondary == "Primary Heating System"),])
 unique(item43.os.dat5$Primary_Secondary)
@@ -707,25 +709,44 @@ item43.os.cast <- dcast(setDT(item43.os.final)
                         ,formula = Heating_Type ~ CK_Building_ID
                         ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
-item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
-                             ,"Percent_SCL.GenPop"   = item43.os.cast$`w.percent_SCL GenPop`
-                             ,"SE_SCL.GenPop"        = item43.os.cast$`w.SE_SCL GenPop`
-                             ,"n_SCL.GenPop"         = item43.os.cast$`n_SCL GenPop`
-                             ,"Percent_SCL.LI"       = item43.os.cast$`w.percent_SCL LI`
-                             ,"SE_SCL.LI"            = item43.os.cast$`w.SE_SCL LI`
-                             ,"n_SCL.LI"             = item43.os.cast$`n_SCL LI`
-                             ,"Percent_SCL.EH"       = item43.os.cast$`w.percent_SCL EH`
-                             ,"SE_SCL.EH"            = item43.os.cast$`w.SE_SCL EH`
-                             ,"n_SCL.EH"             = item43.os.cast$`n_SCL EH`
-                             ,"Percent_2017.RBSA.PS" = item43.os.cast$`w.percent_2017 RBSA PS`
-                             ,"SE_2017.RBSA.PS"      = item43.os.cast$`w.SE_2017 RBSA PS`
-                             ,"n_2017.RBSA.PS"       = item43.os.cast$`n_2017 RBSA PS`
-                             ,"EB_SCL.GenPop"        = item43.os.cast$`EB_SCL GenPop`
-                             ,"EB_SCL.LI"            = item43.os.cast$`EB_SCL LI`
-                             ,"EB_SCL.EH"            = item43.os.cast$`EB_SCL EH`
-                             ,"EB_2017.RBSA.PS"      = item43.os.cast$`EB_2017 RBSA PS`)
+names(item43.os.cast)
+if(os.ind == "scl"){
+  item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
+                                ,"Percent_SCL.GenPop"   = item43.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item43.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item43.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item43.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item43.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item43.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item43.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item43.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item43.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item43.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item43.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item43.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item43.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item43.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item43.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item43.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
+                                ,"Percent_SnoPUD"          = item43.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item43.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item43.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item43.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item43.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item43.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item43.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item43.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item43.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item43.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item43.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item43.os.cast$`EB_2017 RBSA NW`)
+}
 
-exportTable(item43.os.table, "SF", "Table 50", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+
+exportTable(item43.os.table, "SF", "Table 50", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #########################
 # unWeighted Analysis
@@ -740,22 +761,38 @@ item43.os.final <- item43.os.final[which(item43.os.final$CK_Building_ID != "Remo
 item43.os.cast <- dcast(setDT(item43.os.final)
                         ,formula = Heating_Type ~ CK_Building_ID
                         ,value.var = c("Percent","SE","Count","n"))
+names(item43.os.cast)
 
-item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
-                              ,"Percent_SCL.GenPop"   = item43.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item43.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item43.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item43.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item43.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item43.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item43.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item43.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item43.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item43.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item43.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item43.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
+                                ,"Percent_SCL.GenPop"   = item43.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item43.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item43.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item43.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item43.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item43.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item43.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item43.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item43.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item43.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item43.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item43.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item43.os.table <- data.frame("Heating_Type"         = item43.os.cast$Heating_Type
+                                ,"Percent_SnoPUD"          = item43.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item43.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item43.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item43.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item43.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item43.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item43.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item43.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item43.os.cast$`n_2017 RBSA NW`)
+}
 
-exportTable(item43.os.table, "SF", "Table 50", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+exportTable(item43.os.table, "SF", "Table 50", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -800,7 +837,7 @@ item44.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item44.os.dat2$CK_Cadmus_ID
                                  ,"Heating_Fuel" = item44.os.dat2$Heating.Fuel
                                  ,"Primary_Secondary" = item44.os.dat2$Heating.System.Ind))
 
-item44.os.dat4 <- left_join(scl.dat, item44.os.dat3, by = "CK_Cadmus_ID")
+item44.os.dat4 <- left_join(os.dat, item44.os.dat3, by = "CK_Cadmus_ID")
 
 item44.os.dat5 <- item44.os.dat4[which(item44.os.dat4$Primary_Secondary == "Primary Heating System"),]
 length(unique(item44.os.dat5$CK_Cadmus_ID))
@@ -846,27 +883,44 @@ item44.os.final <- proportionRowsAndColumns1(CustomerLevelData = item44.os.data
 item44.os.cast <- dcast(setDT(item44.os.final)
                      , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+names(item44.os.cast)
+if(os.ind == "scl"){
+  item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
+                                ,"Percent_SCL.GenPop"   = item44.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item44.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item44.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item44.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item44.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item44.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item44.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item44.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item44.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item44.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item44.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item44.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item44.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item44.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item44.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item44.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
+                                ,"Percent_SnoPUD"          = item44.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item44.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item44.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item44.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item44.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item44.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item44.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item44.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item44.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item44.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item44.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item44.os.cast$`EB_2017 RBSA NW`)
+}
 
-item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
-                              ,"Percent_SCL.GenPop"   = item44.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item44.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item44.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item44.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item44.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item44.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item44.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item44.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item44.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item44.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item44.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item44.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item44.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item44.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item44.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item44.os.cast$`EB_2017 RBSA PS`
-)
 
-exportTable(item44.os.table, "SF", "Table 51", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+exportTable(item44.os.table, "SF", "Table 51", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #############################
 # Unweighted Analysis
@@ -881,22 +935,37 @@ item44.os.cast <- dcast(setDT(item44.os.final)
                      , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
+names(item44.os.cast)
+if(os.ind == "scl"){
+  item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
+                                ,"Percent_SCL.GenPop"   = item44.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item44.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item44.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item44.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item44.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item44.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item44.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item44.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item44.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item44.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item44.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item44.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
+                                ,"Percent_SnoPUD"          = item44.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item44.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item44.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item44.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item44.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item44.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item44.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item44.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item44.os.cast$`n_2017 RBSA NW`)
+}
 
-item44.os.table <- data.frame("Heating.Fuel"          = item44.os.cast$Heating_Fuel
-                              ,"Percent_SCL.GenPop"   = item44.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item44.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item44.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item44.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item44.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item44.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item44.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item44.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item44.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item44.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item44.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item44.os.cast$`n_2017 RBSA PS`)
 
-exportTable(item44.os.table, "SF", "Table 51", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+exportTable(item44.os.table, "SF", "Table 51", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -943,7 +1012,7 @@ item45.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item45.os.dat2$CK_Cadmus_ID
                                  ,"Primary_Secondary" = item45.os.dat2$Heating.System.Ind))
 item45.os.dat3 <- item45.os.dat3[which(item45.os.dat3$Heating_Type %notin% c("N/A",NA)),]
 
-item45.os.dat4 <- left_join(scl.dat, item45.os.dat3, by = "CK_Cadmus_ID")
+item45.os.dat4 <- left_join(os.dat, item45.os.dat3, by = "CK_Cadmus_ID")
 
 item45.os.dat5 <- item45.os.dat4[which(item45.os.dat4$Primary_Secondary == "Secondary Heating System"),]
 length(unique(item45.os.dat5$CK_Cadmus_ID))
@@ -973,25 +1042,44 @@ item45.os.cast <- dcast(setDT(item45.os.final)
                         ,formula = Heating_Type ~ CK_Building_ID
                         ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
-item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
-                              ,"Percent_SCL.GenPop"   = item45.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item45.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item45.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item45.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item45.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item45.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item45.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item45.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item45.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item45.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item45.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item45.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item45.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item45.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item45.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item45.os.cast$`EB_2017 RBSA PS`)
+names(item45.os.cast)
+if(os.ind == "scl"){
+  item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
+                                ,"Percent_SCL.GenPop"   = item45.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item45.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item45.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item45.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item45.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item45.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item45.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item45.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item45.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item45.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item45.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item45.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item45.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item45.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item45.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item45.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
+                                ,"Percent_SnoPUD"          = item45.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item45.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item45.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item45.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item45.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item45.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item45.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item45.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item45.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item45.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item45.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item45.os.cast$`EB_2017 RBSA NW`)
+}
 
-exportTable(item45.os.table, "SF", "Table 52", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+
+exportTable(item45.os.table, "SF", "Table 52", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #########################
 # unWeighted Analysis
@@ -1007,21 +1095,38 @@ item45.os.cast <- dcast(setDT(item45.os.final)
                         ,formula = Heating_Type ~ CK_Building_ID
                         ,value.var = c("Percent","SE","Count","n"))
 
-item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
-                              ,"Percent_SCL.GenPop"   = item45.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item45.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item45.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item45.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item45.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item45.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item45.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item45.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item45.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item45.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item45.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item45.os.cast$`n_2017 RBSA PS`)
+names(item45.os.cast)
+if(os.ind == "scl"){
+  item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
+                                ,"Percent_SCL.GenPop"   = item45.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item45.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item45.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item45.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item45.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item45.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item45.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item45.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item45.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item45.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item45.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item45.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item45.os.table <- data.frame("Heating_Type"         = item45.os.cast$Heating_Type
+                                ,"Percent_SnoPUD"          = item45.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item45.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item45.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item45.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item45.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item45.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item45.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item45.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item45.os.cast$`n_2017 RBSA NW`)
+}
 
-exportTable(item45.os.table, "SF", "Table 52", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+
+exportTable(item45.os.table, "SF", "Table 52", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1070,7 +1175,7 @@ item46.os.dat3 <- item46.os.dat3[which(item46.os.dat3$Heating_Type %notin% c("N/
 # Check heating type
 unique(item46.os.dat3$Heating_Type)
 
-item46.os.dat4 <- left_join(scl.dat, item46.os.dat3, by = "CK_Cadmus_ID")
+item46.os.dat4 <- left_join(os.dat, item46.os.dat3, by = "CK_Cadmus_ID")
 
 item46.os.dat5 <- item46.os.dat4[which(item46.os.dat4$Primary_Secondary == "Secondary Heating System"),]
 length(unique(item46.os.dat5$CK_Cadmus_ID))
@@ -1112,26 +1217,44 @@ item46.os.cast <- dcast(setDT(item46.os.final)
                      , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
-                              ,"Percent_SCL.GenPop"   = item46.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item46.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item46.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item46.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item46.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item46.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item46.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item46.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item46.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item46.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item46.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item46.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item46.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item46.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item46.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item46.os.cast$`EB_2017 RBSA PS`
-)
+names(item46.os.cast)
+if(os.ind == "scl"){
+  item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
+                                ,"Percent_SCL.GenPop"   = item46.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item46.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item46.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item46.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item46.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item46.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item46.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item46.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item46.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item46.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item46.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item46.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item46.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item46.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item46.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item46.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
+                                ,"Percent_SnoPUD"          = item46.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item46.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item46.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item46.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item46.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item46.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item46.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item46.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item46.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item46.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item46.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item46.os.cast$`EB_2017 RBSA NW`)
+}
 
-exportTable(item46.os.table, "SF", "Table 53", weighted = TRUE, osIndicator = "SCL", OS = T)
+
+
+exportTable(item46.os.table, "SF", "Table 53", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 ################################
@@ -1147,18 +1270,34 @@ item46.os.cast <- dcast(setDT(item46.os.final)
                      , formula = BuildingType + Heating_Fuel ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
-item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
-                              ,"Percent_SCL.GenPop"   = item46.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item46.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item46.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item46.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item46.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item46.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item46.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item46.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item46.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item46.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item46.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item46.os.cast$`n_2017 RBSA PS`)
+names(item46.os.cast)
+if(os.ind == "scl"){
+  item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
+                                ,"Percent_SCL.GenPop"   = item46.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item46.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item46.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item46.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item46.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item46.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item46.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item46.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item46.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item46.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item46.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item46.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item46.os.table <- data.frame("Heating.Fuel"          = item46.os.cast$Heating_Fuel
+                                ,"Percent_SnoPUD"          = item46.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item46.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item46.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item46.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item46.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item46.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item46.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item46.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item46.os.cast$`n_2017 RBSA NW`)
+}
 
-exportTable(item46.os.table, "SF", "Table 53", weighted = FALSE, osIndicator = "SCL", OS = T)
+
+
+exportTable(item46.os.table, "SF", "Table 53", weighted = FALSE, osIndicator = export.ind, OS = T)
