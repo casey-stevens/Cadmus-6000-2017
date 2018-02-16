@@ -722,11 +722,11 @@ tableAF.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                 ,"Clean.Room"))]
 tableAF.dat$count <- 1
 
-tableAF.dat0 <- tableAF.dat[which(tableAF.dat$Clean.Room == "Storage"),]
+tableAF.dat0 <- left_join(rbsa.dat, tableAF.dat, by = "CK_Cadmus_ID")
 
-tableAF.dat1 <- left_join(tableAF.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+tableAF.dat1 <- tableAF.dat0[which(!is.na(tableAF.dat0$Lamp.Category)),]
 
-tableAF.dat2 <- tableAF.dat1[which(tableAF.dat1$Lamp.Category %notin% c("Unknown",NA)),]
+tableAF.dat2 <- tableAF.dat1[grep("SITE", tableAF.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 tableAF.dat2$Fixture.Qty <- as.numeric(as.character(tableAF.dat2$Fixture.Qty))
@@ -737,31 +737,39 @@ unique(tableAF.dat2$Lamps)
 
 tableAF.dat3 <- tableAF.dat2[which(!(is.na(tableAF.dat2$Lamps))),]
 
+tableAF.led.sum <- summarise(group_by(tableAF.dat3, CK_Cadmus_ID, Lamp.Category)
+                             ,TotalBulbs = sum(Lamps))
 
-tableAF.customer <- summarise(group_by(tableAF.dat3, CK_Cadmus_ID, Lamp.Category)
-                              ,Lamps = sum(Lamps))
-unique(tableAF.customer$Lamp.Category)
+tableAF.merge1 <- left_join(rbsa.dat, tableAF.led.sum)
 
-tableAF.merge <- left_join(rbsa.dat, tableAF.customer)
-tableAF.merge <- tableAF.merge[which(!is.na(tableAF.merge$Lamp.Category)),]
-tableAF.merge$Lamps[which(is.na(tableAF.merge$Lamps))] <- 0 
+## subset to only storage bulbs
+tableAF.storage <- tableAF.dat3[which(tableAF.dat3$Clean.Room == "Storage"),]
+#summarise within site
+tableAF.storage.sum <- summarise(group_by(tableAF.storage, CK_Cadmus_ID, Lamp.Category)
+                                 ,StorageBulbs = sum(Lamps))
+
+tableAF.merge2 <- left_join(tableAF.merge1, tableAF.storage.sum)
+tableAF.merge <- tableAF.merge2[which(!is.na(tableAF.merge2$TotalBulbs)),]
+tableAF.merge$StorageBulbs[which(is.na(tableAF.merge$StorageBulbs))] <- 0
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-tableAF.data <- weightedData(tableAF.merge[-which(colnames(tableAF.merge) %in% c("Lamps"
-                                                                                 ,"Lamp.Category"))])
+tableAF.data <- weightedData(tableAF.merge[-which(colnames(tableAF.merge) %in% c("StorageBulbs"
+                                                                                 ,"Lamp.Category"
+                                                                                 ,"TotalBulbs"))])
 tableAF.data <- left_join(tableAF.data, tableAF.merge[which(colnames(tableAF.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Lamps"
-                                                                                           ,"Lamp.Category"))])
+                                                                                           ,"StorageBulbs"
+                                                                                           ,"Lamp.Category"
+                                                                                           ,"TotalBulbs"))])
 tableAF.data$count <- 1
 
 #######################
 # Weighted Analysis
 #######################
 tableAF.final <- mean_two_groups(CustomerLevelData = tableAF.data
-                                 ,valueVariable = "Lamps"
+                                 ,valueVariable = "StorageBulbs"
                                  ,byVariableRow = "Lamp.Category"
                                  ,byVariableColumn = "State"
                                  ,columnAggregate = "Region"
@@ -800,6 +808,7 @@ rowOrder <- c("Compact Fluorescent"
               ,"Light Emitting Diode"
               ,"Linear Fluorescent"
               ,"Other"
+              ,"Unknown"
               ,"All Categories")
 tableAF.table <- tableAF.table %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
 tableAF.table <- data.frame(tableAF.table)
@@ -819,7 +828,7 @@ exportTable(tableAF.final.SF, "SF", "Table AF", weighted = TRUE)
 # Unweighted Analysis
 #######################
 tableAF.final <- mean_two_groups_unweighted(CustomerLevelData = tableAF.data
-                                 ,valueVariable = "Lamps"
+                                 ,valueVariable = "StorageBulbs"
                                  ,byVariableRow = "Lamp.Category"
                                  ,byVariableColumn = "State"
                                  ,columnAggregate = "Region"
@@ -853,6 +862,7 @@ rowOrder <- c("Compact Fluorescent"
               ,"Light Emitting Diode"
               ,"Linear Fluorescent"
               ,"Other"
+              ,"Unknown"
               ,"All Categories")
 tableAF.table <- tableAF.table %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
 tableAF.table <- data.frame(tableAF.table)
