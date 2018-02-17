@@ -441,9 +441,6 @@ exportTable(item182.table.MH, "MH","Table 25",weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-os.ind <- "snopud"
-export.ind <- "SnoPUD"
-subset.ind <- "SnoPUD"
 os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
 length(unique(os.dat$CK_Cadmus_ID))
 os.dat$CK_Building_ID <- os.dat$Category
