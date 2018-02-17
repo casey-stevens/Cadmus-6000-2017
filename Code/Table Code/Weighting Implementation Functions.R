@@ -348,8 +348,8 @@ mean_two_groups <- function(CustomerLevelData
   if (byVariableColumn == 'State') {
     item.strata.group <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory", byVariableRow), summarise
-                                          ,strataMean = mean(get(valueVariable), na.rm = T)
-                                          ,strataSD   = sd(get(valueVariable), na.rm = T)
+                                          ,strataMean = mean(get(valueVariable))
+                                          ,strataSD   = sd(get(valueVariable))
                                           ,n_hj       = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
     item.strata.group$strataSD[which(item.strata.group$strataSD %in% c(NA,"NaN"))] <- 0
   }

@@ -490,16 +490,34 @@ tableAG.dat3 <- tableAG.dat2[which(!(is.na(tableAG.dat2$Lamps))),]
 tableAG.led.sum <- summarise(group_by(tableAG.dat3, CK_Cadmus_ID, Lamp.Category)
                              ,TotalBulbs = sum(Lamps))
 
-tableAG.merge1 <- left_join(rbsa.dat, tableAG.led.sum)
-
 ## subset to only storage bulbs
 tableAG.storage <- tableAG.dat3[which(tableAG.dat3$Clean.Room == "Storage"),]
 #summarise within site
 tableAG.storage.sum <- summarise(group_by(tableAG.storage, CK_Cadmus_ID, Lamp.Category)
                                  ,StorageBulbs = sum(Lamps))
+length(unique(tableAG.storage.sum$CK_Cadmus_ID))
 
-tableAG.merge2 <- left_join(tableAG.merge1, tableAG.storage.sum)
-tableAG.merge <- tableAG.merge2[which(!is.na(tableAG.merge2$TotalBulbs)),]
+
+tableAG.merge1 <- left_join(tableAG.led.sum, tableAG.storage.sum)
+
+tableAG.cast1 <- dcast(setDT(tableAG.merge1)
+                      ,formula = CK_Cadmus_ID ~ Lamp.Category
+                      ,value.var = c("StorageBulbs"))
+tableAG.cast1[is.na(tableAG.cast1),] <- 0
+
+tableAG.melt1 <- melt(tableAG.cast1, id.vars = "CK_Cadmus_ID")
+names(tableAG.melt1) <- c("CK_Cadmus_ID", "Lamp.Category", "StorageBulbs")
+
+tableAG.cast2 <- dcast(setDT(tableAG.merge1)
+                       ,formula = CK_Cadmus_ID ~ Lamp.Category
+                       ,value.var = c("TotalBulbs"))
+tableAG.cast2[is.na(tableAG.cast2),] <- 0
+
+tableAG.melt2 <- melt(tableAG.cast2, id.vars = "CK_Cadmus_ID")
+names(tableAG.melt2) <- c("CK_Cadmus_ID", "Lamp.Category", "TotalBulbs")
+
+tableAG.merge2 <- left_join(tableAG.melt1, tableAG.melt2)
+tableAG.merge  <- left_join(rbsa.dat, tableAG.merge2)
 tableAG.merge$StorageBulbs[which(is.na(tableAG.merge$StorageBulbs))] <- 0
 
 ################################################
