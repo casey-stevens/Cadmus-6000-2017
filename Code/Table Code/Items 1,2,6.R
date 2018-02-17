@@ -429,10 +429,6 @@ item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family")
 #
 ##################################################################################################
 # Read in clean os data
-os.ind <- "snopud"
-export.ind <- "SnoPUD"
-
-
 os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
 length(unique(os.dat$CK_Cadmus_ID))
 os.dat$CK_Building_ID <- os.dat$Category
