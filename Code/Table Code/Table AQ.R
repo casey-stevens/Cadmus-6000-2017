@@ -25,7 +25,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 #subset to columns needed for analysis
@@ -142,8 +142,8 @@ tableAQ.table.SF <- tableAQ.table[which(tableAQ.table$BuildingType == "Single Fa
 tableAQ.table.MH <- tableAQ.table[which(tableAQ.table$BuildingType == "Manufactured") , -which(colnames(tableAQ.table) %in% c("BuildingType"))]
 
 
-exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = TRUE)
-# exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = TRUE)
+# exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = TRUE)
+exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = TRUE)
 
 
 ###########################
@@ -195,5 +195,5 @@ tableAQ.table.SF <- tableAQ.table[which(tableAQ.table$BuildingType == "Single Fa
 tableAQ.table.MH <- tableAQ.table[which(tableAQ.table$BuildingType == "Manufactured"), -which(colnames(tableAQ.table) %in% c("BuildingType"))]
 
 
-exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = FALSE)
-# exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = FALSE)
+# exportTable(tableAQ.table.SF, "SF", "Table 57", weighted = FALSE)
+exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = FALSE)

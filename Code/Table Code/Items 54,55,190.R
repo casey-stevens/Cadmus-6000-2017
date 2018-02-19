@@ -187,6 +187,10 @@ unique(item55.dat1$CK_Cadmus_ID[which(duplicated(item55.dat1$CK_Cadmus_ID))])
 item55.dat1 <- item55.dat1[which(item55.dat1$System.Type %notin% c("N/A",NA)),]
 unique(item55.dat1$System.Type)
 
+item55.dat1$System.Type[grep("central", item55.dat1$System.Type, ignore.case = T)] <- "Central Ac"
+item55.dat1$System.Type[grep("packaged unit", item55.dat1$System.Type, ignore.case = T)] <- "Packaged Hp"
+
+
 item55.dat2 <- left_join(rbsa.dat, item55.dat1)
 
 item55.dat2$Dist.Ind <- 0
@@ -388,16 +392,16 @@ item190.table <- data.frame("BuildingType"               = item190.cast$Building
                            ,"EB_All.Cooling.Zones"      = item190.cast$`EB_All Cooling Zones`)
 # row ordering example code
 levels(item190.table$Cooling.System.Type)
-rowOrder <- c("Packaged AC"
-              ,"Packaged HP"
-              ,"Central AC"
+rowOrder <- c("Packaged Ac"
+              ,"Packaged Hp"
+              ,"Central Ac"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
-              ,"Mini-split HP"
-              ,"Mini-split AC"
+              ,"Mini-Split Hp"
+              ,"Mini-Split Ac"
               ,"Furnace"
-              ,"GeoThermal Heat Pump"
+              ,"Geothermal Heat Pump"
               ,"All Types")
 item190.table <- item190.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item190.table <- data.frame(item190.table)
@@ -454,16 +458,16 @@ item190.table <- data.frame("BuildingType"               = item190.cast$Building
                            ,"n.All.Cooling.Zones"       = item190.cast$`n_All Cooling Zones`)
 # row ordering example code
 levels(item190.table$Cooling.System.Type)
-rowOrder <- c("Packaged AC"
-              ,"Packaged HP"
-              ,"Central AC"
+rowOrder <- c("Packaged Ac"
+              ,"Packaged Hp"
+              ,"Central Ac"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
-              ,"Mini-split HP"
-              ,"Mini-split AC"
+              ,"Mini-Split Hp"
+              ,"Mini-Split Ac"
               ,"Furnace"
-              ,"GeoThermal Heat Pump"
+              ,"Geothermal Heat Pump"
               ,"All Types")
 item190.table <- item190.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item190.table <- data.frame(item190.table)

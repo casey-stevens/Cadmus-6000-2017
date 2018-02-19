@@ -112,8 +112,8 @@ item143.final <- mean_one_group(CustomerLevelData = item143.weighted
 item143.final.SF <- item143.final[which(item143.final$BuildingType == "Single Family"),-1]
 item143.final.MH <- item143.final[which(item143.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item143.final.SF, "SF", "Table 150", weighted = TRUE)
-# exportTable(item143.final.MH, "MH", "Table 125", weighted = TRUE)
+# exportTable(item143.final.SF, "SF", "Table 150", weighted = TRUE)
+exportTable(item143.final.MH, "MH", "Table 125", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -126,8 +126,8 @@ item143.final <- mean_one_group_unweighted(CustomerLevelData = item143.weighted
 item143.final.SF <- item143.final[which(item143.final$BuildingType == "Single Family"),-1]
 item143.final.MH <- item143.final[which(item143.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item143.final.SF, "SF", "Table 150", weighted = FALSE)
-# exportTable(item143.final.MH, "MH", "Table 125", weighted = FALSE)
+# exportTable(item143.final.SF, "SF", "Table 150", weighted = FALSE)
+exportTable(item143.final.MH, "MH", "Table 125", weighted = FALSE)
 
 #############################################################################################
 # Item 144: AVERAGE WEATHER NORMALIZED KWH PER HOME BY STATE  - SF TABLE 151, MH TABLE 126
@@ -156,8 +156,8 @@ item144.final <- mean_one_group(CustomerLevelData = item144.weighted
 item144.final.SF <- item144.final[which(item144.final$BuildingType == "Single Family"),-1]
 item144.final.MH <- item144.final[which(item144.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item144.final.SF, "SF", "Table 151", weighted = TRUE)
-# exportTable(item144.final.MH, "MH", "Table 126", weighted = TRUE)
+# exportTable(item144.final.SF, "SF", "Table 151", weighted = TRUE)
+exportTable(item144.final.MH, "MH", "Table 126", weighted = TRUE)
 
 
 ################################
@@ -171,8 +171,8 @@ item144.final <- mean_one_group_unweighted(CustomerLevelData = item144.weighted
 item144.final.SF <- item144.final[which(item144.final$BuildingType == "Single Family"),-1]
 item144.final.MH <- item144.final[which(item144.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item144.final.SF, "SF", "Table 151", weighted = FALSE)
-# exportTable(item144.final.MH, "MH", "Table 126", weighted = FALSE)
+# exportTable(item144.final.SF, "SF", "Table 151", weighted = FALSE)
+exportTable(item144.final.MH, "MH", "Table 126", weighted = FALSE)
 
 
 
@@ -208,8 +208,8 @@ item146.final <- mean_one_group(CustomerLevelData = item146.weighted
 item146.final.SF <- item146.final[which(item146.final$BuildingType == "Single Family"),-1]
 item146.final.MH <- item146.final[which(item146.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item146.final.SF, "SF", "Table 153", weighted = TRUE)
-# exportTable(item146.final.MH, "MH", "Table 128", weighted = TRUE)
+# exportTable(item146.final.SF, "SF", "Table 153", weighted = TRUE)
+exportTable(item146.final.MH, "MH", "Table 128", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -222,8 +222,8 @@ item146.final <- mean_one_group_unweighted(CustomerLevelData = item146.weighted
 item146.final.SF <- item146.final[which(item146.final$BuildingType == "Single Family"),-1]
 item146.final.MH <- item146.final[which(item146.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item146.final.SF, "SF", "Table 153", weighted = FALSE)
-# exportTable(item146.final.MH, "MH", "Table 128", weighted = FALSE)
+# exportTable(item146.final.SF, "SF", "Table 153", weighted = FALSE)
+exportTable(item146.final.MH, "MH", "Table 128", weighted = FALSE)
 
 
 
@@ -255,8 +255,8 @@ item147.final <- mean_one_group(CustomerLevelData = item147.weighted
 item147.final.SF <- item147.final[which(item147.final$BuildingType == "Single Family"),-1]
 item147.final.MH <- item147.final[which(item147.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item147.final.SF, "SF", "Table 154", weighted = TRUE)
-# exportTable(item147.final.MH, "MH", "Table 129", weighted = TRUE)
+# exportTable(item147.final.SF, "SF", "Table 154", weighted = TRUE)
+exportTable(item147.final.MH, "MH", "Table 129", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -269,8 +269,8 @@ item147.final <- mean_one_group_unweighted(CustomerLevelData = item147.weighted
 item147.final.SF <- item147.final[which(item147.final$BuildingType == "Single Family"),-1]
 item147.final.MH <- item147.final[which(item147.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item147.final.SF, "SF", "Table 154", weighted = FALSE)
-# exportTable(item147.final.MH, "MH", "Table 129", weighted = FALSE)
+# exportTable(item147.final.SF, "SF", "Table 154", weighted = FALSE)
+exportTable(item147.final.MH, "MH", "Table 129", weighted = FALSE)
 
 
 
@@ -301,8 +301,8 @@ item148.final <- mean_one_group(CustomerLevelData = item148.weighted
 item148.final.SF <- item148.final[which(item148.final$BuildingType == "Single Family"),-1]
 item148.final.MH <- item148.final[which(item148.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item148.final.SF, "SF", "Table 155", weighted = TRUE)
-# exportTable(item148.final.MH, "MH", "Table 130", weighted = TRUE)
+# exportTable(item148.final.SF, "SF", "Table 155", weighted = TRUE)
+exportTable(item148.final.MH, "MH", "Table 130", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -315,8 +315,8 @@ item148.final <- mean_one_group_unweighted(CustomerLevelData = item148.weighted
 item148.final.SF <- item148.final[which(item148.final$BuildingType == "Single Family"),-1]
 item148.final.MH <- item148.final[which(item148.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item148.final.SF, "SF", "Table 155", weighted = FALSE)
-# exportTable(item148.final.MH, "MH", "Table 130", weighted = FALSE)
+# exportTable(item148.final.SF, "SF", "Table 155", weighted = FALSE)
+exportTable(item148.final.MH, "MH", "Table 130", weighted = FALSE)
 
 
 
@@ -353,8 +353,8 @@ item150.final <- mean_one_group(CustomerLevelData = item150.weighted
 item150.final.SF <- item150.final[which(item150.final$BuildingType == "Single Family"),-1]
 item150.final.MH <- item150.final[which(item150.final$BuildingType == "Manufactured"),-1]
 #export data - haven't changed any of the datsets waiting for Casey to QC
-exportTable(item150.final.SF, "SF", "Table 157", weighted = TRUE)
-# exportTable(item150.final.MH, "MH", "Table 132", weighted = TRUE)
+# exportTable(item150.final.SF, "SF", "Table 157", weighted = TRUE)
+exportTable(item150.final.MH, "MH", "Table 132", weighted = TRUE)
 
 ################################
 # Unweighted Analysis
@@ -367,8 +367,8 @@ item150.final <- mean_one_group_unweighted(CustomerLevelData = item150.weighted
 item150.final.SF <- item150.final[which(item150.final$BuildingType == "Single Family"),-1]
 item150.final.MH <- item150.final[which(item150.final$BuildingType == "Manufactured"),-1]
 #export data
-exportTable(item150.final.SF, "SF", "Table 157", weighted = FALSE)
-# exportTable(item150.final.MH, "MH", "Table 132", weighted = FALSE)
+# exportTable(item150.final.SF, "SF", "Table 157", weighted = FALSE)
+exportTable(item150.final.MH, "MH", "Table 132", weighted = FALSE)
 
 
 

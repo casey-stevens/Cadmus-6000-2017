@@ -59,9 +59,13 @@ billing.data               <- "RBSA Usages Compiled Final_2018-01-16.xlsx"
 stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
 
 
-os.ind <- "snopud"
-export.ind <- "SnoPUD"
-subset.ind <- "SnoPUD"
+os.ind <- "scl"
+export.ind <- "SCL"
+subset.ind <- "SCL"
+
+# os.ind <- "snopud"
+# export.ind <- "SnoPUD"
+# subset.ind <- "SnoPUD"
 
 # # Read in clean RBSA data
 # os.ind <- "rbsa"

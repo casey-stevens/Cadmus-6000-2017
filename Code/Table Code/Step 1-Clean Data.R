@@ -39,8 +39,8 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "BuildingHeight"     = one.line.dat$N.Floors
                             , stringsAsFactors     = F)
 building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
-                              ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
-                              ,"CK_SiteID"        = one.line.dat$PK_SiteID
+                              ,"CK_Building_ID"   = one.line.dat$REMOVE.COLUMN
+                              ,"CK_SiteID"        = one.line.dat$zPK_SiteID
                               , stringsAsFactors  = F)
 building.id.dat <- melt(building.id.dat, id.vars = "CK_Cadmus_ID")
 names(building.id.dat) <- c("CK_Cadmus_ID", "Remove", "CK_Building_ID")

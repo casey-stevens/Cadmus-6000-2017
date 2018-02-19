@@ -204,7 +204,7 @@ item203.data <- left_join(item203.data, item203.dat[which(colnames(item203.dat) 
 
 
 #merge together analysis data with cleaned RBSA data
-item203.data$LPD <- item203.data$Site_Wattage / item203.data$SiteArea
+item203.data$LPD <- item203.data$Site_Wattage / item203.data$Conditioned.Area
 
 
 #######################
@@ -226,7 +226,7 @@ exportTable(item203.final.MH, "MH", "Table 67", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item203.final <- mean_one_group_unweighted(item203.data
-                                           ,valueVariable = 'Site_Wattage'
+                                           ,valueVariable = 'LPD'
                                            ,byVariable = 'State'
                                            ,aggregateRow = 'Region')
 

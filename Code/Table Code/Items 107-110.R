@@ -74,8 +74,8 @@ item107.final.MH <- item107.final[which(item107.final$BuildingType == "Manufactu
                                   ,-which(colnames(item107.final) %in% c("BuildingType"
                                                                          ,"Count"))]
 
-exportTable(item107.final.SF, "SF", "Table 114", weighted = TRUE)
-# exportTable(item107.final.MH, "MH", "Table 89", weighted = TRUE)
+# exportTable(item107.final.SF, "SF", "Table 114", weighted = TRUE)
+exportTable(item107.final.MH, "MH", "Table 89", weighted = TRUE)
 
 
 
@@ -94,8 +94,8 @@ item107.final.MH <- item107.final[which(item107.final$BuildingType == "Manufactu
                                   ,-which(colnames(item107.final) %in% c("BuildingType"
                                                                          ,"Count"))]
 
-exportTable(item107.final.SF, "SF", "Table 114", weighted = FALSE)
-# exportTable(item107.final.MH, "MH", "Table 89", weighted = FALSE)
+# exportTable(item107.final.SF, "SF", "Table 114", weighted = FALSE)
+exportTable(item107.final.MH, "MH", "Table 89", weighted = FALSE)
 
 
 
@@ -190,8 +190,8 @@ item108.final.MH <- item108.table[which(item108.table$BuildingType == "Manufactu
                                                                          ,"Count"))]
 
 
-exportTable(item108.final.SF, "SF", "Table 115", weighted = TRUE)
-# exportTable(item108.final.MH, "MH", "Table 90", weighted = TRUE)
+# exportTable(item108.final.SF, "SF", "Table 115", weighted = TRUE)
+exportTable(item108.final.MH, "MH", "Table 90", weighted = TRUE)
 
 
 ##############
@@ -224,8 +224,8 @@ item108.final.MH <- item108.table[which(item108.table$BuildingType == "Manufactu
                                                                          ,"Count"))]
 
 
-exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
-# exportTable(item108.final.MH, "MH", "Table 90", weighted = FALSE)
+# exportTable(item108.final.SF, "SF", "Table 115", weighted = FALSE)
+exportTable(item108.final.MH, "MH", "Table 90", weighted = FALSE)
 
 
 
@@ -362,8 +362,8 @@ item109.final.MH <- item109.table[which(item109.table$BuildingType == "Manufactu
                                   ,-which(colnames(item109.table) %in% c("BuildingType"))]
 
 
-exportTable(item109.final.SF, "SF", "Table 116", weighted = TRUE)
-# exportTable(item109.final.MH, "MH", "Table 91", weighted = TRUE)
+# exportTable(item109.final.SF, "SF", "Table 116", weighted = TRUE)
+exportTable(item109.final.MH, "MH", "Table 91", weighted = TRUE)
 
 
 #####################
@@ -429,8 +429,8 @@ item109.final.MH <- item109.table[which(item109.table$BuildingType == "Manufactu
                                   ,-which(colnames(item109.table) %in% c("BuildingType"))]
 
 
-exportTable(item109.final.SF, "SF", "Table 116", weighted = FALSE)
-# exportTable(item109.final.MH, "MH", "Table 91", weighted = FALSE)
+# exportTable(item109.final.SF, "SF", "Table 116", weighted = FALSE)
+exportTable(item109.final.MH, "MH", "Table 91", weighted = FALSE)
 
 
 
@@ -492,34 +492,29 @@ item110.final    <- proportions_one_group_domain(CustomerLevelData = item110.dat
                                                  ,aggregateRow     = "Total")
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"))]
-exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
+# exportTable(item110.final.SF, "SF", "Table 117", weighted = TRUE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item110.final) %in% c("BuildingType"))]
-# exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
+exportTable(item110.final.MH, "MH", "Table 92", weighted = TRUE)
 
 
 ##############
 # Unweighted
 ##############
 item110.data$count <- 1
-item110.final    <- proportions_one_group(item110.data
-                                          ,valueVariable    = 'count'
+item110.final    <- proportions_one_group(CustomerLevelData = item110.data
+                                          ,valueVariable    = 'm_ilk'
                                           ,groupingVariable = 'Clean.Room'
                                           ,total.name       = "Total"
-                                          ,columnName       = "Room"
                                           ,weighted         = FALSE)
 item110.final.SF <- item110.final[which(item110.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item110.final) %in% c("BuildingType"
-                                                                         ,"Room"
-                                                                         ,"Total.Count"))]
-exportTable(item110.final.SF, "SF", "Table 117", weighted = FALSE)
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"))]
+# exportTable(item110.final.SF, "SF", "Table 117", weighted = FALSE)
 
 item110.final.MH <- item110.final[which(item110.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(item110.final) %in% c("BuildingType"
-                                                                         ,"Room"
-                                                                         ,"Total.Count"))]
-# exportTable(item110.final.MH, "MH", "Table 92", weighted = FALSE)
+                                  ,-which(colnames(item110.final) %in% c("BuildingType"))]
+exportTable(item110.final.MH, "MH", "Table 92", weighted = FALSE)
 
 
 

@@ -26,6 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
 mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
@@ -605,8 +606,8 @@ item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Fa
 item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item105.table) %in% c("BuildingType"))]
 
-exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
-# exportTable(item105.final.MH, "MH", "Table 87", weighted = TRUE)
+# exportTable(item105.final.SF, "SF", "Table 112", weighted = TRUE)
+exportTable(item105.final.MH, "MH", "Table 87", weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -635,8 +636,8 @@ item105.final.SF <- item105.table[which(item105.table$BuildingType == "Single Fa
 item105.final.MH <- item105.table[which(item105.table$BuildingType == "Manufactured")
                                   ,-which(colnames(item105.table) %in% c("BuildingType"))]
 
-exportTable(item105.final.SF, "SF", "Table 112", weighted = FALSE)
-# exportTable(item105.final.MH, "MH", "Table 87", weighted = FALSE)
+# exportTable(item105.final.SF, "SF", "Table 112", weighted = FALSE)
+exportTable(item105.final.MH, "MH", "Table 87", weighted = FALSE)
 
 
 
