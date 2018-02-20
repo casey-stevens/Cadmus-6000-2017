@@ -1235,7 +1235,7 @@ tableAG.os.dat0 <- left_join(scl.dat, tableAG.os.dat, by = "CK_Cadmus_ID")
 
 tableAG.os.dat1 <- tableAG.os.dat0[which(!is.na(tableAG.os.dat0$Lamp.Category)),]
 
-tableAG.os.dat2 <- tableAG.os.dat1
+tableAG.os.dat2 <- tableAG.os.dat1[grep("SITE", tableAG.os.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 tableAG.os.dat2$Fixture.Qty <- as.numeric(as.character(tableAG.os.dat2$Fixture.Qty))
@@ -1249,16 +1249,34 @@ tableAG.os.dat3 <- tableAG.os.dat2[which(!(is.na(tableAG.os.dat2$Lamps))),]
 tableAG.os.led.sum <- summarise(group_by(tableAG.os.dat3, CK_Cadmus_ID, Lamp.Category)
                              ,TotalBulbs = sum(Lamps))
 
-tableAG.os.merge1 <- left_join(scl.dat, tableAG.os.led.sum)
-
 ## subset to only storage bulbs
 tableAG.os.storage <- tableAG.os.dat3[which(tableAG.os.dat3$Clean.Room == "Storage"),]
 #summarise within site
 tableAG.os.storage.sum <- summarise(group_by(tableAG.os.storage, CK_Cadmus_ID, Lamp.Category)
                                  ,StorageBulbs = sum(Lamps))
+length(unique(tableAG.os.storage.sum$CK_Cadmus_ID))
 
-tableAG.os.merge2 <- left_join(tableAG.os.merge1, tableAG.os.storage.sum)
-tableAG.os.merge <- tableAG.os.merge2[which(!is.na(tableAG.os.merge2$TotalBulbs)),]
+
+tableAG.os.merge1 <- left_join(tableAG.os.led.sum, tableAG.os.storage.sum)
+
+tableAG.os.cast1 <- dcast(setDT(tableAG.os.merge1)
+                       ,formula = CK_Cadmus_ID ~ Lamp.Category
+                       ,value.var = c("StorageBulbs"))
+tableAG.os.cast1[is.na(tableAG.os.cast1),] <- 0
+
+tableAG.os.melt1 <- melt(tableAG.os.cast1, id.vars = "CK_Cadmus_ID")
+names(tableAG.os.melt1) <- c("CK_Cadmus_ID", "Lamp.Category", "StorageBulbs")
+
+tableAG.os.cast2 <- dcast(setDT(tableAG.os.merge1)
+                       ,formula = CK_Cadmus_ID ~ Lamp.Category
+                       ,value.var = c("TotalBulbs"))
+tableAG.os.cast2[is.na(tableAG.os.cast2),] <- 0
+
+tableAG.os.melt2 <- melt(tableAG.os.cast2, id.vars = "CK_Cadmus_ID")
+names(tableAG.os.melt2) <- c("CK_Cadmus_ID", "Lamp.Category", "TotalBulbs")
+
+tableAG.os.merge2 <- left_join(tableAG.os.melt1, tableAG.os.melt2)
+tableAG.os.merge  <- left_join(scl.dat, tableAG.os.merge2)
 tableAG.os.merge$StorageBulbs[which(is.na(tableAG.os.merge$StorageBulbs))] <- 0
 
 ################################################

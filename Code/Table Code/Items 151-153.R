@@ -331,8 +331,8 @@ results.dat <- merge(scl.dat, billing.dat,
 results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-mechanical.dat <- read.xlsx(mechanical.export)
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+# mechanical.dat <- read.xlsx(mechanical.export)
 # mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 

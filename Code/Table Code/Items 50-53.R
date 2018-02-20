@@ -502,8 +502,8 @@ item52.customer <- summarise(group_by(item52.dat3
 item52.dat4 <- unique(left_join(rbsa.dat, item52.customer, by = "CK_Cadmus_ID"))
 item52.dat4 <- item52.dat4[-grep("bldg", item52.dat4$CK_Building_ID, ignore.case = T),]
 item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$y_bar_ilk)),]
-item52.dat5 <- item52.dat4[which(!is.na(item52.dat4$EquipVintage_bins)),]
-unique(item52.dat4$EquipVintage_bins)
+item52.dat5 <- item52.dat5[which(!is.na(item52.dat5$EquipVintage_bins)),]
+unique(item52.dat5$EquipVintage_bins)
 
 #any duplicates?
 item52.dat5$CK_Cadmus_ID[which(duplicated(item52.dat5$CK_Cadmus_ID))]
@@ -559,7 +559,7 @@ item52.final.SF <- item52.final[which(item52.final$BuildingType == "Single Famil
 # exportTable(item52.final.SF, "SF", "Table 59", weighted = TRUE)
 
 ###############################
-# Weighted Analysis - manufactured
+# weighted Analysis - manufactured
 ###############################
 item52.final <- mean_one_group_domain(CustomerLevelData = item52.data
                                       ,valueVariable = 'y_bar_ilk' 
@@ -835,7 +835,7 @@ item50.os.dat3 <- item50.os.dat2[which(item50.os.dat2$`Heating.Efficiency.-.High
 
 #make heating efficiency information numeric
 item50.os.dat3$`Heating.Efficiency.-.High` <- as.numeric(as.character(item50.os.dat3$`Heating.Efficiency.-.High`))
-item50.os.dat3$`Heating.Efficiency.-.High` <- item50.os.dat3$`Heating.Efficiency.-.High` / 100
+item50.os.dat3$`Heating.Efficiency.-.High` <- item50.os.dat3$`Heating.Efficiency.-.High`
 unique(item50.os.dat3$`Heating.Efficiency.-.High`)
 item50.os.dat3$count <- 1
 
@@ -1003,7 +1003,7 @@ item51.os.final <- proportionRowsAndColumns1(CustomerLevelData = item51.os.data
 item51.os.cast <- dcast(setDT(item51.os.final)
                      , formula = BuildingType + Efficiency_bins ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
-
+names(item51.os.cast)
 #subset to only the columns needed for the final scl table
 item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
                               ,"Efficiency"           = item51.os.cast$Efficiency_bins
@@ -1058,18 +1058,18 @@ item51.os.cast <- dcast(setDT(item51.os.final)
 #subset to only the columns needed for the final scl table
 item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
                               ,"Efficiency"           = item51.os.cast$Efficiency_bins
-                              ,"Percent_SCL.GenPop"   = item2.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item2.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item2.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item2.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item2.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item2.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item2.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
+                              ,"Percent_SCL.GenPop"   = item51.os.cast$`Percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item51.os.cast$`SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item51.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item51.os.cast$`Percent_SCL LI`
+                              ,"SE_SCL.LI"            = item51.os.cast$`SE_SCL LI`
+                              ,"n_SCL.LI"             = item51.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = NA#item51.os.cast$`Percent_SCL EH`
+                              ,"SE_SCL.EH"            = NA#item51.os.cast$`SE_SCL EH`
+                              ,"n_SCL.EH"             = NA#item51.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item51.os.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item51.os.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item51.os.cast$`n_2017 RBSA PS`
 )
 
 # row ordering example code
@@ -1161,7 +1161,7 @@ item52.os.cast <- mean_two_groups(CustomerLevelData = item52.os.data
                                    ,byVariableColumn = "CK_Building_ID"
                                    ,columnAggregate = "Remove"
                                    ,rowAggregate = "All Vintages")
-
+names(item52.os.cast)
 item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
                               ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
                               ,"Mean_SCL.GenPop"      = item52.os.cast$`Mean_SCL GenPop`

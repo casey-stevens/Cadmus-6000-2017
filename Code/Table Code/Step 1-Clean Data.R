@@ -39,8 +39,8 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "BuildingHeight"     = one.line.dat$N.Floors
                             , stringsAsFactors     = F)
 building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
-                              ,"CK_Building_ID"   = one.line.dat$REMOVE.COLUMN
-                              ,"CK_SiteID"        = one.line.dat$zPK_SiteID
+                              ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
+                              ,"CK_SiteID"        = one.line.dat$PK_SiteID
                               , stringsAsFactors  = F)
 building.id.dat <- melt(building.id.dat, id.vars = "CK_Cadmus_ID")
 names(building.id.dat) <- c("CK_Cadmus_ID", "Remove", "CK_Building_ID")
@@ -307,35 +307,6 @@ write.xlsx(rbsa.dat8, paste(filepathCleanData, paste("clean.rbsa.data", rundate,
 
 
 
-
-
-
-#############################################################################################
-#
-# SCL
-#
-#############################################################################################
-scl.dat <- rbsa.dat8[grep("SCL",rbsa.dat8$Territory, ignore.case = T),]
-scl.dat$Category <- "SCL GenPop"
-scl.li.dat <- rbsa.dat8[grep("SCL LI",rbsa.dat8$Territory, ignore.case = T),]
-scl.li.dat$Category <- "SCL LI"
-scl.eh.dat <- rbsa.dat8[grep("SCL EH",rbsa.dat8$Territory, ignore.case = T),]
-scl.eh.dat$Category <- "SCL EH"
-scl.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
-scl.ps.dat$Category <- "2017 RBSA PS"
-
-scl.data <- rbind.data.frame(scl.dat
-                             ,scl.li.dat
-                             ,scl.eh.dat
-                             ,scl.ps.dat)
-scl.data$CK_Building_ID <- NA
-scl.data <- unique(scl.data[which(scl.data$BuildingType == "Single Family"),])
-
-
-##  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
 
 
 

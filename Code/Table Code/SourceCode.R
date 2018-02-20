@@ -61,7 +61,7 @@ stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
 
 os.ind <- "scl"
 export.ind <- "SCL"
-subset.ind <- "SCL"
+subset.ind <- "SCL GenPop"
 
 # os.ind <- "snopud"
 # export.ind <- "SnoPUD"

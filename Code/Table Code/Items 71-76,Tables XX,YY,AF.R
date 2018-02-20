@@ -1397,8 +1397,9 @@ item76.os.dat$count <- 1
 item76.os.dat0 <- item76.os.dat[which(item76.os.dat$Clean.Room == "Storage"),]
 item76.os.dat0.1 <- item76.os.dat0[which(item76.os.dat$Lamp.Category == "Compact Fluorescent"),]
 
-item76.os.dat1 <- left_join(item76.os.dat0.1, scl.dat, by = "CK_Cadmus_ID")
+item76.os.dat1 <- left_join(item76.os.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
+# item76.os.dat2 <- item76.os.dat1[grep("SITE", item76.os.dat1$CK_SiteID),]
 item76.os.dat2 <- item76.os.dat1
 
 #clean fixture and bulbs per fixture
@@ -1414,7 +1415,7 @@ item76.os.dat3 <- item76.os.dat2[which(!(is.na(item76.os.dat2$Lamps))),]
 item76.os.customer <- summarise(group_by(item76.os.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
-item76.os.merge <- left_join(scl.dat, item76.os.customer)
+item76.os.merge <- left_join(rbsa.dat, item76.os.customer)
 item76.os.merge$Lamps[which(is.na(item76.os.merge$Lamps))] <- 0 
 
 
@@ -1546,11 +1547,11 @@ tableAF.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID
                                                                 ,"Clean.Room"))]
 tableAF.os.dat$count <- 1
 
-tableAF.os.dat0 <- tableAF.os.dat[which(tableAF.os.dat$Clean.Room == "Storage"),]
+tableAF.os.dat0 <- left_join(scl.dat, tableAF.os.dat, by = "CK_Cadmus_ID")
 
-tableAF.os.dat1 <- left_join(tableAF.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+tableAF.os.dat1 <- tableAF.os.dat0[which(!is.na(tableAF.os.dat0$Lamp.Category)),]
 
-tableAF.os.dat2 <- tableAF.os.dat1[which(tableAF.os.dat1$Lamp.Category %notin% c("Unknown",NA)),]
+tableAF.os.dat2 <- tableAF.os.dat1[grep("SITE", tableAF.os.dat1$CK_SiteID),]
 
 #clean fixture and bulbs per fixture
 tableAF.os.dat2$Fixture.Qty <- as.numeric(as.character(tableAF.os.dat2$Fixture.Qty))
@@ -1561,35 +1562,55 @@ unique(tableAF.os.dat2$Lamps)
 
 tableAF.os.dat3 <- tableAF.os.dat2[which(!(is.na(tableAF.os.dat2$Lamps))),]
 
+tableAF.os.led.sum <- summarise(group_by(tableAF.os.dat3, CK_Cadmus_ID, Lamp.Category)
+                             ,TotalBulbs = sum(Lamps))
 
-tableAF.os.customer <- summarise(group_by(tableAF.os.dat3, CK_Cadmus_ID, Lamp.Category)
-                              ,Lamps = sum(Lamps))
-unique(tableAF.os.customer$Lamp.Category)
+## subset to only storage bulbs
+tableAF.os.storage <- tableAF.os.dat3[which(tableAF.os.dat3$Clean.Room == "Storage"),]
+#summarise within site
+tableAF.os.storage.sum <- summarise(group_by(tableAF.os.storage, CK_Cadmus_ID, Lamp.Category)
+                                 ,StorageBulbs = sum(Lamps))
+length(unique(tableAF.os.storage.sum$CK_Cadmus_ID))
 
-tableAF.os.merge <- left_join(scl.dat, tableAF.os.customer)
-tableAF.os.merge <- tableAF.os.merge[which(!is.na(tableAF.os.merge$Lamp.Category)),]
-tableAF.os.merge$Lamps[which(is.na(tableAF.os.merge$Lamps))] <- 0 
+
+tableAF.os.merge1 <- left_join(tableAF.os.led.sum, tableAF.os.storage.sum)
+
+tableAF.os.cast <- dcast(setDT(tableAF.os.merge1)
+                      ,formula = CK_Cadmus_ID ~ Lamp.Category
+                      ,value.var = c("StorageBulbs"))
+tableAF.os.cast[is.na(tableAF.os.cast),] <- 0
+
+tableAF.os.melt <- melt(tableAF.os.cast, id.vars = "CK_Cadmus_ID")
+names(tableAF.os.melt) <- c("CK_Cadmus_ID", "Lamp.Category", "StorageBulbs")
+
+
+tableAF.os.merge  <- left_join(scl.dat, tableAF.os.melt)
+tableAF.os.merge$StorageBulbs[which(is.na(tableAF.os.merge$StorageBulbs))] <- 0
 
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-tableAF.os.data <- weightedData(tableAF.os.merge[-which(colnames(tableAF.os.merge) %in% c("Lamps"
-                                                                                 ,"Lamp.Category"))])
-tableAF.os.data <- left_join(tableAF.os.data, unique(tableAF.os.merge[which(colnames(tableAF.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Lamps"
-                                                                                           ,"Lamp.Category"))]))
+tableAF.os.data <- weightedData(tableAF.os.merge[-which(colnames(tableAF.os.merge) %in% c("StorageBulbs"
+                                                                                          ,"Lamp.Category"
+                                                                                          # ,"TotalBulbs"
+))])
+tableAF.os.data <- left_join(tableAF.os.data, tableAF.os.merge[which(colnames(tableAF.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"StorageBulbs"
+                                                                                                       ,"Lamp.Category"
+                                                                                                       # ,"TotalBulbs"
+))])
 tableAF.os.data$count <- 1
 
 #######################
 # Weighted Analysis
 #######################
 tableAF.os.final <- mean_two_groups(CustomerLevelData = tableAF.os.data
-                                 ,valueVariable = "Lamps"
-                                 ,byVariableRow = "Lamp.Category"
-                                 ,byVariableColumn = "CK_Building_ID"
-                                 ,columnAggregate = "Remove"
-                                 ,rowAggregate = "All Categories")
+                                    ,valueVariable = "StorageBulbs"
+                                    ,byVariableRow = "Lamp.Category"
+                                    ,byVariableColumn = "CK_Building_ID"
+                                    ,columnAggregate = "Remove"
+                                    ,rowAggregate = "All Categories")
 tableAF.os.cast <- data.frame(tableAF.os.final, stringsAsFactors = F)
 
 tableAF.os.table <- data.frame("BuildingType"    = tableAF.os.cast$BuildingType
@@ -1633,7 +1654,7 @@ exportTable(tableAF.os.final.SF, "SF", "Table AF", weighted = TRUE, osIndicator 
 # Unweighted Analysis
 #######################
 tableAF.os.final <- mean_two_groups_unweighted(CustomerLevelData = tableAF.os.data
-                                            ,valueVariable = "Lamps"
+                                            ,valueVariable = "StorageBulbs"
                                             ,byVariableRow = "Lamp.Category"
                                             ,byVariableColumn = "CK_Building_ID"
                                             ,columnAggregate = "Remove"

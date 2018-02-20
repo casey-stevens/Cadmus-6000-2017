@@ -395,6 +395,20 @@ item24.os.final <- proportions_one_group(CustomerLevelData  = item24.os.data
                                       , total.name       = "Remove"
                                       , weighted = TRUE)
 item24.os.final <- item24.os.final[which(item24.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+levels(item24.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item24.os.final <- item24.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item24.os.final <- data.frame(item24.os.final)
+
 
 item24.os.final.SF <- item24.os.final[which(item24.os.final$BuildingType == "Single Family"),-1]
 
@@ -410,6 +424,19 @@ item24.os.final <- proportions_one_group(CustomerLevelData  = item24.os.data
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
 item24.os.final <- item24.os.final[which(item24.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+levels(item24.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item24.os.final <- item24.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item24.os.final <- data.frame(item24.os.final)
 
 item24.os.final.SF <- item24.os.final[which(item24.os.final$BuildingType == "Single Family"),-1]
 
@@ -456,6 +483,20 @@ item25.os.final <- proportions_one_group(CustomerLevelData  = item25.os.data
                                       , weighted = TRUE)
 item25.os.final <- item25.os.final[which(item25.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
+levels(item25.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item25.os.final <- item25.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item25.os.final <- data.frame(item25.os.final)
+
 item25.os.final.SF <- item25.os.final[which(item25.os.final$BuildingType == "Single Family"),-1]
 
 exportTable(item25.os.final.SF, "SF", "Table 32", weighted = TRUE, osIndicator = export.ind, OS = T)
@@ -469,6 +510,20 @@ item25.os.final <- proportions_one_group(CustomerLevelData  = item25.os.data
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
 item25.os.final <- item25.os.final[which(item25.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+levels(item25.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item25.os.final <- item25.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item25.os.final <- data.frame(item25.os.final)
 
 item25.os.final.SF <- item25.os.final[which(item25.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.os.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
@@ -514,6 +569,20 @@ item28.os.final <- proportions_one_group(CustomerLevelData  = item28.os.data
                                       , weighted = TRUE)
 item28.os.final <- item28.os.final[which(item28.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
+levels(item28.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item28.os.final <- item28.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item28.os.final <- data.frame(item28.os.final)
+
 item28.os.final.SF <- item28.os.final[which(item28.os.final$BuildingType == "Single Family"),-1]
 
 exportTable(item28.os.final.SF, "SF", "Table 35", weighted = TRUE, osIndicator = export.ind, OS = T)
@@ -527,6 +596,21 @@ item28.os.final <- proportions_one_group(CustomerLevelData  = item28.os.data
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
 item28.os.final <- item28.os.final[which(item28.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+
+levels(item28.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item28.os.final <- item28.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item28.os.final <- data.frame(item28.os.final)
 
 item28.os.final.SF <- item28.os.final[which(item28.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.os.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
@@ -573,6 +657,20 @@ item29.os.final <- proportions_one_group(CustomerLevelData  = item29.os.data
                                       , weighted = TRUE)
 item29.os.final <- item29.os.final[which(item29.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
 
+levels(item29.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item29.os.final <- item29.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item29.os.final <- data.frame(item29.os.final)
+
 item29.os.final.SF <- item29.os.final[which(item29.os.final$BuildingType == "Single Family"),-1]
 
 exportTable(item29.os.final.SF, "SF", "Table 36", weighted = TRUE, osIndicator = export.ind, OS = T)
@@ -587,6 +685,20 @@ item29.os.final <- proportions_one_group(CustomerLevelData  = item29.os.data
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
 item29.os.final <- item29.os.final[which(item29.os.final$CK_Building_ID %notin% c("Remove", "Total")),]
+
+levels(item29.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item29.os.final <- item29.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item29.os.final <- data.frame(item29.os.final)
 
 item29.os.final.SF <- item29.os.final[which(item29.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.os.final) %in% c("BuildingType"))]

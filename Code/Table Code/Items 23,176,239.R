@@ -709,17 +709,26 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 #########################################################################################
 # ITEM 176: DISTRIBUTION OF FLOOR U-VALUE BY STATE (MH Table 19)
 #########################################################################################
-item176.dat1 <- prep.dat7
+## Note: For this table, you must run up to prep.dat7 for the cleaned data
+item176.dat <- envelope.dat[which(names(envelope.dat) %in% c("CK_Cadmus_ID", "Floor.U-Value.-.For.Calcs"))]
+item176.dat$`Floor.U-Value.-.For.Calcs` <- as.numeric(as.character(item176.dat$`Floor.U-Value.-.For.Calcs`))
+
+item176.dat1 <- item176.dat[which(!is.na(item176.dat$`Floor.U-Value.-.For.Calcs`)),]
+
+item176.summary <- data.frame(ddply(item176.dat1
+                                    ,c("CK_Cadmus_ID"), summarise
+                                    ,aveUval = mean(`Floor.U-Value.-.For.Calcs`)), stringsAsFactors = F)
+
+
+item176.summary$count <- 1
+colnames(item176.summary)
+
+item176.merge <- left_join(rbsa.dat, item176.summary)
+item176.merge <- item176.merge[which(!is.na(item176.merge$aveUval)),]
 
 ######################
 # Apply weights
 ######################
-item176.dat1$count <- 1
-colnames(item176.dat1)
-
-item176.merge <- left_join(rbsa.dat, item176.dat1)
-item176.merge <- item176.merge[which(!is.na(item176.merge$count)),]
-
 item176.data <- weightedData(unique(item176.merge[which(colnames(item176.merge) %notin% c("aveUval"
                                                                                           ,"aveRval"
                                                                                           ,"count"
@@ -1092,8 +1101,8 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,"SE.R1.R3"        = item23.os.cast$w.SE_R1.R3
                               ,"Percent.R4.R10"  = item23.os.cast$w.percent_R4.R10  
                               ,"SE.R4.R10"       = item23.os.cast$w.SE_R4.R10
-                              ,"Percent.R11.R15" = NA#item23.os.cast$w.percent_R11.R15
-                              ,"SE.R11.R15"      = NA#item23.os.cast$w.SE_R11.R15
+                              ,"Percent.R11.R15" = item23.os.cast$w.percent_R11.R15
+                              ,"SE.R11.R15"      = item23.os.cast$w.SE_R11.R15
                               ,"Percent.R16.R22" = item23.os.cast$w.percent_R16.R22
                               ,"SE.R16.R22"      = item23.os.cast$w.SE_R16.R22
                               ,"Percent.R23.R27" = item23.os.cast$w.percent_R23.R27
@@ -1106,7 +1115,7 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,'EB.None'         = item23.os.cast$EB_None
                               ,'EB.R1.R3'        = item23.os.cast$EB_R1.R3
                               ,'EB.R4.R10'       = item23.os.cast$EB_R4.R10
-                              ,'EB.R11.R15'      = NA#item23.os.cast$EB_R11.R15
+                              ,'EB.R11.R15'      = item23.os.cast$EB_R11.R15
                               ,'EB.R16.R22'      = item23.os.cast$EB_R16.R22
                               ,'EB.R23.R27'      = item23.os.cast$EB_R23.R27
                               ,'EB.R28.R35'      = item23.os.cast$EB_R28.R35
@@ -1178,8 +1187,8 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,"SE.R1.R3"        = item23.os.cast$SE_R1.R3
                               ,"Percent.R4.R10"  = item23.os.cast$Percent_R4.R10  
                               ,"SE.R4.R10"       = item23.os.cast$SE_R4.R10
-                              ,"Percent.R11.R15" = NA#item23.os.cast$Percent_R11.R15
-                              ,"SE.R11.R15"      = NA#item23.os.cast$SE_R11.R15
+                              ,"Percent.R11.R15" = item23.os.cast$Percent_R11.R15
+                              ,"SE.R11.R15"      = item23.os.cast$SE_R11.R15
                               ,"Percent.R16.R22" = item23.os.cast$Percent_R16.R22
                               ,"SE.R16.R22"      = item23.os.cast$SE_R16.R22
                               ,"Percent.R23.R27" = item23.os.cast$Percent_R23.R27

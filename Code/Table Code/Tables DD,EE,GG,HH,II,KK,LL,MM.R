@@ -1033,9 +1033,9 @@ tableDD.os.merge <- left_join(scl.dat, tableDD.os.dat0, by = "CK_Cadmus_ID")
 tableDD.os.merge <- tableDD.os.merge[which(!is.na(tableDD.os.merge$Thermostat.Type)),]
 
 unique(tableDD.os.merge$Thermostat.Type)
-tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual thermostat - Digital"
-tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable thermostat"
-tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual thermostat - Analog"
+tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual Thermostat - Digital"
+tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable Thermostat"
+tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual Thermostat - Analog"
 
 
 
@@ -1085,12 +1085,12 @@ tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
 )
 
 levels(tableDD.os.table$Thermostat.Type)
-rowOrder <- c("Manual thermostat - Analog"
-              ,"Manual thermostat - Digital"
-              ,"Programmable thermostat"
-              ,"Smart thermostat"
-              ,"Smart/Wi-Fi thermostat"
-              ,"Wi-Fi enabled thermostat"
+rowOrder <- c("Manual Thermostat - Analog"
+              ,"Manual Thermostat - Digital"
+              ,"Programmable Thermostat"
+              ,"Smart Thermostat"
+              ,"Smart/Wi-Fi Thermostat"
+              ,"Wi-Fi Enabled Thermostat"
               ,"None"
               ,"Unknown"
               ,"Total")
@@ -1132,13 +1132,12 @@ tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
 )
 
 levels(tableDD.os.table$Thermostat.Type)
-rowOrder <- c("Hand remote"
-              ,"Manual thermostat - Analog"
-              ,"Manual thermostat - Digital"
-              ,"Programmable thermostat"
-              ,"Smart thermostat"
-              ,"Smart/Wi-Fi thermostat"
-              ,"Wi-Fi enabled thermostat"
+rowOrder <- c("Manual Thermostat - Analog"
+              ,"Manual Thermostat - Digital"
+              ,"Programmable Thermostat"
+              ,"Smart Thermostat"
+              ,"Smart/Wi-Fi Thermostat"
+              ,"Wi-Fi Enabled Thermostat"
               ,"None"
               ,"Unknown"
               ,"Total")

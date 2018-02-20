@@ -640,16 +640,16 @@ item55.os.table <- data.frame("BuildingType"          = item55.os.cast$BuildingT
                               ,"EB_2017.RBSA.PS"      = item55.os.cast$`EB_2017 RBSA PS`)
 # row ordering example code
 levels(item55.os.table$Cooling.System.Type)
-rowOrder <- c("Packaged AC"
-              ,"Packaged HP"
-              ,"Central AC"
+rowOrder <- c("Packaged Ac"
+              ,"Packaged Hp"
+              ,"Central Ac"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
-              ,"Mini-split HP"
-              ,"Mini-split AC"
+              ,"Mini-Split Hp"
+              ,"Mini-Split Ac"
               ,"Furnace"
-              ,"GeoThermal Heat Pump"
+              ,"Geothermal Heat Pump"
               ,"Total")
 item55.os.table <- item55.os.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item55.os.table <- data.frame(item55.os.table)
@@ -691,16 +691,16 @@ item55.os.table <- data.frame("BuildingType"          = item55.os.cast$BuildingT
                               ,"n_2017.RBSA.PS"       = item55.os.cast$`n_2017 RBSA PS`)
 # row ordering example code
 levels(item55.os.table$Cooling.System.Type)
-rowOrder <- c("Packaged AC"
-              ,"Packaged HP"
-              ,"Central AC"
+rowOrder <- c("Packaged Ac"
+              ,"Packaged Hp"
+              ,"Central Ac"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
-              ,"Mini-split HP"
-              ,"Mini-split AC"
+              ,"Mini-Split Hp"
+              ,"Mini-Split Ac"
               ,"Furnace"
-              ,"GeoThermal Heat Pump"
+              ,"Geothermal Heat Pump"
               ,"Total")
 item55.os.table <- item55.os.table %>% mutate(Cooling.System.Type = factor(Cooling.System.Type, levels = rowOrder)) %>% arrange(Cooling.System.Type)  
 item55.os.table <- data.frame(item55.os.table)

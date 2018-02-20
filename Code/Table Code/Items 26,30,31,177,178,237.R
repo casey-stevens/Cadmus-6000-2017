@@ -687,22 +687,30 @@ exportTable(item177.table.MH, "MH", "Table 20", weighted = FALSE)
 #############################################################################################
 #Item 178: DISTRIBUTION OF CEILING U-VALUE BY STATE (MH TABLE 21)
 #############################################################################################
-item178.dat <- prep.dat7[which(prep.dat7$BuildingType == "Manufactured"),]
+item178.dat <- envelope.dat[which(names(envelope.dat) %in% c("CK_Cadmus_ID", "Ceiling.U-Value.-.For.Calcs"))]
+item178.dat$`Ceiling.U-Value.-.For.Calcs` <- as.numeric(as.character(item178.dat$`Ceiling.U-Value.-.For.Calcs`))
 
-#merge weighted u values onto cleaned RBSA data
-item178.merge <- left_join(rbsa.dat, item178.dat)
-item178.merge <- item178.merge[which(!(is.na(item178.merge$aveUval))),]
+item178.dat1 <- item178.dat[which(!is.na(item178.dat$`Ceiling.U-Value.-.For.Calcs`)),]
+
+item178.summary <- data.frame(ddply(item178.dat1
+                                    ,c("CK_Cadmus_ID"), summarise
+                                    ,aveUval = mean(`Ceiling.U-Value.-.For.Calcs`)), stringsAsFactors = F)
+
+
+item178.summary$count <- 1
+colnames(item178.summary)
+
+item178.merge <- left_join(rbsa.dat, item178.summary)
+item178.merge <- item178.merge[which(!is.na(item178.merge$aveUval)),]
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item178.data <- weightedData(item178.merge[-which(colnames(item178.merge) %in% c("Ceiling.Type"
-                                                                                 ,"aveUval"
-                                                                                 ,"aveRval"))])
+item178.data <- weightedData(item178.merge[-which(colnames(item178.merge) %in% c("aveUval"
+                                                                                 ,"count"))])
 item178.data <- left_join(item178.data, item178.merge[which(colnames(item178.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ceiling.Type"
                                                                                            ,"aveUval"
-                                                                                           ,"aveRval"))])
+                                                                                           ,"count"))])
 
 #######################
 # Weighted Analysis
