@@ -311,10 +311,10 @@ exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 59: PERCENTAGE OF HOMES WITH DUCT SYSTEMS BY CK_Building_ID (SF table 66)
@@ -330,7 +330,7 @@ item59.os.dat$count <- 1
 #check unique system types
 unique(item59.os.dat00$Generic)
 
-item59.os.dat0 <- left_join(scl.dat, item59.os.dat00, by = "CK_Cadmus_ID")
+item59.os.dat0 <- left_join(os.dat, item59.os.dat00, by = "CK_Cadmus_ID")
 
 #subset to only Generic = Ducting
 item59.os.dat1 <- unique(item59.os.dat0[which(item59.os.dat0$Generic == "Ducting"),])
@@ -343,7 +343,7 @@ unique(item59.os.dat2$System.Type)
 # Add count var
 item59.os.dat2$Ind <- 1
 
-item59.os.dat3 <- left_join(scl.dat, item59.os.dat2)
+item59.os.dat3 <- left_join(os.dat, item59.os.dat2)
 item59.os.dat3$Ind[which(is.na(item59.os.dat3$Ind))] <- 0
 which(duplicated(item59.os.dat3$CK_Cadmus_ID))
 
@@ -351,7 +351,7 @@ item59.os.customer <- summarise(group_by(item59.os.dat3, CK_Cadmus_ID)
                              ,Ind = sum(unique(Ind)))
 item59.os.customer$Ind[which(item59.os.customer$Ind > 0)] <- 1
 
-item59.os.merge <- left_join(scl.dat, item59.os.customer)
+item59.os.merge <- left_join(os.dat, item59.os.customer)
 
 # Weighting function
 item59.os.data <- weightedData(item59.os.merge[-which(colnames(item59.os.merge) %in% c("Ind"))])
@@ -369,9 +369,24 @@ item59.os.final <- proportions_one_group(CustomerLevelData  = item59.os.data
                                       , total.name       = "Remove"
                                       , weighted = TRUE)
 
+levels(item59.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item59.os.final <- item59.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item59.os.final <- data.frame(item59.os.final)
+
+
 item59.os.final.SF <- item59.os.final[which(item59.os.final$CK_Building_ID != "Total"),-1]
 
-exportTable(item59.os.final.SF, "SF", "Table 66", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item59.os.final.SF, "SF", "Table 66", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -384,10 +399,24 @@ item59.os.final <- proportions_one_group(CustomerLevelData  = item59.os.data
                                       , total.name       = "Remove"
                                       , weighted = FALSE)
 
+levels(item59.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item59.os.final <- item59.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item59.os.final <- data.frame(item59.os.final)
+
 item59.os.final.SF <- item59.os.final[which(item59.os.final$CK_Building_ID != "Total")
                                 ,-which(colnames(item59.os.final) %in% c("BuildingType"))]
 
-exportTable(item59.os.final.SF, "SF", "Table 66", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item59.os.final.SF, "SF", "Table 66", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -405,7 +434,7 @@ item60.os.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus
 #check unique values for conditioned space
 unique(item60.os.dat$Percentage.of.Supply.Ducts.in.Conditioned.Space)
 
-item60.os.dat0 <- left_join(scl.dat, item60.os.dat, by = "CK_Cadmus_ID")
+item60.os.dat0 <- left_join(os.dat, item60.os.dat, by = "CK_Cadmus_ID")
 
 #remove coditioned space = datapoint not asked for
 item60.os.dat1 <- item60.os.dat0[which(item60.os.dat0$Percentage.of.Supply.Ducts.in.Conditioned.Space != "-- Datapoint not asked for --"),]
@@ -461,25 +490,45 @@ item60.os.cast <- dcast(setDT(item60.os.final)
                      , formula = BuildingType + UnconditionedBins ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-item60.os.table <- data.frame("BuildingType"     = item60.os.cast$BuildingType
-                           ,"Percentage.of.Ducts.in.Unconditioned.Space" = item60.os.cast$UnconditionedBins
-                           ,"Percent_SCL.GenPop"   = item60.os.cast$`w.percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item60.os.cast$`w.SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item60.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item60.os.cast$`w.percent_SCL LI`
-                           ,"SE_SCL.LI"            = item60.os.cast$`w.SE_SCL LI`
-                           ,"n_SCL.LI"             = item60.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item60.os.cast$`w.percent_SCL EH`
-                           ,"SE_SCL.EH"            = item60.os.cast$`w.SE_SCL EH`
-                           ,"n_SCL.EH"             = item60.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item60.os.cast$`w.percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item60.os.cast$`w.SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item60.os.cast$`n_2017 RBSA PS`
-                           ,"EB_SCL.GenPop"        = item60.os.cast$`EB_SCL GenPop`
-                           ,"EB_SCL.LI"            = item60.os.cast$`EB_SCL LI`
-                           ,"EB_SCL.EH"            = item60.os.cast$`EB_SCL EH`
-                           ,"EB_2017.RBSA.PS"      = item60.os.cast$`EB_2017 RBSA PS`
-)
+names(item60.os.cast)
+if(os.ind == "scl"){
+  item60.os.table <- data.frame("BuildingType"     = item60.os.cast$BuildingType
+                                ,"Percentage.of.Ducts.in.Unconditioned.Space" = item60.os.cast$UnconditionedBins
+                                ,"Percent_SCL.GenPop"   = item60.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item60.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item60.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item60.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item60.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item60.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item60.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item60.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item60.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item60.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item60.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item60.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item60.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item60.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item60.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item60.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item60.os.table <- data.frame("BuildingType"     = item60.os.cast$BuildingType
+                                ,"Percentage.of.Ducts.in.Unconditioned.Space" = item60.os.cast$UnconditionedBins
+                                ,"Percent_SnoPUD"          = item60.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item60.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item60.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item60.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item60.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item60.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item60.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item60.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item60.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item60.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item60.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item60.os.cast$`EB_2017 RBSA NW`)
+}
+
+
+
 
 levels(item60.os.table$Percentage.of.Ducts.in.Unconditioned.Space)
 rowOrder <- c("1-50%"
@@ -493,7 +542,7 @@ item60.os.table <- data.frame(item60.os.table)
 item60.os.final.SF <- item60.os.table[which(item60.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item60.os.table) %in% c("BuildingType"))]
 
-exportTable(item60.os.final.SF, "SF", "Table 67", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item60.os.final.SF, "SF", "Table 67", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #############################
 # Unweighted Analysis
@@ -508,21 +557,38 @@ item60.os.cast <- dcast(setDT(item60.os.final)
                      , formula = BuildingType + UnconditionedBins ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
-item60.os.table <- data.frame("BuildingType"     = item60.os.cast$BuildingType
-                           ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.os.cast$UnconditionedBins
-                           ,"Percent_SCL.GenPop"   = item60.os.cast$`Percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item60.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item60.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item60.os.cast$`Percent_SCL LI`
-                           ,"SE_SCL.LI"            = item60.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = item60.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item60.os.cast$`Percent_SCL EH`
-                           ,"SE_SCL.EH"            = item60.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = item60.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item60.os.cast$`Percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item60.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item60.os.cast$`n_2017 RBSA PS`
-)
+names(item60.os.cast)
+if(os.ind == "scl"){
+  item60.os.table <- data.frame("BuildingType"     = item60.os.cast$BuildingType
+                                ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.os.cast$UnconditionedBins
+                                ,"Percent_SCL.GenPop"   = item60.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item60.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item60.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item60.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item60.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item60.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item60.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item60.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item60.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item60.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item60.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item60.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item60.os.table <- data.frame("BuildingType"     = item60.os.cast$BuildingType
+                                ,"Percentage.of.Ducts.in.Unconditioned.Space"   = item60.os.cast$UnconditionedBins
+                                ,"Percent_SnoPUD"          = item60.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item60.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item60.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item60.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item60.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item60.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item60.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item60.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item60.os.cast$`n_2017 RBSA NW`)
+}
+
+
+
 
 levels(item60.os.table$Percentage.of.Ducts.in.Unconditioned.Space)
 rowOrder <- c("1-50%"
@@ -537,4 +603,4 @@ item60.os.table <- data.frame(item60.os.table)
 item60.os.final.SF <- item60.os.table[which(item60.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item60.os.table) %in% c("BuildingType"))]
 
-exportTable(item60.os.final.SF, "SF", "Table 67", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item60.os.final.SF, "SF", "Table 67", weighted = FALSE, osIndicator = export.ind, OS = T)
