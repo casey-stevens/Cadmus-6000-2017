@@ -808,10 +808,10 @@ exportTable(item53.table.MH, "MH", "Table 40", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 50: AVERAGE GAS FURNACE EFFICIENCY (AFUE) BY EQUIPMENT VINTAGE AND CK_Building_ID (SF table 57, MH table 38)
@@ -851,7 +851,7 @@ item50.os.customer <- summarise(group_by(item50.os.dat4
                              ,m_ilk      = sum(count)
 )
 
-item50.os.merge <- left_join(scl.dat, item50.os.customer)
+item50.os.merge <- left_join(os.dat, item50.os.customer)
 item50.os.merge <- item50.os.merge[which(!is.na(item50.os.merge$y_ilk)),]
 
 
@@ -878,30 +878,46 @@ item50.os.cast <- mean_two_groups_domain(CustomerLevelData = item50.os.data
                                        ,byVariableRow    = 'EquipVintage_bins'
                                        ,byVariableColumn = 'CK_Building_ID'
                                        ,aggregateColumn  = "Remove"
-                                       ,aggregateRow     = "All Vintages"
-)
+                                       ,aggregateRow     = "All Vintages")
 
+names(item50.os.cast)
+if(os.ind == "scl"){
+  item50.os.table <- data.frame("BuildingType"       = item50.os.cast$BuildingType
+                                ,"Equipment.Vintage"    = item50.os.cast$EquipVintage_bins
+                                ,"Mean_SCL.GenPop"      = item50.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item50.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item50.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item50.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item50.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item50.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = NA#item50.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = NA#item50.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = NA#item50.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item50.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item50.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item50.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item50.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item50.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = NA#item50.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item50.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item50.os.table <- data.frame("BuildingType"       = item50.os.cast$BuildingType
+                                ,"Equipment.Vintage"    = item50.os.cast$EquipVintage_bins
+                                ,"Mean_SnoPUD"          = item50.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item50.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item50.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item50.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item50.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item50.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item50.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item50.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item50.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item50.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item50.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item50.os.cast$`EB_2017 RBSA NW`)
+}
 
-#subset to only the columns needed for the final scl table
-item50.os.table <- data.frame("BuildingType"       = item50.os.cast$BuildingType
-                           ,"Equipment.Vintage"    = item50.os.cast$EquipVintage_bins
-                           ,"Mean_SCL.GenPop"      = item50.os.cast$`Mean_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item50.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item50.os.cast$`n_SCL GenPop`
-                           ,"Mean_SCL.LI"          = item50.os.cast$`Mean_SCL LI`
-                           ,"SE_SCL.LI"            = item50.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = item50.os.cast$`n_SCL LI`
-                           ,"Mean_SCL.EH"          = NA#item50.os.cast$`Mean_SCL EH`
-                           ,"SE_SCL.EH"            = NA#item50.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = NA#item50.os.cast$`n_SCL EH`
-                           ,"Mean_2017.RBSA.PS"    = item50.os.cast$`Mean_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item50.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item50.os.cast$`n_2017 RBSA PS`
-                           ,"EB_SCL.GenPop"        = item50.os.cast$`EB_SCL GenPop`
-                           ,"EB_SCL.LI"            = item50.os.cast$`EB_SCL LI`
-                           ,"EB_SCL.EH"            = NA#item50.os.cast$`EB_SCL EH`
-                           ,"EB_2017.RBSA.PS"      = item50.os.cast$`EB_2017 RBSA PS`
-                           )
+                           
 
 # row ordering example code
 levels(item50.os.table$Equipment.Vintage)
@@ -918,7 +934,7 @@ item50.os.table <- data.frame(item50.os.table)
 #subset to only the relevant building types for this item
 item50.os.table.SF <- item50.os.table[which(item50.os.table$BuildingType == "Single Family"),-which(colnames(item50.os.table) %in% c("BuildingType"))]
 
-exportTable(item50.os.table.SF, "SF", "Table 57", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item50.os.table.SF, "SF", "Table 57", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 ###########################
@@ -929,24 +945,39 @@ item50.os.final <- mean_two_groups_unweighted(CustomerLevelData = item50.os.data
                                            ,byVariableRow    = 'EquipVintage_bins'
                                            ,byVariableColumn = 'CK_Building_ID'
                                            ,columnAggregate  = "Region"
-                                           ,rowAggregate     = "All Vintages"
-)
+                                           ,rowAggregate     = "All Vintages")
 
-#subset to only the columns needed for the final scl table
-item50.os.table <- data.frame("BuildingType"       = item50.os.final$BuildingType
-                           ,"Equipment.Vintage"    = item50.os.final$EquipVintage_bins
-                           ,"Mean_SCL.GenPop"      = item50.os.cast$`Mean_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item50.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item50.os.cast$`n_SCL GenPop`
-                           ,"Mean_SCL.LI"          = item50.os.cast$`Mean_SCL LI`
-                           ,"SE_SCL.LI"            = item50.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = item50.os.cast$`n_SCL LI`
-                           ,"Mean_SCL.EH"          = NA#item50.os.cast$`Mean_SCL EH`
-                           ,"SE_SCL.EH"            = NA#item50.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = NA#item50.os.cast$`n_SCL EH`
-                           ,"Mean_2017.RBSA.PS"    = item50.os.cast$`Mean_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item50.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item50.os.cast$`n_2017 RBSA PS`)
+names(item50.os.final)
+if(os.ind == "scl"){
+  item50.os.table <- data.frame("BuildingType"       = item50.os.final$BuildingType
+                                ,"Equipment.Vintage"    = item50.os.final$EquipVintage_bins
+                                ,"Mean_SCL.GenPop"      = item50.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item50.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item50.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item50.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item50.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item50.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = NA#item50.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = NA#item50.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = NA#item50.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item50.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item50.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item50.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item50.os.table <- data.frame("BuildingType"       = item50.os.final$BuildingType
+                                ,"Equipment.Vintage"    = item50.os.final$EquipVintage_bins
+                                ,"Mean_SnoPUD"          = item50.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item50.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item50.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item50.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item50.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item50.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item50.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item50.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item50.os.cast$`n_2017 RBSA NW`)
+}
+
+
 
 # row ordering example code
 levels(item50.os.table$Equipment.Vintage)
@@ -964,7 +995,7 @@ item50.os.table <- data.frame(item50.os.table)
 #subset to only the relevant building types for this item
 item50.os.table.SF <- item50.os.table[which(item50.os.table$BuildingType == "Single Family"),-which(colnames(item50.os.table) %in% c("BuildingType"))]
 
-exportTable(item50.os.table.SF, "SF", "Table 57", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item50.os.table.SF, "SF", "Table 57", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1003,26 +1034,47 @@ item51.os.final <- proportionRowsAndColumns1(CustomerLevelData = item51.os.data
 item51.os.cast <- dcast(setDT(item51.os.final)
                      , formula = BuildingType + Efficiency_bins ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
 names(item51.os.cast)
-#subset to only the columns needed for the final scl table
-item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
-                              ,"Efficiency"           = item51.os.cast$Efficiency_bins
-                              ,"Percent_SCL.GenPop"   = item51.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item51.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item51.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item51.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item51.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item51.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = NA#item51.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = NA#item51.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = NA#item51.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item51.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item51.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item51.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item51.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item51.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = NA#item51.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item51.os.cast$`EB_2017 RBSA PS`)
+
+if(os.ind == "scl"){
+  item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
+                                ,"Efficiency"           = item51.os.cast$Efficiency_bins
+                                ,"Percent_SCL.GenPop"   = item51.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item51.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item51.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item51.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item51.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item51.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = NA#item51.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = NA#item51.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = NA#item51.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item51.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item51.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item51.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item51.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item51.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = NA#item51.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item51.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
+                                ,"Efficiency"           = item51.os.cast$Efficiency_bins
+                                ,"Percent_SnoPUD"          = item51.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item51.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item51.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item51.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item51.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item51.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item51.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item51.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item51.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item51.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item51.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item51.os.cast$`EB_2017 RBSA NW`)
+}
+
+
+
 
 
 
@@ -1038,7 +1090,7 @@ item51.os.table <- data.frame(item51.os.table)
 
 #subset to only the relevant building types for this item
 item51.os.table.SF <- item51.os.table[which(item51.os.table$BuildingType %in% c("Single Family")),-1]
-exportTable(item51.os.table.SF, "SF", "Table 58", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item51.os.table.SF, "SF", "Table 58", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ##########################
 # Unweighted Analysis
@@ -1055,22 +1107,39 @@ item51.os.cast <- dcast(setDT(item51.os.final)
                      , formula = BuildingType + Efficiency_bins ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
-#subset to only the columns needed for the final scl table
-item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
-                              ,"Efficiency"           = item51.os.cast$Efficiency_bins
-                              ,"Percent_SCL.GenPop"   = item51.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item51.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item51.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item51.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item51.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item51.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = NA#item51.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = NA#item51.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = NA#item51.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item51.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item51.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item51.os.cast$`n_2017 RBSA PS`
-)
+names(item51.os.cast)
+if(os.ind == "scl"){
+  item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
+                                ,"Efficiency"           = item51.os.cast$Efficiency_bins
+                                ,"Percent_SCL.GenPop"   = item51.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item51.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item51.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item51.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item51.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item51.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = NA#item51.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = NA#item51.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = NA#item51.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item51.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item51.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item51.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item51.os.table <- data.frame("BuildingType"          = item51.os.cast$BuildingType
+                                ,"Efficiency"           = item51.os.cast$Efficiency_bins
+                                ,"Percent_SnoPUD"          = item51.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item51.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item51.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item51.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item51.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item51.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item51.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item51.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item51.os.cast$`n_2017 RBSA NW`)
+}
+
+
+
+
 
 # row ordering example code
 levels(item51.os.table$Efficiency)
@@ -1084,7 +1153,7 @@ item51.os.table <- data.frame(item51.os.table)
 
 #subset to only the relevant building types for this item
 item51.os.table.SF <- item51.os.table[which(item51.os.table$BuildingType %in% c("Single Family")),-1]
-exportTable(item51.os.table.SF, "SF", "Table 58", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item51.os.table.SF, "SF", "Table 58", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1122,7 +1191,7 @@ item52.os.customer <- summarise(group_by(item52.os.dat3
 
 
 #Join cleaned item 52 mechanical information with cleaned scl site information
-item52.os.dat4 <- unique(left_join(scl.dat, item52.os.customer, by = "CK_Cadmus_ID"))
+item52.os.dat4 <- unique(left_join(os.dat, item52.os.customer, by = "CK_Cadmus_ID"))
 item52.os.dat5 <- item52.os.dat4[which(!is.na(item52.os.dat4$y_bar_ilk)),]
 item52.os.dat5 <- item52.os.dat4[which(!is.na(item52.os.dat4$EquipVintage_bins)),]
 unique(item52.os.dat5$EquipVintage_bins)
@@ -1162,24 +1231,43 @@ item52.os.cast <- mean_two_groups(CustomerLevelData = item52.os.data
                                    ,columnAggregate = "Remove"
                                    ,rowAggregate = "All Vintages")
 names(item52.os.cast)
-item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
-                              ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
-                              ,"Mean_SCL.GenPop"      = item52.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item52.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item52.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = NA#item52.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = NA#item52.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = NA#item52.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item52.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item52.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item52.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item52.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item52.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item52.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item52.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = NA#item52.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item52.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item52.os.cast$`EB_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
+                                ,"Mean_SCL.GenPop"      = item52.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item52.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item52.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = NA#item52.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = NA#item52.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = NA#item52.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item52.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item52.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item52.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item52.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item52.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item52.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item52.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = NA#item52.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item52.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item52.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
+                                ,"Mean_SnoPUD"          = item52.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item52.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item52.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item52.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item52.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item52.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item52.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item52.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item52.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item52.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item52.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item52.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 
 # row ordering example code
@@ -1197,7 +1285,7 @@ item52.os.final <- data.frame(item52.os.final)
 # Export table
 item52.os.final.SF <- item52.os.final[which(item52.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item52.os.final.SF, "SF", "Table 59", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item52.os.final.SF, "SF", "Table 59", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ###############################
 # Unweighted Analysis
@@ -1208,21 +1296,37 @@ item52.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item52.os.data
                                   ,byVariableColumn = "CK_Building_ID"
                                   ,columnAggregate = "Remove"
                                   ,rowAggregate = "All Vintages")
+names(item52.os.cast)
+if(os.ind == "scl"){
+  item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
+                                ,"Mean_SCL.GenPop"      = item52.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item52.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item52.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = NA#item52.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = NA#item52.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = NA#item52.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item52.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item52.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item52.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item52.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item52.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item52.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
+                                ,"Mean_SnoPUD"          = item52.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item52.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item52.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item52.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item52.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item52.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item52.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item52.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item52.os.cast$`n_2017 RBSA NW`)
+}
 
-item52.os.final <- data.frame("BuildingType"          = item52.os.cast$BuildingType
-                              ,"EquipVintage_bins"    = item52.os.cast$EquipVintage_bins
-                              ,"Mean_SCL.GenPop"      = item52.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item52.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item52.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = NA#item52.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = NA#item52.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = NA#item52.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item52.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item52.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item52.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item52.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item52.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item52.os.cast$`n_2017 RBSA PS`)
+
 
 
 # row ordering example code
@@ -1240,7 +1344,7 @@ item52.os.final <- data.frame(item52.os.final)
 # Export table
 item52.os.final.SF <- item52.os.final[which(item52.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item52.os.final.SF, "SF", "Table 59", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item52.os.final.SF, "SF", "Table 59", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1262,7 +1366,7 @@ item53.os.dat2 <- item53.os.dat1[which(item53.os.dat1$CK_Cadmus_ID != "CK_CADMUS
 item53.os.dat2$HSPF <- as.numeric(as.character(item53.os.dat2$HSPF))
 
 #Join cleaned item 53 mechanical information with cleaned scl site information
-item53.os.dat3 <- left_join(scl.dat, item53.os.dat2, by = "CK_Cadmus_ID")
+item53.os.dat3 <- left_join(os.dat, item53.os.dat2, by = "CK_Cadmus_ID")
 item53.os.dat4 <- item53.os.dat3[which(!is.na(item53.os.dat3$HSPF)),]
 
 # Create HSPF_bins according to previous scl bins
@@ -1314,30 +1418,49 @@ item53.os.cast <- dcast(setDT(item53.os.final)
                      , formula   = BuildingType + HSPF_bins ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-#subset to only the columns needed for the final scl table
-item53.os.table <- data.frame("BuildingType"          = item53.os.cast$BuildingType
-                              ,"HSPF"                 = item53.os.cast$HSPF_bins
-                              ,"Percent_SCL.GenPop"   = item53.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item53.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item53.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = NA#item53.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = NA#item53.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = NA#item53.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item53.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item53.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item53.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item53.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item53.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item53.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item53.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = NA#item53.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item53.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item53.os.cast$`EB_2017 RBSA PS`)
+names(item53.os.cast)
+if(os.ind == "scl"){
+  item53.os.table <- data.frame("BuildingType"          = item53.os.cast$BuildingType
+                                ,"HSPF"                 = item53.os.cast$HSPF_bins
+                                ,"Percent_SCL.GenPop"   = item53.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item53.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item53.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = NA#item53.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = NA#item53.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = NA#item53.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item53.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item53.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item53.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item53.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item53.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item53.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item53.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = NA#item53.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item53.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item53.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item53.os.table <- data.frame("BuildingType"          = item53.os.cast$BuildingType
+                                ,"HSPF"                 = item53.os.cast$HSPF_bins
+                                ,"Percent_SnoPUD"          = item53.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item53.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item53.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item53.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item53.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item53.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item53.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item53.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item53.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item53.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item53.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item53.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 #subset to only the relevant building types for this item
 item53.os.table.SF <- item53.os.table[which(item53.os.table$BuildingType %in% c("Single Family")),-1]
 
-exportTable(item53.os.table.SF, "SF", "Table 60", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item53.os.table.SF, "SF", "Table 60", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 ########################
@@ -1354,23 +1477,40 @@ item53.os.cast <- dcast(setDT(item53.os.final)
                      , formula   = BuildingType + HSPF_bins ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
-#subset to only the columns needed for the final scl table
-item53.os.table <- data.frame("BuildingType"    = item53.os.cast$BuildingType
-                           ,"HSPF"           = item53.os.cast$HSPF_bins
-                           ,"Percent_SCL.GenPop"   = item53.os.cast$`Percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item53.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item53.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = NA#item53.os.cast$`Percent_SCL LI`
-                           ,"SE_SCL.LI"            = NA#item53.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = NA#item53.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item53.os.cast$`Percent_SCL EH`
-                           ,"SE_SCL.EH"            = item53.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = item53.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item53.os.cast$`Percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item53.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item53.os.cast$`n_2017 RBSA PS`)
+names(item53.os.cast)
+if(os.ind == "scl"){
+  item53.os.table <- data.frame("BuildingType"    = item53.os.cast$BuildingType
+                                ,"HSPF"           = item53.os.cast$HSPF_bins
+                                ,"Percent_SCL.GenPop"   = item53.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item53.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item53.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = NA#item53.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = NA#item53.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = NA#item53.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item53.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item53.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item53.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item53.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item53.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item53.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item53.os.table <- data.frame("BuildingType"    = item53.os.cast$BuildingType
+                                ,"HSPF"           = item53.os.cast$HSPF_bins
+                                ,"Percent_SnoPUD"          = item53.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item53.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item53.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item53.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item53.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item53.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item53.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item53.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item53.os.cast$`n_2017 RBSA NW`)
+}
+
+
+
 
 #subset to only the relevant building types for this item
 item53.os.table.SF <- item53.os.table[which(item53.os.table$BuildingType %in% c("Single Family")),-1]
 
-exportTable(item53.os.table.SF, "SF", "Table 60", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item53.os.table.SF, "SF", "Table 60", weighted = FALSE, osIndicator = export.ind, OS = T)
