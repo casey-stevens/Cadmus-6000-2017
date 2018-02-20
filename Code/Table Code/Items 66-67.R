@@ -223,10 +223,10 @@ exportTable(item67.final.MH, "MH", "Table 53", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 66: AVERAGE NUMBER OF LAMPS PER HOME BY CK_Building_ID (SF table 73, MH table 52)
@@ -239,7 +239,7 @@ item66.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Clean.Room"))]
 item66.os.dat$count <- 1
 
-item66.os.dat2 <- left_join(scl.dat, item66.os.dat, by = "CK_Cadmus_ID")
+item66.os.dat2 <- left_join(os.dat, item66.os.dat, by = "CK_Cadmus_ID")
 
 #clean fixture and bulbs per fixture
 item66.os.dat2$Fixture.Qty <- as.numeric(as.character(item66.os.dat2$Fixture.Qty))
@@ -254,7 +254,7 @@ item66.os.dat4 <- item66.os.dat3[which(item66.os.dat3$Clean.Room != "Storage"),]
 item66.os.customer <- summarise(group_by(item66.os.dat4, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
-item66.os.merge <- left_join(scl.dat, item66.os.customer)
+item66.os.merge <- left_join(os.dat, item66.os.customer)
 unique(item66.os.merge$Lamps)
 
 
@@ -278,10 +278,25 @@ item66.os.final <- mean_one_group(CustomerLevelData = item66.os.data
                                ,aggregateRow     = 'Remove')
 item66.os.final <- item66.os.final[which(item66.os.final$CK_Building_ID != "Remove"),]
 
+levels(item66.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item66.os.final <- item66.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item66.os.final <- data.frame(item66.os.final)
+
+
 item66.os.final.SF <- item66.os.final[which(item66.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item66.os.final) %in% c("BuildingType"))]
 
-exportTable(item66.os.final.SF, "SF", "Table 73", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item66.os.final.SF, "SF", "Table 73", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #######################
@@ -291,12 +306,27 @@ item66.os.final <- mean_one_group_unweighted(CustomerLevelData = item66.os.data
                                           ,valueVariable    = 'Lamps'
                                           ,byVariable       = 'CK_Building_ID'
                                           ,aggregateRow     = 'Remove')
+
 item66.os.final <- item66.os.final[which(item66.os.final$CK_Building_ID != "Remove"),]
+
+levels(item66.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item66.os.final <- item66.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item66.os.final <- data.frame(item66.os.final)
 
 item66.os.final.SF <- item66.os.final[which(item66.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item66.os.final) %in% c("BuildingType"))]
 
-exportTable(item66.os.final.SF, "SF", "Table 73", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item66.os.final.SF, "SF", "Table 73", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -314,7 +344,7 @@ item67.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Clean.Room"))]
 item67.os.dat$count <- 1
 
-item67.os.dat2 <- left_join(scl.dat, item67.os.dat, by = "CK_Cadmus_ID")
+item67.os.dat2 <- left_join(os.dat, item67.os.dat, by = "CK_Cadmus_ID")
 
 #clean fixture and bulbs per fixture
 item67.os.dat2$Fixture.Qty <- as.numeric(as.character(item67.os.dat2$Fixture.Qty))
@@ -331,7 +361,7 @@ item67.os.fixtures <- summarise(group_by(item67.os.dat4, CK_Cadmus_ID)
                              ,Fixtures = sum(Fixture.Qty))
 
 
-item67.os.merge <- left_join(scl.dat, item67.os.fixtures)
+item67.os.merge <- left_join(os.dat, item67.os.fixtures)
 unique(item67.os.merge$Fixtures)
 
 
@@ -355,10 +385,24 @@ item67.os.final <- mean_one_group(CustomerLevelData = item67.os.data
                                ,aggregateRow     = 'Remove')
 item67.os.final <- item67.os.final[which(item67.os.final$CK_Building_ID != "Remove"),]
 
+levels(item67.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item67.os.final <- item67.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item67.os.final <- data.frame(item67.os.final)
+
 item67.os.final.SF <- item67.os.final[which(item67.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item67.os.final) %in% c("BuildingType"))]
 
-exportTable(item67.os.final.SF, "SF", "Table 74", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item67.os.final.SF, "SF", "Table 74", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #######################
@@ -370,7 +414,22 @@ item67.os.final <- mean_one_group_unweighted(CustomerLevelData = item67.os.data
                                           ,aggregateRow     = 'Remove')
 item67.os.final <- item67.os.final[which(item67.os.final$CK_Building_ID != "Remove"),]
 
+levels(item67.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item67.os.final <- item67.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item67.os.final <- data.frame(item67.os.final)
+
+
 item67.os.final.SF <- item67.os.final[which(item67.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item67.os.final) %in% c("BuildingType"))]
 
-exportTable(item67.os.final.SF, "SF", "Table 74", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item67.os.final.SF, "SF", "Table 74", weighted = FALSE, osIndicator = export.ind, OS = T)
