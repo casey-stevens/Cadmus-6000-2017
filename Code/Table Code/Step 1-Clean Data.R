@@ -37,6 +37,7 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "ZIP"                = one.line.dat$Zip
                             ,"Territory"           = one.line.dat$Strata.Territory
                             , "BuildingHeight"     = one.line.dat$N.Floors
+                            ,"County"              = one.line.dat$County
                             , stringsAsFactors     = F)
 building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
                               ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
@@ -287,6 +288,8 @@ rbsa.dat8$CK_Cadmus_ID <- trimws(toupper(rbsa.dat8$CK_Cadmus_ID))
 #############################################################################################
 # Write out cleaned building type information
 #############################################################################################
+"%notin%" <- Negate("%in%")
+rbsa.dat9 <- rbsa.dat8[which(names(rbsa.dat8) %notin% c("County"))]
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
@@ -315,13 +318,13 @@ write.xlsx(rbsa.dat8, paste(filepathCleanData, paste("clean.rbsa.data", rundate,
 # SCL
 #
 #############################################################################################
-scl.dat <- rbsa.dat8[grep("SCL",rbsa.dat8$Territory, ignore.case = T),]
+scl.dat <- rbsa.dat9[grep("SCL",rbsa.dat9$Territory, ignore.case = T),]
 scl.dat$Category <- "SCL GenPop"
-scl.li.dat <- rbsa.dat8[grep("SCL LI",rbsa.dat8$Territory, ignore.case = T),]
+scl.li.dat <- rbsa.dat9[grep("SCL LI",rbsa.dat9$Territory, ignore.case = T),]
 scl.li.dat$Category <- "SCL LI"
-scl.eh.dat <- rbsa.dat8[grep("SCL EH",rbsa.dat8$Territory, ignore.case = T),]
+scl.eh.dat <- rbsa.dat9[grep("SCL EH|SCL LI and EH",rbsa.dat9$Territory, ignore.case = T),]
 scl.eh.dat$Category <- "SCL EH"
-scl.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
+scl.ps.dat <- rbsa.dat9[grep("puget",rbsa.dat9$Detailed.Region, ignore.case = T),]
 scl.ps.dat$Category <- "2017 RBSA PS"
 
 scl.data <- rbind.data.frame(scl.dat
@@ -341,17 +344,18 @@ write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, "
 
 
 
+
 #############################################################################################
 #
 # SnoPUD
 #
 #############################################################################################
-snopud.dat <- rbsa.dat8[grep("snopud",rbsa.dat8$Territory, ignore.case = T),]
+snopud.dat <- rbsa.dat9[grep("snopud",rbsa.dat9$Territory, ignore.case = T),]
 snopud.dat$Category <- "SnoPUD"
-snopud.rbsa.dat <- rbsa.dat8[grep("single family",rbsa.dat8$BuildingType, ignore.case = T),]
+snopud.rbsa.dat <- rbsa.dat9[grep("single family",rbsa.dat9$BuildingType, ignore.case = T),]
 snopud.rbsa.dat <- snopud.rbsa.dat[grep("site", snopud.rbsa.dat$CK_Building_ID, ignore.case = T),]
 snopud.rbsa.dat$Category <- "2017 RBSA NW"
-snopud.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
+snopud.ps.dat <- rbsa.dat9[grep("puget",rbsa.dat9$Detailed.Region, ignore.case = T),]
 snopud.ps.dat$Category <- "2017 RBSA PS"
 
 snopud.data <- rbind.data.frame(snopud.dat
@@ -364,4 +368,38 @@ snopud.data <- unique(snopud.data[which(snopud.data$BuildingType == "Single Fami
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 write.xlsx(snopud.data, paste(filepathCleanData, paste("clean.snopud.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
+
+
+
+
+
+
+
+
+#############################################################################################
+#
+# PSE
+#
+#############################################################################################
+pse.dat <- rbsa.dat8[grep("PSE",rbsa.dat8$Territory, ignore.case = T),]
+pse.dat$Category <- "PSE"
+pse.king.dat <- rbsa.dat8[which(rbsa.dat8$Territory == "PSE" & rbsa.dat8$County == "King, WA"),]
+pse.king.dat$Category <- "PSE KING COUNTY"
+pse.non.king.dat <- rbsa.dat8[which(rbsa.dat8$Territory == "PSE" & rbsa.dat8$County != "King, WA"),]
+pse.non.king.dat$Category <- "PSE OUTSIDE KING COUNTY"
+pse.ps.dat <- rbsa.dat8[grep("puget",rbsa.dat8$Detailed.Region, ignore.case = T),]
+pse.ps.dat$Category <- "2017 RBSA PS"
+
+pse.data <- rbind.data.frame(pse.dat
+                             ,pse.king.dat
+                             ,pse.non.king.dat
+                             ,pse.ps.dat)
+pse.data$State <- NA
+pse.data <- unique(pse.data[which(pse.data$BuildingType == "Multifamily"),])
+pse.data <- pse.data[which(names(pse.data) %notin% c("County"))]
+
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(pse.data, paste(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)

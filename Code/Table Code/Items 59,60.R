@@ -25,7 +25,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -416,7 +416,7 @@ item60.os.dat2 <- item60.os.dat1[which(item60.os.dat1$Percentage.of.Supply.Ducts
 item60.os.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space <- as.numeric(as.character(item60.os.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space))
 
 #Create Unconditioned Space Percent
-item60.os.dat2$PercentDuctsUnconditionedSpace <- 100 - item60.os.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space
+item60.os.dat2$PercentDuctsUnconditionedSpace <- 1 - item60.os.dat2$Percentage.of.Supply.Ducts.in.Conditioned.Space
 #double check these make sense
 item60.os.dat2$PercentDuctsUnconditionedSpace
 
@@ -424,9 +424,9 @@ item60.os.dat2$PercentDuctsUnconditionedSpace
 #create percent ducts unconditioned space bins
 item60.os.dat2$UnconditionedBins <- "MISSING"
 item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace == 0)] <- "None"
-item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace >= 1 & item60.os.dat2$PercentDuctsUnconditionedSpace < 51)] <- "1-50%"
-item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace >= 51 & item60.os.dat2$PercentDuctsUnconditionedSpace < 100)] <- "51-99%"
-item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace >= 100)] <- "100%"
+item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace >= 0.01 & item60.os.dat2$PercentDuctsUnconditionedSpace < 0.51)] <- "1-50%"
+item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace >= 0.51 & item60.os.dat2$PercentDuctsUnconditionedSpace < 1)] <- "51-99%"
+item60.os.dat2$UnconditionedBins[which(item60.os.dat2$PercentDuctsUnconditionedSpace >= 1)] <- "100%"
 unique(item60.os.dat2$UnconditionedBins)
 item60.os.dat2$count <- 1
 

@@ -1077,7 +1077,7 @@ item110.os.table <- data.frame("BuildingType"          = item110.os.cast$Buildin
                                ,"SE_2017.RBSA.PS"      = item110.os.cast$`SE_2017 RBSA PS`
                                ,"n_2017.RBSA.PS"       = item110.os.cast$`n_2017 RBSA PS`)
 
-item110.os.final.SF <- item110.os.final[which(item110.os.final$BuildingType == "Single Family")
-                                  ,-which(colnames(item110.os.final) %in% c("BuildingType"))]
+item110.os.final.SF <- item110.os.table[which(item110.os.table$BuildingType == "Single Family")
+                                  ,which(colnames(item110.os.table) %notin% c("BuildingType"))]
 
 exportTable(item110.os.final.SF, "SF", "Table 117", weighted = FALSE, osIndicator = "SCL", OS = T)

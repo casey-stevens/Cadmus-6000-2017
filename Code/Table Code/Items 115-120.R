@@ -606,7 +606,7 @@ item115.os.final <- proportions_one_group(CustomerLevelData = item115.os.data
                                        ,valueVariable    = 'Ind'
                                        ,groupingVariable = 'CK_Building_ID'
                                        ,total.name       = 'Remove')
-item115.os.final <- item115.os.final[which(item115.os.final$CK_Building_ID != "Remove"),]
+item115.os.final <- item115.os.final[which(item115.os.final$CK_Building_ID != "Total"),]
 
 item115.os.final.SF <- item115.os.final[which(item115.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item115.os.final) %in% c("BuildingType"))]
@@ -621,7 +621,7 @@ item115.os.final <- proportions_one_group(CustomerLevelData = item115.os.data
                                        ,groupingVariable = 'CK_Building_ID'
                                        ,total.name       = 'Remove'
                                        ,weighted         = FALSE)
-item115.os.final <- item115.os.final[which(item115.os.final$CK_Building_ID != "Remove"),]
+item115.os.final <- item115.os.final[which(item115.os.final$CK_Building_ID != "Total"),]
 
 item115.os.final.SF <- item115.os.final[which(item115.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item115.os.final) %in% c("BuildingType"))]

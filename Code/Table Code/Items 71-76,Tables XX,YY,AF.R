@@ -1397,7 +1397,7 @@ item76.os.dat$count <- 1
 item76.os.dat0 <- item76.os.dat[which(item76.os.dat$Clean.Room == "Storage"),]
 item76.os.dat0.1 <- item76.os.dat0[which(item76.os.dat$Lamp.Category == "Compact Fluorescent"),]
 
-item76.os.dat1 <- left_join(item76.os.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
+item76.os.dat1 <- left_join(item76.os.dat0.1, scl.dat, by = "CK_Cadmus_ID")
 
 # item76.os.dat2 <- item76.os.dat1[grep("SITE", item76.os.dat1$CK_SiteID),]
 item76.os.dat2 <- item76.os.dat1
@@ -1415,7 +1415,7 @@ item76.os.dat3 <- item76.os.dat2[which(!(is.na(item76.os.dat2$Lamps))),]
 item76.os.customer <- summarise(group_by(item76.os.dat3, CK_Cadmus_ID)
                              ,Lamps = sum(Lamps))
 
-item76.os.merge <- left_join(rbsa.dat, item76.os.customer)
+item76.os.merge <- left_join(scl.dat, item76.os.customer)
 item76.os.merge$Lamps[which(is.na(item76.os.merge$Lamps))] <- 0 
 
 
