@@ -533,9 +533,6 @@ if(os.ind == "scl"){
   #can add pop and sample sizes if needed in exported table
   item1.os.table <- data.frame("BuildingType"          = item1.os.cast$BuildingType
                                ,"Home.Type"            = item1.os.cast$HomeType
-                               ,"Percent_2017.RBSA.PS" = item1.os.cast$`Percent_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item1.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item1.os.cast$`n_2017 RBSA PS`
                                ,"Percent_SCL.GenPop"   = item1.os.cast$`Percent_SCL GenPop`
                                ,"SE_SCL.GenPop"        = item1.os.cast$`SE_SCL GenPop`
                                ,"n_SCL.GenPop"         = item1.os.cast$`n_SCL GenPop`
@@ -544,7 +541,10 @@ if(os.ind == "scl"){
                                ,"n_SCL.LI"             = item1.os.cast$`n_SCL LI`
                                ,"Percent_SCL.EH"       = item1.os.cast$`Percent_SCL EH`
                                ,"SE_SCL.EH"            = item1.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item1.os.cast$`n_SCL EH`)
+                               ,"n_SCL.EH"             = item1.os.cast$`n_SCL EH`
+                               ,"Percent_2017.RBSA.PS" = item1.os.cast$`Percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item1.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item1.os.cast$`n_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   #can add pop and sample sizes if needed in exported table
   item1.os.table <- data.frame("BuildingType"             = item1.os.cast$BuildingType
@@ -611,9 +611,6 @@ if(os.ind == "scl"){
   #can add pop and sample sizes if needed in exported table
   item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
                                ,"Housing.Vintage"      = item2.os.cast$HomeYearBuilt_bins2
-                               ,"Percent_2017.RBSA.PS" = item2.os.cast$`w.percent_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item2.os.cast$`w.SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
                                ,"Percent_SCL.GenPop"   = item2.os.cast$`w.percent_SCL GenPop`
                                ,"SE_SCL.GenPop"        = item2.os.cast$`w.SE_SCL GenPop`
                                ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
@@ -623,10 +620,13 @@ if(os.ind == "scl"){
                                ,"Percent_SCL.EH"       = item2.os.cast$`w.percent_SCL EH`
                                ,"SE_SCL.EH"            = item2.os.cast$`w.SE_SCL EH`
                                ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`
-                               ,"EB_2017.RBSA.PS"      = item2.os.cast$`EB_2017 RBSA PS`
+                               ,"Percent_2017.RBSA.PS" = item2.os.cast$`w.percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item2.os.cast$`w.SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
                                ,"EB_SCL.GenPop"        = item2.os.cast$`EB_SCL GenPop`
                                ,"EB_SCL.LI"            = item2.os.cast$`EB_SCL LI`
-                               ,"EB_SCL.EH"            = item2.os.cast$`EB_SCL EH`)
+                               ,"EB_SCL.EH"            = item2.os.cast$`EB_SCL EH`
+                               ,"EB_2017.RBSA.PS"      = item2.os.cast$`EB_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   #can add pop and sample sizes if needed in exported table
   item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
@@ -684,9 +684,6 @@ if(os.ind == "scl"){
   #can add pop and sample sizes if needed in exported table
   item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
                                ,"Housing.Vintage"      = item2.os.cast$HomeYearBuilt_bins2
-                               ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`
                                ,"Percent_SCL.GenPop"   = item2.os.cast$`Percent_SCL GenPop`
                                ,"SE_SCL.GenPop"        = item2.os.cast$`SE_SCL GenPop`
                                ,"n_SCL.GenPop"         = item2.os.cast$`n_SCL GenPop`
@@ -695,7 +692,10 @@ if(os.ind == "scl"){
                                ,"n_SCL.LI"             = item2.os.cast$`n_SCL LI`
                                ,"Percent_SCL.EH"       = item2.os.cast$`Percent_SCL EH`
                                ,"SE_SCL.EH"            = item2.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`)
+                               ,"n_SCL.EH"             = item2.os.cast$`n_SCL EH`
+                               ,"Percent_2017.RBSA.PS" = item2.os.cast$`Percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item2.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item2.os.cast$`n_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   #can add pop and sample sizes if needed in exported table
   item2.os.table <- data.frame("BuildingType"          = item2.os.cast$BuildingType
@@ -815,9 +815,6 @@ item6.os.cast <- dcast(setDT(item6.os.final)
 if(os.ind == "scl"){
   item6.os.table <- data.frame("BuildingType"          = item6.os.cast$BuildingType
                                ,"Building.Height"      = item6.os.cast$BuildingHeight
-                               ,"Percent_2017.RBSA.PS" = item6.os.cast$`Percent_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item6.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item6.os.cast$`n_2017 RBSA PS`
                                ,"Percent_SCL.GenPop"   = item6.os.cast$`Percent_SCL GenPop`
                                ,"SE_SCL.GenPop"        = item6.os.cast$`SE_SCL GenPop`
                                ,"n_SCL.GenPop"         = item6.os.cast$`n_SCL GenPop`
@@ -826,7 +823,10 @@ if(os.ind == "scl"){
                                ,"n_SCL.LI"             = item6.os.cast$`n_SCL LI`
                                ,"Percent_SCL.EH"       = item6.os.cast$`Percent_SCL EH`
                                ,"SE_SCL.EH"            = item6.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item6.os.cast$`n_SCL EH`)
+                               ,"n_SCL.EH"             = item6.os.cast$`n_SCL EH`
+                               ,"Percent_2017.RBSA.PS" = item6.os.cast$`Percent_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item6.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item6.os.cast$`n_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   item6.os.table <- data.frame("BuildingType"          = item6.os.cast$BuildingType
                                ,"Building.Height"      = item6.os.cast$BuildingHeight

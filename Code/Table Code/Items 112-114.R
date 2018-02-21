@@ -326,7 +326,7 @@ scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 #subset to columns needed for analysis
 item112.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"TV.Set.Top.Box"
-                                                                    ,"STB.Records?"))]
+                                                                    ,"STB.Records."))]
 item112.os.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -390,7 +390,7 @@ exportTable(item112.os.final.SF, "SF", "Table 119", weighted = FALSE, osIndicato
 #subset to columns needed for analysis
 item113.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"TV.Set.Top.Box"
-                                                                    ,"STB.Records?"))]
+                                                                    ,"STB.Records."))]
 item113.os.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -411,12 +411,12 @@ unique(item113.os.merge$Ind)
 # Adding pop and sample sizes for weights
 ################################################
 item113.os.data <- weightedData(item113.os.merge[-which(colnames(item113.os.merge) %in% c("TV.Set.Top.Box"
-                                                                                 ,"STB.Records?"
+                                                                                 ,"STB.Records."
                                                                                  ,"count"
                                                                                  ,"Ind"))])
 item113.os.data <- left_join(item113.os.data, unique(item113.os.merge[which(colnames(item113.os.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"TV.Set.Top.Box"
-                                                                                           ,"STB.Records?"
+                                                                                           ,"STB.Records."
                                                                                            ,"count"
                                                                                            ,"Ind"))]))
 item113.os.data$count <- 1
@@ -461,7 +461,7 @@ exportTable(item113.os.final.SF, "SF", "Table 120", weighted = FALSE, osIndicato
 #subset to columns needed for analysis
 item114.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"TV.Set.Top.Box"
-                                                                    ,"STB.Records."))] #last period could be "?"
+                                                                    ,"STB.Records?"))] #last period could be "?"
 item114.os.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -475,26 +475,26 @@ unique(item114.os.dat1$TV.Set.Top.Box)
 item114.os.dat2 <- item114.os.dat1[which(item114.os.dat1$TV.Set.Top.Box == "Yes"),]
 
 #remove unknown or DP not asked for
-item114.os.dat3 <- item114.os.dat2[which(item114.os.dat2$`STB.Records.` %in% c("Yes", "No")),]
+item114.os.dat3 <- item114.os.dat2[which(item114.os.dat2$`STB.Records?` %in% c("Yes", "No")),]
 
 
 item114.os.merge <- left_join(scl.dat, item114.os.dat3)
-item114.os.merge <- item114.os.merge[which(!is.na(item114.os.merge$`STB.Records.`)),]
+item114.os.merge <- item114.os.merge[which(!is.na(item114.os.merge$`STB.Records?`)),]
 
-item114.os.merge$Ind <- item114.os.merge$`STB.Records.`
-item114.os.merge$Ind[which(item114.os.merge$`STB.Records.` == "Yes")]  <- 1
-item114.os.merge$Ind[which(item114.os.merge$`STB.Records.` == "No")]   <- 0
+item114.os.merge$Ind <- item114.os.merge$`STB.Records?`
+item114.os.merge$Ind[which(item114.os.merge$`STB.Records?` == "Yes")]  <- 1
+item114.os.merge$Ind[which(item114.os.merge$`STB.Records?` == "No")]   <- 0
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 item114.os.data <- weightedData(item114.os.merge[-which(colnames(item114.os.merge) %in% c("TV.Set.Top.Box"
-                                                                                 ,"STB.Records."
+                                                                                 ,"STB.Records?"
                                                                                  ,"count"
                                                                                  ,"Ind"))])
 item114.os.data <- left_join(item114.os.data, unique(item114.os.merge[which(colnames(item114.os.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"TV.Set.Top.Box"
-                                                                                           ,"STB.Records."
+                                                                                           ,"STB.Records?"
                                                                                            ,"count"
                                                                                            ,"Ind"))]))
 item114.os.data$count <- 1

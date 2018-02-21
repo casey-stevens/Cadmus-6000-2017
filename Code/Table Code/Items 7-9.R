@@ -585,9 +585,6 @@ item9.os.cast <- mean_two_groups(CustomerLevelData = item9.os.data
 if(os.ind == "scl"){
   item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
                                ,"Room.Type"            = item9.os.cast$Clean.Type
-                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
                                ,"Mean_SCL.GenPop"      = item9.os.cast$`Mean_SCL GenPop`
                                ,"SE_SCL.GenPop"        = item9.os.cast$`SE_SCL GenPop`
                                ,"n_SCL.GenPop"         = item9.os.cast$`n_SCL GenPop`
@@ -597,10 +594,13 @@ if(os.ind == "scl"){
                                ,"Mean_SCL.EH"          = item9.os.cast$`Mean_SCL EH`
                                ,"SE_SCL.EH"            = item9.os.cast$`SE_SCL EH`
                                ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`
-                               ,"EB_2017.RBSA.PS"      = item9.os.cast$`EB_2017 RBSA PS`
+                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
                                ,"EB_SCL.GenPop"        = item9.os.cast$`EB_SCL GenPop`
                                ,"EB_SCL.LI"            = item9.os.cast$`EB_SCL LI`
-                               ,"EB_SCL.EH"            = item9.os.cast$`EB_SCL EH`)
+                               ,"EB_SCL.EH"            = item9.os.cast$`EB_SCL EH`
+                               ,"EB_2017.RBSA.PS"      = item9.os.cast$`EB_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
                                ,"Room.Type"            = item9.os.cast$Clean.Type
@@ -639,9 +639,6 @@ item9.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item9.os.data
 if(os.ind == "scl"){
   item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
                                ,"Room.Type"            = item9.os.cast$Clean.Type
-                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`
                                ,"Mean_SCL.GenPop"      = item9.os.cast$`Mean_SCL GenPop`
                                ,"SE_SCL.GenPop"        = item9.os.cast$`SE_SCL GenPop`
                                ,"n_SCL.GenPop"         = item9.os.cast$`n_SCL GenPop`
@@ -650,7 +647,10 @@ if(os.ind == "scl"){
                                ,"n_SCL.LI"             = item9.os.cast$`n_SCL LI`
                                ,"Mean_SCL.EH"          = item9.os.cast$`Mean_SCL EH`
                                ,"SE_SCL.EH"            = item9.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`)
+                               ,"n_SCL.EH"             = item9.os.cast$`n_SCL EH`
+                               ,"Mean_2017.RBSA.PS"    = item9.os.cast$`Mean_2017 RBSA PS`
+                               ,"SE_2017.RBSA.PS"      = item9.os.cast$`SE_2017 RBSA PS`
+                               ,"n_2017.RBSA.PS"       = item9.os.cast$`n_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   item9.os.table <- data.frame("BuildingType"       = item9.os.cast$BuildingType
                                ,"Room.Type"            = item9.os.cast$Clean.Type

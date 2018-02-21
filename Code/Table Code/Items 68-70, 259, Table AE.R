@@ -1368,7 +1368,7 @@ item70.os.dat$count <- 1
 
 #join clean scl data onto lighting analysis data
 item70.os.dat1 <- left_join(os.dat, item70.os.dat, by = "CK_Cadmus_ID")
-item70.os.dat1 <- item70.os.dat1[which(item70.os.dat1$CK_Building_ID == export.ind),]
+item70.os.dat1 <- item70.os.dat1[which(item70.os.dat1$CK_Building_ID == subset.ind),]
 
 item70.os.dat1.1 <- item70.os.dat1[which(!(item70.os.dat1$Clean.Room %in% c("Storage"))),]
 item70.os.dat1.1$Clean.Room[which(item70.os.dat1.1$Clean.Room %in% c("Attic"

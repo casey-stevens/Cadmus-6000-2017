@@ -534,7 +534,7 @@ item91.os.dat1 <- left_join(scl.dat, item91.os.dat0, by = "CK_Cadmus_ID")
 item91.os.dat2 <- item91.os.dat1[which(item91.os.dat1$Clothes.Washes.Per.Week != "No Washing Machine"),]
 item91.os.dat2$Clothes.Washes.Per.Week   <- as.numeric(as.character(item91.os.dat2$Clothes.Washes.Per.Week))
 item91.os.dat2$Percent.Loads.Go.In.Dryer <- as.numeric(as.character(item91.os.dat2$Percent.Loads.Go.In.Dryer))
-item91.os.dat2$Dryer.Loads.Per.Week <- item91.os.dat2$Clothes.Washes.Per.Week * (item91.os.dat2$Percent.Loads.Go.In.Dryer / 100)
+item91.os.dat2$Dryer.Loads.Per.Week <- item91.os.dat2$Clothes.Washes.Per.Week * (item91.os.dat2$Percent.Loads.Go.In.Dryer)
 
 item91.os.dat2$Dryer.Loads.Per.Wash <- item91.os.dat2$Dryer.Loads.Per.Week / item91.os.dat2$Clothes.Washes.Per.Week
 unique(item91.os.dat2$Dryer.Loads.Per.Wash)

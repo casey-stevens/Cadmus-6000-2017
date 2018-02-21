@@ -1005,7 +1005,7 @@ os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.in
 length(unique(os.dat$CK_Cadmus_ID))
 os.dat$CK_Building_ID <- os.dat$Category
 os.dat <- os.dat[which(names(os.dat) != "Category")]
-
+names(os.dat)
 ############################################################################################################
 # ITEM 23: DISTRIBUTION OF FLOOR INSULATION BY HOME VINTAGE (SF Table 30, MH Table 18)
 ############################################################################################################
@@ -1036,19 +1036,15 @@ item23.os.merge <- left_join(os.dat, item23.os.dat1)
 item23.os.merge <- item23.os.merge[which(item23.os.merge$CK_Building_ID == subset.ind),]
 item23.os.merge <- item23.os.merge[which(!is.na(item23.os.merge$count)),]
 
-item23.os.data <- weightedData(unique(item23.os.merge[which(colnames(item23.os.merge) %notin% c("Wall.Type"
-                                                                                                ,"aveUval"
+item23.os.data <- weightedData(unique(item23.os.merge[which(colnames(item23.os.merge) %notin% c("aveUval"
                                                                                                 ,"aveRval"
                                                                                                 ,"rvalue.bins.SF"
-                                                                                                ,"count"
-                                                                                                ,"Floor.Type"))]))
+                                                                                                ,"count"))]))
 item23.os.data <- left_join(item23.os.data, item23.os.merge[which(colnames(item23.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                                   ,"Wall.Type"
                                                                                                    ,"aveUval"
                                                                                                    ,"aveRval"
                                                                                                    ,"rvalue.bins.SF"
-                                                                                                   ,"count"
-                                                                                                   ,"Floor.Type"))])
+                                                                                                   ,"count"))])
 ######################
 # Weighted - Single Family
 ######################
@@ -1245,19 +1241,15 @@ item23A.os.dat1 <- item23A.os.dat1[which(names(item23A.os.dat1) != "CK_Building_
 item23A.os.merge <- left_join(os.dat, item23A.os.dat1)
 item23A.os.merge <- item23A.os.merge[which(!is.na(item23A.os.merge$count)),]
 
-item23A.os.data <- weightedData(unique(item23A.os.merge[which(colnames(item23A.os.merge) %notin% c("Wall.Type"
-                                                                                                ,"aveUval"
+item23A.os.data <- weightedData(unique(item23A.os.merge[which(colnames(item23A.os.merge) %notin% c("aveUval"
                                                                                                 ,"aveRval"
                                                                                                 ,"rvalue.bins.SF"
-                                                                                                ,"count"
-                                                                                                ,"Floor.Type"))]))
+                                                                                                ,"count"))]))
 item23A.os.data <- left_join(item23A.os.data, item23A.os.merge[which(colnames(item23A.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                                   ,"Wall.Type"
                                                                                                    ,"aveUval"
                                                                                                    ,"aveRval"
                                                                                                    ,"rvalue.bins.SF"
-                                                                                                   ,"count"
-                                                                                                   ,"Floor.Type"))])
+                                                                                                   ,"count"))])
 ######################
 # Weighted - Single Family
 ######################

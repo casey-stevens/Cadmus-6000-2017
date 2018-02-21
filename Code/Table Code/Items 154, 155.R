@@ -56,6 +56,7 @@ drop.for.weighting <- c("Cadmus.ID",
                         "Annual.Propane.Usage.(Gallons)",
                         "Annual.Oil.Usage.(Gallons)",
                         "kBtu")
+# item154.data <- item154.data[which(item154.data$kBtu > 0),]
 
 item154.weighted <- weightedData(item154.data[-c(which(colnames(item154.data) %in% 
                                                          drop.for.weighting))])
@@ -90,6 +91,15 @@ item154.final.MH <- item154.final[which(item154.final$BuildingType == "Manufactu
 #export data
 # exportTable(item154.final.SF, "SF", "Table 161", weighted = FALSE)
 exportTable(item154.final.MH, "MH", "Table 136", weighted = FALSE)
+
+
+
+
+
+
+
+
+
 
 #############################################################################################
 # Item 155: TABLE 162: AVERAGE EUI OTHER FUEL USE PER HOME BY STATE 

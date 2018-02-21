@@ -2218,6 +2218,8 @@ rowOrder <- c("Framed 2x2"
               ,"SIP"
               ,"Log"
               ,"Unknown"
+              ,"Knee Wall"
+              ,"Adiabatic"
               ,"All Framing Types")
 item18.table <- item18.table %>% mutate(Wall.Type = factor(Wall.Type, levels = rowOrder)) %>% arrange(Wall.Type)  
 item18.table <- data.frame(item18.table)
@@ -2295,6 +2297,9 @@ rowOrder <- c("Framed 2x2"
               ,"ICF"
               ,"SIP"
               ,"Log"
+              ,"Unknown"
+              ,"Knee Wall"
+              ,"Adiabatic"
               ,"All Framing Types")
 item18.table <- item18.table %>% mutate(Wall.Type = factor(Wall.Type, levels = rowOrder)) %>% arrange(Wall.Type)  
 item18.table <- data.frame(item18.table)
@@ -3083,7 +3088,7 @@ item10.os.final$Wall.Type[which(item10.os.final$Wall.Type == "Total")] <- "All F
 item10.os.cast <- dcast(setDT(item10.os.final),
                      formula   = BuildingType + Wall.Type ~ rvalue.bins,
                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-
+names(item10.os.cast)
 #join all insulation levels onto rvalue summary
 item10.os.table <- data.frame("BuildingType"                   = item10.os.cast$BuildingType
                               ,"Wall.Type"                     = item10.os.cast$Wall.Type
@@ -3656,13 +3661,13 @@ if(os.ind == "scl"){
                               ,"Percent_SCL.EH"       = tableAP.cast$`w.percent_SCL EH`
                               ,"SE_SCL.EH"            = tableAP.cast$`w.SE_SCL EH`
                               ,"n_SCL.EH"             = tableAP.cast$`n_SCL EH`
-                              ,"Percent_2017.scl.PS"  = tableAP.cast$`w.percent_2017 scl PS`
-                              ,"SE_2017.scl.PS"       = tableAP.cast$`w.SE_2017 scl PS`
-                              ,"n_2017.scl.PS"        = tableAP.cast$`n_2017 scl PS`
+                              ,"Percent_2017.scl.PS"  = tableAP.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.scl.PS"       = tableAP.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.scl.PS"        = tableAP.cast$`n_2017 RBSA PS`
                               ,"EB_SCL.GenPop"        = tableAP.cast$`EB_SCL GenPop`
                               ,"EB_SCL.LI"            = tableAP.cast$`EB_SCL LI`
                               ,"EB_SCL.EH"            = tableAP.cast$`EB_SCL EH`
-                              ,"EB_2017.scl.PS"       = tableAP.cast$`EB_2017 scl PS`)
+                              ,"EB_2017.scl.PS"       = tableAP.cast$`EB_2017 RBSA PS`)
   
 }else if(os.ind == "snopud"){
   tableAP.table <- data.frame("BuildingType"        = tableAP.cast$BuildingType
@@ -3717,9 +3722,9 @@ if(os.ind == "scl"){
                               ,"Percent_SCL.EH"       = tableAP.cast$`Percent_SCL EH`
                               ,"SE_SCL.EH"            = tableAP.cast$`SE_SCL EH`
                               ,"n_SCL.EH"             = tableAP.cast$`n_SCL EH`
-                              ,"Percent_2017.scl.PS" = tableAP.cast$`Percent_2017 scl PS`
-                              ,"SE_2017.scl.PS"      = tableAP.cast$`SE_2017 scl PS`
-                              ,"n_2017.scl.PS"       = tableAP.cast$`n_2017 scl PS`)
+                              ,"Percent_2017.scl.PS" = tableAP.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.scl.PS"      = tableAP.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.scl.PS"       = tableAP.cast$`n_2017 RBSA PS`)
   
 }else if(os.ind == "snopud"){
   tableAP.table <- data.frame("BuildingType"           = tableAP.cast$BuildingType
@@ -4591,6 +4596,8 @@ rowOrder <- c("Framed 2x4"
               ,"SIP"
               ,"Log"
               ,"Unknown"
+              ,"Knee Wall"
+              ,"Adiabatic"
               ,"All Framing Types")
 item18.os.table <- item18.os.table %>% mutate(Wall.Type = factor(Wall.Type, levels = rowOrder)) %>% arrange(Wall.Type)  
 item18.os.table <- data.frame(item18.os.table)
@@ -4655,6 +4662,9 @@ rowOrder <- c("Framed 2x4"
               ,"ICF"
               ,"SIP"
               ,"Log"
+              ,"Unknown"
+              ,"Knee Wall"
+              ,"Adiabatic"
               ,"All Framing Types")
 item18.os.table <- item18.os.table %>% mutate(Wall.Type = factor(Wall.Type, levels = rowOrder)) %>% arrange(Wall.Type)  
 item18.os.table <- data.frame(item18.os.table)

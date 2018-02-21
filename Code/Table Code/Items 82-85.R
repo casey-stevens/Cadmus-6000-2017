@@ -401,7 +401,7 @@ scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 item82.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                    ,"Type"
                                                                    ,"APPLIANCE_FRIDGE_FREEZER_Type"
-                                                                   ,"Refrigerator/Freezer.Size"))]
+                                                                   ,"Refrigerator.Freezer.Size"))]
 names(item82.os.dat)
 
 item82.os.dat0 <- item82.os.dat[which(item82.os.dat$APPLIANCE_FRIDGE_FREEZER_Type %notin% c("N/A",NA,"Unknown")),]
@@ -430,12 +430,12 @@ item82.os.dat3 <- item82.os.dat2[which(item82.os.dat2$Type == "Refrigerator"),]
 ######################################
 item82.os.data <- weightedData(item82.os.dat3[which(colnames(item82.os.dat3) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                               ,"Type"
-                                                                              ,"Refrigerator/Freezer.Size"))])
+                                                                              ,"Refrigerator.Freezer.Size"))])
 
 item82.os.data <- left_join(item82.os.data, unique(item82.os.dat3[which(colnames(item82.os.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                      ,"Type"
-                                                                                     ,"Refrigerator/Freezer.Size"))]))
+                                                                                     ,"Refrigerator.Freezer.Size"))]))
 item82.os.data$count <- 1
 
 
@@ -546,34 +546,34 @@ exportTable(item82.os.final.SF, "SF", "Table 89", weighted = FALSE, osIndicator 
 #Item 83: AVERAGE REFRIGERATOR VOLUME BY TYPE (SF table 90, MH table 71)
 #############################################################################################
 #subset to columns needed for analysis
-item83.os.dat <- item82.os.dat3[-grep("unknown",item82.os.dat3$`Refrigerator/Freezer.Size`, ignore.case = T),]
+item83.os.dat <- item82.os.dat3[-grep("unknown",item82.os.dat3$`Refrigerator.Freezer.Size`, ignore.case = T),]
 names(item83.os.dat)
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item83.os.data <- weightedData(item83.os.dat[which(colnames(item83.os.dat) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                             ,"Type"
-                                                                            ,"Refrigerator/Freezer.Size"))])
+                                                                            ,"Refrigerator.Freezer.Size"))])
 
 item83.os.data <- left_join(item83.os.data, unique(item83.os.dat[which(colnames(item83.os.dat) %in% c("CK_Cadmus_ID"
                                                                                    ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                    ,"Type"
-                                                                                   ,"Refrigerator/Freezer.Size"))]))
+                                                                                   ,"Refrigerator.Freezer.Size"))]))
 item83.os.data$count <- 1
 
-item83.os.data$`Refrigerator/Freezer.Size` <- gsub(" cu ft", "", item83.os.data$`Refrigerator/Freezer.Size`)
-item83.os.data$`Refrigerator/Freezer.Size` <- gsub("cu ft", "", item83.os.data$`Refrigerator/Freezer.Size`)
-item83.os.data$`Refrigerator/Freezer.Size` <- gsub(" ", "", item83.os.data$`Refrigerator/Freezer.Size`)
-item83.os.data$`Refrigerator/Freezer.Size` <- gsub("18..61", "18.61", item83.os.data$`Refrigerator/Freezer.Size`)
-item83.os.data$`Refrigerator/Freezer.Size` <- gsub("19..1", "19.1", item83.os.data$`Refrigerator/Freezer.Size`)
-unique(item83.os.data$`Refrigerator/Freezer.Size`)
-item83.os.data$`Refrigerator/Freezer.Size` <- as.numeric(as.character(item83.os.data$`Refrigerator/Freezer.Size`))
+item83.os.data$`Refrigerator.Freezer.Size` <- gsub(" cu ft", "", item83.os.data$`Refrigerator.Freezer.Size`)
+item83.os.data$`Refrigerator.Freezer.Size` <- gsub("cu ft", "", item83.os.data$`Refrigerator.Freezer.Size`)
+item83.os.data$`Refrigerator.Freezer.Size` <- gsub(" ", "", item83.os.data$`Refrigerator.Freezer.Size`)
+item83.os.data$`Refrigerator.Freezer.Size` <- gsub("18..61", "18.61", item83.os.data$`Refrigerator.Freezer.Size`)
+item83.os.data$`Refrigerator.Freezer.Size` <- gsub("19..1", "19.1", item83.os.data$`Refrigerator.Freezer.Size`)
+unique(item83.os.data$`Refrigerator.Freezer.Size`)
+item83.os.data$`Refrigerator.Freezer.Size` <- as.numeric(as.character(item83.os.data$`Refrigerator.Freezer.Size`))
 
 ######################
 # weighted analysis
 ######################
 item83.os.cast <- mean_two_groups(CustomerLevelData = item83.os.data
-                               ,valueVariable = 'Refrigerator/Freezer.Size'
+                               ,valueVariable = 'Refrigerator.Freezer.Size'
                                ,byVariableRow = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                ,byVariableColumn = "CK_Building_ID"
                                ,rowAggregate = "All Refrigerator Types"
@@ -622,7 +622,7 @@ exportTable(item83.os.final.SF, "SF", "Table 90", weighted = TRUE, osIndicator =
 # unweighted analysis
 ######################
 item83.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item83.os.data
-                                  ,valueVariable = 'Refrigerator/Freezer.Size'
+                                  ,valueVariable = 'Refrigerator.Freezer.Size'
                                   ,byVariableRow = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                   ,byVariableColumn = "CK_Building_ID"
                                   ,rowAggregate = "All Refrigerator Types"
@@ -675,12 +675,12 @@ item84.os.dat <- item82.os.dat2[which(item82.os.dat2$Type == "Freezer"),]
 ######################################
 item84.os.data <- weightedData(item84.os.dat[which(colnames(item84.os.dat) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                             ,"Type"
-                                                                            ,"Refrigerator/Freezer.Size"))])
+                                                                            ,"Refrigerator.Freezer.Size"))])
 
 item84.os.data <- left_join(item84.os.data, unique(item84.os.dat[which(colnames(item84.os.dat) %in% c("CK_Cadmus_ID"
                                                                                    ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                    ,"Type"
-                                                                                   ,"Refrigerator/Freezer.Size"))]))
+                                                                                   ,"Refrigerator.Freezer.Size"))]))
 item84.os.data$count <- 1
 
 
@@ -780,32 +780,32 @@ exportTable(item84.os.final.SF, "SF", "Table 91", weighted = FALSE, osIndicator 
 #Item 85: AVERAGE FREEZER VOLUME BY TYPE (SF table 92, MH table 73)
 #############################################################################################
 item85.os.dat <- item82.os.dat2[which(item82.os.dat2$Type == "Freezer"),]
-item85.os.dat1 <- item85.os.dat[-grep("unknown",item85.os.dat$`Refrigerator/Freezer.Size`, ignore.case = T),]
+item85.os.dat1 <- item85.os.dat[-grep("unknown",item85.os.dat$`Refrigerator.Freezer.Size`, ignore.case = T),]
 
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item85.os.data <- weightedData(item85.os.dat1[which(colnames(item85.os.dat1) %notin% c("APPLIANCE_FRIDGE_FREEZER_Type"
                                                                               ,"Type"
-                                                                              ,"Refrigerator/Freezer.Size"))])
+                                                                              ,"Refrigerator.Freezer.Size"))])
 
 item85.os.data <- left_join(item85.os.data, unique(item85.os.dat1[which(colnames(item85.os.dat1) %in% c("CK_Cadmus_ID"
                                                                                      ,"APPLIANCE_FRIDGE_FREEZER_Type"
                                                                                      ,"Type"
-                                                                                     ,"Refrigerator/Freezer.Size"))]))
+                                                                                     ,"Refrigerator.Freezer.Size"))]))
 item85.os.data$count <- 1
 
-item85.os.data$`Refrigerator/Freezer.Size` <- gsub(" cu ft", "", item85.os.data$`Refrigerator/Freezer.Size`)
-item85.os.data$`Refrigerator/Freezer.Size` <- gsub("cu ft", "", item85.os.data$`Refrigerator/Freezer.Size`)
-item85.os.data$`Refrigerator/Freezer.Size` <- gsub(" ", "", item85.os.data$`Refrigerator/Freezer.Size`)
-unique(item85.os.data$`Refrigerator/Freezer.Size`)
-item85.os.data$`Refrigerator/Freezer.Size` <- as.numeric(as.character(item85.os.data$`Refrigerator/Freezer.Size`))
+item85.os.data$`Refrigerator.Freezer.Size` <- gsub(" cu ft", "", item85.os.data$`Refrigerator.Freezer.Size`)
+item85.os.data$`Refrigerator.Freezer.Size` <- gsub("cu ft", "", item85.os.data$`Refrigerator.Freezer.Size`)
+item85.os.data$`Refrigerator.Freezer.Size` <- gsub(" ", "", item85.os.data$`Refrigerator.Freezer.Size`)
+unique(item85.os.data$`Refrigerator.Freezer.Size`)
+item85.os.data$`Refrigerator.Freezer.Size` <- as.numeric(as.character(item85.os.data$`Refrigerator.Freezer.Size`))
 
 ######################
 # weighted analysis
 ######################
 item85.os.cast <- mean_two_groups(CustomerLevelData = item85.os.data
-                                  ,valueVariable = 'Refrigerator/Freezer.Size'
+                                  ,valueVariable = 'Refrigerator.Freezer.Size'
                                   ,byVariableRow = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                   ,byVariableColumn = "CK_Building_ID"
                                   ,rowAggregate = "Total"
@@ -846,7 +846,7 @@ exportTable(item85.os.final.SF, "SF", "Table 92", weighted = TRUE, osIndicator =
 # unweighted analysis
 ######################
 item85.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item85.os.data
-                                  ,valueVariable = 'Refrigerator/Freezer.Size'
+                                  ,valueVariable = 'Refrigerator.Freezer.Size'
                                   ,byVariableRow = 'APPLIANCE_FRIDGE_FREEZER_Type'
                                   ,byVariableColumn = "CK_Building_ID"
                                   ,rowAggregate = "Total"
