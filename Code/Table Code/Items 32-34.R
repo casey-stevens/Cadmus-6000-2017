@@ -544,10 +544,10 @@ if(os.ind == "scl"){
                                 ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
                                 ,"Percent_SCL.EH"       = item32.os.cast$`w.percent_SCL EH`
                                 ,"SE_SCL.EH"            = item32.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
                                 ,"Percent_2017.RBSA.PS" = item32.os.cast$`w.percent_2017 RBSA PS`
                                 ,"SE_2017.RBSA.PS"      = item32.os.cast$`w.SE_2017 RBSA PS`
                                 ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`
-                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
                                 ,"EB_SCL.GenPop"        = item32.os.cast$`EB_SCL GenPop`
                                 ,"EB_SCL.LI"            = item32.os.cast$`EB_SCL LI`
                                 ,"EB_SCL.EH"            = item32.os.cast$`EB_SCL EH`
@@ -614,10 +614,10 @@ if(os.ind == "scl"){
                                 ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
                                 ,"Percent_SCL.EH"       = item32.os.cast$`Percent_SCL EH`
                                 ,"SE_SCL.EH"            = item32.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
                                 ,"Percent_2017.RBSA.PS" = item32.os.cast$`Percent_2017 RBSA PS`
                                 ,"SE_2017.RBSA.PS"      = item32.os.cast$`SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`
-                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`)  
+                                ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`)  
 }else if(os.ind == "snopud"){
   item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
                                 ,"Percent_SnoPUD"          = item32.os.cast$`Percent_SnoPUD`
@@ -750,10 +750,10 @@ if(os.ind == "scl"){
                                 ,"n_SCL.LI"             = item33.os.cast$`n_SCL LI`
                                 ,"Percent_SCL.EH"       = item33.os.cast$`w.percent_SCL EH`
                                 ,"SE_SCL.EH"            = item33.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item33.os.cast$`n_SCL EH`
                                 ,"Percent_2017.RBSA.PS" = item33.os.cast$`w.percent_2017 RBSA PS`
                                 ,"SE_2017.RBSA.PS"      = item33.os.cast$`w.SE_2017 RBSA PS`
                                 ,"n_2017.RBSA.PS"       = item33.os.cast$`n_2017 RBSA PS`
-                                ,"n_SCL.EH"             = item33.os.cast$`n_SCL EH`
                                 ,"EB_SCL.GenPop"        = item33.os.cast$`EB_SCL GenPop`
                                 ,"EB_SCL.LI"            = item33.os.cast$`EB_SCL LI`
                                 ,"EB_SCL.EH"            = item33.os.cast$`EB_SCL EH`
@@ -854,7 +854,7 @@ rowOrder <- c("Metal Single Glazed"
               ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
               ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
               ,"Other Double Glazed" 
-              ,"All Framing Categories"
+              ,"Total"
 )
 item33.os.table <- item33.os.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
 item33.os.table <- data.frame(item33.os.table)

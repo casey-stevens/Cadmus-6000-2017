@@ -3661,13 +3661,13 @@ if(os.ind == "scl"){
                               ,"Percent_SCL.EH"       = tableAP.cast$`w.percent_SCL EH`
                               ,"SE_SCL.EH"            = tableAP.cast$`w.SE_SCL EH`
                               ,"n_SCL.EH"             = tableAP.cast$`n_SCL EH`
-                              ,"Percent_2017.scl.PS"  = tableAP.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.scl.PS"       = tableAP.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.scl.PS"        = tableAP.cast$`n_2017 RBSA PS`
+                              ,"Percent_2017.RBSA.PS" = tableAP.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = tableAP.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = tableAP.cast$`n_2017 RBSA PS`
                               ,"EB_SCL.GenPop"        = tableAP.cast$`EB_SCL GenPop`
                               ,"EB_SCL.LI"            = tableAP.cast$`EB_SCL LI`
                               ,"EB_SCL.EH"            = tableAP.cast$`EB_SCL EH`
-                              ,"EB_2017.scl.PS"       = tableAP.cast$`EB_2017 RBSA PS`)
+                              ,"EB_2017.RBSA.PS"      = tableAP.cast$`EB_2017 RBSA PS`)
   
 }else if(os.ind == "snopud"){
   tableAP.table <- data.frame("BuildingType"        = tableAP.cast$BuildingType
@@ -3722,13 +3722,13 @@ if(os.ind == "scl"){
                               ,"Percent_SCL.EH"       = tableAP.cast$`Percent_SCL EH`
                               ,"SE_SCL.EH"            = tableAP.cast$`SE_SCL EH`
                               ,"n_SCL.EH"             = tableAP.cast$`n_SCL EH`
-                              ,"Percent_2017.scl.PS" = tableAP.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.scl.PS"      = tableAP.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.scl.PS"       = tableAP.cast$`n_2017 RBSA PS`)
+                              ,"Percent_2017.RBSA.PS" = tableAP.cast$`Percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = tableAP.cast$`SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = tableAP.cast$`n_2017 RBSA PS`)
   
 }else if(os.ind == "snopud"){
   tableAP.table <- data.frame("BuildingType"           = tableAP.cast$BuildingType
-                              ,"Insulation.Levels"    = tableAP.cast$rvalue.bins.SF
+                              ,"Insulation.Levels"       = tableAP.cast$rvalue.bins.SF
                               ,"Percent_SnoPUD"          = tableAP.cast$`Percent_SnoPUD`
                               ,"SE_SnoPUD"               = tableAP.cast$`SE_SnoPUD`
                               ,"n_SnoPUD"                = tableAP.cast$`n_SnoPUD`
