@@ -4802,7 +4802,7 @@ item17.os.table <- data.frame("BuildingType"     = item17.os.cast$BuildingType
                               ,"EB.R1.R9"        = item17.os.cast$EB_R1.R9
                               ,"EB.R10.R15"      = item17.os.cast$EB_R10.R15
                               ,"EB.R16.R20"      = item17.os.cast$EB_R16.R20
-                              ,"EB.R21"          = item17.os.cast$EB_RGT21
+                              ,"EB.RGT21"          = item17.os.cast$EB_RGT21
 )
 
 # row ordering example code
