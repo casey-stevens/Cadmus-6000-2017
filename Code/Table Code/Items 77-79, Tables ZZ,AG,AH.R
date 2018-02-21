@@ -859,7 +859,7 @@ item77.os.final <- proportions_one_group(CustomerLevelData = item77.os.data
                                       ,valueVariable    = 'StorageBulbs'
                                       ,groupingVariable = 'CK_Building_ID'
                                       ,total.name       = 'Remove')
-item77.os.final <- item77.os.final[which(item77.os.final$CK_Building_ID != "Remove"),]
+item77.os.final <- item77.os.final[which(item77.os.final$CK_Building_ID != "Total"),]
 
 item77.os.final.SF <- item77.os.final[which(item77.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item77.os.final) %in% c("BuildingType"))]
@@ -874,7 +874,7 @@ item77.os.final <- proportions_one_group(CustomerLevelData = item77.os.data
                                       ,groupingVariable = 'CK_Building_ID'
                                       ,total.name       = 'Remove'
                                       ,weighted         = FALSE)
-item77.os.final <- item77.os.final[which(item77.os.final$CK_Building_ID != "Remove"),]
+item77.os.final <- item77.os.final[which(item77.os.final$CK_Building_ID != "Total"),]
 
 item77.os.final.SF <- item77.os.final[which(item77.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item77.os.final) %in% c("BuildingType"))]
