@@ -1014,10 +1014,10 @@ exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 68: DISTRIBUTION OF LAMPS BY EISA CATEGORY AND CK_Building_ID (SF table 75, MH table 54, MF table 81)
@@ -1032,7 +1032,7 @@ item68.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,""))]
 item68.os.dat$count <- 1
 
-item68.os.dat2 <- left_join(scl.dat, item68.os.dat, by = "CK_Cadmus_ID")
+item68.os.dat2 <- left_join(os.dat, item68.os.dat, by = "CK_Cadmus_ID")
 
 #clean fixture and bulbs per fixture
 item68.os.dat2$Fixture.Qty <- as.numeric(as.character(item68.os.dat2$Fixture.Qty))
@@ -1076,25 +1076,46 @@ item68.os.cast <- dcast(setDT(item68.os.summary)
                      , formula = BuildingType + Status ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-item68.os.table <- data.frame("BuildingType"    = item68.os.cast$BuildingType
-                           ,"EISA.Category"  = item68.os.cast$Status
-                           ,"Percent_SCL.GenPop"   = item68.os.cast$`w.percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item68.os.cast$`w.SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item68.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item68.os.cast$`w.percent_SCL LI`
-                           ,"SE_SCL.LI"            = item68.os.cast$`w.SE_SCL LI`
-                           ,"n_SCL.LI"             = item68.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item68.os.cast$`w.percent_SCL EH`
-                           ,"SE_SCL.EH"            = item68.os.cast$`w.SE_SCL EH`
-                           ,"n_SCL.EH"             = item68.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item68.os.cast$`w.percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item68.os.cast$`w.SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item68.os.cast$`n_2017 RBSA PS`
-                           ,"EB_SCL.GenPop"        = item68.os.cast$`EB_SCL GenPop`
-                           ,"EB_SCL.LI"            = item68.os.cast$`EB_SCL LI`
-                           ,"EB_SCL.EH"            = item68.os.cast$`EB_SCL EH`
-                           ,"EB_2017.RBSA.PS"      = item68.os.cast$`EB_2017 RBSA PS`
-)
+names(item68.os.cast)
+if(os.ind == "scl"){
+  item68.os.table <- data.frame("BuildingType"    = item68.os.cast$BuildingType
+                                ,"EISA.Category"  = item68.os.cast$Status
+                                ,"Percent_SCL.GenPop"   = item68.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item68.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item68.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item68.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item68.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item68.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item68.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item68.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item68.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item68.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item68.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item68.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item68.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item68.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item68.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item68.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item68.os.table <- data.frame("BuildingType"    = item68.os.cast$BuildingType
+                                ,"EISA.Category"  = item68.os.cast$Status
+                                ,"Percent_SnoPUD"          = item68.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item68.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item68.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item68.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item68.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item68.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item68.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item68.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item68.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item68.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item68.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item68.os.cast$`EB_2017 RBSA NW`)
+}
+
+
+
+
 
 levels(item68.os.table$EISA.Category)
 rowOrder <- c("Exempt"
@@ -1108,7 +1129,7 @@ item68.os.table <- data.frame(item68.os.table)
 item68.os.final.SF <- item68.os.table[which(item68.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item68.os.table) %in% c("BuildingType"))]
 
-exportTable(item68.os.final.SF, "SF", "Table 75", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item68.os.final.SF, "SF", "Table 75", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -1123,27 +1144,43 @@ item68.os.cast <- dcast(setDT(item68.os.summary)
                      , formula = BuildingType + Status ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
+names(item68.os.cast)
+if(os.ind == "scl"){
+  item68.os.table <- data.frame("BuildingType"    = item68.os.cast$BuildingType
+                                ,"EISA.Category"  = item68.os.cast$Status
+                                ,"Percent_SCL.GenPop"   = item68.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item68.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item68.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item68.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item68.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item68.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item68.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item68.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item68.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item68.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item68.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item68.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item68.os.table <- data.frame("BuildingType"    = item68.os.cast$BuildingType
+                                ,"EISA.Category"  = item68.os.cast$Status
+                                ,"Percent_SnoPUD"          = item68.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item68.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item68.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item68.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item68.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item68.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item68.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item68.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item68.os.cast$`n_2017 RBSA NW`)
+}
 
-item68.os.table <- data.frame("BuildingType"    = item68.os.cast$BuildingType
-                           ,"EISA.Category"  = item68.os.cast$Status
-                           ,"Percent_SCL.GenPop"   = item68.os.cast$`Percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item68.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item68.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item68.os.cast$`Percent_SCL LI`
-                           ,"SE_SCL.LI"            = item68.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = item68.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item68.os.cast$`Percent_SCL EH`
-                           ,"SE_SCL.EH"            = item68.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = item68.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item68.os.cast$`Percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item68.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item68.os.cast$`n_2017 RBSA PS`
-)
+
+
 
 item68.os.final.SF <- item68.os.table[which(item68.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item68.os.table) %in% c("BuildingType"))]
 
-exportTable(item68.os.final.SF, "SF", "Table 75", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item68.os.final.SF, "SF", "Table 75", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1161,7 +1198,7 @@ item69.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item69.os.dat$count <- 1
 
 #join clean scl data onto lighting analysis data
-item69.os.dat1 <- left_join(scl.dat, item69.os.dat, by = "CK_Cadmus_ID")
+item69.os.dat1 <- left_join(os.dat, item69.os.dat, by = "CK_Cadmus_ID")
 
 #remove building info
 item69.os.dat1.5 <- item69.os.dat1[which(item69.os.dat1$Clean.Room != "Storage"),]
@@ -1182,7 +1219,7 @@ item69.os.dat3 <- item69.os.dat2[which(item69.os.dat2$Lamp.Category %notin% c("N
 unique(item69.os.dat3$Lamp.Category)
 
 
-item69.os.merge <- left_join(scl.dat, item69.os.dat3)
+item69.os.merge <- left_join(os.dat, item69.os.dat3)
 item69.os.merge <- item69.os.merge[which(item69.os.merge$Lamp.Category %notin% c("N/A", NA, "Unknown")),]
 item69.os.merge <- item69.os.merge[which(item69.os.merge$Lamps %notin% c("Unknown", "N/A", NA)),]
 
@@ -1219,31 +1256,51 @@ item69.os.cast <- dcast(setDT(item69.os.summary)
                      , formula = BuildingType + Lamp.Category ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-item69.os.table <- data.frame("BuildingType"    = item69.os.cast$BuildingType
-                           ,"Lamp.Type"      = item69.os.cast$Lamp.Category
-                           ,"Percent_SCL.GenPop"   = item69.os.cast$`w.percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item69.os.cast$`w.SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item69.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item69.os.cast$`w.percent_SCL LI`
-                           ,"SE_SCL.LI"            = item69.os.cast$`w.SE_SCL LI`
-                           ,"n_SCL.LI"             = item69.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item69.os.cast$`w.percent_SCL EH`
-                           ,"SE_SCL.EH"            = item69.os.cast$`w.SE_SCL EH`
-                           ,"n_SCL.EH"             = item69.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item69.os.cast$`w.percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item69.os.cast$`w.SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item69.os.cast$`n_2017 RBSA PS`
-                           ,"EB_SCL.GenPop"        = item69.os.cast$`EB_SCL GenPop`
-                           ,"EB_SCL.LI"            = item69.os.cast$`EB_SCL LI`
-                           ,"EB_SCL.EH"            = item69.os.cast$`EB_SCL EH`
-                           ,"EB_2017.RBSA.PS"      = item69.os.cast$`EB_2017 RBSA PS`
-)
+names(item69.os.cast)
+if(os.ind == "scl"){
+  item69.os.table <- data.frame("BuildingType"    = item69.os.cast$BuildingType
+                                ,"Lamp.Type"      = item69.os.cast$Lamp.Category
+                                ,"Percent_SCL.GenPop"   = item69.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item69.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item69.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item69.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item69.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item69.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item69.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item69.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item69.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item69.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item69.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item69.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item69.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item69.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item69.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item69.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item69.os.table <- data.frame("BuildingType"    = item69.os.cast$BuildingType
+                                ,"Lamp.Type"      = item69.os.cast$Lamp.Category
+                                ,"Percent_SnoPUD"          = item69.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item69.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item69.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item69.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item69.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item69.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item69.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item69.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item69.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item69.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item69.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item69.os.cast$`EB_2017 RBSA NW`)
+}
+
+
+
 
 
 item69.os.final.SF <- item69.os.table[which(item69.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item69.os.table) %in% c("BuildingType"))]
 
-exportTable(item69.os.final.SF, "SF", "Table 76", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item69.os.final.SF, "SF", "Table 76", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -1258,27 +1315,42 @@ item69.os.cast <- dcast(setDT(item69.os.summary)
                      , formula = BuildingType + Lamp.Category ~ CK_Building_ID
                      , value.var = c("Percent", "SE", "Count", "n"))
 
+names(item69.os.cast)
+if(os.ind == "scl"){
+  item69.os.table <- data.frame("BuildingType"    = item69.os.cast$BuildingType
+                                ,"Lamp.Type"      = item69.os.cast$Lamp.Category
+                                ,"Percent_SCL.GenPop"   = item69.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item69.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item69.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item69.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item69.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item69.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item69.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item69.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item69.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item69.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item69.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item69.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item69.os.table <- data.frame("BuildingType"    = item69.os.cast$BuildingType
+                                ,"Lamp.Type"      = item69.os.cast$Lamp.Category
+                                ,"Percent_SnoPUD"          = item69.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item69.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item69.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item69.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item69.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item69.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item69.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item69.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item69.os.cast$`n_2017 RBSA NW`)
+}
 
-item69.os.table <- data.frame("BuildingType"    = item69.os.cast$BuildingType
-                           ,"Lamp.Type"      = item69.os.cast$Lamp.Category
-                           ,"Percent_SCL.GenPop"   = item69.os.cast$`Percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item69.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item69.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item69.os.cast$`Percent_SCL LI`
-                           ,"SE_SCL.LI"            = item69.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = item69.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item69.os.cast$`Percent_SCL EH`
-                           ,"SE_SCL.EH"            = item69.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = item69.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item69.os.cast$`Percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item69.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item69.os.cast$`n_2017 RBSA PS`
-)
+
 
 item69.os.final.SF <- item69.os.table[which(item69.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item69.os.table) %in% c("BuildingType"))]
 
-exportTable(item69.os.final.SF, "SF", "Table 76", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item69.os.final.SF, "SF", "Table 76", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1295,8 +1367,8 @@ item70.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item70.os.dat$count <- 1
 
 #join clean scl data onto lighting analysis data
-item70.os.dat1 <- left_join(scl.dat, item70.os.dat, by = "CK_Cadmus_ID")
-item70.os.dat1 <- item70.os.dat1[which(item70.os.dat1$CK_Building_ID == "SCL GenPop"),]
+item70.os.dat1 <- left_join(os.dat, item70.os.dat, by = "CK_Cadmus_ID")
+item70.os.dat1 <- item70.os.dat1[which(item70.os.dat1$CK_Building_ID == export.ind),]
 
 item70.os.dat1.1 <- item70.os.dat1[which(!(item70.os.dat1$Clean.Room %in% c("Storage"))),]
 item70.os.dat1.1$Clean.Room[which(item70.os.dat1.1$Clean.Room %in% c("Attic"
@@ -1323,7 +1395,7 @@ unique(item70.os.dat3$Lamp.Category)
 item70.os.dat4 <- item70.os.dat3[which(item70.os.dat3$Lamp.Category != "Unknown"),]
 
 
-item70.os.merge <- left_join(scl.dat, item70.os.dat4)
+item70.os.merge <- left_join(os.dat, item70.os.dat4)
 item70.os.merge <- item70.os.merge[which(!is.na(item70.os.merge$Lamp.Category)),]
 item70.os.merge <- item70.os.merge[which(!is.na(item70.os.merge$Lamps)),]
 #clean room types
@@ -1393,32 +1465,37 @@ item70.os.final <- rbind.data.frame(item70.os.summary, item70.os.all.room.types,
 item70.os.cast <- dcast(setDT(item70.os.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
 names(item70.os.cast)
+
 item70.os.table <- data.frame("BuildingType"                  = item70.os.cast$BuildingType
-                           ,"Room.Type"                    = item70.os.cast$Clean.Room
-                           ,"Percent_CFL"                  = item70.os.cast$`w.percent_Compact Fluorescent`
-                           ,"SE_CFL"                       = item70.os.cast$`w.SE_Compact Fluorescent`
-                           ,"Percent_Halogen"              = item70.os.cast$w.percent_Halogen
-                           ,"SE_Halogen"                   = item70.os.cast$w.SE_Halogen
-                           ,"Percent_Incandescent"         = item70.os.cast$w.percent_Incandescent
-                           ,"SE_Incandescent"              = item70.os.cast$w.SE_Incandescent
-                           ,"Percent_Incandescent.Halogen" = item70.os.cast$`w.percent_Incandescent / Halogen`
-                           ,"SE_Incandescent.Halogen"      = item70.os.cast$`w.SE_Incandescent / Halogen`
-                           ,"Percent_LED"                  = item70.os.cast$`w.percent_Light Emitting Diode`
-                           ,"SE_LED"                       = item70.os.cast$`w.SE_Light Emitting Diode`
-                           ,"Percent_LF"                   = item70.os.cast$`w.percent_Linear Fluorescent`
-                           ,"SE_LF"                        = item70.os.cast$`w.SE_Linear Fluorescent`
-                           ,"Percent_Other"                = item70.os.cast$w.percent_Other
-                           ,"SE_Other"                     = item70.os.cast$w.SE_Other
-                           ,"n"                            = item70.os.cast$`n_All Categories`
-                           ,"EB_CFL"                       = item70.os.cast$`EB_Compact Fluorescent`
-                           ,"EB_Halogen"                   = item70.os.cast$EB_Halogen
-                           ,"EB_Incandescent"              = item70.os.cast$EB_Incandescent
-                           ,"EB_Incandescent.Halogen"      = item70.os.cast$`EB_Incandescent / Halogen`
-                           ,"EB_LED"                       = item70.os.cast$`EB_Light Emitting Diode`
-                           ,"EB_LF"                        = item70.os.cast$`EB_Linear Fluorescent`
-                           ,"EB_Other"                     = item70.os.cast$EB_Other
-)
+                                ,"Room.Type"                    = item70.os.cast$Clean.Room
+                                ,"Percent_CFL"                  = item70.os.cast$`w.percent_Compact Fluorescent`
+                                ,"SE_CFL"                       = item70.os.cast$`w.SE_Compact Fluorescent`
+                                ,"Percent_Halogen"              = item70.os.cast$w.percent_Halogen
+                                ,"SE_Halogen"                   = item70.os.cast$w.SE_Halogen
+                                ,"Percent_Incandescent"         = item70.os.cast$w.percent_Incandescent
+                                ,"SE_Incandescent"              = item70.os.cast$w.SE_Incandescent
+                                ,"Percent_Incandescent.Halogen" = item70.os.cast$`w.percent_Incandescent / Halogen`
+                                ,"SE_Incandescent.Halogen"      = item70.os.cast$`w.SE_Incandescent / Halogen`
+                                ,"Percent_LED"                  = item70.os.cast$`w.percent_Light Emitting Diode`
+                                ,"SE_LED"                       = item70.os.cast$`w.SE_Light Emitting Diode`
+                                ,"Percent_LF"                   = item70.os.cast$`w.percent_Linear Fluorescent`
+                                ,"SE_LF"                        = item70.os.cast$`w.SE_Linear Fluorescent`
+                                ,"Percent_Other"                = item70.os.cast$w.percent_Other
+                                ,"SE_Other"                     = item70.os.cast$w.SE_Other
+                                ,"n"                            = item70.os.cast$`n_All Categories`
+                                ,"EB_CFL"                       = item70.os.cast$`EB_Compact Fluorescent`
+                                ,"EB_Halogen"                   = item70.os.cast$EB_Halogen
+                                ,"EB_Incandescent"              = item70.os.cast$EB_Incandescent
+                                ,"EB_Incandescent.Halogen"      = item70.os.cast$`EB_Incandescent / Halogen`
+                                ,"EB_LED"                       = item70.os.cast$`EB_Light Emitting Diode`
+                                ,"EB_LF"                        = item70.os.cast$`EB_Linear Fluorescent`
+                                ,"EB_Other"                     = item70.os.cast$EB_Other)
+
+
+
+
 
 # row ordering example code
 levels(item70.os.table$Room.Type)
@@ -1443,7 +1520,7 @@ item70.os.table <- data.frame(item70.os.table)
 item70.os.final.SF <- item70.os.table[which(item70.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item70.os.table) %in% c("BuildingType"))]
 
-exportTable(item70.os.final.SF, "SF", "Table 77", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item70.os.final.SF, "SF", "Table 77", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #######################
@@ -1480,6 +1557,9 @@ item70.os.final <- rbind.data.frame(item70.os.summary, item70.os.all.room.types,
 item70.os.cast <- dcast(setDT(item70.os.final)
                      , formula = BuildingType + Clean.Room ~ Lamp.Category
                      , value.var = c("Percent", "SE", "Count", "n"))
+
+
+names(item70.os.cast)
 
 item70.os.table <- data.frame("BuildingType"                  = item70.os.cast$BuildingType
                            ,"Room.Type"                    = item70.os.cast$Clean.Room
@@ -1524,4 +1604,4 @@ item70.os.table <- data.frame(item70.os.table)
 item70.os.final.SF <- item70.os.table[which(item70.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item70.os.table) %in% c("BuildingType"))]
 
-exportTable(item70.os.final.SF, "SF", "Table 77", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item70.os.final.SF, "SF", "Table 77", weighted = FALSE, osIndicator = export.ind, OS = T)
