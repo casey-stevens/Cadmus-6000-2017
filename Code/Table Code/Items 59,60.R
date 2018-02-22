@@ -347,7 +347,7 @@ item59.os.dat3 <- left_join(os.dat, item59.os.dat2)
 item59.os.dat3$Ind[which(is.na(item59.os.dat3$Ind))] <- 0
 which(duplicated(item59.os.dat3$CK_Cadmus_ID))
 
-item59.os.customer <- summarise(group_by(item59.os.dat3, CK_Cadmus_ID)
+item59.os.customer <- summarise(group_by(item59.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Ind = sum(unique(Ind)))
 item59.os.customer$Ind[which(item59.os.customer$Ind > 0)] <- 1
 

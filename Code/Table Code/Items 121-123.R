@@ -449,7 +449,7 @@ item123.os.melt <- melt(item123.os.dat2, measure.vars = c("Age_0_18"
                                                     , "Qty.Occupants"))
 colnames(item123.os.melt)[which(colnames(item123.os.melt) == "variable")] <- "Age.Category"
 
-item123.os.sum <- summarise(group_by(item123.os.melt, CK_Cadmus_ID, Age.Category)
+item123.os.sum <- summarise(group_by(item123.os.melt, CK_Cadmus_ID, CK_Building_ID, Age.Category)
                          ,Occupants = sum(value, na.rm = T))
 
 item123.os.merge <- left_join(scl.dat, item123.os.sum)

@@ -383,25 +383,30 @@ item19.os.dat2$Ind[which(item19.os.dat2$Floor.Type == "Basement")] <- 1
 
 item19.os.dat3 <- unique(item19.os.dat2[which(item19.os.dat2$Ind == 1),])
 
-item19.os.dat3 <- item19.os.dat3[-which(duplicated(item19.os.dat3$CK_Cadmus_ID)),]
+item19.os.dat3 <- item19.os.dat3[-which(duplicated(item19.os.dat3$CK_Cadmus_ID)),
+                                 which(names(item19.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                    , "Floor.Type"
+                                                                    , "Floor.Sub-Type"
+                                                                    , "count"
+                                                                    , "Ind"))]
 
 item19.os.merge <- left_join(os.dat, item19.os.dat3)
 
 item19.os.merge1 <- item19.os.merge[-which(item19.os.merge$`Floor.Sub-Type` == "Unknown"),]
 item19.os.merge1 <- item19.os.merge1[which(item19.os.merge1$BuildingType == "Single Family"),]
 # apply weights to the subset of the data
-item19.os.data <- weightedData(item19.os.merge1[which(colnames(item19.os.merge1) %notin% c("count"
-                                                                                  ,"Floor.Type"
-                                                                                  ,"Floor.Sub-Type"
-                                                                                  ,"Ind"
-                                                                                  ,"cond.ind"))])
+item19.os.data <- weightedData(unique(item19.os.merge1[which(colnames(item19.os.merge1) %notin% c("count"
+                                                                                           ,"Floor.Type"
+                                                                                           ,"Floor.Sub-Type"
+                                                                                           ,"Ind"
+                                                                                           ,"cond.ind"))]))
 #merge back on measured variable
-item19.os.data <- left_join(item19.os.data, item19.os.merge1[which(colnames(item19.os.merge1) %in% c("CK_Cadmus_ID"
-                                                                                         ,"count"
-                                                                                         ,"Floor.Type"
-                                                                                         ,"Floor.Sub-Type"
-                                                                                         ,"Ind"
-                                                                                         ,"cond.ind"))])
+item19.os.data <- left_join(item19.os.data, unique(item19.os.merge1[which(colnames(item19.os.merge1) %in% c("CK_Cadmus_ID"
+                                                                                                     ,"count"
+                                                                                                     ,"Floor.Type"
+                                                                                                     ,"Floor.Sub-Type"
+                                                                                                     ,"Ind"
+                                                                                                     ,"cond.ind"))]))
 
 item19.os.data$Ind[which(is.na(item19.os.data$Ind))] <- 0
 item19.os.data$Ind <- as.numeric(as.character(item19.os.data$Ind))
@@ -492,12 +497,12 @@ item20.os.data <- weightedData(item20.os.dat[which(colnames(item20.os.dat) %noti
                                                                             ,"Ind"
                                                                             ,"cond.ind"))])
 #merge back on measured variable
-item20.os.data <- left_join(item20.os.data, item20.os.dat[which(colnames(item20.os.dat) %in% c("CK_Cadmus_ID"
+item20.os.data <- left_join(item20.os.data, unique(item20.os.dat[which(colnames(item20.os.dat) %in% c("CK_Cadmus_ID"
                                                                                    ,"count"
                                                                                    ,"Floor.Type"
                                                                                    ,"Floor.Sub-Type"
                                                                                    ,"Ind"
-                                                                                   ,"cond.ind"))])
+                                                                                   ,"cond.ind"))]))
 
 item20.os.data$Ind[which(is.na(item20.os.data$Ind))] <- 0
 item20.os.data$Ind <- as.numeric(as.character(item20.os.data$Ind))
@@ -601,9 +606,9 @@ item21.os.merge <- unique(item21.os.merge[which(item21.os.merge$BSMT_Slab_Thickn
 item21.os.data <- weightedData(item21.os.merge[which(colnames(item21.os.merge) %notin% c("BSMT_Slab_Insulated"
                                                                                 ,"BSMT_Slab_Thickness"))])
 #merge back on measured variable
-item21.os.data <- left_join(item21.os.data, item21.os.merge[which(colnames(item21.os.merge) %in% c("CK_Cadmus_ID"
+item21.os.data <- left_join(item21.os.data, unique(item21.os.merge[which(colnames(item21.os.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"BSMT_Slab_Insulated"
-                                                                                       ,"BSMT_Slab_Thickness"))])
+                                                                                       ,"BSMT_Slab_Thickness"))]))
 item21.os.data$count <- 1
 item21.os.data$Count <- 1
 

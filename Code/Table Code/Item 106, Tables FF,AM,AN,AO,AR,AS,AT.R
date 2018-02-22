@@ -1607,7 +1607,7 @@ unique(tableFF.os.dat2$GPM_Measured)
 
 tableFF.os.dat3 <- tableFF.os.dat2[grep("shower|Shower",tableFF.os.dat2$Fixture.Type),]
 
-tableFF.os.dat4 <- summarise(group_by(tableFF.os.dat3, CK_Cadmus_ID)
+tableFF.os.dat4 <- summarise(group_by(tableFF.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableFF.os.dat4$Ind <- 0
@@ -1684,14 +1684,14 @@ tableAM.os.dat3$Count <- 1
 
 #cast the melt example code
 tableAM.os.cast <- dcast(setDT(tableAM.os.dat3)
-                      ,formula = CK_Cadmus_ID ~ Fixture.Type,sum
+                      ,formula = CK_Cadmus_ID + CK_Building_ID ~ Fixture.Type,sum
                       ,value.var = c("Count"))
 tableAM.os.cast[is.na(tableAM.os.cast),] <- 0
 
-tableAM.os.melt <- melt(tableAM.os.cast, id.vars = "CK_Cadmus_ID")
-names(tableAM.os.melt) <- c("CK_Cadmus_ID", "Fixture.Type", "Count")
+tableAM.os.melt <- melt(tableAM.os.cast, id.vars = c("CK_Cadmus_ID", "CK_Building_ID"))
+names(tableAM.os.melt) <- c("CK_Cadmus_ID", "CK_Building_ID", "Fixture.Type", "Count")
 
-tableAM.os.dat4 <- summarise(group_by(tableAM.os.melt, CK_Cadmus_ID, Fixture.Type)
+tableAM.os.dat4 <- summarise(group_by(tableAM.os.melt, CK_Cadmus_ID, CK_Building_ID, Fixture.Type)
                           ,Site.Count = sum(Count))
 
 tableAM.os.merge <- left_join(scl.dat, tableAM.os.dat4)
@@ -1799,7 +1799,7 @@ unique(tableAR.os.dat2$GPM_Measured)
 
 tableAR.os.dat3 <- tableAR.os.dat2[grep("shower|Shower",tableAR.os.dat2$Fixture.Type),]
 
-tableAR.os.dat4 <- summarise(group_by(tableAR.os.dat3, CK_Cadmus_ID)
+tableAR.os.dat4 <- summarise(group_by(tableAR.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAR.os.dat4$GPM_bins <- tableAR.os.dat4$GPM.Measured.Site
@@ -1933,7 +1933,7 @@ unique(tableAS.os.dat2$GPM_Measured)
 
 tableAS.os.dat3 <- tableAS.os.dat2[grep("bathroom",tableAS.os.dat2$Fixture.Type, ignore.case = T),]
 
-tableAS.os.dat4 <- summarise(group_by(tableAS.os.dat3, CK_Cadmus_ID)
+tableAS.os.dat4 <- summarise(group_by(tableAS.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAS.os.dat4$GPM_bins <- tableAS.os.dat4$GPM.Measured.Site
@@ -2064,7 +2064,7 @@ unique(tableAT.os.dat2$GPM_Measured)
 
 tableAT.os.dat3 <- tableAT.os.dat2[grep("kitchen",tableAT.os.dat2$Fixture.Type, ignore.case = T),]
 
-tableAT.os.dat4 <- summarise(group_by(tableAT.os.dat3, CK_Cadmus_ID)
+tableAT.os.dat4 <- summarise(group_by(tableAT.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAT.os.dat4$GPM_bins <- tableAT.os.dat4$GPM.Measured.Site

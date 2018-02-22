@@ -549,12 +549,12 @@ item91.os.data <- weightedData(item91.os.dat3[-which(colnames(item91.os.dat3) %i
                                                                             ,"count"
                                                                             ,"Dryer.Loads.Per.Week"
                                                                             ,"Dryer.Loads.Per.Wash"))])
-item91.os.data <- left_join(item91.os.data, item91.os.dat3[which(colnames(item91.os.dat3) %in% c("CK_Cadmus_ID"
+item91.os.data <- left_join(item91.os.data, unique(item91.os.dat3[which(colnames(item91.os.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"Clothes.Washes.Per.Week"
                                                                                      ,"Percent.Loads.Go.In.Dryer"
                                                                                      ,"count"
                                                                                      ,"Dryer.Loads.Per.Week"
-                                                                                     ,"Dryer.Loads.Per.Wash"))])
+                                                                                     ,"Dryer.Loads.Per.Wash"))]))
 item91.os.data$count <- 1
 
 #######################

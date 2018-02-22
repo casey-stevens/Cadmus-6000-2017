@@ -513,7 +513,7 @@ item56.os.data <- weightedData(item56.os.dat5[-which(colnames(item56.os.dat5) %i
                                                                             ,"y_ilk"
                                                                             ,"m_ilk"))])
 
-item56.os.data <- left_join(item56.os.data, item56.os.dat5[which(colnames(item56.os.dat5) %in% c("CK_Cadmus_ID"
+item56.os.data <- left_join(item56.os.data, unique(item56.os.dat5[which(colnames(item56.os.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Seasonal./.Portable.Equipment?"
                                                                                      ,"Component.1.Year.of.Manufacture"
@@ -522,7 +522,7 @@ item56.os.data <- left_join(item56.os.data, item56.os.dat5[which(colnames(item56
                                                                                      ,"EquipVintage_bins_MH"
                                                                                      ,"y_bar_ilk"
                                                                                      ,"y_ilk"
-                                                                                     ,"m_ilk"))])
+                                                                                     ,"m_ilk"))]))
 
 item56.os.data$count <-1
 ################################
@@ -685,7 +685,7 @@ item57.os.data <- weightedData(item57.os.dat5[-which(colnames(item57.os.dat5) %i
                                                                             ,"y_ilk"
                                                                             ,"m_ilk"))])
 
-item57.os.data <- left_join(item57.os.data, item57.os.dat5[which(colnames(item57.os.dat5) %in% c("CK_Cadmus_ID"
+item57.os.data <- left_join(item57.os.data, unique(item57.os.dat5[which(colnames(item57.os.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Seasonal./.Portable.Equipment?"
                                                                                      ,"Component.1.Year.of.Manufacture"
@@ -694,7 +694,7 @@ item57.os.data <- left_join(item57.os.data, item57.os.dat5[which(colnames(item57
                                                                                      ,"EquipVintage_bins_MH"
                                                                                      ,"y_bar_ilk"
                                                                                      ,"y_ilk"
-                                                                                     ,"m_ilk"))])
+                                                                                     ,"m_ilk"))]))
 item57.os.data$count <- 1
 
 ########################
@@ -832,12 +832,12 @@ item58.os.data <- weightedData(item58.os.dat2[-which(colnames(item58.os.dat2) %i
                                                                             ,"SEER"
                                                                             ,"Ind"))])
 
-item58.os.data <- left_join(item58.os.data, item58.os.dat2[which(colnames(item58.os.dat2) %in% c("CK_Cadmus_ID"
+item58.os.data <- left_join(item58.os.data, unique(item58.os.dat2[which(colnames(item58.os.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"Seasonal./.Portable.Equipment?"
                                                                                      ,"Component.1.Year.of.Manufacture"
                                                                                      ,"SEER"
-                                                                                     ,"Ind"))])
+                                                                                     ,"Ind"))]))
 item58.os.data$count <- 1
 item58.os.data$Ind <- as.numeric(as.character(item58.os.data$Ind))
 

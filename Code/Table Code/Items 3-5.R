@@ -458,16 +458,9 @@ env.dat1$FoundationType <- trimws(env.dat1$FoundationType)
 item3.os.dat <- unique(left_join(os.dat, env.dat1, by = "CK_Cadmus_ID"))
 
 # Clean Ground Contact types
-i=10
 item3.os.dat$GroundContact <- item3.os.dat$FoundationType
-for (i in 1:length(GroundContactTypes$Raw.data.categories)){
-  item3.os.dat$GroundContact[which(item3.os.dat$GroundContact == GroundContactTypes$Raw.data.categories[i])] <- GroundContactTypes$New.categories[i]
-}
-item3.os.dat$GroundContact <- trimws(item3.os.dat$GroundContact)
-# End cleaning Step
-unique(item3.os.dat$GroundContact)
-
-item3.os.dat$GroundContact <- gsub("&gt;",">", item3.os.dat$GroundContact)
+item3.os.dat$GroundContact <- gsub("&gt; ",">", item3.os.dat$GroundContact)
+item3.os.dat$GroundContact[grep("90% crawl", item3.os.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace"
 
 # Remove unwanted ground contact types
 item3.os.dat1 <- item3.os.dat[which(item3.os.dat$GroundContact %notin% c("Remove", NA, 0)),]
@@ -475,11 +468,10 @@ item3.os.dat1 <- item3.os.dat[which(item3.os.dat$GroundContact %notin% c("Remove
 #subset to only single family for item 3
 item3.os.dat2 <- item3.os.dat1[which(item3.os.dat1$BuildingType == "Single Family"),]
 item3.os.dat2$count <- 1
-item3.os.customer <- summarise(group_by(item3.os.dat2, CK_Cadmus_ID, CK_Building_ID, GroundContact)
+item3.os.customer <- summarise(group_by(item3.os.dat2, CK_Cadmus_ID, CK_Building_ID, State, GroundContact)
                             ,m_ilk = sum(count))
 item3.os.merge <- left_join(os.dat, item3.os.customer)
 item3.os.merge <- item3.os.merge[which(!is.na(item3.os.merge$m_ilk)),]
-
 
 
 #add weighting information
@@ -619,7 +611,7 @@ item4.os.dat2 <- item4.os.dat1[which(!is.na(item4.os.dat1$ConditionedArea)),]
 ######################################################
 # Summarise data up to unique customer level
 ######################################################
-item4.os.customer <- summarise(group_by(item4.os.dat2, CK_Cadmus_ID)
+item4.os.customer <- summarise(group_by(item4.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                             ,siteAreaConditioned = sum(ConditionedArea))
 
 item4.os.merge <- left_join(os.dat, item4.os.customer)
@@ -708,7 +700,7 @@ item5.os.dat3 <- item5.os.dat2[which(!is.na(item5.os.dat2$HomeYearBuilt)),]
 ######################################################
 # Summarise data up to unique customer level
 ######################################################
-item5.os.customer <- summarise(group_by(item5.os.dat3, CK_Cadmus_ID)
+item5.os.customer <- summarise(group_by(item5.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                             ,siteAreaConditioned = sum(Conditioned.Area))
 
 item5.os.merge <- left_join(os.dat, item5.os.customer)

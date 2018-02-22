@@ -794,11 +794,11 @@ tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Mul
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 77: PERCENTAGE OF ALL CFLS THAT ARE STORED (SF table 84, MH table 63)
@@ -814,7 +814,7 @@ item77.os.dat$count <- 1
 
 item77.os.dat0 <- item77.os.dat[which(item77.os.dat$Lamp.Category == "Compact Fluorescent"),]
 
-item77.os.dat1 <- left_join(scl.dat, item77.os.dat0, by = "CK_Cadmus_ID")
+item77.os.dat1 <- left_join(os.dat, item77.os.dat0, by = "CK_Cadmus_ID")
 
 item77.os.dat2 <- item77.os.dat1
 
@@ -827,15 +827,15 @@ unique(item77.os.dat2$Lamps)
 
 item77.os.dat3 <- item77.os.dat2[which(!(is.na(item77.os.dat2$Lamps))),]
 
-item77.os.cfl.sum <- summarise(group_by(item77.os.dat3, CK_Cadmus_ID)
+item77.os.cfl.sum <- summarise(group_by(item77.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                             ,TotalBulbs = sum(Lamps))
 
-item77.os.merge1 <- left_join(scl.dat, item77.os.cfl.sum)
+item77.os.merge1 <- left_join(os.dat, item77.os.cfl.sum)
 
 ## subset to only storage bulbs
 item77.os.storage <- item77.os.dat3[which(item77.os.dat3$Clean.Room == "Storage"),]
 #summarise within site
-item77.os.storage.sum <- summarise(group_by(item77.os.storage, CK_Cadmus_ID)
+item77.os.storage.sum <- summarise(group_by(item77.os.storage, CK_Cadmus_ID, CK_Building_ID)
                                 ,StorageBulbs = sum(Lamps))
 
 item77.os.merge2 <- left_join(item77.os.merge1, item77.os.storage.sum)
@@ -861,10 +861,25 @@ item77.os.final <- proportions_one_group(CustomerLevelData = item77.os.data
                                       ,total.name       = 'Remove')
 item77.os.final <- item77.os.final[which(item77.os.final$CK_Building_ID != "Total"),]
 
+# row ordering example code
+levels(item77.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item77.os.final <- item77.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item77.os.final <- data.frame(item77.os.final)
+
 item77.os.final.SF <- item77.os.final[which(item77.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item77.os.final) %in% c("BuildingType"))]
 
-exportTable(item77.os.final.SF, "SF", "Table 84", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item77.os.final.SF, "SF", "Table 84", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -876,10 +891,25 @@ item77.os.final <- proportions_one_group(CustomerLevelData = item77.os.data
                                       ,weighted         = FALSE)
 item77.os.final <- item77.os.final[which(item77.os.final$CK_Building_ID != "Total"),]
 
+# row ordering example code
+levels(item77.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item77.os.final <- item77.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item77.os.final <- data.frame(item77.os.final)
+
 item77.os.final.SF <- item77.os.final[which(item77.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item77.os.final) %in% c("BuildingType"))]
 
-exportTable(item77.os.final.SF, "SF", "Table 84", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item77.os.final.SF, "SF", "Table 84", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -898,7 +928,7 @@ tableZZ.os.dat$count <- 1
 
 tableZZ.os.dat0 <- tableZZ.os.dat[which(tableZZ.os.dat$Lamp.Category == "Light Emitting Diode"),]
 
-tableZZ.os.dat1 <- left_join(scl.dat, tableZZ.os.dat0, by = "CK_Cadmus_ID")
+tableZZ.os.dat1 <- left_join(os.dat, tableZZ.os.dat0, by = "CK_Cadmus_ID")
 
 tableZZ.os.dat2 <- tableZZ.os.dat1
 
@@ -911,15 +941,15 @@ unique(tableZZ.os.dat2$Lamps)
 
 tableZZ.os.dat3 <- tableZZ.os.dat2[which(!(is.na(tableZZ.os.dat2$Lamps))),]
 
-tableZZ.os.led.sum <- summarise(group_by(tableZZ.os.dat3, CK_Cadmus_ID)
+tableZZ.os.led.sum <- summarise(group_by(tableZZ.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,TotalBulbs = sum(Lamps))
 
-tableZZ.os.merge1 <- left_join(scl.dat, tableZZ.os.led.sum)
+tableZZ.os.merge1 <- left_join(os.dat, tableZZ.os.led.sum)
 
 ## subset to only storage bulbs
 tableZZ.os.storage <- tableZZ.os.dat3[which(tableZZ.os.dat3$Clean.Room == "Storage"),]
 #summarise within site
-tableZZ.os.storage.sum <- summarise(group_by(tableZZ.os.storage, CK_Cadmus_ID)
+tableZZ.os.storage.sum <- summarise(group_by(tableZZ.os.storage, CK_Cadmus_ID, CK_Building_ID)
                                  ,StorageBulbs = sum(Lamps))
 
 tableZZ.os.merge2 <- left_join(tableZZ.os.merge1, tableZZ.os.storage.sum)
@@ -930,10 +960,10 @@ tableZZ.os.merge$StorageBulbs[which(is.na(tableZZ.os.merge$StorageBulbs))] <- 0
 # Adding pop and sample sizes for weights
 ################################################
 tableZZ.os.data <- weightedData(tableZZ.os.merge[-which(colnames(tableZZ.os.merge) %in% c("StorageBulbs"
-                                                                                 ,"TotalBulbs"))])
+                                                                                          ,"TotalBulbs"))])
 tableZZ.os.data <- left_join(tableZZ.os.data, unique(tableZZ.os.merge[which(colnames(tableZZ.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"StorageBulbs"
-                                                                                           ,"TotalBulbs"))]))
+                                                                                                              ,"StorageBulbs"
+                                                                                                              ,"TotalBulbs"))]))
 tableZZ.os.data$count <- 1
 
 #######################
@@ -945,10 +975,25 @@ tableZZ.os.final <- proportions_one_group(CustomerLevelData = tableZZ.os.data
                                        ,total.name       = 'Remove')
 tableZZ.os.final <- tableZZ.os.final[which(tableZZ.os.final$CK_Building_ID != "Total"),]
 
+# row ordering example code
+levels(tableZZ.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+tableZZ.os.final <- tableZZ.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+tableZZ.os.final <- data.frame(tableZZ.os.final)
+
 tableZZ.os.final.SF <- tableZZ.os.final[which(tableZZ.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableZZ.os.final) %in% c("BuildingType"))]
 
-exportTable(tableZZ.os.final.SF, "SF", "Table ZZ", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableZZ.os.final.SF, "SF", "Table ZZ", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -963,7 +1008,7 @@ tableZZ.os.final <- tableZZ.os.final[which(tableZZ.os.final$CK_Building_ID != "T
 tableZZ.os.final.SF <- tableZZ.os.final[which(tableZZ.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableZZ.os.final) %in% c("BuildingType"))]
 
-exportTable(tableZZ.os.final.SF, "SF", "Table ZZ", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableZZ.os.final.SF, "SF", "Table ZZ", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -972,7 +1017,7 @@ exportTable(tableZZ.os.final.SF, "SF", "Table ZZ", weighted = FALSE, osIndicator
 #############################################################################################
 #Item 78: AVERAGE LIGHTING POWER DENSITY (LPD) BY CK_Building_ID (SF table 85, MH table 66)
 #############################################################################################
-item78.os.area1 <- summarise(group_by(scl.dat, CK_Cadmus_ID)
+item78.os.area1 <- summarise(group_by(os.dat, CK_Cadmus_ID, CK_Building_ID)
                           ,SiteArea = sum(Conditioned.Area, na.rm = T))
 item78.os.area1$SiteArea <- as.numeric(as.character(item78.os.area1$SiteArea))
 item78.os.area2 <- item78.os.area1[which(item78.os.area1$SiteArea %notin% c(0, 1, 4,"Unknown")),]
@@ -981,7 +1026,6 @@ item78.os.area2 <- item78.os.area1[which(item78.os.area1$SiteArea %notin% c(0, 1
 item78.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
                                                                ,"Fixture.Qty"
                                                                ,"LIGHTING_BulbsPerFixture"
-                                                               ,"CK_SiteID"
                                                                ,"Lamp.Category"
                                                                ,"Clean.Room"
                                                                ,"Clean.Wattage"
@@ -989,14 +1033,14 @@ item78.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item78.os.dat$count <- 1
 
 #merge on area information
-item78.os.merge <- left_join(item78.os.dat, item78.os.area2, by = "CK_Cadmus_ID")
+item78.os.merge <- left_join(item78.os.dat, item78.os.area2)
 
-item78.os.dat1 <- left_join(item78.os.merge, scl.dat, by = "CK_Cadmus_ID")
+item78.os.dat1 <- left_join(os.dat,item78.os.merge)
 
 item78.os.dat2 <- item78.os.dat1
 
 item78.os.dat3 <- item78.os.dat2[which(!(item78.os.dat2$Clean.Room %in% c("Storage"))),]
-unique(item78.os.dat3$Wattage.for.Calc)
+# unique(item78.os.dat3$Wattage.for.Calc)
 item78.os.dat4 <- item78.os.dat3[-grep("-|Unknown|unknown", item78.os.dat3$Wattage.for.Calc),]
 
 item78.os.dat4$Total.Wattage <- as.numeric(as.character(item78.os.dat4$Fixture.Qty)) * 
@@ -1006,17 +1050,17 @@ item78.os.dat4$Total.Wattage <- as.numeric(as.character(item78.os.dat4$Fixture.Q
 item78.os.dat5 <- item78.os.dat4[which(!(is.na(item78.os.dat4$Total.Wattage))),]
 
 
-item78.os.dat6 <- summarise(group_by(item78.os.dat5, CK_Cadmus_ID)
+item78.os.dat6 <- summarise(group_by(item78.os.dat5, CK_Cadmus_ID, CK_Building_ID)
                          ,Total.Wattage = sum(Total.Wattage, na.rm = T))
 
 #merge on area information
-item78.os.dat7 <- left_join(item78.os.dat6, item78.os.area2, by = c("CK_Cadmus_ID"))
+item78.os.dat7 <- left_join(item78.os.dat6, item78.os.area2, by = c("CK_Cadmus_ID", "CK_Building_ID"))
 
 item78.os.dat7$LPD <- item78.os.dat7$Total.Wattage / item78.os.dat7$SiteArea
 
 item78.os.dat8 <- item78.os.dat7[which(!(is.na(item78.os.dat7$LPD))),]
 
-item78.os.prep <- left_join(scl.dat, item78.os.dat8)
+item78.os.prep <- left_join(os.dat, item78.os.dat8)
 item78.os.prep1 <- item78.os.prep[which(!is.na(item78.os.prep$LPD)),]
 item78.os.prep1 <- item78.os.prep1[which(item78.os.prep1$LPD != "Inf"),]
 
@@ -1043,7 +1087,7 @@ item78.os.final <- item78.os.final[which(item78.os.final$CK_Building_ID != "Remo
 
 item78.os.final.SF <- item78.os.final[which(item78.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item78.os.final.SF, "SF", "Table 85", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item78.os.final.SF, "SF", "Table 85", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ################################
 # Unweighted Analysis
@@ -1057,7 +1101,7 @@ item78.os.final <- item78.os.final[which(item78.os.final$CK_Building_ID != "Remo
 # Export table
 item78.os.final.SF <- item78.os.final[which(item78.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item78.os.final.SF, "SF", "Table 85", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item78.os.final.SF, "SF", "Table 85", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1069,7 +1113,7 @@ exportTable(item78.os.final.SF, "SF", "Table 85", weighted = FALSE, osIndicator 
 item79.os.rooms <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID","Clean.Type","Area"))]
 colnames(item79.os.rooms) <- c("CK_Cadmus_ID","Clean.Room","Area")
 
-item79.os.area <- item79.os.rooms[which(!(item79.os.rooms$Area %in% c("0", "Unknown", NA, "Datapoint not asked for"))),]
+item79.os.area <- item79.os.rooms[which(!(item79.os.rooms$Area %in% c("N/A","0", "Unknown", NA, "Datapoint not asked for"))),]
 unique(item79.os.area$Area)
 item79.os.area$Area <- as.numeric(as.character(item79.os.area$Area))
 
@@ -1090,8 +1134,8 @@ item79.os.dat$Total.Wattage <- as.numeric(as.character(item79.os.dat$Fixture.Qty
   as.numeric(as.character(item79.os.dat$LIGHTING_BulbsPerFixture)) * 
   as.numeric(as.character(item79.os.dat$Clean.Wattage))
 
-item79.os.dat0 <- item79.os.dat[which(!(item79.os.dat$Clean.Room %in% c("Storage"))),]
-item79.os.sum <- summarise(group_by(item79.os.dat, CK_Cadmus_ID, BuildingType, CK_Building_ID, Clean.Room)
+item79.os.dat0 <- item79.os.dat[which(item79.os.dat$Clean.Room != "Storage" ),]#& item79.os.dat$CK_Building_ID != "2017 RBSA PS"
+item79.os.sum <- summarise(group_by(item79.os.dat0, CK_Cadmus_ID, CK_Building_ID, BuildingType, Clean.Room)
                         ,Total.Wattage = sum(Total.Wattage))
 
 #merge on area information
@@ -1101,7 +1145,7 @@ item79.os.dat1$LPD <- item79.os.dat1$Total.Wattage / item79.os.dat1$SiteArea
 
 item79.os.dat2 <- item79.os.dat1[which(!(is.na(item79.os.dat1$LPD))),]
 
-item79.os.prep <- left_join(scl.dat, item79.os.dat2)
+item79.os.prep <- left_join(os.dat, item79.os.dat2)
 item79.os.prep1 <- item79.os.prep[which(!is.na(item79.os.prep$LPD)),]
 length(unique(item79.os.prep1$CK_Cadmus_ID))
 
@@ -1168,7 +1212,7 @@ item79.os.final <- data.frame(item79.os.final)
 
 item79.os.final.SF <- item79.os.final[which(item79.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item79.os.final.SF, "SF", "Table 86", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item79.os.final.SF, "SF", "Table 86", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ################################
 # Unweighted Analysis
@@ -1214,7 +1258,7 @@ item79.os.final <- data.frame(item79.os.final)
 
 item79.os.final.SF <- item79.os.final[which(item79.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(item79.os.final.SF, "SF", "Table 86", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item79.os.final.SF, "SF", "Table 86", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1231,7 +1275,7 @@ tableAG.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID
                                                                 ,"Clean.Room"))]
 tableAG.os.dat$count <- 1
 
-tableAG.os.dat0 <- left_join(scl.dat, tableAG.os.dat, by = "CK_Cadmus_ID")
+tableAG.os.dat0 <- left_join(os.dat, tableAG.os.dat, by = "CK_Cadmus_ID")
 
 tableAG.os.dat1 <- tableAG.os.dat0[which(!is.na(tableAG.os.dat0$Lamp.Category)),]
 
@@ -1246,13 +1290,13 @@ unique(tableAG.os.dat2$Lamps)
 
 tableAG.os.dat3 <- tableAG.os.dat2[which(!(is.na(tableAG.os.dat2$Lamps))),]
 
-tableAG.os.led.sum <- summarise(group_by(tableAG.os.dat3, CK_Cadmus_ID, Lamp.Category)
+tableAG.os.led.sum <- summarise(group_by(tableAG.os.dat3, CK_Cadmus_ID, CK_Building_ID, Lamp.Category)
                              ,TotalBulbs = sum(Lamps))
 
 ## subset to only storage bulbs
 tableAG.os.storage <- tableAG.os.dat3[which(tableAG.os.dat3$Clean.Room == "Storage"),]
 #summarise within site
-tableAG.os.storage.sum <- summarise(group_by(tableAG.os.storage, CK_Cadmus_ID, Lamp.Category)
+tableAG.os.storage.sum <- summarise(group_by(tableAG.os.storage, CK_Cadmus_ID, CK_Building_ID, Lamp.Category)
                                  ,StorageBulbs = sum(Lamps))
 length(unique(tableAG.os.storage.sum$CK_Cadmus_ID))
 
@@ -1260,23 +1304,23 @@ length(unique(tableAG.os.storage.sum$CK_Cadmus_ID))
 tableAG.os.merge1 <- left_join(tableAG.os.led.sum, tableAG.os.storage.sum)
 
 tableAG.os.cast1 <- dcast(setDT(tableAG.os.merge1)
-                       ,formula = CK_Cadmus_ID ~ Lamp.Category
+                       ,formula = CK_Cadmus_ID + CK_Building_ID ~ Lamp.Category
                        ,value.var = c("StorageBulbs"))
 tableAG.os.cast1[is.na(tableAG.os.cast1),] <- 0
 
-tableAG.os.melt1 <- melt(tableAG.os.cast1, id.vars = "CK_Cadmus_ID")
-names(tableAG.os.melt1) <- c("CK_Cadmus_ID", "Lamp.Category", "StorageBulbs")
+tableAG.os.melt1 <- melt(tableAG.os.cast1, id.vars = c("CK_Cadmus_ID", "CK_Building_ID"))
+names(tableAG.os.melt1) <- c("CK_Cadmus_ID", "CK_Building_ID", "Lamp.Category", "StorageBulbs")
 
 tableAG.os.cast2 <- dcast(setDT(tableAG.os.merge1)
-                       ,formula = CK_Cadmus_ID ~ Lamp.Category
+                       ,formula = CK_Cadmus_ID + CK_Building_ID ~ Lamp.Category
                        ,value.var = c("TotalBulbs"))
 tableAG.os.cast2[is.na(tableAG.os.cast2),] <- 0
 
-tableAG.os.melt2 <- melt(tableAG.os.cast2, id.vars = "CK_Cadmus_ID")
-names(tableAG.os.melt2) <- c("CK_Cadmus_ID", "Lamp.Category", "TotalBulbs")
+tableAG.os.melt2 <- melt(tableAG.os.cast2, id.vars = c("CK_Cadmus_ID", "CK_Building_ID"))
+names(tableAG.os.melt2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Lamp.Category", "TotalBulbs")
 
 tableAG.os.merge2 <- left_join(tableAG.os.melt1, tableAG.os.melt2)
-tableAG.os.merge  <- left_join(scl.dat, tableAG.os.merge2)
+tableAG.os.merge  <- left_join(os.dat, tableAG.os.merge2)
 tableAG.os.merge$StorageBulbs[which(is.na(tableAG.os.merge$StorageBulbs))] <- 0
 
 ################################################
@@ -1341,7 +1385,7 @@ tableAG.os.final <- data.frame(tableAG.os.final)
 tableAG.os.final.SF <- tableAG.os.final[which(tableAG.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAG.os.final) %in% c("BuildingType"))]
 
-exportTable(tableAG.os.final.SF, "SF", "Table AG", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAG.os.final.SF, "SF", "Table AG", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -1388,7 +1432,7 @@ tableAG.os.final <- data.frame(tableAG.os.final)
 tableAG.os.final.SF <- tableAG.os.final[which(tableAG.os.final$BuildingType == "Single Family")
                                   ,which(colnames(tableAG.os.final) %notin% c("BuildingType"))]
 
-exportTable(tableAG.os.final.SF, "SF", "Table AG", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAG.os.final.SF, "SF", "Table AG", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1408,7 +1452,7 @@ tableAH.os.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID
                                                                 ,"Wattage.for.Calc"))]
 tableAH.os.dat$count <- 1
 
-tableAH.os.dat1 <- left_join(tableAH.os.dat, scl.dat, by = "CK_Cadmus_ID")
+tableAH.os.dat1 <- left_join(tableAH.os.dat, os.dat, by = "CK_Cadmus_ID")
 
 tableAH.os.dat2 <- tableAH.os.dat1
 
@@ -1426,7 +1470,7 @@ tableAH.os.dat5$Wattage.for.Calc <- as.numeric(as.character(tableAH.os.dat5$Watt
 tableAH.os.dat6 <- summarise(group_by(tableAH.os.dat5, CK_Cadmus_ID)
                           ,Wattage.per.bulb = mean(Wattage.for.Calc, na.rm = T))
 
-tableAH.os.prep <- left_join(scl.dat, tableAH.os.dat6)
+tableAH.os.prep <- left_join(os.dat, tableAH.os.dat6)
 tableAH.os.prep1 <- tableAH.os.prep[which(!is.na(tableAH.os.prep$Wattage.per.bulb)),]
 tableAH.os.prep1 <- tableAH.os.prep1[which(tableAH.os.prep1$Wattage.per.bulb != "Inf"),]
 
@@ -1449,7 +1493,7 @@ tableAH.os.final <- tableAH.os.final[which(tableAH.os.final$CK_Building_ID != "R
 
 tableAH.os.final.SF <- tableAH.os.final[which(tableAH.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(tableAH.os.final.SF, "SF", "Table AH", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAH.os.final.SF, "SF", "Table AH", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ################################
 # Unweighted Analysis
@@ -1462,4 +1506,4 @@ tableAH.os.final <- tableAH.os.final[which(tableAH.os.final$CK_Building_ID != "R
 
 tableAH.os.final.SF <- tableAH.os.final[which(tableAH.os.final$BuildingType == "Single Family"),-1]
 
-exportTable(tableAH.os.final.SF, "SF", "Table AH", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAH.os.final.SF, "SF", "Table AH", weighted = FALSE, osIndicator = export.ind, OS = T)

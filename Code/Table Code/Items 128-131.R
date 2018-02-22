@@ -660,17 +660,17 @@ item130.os.dat0 <- item130.os.dat[which(item130.os.dat$CK_Cadmus_ID != "CK_CADMU
 item130.os.dat1 <- left_join(item130.os.dat0, scl.dat, by = "CK_Cadmus_ID")
 
 item130.os.dat2.0 <- item130.os.dat1[which(!(is.na(item130.os.dat1$Thermostat_Setpoint))),]
-item130.os.dat2 <- item130.os.dat2.0[which(item130.os.dat2.0$Thermostat_Setpoint != 0),]
+item130.os.dat2 <- item130.os.dat2.0[which(item130.os.dat2.0$Thermostat_Setpoint > 0),]
 unique(item130.os.dat2$Thermostat_Setpoint)
 unique(item130.os.dat2$Nighttime_Heating)
 
 item130.os.dat3.0 <- item130.os.dat2[which(!(is.na(item130.os.dat2$Nighttime_Heating))),]
-item130.os.dat3 <- item130.os.dat3.0[which(item130.os.dat3.0$Nighttime_Heating != 0),]
+item130.os.dat3 <- item130.os.dat3.0[which(item130.os.dat3.0$Nighttime_Heating > 0),]
 
 item130.os.dat3$Heating.Setback <- 0
 item130.os.dat3$Heating.Setback[which(item130.os.dat3$Nighttime_Heating < item130.os.dat3$Thermostat_Setpoint)] <- 1
 
-item130.os.sum <- summarise(group_by(item130.os.dat3, CK_Cadmus_ID)
+item130.os.sum <- summarise(group_by(item130.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(Heating.Setback))
 item130.os.sum$Ind[which(item130.os.sum$Ind > 0)] <- 1
 
@@ -737,12 +737,12 @@ item131.os.dat0 <- item131.os.dat[which(item131.os.dat$CK_Cadmus_ID != "CK_CADMU
 item131.os.dat1 <- left_join(item131.os.dat0, scl.dat, by = "CK_Cadmus_ID")
 
 item131.os.dat2.0 <- item131.os.dat1[which(!(is.na(item131.os.dat1$Thermostat_Setpoint))),]
-item131.os.dat2 <- item131.os.dat2.0[which(item131.os.dat2.0$Thermostat_Setpoint != 0),]
+item131.os.dat2 <- item131.os.dat2.0[which(item131.os.dat2.0$Thermostat_Setpoint > 0),]
 unique(item131.os.dat2$Thermostat_Setpoint)
 unique(item131.os.dat2$Nighttime_Heating)
 
 item131.os.dat3.0 <- item131.os.dat2[which(!(is.na(item131.os.dat2$Nighttime_Heating))),]
-item131.os.dat3 <- item131.os.dat3.0[which(item131.os.dat3.0$Nighttime_Heating != 0),]
+item131.os.dat3 <- item131.os.dat3.0[which(item131.os.dat3.0$Nighttime_Heating > 0),]
 
 item131.os.dat3$Heating.Setback <- item131.os.dat3$Thermostat_Setpoint - item131.os.dat3$Nighttime_Heating
 item131.os.dat4 <- item131.os.dat3[which(colnames(item131.os.dat3) %in% c("CK_Cadmus_ID", "Heating.Setback"))]

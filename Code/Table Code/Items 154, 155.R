@@ -218,9 +218,9 @@ drop.for.weighting <- c("Cadmus.ID",
                         "kBtu")
 
 item154.os.weighted <- weightedData(item154.os.data[-c(which(colnames(item154.os.data) %in% 
-                                                         drop.for.weighting))])
+                                                               drop.for.weighting))])
 item154.os.weighted <- left_join(item154.os.weighted, unique(item154.os.data[c(1,c(which(colnames(item154.os.data) %in% 
-                                                                           drop.for.weighting)))]))
+                                                                                           drop.for.weighting)))]))
 item154.os.weighted$count <- 1
 ################################
 # Weighted Analysis1

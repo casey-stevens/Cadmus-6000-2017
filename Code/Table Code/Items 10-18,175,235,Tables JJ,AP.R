@@ -3237,7 +3237,7 @@ unique(item11.os.dat3$Wall.Type)
 #cast out by wall frame types
 item11.os.dat3$count <- 1
 item11.os.customer <- summarise(group_by(item11.os.dat3, CK_Cadmus_ID, CK_Building_ID, HomeYearBuilt_bins3, Wall.Type)
-                             ,count = sum(count))
+                             ,count = sum(unique(count)))
 
 item11.os.merge <- left_join(os.dat, item11.os.customer)
 item11.os.merge <- item11.os.merge[which(!is.na(item11.os.merge$HomeYearBuilt)),]
@@ -4687,7 +4687,7 @@ exportTable(item18.os.table.SF, "SF", "Table 25", weighted = FALSE, osIndicator 
 item17.os.dat <- prep.dat5[grep("masonry|icf",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
-item17.os.weightedU <- summarise(group_by(item17.os.dat, CK_Cadmus_ID)
+item17.os.weightedU <- summarise(group_by(item17.os.dat, CK_Cadmus_ID, CK_Building_ID)
                               ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 
@@ -4911,7 +4911,7 @@ exportTable(item17.os.table.SF, "SF", "Table 24", weighted = FALSE, osIndicator 
 item17A.os.dat <- prep.dat5[grep("masonry|icf",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
-item17A.os.weightedU <- summarise(group_by(item17A.os.dat, CK_Cadmus_ID)
+item17A.os.weightedU <- summarise(group_by(item17A.os.dat, CK_Cadmus_ID, CK_Building_ID)
                                  ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 

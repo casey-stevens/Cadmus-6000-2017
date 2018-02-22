@@ -476,7 +476,7 @@ item133.os.dat3 <- item133.os.dat3.0[which(item133.os.dat3.0$Nighttime_Cooling !
 item133.os.dat3$Cooling.Setup <- 0
 item133.os.dat3$Cooling.Setup[which(item133.os.dat3$Nighttime_Cooling > item133.os.dat3$Thermostat_Setpoint)] <- 1
 
-item133.os.sum <- summarise(group_by(item133.os.dat3, CK_Cadmus_ID)
+item133.os.sum <- summarise(group_by(item133.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(Cooling.Setup))
 
 item133.os.merge <- left_join(scl.dat, item133.os.sum)
@@ -549,7 +549,7 @@ unique(tableAU.os.dat2$Nighttime_Cooling)
 tableAU.os.dat3.0 <- tableAU.os.dat2[which(!(is.na(tableAU.os.dat2$Nighttime_Cooling))),]
 tableAU.os.dat3 <- tableAU.os.dat3.0[which(tableAU.os.dat3.0$Nighttime_Cooling != 0),]
 
-tableAU.os.dat3$Cooling.Setup <- tableAU.os.dat3$Thermostat_Setpoint - tableAU.os.dat3$Nighttime_Cooling
+tableAU.os.dat3$Cooling.Setup <- tableAU.os.dat3$Nighttime_Cooling - tableAU.os.dat3$Thermostat_Setpoint
 
 tableAU.os.dat4 <- tableAU.os.dat3[which(colnames(tableAU.os.dat3) %in% c("CK_Cadmus_ID", "Cooling.Setup"))]
 tableAU.os.sum <- summarise(group_by(tableAU.os.dat4, CK_Cadmus_ID)
@@ -615,7 +615,7 @@ item134.os.dat2 <- item134.os.dat1[which(item134.os.dat1$Natural.Gas.Use %in% c(
 item134.os.dat2$Gas.Count <- 0
 item134.os.dat2$Gas.Count[which(item134.os.dat2$Natural.Gas.Use == "Yes")] <- 1
 
-item134.os.sum <- summarise(group_by(item134.os.dat2, CK_Cadmus_ID)
+item134.os.sum <- summarise(group_by(item134.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(unique(Gas.Count)))
 
 item134.os.merge <- left_join(scl.dat, item134.os.sum)
@@ -657,3 +657,4 @@ item134.os.final.SF <- item134.os.final[which(item134.os.final$BuildingType == "
                                   ,-which(colnames(item134.os.final) %in% c("BuildingType"))]
 
 exportTable(item134.os.final.SF, "SF", "Table 141", weighted = FALSE, osIndicator = "SCL", OS = T)
+

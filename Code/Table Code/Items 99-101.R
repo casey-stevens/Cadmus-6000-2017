@@ -871,7 +871,7 @@ unique(item99.os.dat4$Primary.Heating.System)
 #summarise for primary heating system
 item99.os.heat <- item99.os.dat4[which(item99.os.dat4$Primary.Heating.System == "Yes"),]
 
-item99.os.sum1 <- summarise(group_by(item99.os.heat, CK_Cadmus_ID, Heating.Fuel)
+item99.os.sum1 <- summarise(group_by(item99.os.heat, CK_Cadmus_ID, CK_Building_ID, Heating.Fuel)
                          ,Count = sum(count))
 
 item99.os.sum1$Count <- 1
@@ -884,21 +884,20 @@ item99.os.heat.final <- item99.os.unique
 item99.os.WH <- item99.os.dat3[which(item99.os.dat3$Generic %in% c("Storage Water Heater"
                                                           ,"Instantaneous Water Heater")),]
 
-item99.os.WH.sum1 <- summarise(group_by(item99.os.WH, CK_Cadmus_ID, DHW.Location)
+item99.os.WH.sum1 <- summarise(group_by(item99.os.WH, CK_Cadmus_ID, CK_Building_ID, DHW.Location)
                             ,Count = sum(count))
 
 
-item99.os.merge1 <- left_join(item99.os.heat.final, item99.os.WH.sum1, by = c("CK_Cadmus_ID"))
+item99.os.merge1 <- left_join(item99.os.heat.final, item99.os.WH.sum1, by = c("CK_Cadmus_ID", "CK_Building_ID"))
 item99.os.merge2 <- item99.os.merge1[which(!(is.na(item99.os.merge1$Heating.Fuel))),]
-colnames(item99.os.merge2) <- c("CK_Cadmus_ID", "Heating.Fuel","Heat.Count", "DHW.Location", "DHW.Count")
+colnames(item99.os.merge2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Heating.Fuel","Heat.Count", "DHW.Location", "DHW.Count")
 
 
 item99.os.join <- left_join(scl.dat, item99.os.merge2)
 item99.os.join <- item99.os.join[which(!is.na(item99.os.join$Heating.Fuel)),]
 item99.os.join1 <- item99.os.join[which(item99.os.join$DHW.Location != "Unknown"),]
 
-item99.os.join1$DHW.Location[grep("Crawl",item99.os.join1$DHW.Location)] <- "Crawlspace"
-item99.os.join1$DHW.Location[grep("In building",item99.os.join1$DHW.Location)] <- "Main House"
+item99.os.join1$DHW.Location[grep("crawl",item99.os.join1$DHW.Location, ignore.case = T)] <- "Crawlspace"
 
 item99.os.join1$DHW.Location[which(item99.os.join1$DHW.Location %notin% c("Crawlspace"
                                                                     ,"Basement"
@@ -919,7 +918,7 @@ item99.os.data <- left_join(item99.os.data, unique(item99.os.join1[which(colname
                                                                                        ,"DHW.Count"
                                                                                        ,"DHW.Location"
                                                                                        ,"Heat.Count"))]))
-item99.os.data <- item99.os.data[which(item99.os.data$CK_Building_ID == "SCL GenPop"),]
+item99.os.data <- item99.os.data[which(item99.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis
 #######################
@@ -1121,7 +1120,7 @@ unique(item100.os.dat4$Primary.Heating.System)
 
 #summarise for primary heating system
 item100.os.heat <- item100.os.dat4[which(item100.os.dat4$Primary.Heating.System == "Yes"),]
-item100.os.sum1 <- summarise(group_by(item100.os.heat, CK_Cadmus_ID, Heating.Fuel)
+item100.os.sum1 <- summarise(group_by(item100.os.heat, CK_Cadmus_ID, CK_Building_ID, Heating.Fuel)
                           ,Count = sum(count))
 
 item100.os.sum1$Count <- 1
@@ -1133,20 +1132,20 @@ item100.os.heat.final <- unique(item100.os.sum1)
 item100.os.WH <- item100.os.dat3[which(item100.os.dat3$Generic %in% c("Storage Water Heater"
                                                              ,"Instantaneous Water Heater")),]
 
-item100.os.WH.sum1 <- summarise(group_by(item100.os.WH, CK_Cadmus_ID, DHW.Location, DHW.Fuel)
+item100.os.WH.sum1 <- summarise(group_by(item100.os.WH, CK_Cadmus_ID, CK_Building_ID, DHW.Location, DHW.Fuel)
                              ,Count = sum(count))
 
 
-item100.os.merge1 <- left_join(item100.os.heat.final, item100.os.WH.sum1, by = c("CK_Cadmus_ID"))
+item100.os.merge1 <- left_join(item100.os.heat.final, item100.os.WH.sum1, by = c("CK_Cadmus_ID", "CK_Building_ID"))
 item100.os.merge2 <- item100.os.merge1[which(!(is.na(item100.os.merge1$DHW.Location))),]
-colnames(item100.os.merge2) <- c("CK_Cadmus_ID", "Heating.Fuel","Heat.Count", "DHW.Location", "DHW.Fuel", "DHW.Count")
+colnames(item100.os.merge2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Heating.Fuel","Heat.Count", "DHW.Location", "DHW.Fuel", "DHW.Count")
 
 item100.os.join <- left_join(scl.dat, item100.os.merge2)
 item100.os.join <- item100.os.join[which(!is.na(item100.os.join$Heating.Fuel)),]
 item100.os.join1 <- item100.os.join[which(item100.os.join$DHW.Location != "Unknown"),]
 
-item100.os.join1$DHW.Location[grep("Crawl",item100.os.join1$DHW.Location)] <- "Crawlspace"
-item100.os.join1$DHW.Location[grep("In building",item100.os.join1$DHW.Location)] <- "Main House"
+item100.os.join1$DHW.Location[grep("crawl",item100.os.join1$DHW.Location, ignore.case = T)] <- "Crawlspace"
+
 item100.os.join1$DHW.Location[which(item100.os.join1$DHW.Location %notin% c("Crawlspace"
                                                                       ,"Basement"
                                                                       ,"Garage"
@@ -1168,7 +1167,7 @@ item100.os.data <- left_join(item100.os.data, unique(item100.os.merge[which(coln
                                                                                            ,"DHW.Location"
                                                                                            ,"Heat.Count"
                                                                                            ,"DHW.Fuel"))]))
-item100.os.data <- item100.os.data[which(item100.os.data$CK_Building_ID == "SCL GenPop"),]
+item100.os.data <- item100.os.data[which(item100.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis
 #######################

@@ -1245,11 +1245,12 @@ item23A.os.data <- weightedData(unique(item23A.os.merge[which(colnames(item23A.o
                                                                                                 ,"aveRval"
                                                                                                 ,"rvalue.bins.SF"
                                                                                                 ,"count"))]))
-item23A.os.data <- left_join(item23A.os.data, item23A.os.merge[which(colnames(item23A.os.merge) %in% c("CK_Cadmus_ID"
+item23A.os.data <- left_join(item23A.os.data, unique(item23A.os.merge[which(colnames(item23A.os.merge) %in% c("CK_Cadmus_ID"
                                                                                                    ,"aveUval"
                                                                                                    ,"aveRval"
                                                                                                    ,"rvalue.bins.SF"
-                                                                                                   ,"count"))])
+                                                                                                   ,"count"))]))
+
 ######################
 # Weighted - Single Family
 ######################

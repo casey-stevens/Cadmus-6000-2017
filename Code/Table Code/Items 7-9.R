@@ -333,7 +333,7 @@ item7.os.dat2$count <- 1
 
 # Summarise up to the customer level
 item7.os.customer <- summarise(group_by(item7.os.dat2
-                                     , CK_Cadmus_ID)
+                                     , CK_Cadmus_ID, CK_Building_ID)
                             ,CountRooms = sum(count))
 
 item7.os.merge <- left_join(os.dat, item7.os.customer)
@@ -429,7 +429,7 @@ item8.os.dat2$count <- 1
 
 # Summarise up to the customer level
 item8.os.customer <- summarise(group_by(item8.os.dat2
-                                     , CK_Cadmus_ID
+                                     , CK_Cadmus_ID, CK_Building_ID
                                      , BuildingType
                                      , CK_Building_ID)
                             ,CountRooms = sum(count))
@@ -535,7 +535,7 @@ unique(item9.os.dat1$Clean.Type)
 
 #average within houses
 item9.os.customer <- summarise(group_by(item9.os.dat1
-                                     , CK_Cadmus_ID
+                                     , CK_Cadmus_ID, CK_Building_ID
                                      , Clean.Type)
                             ,y_bar_ilk  = mean(Area)
                             ,y_ilk      = sum(Area)

@@ -886,11 +886,11 @@ item87.os.data <- weightedData(item87.os.merge[-which(colnames(item87.os.merge) 
                                                                               ,"Age"
                                                                               ,"Washer.Type"
                                                                               ,"count"))])
-item87.os.data <- left_join(item87.os.data, item87.os.merge[which(colnames(item87.os.merge) %in% c("CK_Cadmus_ID"
+item87.os.data <- left_join(item87.os.data, unique(item87.os.merge[which(colnames(item87.os.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"Type"               
                                                                                        ,"Age"
                                                                                        ,"Washer.Type"
-                                                                                       ,"count"))])
+                                                                                       ,"count"))]))
 #######################
 # Weighted Analysis
 #######################

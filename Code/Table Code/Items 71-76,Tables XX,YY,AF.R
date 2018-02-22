@@ -959,7 +959,7 @@ unique(item71.os.dat2$Lamps)
 
 item71.os.dat3 <- item71.os.dat2[which(!(is.na(item71.os.dat2$Lamps))),]
 
-item71.os.customer <- summarise(group_by(item71.os.dat3, CK_Cadmus_ID)
+item71.os.customer <- summarise(group_by(item71.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item71.os.merge <- left_join(os.dat, item71.os.customer)
@@ -1063,7 +1063,7 @@ unique(tableXX.os.dat2$Lamps)
 
 tableXX.os.dat3 <- tableXX.os.dat2[which(!(is.na(tableXX.os.dat2$Lamps))),]
 
-tableXX.os.customer <- summarise(group_by(tableXX.os.dat3, CK_Cadmus_ID)
+tableXX.os.customer <- summarise(group_by(tableXX.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                               ,Lamps = sum(Lamps))
 
 tableXX.os.merge <- left_join(os.dat, tableXX.os.customer)
@@ -1168,7 +1168,7 @@ unique(item72.os.dat2$Lamps)
 item72.os.dat3 <- item72.os.dat2[which(!(is.na(item72.os.dat2$Lamps))),]
 
 
-item72.os.customer <- summarise(group_by(item72.os.dat3, CK_Cadmus_ID)
+item72.os.customer <- summarise(group_by(item72.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item72.os.merge <- left_join(os.dat, item72.os.customer)
@@ -1273,7 +1273,7 @@ item73.os.dat3 <- item73.os.dat2[which(!(is.na(item73.os.dat2$Lamps))),]
 
 
 
-item73.os.customer <- summarise(group_by(item73.os.dat3, CK_Cadmus_ID)
+item73.os.customer <- summarise(group_by(item73.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item73.os.merge <- left_join(os.dat, item73.os.customer)
@@ -1379,7 +1379,7 @@ item74.os.dat3 <- item74.os.dat2[which(!(is.na(item74.os.dat2$Lamps))),]
 
 
 
-item74.os.customer <- summarise(group_by(item74.os.dat3, CK_Cadmus_ID)
+item74.os.customer <- summarise(group_by(item74.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item74.os.merge <- left_join(os.dat, item74.os.customer)
@@ -1483,7 +1483,7 @@ item75.os.dat3 <- item75.os.dat2[which(!(is.na(item75.os.dat2$Lamps))),]
 
 
 
-item75.os.customer <- summarise(group_by(item75.os.dat3, CK_Cadmus_ID)
+item75.os.customer <- summarise(group_by(item75.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item75.os.merge <- left_join(os.dat, item75.os.customer)
@@ -1592,7 +1592,7 @@ unique(item76.os.dat2$Lamps)
 item76.os.dat3 <- item76.os.dat2[which(!(is.na(item76.os.dat2$Lamps))),]
 
 
-item76.os.customer <- summarise(group_by(item76.os.dat3, CK_Cadmus_ID)
+item76.os.customer <- summarise(group_by(item76.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item76.os.merge <- left_join(os.dat, item76.os.customer)
@@ -1697,7 +1697,7 @@ unique(tableYY.os.dat2$Lamps)
 tableYY.os.dat3 <- tableYY.os.dat2[which(!(is.na(tableYY.os.dat2$Lamps))),]
 
 
-tableYY.os.customer <- summarise(group_by(tableYY.os.dat3, CK_Cadmus_ID)
+tableYY.os.customer <- summarise(group_by(tableYY.os.dat3, CK_Cadmus_ID, CK_Building_ID)
                               ,Lamps = sum(Lamps))
 
 tableYY.os.merge <- left_join(os.dat, tableYY.os.customer)
@@ -1800,13 +1800,13 @@ unique(tableAF.os.dat2$Lamps)
 
 tableAF.os.dat3 <- tableAF.os.dat2[which(!(is.na(tableAF.os.dat2$Lamps))),]
 
-tableAF.os.led.sum <- summarise(group_by(tableAF.os.dat3, CK_Cadmus_ID, Lamp.Category)
+tableAF.os.led.sum <- summarise(group_by(tableAF.os.dat3, CK_Cadmus_ID, CK_Building_ID, Lamp.Category)
                              ,TotalBulbs = sum(Lamps))
 
 ## subset to only storage bulbs
 tableAF.os.storage <- tableAF.os.dat3[which(tableAF.os.dat3$Clean.Room == "Storage"),]
 #summarise within site
-tableAF.os.storage.sum <- summarise(group_by(tableAF.os.storage, CK_Cadmus_ID, Lamp.Category)
+tableAF.os.storage.sum <- summarise(group_by(tableAF.os.storage, CK_Cadmus_ID, CK_Building_ID, Lamp.Category)
                                  ,StorageBulbs = sum(Lamps))
 length(unique(tableAF.os.storage.sum$CK_Cadmus_ID))
 
@@ -1814,12 +1814,12 @@ length(unique(tableAF.os.storage.sum$CK_Cadmus_ID))
 tableAF.os.merge1 <- left_join(tableAF.os.led.sum, tableAF.os.storage.sum)
 
 tableAF.os.cast <- dcast(setDT(tableAF.os.merge1)
-                      ,formula = CK_Cadmus_ID ~ Lamp.Category
+                      ,formula = CK_Cadmus_ID + CK_Building_ID ~ Lamp.Category
                       ,value.var = c("StorageBulbs"))
 tableAF.os.cast[is.na(tableAF.os.cast),] <- 0
 
-tableAF.os.melt <- melt(tableAF.os.cast, id.vars = "CK_Cadmus_ID")
-names(tableAF.os.melt) <- c("CK_Cadmus_ID", "Lamp.Category", "StorageBulbs")
+tableAF.os.melt <- melt(tableAF.os.cast, id.vars = c("CK_Cadmus_ID", "CK_Building_ID"))
+names(tableAF.os.melt) <- c("CK_Cadmus_ID", "CK_Building_ID", "Lamp.Category", "StorageBulbs")
 
 
 tableAF.os.merge  <- left_join(os.dat, tableAF.os.melt)
@@ -1833,11 +1833,11 @@ tableAF.os.data <- weightedData(tableAF.os.merge[-which(colnames(tableAF.os.merg
                                                                                           ,"Lamp.Category"
                                                                                           # ,"TotalBulbs"
 ))])
-tableAF.os.data <- left_join(tableAF.os.data, tableAF.os.merge[which(colnames(tableAF.os.merge) %in% c("CK_Cadmus_ID"
+tableAF.os.data <- left_join(tableAF.os.data, unique(tableAF.os.merge[which(colnames(tableAF.os.merge) %in% c("CK_Cadmus_ID"
                                                                                                        ,"StorageBulbs"
                                                                                                        ,"Lamp.Category"
                                                                                                        # ,"TotalBulbs"
-))])
+))]))
 tableAF.os.data$count <- 1
 
 #######################

@@ -339,7 +339,7 @@ item112.os.dat1 <- left_join(item112.os.dat0, scl.dat, by = "CK_Cadmus_ID")
 item112.os.dat2 <- item112.os.dat1[which(item112.os.dat1$TV.Set.Top.Box == "Yes"),]
 
 #summarise by site
-item112.os.customer <- summarise(group_by(item112.os.dat2, CK_Cadmus_ID)
+item112.os.customer <- summarise(group_by(item112.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                               ,Site.Count = sum(count))
 
 item112.os.merge <- left_join(scl.dat, item112.os.customer)

@@ -583,7 +583,7 @@ item80.os.mech2$WaterHeaterCount[which(is.na(item80.os.mech2$WaterHeaterCount))]
 item80.os.mech2$count <- 1
 
 #summarise by home
-item80.os.site <- summarise(group_by(item80.os.mech2, CK_Cadmus_ID, Generic)
+item80.os.site <- summarise(group_by(item80.os.mech2, CK_Cadmus_ID, CK_Building_ID, Generic)
                          ,Count = sum(WaterHeaterCount))
 unique(item80.os.site$Count)
 colnames(item80.os.site)[which(colnames(item80.os.site) == "Generic")] <- "Type"
@@ -607,7 +607,7 @@ item80.os.dat1$Large.Unusual.Load.Quantity <- as.numeric(as.character(item80.os.
 
 item80.os.dat1$TotalQty <- item80.os.dat1$Large.Unusual.Load.Quantity * item80.os.dat1$count
 
-item80.os.sum <- summarise(group_by(item80.os.dat1, CK_Cadmus_ID, Type)
+item80.os.sum <- summarise(group_by(item80.os.dat1, CK_Cadmus_ID, CK_Building_ID, Type)
                         ,Count = sum(TotalQty))
 
 # Row bind water heater and appliance counts
@@ -619,12 +619,12 @@ item80.os.merge <- item80.os.merge[which(!is.na(item80.os.merge$Type)),]
 item80.os.merge$Count[which(is.na(item80.os.merge$Count))] <- 0
 
 item80.os.cast <- dcast(setDT(item80.os.merge)
-                     ,formula = CK_Cadmus_ID ~ Type
+                     ,formula = CK_Cadmus_ID + CK_Building_ID ~ Type
                      ,value.var = c("Count"))
 item80.os.cast[is.na(item80.os.cast),] <- 0
 
-item80.os.melt <- melt(item80.os.cast, id.vars = "CK_Cadmus_ID")
-names(item80.os.melt) <- c("CK_Cadmus_ID", "Type", "Count")
+item80.os.melt <- melt(item80.os.cast, id.vars = c("CK_Cadmus_ID", "CK_Building_ID"))
+names(item80.os.melt) <- c("CK_Cadmus_ID", "CK_Building_ID", "Type", "Count")
 
 item80.os.merge <- left_join(scl.dat, item80.os.melt)
 item80.os.merge$Type <- as.character(item80.os.merge$Type)

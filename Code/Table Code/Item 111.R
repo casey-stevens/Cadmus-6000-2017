@@ -181,7 +181,7 @@ unique(item111.os.dat1$TV_on_hours)
 item111.os.dat2 <- item111.os.dat1[which(!(is.na(item111.os.dat1$TV_on_hours))),]
 
 #summarise by site
-item111.os.sum <- summarise(group_by(item111.os.dat2, CK_Cadmus_ID)
+item111.os.sum <- summarise(group_by(item111.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Site.Mean = mean(TV_on_hours))
 
 item111.os.merge <- left_join(scl.dat, item111.os.sum)

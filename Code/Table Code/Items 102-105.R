@@ -721,14 +721,14 @@ item102.os.data <- weightedData(item102.os.merge[-which(colnames(item102.os.merg
                                                                                  ,"DHW.Fuel"
                                                                                  ,"DHW.Location"
                                                                                  ,"Gallon_bins"))])
-item102.os.data <- left_join(item102.os.data, item102.os.merge[which(colnames(item102.os.merge) %in% c("CK_Cadmus_ID"
+item102.os.data <- left_join(item102.os.data, unique(item102.os.merge[which(colnames(item102.os.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Generic"               
                                                                                            ,"count"
                                                                                            ,"DHW.Size.(Gallons)"
                                                                                            ,"DHW.Fuel"
                                                                                            ,"DHW.Location"
-                                                                                           ,"Gallon_bins"))])
-item102.os.data <- item102.os.data[which(item102.os.data$CK_Building_ID == "SCL GenPop"),]
+                                                                                           ,"Gallon_bins"))]))
+item102.os.data <- item102.os.data[which(item102.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis
 #######################
@@ -896,7 +896,7 @@ item103.os.data <- left_join(item103.os.data, unique(item103.os.merge[which(coln
                                                                                            ,"DHW.Fuel"
                                                                                            ,"DHW.Location"
                                                                                            ,"Gallon_bins"))]))
-item103.os.data <- item103.os.data[which(item103.os.data$CK_Building_ID == "SCL GenPop"),]
+item103.os.data <- item103.os.data[which(item103.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis
 #######################
@@ -1058,14 +1058,14 @@ item104.os.data <- weightedData(item104.os.merge[-which(colnames(item104.os.merg
                                                                                  ,"DHW.Fuel"
                                                                                  ,"DHW.Location"
                                                                                  ,"Gallon_bins"))])
-item104.os.data <- left_join(item104.os.data, item104.os.merge[which(colnames(item104.os.merge) %in% c("CK_Cadmus_ID"
+item104.os.data <- left_join(item104.os.data, unique(item104.os.merge[which(colnames(item104.os.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Generic"               
                                                                                            ,"count"
                                                                                            ,"DHW.Size.(Gallons)"
                                                                                            ,"DHW.Fuel"
                                                                                            ,"DHW.Location"
-                                                                                           ,"Gallon_bins"))])
-item104.os.data <- item104.os.data[which(item104.os.data$CK_Building_ID == "SCL GenPop"),]
+                                                                                           ,"Gallon_bins"))]))
+item104.os.data <- item104.os.data[which(item104.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis
 #######################
@@ -1175,7 +1175,7 @@ exportTable(item104.os.table.SF, "SF", "Table 111", weighted = FALSE, osIndicato
 
 
 #############################################################################################
-#Item 105: DISTRIBUTION OF WATER HEATERS BY VINTAGE (SF table 112, MH table 87)
+#Item 105: DISTRIBUTION OF WATER HEATERS BY SAMPLE (SF table 112, MH table 87)
 #############################################################################################
 #subset to columns needed for analysis
 item105.os.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -1217,14 +1217,14 @@ item105.os.data <- weightedData(item105.os.dat4[-which(colnames(item105.os.dat4)
                                                                                ,"DHW.Location"
                                                                                ,"count"
                                                                                ,"EquipVintage_bins"))])
-item105.os.data <- left_join(item105.os.data, item105.os.dat4[which(colnames(item105.os.dat4) %in% c("CK_Cadmus_ID"
+item105.os.data <- left_join(item105.os.data, unique(item105.os.dat4[which(colnames(item105.os.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"Generic"
                                                                                          ,"DHW.Size.(Gallons)"
                                                                                          ,"DHW.Year.Manufactured"
                                                                                          ,"DHW.Fuel"
                                                                                          ,"DHW.Location"
                                                                                          ,"count"
-                                                                                         ,"EquipVintage_bins"))])
+                                                                                         ,"EquipVintage_bins"))]))
 item105.os.data$m_ilk <- 1
 
 #######################

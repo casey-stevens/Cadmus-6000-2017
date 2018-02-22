@@ -691,10 +691,10 @@ unique(item43.os.dat6$Heating_Type)
 item43.os.data <- weightedData(item43.os.dat6[-which(colnames(item43.os.dat6) %in% c("Heating_Type"
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
-item43.os.data <- left_join(item43.os.data, item43.os.dat6[which(colnames(item43.os.dat6) %in% c("CK_Cadmus_ID"
+item43.os.data <- left_join(item43.os.data, unique(item43.os.dat6[which(colnames(item43.os.dat6) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Primary_Secondary"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 
 #########################
 # Weighted Analysis
@@ -871,11 +871,11 @@ item44.os.data <- weightedData(item44.os.dat7[-which(colnames(item44.os.dat7) %i
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
 
-item44.os.data <- left_join(item44.os.data, item44.os.dat7[which(colnames(item44.os.dat7) %in% c("CK_Cadmus_ID"
+item44.os.data <- left_join(item44.os.data, unique(item44.os.dat7[which(colnames(item44.os.dat7) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Heating_Fuel"
                                                                                      ,"Primary_Secondary"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 ################################
 # Weighted Analysis
 ################################
@@ -1032,10 +1032,10 @@ item45.os.data <- weightedData(item45.os.dat5[-which(colnames(item45.os.dat5) %i
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
 
-item45.os.data <- left_join(item45.os.data, item45.os.dat5[which(colnames(item45.os.dat5) %in% c("CK_Cadmus_ID"
+item45.os.data <- left_join(item45.os.data, unique(item45.os.dat5[which(colnames(item45.os.dat5) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Primary_Secondary"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 
 ################################
 # Weighted Analysis
@@ -1211,11 +1211,11 @@ item46.os.data <- weightedData(item46.os.dat7[-which(colnames(item46.os.dat7) %i
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
 
-item46.os.data <- left_join(item46.os.data, item46.os.dat7[which(colnames(item46.os.dat7) %in% c("CK_Cadmus_ID"
+item46.os.data <- left_join(item46.os.data, unique(item46.os.dat7[which(colnames(item46.os.dat7) %in% c("CK_Cadmus_ID"
                                                                                      ,"Heating_Type"
                                                                                      ,"Heating_Fuel"
                                                                                      ,"Primary_Secondary"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 
 ################################
 # weighted Analysis

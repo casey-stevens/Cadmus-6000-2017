@@ -822,7 +822,7 @@ item40.os.dat1 <- item40.os.dat[which(item40.os.dat$ACH50 != "Inf"),] #only 883/
 
 #average within houses
 item40.os.customer <- summarise(group_by(item40.os.dat1
-                                      , CK_Cadmus_ID
+                                      , CK_Cadmus_ID, CK_Building_ID
                                       , HomeYearBuilt)
                              ,y_bar_ilk  = mean(ACH50)
                              ,y_ilk      = sum(ACH50)
@@ -860,7 +860,7 @@ item40.os.data <- weightedData(item40.os.merge[which(colnames(item40.os.merge) %
                                                                                 ,"y_ilk"
                                                                                 ,"m_ilk"))])
 
-item40.os.data <- left_join(item40.os.data, item40.os.merge[which(colnames(item40.os.merge) %in% c("CK_Cadmus_ID"
+item40.os.data <- left_join(item40.os.data, unique(item40.os.merge[which(colnames(item40.os.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"MECH_Blower_DOOR_BlowerDoorLocation_FirstTrial"
                                                                                        ,"MECH_Blower_DOOR_BlowerDoorLocation_SecondTrial"
                                                                                        ,"MECH_Blower_DOOR_P25_CFM_FirstTrial"            
@@ -884,7 +884,8 @@ item40.os.data <- left_join(item40.os.data, item40.os.merge[which(colnames(item4
                                                                                        ,"ACH50"
                                                                                        ,"y_bar_ilk"
                                                                                        ,"y_ilk"
-                                                                                       ,"m_ilk"))])
+                                                                                       ,"m_ilk"))]))
+
 #############################################################################################
 # For Single Family
 #############################################################################################

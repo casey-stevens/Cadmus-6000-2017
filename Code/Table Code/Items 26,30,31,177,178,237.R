@@ -1040,12 +1040,13 @@ item26.os.data <- weightedData(unique(item26.os.merge[which(colnames(item26.os.m
                                                                                                    ,"rvalue.bins.SF"
                                                                                                    ,"count"
                                                                                                    ,"Ceiling.Type"))]))
-item26.os.data <- left_join(item26.os.data, item26.os.merge[which(colnames(item26.os.merge) %in% c("CK_Cadmus_ID"
+item26.os.data <- left_join(item26.os.data, unique(item26.os.merge[which(colnames(item26.os.merge) %in% c("CK_Cadmus_ID"
                                                                                                        ,"aveUval"
                                                                                                        ,"aveRval"
                                                                                                        ,"rvalue.bins.SF"
                                                                                                        ,"count"
-                                                                                                       ,"Ceiling.Type"))])
+                                                                                                       ,"Ceiling.Type"))]))
+
 ######################
 # Weighted - Single Family
 ######################
@@ -1248,12 +1249,12 @@ item30.os.data <- weightedData(item30.os.merge[-which(colnames(item30.os.merge) 
                                                                                        ,"aveRval"
                                                                                        ,"rvalue.bins"
                                                                                        ,"count"))])
-item30.os.data <- left_join(item30.os.data, item30.os.merge[which(colnames(item30.os.merge) %in% c("CK_Cadmus_ID"
+item30.os.data <- left_join(item30.os.data, unique(item30.os.merge[which(colnames(item30.os.merge) %in% c("CK_Cadmus_ID"
                                                                                                    ,"Ceiling.Type"
                                                                                                    ,"aveUval"
                                                                                                    ,"aveRval"
                                                                                                    ,"rvalue.bins"
-                                                                                                   ,"count"))])
+                                                                                                   ,"count"))]))
 ##############################
 # Weighted Analysis
 ##############################

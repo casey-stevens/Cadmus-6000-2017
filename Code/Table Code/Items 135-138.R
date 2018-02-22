@@ -687,9 +687,9 @@ item135.os.dat2$QTY_bins[which(item135.os.dat2$QTY > 6)] <- "> 6 Cords"
 ################################################
 item135.os.data <- weightedData(item135.os.dat2[-which(colnames(item135.os.dat2) %in% c("QTY"               
                                                                                ,"QTY_bins"))])
-item135.os.data <- left_join(item135.os.data, item135.os.dat2[which(colnames(item135.os.dat2) %in% c("CK_Cadmus_ID"
+item135.os.data <- left_join(item135.os.data, unique(item135.os.dat2[which(colnames(item135.os.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"QTY"               
-                                                                                         ,"QTY_bins"))])
+                                                                                         ,"QTY_bins"))]))
 item135.os.data$count <- 1
 #######################
 # Weighted Analysis

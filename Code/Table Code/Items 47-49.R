@@ -305,11 +305,11 @@ item47.os.data <- weightedData(item47.os.dat4[-which(colnames(item47.os.dat4) %i
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item47.os.data <- left_join(item47.os.data, item47.os.dat4[which(colnames(item47.os.dat4) %in% c("CK_Cadmus_ID"
+item47.os.data <- left_join(item47.os.data, unique(item47.os.dat4[which(colnames(item47.os.dat4) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Sub-Type"
                                                                                      ,"Heating.Fuel"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 
 ################################
 # Weighted Analysis
@@ -433,11 +433,11 @@ item48.os.data <- weightedData(item48.os.dat4[-which(colnames(item48.os.dat4) %i
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item48.os.data <- left_join(item48.os.data, item48.os.dat4[which(colnames(item48.os.dat4) %in% c("CK_Cadmus_ID"
+item48.os.data <- left_join(item48.os.data, unique(item48.os.dat4[which(colnames(item48.os.dat4) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Sub-Type"
                                                                                      ,"Heating.Fuel"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 
 ################################
 # Weighted Analysis
@@ -563,11 +563,11 @@ item49.os.data <- weightedData(item49.os.dat4[-which(colnames(item49.os.dat4) %i
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item49.os.data <- left_join(item49.os.data, item49.os.dat4[which(colnames(item49.os.dat4) %in% c("CK_Cadmus_ID"
+item49.os.data <- left_join(item49.os.data, unique(item49.os.dat4[which(colnames(item49.os.dat4) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"System.Sub-Type"
                                                                                      ,"Heating.Fuel"
-                                                                                     ,"count"))])
+                                                                                     ,"count"))]))
 
 ################################
 # Weighted Analysis

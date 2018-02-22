@@ -365,7 +365,7 @@ item24.os.data <- weightedData(item24.os.dat2[-which(colnames(item24.os.dat2) %i
                                                                             ,"crawl.ins.ind"))])
 
 # Should see 'Joining, by = "CK_Cadmus_ID"'
-item24.os.data <- left_join(item24.os.data, item24.os.dat2[which(colnames(item24.os.dat2) %in% c("CK_Cadmus_ID"
+item24.os.data <- left_join(item24.os.data, unique(item24.os.dat2[which(colnames(item24.os.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"Crawlspace.Vents.Present"
                                                                                      ,"Crawlspace.Vents.Blocked"
                                                                                      ,"Crawlspace.Walls.Insulated?"
@@ -383,7 +383,7 @@ item24.os.data <- left_join(item24.os.data, item24.os.dat2[which(colnames(item24
                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Thickness.2"
                                                                                      ,"Crawlspace.Wall.Exterior.Insulation.Condition.2"
                                                                                      ,"count"
-                                                                                     ,"crawl.ins.ind"))])
+                                                                                     ,"crawl.ins.ind"))]))
 item24.os.data$Ind <- item24.os.data$crawl.ins.ind
 item24.os.data$Count <- 1
 ##################################
@@ -545,7 +545,7 @@ item28.os.dat1 <- item28.os.dat0[which(item28.os.dat0$BuildingType == "Single Fa
 item28.os.dat1$Ceiling.Type.Indicator <- 0
 item28.os.dat1$Ceiling.Type.Indicator[which(item28.os.dat1$Ceiling.Type == 'Sloped / Vaulted (no attic)')] <- 1
 
-item28.os.summary <- summarise(group_by(item28.os.dat1, CK_Cadmus_ID)
+item28.os.summary <- summarise(group_by(item28.os.dat1, CK_Cadmus_ID, CK_Building_ID)
                             ,Ceiling.Ind = sum(unique(Ceiling.Type.Indicator)))
 
 item28.os.merge <- left_join(os.dat, item28.os.summary)

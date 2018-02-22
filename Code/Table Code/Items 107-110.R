@@ -995,7 +995,7 @@ item110.os.dat3$Clean.Room[which(item110.os.dat3$Clean.Room %in% c("Attic"
 unique(item110.os.dat3$Clean.Room[which(item110.os.dat3$BuildingType == "Single Family")])
 
 item110.os.dat3$count <- 1
-item110.os.customer <- summarise(group_by(item110.os.dat3, CK_Cadmus_ID, Type,Clean.Room)
+item110.os.customer <- summarise(group_by(item110.os.dat3, CK_Cadmus_ID, CK_Building_ID, Type,Clean.Room)
                               ,m_ilk = sum(count))
 item110.os.merge <- left_join(scl.dat, item110.os.customer)
 item110.os.merge <- item110.os.merge[which(!is.na(item110.os.merge$m_ilk)),]

@@ -400,14 +400,7 @@ drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
                   "UsageNAC_therms", "UsageRaw_therms", "heating_therms", "Heating_Fuel")
 item145.os.dat4 <- item145.os.dat3[which(item145.os.dat3$Conditioned.Area > 0),]
 unique(item145.os.dat4$Heating_Fuel)     
-item145.os.dat4$Heating_Fuel[which(item145.os.dat4$Heating_Fuel %in% c("Wood",
-                                                                 "Oil",
-                                                                 "Pellets",
-                                                                 "Other",
-                                                                 "Propane"
-                                                                 , "Hydronic Gas-Water Fan Heater"
-                                                                 , "Hot Water from Water Heater"
-                                                                 ,"Gas"))] <- "Other"
+item145.os.dat4$Heating_Fuel[which(item145.os.dat4$Heating_Fuel %notin% c("Electric"))] <- "Other"
 unique(item145.os.dat4$Heating_Fuel)     
 item145.os.data <- weightedData(item145.os.dat4[-which(colnames(item145.os.dat4) %in% drop.columns)])
 
@@ -508,15 +501,7 @@ drop.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
 
 item149.os.dat4 <- item149.os.dat3[which(item149.os.dat3$Conditioned.Area > 0),]
 unique(item149.os.dat4$Heating_Fuel)     
-item149.os.dat4$Heating_Fuel[which(item149.os.dat4$Heating_Fuel %in% c("Wood",
-                                                                 "Oil",
-                                                                 "Pellets",
-                                                                 "Other",
-                                                                 "Propane"
-                                                                 , "Hydronic Gas-Water Fan Heater"
-                                                                 , "Hot Water from Water Heater"
-                                                                 , "Other"
-                                                                 ,"Electric"))] <- "Other"
+item149.os.dat4$Heating_Fuel[which(item149.os.dat4$Heating_Fuel %notin% c("Gas"))] <- "Other"
 unique(item149.os.dat4$Heating_Fuel)     
 item149.os.data <- weightedData(item149.os.dat4[-which(colnames(item149.os.dat4) %in% drop.columns)])
 

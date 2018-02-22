@@ -585,7 +585,7 @@ unique(item115.os.dat1$Type)
 item115.os.dat2 <- item115.os.dat1[which(item115.os.dat1$Type == "Game Console"),]
 item115.os.dat2$Ind <- 1
 
-item115.os.sum <- summarise(group_by(item115.os.dat2, CK_Cadmus_ID)
+item115.os.sum <- summarise(group_by(item115.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(Ind))
 
 item115.os.sum$Ind <- 1
@@ -651,7 +651,7 @@ item116.os.dat1 <- left_join(item116.os.dat0, scl.dat, by = "CK_Cadmus_ID")
 item116.os.dat2 <- item116.os.dat1[which(item116.os.dat1$Type == "Game Console"),]
 item116.os.dat2$Ind <- 1
 
-item116.os.sum <- summarise(group_by(item116.os.dat2, CK_Cadmus_ID)
+item116.os.sum <- summarise(group_by(item116.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(Ind))
 
 item116.os.merge <- left_join(scl.dat, item116.os.sum)
@@ -717,7 +717,7 @@ item117.os.dat1 <- left_join(item117.os.dat0, scl.dat, by = "CK_Cadmus_ID")
 item117.os.dat2 <- item117.os.dat1[which(item117.os.dat1$Type %in% c("Laptop", "Desktop")),]
 item117.os.dat2$Ind <- 1
 
-item117.os.sum <- summarise(group_by(item117.os.dat2, CK_Cadmus_ID)
+item117.os.sum <- summarise(group_by(item117.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Site.Count = sum(Ind, na.rm = T))
 
 item117.os.merge <- left_join(scl.dat, item117.os.sum)
@@ -783,7 +783,7 @@ item118.os.dat2 <- item118.os.dat1[which(item118.os.dat1$Type %in% c("Desktop", 
 
 item118.os.dat2$Ind <- 1
 
-item118.os.sum <- summarise(group_by(item118.os.dat2, CK_Cadmus_ID)
+item118.os.sum <- summarise(group_by(item118.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(Ind))
 
 item118.os.sum$Ind <- 1
@@ -846,7 +846,7 @@ item119.os.dat0 <- item119.os.dat[which(item119.os.dat$CK_Cadmus_ID != "CK_CADMU
 item119.os.dat1 <- left_join(scl.dat, item119.os.dat0, by = "CK_Cadmus_ID")
 
 item119.os.cast <- dcast(setDT(item119.os.dat1)
-                      ,formula = CK_Cadmus_ID ~ Type,sum
+                      ,formula = CK_Cadmus_ID + CK_Building_ID ~ Type, sum
                       ,value.var = "count")
 item119.os.cast <- data.frame(item119.os.cast, stringsAsFactors = F)
 item119.os.cast <- item119.os.cast[which(colnames(item119.os.cast) %in% c("CK_Cadmus_ID","Audio.Equipment"))]
@@ -930,7 +930,7 @@ item120.os.merge <- left_join(scl.dat, item120.os.dat3)
 
 
 item120.os.cast <- dcast(setDT(item120.os.merge)
-                      ,formula = CK_Cadmus_ID~Subwoofer.Type,sum
+                      ,formula = CK_Cadmus_ID + CK_Building_ID ~ Subwoofer.Type, sum
                       ,value.var = "count")
 item120.os.cast <- data.frame(item120.os.cast, stringsAsFactors = F)
 item120.os.cast <- item120.os.cast[which(colnames(item120.os.cast) %in% c("CK_Cadmus_ID","Passive","Powered"))]
@@ -1013,3 +1013,4 @@ item120.os.final.SF <- item120.os.final[which(item120.os.final$BuildingType == "
                                   ,-which(colnames(item120.os.final) %in% c("BuildingType"))]
 
 exportTable(item120.os.final.SF, "SF", "Table 127", weighted = FALSE, osIndicator = "SCL", OS = T)
+

@@ -251,7 +251,7 @@ unique(item66.os.dat2$Lamps)
 item66.os.dat3 <- item66.os.dat2[which(!(is.na(item66.os.dat2$Lamps))),]
 item66.os.dat4 <- item66.os.dat3[which(item66.os.dat3$Clean.Room != "Storage"),]
 
-item66.os.customer <- summarise(group_by(item66.os.dat4, CK_Cadmus_ID)
+item66.os.customer <- summarise(group_by(item66.os.dat4, CK_Cadmus_ID, CK_Building_ID)
                              ,Lamps = sum(Lamps))
 
 item66.os.merge <- left_join(os.dat, item66.os.customer)
@@ -357,7 +357,7 @@ item67.os.dat3 <- item67.os.dat2[which(!(is.na(item67.os.dat2$Fixture.Qty))),]
 item67.os.dat4 <- item67.os.dat3[which(item67.os.dat3$Clean.Room != "Storage"),]
 
 ##total fixtures per home
-item67.os.fixtures <- summarise(group_by(item67.os.dat4, CK_Cadmus_ID)
+item67.os.fixtures <- summarise(group_by(item67.os.dat4, CK_Cadmus_ID, CK_Building_ID)
                              ,Fixtures = sum(Fixture.Qty))
 
 
