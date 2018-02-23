@@ -27,7 +27,7 @@ rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+envelope.dat <- read.xlsx(envelope.export)
 #clean cadmus IDs
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 

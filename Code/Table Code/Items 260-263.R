@@ -62,20 +62,18 @@ item260.lighting <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_
                                                                 ,"Clean.Wattage"
                                                                 ,"Clean.Room"
                                                                 ,"Switch.Type"))]
+# tmp.dat <- item260.lighting[grep("BLDG", item260.lighting$CK_SiteID),]
 item260.lighting$count <- 1
 
 item260.lighting1 <- item260.lighting[which(!(item260.lighting$Clean.Room %in% c("Outside", "Storage"))),]
 
-
-
-
-
-
 #join clean rbsa data onto lighting analysis data
-item260.dat1 <- left_join(rbsa.dat, item260.lighting1)
+item260.dat1 <- left_join(rbsa.dat, item260.lighting1, by  = c("CK_Building_ID" = "CK_SiteID"))
 
 #remove building info
 item260.dat2 <- item260.dat1[grep("BLDG", item260.dat1$CK_Building_ID),]
+names(item260.dat2)[which(names(item260.dat2) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
+item260.dat2 <- item260.dat2[which(names(item260.dat2) != "CK_Cadmus_ID.y")]
 
 #clean fixture and bulbs per fixture
 item260.dat2$Fixture.Qty <- as.numeric(as.character(item260.dat2$Fixture.Qty))
@@ -268,15 +266,15 @@ item262.table <- data.frame("Common.Area.Room.Type" = item262.cast$Clean.Room
                             ,"Mid.Rise.4.6.Mean"    = item262.cast$`Mean_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.SE"      = item262.cast$`SE_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.n"       = item262.cast$`n_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.Plus.Mean"= item262.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.7.Plus.SE"  = item262.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.7.Plus.n"   = item262.cast$`n_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.Mean"= NA#item262.cast$`Mean_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.SE"  = NA#item262.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.n"   = NA#item262.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes.Mean"       = item262.cast$`Mean_All Sizes`
                             ,"All.Sizes.SE"         = item262.cast$`SE_All Sizes`
                             ,"All.Sizes.n"          = item262.cast$`n_All Sizes`
                             ,"Low.Rise.1.3.EB"      = item262.cast$`EB_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6.EB"      = item262.cast$`EB_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.Plus.EB"  = item262.cast$`EB_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.EB"  = NA#item262.cast$`EB_Apartment Building (More than 6 floors)`
                             ,"All.Sizes.EB"         = item262.cast$`EB_All Sizes`)
 
 exportTable(item262.table, "MF", "Table 54", weighted = TRUE)
@@ -299,9 +297,9 @@ item262.table <- data.frame("Common.Area.Room.Type" = item262.cast$Clean.Room
                             ,"Mid.Rise.4.6.Mean"    = item262.cast$`Mean_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.SE"      = item262.cast$`SE_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.4.6.n"       = item262.cast$`n_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.Plus.Mean"= item262.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.7.Plus.SE"  = item262.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.7.Plus.n"   = item262.cast$`n_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.Mean"= NA#item262.cast$`Mean_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.SE"  = NA#item262.cast$`SE_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.7.Plus.n"   = NA#item262.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All.Sizes.Mean"       = item262.cast$`Mean_All Sizes`
                             ,"All.Sizes.SE"         = item262.cast$`SE_All Sizes`
                             ,"All.Sizes.n"          = item262.cast$`n_All Sizes`)
@@ -354,7 +352,7 @@ item263.final <- proportions_one_group(CustomerLevelData = item263.data
                                           ,groupingVariable = 'Switch.Type'
                                           ,total.name = NA
                                           ,weighted = TRUE)
-item263.final <- item263.final[which(item263.final$Switch.Type != "Total"),]
+# item263.final <- item263.final[which(item263.final$Switch.Type != "Total"),]
 item263.final <- item263.final[which(colnames(item263.final) %notin% c("BuildingType"))]
 
 exportTable(item263.final, "MF", "Table 55", weighted = TRUE)
@@ -367,7 +365,7 @@ item263.final <- proportions_one_group(CustomerLevelData = item263.data
                                           ,groupingVariable = 'Switch.Type'
                                           ,total.name = NA
                                           ,weighted = FALSE)
-item263.final <- item263.final[which(item263.final$Switch.Type != "Total"),]
+# item263.final <- item263.final[which(item263.final$Switch.Type != "Total"),]
 item263.final <- item263.final[which(colnames(item263.final) %notin% c("BuildingType"))]
 
 exportTable(item263.final, "MF", "Table 55", weighted = FALSE)

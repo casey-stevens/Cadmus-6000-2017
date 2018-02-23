@@ -26,7 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 
 #Read in data for analysis
 # Mechanical
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -36,7 +36,9 @@ mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadm
                                                                         "Heat.Iteration",
                                                                         "Cool.Iteration",
                                                                         "Primary.Heating.System",
-                                                                        "Primary.Cooling.System"))]
+                                                                        "Primary.Cooling.System"
+                                                                        ,"Serves.Common.Areas?"
+                                                                        ,"Central.for.Building"))]
 
 mechanical.dat2  <- left_join(rbsa.dat, mechanical.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
 length(unique(mechanical.dat2$CK_Cadmus_ID))
@@ -335,7 +337,7 @@ item245.dat4 <- item245.dat3[which(item245.dat3$Primary_Secondary == "Secondary 
 
 item245.merge <- left_join(rbsa.dat, item245.dat4)
 item245.merge <- item245.merge[which(item245.merge$BuildingType == "Multifamily"),]
-item245.merge <- item245.merge[grep("BLDG",item245.merge$CK_Building_ID),]
+item245.merge <- item245.merge[grep("SITE",item245.merge$CK_Building_ID),]
 item245.merge$Heating_System[which(item245.merge$Primary_Secondary %in% c("N/A",NA))] <- "None"
 item245.merge$Fuel[which(item245.merge$Primary_Secondary %in% c("N/A",NA))] <- "None"
 unique(item245.merge$Heating_System)
