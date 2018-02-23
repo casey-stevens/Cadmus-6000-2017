@@ -619,7 +619,7 @@ item83.os.cast <- mean_two_groups(CustomerLevelData = item83.os.data
                                ,rowAggregate = "All Refrigerator Types"
                                ,columnAggregate = "Remove")
 
-
+names(item.os.cast)
 if(os.ind == "scl"){
   item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
                                 ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
