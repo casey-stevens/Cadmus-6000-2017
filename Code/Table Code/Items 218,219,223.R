@@ -282,7 +282,8 @@ item223.dat1 <- left_join(rbsa.dat.bldg, item223.nonres.data)
 
 item223.dat1$Ind <- 0
 item223.dat1$Ind[which(!is.na(item223.dat1$Nonres.Area))] <- 1
-  
+item223.dat1$Ind[which(item223.dat1$Nonres.Area == 0)] <- 0
+sort(unique(item223.dat1$Nonres.Area))
   
 item223.dat2 <- item223.dat1[which(item223.dat1$BuildingType == "Multifamily"),]
 
@@ -292,10 +293,11 @@ item223.dat2 <- item223.dat1[which(item223.dat1$BuildingType == "Multifamily"),]
 ################################################
 item223.data <- weightedData(item223.dat2[which(colnames(item223.dat2) %notin% c("Nonres.Area"
                                                                                  ,"Ind"))])
-item223.data <- left_join(item223.data, item223.dat2[which(colnames(item223.dat2) %in% c("CK_Building_ID"
+item223.data <- left_join(item223.data, unique(item223.dat2[which(colnames(item223.dat2) %in% c("CK_Building_ID"
                                                                                          ,"Nonres.Area"
-                                                                                         ,"Ind"))])
+                                                                                         ,"Ind"))]))
 item223.data$Count <- 1
+which(duplicated(item223.data$CK_Cadmus_ID))
 #######################
 # Weighted Analysis
 #######################
