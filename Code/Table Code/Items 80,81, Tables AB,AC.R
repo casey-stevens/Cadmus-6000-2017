@@ -563,10 +563,11 @@ exportTable(item81.final.MH, "MH", "Table 69", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
+names(os.dat)
 
 #############################################################################################
 #Item 80: AVERAGE NUMBER OF APPLIANCES PER HOME BY TYPE (SF table 87, MH table 68)
@@ -575,7 +576,7 @@ scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 item80.os.mech <- mechanical.dat[grep("Water Heat", mechanical.dat$Generic),]
 item80.os.mech$Generic[grep("Water Heat", item80.os.mech$Generic)] <- "Water Heater"
 item80.os.mech$WaterHeaterCount <- 1
-item80.os.mech1 <- left_join(scl.dat, item80.os.mech, by = "CK_Cadmus_ID")
+item80.os.mech1 <- left_join(os.dat, item80.os.mech, by = "CK_Cadmus_ID")
 item80.os.mech2 <- item80.os.mech1
 which(duplicated(item80.os.mech2$CK_Cadmus_ID))
 
@@ -599,7 +600,7 @@ item80.os.dat$count <- 1
 
 item80.os.dat0 <- item80.os.dat[which(item80.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item80.os.dat1 <- left_join(item80.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item80.os.dat1 <- left_join(item80.os.dat0, os.dat, by = "CK_Cadmus_ID")
 item80.os.dat1$Large.Unusual.Load.Quantity[which(item80.os.dat1$Large.Unusual.Load.Quantity %in% c("N/A",NA))] <- 1
 unique(item80.os.dat1$Large.Unusual.Load.Quantity)
 item80.os.dat1$Large.Unusual.Load.Quantity <- as.numeric(as.character(item80.os.dat1$Large.Unusual.Load.Quantity))
@@ -613,7 +614,7 @@ item80.os.sum <- summarise(group_by(item80.os.dat1, CK_Cadmus_ID, CK_Building_ID
 # Row bind water heater and appliance counts
 item80.os.merge <- rbind.data.frame(item80.os.site, item80.os.sum)
 
-item80.os.merge <- left_join(scl.dat, item80.os.merge) #switch scl.dat to scl.merge to get more info on washers/dryers
+item80.os.merge <- left_join(os.dat, item80.os.merge) #switch os.dat to scl.merge to get more info on washers/dryers
 
 item80.os.merge <- item80.os.merge[which(!is.na(item80.os.merge$Type)),]
 item80.os.merge$Count[which(is.na(item80.os.merge$Count))] <- 0
@@ -626,7 +627,7 @@ item80.os.cast[is.na(item80.os.cast),] <- 0
 item80.os.melt <- melt(item80.os.cast, id.vars = c("CK_Cadmus_ID", "CK_Building_ID"))
 names(item80.os.melt) <- c("CK_Cadmus_ID", "CK_Building_ID", "Type", "Count")
 
-item80.os.merge <- left_join(scl.dat, item80.os.melt)
+item80.os.merge <- left_join(os.dat, item80.os.melt)
 item80.os.merge$Type <- as.character(item80.os.merge$Type)
 
 unique(item80.os.merge$Type)
@@ -661,29 +662,48 @@ item80.os.final <- mean_two_groups(CustomerLevelData = item80.os.data
                                ,rowAggregate = "Total")
 item80.os.cast <- item80.os.final[which(item80.os.final$Type != "Total"),]
 
-item80.os.final <- data.frame("BuildingType"          = item80.os.cast$BuildingType
-                              ,"Type"                 = item80.os.cast$Type
-                              ,"Mean_SCL.GenPop"      = item80.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item80.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item80.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item80.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item80.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item80.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item80.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item80.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item80.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item80.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item80.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item80.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item80.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item80.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item80.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item80.os.cast$`EB_2017 RBSA PS`)
+names(item80.os.cast)
+if(os.ind == "scl"){
+  item80.os.final <- data.frame("BuildingType"          = item80.os.cast$BuildingType
+                                ,"Type"                 = item80.os.cast$Type
+                                ,"Mean_SCL.GenPop"      = item80.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item80.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item80.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item80.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item80.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item80.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item80.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item80.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item80.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item80.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item80.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item80.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item80.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item80.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item80.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item80.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item80.os.final <- data.frame("BuildingType"          = item80.os.cast$BuildingType
+                                ,"Type"                 = item80.os.cast$Type
+                                ,"Percent_SnoPUD"          = item80.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item80.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item80.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item80.os.cast$`w.percent_2017.RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item80.os.cast$`w.SE_2017.RBSA.PS`
+                                ,"n_2017.RBSA.PS"          = item80.os.cast$`n_2017.RBSA.PS`
+                                ,"Percent_RBSA.NW"         = item80.os.cast$`w.percent_2017.RBSA NW`
+                                ,"SE_RBSA.NW"              = item80.os.cast$`w.SE_2017.RBSA.NW`
+                                ,"n_RBSA.NW"               = item80.os.cast$`n_2017.RBSA.NW`
+                                ,"EB_SnoPUD"               = item80.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item80.os.cast$`EB_2017.RBSA.PS`
+                                ,"EB_RBSA.NW"              = item80.os.cast$`EB_2017.RBSA.NW`)
+}
+
 
 item80.os.final.SF <- item80.os.final[which(item80.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item80.os.final) %in% c("BuildingType"))]
 
-exportTable(item80.os.final.SF, "SF", "Table 87", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item80.os.final.SF, "SF", "Table 87", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -696,6 +716,12 @@ item80.os.final <- mean_two_groups_unweighted(CustomerLevelData = item80.os.data
                                    ,rowAggregate = "Total")
 item80.os.cast <- item80.os.final[which(item80.os.final$Type != "Total"),]
 
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 item80.os.final <- data.frame("BuildingType"          = item80.os.cast$BuildingType
                               ,"Type"                 = item80.os.cast$Type
                               ,"Mean_SCL.GenPop"      = item80.os.cast$`Mean_SCL GenPop`
@@ -714,7 +740,7 @@ item80.os.final <- data.frame("BuildingType"          = item80.os.cast$BuildingT
 item80.os.final.SF <- item80.os.final[which(item80.os.final$BuildingType == "Single Family")
                                       ,-which(colnames(item80.os.final) %in% c("BuildingType"))]
 
-exportTable(item80.os.final.SF, "SF", "Table 87", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item80.os.final.SF, "SF", "Table 87", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -729,7 +755,7 @@ tableAB.os.dat$count <- 1
 tableAB.os.dat$Age <- as.numeric(as.character(tableAB.os.dat$Age))
 tableAB.os.dat0 <- tableAB.os.dat[which(tableAB.os.dat$Age > 0),]
 
-tableAB.os.merge <- left_join(scl.dat, tableAB.os.dat0, by = "CK_Cadmus_ID")
+tableAB.os.merge <- left_join(os.dat, tableAB.os.dat0, by = "CK_Cadmus_ID")
 tableAB.os.merge <- tableAB.os.merge[which(tableAB.os.merge$Age > 0),]
 
 unique(tableAB.os.merge$Type)
@@ -763,6 +789,13 @@ tableAB.os.final <- mean_two_groups(CustomerLevelData = tableAB.os.data
                                    ,rowAggregate = "Total")
 tableAB.os.cast <- tableAB.os.final[which(tableAB.os.final$Type != "Total"),]
 
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 tableAB.os.final <- data.frame("BuildingType"          = tableAB.os.cast$BuildingType
                               ,"Type"                 = tableAB.os.cast$Type
                               ,"Mean_SCL.GenPop"      = tableAB.os.cast$`Mean_SCL GenPop`
@@ -785,7 +818,7 @@ tableAB.os.final <- data.frame("BuildingType"          = tableAB.os.cast$Buildin
 tableAB.os.final.SF <- tableAB.os.final[which(tableAB.os.final$BuildingType == "Single Family")
                                       ,-which(colnames(tableAB.os.final) %in% c("BuildingType"))]
 
-exportTable(tableAB.os.final.SF, "SF", "Table AB", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAB.os.final.SF, "SF", "Table AB", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -798,6 +831,13 @@ tableAB.os.final <- mean_two_groups_unweighted(CustomerLevelData = tableAB.os.da
                                     ,rowAggregate = "Total")
 tableAB.os.cast <- tableAB.os.final[which(tableAB.os.final$Type != "Total"),]
 
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 tableAB.os.final <- data.frame("BuildingType"          = tableAB.os.cast$BuildingType
                                ,"Type"                 = tableAB.os.cast$Type
                                ,"Mean_SCL.GenPop"      = tableAB.os.cast$`Mean_SCL GenPop`
@@ -816,7 +856,7 @@ tableAB.os.final <- data.frame("BuildingType"          = tableAB.os.cast$Buildin
 tableAB.os.final.SF <- tableAB.os.final[which(tableAB.os.final$BuildingType == "Single Family")
                                         ,-which(colnames(tableAB.os.final) %in% c("BuildingType"))]
 
-exportTable(tableAB.os.final.SF, "SF", "Table AB", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAB.os.final.SF, "SF", "Table AB", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -829,7 +869,7 @@ tableAC.os.mech <- mechanical.dat[grep("Water Heat", mechanical.dat$Generic),]
 tableAC.os.mech$Generic[grep("Water Heat", tableAC.os.mech$Generic)] <- "Water Heater"
 tableAC.os.mech$WaterHeaterCount <- 1
 
-tableAC.os.mech1 <- left_join(scl.dat, tableAC.os.mech, by = "CK_Cadmus_ID")
+tableAC.os.mech1 <- left_join(os.dat, tableAC.os.mech, by = "CK_Cadmus_ID")
 tableAC.os.mech2 <- tableAC.os.mech1
 which(duplicated(tableAC.os.mech2$CK_Cadmus_ID))
 
@@ -858,7 +898,7 @@ tableAC.os.dat$Age <- as.numeric(as.character(tableAC.os.dat$Age))
 tableAC.os.dat0 <- tableAC.os.dat[which(tableAC.os.dat$Age > 0),]
 
 tableAC.os.merge0 <- rbind.data.frame(tableAC.os.site2, tableAC.os.dat0)
-tableAC.os.merge <- left_join(scl.dat, tableAC.os.merge0, by = "CK_Cadmus_ID")
+tableAC.os.merge <- left_join(os.dat, tableAC.os.merge0, by = "CK_Cadmus_ID")
 tableAC.os.merge <- tableAC.os.merge[which(tableAC.os.merge$Age > 0),]
 
 unique(tableAC.os.merge$Type)
@@ -921,6 +961,13 @@ tableAC.os.cast <- dcast(setDT(tableAC.os.final)
                           ,formula = BuildingType + Type ~ CK_Building_ID
                           ,value.var = c("w.percent", "w.SE","n", "EB"))
 
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 tableAC.os.final <- data.frame("BuildingType"          = tableAC.os.cast$BuildingType
                                ,"Type"                 = tableAC.os.cast$Type
                                ,"Percent_SCL.GenPop"   = tableAC.os.cast$`w.percent_SCL GenPop`
@@ -943,7 +990,7 @@ tableAC.os.final <- data.frame("BuildingType"          = tableAC.os.cast$Buildin
 tableAC.os.final.SF <- tableAC.os.final[which(tableAC.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableAC.os.final) %in% c("BuildingType"))]
 
-exportTable(tableAC.os.final.SF, "SF", "Table AC", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAC.os.final.SF, "SF", "Table AC", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -960,6 +1007,13 @@ tableAC.os.cast <- dcast(setDT(tableAC.os.final)
                          ,formula = BuildingType + Type ~ CK_Building_ID
                          ,value.var = c("Percent", "SE","n"))
 
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 tableAC.os.final <- data.frame("BuildingType"          = tableAC.os.cast$BuildingType
                                ,"Type"                 = tableAC.os.cast$Type
                                ,"Percent_SCL.GenPop"   = tableAC.os.cast$`Percent_SCL GenPop`
@@ -978,7 +1032,7 @@ tableAC.os.final <- data.frame("BuildingType"          = tableAC.os.cast$Buildin
 tableAC.os.final.SF <- tableAC.os.final[which(tableAC.os.final$BuildingType == "Single Family")
                                         ,-which(colnames(tableAC.os.final) %in% c("BuildingType"))]
 
-exportTable(tableAC.os.final.SF, "SF", "Table AC", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAC.os.final.SF, "SF", "Table AC", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -994,7 +1048,7 @@ item81.os.dat$count <- 1
 
 item81.os.dat0 <- item81.os.dat[which(item81.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item81.os.dat1 <- left_join(item81.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item81.os.dat1 <- left_join(item81.os.dat0, os.dat, by = "CK_Cadmus_ID")
 item81.os.dat2 <- item81.os.dat1[which(item81.os.dat1$Type %in% c("Refrigerator", "Freezer")),]
 
 # Bin equipment vintages for items 50 and 52 (4 categories)
@@ -1013,7 +1067,7 @@ item81.os.dat3$EquipVintage_bins[which(item81.os.dat3$Age >= 2015)] <- "Post 201
 unique(item81.os.dat3$EquipVintage_bins)
 
 
-item81.os.merge <- left_join(scl.dat, item81.os.dat3)
+item81.os.merge <- left_join(os.dat, item81.os.dat3)
 item81.os.merge <- item81.os.merge[which(!is.na(item81.os.merge$EquipVintage_bins)),]
 
 ################################################
@@ -1044,6 +1098,13 @@ item81.os.cast <- dcast(setDT(item81.os.final)
                          ,formula = BuildingType + EquipVintage_bins ~ CK_Building_ID
                          ,value.var = c("w.percent", "w.SE","n", "EB"))
 
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 item81.os.final <- data.frame("BuildingType"          = item81.os.cast$BuildingType
                                ,"Equipment.Vintage"    = item81.os.cast$EquipVintage_bins
                                ,"Percent_SCL.GenPop"   = item81.os.cast$`w.percent_SCL GenPop`
@@ -1079,7 +1140,7 @@ item81.os.final <- data.frame(item81.os.final)
 item81.os.final.SF <- item81.os.final[which(item81.os.final$BuildingType == "Single Family")
                                 ,-which(colnames(item81.os.final) %in% c("BuildingType"))]
 
-exportTable(item81.os.final.SF, "SF", "Table 88", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item81.os.final.SF, "SF", "Table 88", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -1095,6 +1156,13 @@ item81.os.cast <- dcast(setDT(item81.os.final)
                         ,formula = BuildingType + EquipVintage_bins ~ CK_Building_ID
                         ,value.var = c("Percent", "SE","n"))
 
+
+
+if(os.ind == "scl"){
+  
+}else if(os.ind == "snopud"){
+  
+}
 item81.os.final <- data.frame("BuildingType"          = item81.os.cast$BuildingType
                               ,"Equipment.Vintage"    = item81.os.cast$EquipVintage_bins
                               ,"Percent_SCL.GenPop"   = item81.os.cast$`Percent_SCL GenPop`
@@ -1126,4 +1194,4 @@ item81.os.final <- data.frame(item81.os.final)
 item81.os.final.SF <- item81.os.final[which(item81.os.final$BuildingType == "Single Family")
                                       ,-which(colnames(item81.os.final) %in% c("BuildingType"))]
 
-exportTable(item81.os.final.SF, "SF", "Table 88", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item81.os.final.SF, "SF", "Table 88", weighted = FALSE, osIndicator = export.ind, OS = T)
