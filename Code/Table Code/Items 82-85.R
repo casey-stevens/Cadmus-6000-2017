@@ -389,10 +389,11 @@ exportTable(item85.final.MH, "MH", "Table 73", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
+names(os.dat)
 
 #############################################################################################
 #Item 82: DISTRIBUTION OF REFRIGERATORS BY TYPE (SF table 89, MH table 70)
@@ -405,7 +406,7 @@ item82.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus
 names(item82.os.dat)
 
 item82.os.dat0 <- item82.os.dat[which(item82.os.dat$APPLIANCE_FRIDGE_FREEZER_Type %notin% c("N/A",NA,"Unknown")),]
-item82.os.dat1 <- left_join(scl.dat, item82.os.dat0)
+item82.os.dat1 <- left_join(os.dat, item82.os.dat0)
 
 #clean type to match detailed type
 item82.os.dat1$Type[which(item82.os.dat1$APPLIANCE_FRIDGE_FREEZER_Type == "Freezer, chest")] <- "Freezer"
@@ -453,24 +454,46 @@ item82.os.cast <- dcast(setDT(item82.os.final)
                         ,formula = BuildingType + APPLIANCE_FRIDGE_FREEZER_Type ~ CK_Building_ID
                         ,value.var = c("w.percent", "w.SE","n", "EB"))
 
-item82.os.final <- data.frame("BuildingType"          = item82.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item82.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Percent_SCL.GenPop"   = item82.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item82.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item82.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item82.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item82.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item82.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item82.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item82.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item82.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item82.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item82.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item82.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item82.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item82.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item82.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item82.os.cast$`EB_2017 RBSA PS`)
+names(item82.os.cast)
+if(os.ind == "scl"){
+  item82.os.final <- data.frame("BuildingType"          = item82.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item82.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SCL.GenPop"   = item82.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item82.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item82.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item82.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item82.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item82.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item82.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item82.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item82.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item82.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item82.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item82.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item82.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item82.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item82.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item82.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item82.os.final <- data.frame("BuildingType"          = item82.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item82.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SnoPUD"          = item82.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item82.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item82.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item82.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item82.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item82.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item82.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item82.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item82.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item82.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item82.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item82.os.cast$`EB_2017 RBSA NW`)
+}
+
+
+
+
 
 unique(item82.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Full Size Refrigerator Only"
@@ -489,7 +512,7 @@ item82.os.final <- data.frame(item82.os.final)
 item82.os.final.SF <- item82.os.final[which(item82.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item82.os.final) %notin% c("BuildingType"))]
 
-exportTable(item82.os.final.SF, "SF", "Table 89", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item82.os.final.SF, "SF", "Table 89", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ######################
 # unweighted analysis
@@ -505,20 +528,37 @@ item82.os.cast <- dcast(setDT(item82.os.final)
                         ,formula = BuildingType + APPLIANCE_FRIDGE_FREEZER_Type ~ CK_Building_ID
                         ,value.var = c("Percent", "SE","n"))
 
-item82.os.final <- data.frame("BuildingType"          = item82.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item82.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Percent_SCL.GenPop"   = item82.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item82.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item82.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item82.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item82.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item82.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item82.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item82.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item82.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item82.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item82.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item82.os.cast$`n_2017 RBSA PS`)
+names(item82.os.cast)
+if(os.ind == "scl"){
+  item82.os.final <- data.frame("BuildingType"          = item82.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item82.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SCL.GenPop"   = item82.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item82.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item82.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item82.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item82.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item82.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item82.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item82.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item82.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item82.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item82.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item82.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item82.os.final <- data.frame("BuildingType"          = item82.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item82.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SnoPUD"          = item82.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item82.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item82.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item82.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item82.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item82.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item82.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item82.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item82.os.cast$`n_2017 RBSA NW`)
+}
+
+
 
 unique(item82.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Full Size Refrigerator Only"
@@ -537,7 +577,7 @@ item82.os.final <- data.frame(item82.os.final)
 item82.os.final.SF <- item82.os.final[which(item82.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item82.os.final) %notin% c("BuildingType"))]
 
-exportTable(item82.os.final.SF, "SF", "Table 89", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item82.os.final.SF, "SF", "Table 89", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -580,24 +620,42 @@ item83.os.cast <- mean_two_groups(CustomerLevelData = item83.os.data
                                ,columnAggregate = "Remove")
 
 
-item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Mean_SCL.GenPop"      = item83.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item83.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item83.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item83.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item83.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item83.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item83.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item83.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item83.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item83.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item83.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item83.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item83.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item83.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item83.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item83.os.cast$`EB_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SCL.GenPop"      = item83.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item83.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item83.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item83.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item83.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item83.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item83.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item83.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item83.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item83.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item83.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item83.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item83.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item83.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item83.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item83.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SnoPUD"          = item83.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item83.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item83.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item83.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item83.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item83.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item83.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item83.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item83.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item83.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item83.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item83.os.cast$`EB_2017 RBSA NW`)
+}
+
 
 unique(item83.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Full Size Refrigerator Only"
@@ -616,7 +674,7 @@ item83.os.final <- data.frame(item83.os.final)
 item83.os.final.SF <- item83.os.final[which(item83.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item83.os.final) %notin% c("BuildingType"))]
 
-exportTable(item83.os.final.SF, "SF", "Table 90", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item83.os.final.SF, "SF", "Table 90", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ######################
 # unweighted analysis
@@ -628,20 +686,36 @@ item83.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item83.os.data
                                   ,rowAggregate = "All Refrigerator Types"
                                   ,columnAggregate = "Remove")
 
-item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Mean_SCL.GenPop"      = item83.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item83.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item83.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item83.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item83.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item83.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item83.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item83.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item83.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item83.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item83.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item83.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SCL.GenPop"      = item83.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item83.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item83.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item83.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item83.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item83.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item83.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item83.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item83.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item83.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item83.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item83.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item83.os.final <- data.frame("BuildingType"          = item83.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item83.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SnoPUD"          = item83.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item83.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item83.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item83.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item83.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item83.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item83.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item83.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item83.os.cast$`n_2017 RBSA NW`)
+}
+
+
 
 unique(item83.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Full Size Refrigerator Only"
@@ -659,7 +733,7 @@ item83.os.final <- data.frame(item83.os.final)
 item83.os.final.SF <- item83.os.final[which(item83.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item83.os.final) %notin% c("BuildingType"))]
 
-exportTable(item83.os.final.SF, "SF", "Table 90", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item83.os.final.SF, "SF", "Table 90", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -698,28 +772,50 @@ item84.os.cast <- dcast(setDT(item84.os.final)
                         ,formula = BuildingType + APPLIANCE_FRIDGE_FREEZER_Type ~ CK_Building_ID
                         ,value.var = c("w.percent", "w.SE","n", "EB"))
 
-item84.os.final <- data.frame("BuildingType"          = item84.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item84.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Percent_SCL.GenPop"   = item84.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item84.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item84.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item84.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item84.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item84.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item84.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item84.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item84.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item84.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item84.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item84.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item84.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item84.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item84.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item84.os.cast$`EB_2017 RBSA PS`)
+
+names(item84.os.cast)
+if(os.ind == "scl"){
+  item84.os.final <- data.frame("BuildingType"          = item84.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item84.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SCL.GenPop"   = item84.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item84.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item84.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item84.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item84.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item84.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item84.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item84.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item84.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item84.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item84.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item84.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item84.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item84.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item84.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item84.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item84.os.final <- data.frame("BuildingType"          = item84.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item84.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SnoPUD"          = item84.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item84.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item84.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item84.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item84.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item84.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item84.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item84.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item84.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item84.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item84.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item84.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 unique(item84.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Freezer, chest"
               ,"Freezer, upright"
+              ,"Mini-Freezer"
               ,"Total")
 item84.os.final <- item84.os.final %>% mutate(APPLIANCE_FRIDGE_FREEZER_Type = factor(APPLIANCE_FRIDGE_FREEZER_Type, levels = rowOrder)) %>% arrange(APPLIANCE_FRIDGE_FREEZER_Type)  
 item84.os.final <- data.frame(item84.os.final)
@@ -727,7 +823,7 @@ item84.os.final <- data.frame(item84.os.final)
 item84.os.final.SF <- item84.os.final[which(item84.os.final$BuildingType == "Single Family")
                                       ,which(colnames(item84.os.final) %notin% c("BuildingType"))]
 
-exportTable(item84.os.final.SF, "SF", "Table 91", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item84.os.final.SF, "SF", "Table 91", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 ######################
@@ -744,24 +840,43 @@ item84.os.cast <- dcast(setDT(item84.os.final)
                         ,formula = BuildingType + APPLIANCE_FRIDGE_FREEZER_Type ~ CK_Building_ID
                         ,value.var = c("Percent", "SE","n"))
 
-item84.os.final <- data.frame("BuildingType"          = item84.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item84.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Percent_SCL.GenPop"   = item84.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item84.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item84.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item84.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item84.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item84.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item84.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item84.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item84.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item84.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item84.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item84.os.cast$`n_2017 RBSA PS`)
+
+names(item84.os.cast)
+if(os.ind == "scl"){
+  item84.os.final <- data.frame("BuildingType"          = item84.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item84.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SCL.GenPop"   = item84.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item84.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item84.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item84.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item84.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item84.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item84.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item84.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item84.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item84.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item84.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item84.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item84.os.final <- data.frame("BuildingType"          = item84.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"    = item84.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Percent_SnoPUD"          = item84.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item84.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item84.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item84.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item84.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item84.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item84.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item84.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item84.os.cast$`n_2017 RBSA NW`)
+}
+
+
 
 unique(item84.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Freezer, chest"
               ,"Freezer, upright"
+              ,"Mini-Freezer"
               ,"Total")
 item84.os.final <- item84.os.final %>% mutate(APPLIANCE_FRIDGE_FREEZER_Type = factor(APPLIANCE_FRIDGE_FREEZER_Type, levels = rowOrder)) %>% arrange(APPLIANCE_FRIDGE_FREEZER_Type)  
 item84.os.final <- data.frame(item84.os.final)
@@ -769,7 +884,7 @@ item84.os.final <- data.frame(item84.os.final)
 item84.os.final.SF <- item84.os.final[which(item84.os.final$BuildingType == "Single Family")
                                       ,which(colnames(item84.os.final) %notin% c("BuildingType"))]
 
-exportTable(item84.os.final.SF, "SF", "Table 91", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item84.os.final.SF, "SF", "Table 91", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -811,24 +926,44 @@ item85.os.cast <- mean_two_groups(CustomerLevelData = item85.os.data
                                   ,rowAggregate = "Total"
                                   ,columnAggregate = "Remove")
 
-item85.os.final <- data.frame("BuildingType"          = item85.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"= item85.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Mean_SCL.GenPop"      = item85.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item85.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item85.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item85.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item85.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item85.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item85.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item85.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item85.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item85.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item85.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item85.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item85.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item85.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item85.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item85.os.cast$`EB_2017 RBSA PS`)
+names()
+if(os.ind == "scl"){
+  item85.os.final <- data.frame("BuildingType"          = item85.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item85.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SCL.GenPop"      = item85.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item85.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item85.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item85.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item85.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item85.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item85.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item85.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item85.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item85.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item85.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item85.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item85.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item85.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item85.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item85.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item85.os.final <- data.frame("BuildingType"          = item85.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item85.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SnoPUD"          = item85.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item85.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item85.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item85.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item85.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item85.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item85.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item85.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item85.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item85.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item85.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item85.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 unique(item85.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Freezer, chest"
@@ -840,7 +975,7 @@ item85.os.final <- data.frame(item85.os.final)
 item85.os.final.SF <- item85.os.final[which(item85.os.final$BuildingType == "Single Family")
                                 ,which(colnames(item85.os.final) %notin% c("BuildingType"))]
 
-exportTable(item85.os.final.SF, "SF", "Table 92", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item85.os.final.SF, "SF", "Table 92", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ######################
 # unweighted analysis
@@ -851,21 +986,35 @@ item85.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item85.os.data
                                   ,byVariableColumn = "CK_Building_ID"
                                   ,rowAggregate = "Total"
                                   ,columnAggregate = "Remove")
+if(os.ind == "scl"){
+  item85.os.final <- data.frame("BuildingType"          = item85.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item85.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SCL.GenPop"      = item85.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item85.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item85.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item85.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item85.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item85.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item85.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item85.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item85.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item85.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item85.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item85.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item85.os.final <- data.frame("BuildingType"          = item85.os.cast$BuildingType
+                                ,"APPLIANCE_FRIDGE_FREEZER_Type"= item85.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
+                                ,"Mean_SnoPUD"          = item85.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item85.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item85.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item85.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item85.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item85.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item85.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item85.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item85.os.cast$`n_2017 RBSA NW`)
+}
 
-item85.os.final <- data.frame("BuildingType"          = item85.os.cast$BuildingType
-                              ,"APPLIANCE_FRIDGE_FREEZER_Type"= item85.os.cast$APPLIANCE_FRIDGE_FREEZER_Type
-                              ,"Mean_SCL.GenPop"      = item85.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item85.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item85.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item85.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item85.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item85.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item85.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item85.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item85.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item85.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item85.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item85.os.cast$`n_2017 RBSA PS`)
 
 unique(item85.os.final$APPLIANCE_FRIDGE_FREEZER_Type)
 rowOrder <- c("Freezer, chest"
@@ -877,4 +1026,4 @@ item85.os.final <- data.frame(item85.os.final)
 item85.os.final.SF <- item85.os.final[which(item85.os.final$BuildingType == "Single Family")
                                       ,which(colnames(item85.os.final) %notin% c("BuildingType"))]
 
-exportTable(item85.os.final.SF, "SF", "Table 92", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item85.os.final.SF, "SF", "Table 92", weighted = FALSE, osIndicator = export.ind, OS = T)
