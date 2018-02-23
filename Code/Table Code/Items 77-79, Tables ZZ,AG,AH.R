@@ -800,6 +800,7 @@ length(unique(os.dat$CK_Cadmus_ID))
 os.dat$CK_Building_ID <- os.dat$Category
 os.dat <- os.dat[which(names(os.dat) != "Category")]
 
+
 #############################################################################################
 #Item 77: PERCENTAGE OF ALL CFLS THAT ARE STORED (SF table 84, MH table 63)
 #############################################################################################
@@ -1005,6 +1006,21 @@ tableZZ.os.final <- proportions_one_group(CustomerLevelData = tableZZ.os.data
                                        ,weighted         = FALSE)
 tableZZ.os.final <- tableZZ.os.final[which(tableZZ.os.final$CK_Building_ID != "Total"),]
 
+names(tableZZ.os.final)
+levels(tableZZ.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+tableZZ.os.final <- tableZZ.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+tableZZ.os.final <- data.frame(tableZZ.os.final)
+
 tableZZ.os.final.SF <- tableZZ.os.final[which(tableZZ.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(tableZZ.os.final) %in% c("BuildingType"))]
 
@@ -1085,6 +1101,21 @@ item78.os.final <- mean_one_group(CustomerLevelData = item78.os.data
                                ,aggregateRow     = 'Remove')
 item78.os.final <- item78.os.final[which(item78.os.final$CK_Building_ID != "Remove"),]
 
+
+levels(item78.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item78.os.final <- item78.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item78.os.final <- data.frame(item78.os.final)
+
 item78.os.final.SF <- item78.os.final[which(item78.os.final$BuildingType == "Single Family"),-1]
 
 exportTable(item78.os.final.SF, "SF", "Table 85", weighted = TRUE, osIndicator = export.ind, OS = T)
@@ -1097,6 +1128,22 @@ item78.os.final <- mean_one_group_unweighted(CustomerLevelData = item78.os.data
                                           ,byVariable       = 'CK_Building_ID'
                                           ,aggregateRow     = 'Remove')
 item78.os.final <- item78.os.final[which(item78.os.final$CK_Building_ID != "Remove"),]
+
+levels(item78.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+item78.os.final <- item78.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+item78.os.final <- data.frame(item78.os.final)
+
+
 
 # Export table
 item78.os.final.SF <- item78.os.final[which(item78.os.final$BuildingType == "Single Family"),-1]
@@ -1173,24 +1220,44 @@ item79.os.cast <- mean_two_groups(CustomerLevelData = item79.os.data
                                ,columnAggregate = 'Remove'
                                ,rowAggregate = 'All Room Types')
 
-item79.os.final <- data.frame("BuildingType"          = item79.os.cast$BuildingType
-                             ,"Clean.Room"            = item79.os.cast$Clean.Room
-                             ,"Mean_SCL.GenPop"      = item79.os.cast$`Mean_SCL GenPop`
-                             ,"SE_SCL.GenPop"        = item79.os.cast$`SE_SCL GenPop`
-                             ,"n_SCL.GenPop"         = item79.os.cast$`n_SCL GenPop`
-                             ,"Mean_SCL.LI"          = item79.os.cast$`Mean_SCL LI`
-                             ,"SE_SCL.LI"            = item79.os.cast$`SE_SCL LI`
-                             ,"n_SCL.LI"             = item79.os.cast$`n_SCL LI`
-                             ,"Mean_SCL.EH"          = item79.os.cast$`Mean_SCL EH`
-                             ,"SE_SCL.EH"            = item79.os.cast$`SE_SCL EH`
-                             ,"n_SCL.EH"             = item79.os.cast$`n_SCL EH`
-                             ,"Mean_2017.RBSA.PS"    = item79.os.cast$`Mean_2017 RBSA PS`
-                             ,"SE_2017.RBSA.PS"      = item79.os.cast$`SE_2017 RBSA PS`
-                             ,"n_2017.RBSA.PS"       = item79.os.cast$`n_2017 RBSA PS`
-                             ,"EB_SCL.GenPop"        = item79.os.cast$`EB_SCL GenPop`
-                             ,"EB_SCL.LI"            = item79.os.cast$`EB_SCL LI`
-                             ,"EB_SCL.EH"            = item79.os.cast$`EB_SCL EH`
-                             ,"EB_2017.RBSA.PS"      = item79.os.cast$`EB_2017 RBSA PS`)
+names(item79.os.cast)
+if(os.ind == "scl"){
+  item79.os.final <- data.frame("BuildingType"          = item79.os.cast$BuildingType
+                                ,"Clean.Room"            = item79.os.cast$Clean.Room
+                                ,"Mean_SCL.GenPop"      = item79.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item79.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item79.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item79.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item79.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item79.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item79.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item79.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item79.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item79.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item79.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item79.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item79.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item79.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item79.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item79.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item79.os.final <- data.frame("BuildingType"          = item79.os.cast$BuildingType
+                                ,"Clean.Room"            = item79.os.cast$Clean.Room
+                                ,"Mean_SnoPUD"          = item79.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item79.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item79.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item79.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item79.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item79.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item79.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item79.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item79.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"            = item79.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"      = item79.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"           = item79.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 
 unique(item79.os.final$Clean.Room)
@@ -1224,20 +1291,36 @@ item79.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item79.os.data
                                   ,columnAggregate = 'Remove'
                                   ,rowAggregate = 'All Room Types')
 
-item79.os.final <- data.frame("BuildingType"          = item79.os.cast$BuildingType
-                              ,"Clean.Room"            = item79.os.cast$Clean.Room
-                              ,"Mean_SCL.GenPop"      = item79.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item79.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item79.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item79.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item79.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item79.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item79.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item79.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item79.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item79.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item79.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item79.os.cast$`n_2017 RBSA PS`)
+names(item79.os.cast)
+if(os.ind == "scl"){
+  item79.os.final <- data.frame("BuildingType"          = item79.os.cast$BuildingType
+                                ,"Clean.Room"            = item79.os.cast$Clean.Room
+                                ,"Mean_SCL.GenPop"      = item79.os.cast$`Mean_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item79.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item79.os.cast$`n_SCL GenPop`
+                                ,"Mean_SCL.LI"          = item79.os.cast$`Mean_SCL LI`
+                                ,"SE_SCL.LI"            = item79.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item79.os.cast$`n_SCL LI`
+                                ,"Mean_SCL.EH"          = item79.os.cast$`Mean_SCL EH`
+                                ,"SE_SCL.EH"            = item79.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item79.os.cast$`n_SCL EH`
+                                ,"Mean_2017.RBSA.PS"    = item79.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item79.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item79.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item79.os.final <- data.frame("BuildingType"          = item79.os.cast$BuildingType
+                                ,"Clean.Room"            = item79.os.cast$Clean.Room
+                                ,"Mean_SnoPUD"          = item79.os.cast$`Mean_SnoPUD`
+                                ,"SE_SnoPUD"            = item79.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"             = item79.os.cast$`n_SnoPUD`
+                                ,"Mean_2017.RBSA.PS"    = item79.os.cast$`Mean_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item79.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item79.os.cast$`n_2017 RBSA PS`
+                                ,"Mean_RBSA.NW"         = item79.os.cast$`Mean_2017 RBSA NW`
+                                ,"SE_RBSA.NW"           = item79.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"            = item79.os.cast$`n_2017 RBSA NW`)
+}
+
 
 unique(item79.os.final$Clean.Room)
 rowOrder <- c("Bathroom"
@@ -1348,25 +1431,44 @@ tableAG.os.cast <- dcast(setDT(tableAG.os.summary)
                       ,formula = BuildingType + Lamp.Category ~ CK_Building_ID
                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
-tableAG.os.final <- data.frame("BuildingType"   = tableAG.os.cast$BuildingType
-                            ,"Lamp.Category" = tableAG.os.cast$Lamp.Category
-                            ,"Percent_SCL.GenPop"   = tableAG.os.cast$`w.percent_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = tableAG.os.cast$`w.SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = tableAG.os.cast$`n_SCL GenPop`
-                            ,"Percent_SCL.LI"       = tableAG.os.cast$`w.percent_SCL LI`
-                            ,"SE_SCL.LI"            = tableAG.os.cast$`w.SE_SCL LI`
-                            ,"n_SCL.LI"             = tableAG.os.cast$`n_SCL LI`
-                            ,"Percent_SCL.EH"       = tableAG.os.cast$`w.percent_SCL EH`
-                            ,"SE_SCL.EH"            = tableAG.os.cast$`w.SE_SCL EH`
-                            ,"n_SCL.EH"             = tableAG.os.cast$`n_SCL EH`
-                            ,"Percent_2017.RBSA.PS" = tableAG.os.cast$`w.percent_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = tableAG.os.cast$`w.SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = tableAG.os.cast$`n_2017 RBSA PS`
-                            ,"EB_SCL.GenPop"        = tableAG.os.cast$`EB_SCL GenPop`
-                            ,"EB_SCL.LI"            = tableAG.os.cast$`EB_SCL LI`
-                            ,"EB_SCL.EH"            = tableAG.os.cast$`EB_SCL EH`
-                            ,"EB_2017.RBSA.PS"      = tableAG.os.cast$`EB_2017 RBSA PS`
-)
+names(tableAG.os.cast)
+if(os.ind == "scl"){
+  tableAG.os.final <- data.frame("BuildingType"   = tableAG.os.cast$BuildingType
+                                 ,"Lamp.Category" = tableAG.os.cast$Lamp.Category
+                                 ,"Percent_SCL.GenPop"   = tableAG.os.cast$`w.percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = tableAG.os.cast$`w.SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = tableAG.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = tableAG.os.cast$`w.percent_SCL LI`
+                                 ,"SE_SCL.LI"            = tableAG.os.cast$`w.SE_SCL LI`
+                                 ,"n_SCL.LI"             = tableAG.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = tableAG.os.cast$`w.percent_SCL EH`
+                                 ,"SE_SCL.EH"            = tableAG.os.cast$`w.SE_SCL EH`
+                                 ,"n_SCL.EH"             = tableAG.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = tableAG.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAG.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAG.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = tableAG.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = tableAG.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = tableAG.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = tableAG.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  tableAG.os.final <- data.frame("BuildingType"   = tableAG.os.cast$BuildingType
+                                 ,"Lamp.Category" = tableAG.os.cast$Lamp.Category
+                                 ,"Percent_SnoPUD"          = tableAG.os.cast$`w.percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = tableAG.os.cast$`w.SE_SnoPUD`
+                                 ,"n_SnoPUD"                = tableAG.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = tableAG.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = tableAG.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = tableAG.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = tableAG.os.cast$`w.percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = tableAG.os.cast$`w.SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = tableAG.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"               = tableAG.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"         = tableAG.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"              = tableAG.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 unique(tableAG.os.final$Lamp.Category)
 rowOrder <- c("Compact Fluorescent"
@@ -1400,21 +1502,37 @@ tableAG.os.cast <- dcast(setDT(tableAG.os.summary)
                       ,formula = BuildingType + Lamp.Category ~ CK_Building_ID
                       ,value.var = c("Percent","SE","Count","n"))
 
-tableAG.os.table <- data.frame("BuildingType"    = tableAG.os.cast$BuildingType
-                            ,"Lamp.Category"  = tableAG.os.cast$Lamp.Category
-                            ,"Percent_SCL.GenPop"   = tableAG.os.cast$`Percent_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = tableAG.os.cast$`SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = tableAG.os.cast$`n_SCL GenPop`
-                            ,"Percent_SCL.LI"       = tableAG.os.cast$`Percent_SCL LI`
-                            ,"SE_SCL.LI"            = tableAG.os.cast$`SE_SCL LI`
-                            ,"n_SCL.LI"             = tableAG.os.cast$`n_SCL LI`
-                            ,"Percent_SCL.EH"       = tableAG.os.cast$`Percent_SCL EH`
-                            ,"SE_SCL.EH"            = tableAG.os.cast$`SE_SCL EH`
-                            ,"n_SCL.EH"             = tableAG.os.cast$`n_SCL EH`
-                            ,"Percent_2017.RBSA.PS" = tableAG.os.cast$`Percent_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = tableAG.os.cast$`SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = tableAG.os.cast$`n_2017 RBSA PS`
-)
+
+names(tableAG.os.cast)
+if(os.ind == "scl"){
+  tableAG.os.table <- data.frame("BuildingType"    = tableAG.os.cast$BuildingType
+                                 ,"Lamp.Category"  = tableAG.os.cast$Lamp.Category
+                                 ,"Percent_SCL.GenPop"   = tableAG.os.cast$`Percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = tableAG.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = tableAG.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = tableAG.os.cast$`Percent_SCL LI`
+                                 ,"SE_SCL.LI"            = tableAG.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = tableAG.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = tableAG.os.cast$`Percent_SCL EH`
+                                 ,"SE_SCL.EH"            = tableAG.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = tableAG.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = tableAG.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAG.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAG.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  tableAG.os.table <- data.frame("BuildingType"    = tableAG.os.cast$BuildingType
+                                 ,"Lamp.Category"  = tableAG.os.cast$Lamp.Category
+                                 ,"Percent_SnoPUD"          = tableAG.os.cast$`Percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = tableAG.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"                = tableAG.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = tableAG.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = tableAG.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = tableAG.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = tableAG.os.cast$`Percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = tableAG.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = tableAG.os.cast$`n_2017 RBSA NW`)
+}
+
 
 unique(tableAG.os.final$Lamp.Category)
 rowOrder <- c("Compact Fluorescent"
@@ -1491,6 +1609,20 @@ tableAH.os.final <- mean_one_group(CustomerLevelData = tableAH.os.data
                                 ,aggregateRow     = 'Remove')
 tableAH.os.final <- tableAH.os.final[which(tableAH.os.final$CK_Building_ID != "Remove"),]
 
+levels(tableAH.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+tableAH.os.final <- tableAH.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+tableAH.os.final <- data.frame(tableAH.os.final)
+
 tableAH.os.final.SF <- tableAH.os.final[which(tableAH.os.final$BuildingType == "Single Family"),-1]
 
 exportTable(tableAH.os.final.SF, "SF", "Table AH", weighted = TRUE, osIndicator = export.ind, OS = T)
@@ -1503,6 +1635,22 @@ tableAH.os.final <- mean_one_group_unweighted(CustomerLevelData = tableAH.os.dat
                                            ,byVariable       = 'CK_Building_ID'
                                            ,aggregateRow     = 'Remove')
 tableAH.os.final <- tableAH.os.final[which(tableAH.os.final$CK_Building_ID != "Remove"),]
+
+names(tableAH.os.cast)
+levels(tableAH.os.final$CK_Building_ID)
+if(os.ind == "scl"){
+  rowOrder <- c("SCL GenPop"
+                ,"SCL LI"
+                ,"SCL EH"
+                ,"2017 RBSA PS")
+}else if(os.ind == "snopud"){
+  rowOrder <- c("SnoPUD"
+                ,"2017 RBSA PS"
+                ,"2017 RBSA NW")
+}
+tableAH.os.final <- tableAH.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+tableAH.os.final <- data.frame(tableAH.os.final)
+
 
 tableAH.os.final.SF <- tableAH.os.final[which(tableAH.os.final$BuildingType == "Single Family"),-1]
 
