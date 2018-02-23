@@ -41,10 +41,12 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 #############################################################################################
 #Item 293: AVERAGE NUMBER OF APPLIANCES PER HOME BY TYPE (MF table 86)
 #############################################################################################
-item293.mech <- mechanical.dat[grep("Water Heat", mechanical.dat$Generic),]
+item293.mech <- mechanical.dat[grep("Water Heat", mechanical.dat$Generic),which(names(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                                                             ,"Generic"))]
 item293.mech$Water.Heater <- 1
 item293.mech1 <- left_join(rbsa.dat, item293.mech, by = "CK_Cadmus_ID")
 item293.mech2 <- unique(item293.mech1[grep("Multifamily", item293.mech1$BuildingType),])
+item293.mech2 <- unique(item293.mech1[grep("SITE", item293.mech1$CK_Building_ID),])
 which(duplicated(item293.mech2$CK_Cadmus_ID))
 
 item293.mech2$Water.Heater[which(is.na(item293.mech2$Water.Heater))] <- 0
@@ -71,7 +73,7 @@ item293.dat1 <- left_join(rbsa.dat, item293.dat0)
 item293.dat2 <- item293.dat1[grep("Multifamily", item293.dat1$BuildingType),]
 
 item293.dat2$Large.Unusual.Load.Quantity[which(is.na(item293.dat2$Large.Unusual.Load.Quantity))] <- 1
-item293.dat2$Large.Unusual.Load.Quantity[which(item293.dat2$Large.Unusual.Load.Quantity == "-- Datapoint not asked for --")] <- 1
+item293.dat2$Large.Unusual.Load.Quantity[which(item293.dat2$Large.Unusual.Load.Quantity %in% c("Datapoint not asked for", "N/A"))] <- 1
 unique(item293.dat2$Large.Unusual.Load.Quantity)
 
 item293.dat2$Large.Unusual.Load.Quantity <- as.numeric(as.character(item293.dat2$Large.Unusual.Load.Quantity))
@@ -92,7 +94,6 @@ item293.cast <- dcast(setDT(item293.sum)
                       ,value.var = "SiteCount")
 item293.cast <- data.frame(item293.cast, stringsAsFactors = F)
 item293.cast[is.na(item293.cast)] <- 0
-View(item293.cast)
 
 item293.join <- left_join(item293.cast, item293.site)
 
