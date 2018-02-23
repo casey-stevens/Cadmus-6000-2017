@@ -700,11 +700,12 @@ exportTable(item88.final.MH, "MH", "Table 76", weighted = FALSE)
 ############################################################################################################
 
 # Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
 
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
+names(os.dat)
 
 #############################################################################################
 #Item 86: DISTRIBUTION OF CLOTHES WASHERS BY VINTAGE (SF table 93, MH table 74)
@@ -717,7 +718,7 @@ item86.os.dat$count <- 1
 
 item86.os.dat0 <- item86.os.dat[which(item86.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item86.os.dat1 <- left_join(item86.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item86.os.dat1 <- left_join(item86.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item86.os.dat2 <- item86.os.dat1[which(item86.os.dat1$Type == "Washer"),]
 
@@ -736,7 +737,7 @@ item86.os.dat3$EquipVintage_bins[which(item86.os.dat3$Age >= 2015)] <- "Post 201
 #check uniques
 unique(item86.os.dat3$EquipVintage_bins)
 
-item86.os.merge <- left_join(scl.dat, item86.os.dat3)
+item86.os.merge <- left_join(os.dat, item86.os.dat3)
 item86.os.merge <- item86.os.merge[which(!is.na(item86.os.merge$EquipVintage_bins)),]
 
 ################################################
@@ -767,24 +768,44 @@ item86.os.cast <- dcast(setDT(item86.os.final)
                         ,formula = BuildingType + EquipVintage_bins ~ CK_Building_ID
                         ,value.var = c("w.percent", "w.SE","n", "EB"))
 
-item86.os.final <- data.frame("BuildingType"          = item86.os.cast$BuildingType
-                              ,"EquipVintage_bins"    = item86.os.cast$EquipVintage_bins
-                              ,"Percent_SCL.GenPop"   = item86.os.cast$`w.percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item86.os.cast$`w.SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item86.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item86.os.cast$`w.percent_SCL LI`
-                              ,"SE_SCL.LI"            = item86.os.cast$`w.SE_SCL LI`
-                              ,"n_SCL.LI"             = item86.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item86.os.cast$`w.percent_SCL EH`
-                              ,"SE_SCL.EH"            = item86.os.cast$`w.SE_SCL EH`
-                              ,"n_SCL.EH"             = item86.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item86.os.cast$`w.percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item86.os.cast$`w.SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item86.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item86.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item86.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item86.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item86.os.cast$`EB_2017 RBSA PS`)
+names(item86.os.cast)
+if(os.ind == "scl"){
+  item86.os.final <- data.frame("BuildingType"          = item86.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item86.os.cast$EquipVintage_bins
+                                ,"Percent_SCL.GenPop"   = item86.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item86.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item86.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item86.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item86.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item86.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item86.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item86.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item86.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item86.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item86.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item86.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item86.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item86.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item86.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item86.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item86.os.final <- data.frame("BuildingType"          = item86.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item86.os.cast$EquipVintage_bins
+                                ,"Percent_SnoPUD"          = item86.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item86.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item86.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item86.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item86.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item86.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item86.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item86.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item86.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item86.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item86.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item86.os.cast$`EB_2017 RBSA NW`)
+
+
+}
 
 unique(item86.os.final$EquipVintage_bins)
 rowOrder <- c("Pre 1980"
@@ -803,7 +824,7 @@ item86.os.table <- data.frame(item86.os.table)
 item86.os.final.SF <- item86.os.table[which(item86.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item86.os.table) %in% c("BuildingType"))]
 
-exportTable(item86.os.final.SF, "SF", "Table 93", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item86.os.final.SF, "SF", "Table 93", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -819,20 +840,38 @@ item86.os.cast <- dcast(setDT(item86.os.final)
                         ,formula = BuildingType + EquipVintage_bins ~ CK_Building_ID
                         ,value.var = c("Percent", "SE","n"))
 
-item86.os.final <- data.frame("BuildingType"          = item86.os.cast$BuildingType
-                              ,"EquipVintage_bins"    = item86.os.cast$EquipVintage_bins
-                              ,"Percent_SCL.GenPop"   = item86.os.cast$`Percent_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item86.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item86.os.cast$`n_SCL GenPop`
-                              ,"Percent_SCL.LI"       = item86.os.cast$`Percent_SCL LI`
-                              ,"SE_SCL.LI"            = item86.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item86.os.cast$`n_SCL LI`
-                              ,"Percent_SCL.EH"       = item86.os.cast$`Percent_SCL EH`
-                              ,"SE_SCL.EH"            = item86.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item86.os.cast$`n_SCL EH`
-                              ,"Percent_2017.RBSA.PS" = item86.os.cast$`Percent_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item86.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item86.os.cast$`n_2017 RBSA PS`)
+names(item86.os.cast)
+if(os.ind == "scl"){
+  item86.os.final <- data.frame("BuildingType"          = item86.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item86.os.cast$EquipVintage_bins
+                                ,"Percent_SCL.GenPop"   = item86.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item86.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item86.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item86.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item86.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item86.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item86.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item86.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item86.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item86.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item86.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item86.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item86.os.final <- data.frame("BuildingType"          = item86.os.cast$BuildingType
+                                ,"EquipVintage_bins"    = item86.os.cast$EquipVintage_bins
+                                ,"Percent_SnoPUD"          = item86.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item86.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item86.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item86.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item86.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item86.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item86.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item86.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item86.os.cast$`n_2017 RBSA NW`)
+}
+
+
+
 
 unique(item86.os.final$EquipVintage_bins)
 rowOrder <- c("Pre 1980"
@@ -850,7 +889,7 @@ item86.os.table <- data.frame(item86.os.table)
 item86.os.final.SF <- item86.os.table[which(item86.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item86.os.table) %in% c("BuildingType"))]
 
-exportTable(item86.os.final.SF, "SF", "Table 93", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item86.os.final.SF, "SF", "Table 93", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -868,12 +907,12 @@ item87.os.dat$count <- 1
 
 item87.os.dat0 <- item87.os.dat[which(item87.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item87.os.dat1 <- left_join(item87.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item87.os.dat1 <- left_join(item87.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 
 item87.os.dat2 <- item87.os.dat1[which(item87.os.dat1$Type == "Washer"),]
 
-item87.os.merge <- left_join(scl.dat, item87.os.dat2)
+item87.os.merge <- left_join(os.dat, item87.os.dat2)
 item87.os.merge <- item87.os.merge[which(!is.na(item87.os.merge$Type)),]
 item87.os.merge <- item87.os.merge[which(item87.os.merge$Type != "Unknown"),]
 
@@ -904,25 +943,45 @@ item87.os.cast <- dcast(setDT(item87.os.final)
                      , formula = BuildingType + Washer.Type ~ CK_Building_ID
                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-item87.os.table <- data.frame("BuildingType"       = item87.os.cast$BuildingType
-                           ,"Washer.Type"          = item87.os.cast$Washer.Type
-                           ,"Percent_SCL.GenPop"   = item87.os.cast$`w.percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item87.os.cast$`w.SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item87.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item87.os.cast$`w.percent_SCL LI`
-                           ,"SE_SCL.LI"            = item87.os.cast$`w.SE_SCL LI`
-                           ,"n_SCL.LI"             = item87.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item87.os.cast$`w.percent_SCL EH`
-                           ,"SE_SCL.EH"            = item87.os.cast$`w.SE_SCL EH`
-                           ,"n_SCL.EH"             = item87.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item87.os.cast$`w.percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item87.os.cast$`w.SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item87.os.cast$`n_2017 RBSA PS`
-                           ,"EB_SCL.GenPop"        = item87.os.cast$`EB_SCL GenPop`
-                           ,"EB_SCL.LI"            = item87.os.cast$`EB_SCL LI`
-                           ,"EB_SCL.EH"            = item87.os.cast$`EB_SCL EH`
-                           ,"EB_2017.RBSA.PS"      = item87.os.cast$`EB_2017 RBSA PS`
-)
+
+names(item87.os.cast)
+if(os.ind == "scl"){
+  item87.os.table <- data.frame("BuildingType"       = item87.os.cast$BuildingType
+                                ,"Washer.Type"          = item87.os.cast$Washer.Type
+                                ,"Percent_SCL.GenPop"   = item87.os.cast$`w.percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item87.os.cast$`w.SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item87.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item87.os.cast$`w.percent_SCL LI`
+                                ,"SE_SCL.LI"            = item87.os.cast$`w.SE_SCL LI`
+                                ,"n_SCL.LI"             = item87.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item87.os.cast$`w.percent_SCL EH`
+                                ,"SE_SCL.EH"            = item87.os.cast$`w.SE_SCL EH`
+                                ,"n_SCL.EH"             = item87.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item87.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item87.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item87.os.cast$`n_2017 RBSA PS`
+                                ,"EB_SCL.GenPop"        = item87.os.cast$`EB_SCL GenPop`
+                                ,"EB_SCL.LI"            = item87.os.cast$`EB_SCL LI`
+                                ,"EB_SCL.EH"            = item87.os.cast$`EB_SCL EH`
+                                ,"EB_2017.RBSA.PS"      = item87.os.cast$`EB_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item87.os.table <- data.frame("BuildingType"       = item87.os.cast$BuildingType
+                                ,"Washer.Type"          = item87.os.cast$Washer.Type
+                                ,"Percent_SnoPUD"          = item87.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item87.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item87.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item87.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item87.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item87.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item87.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item87.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item87.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item87.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item87.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item87.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 unique(item87.os.table$Washer.Type)
 rowOrder <- c("Combined Washer/Dryer in one drum"
@@ -938,7 +997,7 @@ item87.os.table <- data.frame(item87.os.table)
 item87.os.final.SF <- item87.os.table[which(item87.os.table$BuildingType == "Single Family")
                                 ,which(colnames(item87.os.table) %notin% c("BuildingType"))]
 
-exportTable(item87.os.final.SF, "SF", "Table 94", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item87.os.final.SF, "SF", "Table 94", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -954,21 +1013,38 @@ item87.os.cast <- dcast(setDT(item87.os.final)
                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
-item87.os.table <- data.frame("BuildingType"    = item87.os.cast$BuildingType
-                           ,"Washer.Type"    = item87.os.cast$Washer.Type
-                           ,"Percent_SCL.GenPop"   = item87.os.cast$`Percent_SCL GenPop`
-                           ,"SE_SCL.GenPop"        = item87.os.cast$`SE_SCL GenPop`
-                           ,"n_SCL.GenPop"         = item87.os.cast$`n_SCL GenPop`
-                           ,"Percent_SCL.LI"       = item87.os.cast$`Percent_SCL LI`
-                           ,"SE_SCL.LI"            = item87.os.cast$`SE_SCL LI`
-                           ,"n_SCL.LI"             = item87.os.cast$`n_SCL LI`
-                           ,"Percent_SCL.EH"       = item87.os.cast$`Percent_SCL EH`
-                           ,"SE_SCL.EH"            = item87.os.cast$`SE_SCL EH`
-                           ,"n_SCL.EH"             = item87.os.cast$`n_SCL EH`
-                           ,"Percent_2017.RBSA.PS" = item87.os.cast$`Percent_2017 RBSA PS`
-                           ,"SE_2017.RBSA.PS"      = item87.os.cast$`SE_2017 RBSA PS`
-                           ,"n_2017.RBSA.PS"       = item87.os.cast$`n_2017 RBSA PS`
-)
+names(item87.os.cast)
+if(os.ind == "scl"){
+  item87.os.table <- data.frame("BuildingType"    = item87.os.cast$BuildingType
+                                ,"Washer.Type"    = item87.os.cast$Washer.Type
+                                ,"Percent_SCL.GenPop"   = item87.os.cast$`Percent_SCL GenPop`
+                                ,"SE_SCL.GenPop"        = item87.os.cast$`SE_SCL GenPop`
+                                ,"n_SCL.GenPop"         = item87.os.cast$`n_SCL GenPop`
+                                ,"Percent_SCL.LI"       = item87.os.cast$`Percent_SCL LI`
+                                ,"SE_SCL.LI"            = item87.os.cast$`SE_SCL LI`
+                                ,"n_SCL.LI"             = item87.os.cast$`n_SCL LI`
+                                ,"Percent_SCL.EH"       = item87.os.cast$`Percent_SCL EH`
+                                ,"SE_SCL.EH"            = item87.os.cast$`SE_SCL EH`
+                                ,"n_SCL.EH"             = item87.os.cast$`n_SCL EH`
+                                ,"Percent_2017.RBSA.PS" = item87.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"      = item87.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"       = item87.os.cast$`n_2017 RBSA PS`)
+}else if(os.ind == "snopud"){
+  item87.os.table <- data.frame("BuildingType"    = item87.os.cast$BuildingType
+                                ,"Washer.Type"    = item87.os.cast$Washer.Type
+                                ,"Percent_SnoPUD"          = item87.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item87.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item87.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item87.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item87.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item87.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item87.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item87.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item87.os.cast$`n_2017 RBSA NW`)
+}
+
+
+
 unique(item87.os.table$Washer.Type)
 rowOrder <- c("Combined Washer/Dryer in one drum"
               ,"Horizontal Axis"
@@ -983,7 +1059,7 @@ item87.os.table <- data.frame(item87.os.table)
 item87.os.final.SF <- item87.os.table[which(item87.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item87.os.table) %in% c("BuildingType"))]
 
-exportTable(item87.os.final.SF, "SF", "Table 94", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item87.os.final.SF, "SF", "Table 94", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1000,7 +1076,7 @@ item88.os.dat$count <- 1
 
 item88.os.dat0 <- item88.os.dat[which(item88.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item88.os.dat1 <- left_join(item88.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item88.os.dat1 <- left_join(item88.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item88.os.dat2 <- item88.os.dat1[which(item88.os.dat1$Type == "Washer"),]
 
@@ -1018,7 +1094,7 @@ item88.os.dat3$EquipVintage_bins_SF[which(item88.os.dat3$Age >= 2015)] <- "Post 
 #check uniques
 unique(item88.os.dat3$EquipVintage_bins_SF)
 
-item88.os.merge <- left_join(scl.dat, item88.os.dat3)
+item88.os.merge <- left_join(os.dat, item88.os.dat3)
 item88.os.merge <- item88.os.merge[which(!is.na(item88.os.merge$EquipVintage_bins_SF)),]
 item88.os.merge <- item88.os.merge[which(item88.os.merge$CK_Building_ID == "SCL GenPop"),]
 
@@ -1064,31 +1140,50 @@ item88.os.cast <- dcast(setDT(item88.os.final)
                      , formula = BuildingType + Washer.Type ~ EquipVintage_bins_SF
                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
-                           ,"Washer.Type"           = item88.os.cast$Washer.Type
-                           ,"Percent_Pre.1990"      = item88.os.cast$`w.percent_Pre 1990`
-                           ,"SE_Pre.1990"           = item88.os.cast$`w.SE_Pre 1990`
-                           ,"Percent_1990.1994"     = item88.os.cast$`w.percent_1990-1994`
-                           ,"SE_1990.1994"          = item88.os.cast$`w.SE_1990-1994`
-                           ,"Percent_1995.1999"     = item88.os.cast$`w.percent_1995-1999`
-                           ,"SE_1995.1999"          = item88.os.cast$`w.SE_1995-1999`
-                           ,"Percent_2000.2004"     = item88.os.cast$`w.percent_2000-2004`
-                           ,"SE_2000.2004"          = item88.os.cast$`w.SE_2000-2004`
-                           ,"Percent_2005.2009"     = item88.os.cast$`w.percent_2005-2009`
-                           ,"SE_2005.2009"          = item88.os.cast$`w.SE_2005-2009`
-                           ,"Percent_2010.2014"     = item88.os.cast$`w.percent_2010-2014`
-                           ,"SE_2010.2014"          = item88.os.cast$`w.SE_2010-2014`
-                           ,"Percent_Post.2014"     = item88.os.cast$`w.percent_Post 2014`
-                           ,"SE_Post.2014"          = item88.os.cast$`w.SE_Post 2014`
-                           ,"n"                     = item88.os.cast$`n_All Clothes Washer Types`
-                           ,"EB_Pre.1990"           = item88.os.cast$`EB_Pre 1990`
-                           ,"EB_1990.1994"          = item88.os.cast$`EB_1990-1994`
-                           ,"EB_1995.1999"          = item88.os.cast$`EB_1995-1999`
-                           ,"EB_2000.2004"          = item88.os.cast$`EB_2000-2004`
-                           ,"EB_2005.2009"          = item88.os.cast$`EB_2005-2009`
-                           ,"EB_2010.2014"          = item88.os.cast$`EB_2010-2014`
-                           ,"EB_Post.2014"          = item88.os.cast$`EB_Post 2014`
-)
+names(item88.os.cast)
+if(os.ind == "scl"){
+  item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
+                                ,"Washer.Type"           = item88.os.cast$Washer.Type
+                                ,"Percent_Pre.1990"      = item88.os.cast$`w.percent_Pre 1990`
+                                ,"SE_Pre.1990"           = item88.os.cast$`w.SE_Pre 1990`
+                                ,"Percent_1990.1994"     = item88.os.cast$`w.percent_1990-1994`
+                                ,"SE_1990.1994"          = item88.os.cast$`w.SE_1990-1994`
+                                ,"Percent_1995.1999"     = item88.os.cast$`w.percent_1995-1999`
+                                ,"SE_1995.1999"          = item88.os.cast$`w.SE_1995-1999`
+                                ,"Percent_2000.2004"     = item88.os.cast$`w.percent_2000-2004`
+                                ,"SE_2000.2004"          = item88.os.cast$`w.SE_2000-2004`
+                                ,"Percent_2005.2009"     = item88.os.cast$`w.percent_2005-2009`
+                                ,"SE_2005.2009"          = item88.os.cast$`w.SE_2005-2009`
+                                ,"Percent_2010.2014"     = item88.os.cast$`w.percent_2010-2014`
+                                ,"SE_2010.2014"          = item88.os.cast$`w.SE_2010-2014`
+                                ,"Percent_Post.2014"     = item88.os.cast$`w.percent_Post 2014`
+                                ,"SE_Post.2014"          = item88.os.cast$`w.SE_Post 2014`
+                                ,"n"                     = item88.os.cast$`n_All Clothes Washer Types`
+                                ,"EB_Pre.1990"           = item88.os.cast$`EB_Pre 1990`
+                                ,"EB_1990.1994"          = item88.os.cast$`EB_1990-1994`
+                                ,"EB_1995.1999"          = item88.os.cast$`EB_1995-1999`
+                                ,"EB_2000.2004"          = item88.os.cast$`EB_2000-2004`
+                                ,"EB_2005.2009"          = item88.os.cast$`EB_2005-2009`
+                                ,"EB_2010.2014"          = item88.os.cast$`EB_2010-2014`
+                                ,"EB_Post.2014"          = item88.os.cast$`EB_Post 2014`)
+}else if(os.ind == "snopud"){
+  item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
+                                ,"Washer.Type"           = item88.os.cast$Washer.Type
+                                ,"Percent_SnoPUD"          = item88.os.cast$`w.percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item88.os.cast$`w.SE_SnoPUD`
+                                ,"n_SnoPUD"                = item88.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item88.os.cast$`w.percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item88.os.cast$`w.SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item88.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item88.os.cast$`w.percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item88.os.cast$`w.SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item88.os.cast$`n_2017 RBSA NW`
+                                ,"EB_SnoPUD"               = item88.os.cast$`EB_SnoPUD`
+                                ,"EB_2017.RBSA.PS"         = item88.os.cast$`EB_2017 RBSA PS`
+                                ,"EB_RBSA.NW"              = item88.os.cast$`EB_2017 RBSA NW`)
+}
+
+
 
 unique(item88.os.table$Washer.Type)
 rowOrder <- c("Combined Washer/Dryer in one drum"
@@ -1105,7 +1200,7 @@ item88.os.table <- data.frame(item88.os.table)
 item88.os.final.SF <- item88.os.table[which(item88.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item88.os.table) %in% c("BuildingType"))]
 
-exportTable(item88.os.final.SF, "SF", "Table 95", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item88.os.final.SF, "SF", "Table 95", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -1134,30 +1229,46 @@ item88.os.cast <- dcast(setDT(item88.os.final)
                      , formula = BuildingType + Washer.Type ~ EquipVintage_bins_SF
                      , value.var = c("Percent", "SE", "Count", "n"))
 
-item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
-                           ,"Washer.Type"           = item88.os.cast$Washer.Type
-                           ,"Percent_Pre.1990"      = item88.os.cast$`Percent_Pre 1990`
-                           ,"SE_Pre.1990"           = item88.os.cast$`SE_Pre 1990`
-                           ,"n_Pre.1990"            = item88.os.cast$`n_Pre 1990`
-                           ,"Percent_1990.1994"     = item88.os.cast$`Percent_1990-1994`
-                           ,"SE_1990.1994"          = item88.os.cast$`SE_1990-1994`
-                           ,"n_1990.1994"           = item88.os.cast$`n_1990-1994`
-                           ,"Percent_1995.1999"     = item88.os.cast$`Percent_1995-1999`
-                           ,"SE_1995.1999"          = item88.os.cast$`SE_1995-1999`
-                           ,"n_1995.1999"           = item88.os.cast$`n_1995-1999`
-                           ,"Percent_2000.2004"     = item88.os.cast$`Percent_2000-2004`
-                           ,"SE_2000.2004"          = item88.os.cast$`SE_2000-2004`
-                           ,"n_2000.2004"           = item88.os.cast$`n_2000-2004`
-                           ,"Percent_2005.2009"     = item88.os.cast$`Percent_2005-2009`
-                           ,"SE_2005.2009"          = item88.os.cast$`SE_2005-2009`
-                           ,"n_2005.2009"           = item88.os.cast$`n_2005-2009`
-                           ,"Percent_2010.2014"     = item88.os.cast$`Percent_2010-2014`
-                           ,"SE_2010.2014"          = item88.os.cast$`SE_2010-2014`
-                           ,"n_2010.2014"           = item88.os.cast$`n_2010-2014`
-                           ,"Percent_Post.2014"     = item88.os.cast$`Percent_Post 2014`
-                           ,"SE_Post.2014"          = item88.os.cast$`SE_Post 2014`
-                           ,"n_Post.2014"           = item88.os.cast$`n_Post 2014`
-)
+
+if(os.ind == "scl"){
+  item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
+                                ,"Washer.Type"           = item88.os.cast$Washer.Type
+                                ,"Percent_Pre.1990"      = item88.os.cast$`Percent_Pre 1990`
+                                ,"SE_Pre.1990"           = item88.os.cast$`SE_Pre 1990`
+                                ,"n_Pre.1990"            = item88.os.cast$`n_Pre 1990`
+                                ,"Percent_1990.1994"     = item88.os.cast$`Percent_1990-1994`
+                                ,"SE_1990.1994"          = item88.os.cast$`SE_1990-1994`
+                                ,"n_1990.1994"           = item88.os.cast$`n_1990-1994`
+                                ,"Percent_1995.1999"     = item88.os.cast$`Percent_1995-1999`
+                                ,"SE_1995.1999"          = item88.os.cast$`SE_1995-1999`
+                                ,"n_1995.1999"           = item88.os.cast$`n_1995-1999`
+                                ,"Percent_2000.2004"     = item88.os.cast$`Percent_2000-2004`
+                                ,"SE_2000.2004"          = item88.os.cast$`SE_2000-2004`
+                                ,"n_2000.2004"           = item88.os.cast$`n_2000-2004`
+                                ,"Percent_2005.2009"     = item88.os.cast$`Percent_2005-2009`
+                                ,"SE_2005.2009"          = item88.os.cast$`SE_2005-2009`
+                                ,"n_2005.2009"           = item88.os.cast$`n_2005-2009`
+                                ,"Percent_2010.2014"     = item88.os.cast$`Percent_2010-2014`
+                                ,"SE_2010.2014"          = item88.os.cast$`SE_2010-2014`
+                                ,"n_2010.2014"           = item88.os.cast$`n_2010-2014`
+                                ,"Percent_Post.2014"     = item88.os.cast$`Percent_Post 2014`
+                                ,"SE_Post.2014"          = item88.os.cast$`SE_Post 2014`
+                                ,"n_Post.2014"           = item88.os.cast$`n_Post 2014`)
+}else if(os.ind == "snopud"){
+  item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
+                                ,"Washer.Type"           = item88.os.cast$Washer.Type
+                                ,"Percent_SnoPUD"          = item88.os.cast$`Percent_SnoPUD`
+                                ,"SE_SnoPUD"               = item88.os.cast$`SE_SnoPUD`
+                                ,"n_SnoPUD"                = item88.os.cast$`n_SnoPUD`
+                                ,"Percent_2017.RBSA.PS"    = item88.os.cast$`Percent_2017 RBSA PS`
+                                ,"SE_2017.RBSA.PS"         = item88.os.cast$`SE_2017 RBSA PS`
+                                ,"n_2017.RBSA.PS"          = item88.os.cast$`n_2017 RBSA PS`
+                                ,"Percent_RBSA.NW"         = item88.os.cast$`Percent_2017 RBSA NW`
+                                ,"SE_RBSA.NW"              = item88.os.cast$`SE_2017 RBSA NW`
+                                ,"n_RBSA.NW"               = item88.os.cast$`n_2017 RBSA NW`)
+}
+
+
 
 unique(item88.os.table$Washer.Type)
 rowOrder <- c("Combined Washer/Dryer in one drum"
@@ -1174,4 +1285,4 @@ item88.os.table <- data.frame(item88.os.table)
 item88.os.final.SF <- item88.os.table[which(item88.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item88.os.table) %in% c("BuildingType"))]
 
-exportTable(item88.os.final.SF, "SF", "Table 95", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item88.os.final.SF, "SF", "Table 95", weighted = FALSE, osIndicator = export.ind, OS = T)
