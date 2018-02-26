@@ -96,10 +96,23 @@ item224.summary <- proportionRowsAndColumns1(CustomerLevelData = item224.data
                                              ,columnVariable = 'HomeType'
                                              ,rowVariable = 'Nonres.Type'
                                              ,aggregateColumnName = 'All Sizes')
-item224.summary <- item224.summary[which(item224.summary$Nonres.Type != "Total"),]
+item224.summary <- item224.summary[which(item224.summary$HomeType != "All Sizes"),]
 
+item224.summary$n[which(item224.summary$HomeType == "Apartment Building (3 or fewer floors)" & item224.summary$Nonres.Type == "Total")] <- min(item224.summary$n[which(item224.summary$HomeType == "Apartment Building (3 or fewer floors)")])
+item224.summary$n[which(item224.summary$HomeType == "Apartment Building (4 to 6 floors)" & item224.summary$Nonres.Type == "Total")] <- min(item224.summary$n[which(item224.summary$HomeType == "Apartment Building (4 to 6 floors)")])
+item224.summary$n[which(item224.summary$HomeType == "Apartment Building (More than 6 floors)" & item224.summary$Nonres.Type == "Total")] <- min(item224.summary$n[which(item224.summary$HomeType == "Apartment Building (More than 6 floors)")])
 
-item224.cast <- dcast(setDT(item224.summary)
+item224.all.sizes <- proportions_one_group(CustomerLevelData = item224.data
+                                           ,valueVariable = "Area"
+                                           ,groupingVariable = 'Nonres.Type'
+                                           ,total.name = "All Sizes"
+                                           ,columnName = "HomeType"
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+
+item224.final <- rbind.data.frame(item224.summary, item224.all.sizes, stringsAsFactors = F)
+
+item224.cast <- dcast(setDT(item224.final)
                       ,formula = Nonres.Type ~ HomeType
                       ,value.var = c("w.percent","w.SE", "count", "n", "N","EB"))
 
@@ -131,10 +144,19 @@ item224.summary <- proportions_two_groups_unweighted(CustomerLevelData = item224
                                              ,columnVariable = 'HomeType'
                                              ,rowVariable = 'Nonres.Type'
                                              ,aggregateColumnName = 'All Sizes')
-item224.summary <- item224.summary[which(item224.summary$Nonres.Type != "Total"),]
+item224.summary <- item224.summary[which(item224.summary$HomeType != "All Sizes"),]
 
+item224.all.sizes <- proportions_one_group(CustomerLevelData = item224.data
+                                           ,valueVariable = "Area"
+                                           ,groupingVariable = 'Nonres.Type'
+                                           ,total.name = "All Sizes"
+                                           ,columnName = "HomeType"
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
 
-item224.cast <- dcast(setDT(item224.summary)
+item224.final <- rbind.data.frame(item224.summary, item224.all.sizes, stringsAsFactors = F)
+
+item224.cast <- dcast(setDT(item224.final)
                       ,formula = Nonres.Type ~ HomeType
                       ,value.var = c("Percent","SE", "Count", "n"))
 

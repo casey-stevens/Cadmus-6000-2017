@@ -244,8 +244,8 @@ unique(item297.dat5$Dryer.Age)
 ####################
 # end cleaning
 ####################
-
-item297.dat5$Dryer.Age[which(is.na(item297.dat5$Dryer.Age))] <- "Unknown"
+item297.dat5 <- item297.dat5[which(!is.na(item297.dat5$Dryer.Age)),]
+# item297.dat5$Dryer.Age[which(is.na(item297.dat5$Dryer.Age))] <- "Unknown"
 
 
 ######################################
@@ -267,7 +267,7 @@ item297.data$count <- 1
 ######################
 # weighted analysis
 ######################
-item297.final <- proportions_one_group_MF(CustomerLevelData = item297.data
+item297.final <- proportions_one_group(CustomerLevelData = item297.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Dryer.Age'
                                           ,total.name = 'Remove')
@@ -283,6 +283,6 @@ item297.final <- proportions_one_group_MF(CustomerLevelData = item297.data
                                           ,groupingVariable = 'Dryer.Age'
                                           ,total.name = 'Remove'
                                           ,weighted = FALSE)
-item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
+# item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
 
 exportTable(item297.final, "MF", "Table 91", weighted = FALSE)
