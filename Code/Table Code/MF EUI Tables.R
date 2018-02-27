@@ -21,23 +21,29 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
-# Read in Billing Data Results
+# Read in Billing Data Results and Clean
 getSheetNames(file.path(filepathBillingData, 
                         paste("Final Compiled MF Building Data.xlsx")))
 billing.dat <-
   read.xlsx(xlsxFile = file.path(filepathBillingData, 
                                  paste("Final Compiled MF Building Data.xlsx")),
             sheet = "Building Data Final")
+billing.keep <- c("PK_BuildingID", "Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage",
+                  "Unit.Decision", "Common.Decision")
+billing.dat2 <- billing.dat[,billing.keep]
 
-# Read in Building Data
+# Read in Building Data and Clean
 building.summary <-
   read.xlsx(xlsxFile = file.path(filepathRawData, 
                                  one.line.bldg.export), startRow = 2)
-building.summary$BuildingFlag = 1
+building.keep <- c("PK_BuildingID", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+                   "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area")
+building.summary2 <- building.summary[,building.keep]
+building.summary2$BuildingFlag = 1
 
 # Merge the two files 
-billing.combined <- merge(x = billing.dat, 
-                          y = building.summary,
+billing.combined <- merge(x = billing.dat2, 
+                          y = building.summary2,
                           by = "PK_BuildingID",
                           all.x = T)
 # Did any not merge?
@@ -47,11 +53,11 @@ stopifnot(length(which(is.na(billing.combined$BuildingFlag))) == 0)
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat$rbsaFlag <- 1
 
-billing.combined2 <- merge(x = billing.combined, 
-                           y = rbsa.dat,
-                           by.x = "PK_BuildingID",
-                           by.y = "CK_Building_ID",
-                           all.x = T)
+billing.combined2 <- merge(x = rbsa.dat, 
+                           y = billing.combined,
+                           by.x = "CK_Building_ID",
+                           by.y = "PK_BuildingID",
+                           all.y = T)
 # Did any not merge?
 stopifnot(length(which(is.na(rbsa.dat$rbsaFlag))) == 0)
 
