@@ -3576,7 +3576,7 @@ exportTable(item11A.os.table.SF, "SF", "Table 18A", weighted = FALSE, osIndicato
 # Table AP: DISTRIBUTION OF WALL INSULATION LEVELS BY CK_Building_ID
 #############################################################################################
 prep.tableAP.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
-
+which(duplicated(prep.tableAP.dat$CK_Cadmus_ID))
 #weight the u factor per home -- where weights are the wall area within home
 prep.tableAP.weightedU <- summarise(group_by(prep.tableAP.dat, CK_Cadmus_ID)
                                     ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
@@ -3627,12 +3627,12 @@ tableAP.data <- weightedData(unique(tableAP.merge[-which(colnames(tableAP.merge)
                                                                                         ,"aveRval"
                                                                                         ,"rvalue.bins.SF"
                                                                                         ,"count"))]))
-tableAP.data <- left_join(tableAP.data, tableAP.merge[which(colnames(tableAP.merge) %in% c("CK_Cadmus_ID"
+tableAP.data <- left_join(tableAP.data, unique(tableAP.merge[which(colnames(tableAP.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Wall.Type"
                                                                                            ,"aveUval"
                                                                                            ,"aveRval"
                                                                                            ,"rvalue.bins.SF"
-                                                                                           ,"count"))])
+                                                                                           ,"count"))]))
 
 #############################################################################################
 # Weighted Analysis - Single Family

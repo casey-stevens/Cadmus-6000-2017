@@ -104,6 +104,8 @@ item43.duplicates <- item43.dat5[which(item43.dat5$CK_Cadmus_ID %in% dup.ids),]
 item43.dat6 <- item43.dat5[which(item43.dat5$Heating_Type %notin% c("N/A",NA)),]
 unique(item43.dat6$Heating_Type)
 
+# item43.scl.check <- item43.dat6[which(item43.dat6$BuildingType == "Single Family" & item43.dat6$Territory %in% c("SCL LI and EH","SCL LI","SCL EH","SCL Not LI or EH", "SCL")),]
+
 item43.data <- weightedData(item43.dat6[-which(colnames(item43.dat6) %in% c("Heating_Type"
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
