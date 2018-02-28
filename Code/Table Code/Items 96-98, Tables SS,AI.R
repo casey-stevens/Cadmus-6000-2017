@@ -1064,7 +1064,7 @@ if(os.ind == "scl"){
 
 
 # Export table
-tableAI.os.final.SF <- tableAI.os.final[which(tableAI.os.final$BuildingType == "Single Family")
+tableAI.os.final.SF <- tableAI.os.table[which(tableAI.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(tableAI.os.table) %in% c("BuildingType"))]
 
 exportTable(tableAI.os.final.SF, "SF", "Table AI", weighted = FALSE, osIndicator = export.ind, OS = T)

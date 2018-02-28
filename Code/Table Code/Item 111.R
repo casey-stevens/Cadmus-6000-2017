@@ -151,11 +151,11 @@ exportTable(item111.final.MH, "MH", "Table 93", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 111: AVERAGE PRIMARY TELEVISION ON-TIME HOURS PER DAY PER HOME BY CK_Building_ID (SF table 118, MH table 93)
@@ -171,7 +171,7 @@ item111.os.dat$count <- 1
 item111.os.dat0 <- item111.os.dat[which(item111.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item111.os.dat1 <- left_join(item111.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item111.os.dat1 <- left_join(item111.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 #make tv hours to numeric
 item111.os.dat1$TV_on_hours <- as.numeric(as.character(item111.os.dat1$TV_on_hours))
@@ -184,7 +184,7 @@ item111.os.dat2 <- item111.os.dat1[which(!(is.na(item111.os.dat1$TV_on_hours))),
 item111.os.sum <- summarise(group_by(item111.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Site.Mean = mean(TV_on_hours))
 
-item111.os.merge <- left_join(scl.dat, item111.os.sum)
+item111.os.merge <- left_join(os.dat, item111.os.sum)
 item111.os.merge <- item111.os.merge[which(!is.na(item111.os.merge$Site.Mean)),]
 
 ################################################
@@ -206,7 +206,7 @@ item111.os.final <- item111.os.final[which(item111.os.final$CK_Building_ID != "R
 item111.os.final.SF <- item111.os.final[which(item111.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item111.os.final) %in% c("BuildingType"))]
 
-exportTable(item111.os.final.SF, "SF", "Table 118", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item111.os.final.SF, "SF", "Table 118", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -222,4 +222,4 @@ item111.os.final <- item111.os.final[which(item111.os.final$CK_Building_ID != "R
 item111.os.final.SF <- item111.os.final[which(item111.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item111.os.final) %in% c("BuildingType"))]
 
-exportTable(item111.os.final.SF, "SF", "Table 118", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item111.os.final.SF, "SF", "Table 118", weighted = FALSE, osIndicator = export.ind, OS = T)

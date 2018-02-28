@@ -815,7 +815,7 @@ item40.os.dat  <- item38.os.dat1[which(!is.na(item38.os.dat1$HomeYearBuilt)),]
 item40.os.dat$count <- 1
 
 
-item40.os.dat$ACH50 <- item40.os.dat$P50_CFM * 60 / item40.os.dat$Conditioned.Volume
+item40.os.dat$ACH50 <- item40.os.dat$P50_CFM * 60 / as.numeric(item40.os.dat$Conditioned.Volume)
 
 item40.os.dat1 <- item40.os.dat[which(item40.os.dat$ACH50 != "Inf"),] #only 883/959 have a recorded conditioned floor volume
 
@@ -1024,7 +1024,7 @@ exportTable(item40.os.final.SF, "SF", "Table 47", weighted = FALSE, osIndicator 
 #############################################################################################
 item41.os.dat  <- item38.os.data
 
-item41.os.dat$ACH50 <- item41.os.dat$P50_CFM * 60 / item41.os.dat$Conditioned.Volume
+item41.os.dat$ACH50 <- item41.os.dat$P50_CFM * 60 / as.numeric(item41.os.dat$Conditioned.Volume)
 
 item41.os.dat1 <- item41.os.dat[which(item41.os.dat$ACH50 != "Inf"),] #only 665/961 have a recorded conditioned floor volume
 

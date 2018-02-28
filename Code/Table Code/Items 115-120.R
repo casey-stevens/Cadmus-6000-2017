@@ -559,11 +559,11 @@ exportTable(item120.final.MH, "MH", "Table 102", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 115: PERCENTAGE OF HOMES WITH GAMING SYSTEMS (SF table 122, MH table 97)
@@ -577,7 +577,7 @@ item115.os.dat$count <- 1
 item115.os.dat0 <- item115.os.dat[which(item115.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item115.os.dat1 <- left_join(item115.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item115.os.dat1 <- left_join(item115.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 unique(item115.os.dat1$Type)
 #subset to only Game COnsoles
@@ -589,7 +589,7 @@ item115.os.sum <- summarise(group_by(item115.os.dat2, CK_Cadmus_ID, CK_Building_
                          ,Ind = sum(Ind))
 
 item115.os.sum$Ind <- 1
-item115.os.merge <- left_join(scl.dat, item115.os.sum)
+item115.os.merge <- left_join(os.dat, item115.os.sum)
 item115.os.merge$Ind[which(is.na(item115.os.merge$Ind))] <- 0
 
 ################################################
@@ -611,7 +611,7 @@ item115.os.final <- item115.os.final[which(item115.os.final$CK_Building_ID != "T
 item115.os.final.SF <- item115.os.final[which(item115.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item115.os.final) %in% c("BuildingType"))]
 
-exportTable(item115.os.final.SF, "SF", "Table 122", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item115.os.final.SF, "SF", "Table 122", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -626,7 +626,7 @@ item115.os.final <- item115.os.final[which(item115.os.final$CK_Building_ID != "T
 item115.os.final.SF <- item115.os.final[which(item115.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item115.os.final) %in% c("BuildingType"))]
 
-exportTable(item115.os.final.SF, "SF", "Table 122", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item115.os.final.SF, "SF", "Table 122", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -646,7 +646,7 @@ item116.os.dat$count <- 1
 item116.os.dat0 <- item116.os.dat[which(item116.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item116.os.dat1 <- left_join(item116.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item116.os.dat1 <- left_join(item116.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item116.os.dat2 <- item116.os.dat1[which(item116.os.dat1$Type == "Game Console"),]
 item116.os.dat2$Ind <- 1
@@ -654,7 +654,7 @@ item116.os.dat2$Ind <- 1
 item116.os.sum <- summarise(group_by(item116.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Ind = sum(Ind))
 
-item116.os.merge <- left_join(scl.dat, item116.os.sum)
+item116.os.merge <- left_join(os.dat, item116.os.sum)
 item116.os.merge$Ind[which(is.na(item116.os.merge$Ind))] <- 0
 
 ################################################
@@ -678,7 +678,7 @@ item116.os.final <- item116.os.final[which(item116.os.final$CK_Building_ID != "R
 item116.os.final.SF <- item116.os.final[which(item116.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item116.os.final) %in% c("BuildingType"))]
 
-exportTable(item116.os.final.SF, "SF", "Table 123", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item116.os.final.SF, "SF", "Table 123", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -692,7 +692,7 @@ item116.os.final <- item116.os.final[which(item116.os.final$CK_Building_ID != "R
 item116.os.final.SF <- item116.os.final[which(item116.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item116.os.final) %in% c("BuildingType"))]
 
-exportTable(item116.os.final.SF, "SF", "Table 123", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item116.os.final.SF, "SF", "Table 123", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -712,7 +712,7 @@ item117.os.dat$count <- 1
 item117.os.dat0 <- item117.os.dat[which(item117.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item117.os.dat1 <- left_join(item117.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item117.os.dat1 <- left_join(item117.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item117.os.dat2 <- item117.os.dat1[which(item117.os.dat1$Type %in% c("Laptop", "Desktop")),]
 item117.os.dat2$Ind <- 1
@@ -720,7 +720,7 @@ item117.os.dat2$Ind <- 1
 item117.os.sum <- summarise(group_by(item117.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                          ,Site.Count = sum(Ind, na.rm = T))
 
-item117.os.merge <- left_join(scl.dat, item117.os.sum)
+item117.os.merge <- left_join(os.dat, item117.os.sum)
 item117.os.merge$Site.Count[which(is.na(item117.os.merge$Site.Count))] <- 0
 
 ################################################
@@ -746,7 +746,7 @@ item117.os.final <- item117.os.final[which(item117.os.final$CK_Building_ID %noti
 item117.os.final.SF <- item117.os.final[which(item117.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item117.os.final) %in% c("BuildingType"))]
 
-exportTable(item117.os.final.SF, "SF", "Table 124", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item117.os.final.SF, "SF", "Table 124", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -760,7 +760,7 @@ item117.os.final <- item117.os.final[which(item117.os.final$CK_Building_ID %noti
 item117.os.final.SF <- item117.os.final[which(item117.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item117.os.final) %in% c("BuildingType"))]
 
-exportTable(item117.os.final.SF, "SF", "Table 124", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item117.os.final.SF, "SF", "Table 124", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -777,7 +777,7 @@ item118.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmu
 item118.os.dat0 <- item118.os.dat[which(item118.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item118.os.dat1 <- left_join(item118.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item118.os.dat1 <- left_join(item118.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item118.os.dat2 <- item118.os.dat1[which(item118.os.dat1$Type %in% c("Desktop", "Laptop")),]
 
@@ -788,7 +788,7 @@ item118.os.sum <- summarise(group_by(item118.os.dat2, CK_Cadmus_ID, CK_Building_
 
 item118.os.sum$Ind <- 1
 
-item118.os.merge <- unique(left_join(scl.dat, item118.os.sum))
+item118.os.merge <- unique(left_join(os.dat, item118.os.sum))
 item118.os.merge$Ind[which(is.na(item118.os.merge$Ind))] <- 0
 
 ################################################
@@ -811,7 +811,7 @@ item118.os.final <- item118.os.final[which(item118.os.final$CK_Building_ID %noti
 item118.os.final.SF <- item118.os.final[which(item118.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item118.os.final) %in% c("BuildingType"))]
 
-exportTable(item118.os.final.SF, "SF", "Table 125", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item118.os.final.SF, "SF", "Table 125", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #######################
@@ -827,7 +827,7 @@ item118.os.final <- item118.os.final[which(item118.os.final$CK_Building_ID %noti
 item118.os.final.SF <- item118.os.final[which(item118.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item118.os.final) %in% c("BuildingType"))]
 
-exportTable(item118.os.final.SF, "SF", "Table 125", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item118.os.final.SF, "SF", "Table 125", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -843,7 +843,7 @@ item119.os.dat$count <- 1
 item119.os.dat0 <- item119.os.dat[which(item119.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item119.os.dat1 <- left_join(scl.dat, item119.os.dat0, by = "CK_Cadmus_ID")
+item119.os.dat1 <- left_join(os.dat, item119.os.dat0, by = "CK_Cadmus_ID")
 
 item119.os.cast <- dcast(setDT(item119.os.dat1)
                       ,formula = CK_Cadmus_ID + CK_Building_ID ~ Type, sum
@@ -856,7 +856,7 @@ names(item119.os.melt) <- c("CK_Cadmus_ID", "Type","Ind")
 
 unique(item119.os.melt$Type)
 
-item119.os.merge <- left_join(scl.dat, item119.os.melt)
+item119.os.merge <- left_join(os.dat, item119.os.melt)
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -880,7 +880,7 @@ item119.os.final <- item119.os.final[which(item119.os.final$CK_Building_ID %noti
 item119.os.final.SF <- item119.os.final[which(item119.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item119.os.final) %in% c("BuildingType"))]
 
-exportTable(item119.os.final.SF, "SF", "Table 126", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item119.os.final.SF, "SF", "Table 126", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -894,7 +894,7 @@ item119.os.final <- item119.os.final[which(item119.os.final$CK_Building_ID %noti
 item119.os.final.SF <- item119.os.final[which(item119.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item119.os.final) %in% c("BuildingType"))]
 
-exportTable(item119.os.final.SF, "SF", "Table 126", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item119.os.final.SF, "SF", "Table 126", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -914,7 +914,7 @@ item120.os.dat$count <- 1
 item120.os.dat0 <- item120.os.dat[which(item120.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item120.os.dat1 <- left_join(scl.dat, item120.os.dat0, by = "CK_Cadmus_ID")
+item120.os.dat1 <- left_join(os.dat, item120.os.dat0, by = "CK_Cadmus_ID")
 
 unique(item120.os.dat1$Type)
 
@@ -926,7 +926,7 @@ item120.os.dat3$Subwoofer.Type <- "Passive"
 item120.os.dat3$Subwoofer.Type[which(item120.os.dat3$Does.Subwoofer.have.indicator.light.or.warm.to.touch == "Yes")] <- "Powered"
 
 
-item120.os.merge <- left_join(scl.dat, item120.os.dat3)
+item120.os.merge <- left_join(os.dat, item120.os.dat3)
 
 
 item120.os.cast <- dcast(setDT(item120.os.merge)
@@ -938,7 +938,7 @@ item120.os.cast <- item120.os.cast[which(colnames(item120.os.cast) %in% c("CK_Ca
 item120.os.melt <- melt(item120.os.cast,id.vars = "CK_Cadmus_ID")
 names(item120.os.melt) <- c("CK_Cadmus_ID", "Subwoofer.Type","Subwoofer.Count")
 
-item120.os.merge <- left_join(scl.dat, item120.os.melt)
+item120.os.merge <- left_join(os.dat, item120.os.melt)
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -960,30 +960,48 @@ item120.os.cast <- mean_two_groups(CustomerLevelData = item120.os.data
                                     ,byVariableRow = 'Subwoofer.Type'
                                     ,rowAggregate = 'All Subwoofers'
                                     ,columnAggregate = "Remove")
-
-item120.os.final <- data.frame("BuildingType"          = item120.os.cast$BuildingType
-                              ,"Subwoofer.Type"       = item120.os.cast$Subwoofer.Type
-                              ,"Mean_SCL.GenPop"      = item120.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item120.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item120.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item120.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item120.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item120.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item120.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item120.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item120.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item120.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item120.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item120.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item120.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item120.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item120.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item120.os.cast$`EB_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item120.os.final <- data.frame("BuildingType"          = item120.os.cast$BuildingType
+                                 ,"Subwoofer.Type"       = item120.os.cast$Subwoofer.Type
+                                 ,"Mean_SCL.GenPop"      = item120.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item120.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item120.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item120.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item120.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item120.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item120.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item120.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item120.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item120.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item120.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item120.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = item120.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = item120.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = item120.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = item120.os.cast$`EB_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  item120.os.final <- data.frame("BuildingType"          = item120.os.cast$BuildingType
+                                 ,"Subwoofer.Type"       = item120.os.cast$Subwoofer.Type
+                                 ,"Mean_SnoPUD"          = item120.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item120.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item120.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item120.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item120.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item120.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item120.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item120.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item120.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"            = item120.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"      = item120.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"           = item120.os.cast$`EB_2017 RBSA NW`)
+  
+}
 
 item120.os.final.SF <- item120.os.final[which(item120.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item120.os.final) %in% c("BuildingType"))]
 
-exportTable(item120.os.final.SF, "SF", "Table 127", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item120.os.final.SF, "SF", "Table 127", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -995,22 +1013,38 @@ item120.os.cast <- mean_two_groups_unweighted(CustomerLevelData = item120.os.dat
                                    ,rowAggregate = 'All Subwoofers'
                                    ,columnAggregate = "Remove")
 
-item120.os.final <- data.frame("BuildingType"          = item120.os.cast$BuildingType
-                               ,"Subwoofer.Type"       = item120.os.cast$Subwoofer.Type
-                               ,"Mean_SCL.GenPop"      = item120.os.cast$`Mean_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = item120.os.cast$`SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = item120.os.cast$`n_SCL GenPop`
-                               ,"Mean_SCL.LI"          = item120.os.cast$`Mean_SCL LI`
-                               ,"SE_SCL.LI"            = item120.os.cast$`SE_SCL LI`
-                               ,"n_SCL.LI"             = item120.os.cast$`n_SCL LI`
-                               ,"Mean_SCL.EH"          = item120.os.cast$`Mean_SCL EH`
-                               ,"SE_SCL.EH"            = item120.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item120.os.cast$`n_SCL EH`
-                               ,"Mean_2017.RBSA.PS"    = item120.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item120.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item120.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item120.os.final <- data.frame("BuildingType"          = item120.os.cast$BuildingType
+                                 ,"Subwoofer.Type"       = item120.os.cast$Subwoofer.Type
+                                 ,"Mean_SCL.GenPop"      = item120.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item120.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item120.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item120.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item120.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item120.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item120.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item120.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item120.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item120.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item120.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item120.os.cast$`n_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  item120.os.final <- data.frame("BuildingType"          = item120.os.cast$BuildingType
+                                 ,"Subwoofer.Type"       = item120.os.cast$Subwoofer.Type
+                                 ,"Mean_SnoPUD"          = item120.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item120.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item120.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item120.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item120.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item120.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item120.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item120.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item120.os.cast$`n_2017 RBSA NW`)
+  
+}
 item120.os.final.SF <- item120.os.final[which(item120.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item120.os.final) %in% c("BuildingType"))]
 
-exportTable(item120.os.final.SF, "SF", "Table 127", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item120.os.final.SF, "SF", "Table 127", weighted = FALSE, osIndicator = export.ind, OS = T)
 

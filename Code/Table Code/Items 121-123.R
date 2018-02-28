@@ -328,11 +328,11 @@ exportTable(item123.final.MH, "MH", "Table 105", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 122: AVERAGE NUMBER OF OCCUPANTS PER HOME BY CK_Building_ID (SF table 129, MH table 104)
@@ -347,7 +347,7 @@ item122.os.dat$count <- 1
 item122.os.dat0 <- item122.os.dat[which(item122.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item122.os.dat1 <- left_join(scl.dat, item122.os.dat0, by = "CK_Cadmus_ID")
+item122.os.dat1 <- left_join(os.dat, item122.os.dat0, by = "CK_Cadmus_ID")
 
 item122.os.dat2 <- item122.os.dat1[which(!is.na(item122.os.dat1$Qty.Occupants)), ]
 
@@ -375,7 +375,7 @@ item122.os.final <- item122.os.final[which(item122.os.final$CK_Building_ID != "R
 item122.os.final.SF <- item122.os.final[which(item122.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item122.os.final) %in% c("BuildingType"))]
 
-exportTable(item122.os.final.SF, "SF", "Table 129", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item122.os.final.SF, "SF", "Table 129", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -389,7 +389,7 @@ item122.os.final <- item122.os.final[which(item122.os.final$CK_Building_ID != "R
 item122.os.final.SF <- item122.os.final[which(item122.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item122.os.final) %in% c("BuildingType"))]
 
-exportTable(item122.os.final.SF, "SF", "Table 129", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item122.os.final.SF, "SF", "Table 129", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -423,7 +423,7 @@ item123.os.dat$count <- 1
 item123.os.dat0 <- item123.os.dat[which(item123.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item123.os.dat1 <- left_join(item123.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item123.os.dat1 <- left_join(item123.os.dat0, os.dat, by = "CK_Cadmus_ID")
 str(item123.os.dat1)
 item123.os.dat1$Age_1_5    <- as.numeric(as.character(item123.os.dat1$Age_1_5))
 item123.os.dat1$Age_11_18    <- as.numeric(as.character(item123.os.dat1$Age_11_18))
@@ -452,7 +452,7 @@ colnames(item123.os.melt)[which(colnames(item123.os.melt) == "variable")] <- "Ag
 item123.os.sum <- summarise(group_by(item123.os.melt, CK_Cadmus_ID, CK_Building_ID, Age.Category)
                          ,Occupants = sum(value, na.rm = T))
 
-item123.os.merge <- left_join(scl.dat, item123.os.sum)
+item123.os.merge <- left_join(os.dat, item123.os.sum)
 item123.os.merge <- item123.os.merge[which(!is.na(item123.os.merge$Occupants)),]
 
 ################################################
@@ -502,7 +502,7 @@ item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
 item123.os.final.SF <- item123.os.table[which(item123.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item123.os.table) %in% c("BuildingType"))]
 
-exportTable(item123.os.final.SF, "SF", "Table 130", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item123.os.final.SF, "SF", "Table 130", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -538,4 +538,4 @@ item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
 item123.os.final.SF <- item123.os.table[which(item123.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item123.os.table) %in% c("BuildingType"))]
 
-exportTable(item123.os.final.SF, "SF", "Table 130", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item123.os.final.SF, "SF", "Table 130", weighted = FALSE, osIndicator = export.ind, OS = T)

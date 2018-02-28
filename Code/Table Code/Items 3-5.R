@@ -70,7 +70,8 @@ item3.dat$GroundContact <- item3.dat$FoundationType
 # unique(item3.dat$GroundContact)
 # 
 # item3.dat$GroundContact <- gsub("&gt; ",">", item3.dat$GroundContact)
-# item3.dat$GroundContact[grep("90% crawl", item3.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace"
+item3.dat$GroundContact[grep("90% crawl", item3.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace"
+item3.dat$GroundContact[grep("90% conditioned", item3.dat$GroundContact, ignore.case = T)] <- ">90% Conditioned Basement"
 
 # Remove unwanted ground contact types
 item3.dat1 <- item3.dat[which(item3.dat$GroundContact %notin% c("Remove", NA, 0)),]

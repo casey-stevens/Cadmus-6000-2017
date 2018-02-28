@@ -314,11 +314,11 @@ exportTable(item114.final.MH, "MH", "Table 96", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 112: AVERAGE NUMBER OF SET-TOP BOXES PER HOME BY CK_Building_ID (SF table 119, MH table 94)
@@ -333,7 +333,7 @@ item112.os.dat$count <- 1
 item112.os.dat0 <- item112.os.dat[which(item112.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item112.os.dat1 <- left_join(item112.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item112.os.dat1 <- left_join(item112.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 #subset to set.top.box not NA
 item112.os.dat2 <- item112.os.dat1[which(item112.os.dat1$TV.Set.Top.Box == "Yes"),]
@@ -342,7 +342,7 @@ item112.os.dat2 <- item112.os.dat1[which(item112.os.dat1$TV.Set.Top.Box == "Yes"
 item112.os.customer <- summarise(group_by(item112.os.dat2, CK_Cadmus_ID, CK_Building_ID)
                               ,Site.Count = sum(count))
 
-item112.os.merge <- left_join(scl.dat, item112.os.customer)
+item112.os.merge <- left_join(os.dat, item112.os.customer)
 item112.os.merge$Site.Count[which(is.na(item112.os.merge$Site.Count))] <- 0
 
 ################################################
@@ -365,7 +365,7 @@ item112.os.final <- item112.os.final[which(item112.os.final$CK_Building_ID != "R
 item112.os.final.SF <- item112.os.final[which(item112.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item112.os.final) %in% c("BuildingType"))]
 
-exportTable(item112.os.final.SF, "SF", "Table 119", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item112.os.final.SF, "SF", "Table 119", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -379,7 +379,7 @@ item112.os.final <- item112.os.final[which(item112.os.final$CK_Building_ID != "R
 item112.os.final.SF <- item112.os.final[which(item112.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item112.os.final) %in% c("BuildingType"))]
 
-exportTable(item112.os.final.SF, "SF", "Table 119", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item112.os.final.SF, "SF", "Table 119", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -397,13 +397,13 @@ item113.os.dat$count <- 1
 item113.os.dat0 <- item113.os.dat[which(item113.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item113.os.dat1 <- left_join(item113.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item113.os.dat1 <- left_join(item113.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 #subset to set.top.box not NA
 item113.os.dat2 <- item113.os.dat1[which(item113.os.dat1$TV.Set.Top.Box == "Yes"),]
 item113.os.dat2$Ind <- 1
 
-item113.os.merge <- unique(left_join(scl.dat, item113.os.dat2))
+item113.os.merge <- unique(left_join(os.dat, item113.os.dat2))
 item113.os.merge$Ind[which(is.na(item113.os.merge$Ind))] <- 0
 unique(item113.os.merge$Ind)
 
@@ -434,7 +434,7 @@ item113.os.final <- item113.os.final[which(item113.os.final$CK_Building_ID != "T
 item113.os.final.SF <- item113.os.final[which(item113.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item113.os.final) %in% c("BuildingType"))]
 
-exportTable(item113.os.final.SF, "SF", "Table 120", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item113.os.final.SF, "SF", "Table 120", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Weighted Analysis
@@ -449,7 +449,7 @@ item113.os.final <- item113.os.final[which(item113.os.final$CK_Building_ID != "T
 item113.os.final.SF <- item113.os.final[which(item113.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item113.os.final) %in% c("BuildingType"))]
 
-exportTable(item113.os.final.SF, "SF", "Table 120", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item113.os.final.SF, "SF", "Table 120", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -468,7 +468,7 @@ item114.os.dat$count <- 1
 item114.os.dat0 <- item114.os.dat[which(item114.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item114.os.dat1 <- left_join(item114.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item114.os.dat1 <- left_join(item114.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 #subset to set.top.box not NA
 unique(item114.os.dat1$TV.Set.Top.Box)
@@ -478,7 +478,7 @@ item114.os.dat2 <- item114.os.dat1[which(item114.os.dat1$TV.Set.Top.Box == "Yes"
 item114.os.dat3 <- item114.os.dat2[which(item114.os.dat2$`STB.Records?` %in% c("Yes", "No")),]
 
 
-item114.os.merge <- left_join(scl.dat, item114.os.dat3)
+item114.os.merge <- left_join(os.dat, item114.os.dat3)
 item114.os.merge <- item114.os.merge[which(!is.na(item114.os.merge$`STB.Records?`)),]
 
 item114.os.merge$Ind <- item114.os.merge$`STB.Records?`
@@ -513,7 +513,7 @@ item114.os.final <- item114.os.final[which(item114.os.final$CK_Building_ID != "T
 item114.os.final.SF <- item114.os.final[which(item114.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item114.os.final) %in% c("BuildingType"))]
 
-exportTable(item114.os.final.SF, "SF", "Table 121", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item114.os.final.SF, "SF", "Table 121", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # unweighted Analysis
@@ -528,4 +528,4 @@ item114.os.final <- item114.os.final[which(item114.os.final$CK_Building_ID != "T
 item114.os.final.SF <- item114.os.final[which(item114.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item114.os.final) %in% c("BuildingType"))]
 
-exportTable(item114.os.final.SF, "SF", "Table 121", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item114.os.final.SF, "SF", "Table 121", weighted = FALSE, osIndicator = export.ind, OS = T)

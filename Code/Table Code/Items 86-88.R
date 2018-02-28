@@ -1096,7 +1096,7 @@ unique(item88.os.dat3$EquipVintage_bins_SF)
 
 item88.os.merge <- left_join(os.dat, item88.os.dat3)
 item88.os.merge <- item88.os.merge[which(!is.na(item88.os.merge$EquipVintage_bins_SF)),]
-item88.os.merge <- item88.os.merge[which(item88.os.merge$CK_Building_ID == "SCL GenPop"),]
+item88.os.merge <- item88.os.merge[which(item88.os.merge$CK_Building_ID == subset.ind),]
 
 
 ################################################
@@ -1169,18 +1169,28 @@ if(os.ind == "scl"){
 }else if(os.ind == "snopud"){
   item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
                                 ,"Washer.Type"           = item88.os.cast$Washer.Type
-                                ,"Percent_SnoPUD"          = item88.os.cast$`w.percent_SnoPUD`
-                                ,"SE_SnoPUD"               = item88.os.cast$`w.SE_SnoPUD`
-                                ,"n_SnoPUD"                = item88.os.cast$`n_SnoPUD`
-                                ,"Percent_2017.RBSA.PS"    = item88.os.cast$`w.percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"         = item88.os.cast$`w.SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"          = item88.os.cast$`n_2017 RBSA PS`
-                                ,"Percent_RBSA.NW"         = item88.os.cast$`w.percent_2017 RBSA NW`
-                                ,"SE_RBSA.NW"              = item88.os.cast$`w.SE_2017 RBSA NW`
-                                ,"n_RBSA.NW"               = item88.os.cast$`n_2017 RBSA NW`
-                                ,"EB_SnoPUD"               = item88.os.cast$`EB_SnoPUD`
-                                ,"EB_2017.RBSA.PS"         = item88.os.cast$`EB_2017 RBSA PS`
-                                ,"EB_RBSA.NW"              = item88.os.cast$`EB_2017 RBSA NW`)
+                                ,"Percent_Pre.1990"      = NA#item88.os.cast$`w.percent_Pre 1990`
+                                ,"SE_Pre.1990"           = NA#item88.os.cast$`w.SE_Pre 1990`
+                                ,"Percent_1990.1994"     = NA#item88.os.cast$`w.percent_1990-1994`
+                                ,"SE_1990.1994"          = NA#item88.os.cast$`w.SE_1990-1994`
+                                ,"Percent_1995.1999"     = item88.os.cast$`w.percent_1995-1999`
+                                ,"SE_1995.1999"          = item88.os.cast$`w.SE_1995-1999`
+                                ,"Percent_2000.2004"     = item88.os.cast$`w.percent_2000-2004`
+                                ,"SE_2000.2004"          = item88.os.cast$`w.SE_2000-2004`
+                                ,"Percent_2005.2009"     = item88.os.cast$`w.percent_2005-2009`
+                                ,"SE_2005.2009"          = item88.os.cast$`w.SE_2005-2009`
+                                ,"Percent_2010.2014"     = item88.os.cast$`w.percent_2010-2014`
+                                ,"SE_2010.2014"          = item88.os.cast$`w.SE_2010-2014`
+                                ,"Percent_Post.2014"     = item88.os.cast$`w.percent_Post 2014`
+                                ,"SE_Post.2014"          = item88.os.cast$`w.SE_Post 2014`
+                                ,"n"                     = item88.os.cast$`n_All Clothes Washer Types`
+                                ,"EB_Pre.1990"           = NA#item88.os.cast$`EB_Pre 1990`
+                                ,"EB_1990.1994"          = NA#item88.os.cast$`EB_1990-1994`
+                                ,"EB_1995.1999"          = item88.os.cast$`EB_1995-1999`
+                                ,"EB_2000.2004"          = item88.os.cast$`EB_2000-2004`
+                                ,"EB_2005.2009"          = item88.os.cast$`EB_2005-2009`
+                                ,"EB_2010.2014"          = item88.os.cast$`EB_2010-2014`
+                                ,"EB_Post.2014"          = item88.os.cast$`EB_Post 2014`)
 }
 
 
@@ -1257,15 +1267,27 @@ if(os.ind == "scl"){
 }else if(os.ind == "snopud"){
   item88.os.table <- data.frame("BuildingType"           = item88.os.cast$BuildingType
                                 ,"Washer.Type"           = item88.os.cast$Washer.Type
-                                ,"Percent_SnoPUD"          = item88.os.cast$`Percent_SnoPUD`
-                                ,"SE_SnoPUD"               = item88.os.cast$`SE_SnoPUD`
-                                ,"n_SnoPUD"                = item88.os.cast$`n_SnoPUD`
-                                ,"Percent_2017.RBSA.PS"    = item88.os.cast$`Percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"         = item88.os.cast$`SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"          = item88.os.cast$`n_2017 RBSA PS`
-                                ,"Percent_RBSA.NW"         = item88.os.cast$`Percent_2017 RBSA NW`
-                                ,"SE_RBSA.NW"              = item88.os.cast$`SE_2017 RBSA NW`
-                                ,"n_RBSA.NW"               = item88.os.cast$`n_2017 RBSA NW`)
+                                ,"Percent_Pre.1990"      = NA#item88.os.cast$`Percent_Pre 1990`
+                                ,"SE_Pre.1990"           = NA#item88.os.cast$`SE_Pre 1990`
+                                ,"n_Pre.1990"            = NA#item88.os.cast$`n_Pre 1990`
+                                ,"Percent_1990.1994"     = NA#item88.os.cast$`Percent_1990-1994`
+                                ,"SE_1990.1994"          = NA#item88.os.cast$`SE_1990-1994`
+                                ,"n_1990.1994"           = NA#item88.os.cast$`n_1990-1994`
+                                ,"Percent_1995.1999"     = item88.os.cast$`Percent_1995-1999`
+                                ,"SE_1995.1999"          = item88.os.cast$`SE_1995-1999`
+                                ,"n_1995.1999"           = item88.os.cast$`n_1995-1999`
+                                ,"Percent_2000.2004"     = item88.os.cast$`Percent_2000-2004`
+                                ,"SE_2000.2004"          = item88.os.cast$`SE_2000-2004`
+                                ,"n_2000.2004"           = item88.os.cast$`n_2000-2004`
+                                ,"Percent_2005.2009"     = item88.os.cast$`Percent_2005-2009`
+                                ,"SE_2005.2009"          = item88.os.cast$`SE_2005-2009`
+                                ,"n_2005.2009"           = item88.os.cast$`n_2005-2009`
+                                ,"Percent_2010.2014"     = item88.os.cast$`Percent_2010-2014`
+                                ,"SE_2010.2014"          = item88.os.cast$`SE_2010-2014`
+                                ,"n_2010.2014"           = item88.os.cast$`n_2010-2014`
+                                ,"Percent_Post.2014"     = item88.os.cast$`Percent_Post 2014`
+                                ,"SE_Post.2014"          = item88.os.cast$`SE_Post 2014`
+                                ,"n_Post.2014"           = item88.os.cast$`n_Post 2014`)
 }
 
 

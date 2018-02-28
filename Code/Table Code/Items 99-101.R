@@ -823,11 +823,11 @@ item101.final.SF <- item101.table[which(item101.table$BuildingType == "Single Fa
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 99: DISTRIBUTION OF ALL WATER HEATER LOCATIONS BY SPACE HEATING FUEL TYPE (SF table 106, MH table 86)
@@ -843,7 +843,7 @@ item99.os.dat$count <- 1
 
 item99.os.dat0 <- item99.os.dat[which(item99.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item99.os.dat1 <- left_join(item99.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item99.os.dat1 <- left_join(item99.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item99.os.ind <- item99.os.dat1$CK_Cadmus_ID[grep("Water Heater",item99.os.dat1$Generic)]
 item99.os.dat2 <- item99.os.dat1[which(item99.os.dat1$CK_Cadmus_ID %in% item99.os.ind),]
@@ -861,8 +861,8 @@ item99.os.dat3$Heating.Fuel[grep("Gas",item99.os.dat3$Heating.Fuel, ignore.case 
 item99.os.dat3$Heating.Fuel[grep("unk|N/A|Other|from|can't",item99.os.dat3$Heating.Fuel, ignore.case = T)] <- NA
 item99.os.dat3$Heating.Fuel[grep("oil|kero",item99.os.dat3$Heating.Fuel, ignore.case = T)]                 <- "Oil"
 item99.os.dat3$Heating.Fuel[grep("Elect",item99.os.dat3$Heating.Fuel, ignore.case = T)]                    <- "Electric"
-item99.os.dat3$Heating.Fuel[which(item99.os.dat3$Heating.Fuel == "Wood (pellets)")]                        <- "Pellets"
-item99.os.dat3$Heating.Fuel[which(item99.os.dat3$Heating.Fuel == "Wood (cord)")]                           <- "Wood"
+item99.os.dat3$Heating.Fuel[which(item99.os.dat3$Heating.Fuel %in% c("Wood (pellets)","Wood (Pellets)"))]  <- "Pellets"
+item99.os.dat3$Heating.Fuel[which(item99.os.dat3$Heating.Fuel %in% c("Wood (cord)","Wood (Cord)"))]        <- "Wood"
 
 item99.os.dat4 <- item99.os.dat3[which(!is.na(item99.os.dat3$Heating.Fuel)),]
 
@@ -893,7 +893,7 @@ item99.os.merge2 <- item99.os.merge1[which(!(is.na(item99.os.merge1$Heating.Fuel
 colnames(item99.os.merge2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Heating.Fuel","Heat.Count", "DHW.Location", "DHW.Count")
 
 
-item99.os.join <- left_join(scl.dat, item99.os.merge2)
+item99.os.join <- left_join(os.dat, item99.os.merge2)
 item99.os.join <- item99.os.join[which(!is.na(item99.os.join$Heating.Fuel)),]
 item99.os.join1 <- item99.os.join[which(item99.os.join$DHW.Location != "Unknown"),]
 
@@ -953,37 +953,73 @@ item99.os.final <- rbind.data.frame(item99.os.summary, item99.os.all.fuels, item
 item99.os.cast <- dcast(setDT(item99.os.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                      ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+names(item99.os.cast)
 
-item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType
-                           ,"DHW.Location"        = item99.os.cast$DHW.Location
-                           ,"Percent.Electric"    = item99.os.cast$w.percent_Electric
-                           ,"SE.Electric"         = item99.os.cast$w.SE_Electric
-                           ,"n.Electric"          = item99.os.cast$n_Electric
-                           ,"Percent.Natural.Gas" = item99.os.cast$w.percent_Gas
-                           ,"SE.Natural.Gas"      = item99.os.cast$w.SE_Gas
-                           ,"n.Gas"               = item99.os.cast$n_Gas
-                           ,"Percent.Oil"         = item99.os.cast$w.percent_Oil
-                           ,"SE.Oil"              = item99.os.cast$w.SE_Oil
-                           ,"n.Oil"               = item99.os.cast$n_Oil
-                           # ,"Percent.Pellets"     = item99.os.cast$w.percent_Pellets
-                           # ,"SE.Pellets"          = item99.os.cast$w.SE_Pellets
-                           # ,"n.Pellets"           = item99.os.cast$n_Pellets
-                           # ,"Percent.Propane"     = item99.os.cast$w.percent_Propane
-                           # ,"SE.Propane"          = item99.os.cast$w.SE_Propane
-                           # ,"n.Propane"           = item99.os.cast$n_Propane
-                           ,"Percent.Wood"        = item99.os.cast$w.percent_Wood
-                           ,"SE.Wood"             = item99.os.cast$w.SE_Wood
-                           ,"n.Wood"              = item99.os.cast$n_Wood
-                           ,"Percent.All.Heating.Fuel.Types" = item99.os.cast$`w.percent_All Fuels`
-                           ,"SE.All.Heating.Fuel.Types"      = item99.os.cast$`w.SE_All Fuels`
-                           ,"n.All.Heating.Fuel.Types"       = item99.os.cast$`n_All Fuels`
-                           ,"EB_Electric"          = item99.os.cast$EB_Electric
-                           ,"EB_Gas"               = item99.os.cast$EB_Gas
-                           ,"EB_Oil"               = item99.os.cast$EB_Oil
-                           # ,"EB_Pellets"           = item99.os.cast$EB_Pellets
-                           # ,"EB_Propane"           = item99.os.cast$EB_Propane
-                           ,"EB_Wood"              = item99.os.cast$EB_Wood
-                           ,"EB_All.Heating.Fuels" = item99.os.cast$`EB_All Fuels`)
+if(os.ind == "scl"){
+  item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType
+                                ,"DHW.Location"        = item99.os.cast$DHW.Location
+                                ,"Percent.Electric"    = item99.os.cast$w.percent_Electric
+                                ,"SE.Electric"         = item99.os.cast$w.SE_Electric
+                                ,"n.Electric"          = item99.os.cast$n_Electric
+                                ,"Percent.Natural.Gas" = item99.os.cast$w.percent_Gas
+                                ,"SE.Natural.Gas"      = item99.os.cast$w.SE_Gas
+                                ,"n.Gas"               = item99.os.cast$n_Gas
+                                ,"Percent.Oil"         = item99.os.cast$w.percent_Oil
+                                ,"SE.Oil"              = item99.os.cast$w.SE_Oil
+                                ,"n.Oil"               = item99.os.cast$n_Oil
+                                # ,"Percent.Pellets"     = item99.os.cast$w.percent_Pellets
+                                # ,"SE.Pellets"          = item99.os.cast$w.SE_Pellets
+                                # ,"n.Pellets"           = item99.os.cast$n_Pellets
+                                # ,"Percent.Propane"     = item99.os.cast$w.percent_Propane
+                                # ,"SE.Propane"          = item99.os.cast$w.SE_Propane
+                                # ,"n.Propane"           = item99.os.cast$n_Propane
+                                ,"Percent.Wood"        = item99.os.cast$w.percent_Wood
+                                ,"SE.Wood"             = item99.os.cast$w.SE_Wood
+                                ,"n.Wood"              = item99.os.cast$n_Wood
+                                ,"Percent.All.Heating.Fuel.Types" = item99.os.cast$`w.percent_All Fuels`
+                                ,"SE.All.Heating.Fuel.Types"      = item99.os.cast$`w.SE_All Fuels`
+                                ,"n.All.Heating.Fuel.Types"       = item99.os.cast$`n_All Fuels`
+                                ,"EB_Electric"          = item99.os.cast$EB_Electric
+                                ,"EB_Gas"               = item99.os.cast$EB_Gas
+                                ,"EB_Oil"               = item99.os.cast$EB_Oil
+                                # ,"EB_Pellets"           = item99.os.cast$EB_Pellets
+                                # ,"EB_Propane"           = item99.os.cast$EB_Propane
+                                ,"EB_Wood"              = item99.os.cast$EB_Wood
+                                ,"EB_All.Heating.Fuels" = item99.os.cast$`EB_All Fuels`)
+  
+}else if(os.ind == "snopud"){
+  item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType
+                                ,"DHW.Location"        = item99.os.cast$DHW.Location
+                                ,"Percent.Electric"    = item99.os.cast$w.percent_Electric
+                                ,"SE.Electric"         = item99.os.cast$w.SE_Electric
+                                ,"n.Electric"          = item99.os.cast$n_Electric
+                                ,"Percent.Natural.Gas" = item99.os.cast$w.percent_Gas
+                                ,"SE.Natural.Gas"      = item99.os.cast$w.SE_Gas
+                                ,"n.Gas"               = item99.os.cast$n_Gas
+                                ,"Percent.Oil"         = item99.os.cast$w.percent_Oil
+                                ,"SE.Oil"              = item99.os.cast$w.SE_Oil
+                                ,"n.Oil"               = item99.os.cast$n_Oil
+                                # ,"Percent.Pellets"     = item99.os.cast$w.percent_Pellets
+                                # ,"SE.Pellets"          = item99.os.cast$w.SE_Pellets
+                                # ,"n.Pellets"           = item99.os.cast$n_Pellets
+                                ,"Percent.Propane"     = item99.os.cast$w.percent_Propane
+                                ,"SE.Propane"          = item99.os.cast$w.SE_Propane
+                                ,"n.Propane"           = item99.os.cast$n_Propane
+                                ,"Percent.Wood"        = item99.os.cast$w.percent_Wood
+                                ,"SE.Wood"             = item99.os.cast$w.SE_Wood
+                                ,"n.Wood"              = item99.os.cast$n_Wood
+                                ,"Percent.All.Heating.Fuel.Types" = item99.os.cast$`w.percent_All Fuels`
+                                ,"SE.All.Heating.Fuel.Types"      = item99.os.cast$`w.SE_All Fuels`
+                                ,"n.All.Heating.Fuel.Types"       = item99.os.cast$`n_All Fuels`
+                                ,"EB_Electric"          = item99.os.cast$EB_Electric
+                                ,"EB_Gas"               = item99.os.cast$EB_Gas
+                                ,"EB_Oil"               = item99.os.cast$EB_Oil
+                                # ,"EB_Pellets"           = item99.os.cast$EB_Pellets
+                                ,"EB_Propane"           = item99.os.cast$EB_Propane
+                                ,"EB_Wood"              = item99.os.cast$EB_Wood
+                                ,"EB_All.Heating.Fuels" = item99.os.cast$`EB_All Fuels`)
+  
+}
 
 levels(item99.os.table$DHW.Location)
 rowOrder <- c("Basement"
@@ -998,7 +1034,7 @@ item99.os.table <- data.frame(item99.os.table)
 item99.os.final.SF <- item99.os.table[which(item99.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item99.os.table) %in% c("BuildingType"))]
 
-exportTable(item99.os.final.SF, "SF", "Table 106", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item99.os.final.SF, "SF", "Table 106", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # unweighted Analysis
@@ -1035,29 +1071,57 @@ item99.os.cast <- dcast(setDT(item99.os.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                      ,value.var = c("Percent", "SE", "Count", "n"))
 
-item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType
-                           ,"DHW.Location"        = item99.os.cast$DHW.Location
-                           ,"Percent.Electric"    = item99.os.cast$Percent_Electric
-                           ,"SE.Electric"         = item99.os.cast$SE_Electric
-                           ,"n.Electric"          = item99.os.cast$n_Electric
-                           ,"Percent.Natural.Gas" = item99.os.cast$Percent_Gas
-                           ,"SE.Natural.Gas"      = item99.os.cast$SE_Gas
-                           ,"n.Gas"               = item99.os.cast$n_Gas
-                           ,"Percent.Oil"         = item99.os.cast$Percent_Oil
-                           ,"SE.Oil"              = item99.os.cast$SE_Oil
-                           ,"n.Oil"               = item99.os.cast$n_Oil
-                           # ,"Percent.Pellets"     = item99.os.cast$Percent_Pellets
-                           # ,"SE.Pellets"          = item99.os.cast$SE_Pellets
-                           # ,"n.Pellets"           = item99.os.cast$n_Pellets
-                           # ,"Percent.Propane"     = item99.os.cast$Percent_Propane
-                           # ,"SE.Propane"          = item99.os.cast$SE_Propane
-                           # ,"n.Propane"           = item99.os.cast$n_Propane
-                           ,"Percent.Wood"        = item99.os.cast$Percent_Wood
-                           ,"SE.Wood"             = item99.os.cast$SE_Wood
-                           ,"n.Wood"              = item99.os.cast$n_Wood
-                           ,"Percent.All.Heating.Fuel.Types" = item99.os.cast$`Percent_All Fuels`
-                           ,"SE.All.Heating.Fuel.Types"      = item99.os.cast$`SE_All Fuels`
-                           ,"n_All.Heating.Fuel.Types"       = item99.os.cast$`n_All Fuels`)
+if(os.ind == "scl"){
+  item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType
+                                ,"DHW.Location"        = item99.os.cast$DHW.Location
+                                ,"Percent.Electric"    = item99.os.cast$Percent_Electric
+                                ,"SE.Electric"         = item99.os.cast$SE_Electric
+                                ,"n.Electric"          = item99.os.cast$n_Electric
+                                ,"Percent.Natural.Gas" = item99.os.cast$Percent_Gas
+                                ,"SE.Natural.Gas"      = item99.os.cast$SE_Gas
+                                ,"n.Gas"               = item99.os.cast$n_Gas
+                                ,"Percent.Oil"         = item99.os.cast$Percent_Oil
+                                ,"SE.Oil"              = item99.os.cast$SE_Oil
+                                ,"n.Oil"               = item99.os.cast$n_Oil
+                                # ,"Percent.Pellets"     = item99.os.cast$Percent_Pellets
+                                # ,"SE.Pellets"          = item99.os.cast$SE_Pellets
+                                # ,"n.Pellets"           = item99.os.cast$n_Pellets
+                                # ,"Percent.Propane"     = item99.os.cast$Percent_Propane
+                                # ,"SE.Propane"          = item99.os.cast$SE_Propane
+                                # ,"n.Propane"           = item99.os.cast$n_Propane
+                                ,"Percent.Wood"        = item99.os.cast$Percent_Wood
+                                ,"SE.Wood"             = item99.os.cast$SE_Wood
+                                ,"n.Wood"              = item99.os.cast$n_Wood
+                                ,"Percent.All.Heating.Fuel.Types" = item99.os.cast$`Percent_All Fuels`
+                                ,"SE.All.Heating.Fuel.Types"      = item99.os.cast$`SE_All Fuels`
+                                ,"n_All.Heating.Fuel.Types"       = item99.os.cast$`n_All Fuels`)
+  
+}else if(os.ind == "snopud"){
+  item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType
+                                ,"DHW.Location"        = item99.os.cast$DHW.Location
+                                ,"Percent.Electric"    = item99.os.cast$Percent_Electric
+                                ,"SE.Electric"         = item99.os.cast$SE_Electric
+                                ,"n.Electric"          = item99.os.cast$n_Electric
+                                ,"Percent.Natural.Gas" = item99.os.cast$Percent_Gas
+                                ,"SE.Natural.Gas"      = item99.os.cast$SE_Gas
+                                ,"n.Gas"               = item99.os.cast$n_Gas
+                                ,"Percent.Oil"         = item99.os.cast$Percent_Oil
+                                ,"SE.Oil"              = item99.os.cast$SE_Oil
+                                ,"n.Oil"               = item99.os.cast$n_Oil
+                                # ,"Percent.Pellets"     = item99.os.cast$Percent_Pellets
+                                # ,"SE.Pellets"          = item99.os.cast$SE_Pellets
+                                # ,"n.Pellets"           = item99.os.cast$n_Pellets
+                                ,"Percent.Propane"     = item99.os.cast$Percent_Propane
+                                ,"SE.Propane"          = item99.os.cast$SE_Propane
+                                ,"n.Propane"           = item99.os.cast$n_Propane
+                                ,"Percent.Wood"        = item99.os.cast$Percent_Wood
+                                ,"SE.Wood"             = item99.os.cast$SE_Wood
+                                ,"n.Wood"              = item99.os.cast$n_Wood
+                                ,"Percent.All.Heating.Fuel.Types" = item99.os.cast$`Percent_All Fuels`
+                                ,"SE.All.Heating.Fuel.Types"      = item99.os.cast$`SE_All Fuels`
+                                ,"n_All.Heating.Fuel.Types"       = item99.os.cast$`n_All Fuels`)
+  
+}
 
 levels(item99.os.table$DHW.Location)
 rowOrder <- c("Basement"
@@ -1073,7 +1137,7 @@ item99.os.table <- data.frame(item99.os.table)
 item99.os.final.SF <- item99.os.table[which(item99.os.table$BuildingType == "Single Family")
                                 ,-which(colnames(item99.os.table) %in% c("BuildingType"))]
 
-exportTable(item99.os.final.SF, "SF", "Table 106", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item99.os.final.SF, "SF", "Table 106", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1093,7 +1157,7 @@ item100.os.dat$count <- 1
 
 item100.os.dat0 <- item100.os.dat[which(item100.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
-item100.os.dat1 <- left_join(item100.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item100.os.dat1 <- left_join(item100.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item100.os.ind <- item100.os.dat1$CK_Cadmus_ID[grep("Water Heater",item100.os.dat1$Generic)]
 item100.os.dat2 <- item100.os.dat1[which(item100.os.dat1$CK_Cadmus_ID %in% item100.os.ind),]
@@ -1111,8 +1175,8 @@ item100.os.dat3$Heating.Fuel[grep("Gas|gas",item100.os.dat3$Heating.Fuel)] <- "G
 item100.os.dat3$Heating.Fuel[grep("unk|Unk|N/A|Other|from",item100.os.dat3$Heating.Fuel)] <- NA
 item100.os.dat3$Heating.Fuel[grep("oil|Oil|kero|Kero",item100.os.dat3$Heating.Fuel)] <- "Oil"
 item100.os.dat3$Heating.Fuel[grep("Elect|elect",item100.os.dat3$Heating.Fuel)] <- "Electric"
-item100.os.dat3$Heating.Fuel[which(item100.os.dat3$Heating.Fuel == "Wood (pellets)")] <- "Pellets"
-item100.os.dat3$Heating.Fuel[which(item100.os.dat3$Heating.Fuel == "Wood (cord)")] <- "Wood"
+item100.os.dat3$Heating.Fuel[which(item100.os.dat3$Heating.Fuel %in% c("Wood (pellets)","Wood (Pellets)"))]  <- "Pellets"
+item100.os.dat3$Heating.Fuel[which(item100.os.dat3$Heating.Fuel %in% c("Wood (cord)","Wood (Cord)"))]        <- "Wood"
 
 item100.os.dat4 <- item100.os.dat3[which(!is.na(item100.os.dat3$Heating.Fuel)),]
 
@@ -1140,7 +1204,7 @@ item100.os.merge1 <- left_join(item100.os.heat.final, item100.os.WH.sum1, by = c
 item100.os.merge2 <- item100.os.merge1[which(!(is.na(item100.os.merge1$DHW.Location))),]
 colnames(item100.os.merge2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Heating.Fuel","Heat.Count", "DHW.Location", "DHW.Fuel", "DHW.Count")
 
-item100.os.join <- left_join(scl.dat, item100.os.merge2)
+item100.os.join <- left_join(os.dat, item100.os.merge2)
 item100.os.join <- item100.os.join[which(!is.na(item100.os.join$Heating.Fuel)),]
 item100.os.join1 <- item100.os.join[which(item100.os.join$DHW.Location != "Unknown"),]
 
@@ -1191,42 +1255,77 @@ item100.os.final <- rbind.data.frame(item100.os.final, item100.os.all.fuels)
 item100.os.cast <- dcast(setDT(item100.os.final)
                       ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
-
-item100.os.table <- data.frame("BuildingType"        = item100.os.cast$BuildingType
-                            ,"DHW.Location"        = item100.os.cast$DHW.Location
-                            ,"Percent.Electric"    = item100.os.cast$w.percent_Electric
-                            ,"SE.Electric"         = item100.os.cast$w.SE_Electric
-                            ,"n.Electric"          = item100.os.cast$n_Electric
-                            ,"Percent.Natural.Gas" = item100.os.cast$w.percent_Gas
-                            ,"SE.Natural.Gas"      = item100.os.cast$w.SE_Gas
-                            ,"n.Gas"               = item100.os.cast$n_Gas
-                            ,"Percent.Oil"         = item100.os.cast$w.percent_Oil
-                            ,"SE.Oil"              = item100.os.cast$w.SE_Oil
-                            ,"n.Oil"               = item100.os.cast$n_Oil
-                            # ,"Percent.Pellets"     = item100.os.cast$w.percent_Pellets
-                            # ,"SE.Pellets"          = item100.os.cast$w.SE_Pellets
-                            # ,"n.Pellets"           = item100.os.cast$n_Pellets
-                            # ,"Percent.Propane"     = item100.os.cast$w.percent_Propane
-                            # ,"SE.Propane"          = item100.os.cast$w.SE_Propane
-                            # ,"n.Propane"           = item100.os.cast$n_Propane
-                            ,"Percent.Wood"        = item100.os.cast$w.percent_Wood
-                            ,"SE.Wood"             = item100.os.cast$w.SE_Wood
-                            ,"n.Wood"              = item100.os.cast$n_Wood
-                            ,"Percent.All.Heating.Fuel.Types" = item100.os.cast$`w.percent_All Fuels`
-                            ,"SE.All.Heating.Fuel.Types"      = item100.os.cast$`w.SE_All Fuels`
-                            ,"n.All.Heating.Fuel.Types"       = item100.os.cast$`n_All Fuels`
-                            ,"EB_Electric"          = item100.os.cast$EB_Electric
-                            ,"EB_Gas"               = item100.os.cast$EB_Gas
-                            ,"EB_Oil"               = item100.os.cast$EB_Oil
-                            # ,"EB_Pellets"           = item100.os.cast$EB_Pellets
-                            # ,"EB_Propane"           = item100.os.cast$EB_Propane
-                            ,"EB_Wood"              = item100.os.cast$EB_Wood
-                            ,"EB_All.Heating.Fuels" = item100.os.cast$`EB_All Fuels`)
+names(item100.os.cast)
+if(os.ind == "scl"){
+  item100.os.table <- data.frame("BuildingType"         = item100.os.cast$BuildingType
+                                ,"DHW.Location"        = item100.os.cast$DHW.Location
+                                ,"Percent.Electric"    = item100.os.cast$w.percent_Electric
+                                ,"SE.Electric"         = item100.os.cast$w.SE_Electric
+                                ,"n.Electric"          = item100.os.cast$n_Electric
+                                ,"Percent.Natural.Gas" = item100.os.cast$w.percent_Gas
+                                ,"SE.Natural.Gas"      = item100.os.cast$w.SE_Gas
+                                ,"n.Gas"               = item100.os.cast$n_Gas
+                                ,"Percent.Oil"         = item100.os.cast$w.percent_Oil
+                                ,"SE.Oil"              = item100.os.cast$w.SE_Oil
+                                ,"n.Oil"               = item100.os.cast$n_Oil
+                                # ,"Percent.Pellets"     = item100.os.cast$w.percent_Pellets
+                                # ,"SE.Pellets"          = item100.os.cast$w.SE_Pellets
+                                # ,"n.Pellets"           = item100.os.cast$n_Pellets
+                                # ,"Percent.Propane"     = item100.os.cast$w.percent_Propane
+                                # ,"SE.Propane"          = item100.os.cast$w.SE_Propane
+                                # ,"n.Propane"           = item100.os.cast$n_Propane
+                                ,"Percent.Wood"        = item100.os.cast$w.percent_Wood
+                                ,"SE.Wood"             = item100.os.cast$w.SE_Wood
+                                ,"n.Wood"              = item100.os.cast$n_Wood
+                                ,"Percent.All.Heating.Fuel.Types" = item100.os.cast$`w.percent_All Fuels`
+                                ,"SE.All.Heating.Fuel.Types"      = item100.os.cast$`w.SE_All Fuels`
+                                ,"n.All.Heating.Fuel.Types"       = item100.os.cast$`n_All Fuels`
+                                ,"EB_Electric"          = item100.os.cast$EB_Electric
+                                ,"EB_Gas"               = item100.os.cast$EB_Gas
+                                ,"EB_Oil"               = item100.os.cast$EB_Oil
+                                # ,"EB_Pellets"           = item100.os.cast$EB_Pellets
+                                # ,"EB_Propane"           = item100.os.cast$EB_Propane
+                                ,"EB_Wood"              = item100.os.cast$EB_Wood
+                                ,"EB_All.Heating.Fuels" = item100.os.cast$`EB_All Fuels`)
+  
+}else if(os.ind == "snopud"){
+  item100.os.table <- data.frame("BuildingType"         = item100.os.cast$BuildingType
+                                ,"DHW.Location"        = item100.os.cast$DHW.Location
+                                ,"Percent.Electric"    = item100.os.cast$w.percent_Electric
+                                ,"SE.Electric"         = item100.os.cast$w.SE_Electric
+                                ,"n.Electric"          = item100.os.cast$n_Electric
+                                ,"Percent.Natural.Gas" = item100.os.cast$w.percent_Gas
+                                ,"SE.Natural.Gas"      = item100.os.cast$w.SE_Gas
+                                ,"n.Gas"               = item100.os.cast$n_Gas
+                                ,"Percent.Oil"         = item100.os.cast$w.percent_Oil
+                                ,"SE.Oil"              = item100.os.cast$w.SE_Oil
+                                ,"n.Oil"               = item100.os.cast$n_Oil
+                                # ,"Percent.Pellets"     = item100.os.cast$w.percent_Pellets
+                                # ,"SE.Pellets"          = item100.os.cast$w.SE_Pellets
+                                # ,"n.Pellets"           = item100.os.cast$n_Pellets
+                                # ,"Percent.Propane"     = item100.os.cast$w.percent_Propane
+                                # ,"SE.Propane"          = item100.os.cast$w.SE_Propane
+                                # ,"n.Propane"           = item100.os.cast$n_Propane
+                                ,"Percent.Wood"        = item100.os.cast$w.percent_Wood
+                                ,"SE.Wood"             = item100.os.cast$w.SE_Wood
+                                ,"n.Wood"              = item100.os.cast$n_Wood
+                                ,"Percent.All.Heating.Fuel.Types" = item100.os.cast$`w.percent_All Fuels`
+                                ,"SE.All.Heating.Fuel.Types"      = item100.os.cast$`w.SE_All Fuels`
+                                ,"n.All.Heating.Fuel.Types"       = item100.os.cast$`n_All Fuels`
+                                ,"EB_Electric"          = item100.os.cast$EB_Electric
+                                ,"EB_Gas"               = item100.os.cast$EB_Gas
+                                ,"EB_Oil"               = item100.os.cast$EB_Oil
+                                # ,"EB_Pellets"           = item100.os.cast$EB_Pellets
+                                # ,"EB_Propane"           = item100.os.cast$EB_Propane
+                                ,"EB_Wood"              = item100.os.cast$EB_Wood
+                                ,"EB_All.Heating.Fuels" = item100.os.cast$`EB_All Fuels`)
+  
+}
 
 item100.os.final.SF <- item100.os.table[which(item100.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item100.os.table) %in% c("BuildingType"))]
 
-exportTable(item100.os.final.SF, "SF", "Table 107", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item100.os.final.SF, "SF", "Table 107", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1281,7 +1380,7 @@ item100.os.table <- data.frame("BuildingType"         = item100.os.cast$Building
 item100.os.final.SF <- item100.os.table[which(item100.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item100.os.table) %in% c("BuildingType"))]
 
-exportTable(item100.os.final.SF, "SF", "Table 107", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item100.os.final.SF, "SF", "Table 107", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1305,7 +1404,7 @@ item101.os.data <- left_join(item101.os.data, unique(item101.os.merge[which(coln
                                                                                            ,"DHW.Location"
                                                                                            ,"Heat.Count"
                                                                                            ,"DHW.Fuel"))]))
-item101.os.data <- item101.os.data[which(item101.os.data$CK_Building_ID == "SCL GenPop"),]
+item101.os.data <- item101.os.data[which(item101.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis
 #######################
@@ -1330,41 +1429,77 @@ item101.os.cast <- dcast(setDT(item101.os.final)
                       ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 names(item101.os.cast)
-item101.os.table <- data.frame("BuildingType"         = item101.os.cast$BuildingType
-                            ,"DHW.Location"        = item101.os.cast$DHW.Location
-                            ,"Percent.Electric"    = item101.os.cast$w.percent_Electric
-                            ,"SE.Electric"         = item101.os.cast$w.SE_Electric
-                            ,"n.Electric"          = item101.os.cast$n_Electric
-                            ,"Percent.Natural.Gas" = item101.os.cast$w.percent_Gas
-                            ,"SE.Natural.Gas"      = item101.os.cast$w.SE_Gas
-                            ,"n.Gas"               = item101.os.cast$n_Gas
-                            # ,"Percent.Oil"         = item101.os.cast$w.percent_Oil
-                            # ,"SE.Oil"              = item101.os.cast$w.SE_Oil
-                            # ,"n.Oil"               = item101.os.cast$n_Oil
-                            # ,"Percent.Pellets"     = item101.os.cast$w.percent_Pellets
-                            # ,"SE.Pellets"          = item101.os.cast$w.SE_Pellets
-                            # ,"n.Pellets"           = item101.os.cast$n_Pellets
-                            # ,"Percent.Propane"     = item101.os.cast$w.percent_Propane
-                            # ,"SE.Propane"          = item101.os.cast$w.SE_Propane
-                            # ,"n.Propane"           = item101.os.cast$n_Propane
-                            ,"Percent.Wood"        = item101.os.cast$w.percent_Wood
-                            ,"SE.Wood"             = item101.os.cast$w.SE_Wood
-                            ,"n.Wood"              = item101.os.cast$n_Wood
-                            ,"Percent.All.Heating.Fuel.Types" = item101.os.cast$`w.percent_All Fuels`
-                            ,"SE.All.Heating.Fuel.Types"      = item101.os.cast$`w.SE_All Fuels`
-                            ,"n.All.Heating.Fuel.Types"       = item101.os.cast$`n_All Fuels`
-                            ,"EB_Electric"          = item101.os.cast$EB_Electric
-                            ,"EB_Gas"               = item101.os.cast$EB_Gas
-                            # ,"EB_Oil"               = item101.os.cast$EB_Oil
-                            # ,"EB_Pellets"           = item101.os.cast$EB_Pellets
-                            # ,"EB_Propane"           = item101.os.cast$EB_Propane
-                            ,"EB_Wood"              = item101.os.cast$EB_Wood
-                            ,"EB_All.Heating.Fuels" = item101.os.cast$`EB_All Fuels`)
+
+if(os.ind == "scl"){
+  item101.os.table <- data.frame("BuildingType"         = item101.os.cast$BuildingType
+                                 ,"DHW.Location"        = item101.os.cast$DHW.Location
+                                 ,"Percent.Electric"    = item101.os.cast$w.percent_Electric
+                                 ,"SE.Electric"         = item101.os.cast$w.SE_Electric
+                                 ,"n.Electric"          = item101.os.cast$n_Electric
+                                 ,"Percent.Natural.Gas" = item101.os.cast$w.percent_Gas
+                                 ,"SE.Natural.Gas"      = item101.os.cast$w.SE_Gas
+                                 ,"n.Gas"               = item101.os.cast$n_Gas
+                                 # ,"Percent.Oil"         = item101.os.cast$w.percent_Oil
+                                 # ,"SE.Oil"              = item101.os.cast$w.SE_Oil
+                                 # ,"n.Oil"               = item101.os.cast$n_Oil
+                                 # ,"Percent.Pellets"     = item101.os.cast$w.percent_Pellets
+                                 # ,"SE.Pellets"          = item101.os.cast$w.SE_Pellets
+                                 # ,"n.Pellets"           = item101.os.cast$n_Pellets
+                                 # ,"Percent.Propane"     = item101.os.cast$w.percent_Propane
+                                 # ,"SE.Propane"          = item101.os.cast$w.SE_Propane
+                                 # ,"n.Propane"           = item101.os.cast$n_Propane
+                                 ,"Percent.Wood"        = item101.os.cast$w.percent_Wood
+                                 ,"SE.Wood"             = item101.os.cast$w.SE_Wood
+                                 ,"n.Wood"              = item101.os.cast$n_Wood
+                                 ,"Percent.All.Heating.Fuel.Types" = item101.os.cast$`w.percent_All Fuels`
+                                 ,"SE.All.Heating.Fuel.Types"      = item101.os.cast$`w.SE_All Fuels`
+                                 ,"n.All.Heating.Fuel.Types"       = item101.os.cast$`n_All Fuels`
+                                 ,"EB_Electric"          = item101.os.cast$EB_Electric
+                                 ,"EB_Gas"               = item101.os.cast$EB_Gas
+                                 # ,"EB_Oil"               = item101.os.cast$EB_Oil
+                                 # ,"EB_Pellets"           = item101.os.cast$EB_Pellets
+                                 # ,"EB_Propane"           = item101.os.cast$EB_Propane
+                                 ,"EB_Wood"              = item101.os.cast$EB_Wood
+                                 ,"EB_All.Heating.Fuels" = item101.os.cast$`EB_All Fuels`)
+  
+}else if(os.ind == "snopud"){
+  item101.os.table <- data.frame("BuildingType"         = item101.os.cast$BuildingType
+                                 ,"DHW.Location"        = item101.os.cast$DHW.Location
+                                 ,"Percent.Electric"    = item101.os.cast$w.percent_Electric
+                                 ,"SE.Electric"         = item101.os.cast$w.SE_Electric
+                                 ,"n.Electric"          = item101.os.cast$n_Electric
+                                 ,"Percent.Natural.Gas" = item101.os.cast$w.percent_Gas
+                                 ,"SE.Natural.Gas"      = item101.os.cast$w.SE_Gas
+                                 ,"n.Gas"               = item101.os.cast$n_Gas
+                                 # ,"Percent.Oil"         = item101.os.cast$w.percent_Oil
+                                 # ,"SE.Oil"              = item101.os.cast$w.SE_Oil
+                                 # ,"n.Oil"               = item101.os.cast$n_Oil
+                                 # ,"Percent.Pellets"     = item101.os.cast$w.percent_Pellets
+                                 # ,"SE.Pellets"          = item101.os.cast$w.SE_Pellets
+                                 # ,"n.Pellets"           = item101.os.cast$n_Pellets
+                                 # ,"Percent.Propane"     = item101.os.cast$w.percent_Propane
+                                 # ,"SE.Propane"          = item101.os.cast$w.SE_Propane
+                                 # ,"n.Propane"           = item101.os.cast$n_Propane
+                                 # ,"Percent.Wood"        = item101.os.cast$w.percent_Wood
+                                 # ,"SE.Wood"             = item101.os.cast$w.SE_Wood
+                                 # ,"n.Wood"              = item101.os.cast$n_Wood
+                                 ,"Percent.All.Heating.Fuel.Types" = item101.os.cast$`w.percent_All Fuels`
+                                 ,"SE.All.Heating.Fuel.Types"      = item101.os.cast$`w.SE_All Fuels`
+                                 ,"n.All.Heating.Fuel.Types"       = item101.os.cast$`n_All Fuels`
+                                 ,"EB_Electric"          = item101.os.cast$EB_Electric
+                                 ,"EB_Gas"               = item101.os.cast$EB_Gas
+                                 # ,"EB_Oil"               = item101.os.cast$EB_Oil
+                                 # ,"EB_Pellets"           = item101.os.cast$EB_Pellets
+                                 # ,"EB_Propane"           = item101.os.cast$EB_Propane
+                                 # ,"EB_Wood"              = item101.os.cast$EB_Wood
+                                 ,"EB_All.Heating.Fuels" = item101.os.cast$`EB_All Fuels`)
+  
+}
 
 item101.os.final.SF <- item101.os.table[which(item101.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item101.os.table) %in% c("BuildingType"))]
 
-exportTable(item101.os.final.SF, "SF", "Table 108", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item101.os.final.SF, "SF", "Table 108", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -1392,31 +1527,59 @@ item101.os.cast <- dcast(setDT(item101.os.final)
                       ,formula = BuildingType + DHW.Location ~ Heating.Fuel
                       ,value.var = c("Percent", "SE", "Count", "n"))
 
-item101.os.table <- data.frame("BuildingType"         = item101.os.cast$BuildingType
-                            ,"DHW.Location"        = item101.os.cast$DHW.Location
-                            ,"Percent.Electric"    = item101.os.cast$Percent_Electric
-                            ,"SE.Electric"         = item101.os.cast$SE_Electric
-                            ,"n.Electric"          = item101.os.cast$n_Electric
-                            ,"Percent.Natural.Gas" = item101.os.cast$Percent_Gas
-                            ,"SE.Natural.Gas"      = item101.os.cast$SE_Gas
-                            ,"n.Gas"               = item101.os.cast$n_Gas
-                            # ,"Percent.Oil"         = item101.os.cast$Percent_Oil
-                            # ,"SE.Oil"              = item101.os.cast$SE_Oil
-                            # ,"n.Oil"               = item101.os.cast$n_Oil
-                            # ,"Percent.Pellets"     = item101.os.cast$Percent_Pellets
-                            # ,"SE.Pellets"          = item101.os.cast$SE_Pellets
-                            # ,"n.Pellets"           = item101.os.cast$n_Pellets
-                            # ,"Percent.Propane"     = item101.os.cast$Percent_Propane
-                            # ,"SE.Propane"          = item101.os.cast$SE_Propane
-                            # ,"n.Propane"           = item101.os.cast$n_Propane
-                            ,"Percent.Wood"        = item101.os.cast$Percent_Wood
-                            ,"SE.Wood"             = item101.os.cast$SE_Wood
-                            ,"n.Wood"              = item101.os.cast$n_Wood
-                            ,"Percent.All.Heating.Fuel.Types" = item101.os.cast$`Percent_All Fuels`
-                            ,"SE.All.Heating.Fuel.Types"      = item101.os.cast$`SE_All Fuels`
-                            ,"n_All.Heating.Fuel.Types"       = item101.os.cast$`n_All Fuels`)
+if(os.ind == "scl"){
+  item101.os.table <- data.frame("BuildingType"         = item101.os.cast$BuildingType
+                                 ,"DHW.Location"        = item101.os.cast$DHW.Location
+                                 ,"Percent.Electric"    = item101.os.cast$Percent_Electric
+                                 ,"SE.Electric"         = item101.os.cast$SE_Electric
+                                 ,"n.Electric"          = item101.os.cast$n_Electric
+                                 ,"Percent.Natural.Gas" = item101.os.cast$Percent_Gas
+                                 ,"SE.Natural.Gas"      = item101.os.cast$SE_Gas
+                                 ,"n.Gas"               = item101.os.cast$n_Gas
+                                 # ,"Percent.Oil"         = item101.os.cast$Percent_Oil
+                                 # ,"SE.Oil"              = item101.os.cast$SE_Oil
+                                 # ,"n.Oil"               = item101.os.cast$n_Oil
+                                 # ,"Percent.Pellets"     = item101.os.cast$Percent_Pellets
+                                 # ,"SE.Pellets"          = item101.os.cast$SE_Pellets
+                                 # ,"n.Pellets"           = item101.os.cast$n_Pellets
+                                 # ,"Percent.Propane"     = item101.os.cast$Percent_Propane
+                                 # ,"SE.Propane"          = item101.os.cast$SE_Propane
+                                 # ,"n.Propane"           = item101.os.cast$n_Propane
+                                 ,"Percent.Wood"        = item101.os.cast$Percent_Wood
+                                 ,"SE.Wood"             = item101.os.cast$SE_Wood
+                                 ,"n.Wood"              = item101.os.cast$n_Wood
+                                 ,"Percent.All.Heating.Fuel.Types" = item101.os.cast$`Percent_All Fuels`
+                                 ,"SE.All.Heating.Fuel.Types"      = item101.os.cast$`SE_All Fuels`
+                                 ,"n_All.Heating.Fuel.Types"       = item101.os.cast$`n_All Fuels`)
+  
+}else if(os.ind == "snopud"){
+  item101.os.table <- data.frame("BuildingType"         = item101.os.cast$BuildingType
+                                 ,"DHW.Location"        = item101.os.cast$DHW.Location
+                                 ,"Percent.Electric"    = item101.os.cast$Percent_Electric
+                                 ,"SE.Electric"         = item101.os.cast$SE_Electric
+                                 ,"n.Electric"          = item101.os.cast$n_Electric
+                                 ,"Percent.Natural.Gas" = item101.os.cast$Percent_Gas
+                                 ,"SE.Natural.Gas"      = item101.os.cast$SE_Gas
+                                 ,"n.Gas"               = item101.os.cast$n_Gas
+                                 # ,"Percent.Oil"         = item101.os.cast$Percent_Oil
+                                 # ,"SE.Oil"              = item101.os.cast$SE_Oil
+                                 # ,"n.Oil"               = item101.os.cast$n_Oil
+                                 # ,"Percent.Pellets"     = item101.os.cast$Percent_Pellets
+                                 # ,"SE.Pellets"          = item101.os.cast$SE_Pellets
+                                 # ,"n.Pellets"           = item101.os.cast$n_Pellets
+                                 # ,"Percent.Propane"     = item101.os.cast$Percent_Propane
+                                 # ,"SE.Propane"          = item101.os.cast$SE_Propane
+                                 # ,"n.Propane"           = item101.os.cast$n_Propane
+                                 # ,"Percent.Wood"        = item101.os.cast$Percent_Wood
+                                 # ,"SE.Wood"             = item101.os.cast$SE_Wood
+                                 # ,"n.Wood"              = item101.os.cast$n_Wood
+                                 ,"Percent.All.Heating.Fuel.Types" = item101.os.cast$`Percent_All Fuels`
+                                 ,"SE.All.Heating.Fuel.Types"      = item101.os.cast$`SE_All Fuels`
+                                 ,"n_All.Heating.Fuel.Types"       = item101.os.cast$`n_All Fuels`)
+  
+}
 
 item101.os.final.SF <- item101.os.table[which(item101.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item101.os.table) %in% c("BuildingType"))]
 
-exportTable(item101.os.final.SF, "SF", "Table 108", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item101.os.final.SF, "SF", "Table 108", weighted = FALSE, osIndicator = export.ind, OS = T)

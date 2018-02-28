@@ -290,6 +290,9 @@ rbsa.dat8$CK_Cadmus_ID <- trimws(toupper(rbsa.dat8$CK_Cadmus_ID))
 #############################################################################################
 "%notin%" <- Negate("%in%")
 rbsa.dat9 <- rbsa.dat8[which(names(rbsa.dat8) %notin% c("County"))]
+rbsa.dat9$Conditioned.Area <- as.numeric(as.character(rbsa.dat9$Conditioned.Area))
+rbsa.dat9$Conditioned.Volume <- as.numeric(as.character(rbsa.dat9$Conditioned.Volume))
+
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
