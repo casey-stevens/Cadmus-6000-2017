@@ -479,25 +479,46 @@ item123.os.summary$Age.Category[which(item123.os.summary$Age.Category == "Qty.Oc
 
 item123.os.cast <- item123.os.summary
 
-item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
-                            ,"Age.Category"   = item123.os.cast$Age.Category
-                            ,"Mean_SCL.GenPop"      = item123.os.cast$`Mean_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = item123.os.cast$`SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = item123.os.cast$`n_SCL GenPop`
-                            ,"Mean_SCL.LI"          = item123.os.cast$`Mean_SCL LI`
-                            ,"SE_SCL.LI"            = item123.os.cast$`SE_SCL LI`
-                            ,"n_SCL.LI"             = item123.os.cast$`n_SCL LI`
-                            ,"Mean_SCL.EH"          = item123.os.cast$`Mean_SCL EH`
-                            ,"SE_SCL.EH"            = item123.os.cast$`SE_SCL EH`
-                            ,"n_SCL.EH"             = item123.os.cast$`n_SCL EH`
-                            ,"Mean_2017.RBSA.PS"    = item123.os.cast$`Mean_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = item123.os.cast$`SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = item123.os.cast$`n_2017 RBSA PS`
-                            ,"EB_SCL.GenPop"        = item123.os.cast$`EB_SCL GenPop`
-                            ,"EB_SCL.LI"            = item123.os.cast$`EB_SCL LI`
-                            ,"EB_SCL.EH"            = item123.os.cast$`EB_SCL EH`
-                            ,"EB_2017.RBSA.PS"      = item123.os.cast$`EB_2017 RBSA PS`
-)
+if(os.ind == "scl"){
+  item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
+                                 ,"Age.Category"   = item123.os.cast$Age.Category
+                                 ,"Mean_SCL.GenPop"      = item123.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item123.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item123.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item123.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item123.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item123.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item123.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item123.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item123.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item123.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item123.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item123.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = item123.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = item123.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = item123.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = item123.os.cast$`EB_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
+                                 ,"Age.Category"   = item123.os.cast$Age.Category
+                                 ,"Mean_SnoPUD"          = item123.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item123.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item123.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item123.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item123.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item123.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item123.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item123.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item123.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"            = item123.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"      = item123.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"           = item123.os.cast$`EB_2017 RBSA NW`
+  )
+  
+}
+
 
 item123.os.final.SF <- item123.os.table[which(item123.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item123.os.table) %in% c("BuildingType"))]
@@ -519,22 +540,38 @@ item123.os.summary$Age.Category[which(item123.os.summary$Age.Category == "Qty.Oc
 
 item123.os.cast <- item123.os.summary
 
-item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
-                            ,"Age.Category"   = item123.os.cast$Age.Category
-                            ,"Mean_SCL.GenPop"      = item123.os.cast$`Mean_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = item123.os.cast$`SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = item123.os.cast$`n_SCL GenPop`
-                            ,"Mean_SCL.LI"          = item123.os.cast$`Mean_SCL LI`
-                            ,"SE_SCL.LI"            = item123.os.cast$`SE_SCL LI`
-                            ,"n_SCL.LI"             = item123.os.cast$`n_SCL LI`
-                            ,"Mean_SCL.EH"          = item123.os.cast$`Mean_SCL EH`
-                            ,"SE_SCL.EH"            = item123.os.cast$`SE_SCL EH`
-                            ,"n_SCL.EH"             = item123.os.cast$`n_SCL EH`
-                            ,"Mean_2017.RBSA.PS"    = item123.os.cast$`Mean_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = item123.os.cast$`SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = item123.os.cast$`n_2017 RBSA PS`
-)
-
+if(os.ind == "scl"){
+  item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
+                                 ,"Age.Category"   = item123.os.cast$Age.Category
+                                 ,"Mean_SCL.GenPop"      = item123.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item123.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item123.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item123.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item123.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item123.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item123.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item123.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item123.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item123.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item123.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item123.os.cast$`n_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  item123.os.table <- data.frame("BuildingType"    = item123.os.cast$BuildingType
+                                 ,"Age.Category"   = item123.os.cast$Age.Category
+                                 ,"Mean_SnoPUD"          = item123.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item123.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item123.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item123.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item123.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item123.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item123.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item123.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item123.os.cast$`n_2017 RBSA NW`
+  )
+  
+}
 item123.os.final.SF <- item123.os.table[which(item123.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item123.os.table) %in% c("BuildingType"))]
 

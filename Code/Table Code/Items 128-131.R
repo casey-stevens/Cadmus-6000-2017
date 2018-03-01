@@ -447,11 +447,11 @@ exportTable(item131.final.SF, "SF", "Table 138", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Item 128: DISTRIBUTION OF HOMES WITH GAS FUEL ASSISTANCE BY PERCENTAGE OF ASSISTANCE AND CK_Building_ID (SF table 135, MH table 110)
@@ -463,7 +463,7 @@ item128.os.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
 colnames(item128.os.dat) <- c("Financial.Assistance", "Percent.Assistance", "CK_Cadmus_ID")
 
 #merge together analysis data with cleaned scl data
-item128.os.dat1 <- left_join(scl.dat, item128.os.dat, by = "CK_Cadmus_ID")
+item128.os.dat1 <- left_join(os.dat, item128.os.dat, by = "CK_Cadmus_ID")
 item128.os.dat1$Percent.Assistance[which(item128.os.dat1$Financial.Assistance == "No")] <- "No Utility Bill Assistance"
 unique(item128.os.dat1$Percent.Assistance)
 
@@ -494,25 +494,45 @@ item128.os.cast <- dcast(setDT(item128.os.final)
                       , formula = BuildingType + Percent.Assistance ~ CK_Building_ID
                       , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-item128.os.table <- data.frame("BuildingType"    = item128.os.cast$BuildingType
-                            ,"Percent.Assistance" = item128.os.cast$Percent.Assistance
-                            ,"Percent_SCL.GenPop"   = item128.os.cast$`w.percent_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = item128.os.cast$`w.SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = item128.os.cast$`n_SCL GenPop`
-                            ,"Percent_SCL.LI"       = item128.os.cast$`w.percent_SCL LI`
-                            ,"SE_SCL.LI"            = item128.os.cast$`w.SE_SCL LI`
-                            ,"n_SCL.LI"             = item128.os.cast$`n_SCL LI`
-                            ,"Percent_SCL.EH"       = item128.os.cast$`w.percent_SCL EH`
-                            ,"SE_SCL.EH"            = item128.os.cast$`w.SE_SCL EH`
-                            ,"n_SCL.EH"             = item128.os.cast$`n_SCL EH`
-                            ,"Percent_2017.RBSA.PS" = item128.os.cast$`w.percent_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = item128.os.cast$`w.SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = item128.os.cast$`n_2017 RBSA PS`
-                            ,"EB_SCL.GenPop"        = item128.os.cast$`EB_SCL GenPop`
-                            ,"EB_SCL.LI"            = item128.os.cast$`EB_SCL LI`
-                            ,"EB_SCL.EH"            = item128.os.cast$`EB_SCL EH`
-                            ,"EB_2017.RBSA.PS"      = item128.os.cast$`EB_2017 RBSA PS`
-)
+if(os.ind == "scl"){
+  item128.os.table <- data.frame("BuildingType"    = item128.os.cast$BuildingType
+                                 ,"Percent.Assistance" = item128.os.cast$Percent.Assistance
+                                 ,"Percent_SCL.GenPop"   = item128.os.cast$`w.percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item128.os.cast$`w.SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item128.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = item128.os.cast$`w.percent_SCL LI`
+                                 ,"SE_SCL.LI"            = item128.os.cast$`w.SE_SCL LI`
+                                 ,"n_SCL.LI"             = item128.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = item128.os.cast$`w.percent_SCL EH`
+                                 ,"SE_SCL.EH"            = item128.os.cast$`w.SE_SCL EH`
+                                 ,"n_SCL.EH"             = item128.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = item128.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item128.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item128.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = item128.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = item128.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = item128.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = item128.os.cast$`EB_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  item128.os.table <- data.frame("BuildingType"    = item128.os.cast$BuildingType
+                                 ,"Percent.Assistance" = item128.os.cast$Percent.Assistance
+                                 ,"Percent_SnoPUD"          = item128.os.cast$`w.percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = item128.os.cast$`w.SE_SnoPUD`
+                                 ,"n_SnoPUD"                = item128.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = item128.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = item128.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = item128.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = item128.os.cast$`w.percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = item128.os.cast$`w.SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = item128.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"               = item128.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"         = item128.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"              = item128.os.cast$`EB_2017 RBSA NW`
+  )
+  
+}
 
 # row ordering example code
 unique(item128.os.table$Percent.Assistance)
@@ -528,7 +548,7 @@ item128.os.table <- data.frame(item128.os.table)
 item128.os.final.SF <- item128.os.table[which(item128.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item128.os.table) %in% c("BuildingType"))]
 
-exportTable(item128.os.final.SF, "SF", "Table 135", weighted = TRUE, osIndicator = "SCL", OS = TRUE)
+exportTable(item128.os.final.SF, "SF", "Table 135", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -543,22 +563,38 @@ item128.os.cast <- dcast(setDT(item128.os.final)
                       , formula = BuildingType + Percent.Assistance ~ CK_Building_ID
                       , value.var = c("Percent", "SE", "Count", "n"))
 
-
-item128.os.table <- data.frame("BuildingType"    = item128.os.cast$BuildingType
-                            ,"Percent.Assistance"      = item128.os.cast$Percent.Assistance
-                            ,"Percent_SCL.GenPop"   = item128.os.cast$`Percent_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = item128.os.cast$`SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = item128.os.cast$`n_SCL GenPop`
-                            ,"Percent_SCL.LI"       = item128.os.cast$`Percent_SCL LI`
-                            ,"SE_SCL.LI"            = item128.os.cast$`SE_SCL LI`
-                            ,"n_SCL.LI"             = item128.os.cast$`n_SCL LI`
-                            ,"Percent_SCL.EH"       = item128.os.cast$`Percent_SCL EH`
-                            ,"SE_SCL.EH"            = item128.os.cast$`SE_SCL EH`
-                            ,"n_SCL.EH"             = item128.os.cast$`n_SCL EH`
-                            ,"Percent_2017.RBSA.PS" = item128.os.cast$`Percent_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = item128.os.cast$`SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = item128.os.cast$`n_2017 RBSA PS`
-)
+if(os.ind == "scl"){
+  item128.os.table <- data.frame("BuildingType"    = item128.os.cast$BuildingType
+                                 ,"Percent.Assistance"      = item128.os.cast$Percent.Assistance
+                                 ,"Percent_SCL.GenPop"   = item128.os.cast$`Percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item128.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item128.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = item128.os.cast$`Percent_SCL LI`
+                                 ,"SE_SCL.LI"            = item128.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item128.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = item128.os.cast$`Percent_SCL EH`
+                                 ,"SE_SCL.EH"            = item128.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item128.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = item128.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item128.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item128.os.cast$`n_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  item128.os.table <- data.frame("BuildingType"    = item128.os.cast$BuildingType
+                                 ,"Percent.Assistance"      = item128.os.cast$Percent.Assistance
+                                 ,"Percent_SnoPUD"          = item128.os.cast$`Percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = item128.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"                = item128.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = item128.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = item128.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = item128.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = item128.os.cast$`Percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = item128.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = item128.os.cast$`n_2017 RBSA NW`
+  )
+  
+}
 
 # row ordering example code
 unique(item128.os.table$Percent.Assistance)
@@ -574,7 +610,7 @@ item128.os.table <- data.frame(item128.os.table)
 item128.os.final.SF <- item128.os.table[which(item128.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(item128.os.table) %in% c("BuildingType"))]
 
-exportTable(item128.os.final.SF, "SF", "Table 135", weighted = FALSE, osIndicator = "SCL", OS = TRUE)
+exportTable(item128.os.final.SF, "SF", "Table 135", weighted = FALSE, osIndicator = export.ind, OS = TRUE)
 
 
 
@@ -594,7 +630,7 @@ item129.os.dat$Thermostat_Setpoint <- as.numeric(as.character(item129.os.dat$The
 item129.os.dat0 <- item129.os.dat[which(item129.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item129.os.dat1 <- left_join(scl.dat, item129.os.dat0, by = "CK_Cadmus_ID")
+item129.os.dat1 <- left_join(os.dat, item129.os.dat0, by = "CK_Cadmus_ID")
 
 unique(item129.os.dat1$Thermostat_Setpoint)
 
@@ -624,7 +660,7 @@ item129.os.final <- item129.os.final[which(item129.os.final$CK_Building_ID %noti
 item129.os.final.SF <- item129.os.final[which(item129.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item129.os.final) %in% c("BuildingType"))]
 
-exportTable(item129.os.final.SF, "SF", "Table 136", weighted = TRUE, osIndicator = "SCL", OS = TRUE)
+exportTable(item129.os.final.SF, "SF", "Table 136", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -638,7 +674,7 @@ item129.os.final <- item129.os.final[which(item129.os.final$CK_Building_ID %noti
 item129.os.final.SF <- item129.os.final[which(item129.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item129.os.final) %in% c("BuildingType"))]
 
-exportTable(item129.os.final.SF, "SF", "Table 136", weighted = FALSE, osIndicator = "SCL", OS = TRUE)
+exportTable(item129.os.final.SF, "SF", "Table 136", weighted = FALSE, osIndicator = export.ind, OS = TRUE)
 
 
 
@@ -657,7 +693,7 @@ colnames(item130.os.dat) <- c("CK_Cadmus_ID", "Nighttime_Heating", "Thermostat_S
 item130.os.dat0 <- item130.os.dat[which(item130.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item130.os.dat1 <- left_join(item130.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item130.os.dat1 <- left_join(item130.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item130.os.dat2.0 <- item130.os.dat1[which(!(is.na(item130.os.dat1$Thermostat_Setpoint))),]
 item130.os.dat2 <- item130.os.dat2.0[which(item130.os.dat2.0$Thermostat_Setpoint > 0),]
@@ -674,7 +710,7 @@ item130.os.sum <- summarise(group_by(item130.os.dat3, CK_Cadmus_ID, CK_Building_
                          ,Ind = sum(Heating.Setback))
 item130.os.sum$Ind[which(item130.os.sum$Ind > 0)] <- 1
 
-item130.os.merge <- left_join(scl.dat, item130.os.sum)
+item130.os.merge <- left_join(os.dat, item130.os.sum)
 item130.os.merge <- item130.os.merge[which(!is.na(item130.os.merge$Ind)),]
 
 ################################################
@@ -697,7 +733,7 @@ item130.os.final <- item130.os.final[which(item130.os.final$CK_Building_ID %noti
 item130.os.final.SF <- item130.os.final[which(item130.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item130.os.final) %in% c("BuildingType"))]
 
-exportTable(item130.os.final.SF, "SF", "Table 137", weighted = TRUE, osIndicator = "SCL", OS = TRUE)
+exportTable(item130.os.final.SF, "SF", "Table 137", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -712,7 +748,7 @@ item130.os.final <- item130.os.final[which(item130.os.final$CK_Building_ID %noti
 item130.os.final.SF <- item130.os.final[which(item130.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item130.os.final) %in% c("BuildingType"))]
 
-exportTable(item130.os.final.SF, "SF", "Table 137", weighted = FALSE, osIndicator = "SCL", OS = TRUE)
+exportTable(item130.os.final.SF, "SF", "Table 137", weighted = FALSE, osIndicator = export.ind, OS = TRUE)
 
 
 
@@ -734,7 +770,7 @@ item131.os.dat$Thermostat_Setpoint <- as.numeric(as.character(item131.os.dat$The
 item131.os.dat0 <- item131.os.dat[which(item131.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned scl data
-item131.os.dat1 <- left_join(item131.os.dat0, scl.dat, by = "CK_Cadmus_ID")
+item131.os.dat1 <- left_join(item131.os.dat0, os.dat, by = "CK_Cadmus_ID")
 
 item131.os.dat2.0 <- item131.os.dat1[which(!(is.na(item131.os.dat1$Thermostat_Setpoint))),]
 item131.os.dat2 <- item131.os.dat2.0[which(item131.os.dat2.0$Thermostat_Setpoint > 0),]
@@ -747,7 +783,7 @@ item131.os.dat3 <- item131.os.dat3.0[which(item131.os.dat3.0$Nighttime_Heating >
 item131.os.dat3$Heating.Setback <- item131.os.dat3$Thermostat_Setpoint - item131.os.dat3$Nighttime_Heating
 item131.os.dat4 <- item131.os.dat3[which(colnames(item131.os.dat3) %in% c("CK_Cadmus_ID", "Heating.Setback"))]
 
-item131.os.merge <- left_join(scl.dat, item131.os.dat4)
+item131.os.merge <- left_join(os.dat, item131.os.dat4)
 item131.os.merge <- item131.os.merge[which(!is.na(item131.os.merge$Heating.Setback)),]
 
 ################################################
@@ -770,7 +806,7 @@ item131.os.final <- item131.os.final[which(item131.os.final$CK_Building_ID %noti
 item131.os.final.SF <- item131.os.final[which(item131.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item131.os.final) %in% c("BuildingType"))]
 
-exportTable(item131.os.final.SF, "SF", "Table 138", weighted = TRUE, osIndicator = "SCL", OS = TRUE)
+exportTable(item131.os.final.SF, "SF", "Table 138", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -784,4 +820,4 @@ item131.os.final <- item131.os.final[which(item131.os.final$CK_Building_ID %noti
 item131.os.final.SF <- item131.os.final[which(item131.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item131.os.final) %in% c("BuildingType"))]
 
-exportTable(item131.os.final.SF, "SF", "Table 138", weighted = FALSE, osIndicator = "SCL", OS = TRUE)
+exportTable(item131.os.final.SF, "SF", "Table 138", weighted = FALSE, osIndicator = export.ind, OS = TRUE)

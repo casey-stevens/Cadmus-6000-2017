@@ -27,7 +27,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 
 #read in Envelope data for MF table
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_SiteID"
                                                                   ,"Ceiling.Type"
@@ -51,6 +51,8 @@ envelope.dat.MF$CeilingType[which(!(envelope.dat.MF$CeilingType %in% c("Attic", 
 unique(envelope.dat.MF$CeilingType)
 
 unique(envelope.dat.MF$Floor.Type)
+unique(envelope.dat.MF$`Floor.Sub-Type`)
+unique(envelope.dat.MF$Type.of.Area.Below)
 envelope.dat.MF$FloorType <- ""
 envelope.dat.MF$FloorType[grep("Slab",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Slab"
 envelope.dat.MF$FloorType[grep("Crawlspace",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Crawlspace"
@@ -73,20 +75,21 @@ unique(envelope.dat.MF$Floor.Sub.Type)
 envelope.sub <- envelope.dat.MF[-grep("Unknown", envelope.dat.MF$Floor.Sub.Type),]
 ii=1
 for(ii in 1:nrow(envelope.sub)){
-  if(envelope.sub$Type.of.Area.Below[ii] %notin% c("-- Datapoint not asked for --", "Datapoint not asked for")){
+  if(envelope.sub$Floor.Type[ii] %in% c("Floor over other area")){
     envelope.sub$Floor.Sub.Type[ii] <- paste(envelope.sub$Floor.Sub.Type[ii], "Over", envelope.sub$Type.of.Area.Below[ii], sep = " ")
   }else{
     envelope.sub$Floor.Sub.Type[ii] <- envelope.sub$Floor.Sub.Type[ii]
   }
 }
-envelope.sub$Floor.Sub.Type <- gsub("Framed Parking", "Framed Floor", envelope.sub$Floor.Sub.Type)
-envelope.sub$Floor.Sub.Type <- gsub("Framed Garage", "Framed Floor", envelope.sub$Floor.Sub.Type)
-envelope.sub$Floor.Sub.Type <- gsub("Framed Storage", "Framed Floor", envelope.sub$Floor.Sub.Type)
-envelope.sub$Floor.Sub.Type <- gsub("Framed Conditioned", "Framed Floor", envelope.sub$Floor.Sub.Type)
-envelope.sub$Floor.Sub.Type <- gsub("Framed Crawlspace", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# envelope.sub$Floor.Sub.Type <- gsub("Framed Parking", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# envelope.sub$Floor.Sub.Type <- gsub("Framed Garage", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# envelope.sub$Floor.Sub.Type <- gsub("Framed Storage", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# envelope.sub$Floor.Sub.Type <- gsub("Framed Conditioned", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# envelope.sub$Floor.Sub.Type <- gsub("Framed Crawlspace", "Framed Floor", envelope.sub$Floor.Sub.Type)
 unique(envelope.sub$Floor.Sub.Type)
 
 envelope.sub <- envelope.sub[-grep("Other|Residential|Outside",envelope.sub$Floor.Sub.Type),]
+unique(envelope.sub$Floor.Sub.Type)
 
 #############################################################################################
 #Item 236: Table 28

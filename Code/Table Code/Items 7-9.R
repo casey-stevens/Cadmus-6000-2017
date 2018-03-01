@@ -618,6 +618,24 @@ if(os.ind == "scl"){
                                ,"EB_RBSA.NW"           = item9.os.cast$`EB_2017 RBSA NW`)
 }
 
+# row ordering example code
+levels(item9.os.table$Home.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+item9.os.table <- item9.os.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item9.os.table <- data.frame(item9.os.table)
 
 
 #subset by home type
@@ -664,6 +682,25 @@ if(os.ind == "scl"){
                                ,"SE_RBSA.NW"           = item9.os.cast$`SE_2017 RBSA NW`
                                ,"n_RBSA.NW"            = item9.os.cast$`n_2017 RBSA NW`)
 }
+
+# row ordering example code
+levels(item9.os.table$Home.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+item9.os.table <- item9.os.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item9.os.table <- data.frame(item9.os.table)
 
 #subset by home type
 item9.os.final.SF <- item9.os.table[which(item9.os.table$BuildingType == "Single Family"),-1]

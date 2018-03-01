@@ -196,3 +196,237 @@ item156.final.SF <- item156.table[which(item156.table$BuildingType == "Single Fa
 
 exportTable(item156.final.SF, "SF", "Table B-1", weighted = FALSE)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################
+#
+#
+# OVERSAMPLE ANALYSIS
+#
+#
+############################################################################################################
+
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
+
+#############################################################################################
+#Item : DISTRIBUTION OF ELECTRICALLY HEATED HOMES BY VINTAGE AND CK_Building_ID (SF table 156)
+#############################################################################################
+#subset to columns needed for analysis
+item156.os.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                    ,"Generic"
+                                                                    ,"Primary.Heating.System"
+                                                                    ,"Heating.Fuel"
+                                                                    ,""
+                                                                    ,""))]
+
+#remove any repeat header rows from exporting
+item156.os.dat1 <- item156.os.dat[which(item156.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+#Keep only Yes and No in primary heating system indicator
+item156.os.dat2 <- item156.os.dat1[which(item156.os.dat1$Primary.Heating.System == "Yes"),]
+length(unique(item156.os.dat2$CK_Cadmus_ID)) #576 out of 601
+#check uniques
+unique(item156.os.dat2$Primary.Heating.System)
+item156.os.dat2$count <- 1
+
+item156.os.dat3 <- unique(item156.os.dat2[which(item156.os.dat2$Heating.Fuel == "Electric"),])
+
+item156.os.sum <- summarise(group_by(item156.os.dat3, CK_Cadmus_ID, Heating.Fuel)
+                         ,Count = sum(count))
+item156.os.sum$Count <- 1
+which(duplicated(item156.os.sum$CK_Cadmus_ID)) #none are duplicated!
+unique(item156.os.sum$Heating.Fuel)
+
+item156.os.merge <- left_join(os.dat, item156.os.sum)
+item156.os.merge <- item156.os.merge[which(!is.na(item156.os.merge$Heating.Fuel)),]
+item156.os.merge <- item156.os.merge[which(!is.na(item156.os.merge$HomeYearBuilt_bins2)),]
+
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item156.os.data <- weightedData(item156.os.merge[-which(colnames(item156.os.merge) %in% c("Heating.Fuel"
+                                                                                 ,"Count"))])
+item156.os.data <- left_join(item156.os.data, item156.os.merge[which(colnames(item156.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Heating.Fuel"
+                                                                                           ,"Count"))])
+item156.os.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+item156.os.final <- proportionRowsAndColumns1(CustomerLevelData = item156.os.data
+                                           ,valueVariable    = 'Count'
+                                           ,columnVariable   = 'CK_Building_ID'
+                                           ,rowVariable      = 'HomeYearBuilt_bins2'
+                                           ,aggregateColumnName = "Remove")
+
+item156.os.cast <- dcast(setDT(item156.os.final)
+                      , formula = BuildingType + HomeYearBuilt_bins2 ~ CK_Building_ID
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+
+if(os.ind == "scl"){
+  item156.os.table <- data.frame("BuildingType"    = item156.os.cast$BuildingType
+                              ,"Housing.Vintage"= item156.os.cast$HomeYearBuilt_bins2
+                              ,"Percent_SCL.GenPop"   = item156.os.cast$`w.percent_SCL GenPop`
+                              ,"SE_SCL.GenPop"        = item156.os.cast$`w.SE_SCL GenPop`
+                              ,"n_SCL.GenPop"         = item156.os.cast$`n_SCL GenPop`
+                              ,"Percent_SCL.LI"       = item156.os.cast$`w.percent_SCL LI`
+                              ,"SE_SCL.LI"            = item156.os.cast$`w.SE_SCL LI`
+                              ,"n_SCL.LI"             = item156.os.cast$`n_SCL LI`
+                              ,"Percent_SCL.EH"       = item156.os.cast$`w.percent_SCL EH`
+                              ,"SE_SCL.EH"            = item156.os.cast$`w.SE_SCL EH`
+                              ,"n_SCL.EH"             = item156.os.cast$`n_SCL EH`
+                              ,"Percent_2017.RBSA.PS" = item156.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"      = item156.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"       = item156.os.cast$`n_2017 RBSA PS`
+                              ,"EB_SCL.GenPop"        = item156.os.cast$`EB_SCL GenPop`
+                              ,"EB_SCL.LI"            = item156.os.cast$`EB_SCL LI`
+                              ,"EB_SCL.EH"            = item156.os.cast$`EB_SCL EH`
+                              ,"EB_2017.RBSA.PS"      = item156.os.cast$`EB_2017 RBSA PS`
+  )
+}else if(os.ind == "snopud"){
+  item156.os.table <- data.frame("BuildingType"    = item156.os.cast$BuildingType
+                              ,"Housing.Vintage"= item156.os.cast$HomeYearBuilt_bins2
+                              ,"Percent_SnoPUD"          = item156.os.cast$`w.percent_SnoPUD`
+                              ,"SE_SnoPUD"               = item156.os.cast$`w.SE_SnoPUD`
+                              ,"n_SnoPUD"                = item156.os.cast$`n_SnoPUD`
+                              ,"Percent_2017.RBSA.PS"    = item156.os.cast$`w.percent_2017 RBSA PS`
+                              ,"SE_2017.RBSA.PS"         = item156.os.cast$`w.SE_2017 RBSA PS`
+                              ,"n_2017.RBSA.PS"          = item156.os.cast$`n_2017 RBSA PS`
+                              ,"Percent_RBSA.NW"         = item156.os.cast$`w.percent_2017 RBSA NW`
+                              ,"SE_RBSA.NW"              = item156.os.cast$`w.SE_2017 RBSA NW`
+                              ,"n_RBSA.NW"               = item156.os.cast$`n_2017 RBSA NW`
+                              ,"EB_SnoPUD"               = item156.os.cast$`EB_SnoPUD`
+                              ,"EB_2017.RBSA.PS"         = item156.os.cast$`EB_2017 RBSA PS`
+                              ,"EB_RBSA.NW"              = item156.os.cast$`EB_2017 RBSA NW`
+  )
+}
+
+# If final table have <NA> something was named incorrectly
+levels(item156.os.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"Total")
+item156.os.table <- item156.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item156.os.table <- data.frame(item156.os.table)
+
+item156.os.final.SF <- item156.os.table[which(item156.os.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item156.os.table) %in% c("BuildingType"))]
+
+exportTable(item156.os.final.SF, "SF", "Table B-1", weighted = TRUE, osIndicator = export.ind, OS = T)
+
+
+#######################
+# Unweighted Analysis
+#######################
+item156.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item156.os.data
+                                                   ,valueVariable    = 'Count'
+                                                   ,columnVariable   = 'CK_Building_ID'
+                                                   ,rowVariable      = 'HomeYearBuilt_bins2'
+                                                   ,aggregateColumnName = "Remove")
+
+item156.os.cast <- dcast(setDT(item156.os.final)
+                      , formula = BuildingType + HomeYearBuilt_bins2 ~ CK_Building_ID
+                      , value.var = c("Percent", "SE", "Count", "n"))
+
+
+if(os.ind == "scl"){
+  item156.os.table <- data.frame("BuildingType"    = item156.os.cast$BuildingType
+                                 ,"Housing.Vintage"= item156.os.cast$HomeYearBuilt_bins2
+                                 ,"Percent_SCL.GenPop"   = item156.os.cast$`Percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item156.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item156.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = item156.os.cast$`Percent_SCL LI`
+                                 ,"SE_SCL.LI"            = item156.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item156.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = item156.os.cast$`Percent_SCL EH`
+                                 ,"SE_SCL.EH"            = item156.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item156.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = item156.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item156.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item156.os.cast$`n_2017 RBSA PS`
+  )
+}else if(os.ind == "snopud"){
+  item156.os.table <- data.frame("BuildingType"    = item156.os.cast$BuildingType
+                                 ,"Housing.Vintage"= item156.os.cast$HomeYearBuilt_bins2
+                                 ,"Percent_SnoPUD"          = item156.os.cast$`Percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = item156.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"                = item156.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = item156.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = item156.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = item156.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = item156.os.cast$`Percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = item156.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = item156.os.cast$`n_2017 RBSA NW`
+  )
+}
+# If final table have <NA> something was named incorrectly
+levels(item156.os.table$Housing.Vintage)
+rowOrder <- c("Pre 1951"
+              ,"1951-1960"
+              ,"1961-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"Total")
+item156.os.table <- item156.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item156.os.table <- data.frame(item156.os.table)
+
+item156.os.final.SF <- item156.os.table[which(item156.os.table$BuildingType == "Single Family")
+                                  ,-which(colnames(item156.os.table) %in% c("BuildingType"))]
+
+exportTable(item156.os.final.SF, "SF", "Table B-1", weighted = FALSE, osIndicator = export.ind, OS = T)

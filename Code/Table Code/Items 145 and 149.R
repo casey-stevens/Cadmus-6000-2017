@@ -310,13 +310,13 @@ exportTable(item149.table.MH, "MH", "Table 131", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
-results.dat <- merge(scl.dat, billing.dat, 
+results.dat <- merge(os.dat, billing.dat, 
                      by = "CK_Cadmus_ID")
 
 results.dat2 <- results.dat
@@ -365,7 +365,7 @@ mechanical.dat3 <- unique(data.frame("CK_Cadmus_ID" = mechanical.dat2$CK_Cadmus_
                                      ,"Primary_Secondary" = mechanical.dat2$Heating.System.Ind,
                                      stringsAsFactors = F))
 
-mechanical.dat4 <- left_join(scl.dat, mechanical.dat3, by = "CK_Cadmus_ID")
+mechanical.dat4 <- left_join(os.dat, mechanical.dat3, by = "CK_Cadmus_ID")
 
 mechanical.dat5 <- mechanical.dat4[which(mechanical.dat4$Primary_Secondary == "Primary Heating System"),]
 length(unique(mechanical.dat5$CK_Cadmus_ID))
@@ -426,28 +426,48 @@ item145.os.cast <- mean_two_groups(CustomerLevelData  = item145.os.data
                                  , columnAggregate  = "Remove"
                                  , rowAggregate     = "Total")
 
-item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
-                              ,"Heating.Fuel"            = item145.os.cast$Heating_Fuel
-                              ,"Mean_SCL.GenPop"      = item145.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = item145.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = item145.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = item145.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = item145.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = item145.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = item145.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = item145.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = item145.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = item145.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = item145.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = item145.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = item145.os.cast$`EB_2017 RBSA PS`)
+
+if(os.ind == "scl"){
+  item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item145.os.cast$Heating_Fuel
+                                 ,"Mean_SCL.GenPop"      = item145.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item145.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item145.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item145.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item145.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item145.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item145.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item145.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item145.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = item145.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = item145.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = item145.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = item145.os.cast$`EB_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item145.os.cast$Heating_Fuel
+                                 ,"Mean_SnoPUD"          = item145.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item145.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item145.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item145.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item145.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item145.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"            = item145.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"      = item145.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"           = item145.os.cast$`EB_2017 RBSA NW`)
+  
+}
 
 item145.os.table.SF <- item145.os.final[which(item145.os.final$BuildingType %in% c("Single Family")),-1]
 
-exportTable(item145.os.table.SF, "SF", "Table 152", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item145.os.table.SF, "SF", "Table 152", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ##############################
 # Unweighted Analysis
@@ -459,23 +479,40 @@ item145.os.cast <- mean_two_groups_unweighted(CustomerLevelData  = item145.os.da
                                    , columnAggregate  = "Remove"
                                    , rowAggregate     = "Total")
 
-item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
-                               ,"Heating.Fuel"            = item145.os.cast$Heating_Fuel
-                               ,"Mean_SCL.GenPop"      = item145.os.cast$`Mean_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = item145.os.cast$`SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = item145.os.cast$`n_SCL GenPop`
-                               ,"Mean_SCL.LI"          = item145.os.cast$`Mean_SCL LI`
-                               ,"SE_SCL.LI"            = item145.os.cast$`SE_SCL LI`
-                               ,"n_SCL.LI"             = item145.os.cast$`n_SCL LI`
-                               ,"Mean_SCL.EH"          = item145.os.cast$`Mean_SCL EH`
-                               ,"SE_SCL.EH"            = item145.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item145.os.cast$`n_SCL EH`
-                               ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item145.os.cast$Heating_Fuel
+                                 ,"Mean_SCL.GenPop"      = item145.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item145.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item145.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item145.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item145.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item145.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item145.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item145.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item145.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  item145.os.final <- data.frame("BuildingType"          = item145.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item145.os.cast$Heating_Fuel
+                                 ,"Mean_SnoPUD"          = item145.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item145.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item145.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item145.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item145.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item145.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item145.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item145.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item145.os.cast$`n_2017 RBSA NW`)
+  
+}
+
 item145.os.table.SF <- item145.os.final[which(item145.os.final$BuildingType %in% c("Single Family")),-1]
 
-exportTable(item145.os.table.SF, "SF", "Table 152", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item145.os.table.SF, "SF", "Table 152", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -519,27 +556,47 @@ item149.os.cast <- mean_two_groups(CustomerLevelData  = item149.os.data
                                    , columnAggregate  = "Remove"
                                    , rowAggregate     = "Total")
 
-item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
-                               ,"Heating.Fuel"            = item149.os.cast$Heating_Fuel
-                               ,"Mean_SCL.GenPop"      = item149.os.cast$`Mean_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = item149.os.cast$`SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = item149.os.cast$`n_SCL GenPop`
-                               ,"Mean_SCL.LI"          = item149.os.cast$`Mean_SCL LI`
-                               ,"SE_SCL.LI"            = item149.os.cast$`SE_SCL LI`
-                               ,"n_SCL.LI"             = item149.os.cast$`n_SCL LI`
-                               ,"Mean_SCL.EH"          = item149.os.cast$`Mean_SCL EH`
-                               ,"SE_SCL.EH"            = item149.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item149.os.cast$`n_SCL EH`
-                               ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`
-                               ,"EB_SCL.GenPop"        = item149.os.cast$`EB_SCL GenPop`
-                               ,"EB_SCL.LI"            = item149.os.cast$`EB_SCL LI`
-                               ,"EB_SCL.EH"            = item149.os.cast$`EB_SCL EH`
-                               ,"EB_2017.RBSA.PS"      = item149.os.cast$`EB_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item149.os.cast$Heating_Fuel
+                                 ,"Mean_SCL.GenPop"      = item149.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item149.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item149.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item149.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item149.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item149.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item149.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item149.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item149.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = item149.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = item149.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = item149.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = item149.os.cast$`EB_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item149.os.cast$Heating_Fuel
+                                 ,"Mean_SnoPUD"          = item149.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item149.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item149.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item149.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item149.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item149.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"            = item149.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"      = item149.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"           = item149.os.cast$`EB_2017 RBSA NW`)
+  
+}
+
 item149.os.table.SF <- item149.os.final[which(item149.os.final$BuildingType %in% c("Single Family")),-1]
 
-exportTable(item149.os.table.SF, "SF", "Table 156", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item149.os.table.SF, "SF", "Table 156", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 ##############################
 # Unweighted Analysis
@@ -551,21 +608,37 @@ item149.os.cast <- mean_two_groups_unweighted(CustomerLevelData  = item149.os.da
                                    , columnAggregate  = "Remove"
                                    , rowAggregate     = "Total")
 
-item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
-                               ,"Heating.Fuel"            = item149.os.cast$Heating_Fuel
-                               ,"Mean_SCL.GenPop"      = item149.os.cast$`Mean_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = item149.os.cast$`SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = item149.os.cast$`n_SCL GenPop`
-                               ,"Mean_SCL.LI"          = item149.os.cast$`Mean_SCL LI`
-                               ,"SE_SCL.LI"            = item149.os.cast$`SE_SCL LI`
-                               ,"n_SCL.LI"             = item149.os.cast$`n_SCL LI`
-                               ,"Mean_SCL.EH"          = item149.os.cast$`Mean_SCL EH`
-                               ,"SE_SCL.EH"            = item149.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = item149.os.cast$`n_SCL EH`
-                               ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item149.os.cast$Heating_Fuel
+                                 ,"Mean_SCL.GenPop"      = item149.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = item149.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = item149.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = item149.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = item149.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = item149.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = item149.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = item149.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = item149.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  item149.os.final <- data.frame("BuildingType"          = item149.os.cast$BuildingType
+                                 ,"Heating.Fuel"         = item149.os.cast$Heating_Fuel
+                                 ,"Mean_SnoPUD"          = item149.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = item149.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = item149.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = item149.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = item149.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = item149.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = item149.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = item149.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = item149.os.cast$`n_2017 RBSA NW`)
+  
+}
 
 item149.os.table.SF <- item149.os.final[which(item149.os.final$BuildingType %in% c("Single Family")),-1]
 
-exportTable(item149.os.table.SF, "SF", "Table 156", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item149.os.table.SF, "SF", "Table 156", weighted = FALSE, osIndicator = export.ind, OS = T)

@@ -343,11 +343,12 @@ exportTable(item142.final.MH, "MH", "Table 124", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
+
 #############################################################################################
 #Item 139: PERCENTAGE OF HOUSEHOLDS REPORTING RECENT SELF-FUNDED CONSERVATION BY CK_Building_ID (SF table 146, MH table 121)
 #############################################################################################
@@ -368,7 +369,7 @@ item139.os.dat1$Ind[which(item139.os.dat1$Reporting == "Yes")] <- 1
 item139.os.sum <- summarise(group_by(item139.os.dat1, CK_Cadmus_ID)
                          ,Ind = sum(unique(Ind)))
 
-item139.os.merge <- left_join(scl.dat, item139.os.sum)
+item139.os.merge <- left_join(os.dat, item139.os.sum)
 item139.os.merge <- item139.os.merge[which(!is.na(item139.os.merge$Ind)),]
 
 ################################################
@@ -391,7 +392,7 @@ item139.os.final <- item139.os.final[which(item139.os.final$CK_Building_ID %noti
 item139.os.final.SF <- item139.os.final[which(item139.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item139.os.final) %in% c("BuildingType"))]
 
-exportTable(item139.os.final.SF, "SF", "Table 146", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item139.os.final.SF, "SF", "Table 146", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -406,7 +407,7 @@ item139.os.final <- item139.os.final[which(item139.os.final$CK_Building_ID %noti
 item139.os.final.SF <- item139.os.final[which(item139.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item139.os.final) %in% c("BuildingType"))]
 
-exportTable(item139.os.final.SF, "SF", "Table 146", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item139.os.final.SF, "SF", "Table 146", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -430,7 +431,7 @@ item140.os.dat1$Reporting.Count[which(item140.os.dat1$Reporting == "Yes")] <- 1
 item140.os.sum <- summarise(group_by(item140.os.dat1, CK_Cadmus_ID)
                          ,Ind = sum(unique(Reporting.Count)))
 
-item140.os.merge <- left_join(scl.dat, item140.os.sum)
+item140.os.merge <- left_join(os.dat, item140.os.sum)
 item140.os.merge <- item140.os.merge[which(!is.na(item140.os.merge$Ind)),]
 
 ################################################
@@ -453,7 +454,7 @@ item140.os.final <- item140.os.final[which(item140.os.final$CK_Building_ID %noti
 item140.os.final.SF <- item140.os.final[which(item140.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item140.os.final) %in% c("BuildingType"))]
 
-exportTable(item140.os.final.SF, "SF", "Table 147", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item140.os.final.SF, "SF", "Table 147", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -468,7 +469,7 @@ item140.os.final <- item140.os.final[which(item140.os.final$CK_Building_ID %noti
 item140.os.final.SF <- item140.os.final[which(item140.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item140.os.final) %in% c("BuildingType"))]
 
-exportTable(item140.os.final.SF, "SF", "Table 147", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item140.os.final.SF, "SF", "Table 147", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -494,7 +495,7 @@ item141.os.dat1$Reporting.tax.count[which(item141.os.dat1$Reporting.tax == "Yes"
 item141.os.sum <- summarise(group_by(item141.os.dat1, CK_Cadmus_ID)
                          ,Ind = sum(unique(Reporting.tax.count)))
 
-item141.os.merge <- left_join(scl.dat, item141.os.sum)
+item141.os.merge <- left_join(os.dat, item141.os.sum)
 item141.os.merge <- item141.os.merge[which(!is.na(item141.os.merge$Ind)),]
 
 ################################################
@@ -517,7 +518,7 @@ item141.os.final <- item141.os.final[which(item141.os.final$CK_Building_ID %noti
 item141.os.final.SF <- item141.os.final[which(item141.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item141.os.final) %in% c("BuildingType"))]
 
-exportTable(item141.os.final.SF, "SF", "Table 148", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item141.os.final.SF, "SF", "Table 148", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -532,7 +533,7 @@ item141.os.final <- item141.os.final[which(item141.os.final$CK_Building_ID %noti
 item141.os.final.SF <- item141.os.final[which(item141.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item141.os.final) %in% c("BuildingType"))]
 
-exportTable(item141.os.final.SF, "SF", "Table 148", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item141.os.final.SF, "SF", "Table 148", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -554,7 +555,7 @@ unique(item142.os.dat$Total.Reporting.Count)
 item142.os.sum <- summarise(group_by(item142.os.dat, CK_Cadmus_ID)
                          ,Ind = sum(unique(Total.Reporting.Count)))
 
-item142.os.merge <- left_join(scl.dat, item142.os.sum)
+item142.os.merge <- left_join(os.dat, item142.os.sum)
 item142.os.merge <- item142.os.merge[which(!is.na(item142.os.merge$Ind)),]
 
 ################################################
@@ -577,7 +578,7 @@ item142.os.final <- item142.os.final[which(item142.os.final$CK_Building_ID %noti
 item142.os.final.SF <- item142.os.final[which(item142.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item142.os.final) %in% c("BuildingType"))]
 
-exportTable(item142.os.final.SF, "SF", "Table 149", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item142.os.final.SF, "SF", "Table 149", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -592,4 +593,4 @@ item142.os.final <- item142.os.final[which(item142.os.final$CK_Building_ID %noti
 item142.os.final.SF <- item142.os.final[which(item142.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item142.os.final) %in% c("BuildingType"))]
 
-exportTable(item142.os.final.SF, "SF", "Table 149", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item142.os.final.SF, "SF", "Table 149", weighted = FALSE, osIndicator = export.ind, OS = T)

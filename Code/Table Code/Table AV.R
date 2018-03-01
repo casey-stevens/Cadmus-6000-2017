@@ -267,12 +267,11 @@ exportTable(tableAV.final.MF, "MF", "Table AV", weighted = TRUE)
 #
 #
 ############################################################################################################
-
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Table AK: Average CFM by Tons of System Capacity by System Type and/or CK_Building_ID
@@ -293,7 +292,7 @@ names(tableAV.os.melt) <- c("CK_Cadmus_ID", "Income.Level", "Detailed.Income.Lev
 
 
 #merge together analysis data with cleaned RBSA data
-tableAV.os.dat1 <- left_join(scl.dat, tableAV.os.melt, by = "CK_Cadmus_ID")
+tableAV.os.dat1 <- left_join(os.dat, tableAV.os.melt, by = "CK_Cadmus_ID")
 tableAV.os.dat1 <- tableAV.os.dat1[which(!is.na(tableAV.os.dat1$Income.Level)),]
 ################################################
 # Adding pop and sample sizes for weights
@@ -317,30 +316,50 @@ tableAV.os.cast <- dcast(setDT(tableAV.os.final)
                       , formula = BuildingType + Income.Level ~ CK_Building_ID
                       , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 
-tableAV.os.table <- data.frame("BuildingType"    = tableAV.os.cast$BuildingType
-                            ,"Income.Level" = tableAV.os.cast$Income.Level
-                            ,"Percent_SCL.GenPop"   = tableAV.os.cast$`w.percent_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = tableAV.os.cast$`w.SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
-                            ,"Percent_SCL.LI"       = tableAV.os.cast$`w.percent_SCL LI`
-                            ,"SE_SCL.LI"            = tableAV.os.cast$`w.SE_SCL LI`
-                            ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
-                            ,"Percent_SCL.EH"       = tableAV.os.cast$`w.percent_SCL EH`
-                            ,"SE_SCL.EH"            = tableAV.os.cast$`w.SE_SCL EH`
-                            ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
-                            ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`w.percent_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`w.SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
-                            ,"EB_SCL.GenPop"        = tableAV.os.cast$`EB_SCL GenPop`
-                            ,"EB_SCL.LI"            = tableAV.os.cast$`EB_SCL LI`
-                            ,"EB_SCL.EH"            = tableAV.os.cast$`EB_SCL EH`
-                            ,"EB_2017.RBSA.PS"      = tableAV.os.cast$`EB_2017 RBSA PS`
-)
+if(os.ind == "scl"){
+  tableAV.os.table <- data.frame("BuildingType"          = tableAV.os.cast$BuildingType
+                                 ,"Income.Level"         = tableAV.os.cast$Income.Level
+                                 ,"Percent_SCL.GenPop"   = tableAV.os.cast$`w.percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = tableAV.os.cast$`w.SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = tableAV.os.cast$`w.percent_SCL LI`
+                                 ,"SE_SCL.LI"            = tableAV.os.cast$`w.SE_SCL LI`
+                                 ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = tableAV.os.cast$`w.percent_SCL EH`
+                                 ,"SE_SCL.EH"            = tableAV.os.cast$`w.SE_SCL EH`
+                                 ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = tableAV.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = tableAV.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = tableAV.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = tableAV.os.cast$`EB_2017 RBSA PS`
+  )
+  
+}else if(os.ind == "snopud"){
+  tableAV.os.table <- data.frame("BuildingType"             = tableAV.os.cast$BuildingType
+                                 ,"Income.Level"            = tableAV.os.cast$Income.Level
+                                 ,"Percent_SnoPUD"          = tableAV.os.cast$`w.percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = tableAV.os.cast$`w.SE_SnoPUD`
+                                 ,"n_SnoPUD"                = tableAV.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = tableAV.os.cast$`w.percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = tableAV.os.cast$`w.SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = tableAV.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = tableAV.os.cast$`w.percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = tableAV.os.cast$`w.SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = tableAV.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"               = tableAV.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"         = tableAV.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"              = tableAV.os.cast$`EB_2017 RBSA NW`
+  )
+  
+}
 
 tableAV.os.final.SF <- tableAV.os.table[which(tableAV.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(tableAV.os.table) %in% c("BuildingType"))]
 
-exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 #######################
@@ -356,24 +375,39 @@ tableAV.os.cast <- dcast(setDT(tableAV.os.final)
                       , formula = BuildingType + Income.Level ~ CK_Building_ID
                       , value.var = c("Percent", "SE", "Count", "n"))
 
+if(os.ind == "scl"){
+  tableAV.os.table <- data.frame("BuildingType"          = tableAV.os.cast$BuildingType
+                                 ,"Income.Level"         = tableAV.os.cast$Income.Level
+                                 ,"Percent_SCL.GenPop"   = tableAV.os.cast$`Percent_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = tableAV.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
+                                 ,"Percent_SCL.LI"       = tableAV.os.cast$`Percent_SCL LI`
+                                 ,"SE_SCL.LI"            = tableAV.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
+                                 ,"Percent_SCL.EH"       = tableAV.os.cast$`Percent_SCL EH`
+                                 ,"SE_SCL.EH"            = tableAV.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
+                                 ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
+  )
+}else if(os.ind == "snopud"){
+  tableAV.os.table <- data.frame("BuildingType"             = tableAV.os.cast$BuildingType
+                                 ,"Income.Level"            = tableAV.os.cast$Income.Level
+                                 ,"Percent_SnoPUD"          = tableAV.os.cast$`Percent_SnoPUD`
+                                 ,"SE_SnoPUD"               = tableAV.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"                = tableAV.os.cast$`n_SnoPUD`
+                                 ,"Percent_2017.RBSA.PS"    = tableAV.os.cast$`Percent_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"         = tableAV.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"          = tableAV.os.cast$`n_2017 RBSA PS`
+                                 ,"Percent_RBSA.NW"         = tableAV.os.cast$`Percent_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"              = tableAV.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"               = tableAV.os.cast$`n_2017 RBSA NW`
+  )
+}
 
-tableAV.os.table <- data.frame("BuildingType"    = tableAV.os.cast$BuildingType
-                            ,"Income.Level"      = tableAV.os.cast$Income.Level
-                            ,"Percent_SCL.GenPop"   = tableAV.os.cast$`Percent_SCL GenPop`
-                            ,"SE_SCL.GenPop"        = tableAV.os.cast$`SE_SCL GenPop`
-                            ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
-                            ,"Percent_SCL.LI"       = tableAV.os.cast$`Percent_SCL LI`
-                            ,"SE_SCL.LI"            = tableAV.os.cast$`SE_SCL LI`
-                            ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
-                            ,"Percent_SCL.EH"       = tableAV.os.cast$`Percent_SCL EH`
-                            ,"SE_SCL.EH"            = tableAV.os.cast$`SE_SCL EH`
-                            ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
-                            ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`Percent_2017 RBSA PS`
-                            ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`SE_2017 RBSA PS`
-                            ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
-)
 
 tableAV.os.final.SF <- tableAV.os.table[which(tableAV.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(tableAV.os.table) %in% c("BuildingType"))]
 
-exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = FALSE, osIndicator = export.ind, OS = T)
