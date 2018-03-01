@@ -1466,7 +1466,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
-  }else if(columnVariable %in% c("TankSize", "Washer.Age","Heating_System")){
+  }else if(columnVariable %in% c("TankSize", "Washer.Age","Heating_System","Primary.Heating.System")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType","Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1540,7 +1540,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #################################################################################
   #obtain the total population size for the strata and columnVariable combination
   #################################################################################
-  if(columnVariable == "Heating_System"){
+  if(columnVariable %in% c("Heating_System", "Primary.Heating.System")){
     StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
                                                                         ,"State"
                                                                         ,"Region"
@@ -1605,8 +1605,35 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,N         = unique(columnVar.N.h)
                                      ,n         = sum(n_hj)
                                      ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
-  }else {
+  }else if(columnVariable %in% c("Heating_System","Primary.Heating.System")){
+    ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
+                                                 , c("BuildingType", columnVariable, rowVariable)
+                                                 , summarise
+                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h) #sum(unique(N.h))
+                                                 ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
+                                                                         (N.h^2 / n.h) * 
+                                                                         (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
+                                                 ,count     = sum((count))
+                                                 # ,col.N     = unique(columnVar.N.h)
+                                                 ,N         = sum((N.h))
+                                                 ,n         = sum((n_hj))
+                                                 ,EB   = w.SE * qt(1-(1-0.9)/2, n)
+                                                 # ,n         = unique(columnVar.n.h)
+    ), stringsAsFactors = F)
     
+    # calculate column totals
+    ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup
+                                     , c("BuildingType", columnVariable)
+                                     ,summarise
+                                     ,rowTotal       = "Total"
+                                     ,w.percent      = sum(w.percent)
+                                     ,w.SE           = sqrt(w.percent * (1 - w.percent) / sum(n, na.rm = T))
+                                     ,count          = sum(count, na.rm = T)
+                                     # ,n              = sum(n_hj, na.rm = T)
+                                     ,n              = sum((n), na.rm = T)
+                                     ,N              = sum(unique(N), na.rm = T)
+                                     ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
+  }else {
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
@@ -2082,7 +2109,9 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
   if(columnVariable %in% c("System.Type") & rowVariable %in% c("Heating.Fuel")){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Heating.Fuel == "Total" & item.final$System.Type == "All Systems")])
   }else if(columnVariable %in% c("Heating_System") & rowVariable %in% c("Fuel")){
-    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Fuel == "Total" & item.final$Heating_System == "All Systems")])
+    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Fuel %in% c("Total","All Fuels") & item.final$Heating_System == "All Systems")])
+  }else if(columnVariable %in% c("Primary.Heating.System") & rowVariable %in% c("Primary.Heating.Fuel")){
+    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Primary.Heating.Fuel == "Total" & item.final$Primary.Heating.System == "All Systems")])
   }else if(columnVariable == "System.Type" & rowVariable == "HomeType"){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$HomeType == "Total" & item.final$System.Type == "All Systems")])
   }else if(columnVariable == "TankSize" & rowVariable == "DHW.Fuel"){
