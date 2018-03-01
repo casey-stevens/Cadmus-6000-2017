@@ -39,17 +39,37 @@ one.line.dat1 <- data.frame("CK_Cadmus_ID"         = one.line.dat$Cadmus.ID
                             , "BuildingHeight"     = one.line.dat$N.Floors
                             ,"County"              = one.line.dat$County
                             , stringsAsFactors     = F)
-building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
-                              ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
-                              ,"CK_SiteID"        = one.line.dat$PK_SiteID
-                              , stringsAsFactors  = F)
-building.id.dat <- melt(building.id.dat, id.vars = "CK_Cadmus_ID")
-names(building.id.dat) <- c("CK_Cadmus_ID", "Remove", "CK_Building_ID")
-building.id.dat <- building.id.dat[which(!is.na(building.id.dat$CK_Building_ID)),which(colnames(building.id.dat) != "Remove")]
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+site.building.id.dat <- data.frame("CK_Cadmus_ID"      = one.line.dat$Cadmus.ID
+                                   ,"CK_Building_ID"   = one.line.dat$CK_BuildingID
+                                   ,"CK_SiteID"        = one.line.dat$PK_SiteID
+                                   , stringsAsFactors  = F)
+bldg.building.id.dat <- data.frame("CK_Building_ID"    = one.line.bldg.dat$PK_BuildingID
+                                   ,"MF.HomeYearBuilt" = one.line.bldg.dat$Year.Built
+                                   , stringsAsFactors  = F)
+building.id.dat <- left_join(site.building.id.dat, bldg.building.id.dat)
 
-one.line.dat1 <- left_join(building.id.dat, one.line.dat1)
+
+building.id.dat <- melt(building.id.dat, id.vars = c("CK_Cadmus_ID","MF.HomeYearBuilt"))
+names(building.id.dat) <- c("CK_Cadmus_ID", "MF.HomeYearBuilt", "Remove", "CK_Building_ID")
+building.id.dat <- building.id.dat[which(!is.na(building.id.dat$CK_Building_ID)),which(colnames(building.id.dat) != "Remove")]
+building.id.dat$MF.HomeYearBuilt <- as.numeric(as.character(building.id.dat$MF.HomeYearBuilt))
+building.id.dat.dedup <- building.id.dat[-which(duplicated(building.id.dat$CK_Building_ID)),]
+
+one.line.dat1 <- left_join(building.id.dat.dedup, one.line.dat1)
+one.line.dat1$HomeYearBuilt <- as.numeric(as.character(one.line.dat1$HomeYearBuilt))
 names(one.line.dat1)
 
+ii=5
+for (ii in 1:nrow(one.line.dat1)){
+  if (!is.na(one.line.dat1$MF.HomeYearBuilt[ii])){
+    one.line.dat1$HomeYearBuilt[ii] <- one.line.dat1$MF.HomeYearBuilt[ii]
+  }else{
+    one.line.dat1$HomeYearBuilt[ii] <- one.line.dat1$HomeYearBuilt[ii]
+  }
+}
+
+one.line.dat1 <- one.line.dat1[which(names(one.line.dat1) != "MF.HomeYearBuilt")]
 # site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 # site.dat0 <- data.frame("CK_Cadmus_ID" = site.dat$CK_Cadmus_ID
 #                         , "BuildingHeight"  = site.dat$SITE_Construction_TotalLevelsThisSite
