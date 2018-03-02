@@ -24,6 +24,8 @@ source("Code/Table Code/Export Function.R")
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
+rbsa.dat.site <- rbsa.dat[grep("SITE", rbsa.dat$CK_Building_ID),]
+rbsa.dat.bldg <- rbsa.dat[grep("BLDG", rbsa.dat$CK_Building_ID),]
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 
 #read in Envelope data for MF table

@@ -155,69 +155,6 @@ exportTable(item252.table, "MF", "Table 44", weighted = FALSE)
 
 
 
-#############################################################################################
-#Item 253: DISTRIBUTION OF CENTRAL DHW SYSTEMS BY FUEL TYPE (MF Table 45)
-#############################################################################################
-#subset to columns needed for analysis
-item253.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
-                                                                    ,"CK_SiteID"
-                                                                    ,"System.Type"
-                                                                    ,"DHW.Provided.by.Heating.System"
-                                                                    ,"DHW.Fuel"
-                                                                    ,"DHW.Type"                                                                     
-                                                                    ,"DHW.Technology"                                                                  
-                                                                    ,"DHW.Size.(Gallons)"                                                  
-                                                                    ,"DHW.Provided.by.Heating.System"                                      
-                                                                    ,"DHW.Capacity"                                                                    
-                                                                    ,"DHW.Capacity.Units"                                                              
-                                                                    ,"DHW.Energy.Factor"                                                               
-                                                                    ,"DHW.HPWH.in.Conditioned.Space"                                                   
-                                                                    ,"DHW.HPWH.Conditioned.Space.Type"                                                 
-                                                                    ,"DHW.HPWH.Conditioned.Space.Size"                                                 
-                                                                    ,"DHW.HPWH.Relation.to.Space.Heating.Unit"                                         
-                                                                    ,"DHW.HPWH.Ducting"                                                                
-                                                                    ,"DHW.Location"                                                                    
-                                                                    ,"DHW.Serves.Whole.House?"))]
-
-item253.dat1 <- left_join(rbsa.dat, item253.dat, by = "CK_Cadmus_ID")
-
-#Subset to Multifamily
-item253.dat2 <- item253.dat1[grep("Multifamily", item253.dat1$BuildingType),]
-
-item253.dat3 <- item253.dat2[grep("Water Heat|Multiple|Boiler|Tank|Other", item253.dat2$System.Type, ignore.case = T),]
-# unique(item253.dat3$)
-
-item253.dat3$DHW.Location <- item253.dat3$CK_SiteID
-item253.dat3$DHW.Location[grep("BLDG",item253.dat3$CK_SiteID, ignore.case = T)] <- "Central Water Heater"
-item253.dat3$DHW.Location[grep("SITE",item253.dat3$CK_SiteID, ignore.case = T)] <- "In-Unit Water Heater"
-unique(item253.dat3$DHW.Location)
-
-item253.dat4 <- item253.dat3[which(item253.dat3$DHW.Location == "Central Water Heater"),]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

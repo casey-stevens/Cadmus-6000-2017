@@ -2109,7 +2109,7 @@ proportions_two_groups_unweighted <- function(CustomerLevelData
   if(columnVariable %in% c("System.Type") & rowVariable %in% c("Heating.Fuel")){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Heating.Fuel == "Total" & item.final$System.Type == "All Systems")])
   }else if(columnVariable %in% c("Heating_System") & rowVariable %in% c("Fuel")){
-    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Fuel %in% c("Total","All Fuels") & item.final$Heating_System == "All Systems")])
+    item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Fuel %in% c("Total","All Fuels") & item.final$Heating_System %in% c("All Systems", "Total"))])
   }else if(columnVariable %in% c("Primary.Heating.System") & rowVariable %in% c("Primary.Heating.Fuel")){
     item.final$Percent <- item.final$Count / sum(item.final$Count[which(item.final$Primary.Heating.Fuel == "Total" & item.final$Primary.Heating.System == "All Systems")])
   }else if(columnVariable == "System.Type" & rowVariable == "HomeType"){
