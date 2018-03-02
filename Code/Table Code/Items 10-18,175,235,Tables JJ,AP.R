@@ -30,7 +30,7 @@ rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.c
 
 
 #Read in data for analysis
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
 envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
@@ -3576,7 +3576,7 @@ exportTable(item11A.os.table.SF, "SF", "Table 18A", weighted = FALSE, osIndicato
 # Table AP: DISTRIBUTION OF WALL INSULATION LEVELS BY CK_Building_ID
 #############################################################################################
 prep.tableAP.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
-
+which(duplicated(prep.tableAP.dat$CK_Cadmus_ID))
 #weight the u factor per home -- where weights are the wall area within home
 prep.tableAP.weightedU <- summarise(group_by(prep.tableAP.dat, CK_Cadmus_ID)
                                     ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
@@ -3627,12 +3627,12 @@ tableAP.data <- weightedData(unique(tableAP.merge[-which(colnames(tableAP.merge)
                                                                                         ,"aveRval"
                                                                                         ,"rvalue.bins.SF"
                                                                                         ,"count"))]))
-tableAP.data <- left_join(tableAP.data, tableAP.merge[which(colnames(tableAP.merge) %in% c("CK_Cadmus_ID"
+tableAP.data <- left_join(tableAP.data, unique(tableAP.merge[which(colnames(tableAP.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Wall.Type"
                                                                                            ,"aveUval"
                                                                                            ,"aveRval"
                                                                                            ,"rvalue.bins.SF"
-                                                                                           ,"count"))])
+                                                                                           ,"count"))]))
 
 #############################################################################################
 # Weighted Analysis - Single Family
@@ -4687,7 +4687,7 @@ exportTable(item18.os.table.SF, "SF", "Table 25", weighted = FALSE, osIndicator 
 item17.os.dat <- prep.dat5[grep("masonry|icf",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
-item17.os.weightedU <- summarise(group_by(item17.os.dat, CK_Cadmus_ID, CK_Building_ID)
+item17.os.weightedU <- summarise(group_by(item17.os.dat, CK_Cadmus_ID)
                               ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 
@@ -4911,7 +4911,7 @@ exportTable(item17.os.table.SF, "SF", "Table 24", weighted = FALSE, osIndicator 
 item17A.os.dat <- prep.dat5[grep("masonry|icf",prep.dat5$Wall.Type, ignore.case = T),]
 
 #weight the u factor per home -- where weights are the wall area within home
-item17A.os.weightedU <- summarise(group_by(item17A.os.dat, CK_Cadmus_ID, CK_Building_ID)
+item17A.os.weightedU <- summarise(group_by(item17A.os.dat, CK_Cadmus_ID)
                                  ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 

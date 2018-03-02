@@ -80,7 +80,7 @@ item227.melt <- melt(item227.dat0, id = c("CK_Cadmus_ID"))
 colnames(item227.melt) <- c("CK_Cadmus_ID", "Age.Category", "Number.of.Residents")
 item227.melt$CK_Cadmus_ID <- as.character(item227.melt$CK_Cadmus_ID)
 
-item227.merge <- left_join(rbsa.dat, item227.melt)
+item227.merge <- left_join(rbsa.dat.site, item227.melt)
 
 #Subset to Multifamily
 item227.merge <- item227.merge[grep("Multifamily", item227.merge$BuildingType),]

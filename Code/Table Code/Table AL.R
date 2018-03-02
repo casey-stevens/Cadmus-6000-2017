@@ -408,16 +408,16 @@ exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 
-results.dat <- left_join(scl.dat, billing.dat, by = "CK_Cadmus_ID")
+results.dat <- left_join(os.dat, billing.dat, by = "CK_Cadmus_ID")
 
-results.dat2 <- results.dat[which(results.dat$CK_Building_ID == "SCL GenPop"),]
+results.dat2 <- results.dat[which(results.dat$CK_Building_ID == subset.ind),]
 
 ### Bring in primary system fuel types
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
@@ -600,19 +600,21 @@ UsageDataSF_3 <- unique(UsageDataSF_3)
 keep.cols <- c("CK_Cadmus_ID","EUI", "Conditioned.Area")
 
 UsageDataSF_Final <- UsageDataSF_3[,which(colnames(UsageDataSF_3) %in% keep.cols)]
-# View(UsageDataSF_Final)
+View(UsageDataSF_Final)
 UsageDataSF_Final2 <- merge(UsageDataSF_Final,  heating.final   , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final3 <- merge(UsageDataSF_Final2, lighting.final  , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final4 <- merge(UsageDataSF_Final3, central_Ac.final, by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final5 <- merge(UsageDataSF_Final4, dhw.final       , by = "CK_Cadmus_ID",all.x = T)
 UsageDataSF_Final6 <- merge(UsageDataSF_Final5, survey.final    , by = "CK_Cadmus_ID",all.x = T)
-# View(UsageDataSF_Final6)
+View(UsageDataSF_Final6)
 
-ii=5
-for (ii in colnames(UsageDataSF_Final6)){
+ii=2
+for (ii in 1:ncol(UsageDataSF_Final6)){
   UsageDataSF_Final6[is.na(UsageDataSF_Final6[ii]),ii] <- 0
 }
-
+for (ii in 1:ncol(results.dat2)){
+  results.dat2[is.na(results.dat2[ii]),ii] <- 0
+}
 
 UsageDataSF_Final7 <- left_join(results.dat2, UsageDataSF_Final6)
 UsageDataSF_Final7 <- UsageDataSF_Final7[which(!is.na(UsageDataSF_Final7$count)),]
@@ -623,11 +625,21 @@ unique(UsageDataSF_Final7$EUI)
 quantile(UsageDataSF_Final7$EUI)
 summary(UsageDataSF_Final7$EUI)
 
-#for single family
-UsageDataSF_Final7$EUI_Quartile <- 4
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 2.835480)] <- 1
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 2.835480 & UsageDataSF_Final7$EUI < 4.089530)] <- 2
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 4.089530 & UsageDataSF_Final7$EUI < 6.330065)] <- 3
+if(os.ind == "scl"){
+  #for single family
+  UsageDataSF_Final7$EUI_Quartile <- 4
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 2.835480)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 2.835480 & UsageDataSF_Final7$EUI < 4.089530)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 4.089530 & UsageDataSF_Final7$EUI < 6.330065)] <- 3
+  
+}else if(os.ind == "snopud"){
+  #for single family
+  UsageDataSF_Final7$EUI_Quartile <- 4
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.472681)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.472681 & UsageDataSF_Final7$EUI < 5.552383)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.552383 & UsageDataSF_Final7$EUI < 7.055740)] <- 3
+  
+}
 
 ###########################
 #Pull in weights
@@ -735,4 +747,4 @@ UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1
                                       ,UsageDataSF_sum4
                                       ,UsageDataSF_sum5)
 
-exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE, osIndicator = export.ind, OS = T)

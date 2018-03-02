@@ -119,41 +119,6 @@ exportTable(item290.final, "MF", "Table 82", weighted = FALSE)
 
 
 
-#############################################################################################
-#Item 291: DISTRIBUTION OF LAMPS BY TYPE (MF Table 83)
-#############################################################################################
-item291.dat <- item290.dat5
-item291.dat1 <- item291.dat[grep("Multifamily", item291.dat$BuildingType),]
-
-item291.dat1$Lamp.Category[which(item291.dat1$Lamp.Category %in% c("Incandescent / Halogen"))] <- "Other"
-
-
-item291.dat$count <- 1
-
-item291.sum1 <- summarise(group_by(item291.dat, Lamp.Category)
-                         ,Count = sum(count)
-                         ,SampleSize = length(unique(CK_Cadmus_ID)))
-
-item291.sum2 <- summarise(group_by(item291.dat)
-                         ,Total.Count = sum(count)
-                         ,Denom.SampleSize = length(unique(CK_Cadmus_ID)))
-
-item291.final <- cbind.data.frame(item291.sum1, item291.sum2)
-item291.final$Percent <- item291.final$Count / item291.final$Total.Count
-item291.final$SE <- sqrt(item291.final$Percent * (1 - item291.final$Percent) / item291.final$Denom.SampleSize)
-
-item291.table <- data.frame("Lamp.Category" = item291.final$Lamp.Category
-                            ,"Percent" = item291.final$Percent
-                            ,"SE" = item291.final$SE
-                            ,"SampleSize" = item291.final$SampleSize)
-
-
-
-
-
-
-
-
 
 
 

@@ -244,12 +244,11 @@ exportTable(tableAK.final.MH, "MH", "Table AK", weighted = FALSE)
 #
 #
 ############################################################################################################
-
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Table AK: Average CFM by Tons of System Capacity by System Type and/or CK_Building_ID
@@ -354,7 +353,7 @@ tableAK.os.merge0 <- left_join(tableAK.os.flow3, tableAK.os.dat8)
 tableAK.os.sub    <- tableAK.os.merge0[which(!is.na(tableAK.os.merge0$Tons)),]
 tableAK.os.sub$CFM.Per.Ton <- tableAK.os.sub$Flow / tableAK.os.sub$Tons
 
-tableAK.os.merge <- left_join(scl.dat, tableAK.os.sub)
+tableAK.os.merge <- left_join(os.dat, tableAK.os.sub)
 tableAK.os.merge <- tableAK.os.merge[which(!is.na(tableAK.os.merge$CFM.Per.Ton)),]
 
 
@@ -406,30 +405,49 @@ tableAK.os.cast <- mean_two_groups(CustomerLevelData = tableAK.os.data
                                 ,byVariableRow = "Generic"
                                 ,rowAggregate = "All Systems"
                                 ,columnAggregate = "Remove")
+if(os.ind == "scl"){
+  tableAK.os.final <- data.frame("BuildingType"          = tableAK.os.cast$BuildingType
+                                 ,"Type"                 = tableAK.os.cast$Generic
+                                 ,"Mean_SCL.GenPop"      = tableAK.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = tableAK.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = tableAK.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = NA#tableAK.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = NA#tableAK.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = NA#tableAK.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = tableAK.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = tableAK.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = tableAK.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = tableAK.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAK.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAK.os.cast$`n_2017 RBSA PS`
+                                 ,"EB_SCL.GenPop"        = tableAK.os.cast$`EB_SCL GenPop`
+                                 ,"EB_SCL.LI"            = NA#tableAK.os.cast$`EB_SCL LI`
+                                 ,"EB_SCL.EH"            = tableAK.os.cast$`EB_SCL EH`
+                                 ,"EB_2017.RBSA.PS"      = tableAK.os.cast$`EB_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  tableAK.os.final <- data.frame("BuildingType"          = tableAK.os.cast$BuildingType
+                                 ,"Type"                 = tableAK.os.cast$Generic
+                                 ,"Mean_SnoPUD"          = tableAK.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = tableAK.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = tableAK.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = tableAK.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAK.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAK.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = tableAK.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = tableAK.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = tableAK.os.cast$`n_2017 RBSA NW`
+                                 ,"EB_SnoPUD"            = tableAK.os.cast$`EB_SnoPUD`
+                                 ,"EB_2017.RBSA.PS"      = tableAK.os.cast$`EB_2017 RBSA PS`
+                                 ,"EB_RBSA.NW"           = tableAK.os.cast$`EB_2017 RBSA NW`)
+  
+}
 
-tableAK.os.final <- data.frame("BuildingType"          = tableAK.os.cast$BuildingType
-                              ,"Type"            = tableAK.os.cast$Generic
-                              ,"Mean_SCL.GenPop"      = tableAK.os.cast$`Mean_SCL GenPop`
-                              ,"SE_SCL.GenPop"        = tableAK.os.cast$`SE_SCL GenPop`
-                              ,"n_SCL.GenPop"         = tableAK.os.cast$`n_SCL GenPop`
-                              ,"Mean_SCL.LI"          = NA#tableAK.os.cast$`Mean_SCL LI`
-                              ,"SE_SCL.LI"            = NA#tableAK.os.cast$`SE_SCL LI`
-                              ,"n_SCL.LI"             = NA#tableAK.os.cast$`n_SCL LI`
-                              ,"Mean_SCL.EH"          = tableAK.os.cast$`Mean_SCL EH`
-                              ,"SE_SCL.EH"            = tableAK.os.cast$`SE_SCL EH`
-                              ,"n_SCL.EH"             = tableAK.os.cast$`n_SCL EH`
-                              ,"Mean_2017.RBSA.PS"    = tableAK.os.cast$`Mean_2017 RBSA PS`
-                              ,"SE_2017.RBSA.PS"      = tableAK.os.cast$`SE_2017 RBSA PS`
-                              ,"n_2017.RBSA.PS"       = tableAK.os.cast$`n_2017 RBSA PS`
-                              ,"EB_SCL.GenPop"        = tableAK.os.cast$`EB_SCL GenPop`
-                              ,"EB_SCL.LI"            = NA#tableAK.os.cast$`EB_SCL LI`
-                              ,"EB_SCL.EH"            = tableAK.os.cast$`EB_SCL EH`
-                              ,"EB_2017.RBSA.PS"      = tableAK.os.cast$`EB_2017 RBSA PS`)
 
 tableAK.os.final.SF <- tableAK.os.final[which(tableAK.os.final$BuildingType == "Single Family")
                                         ,-which(colnames(tableAK.os.final) == "BuildingType")]
 
-exportTable(tableAK.os.final.SF, "SF", "Table AK", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAK.os.final.SF, "SF", "Table AK", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # Unweighted Analysis
@@ -441,22 +459,38 @@ tableAK.os.cast <- mean_two_groups_unweighted(CustomerLevelData = tableAK.os.dat
                                    ,rowAggregate = "All Systems"
                                    ,columnAggregate = "Remove")
 
-tableAK.os.final <- data.frame("BuildingType"          = tableAK.os.cast$BuildingType
-                               ,"Type"                 = tableAK.os.cast$Generic
-                               ,"Mean_SCL.GenPop"      = tableAK.os.cast$`Mean_SCL GenPop`
-                               ,"SE_SCL.GenPop"        = tableAK.os.cast$`SE_SCL GenPop`
-                               ,"n_SCL.GenPop"         = tableAK.os.cast$`n_SCL GenPop`
-                               ,"Mean_SCL.LI"          = NA#tableAK.os.cast$`Mean_SCL LI`
-                               ,"SE_SCL.LI"            = NA#tableAK.os.cast$`SE_SCL LI`
-                               ,"n_SCL.LI"             = NA#tableAK.os.cast$`n_SCL LI`
-                               ,"Mean_SCL.EH"          = tableAK.os.cast$`Mean_SCL EH`
-                               ,"SE_SCL.EH"            = tableAK.os.cast$`SE_SCL EH`
-                               ,"n_SCL.EH"             = tableAK.os.cast$`n_SCL EH`
-                               ,"Mean_2017.RBSA.PS"    = tableAK.os.cast$`Mean_2017 RBSA PS`
-                               ,"SE_2017.RBSA.PS"      = tableAK.os.cast$`SE_2017 RBSA PS`
-                               ,"n_2017.RBSA.PS"       = tableAK.os.cast$`n_2017 RBSA PS`)
+if(os.ind == "scl"){
+  tableAK.os.final <- data.frame("BuildingType"          = tableAK.os.cast$BuildingType
+                                 ,"Type"                 = tableAK.os.cast$Generic
+                                 ,"Mean_SCL.GenPop"      = tableAK.os.cast$`Mean_SCL GenPop`
+                                 ,"SE_SCL.GenPop"        = tableAK.os.cast$`SE_SCL GenPop`
+                                 ,"n_SCL.GenPop"         = tableAK.os.cast$`n_SCL GenPop`
+                                 ,"Mean_SCL.LI"          = NA#tableAK.os.cast$`Mean_SCL LI`
+                                 ,"SE_SCL.LI"            = NA#tableAK.os.cast$`SE_SCL LI`
+                                 ,"n_SCL.LI"             = NA#tableAK.os.cast$`n_SCL LI`
+                                 ,"Mean_SCL.EH"          = tableAK.os.cast$`Mean_SCL EH`
+                                 ,"SE_SCL.EH"            = tableAK.os.cast$`SE_SCL EH`
+                                 ,"n_SCL.EH"             = tableAK.os.cast$`n_SCL EH`
+                                 ,"Mean_2017.RBSA.PS"    = tableAK.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAK.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAK.os.cast$`n_2017 RBSA PS`)
+  
+}else if(os.ind == "snopud"){
+  tableAK.os.final <- data.frame("BuildingType"          = tableAK.os.cast$BuildingType
+                                 ,"Type"                 = tableAK.os.cast$Generic
+                                 ,"Mean_SnoPUD"          = tableAK.os.cast$`Mean_SnoPUD`
+                                 ,"SE_SnoPUD"            = tableAK.os.cast$`SE_SnoPUD`
+                                 ,"n_SnoPUD"             = tableAK.os.cast$`n_SnoPUD`
+                                 ,"Mean_2017.RBSA.PS"    = tableAK.os.cast$`Mean_2017 RBSA PS`
+                                 ,"SE_2017.RBSA.PS"      = tableAK.os.cast$`SE_2017 RBSA PS`
+                                 ,"n_2017.RBSA.PS"       = tableAK.os.cast$`n_2017 RBSA PS`
+                                 ,"Mean_RBSA.NW"         = tableAK.os.cast$`Mean_2017 RBSA NW`
+                                 ,"SE_RBSA.NW"           = tableAK.os.cast$`SE_2017 RBSA NW`
+                                 ,"n_RBSA.NW"            = tableAK.os.cast$`n_2017 RBSA NW`)
+  
+}
 
 tableAK.os.final.SF <- tableAK.os.final[which(tableAK.os.final$BuildingType == "Single Family")
                                         ,-which(colnames(tableAK.os.final) == "BuildingType")]
 
-exportTable(tableAK.os.final.SF, "SF", "Table AK", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAK.os.final.SF, "SF", "Table AK", weighted = FALSE, osIndicator = export.ind, OS = T)

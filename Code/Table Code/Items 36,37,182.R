@@ -558,6 +558,7 @@ if(os.ind == "scl"){
                                 ,"n_2017.RBSA.PS"       = item36.os.cast$`n_2017 RBSA PS`)
 }else if(os.ind == "snopud"){
   item36.os.table <- data.frame("Housing.Vintage"       = item36.os.cast$HomeYearBuilt_bins3
+                                ,"Mean_SCL.GenPop"      = item36.os.cast$`Mean_SnoPUD`
                                 ,"SE_SnoPUD"            = item36.os.cast$`SE_SnoPUD`
                                 ,"n_SnoPUD"             = item36.os.cast$`n_SnoPUD`
                                 ,"Mean_2017.RBSA.PS"    = item36.os.cast$`Mean_2017 RBSA PS`

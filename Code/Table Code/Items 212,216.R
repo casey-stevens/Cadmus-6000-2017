@@ -38,14 +38,14 @@ buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building
 #############################################################################################
 # Item 212: DISTRIBUTION OF BUILDINGS BY BUILDING SIZE AND VINTAGE (MF table 4)
 #############################################################################################
-item212.dat <- rbsa.dat.site
-
+item212.dat <- rbsa.dat.bldg
+length(unique(item212.dat$CK_Building_ID[which(!is.na(item212.dat$HomeYearBuilt))]))
 #subset to only MF homes
 item212.dat1 <- item212.dat[grep("Multifamily", item212.dat$BuildingType),]
 
 #remove missing vintage information
 item212.dat2 <- item212.dat1[which(item212.dat1$HomeYearBuilt %notin% c("N/A",NA)),]
-
+names(item212.dat2)
 
 ################################################
 # Adding pop and sample sizes for weights

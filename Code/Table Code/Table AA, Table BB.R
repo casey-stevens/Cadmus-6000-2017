@@ -26,7 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 
 #Read in data for analysis
 # Mechanical
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
 mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
@@ -243,12 +243,11 @@ exportTable(tableBB.final.MH, "MH", "Table BB", weighted = FALSE)
 #
 #
 ############################################################################################################
-
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 #############################################################################################
 #Table AA
@@ -285,7 +284,7 @@ for(ii in 1:nrow(tableAA.os.dat2)){
 unique(tableAA.os.dat2$Flow)
 tableAA.os.dat3 <- tableAA.os.dat2[which(tableAA.os.dat2$Flow %notin% c("NaN",NA)),]
 
-tableAA.os.merge <- left_join(scl.dat, tableAA.os.dat3)
+tableAA.os.merge <- left_join(os.dat, tableAA.os.dat3)
 tableAA.os.merge <- tableAA.os.merge[which(!is.na(tableAA.os.merge$Flow)),]
 
 
@@ -322,7 +321,7 @@ tableAA.os.final <- tableAA.os.final[which(tableAA.os.final$CK_Building_ID %noti
 tableAA.os.final.SF <- tableAA.os.final[which(tableAA.os.final$BuildingType == "Single Family")
                                   ,which(colnames(tableAA.os.final) %notin% c("BuildingType"))]
 
-exportTable(tableAA.os.final.SF, "SF", "Table AA", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableAA.os.final.SF, "SF", "Table AA", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # unweighted Analysis
@@ -335,7 +334,7 @@ tableAA.os.final <- tableAA.os.final[which(tableAA.os.final$CK_Building_ID %noti
 tableAA.os.final.SF <- tableAA.os.final[which(tableAA.os.final$BuildingType == "Single Family")
                                   ,which(colnames(tableAA.os.final) %notin% c("BuildingType"))]
 
-exportTable(tableAA.os.final.SF, "SF", "Table AA", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableAA.os.final.SF, "SF", "Table AA", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 #############################################################################################
@@ -382,7 +381,7 @@ tableBB.os.final <- tableBB.os.final[which(tableBB.os.final$CK_Building_ID %noti
 tableBB.os.final.SF <- tableBB.os.final[which(tableBB.os.final$BuildingType == "Single Family")
                                   ,which(colnames(tableBB.os.final) %notin% c("BuildingType"))]
 
-exportTable(tableBB.os.final.SF, "SF", "Table BB", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(tableBB.os.final.SF, "SF", "Table BB", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
 # unweighted Analysis
@@ -395,4 +394,4 @@ tableBB.os.final <- tableBB.os.final[which(tableBB.os.final$CK_Building_ID %noti
 tableBB.os.final.SF <- tableBB.os.final[which(tableBB.os.final$BuildingType == "Single Family")
                                   ,which(colnames(tableBB.os.final) %notin% c("BuildingType"))]
 
-exportTable(tableBB.os.final.SF, "SF", "Table BB", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(tableBB.os.final.SF, "SF", "Table BB", weighted = FALSE, osIndicator = export.ind, OS = T)

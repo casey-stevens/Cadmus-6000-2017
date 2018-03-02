@@ -319,13 +319,13 @@ exportTable(item153.final.MH, "MH", "Table 135", weighted = FALSE)
 #
 #
 ############################################################################################################
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
-results.dat <- merge(scl.dat, billing.dat, 
+results.dat <- merge(os.dat, billing.dat, 
                      by = "CK_Cadmus_ID")
 
 results.dat2 <- results.dat
@@ -374,7 +374,7 @@ mechanical.dat3 <- unique(data.frame("CK_Cadmus_ID" = mechanical.dat2$CK_Cadmus_
                                      ,"Primary_Secondary" = mechanical.dat2$Heating.System.Ind,
                                      stringsAsFactors = F))
 
-mechanical.dat4 <- left_join(scl.dat, mechanical.dat3, by = "CK_Cadmus_ID")
+mechanical.dat4 <- left_join(os.dat, mechanical.dat3, by = "CK_Cadmus_ID")
 
 mechanical.dat5 <- mechanical.dat4[which(mechanical.dat4$Primary_Secondary == "Primary Heating System"),]
 length(unique(mechanical.dat5$CK_Cadmus_ID))
@@ -426,7 +426,7 @@ item151.os.final <- item151.os.final[which(item151.os.final$CK_Building_ID %noti
 item151.os.final.SF <- item151.os.final[which(item151.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item151.os.final) == "BuildingType")]
 
-exportTable(item151.os.final.SF, "SF", "Table 158", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item151.os.final.SF, "SF", "Table 158", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #####################
 # unweighted analysis
@@ -439,7 +439,7 @@ item151.os.final <- item151.os.final[which(item151.os.final$CK_Building_ID %noti
 item151.os.final.SF <- item151.os.final[which(item151.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item151.os.final) == "BuildingType")]
 
-exportTable(item151.os.final.SF, "SF", "Table 158", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item151.os.final.SF, "SF", "Table 158", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -484,7 +484,7 @@ item152.os.final <- item152.os.final[which(item152.os.final$CK_Building_ID %noti
 item152.os.final.SF <- item152.os.final[which(item152.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item152.os.final) == "BuildingType")]
 
-exportTable(item152.os.final.SF, "SF", "Table 159", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item152.os.final.SF, "SF", "Table 159", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #####################
 # unweighted analysis
@@ -497,7 +497,7 @@ item152.os.final <- item152.os.final[which(item152.os.final$CK_Building_ID %noti
 item152.os.final.SF <- item152.os.final[which(item152.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item152.os.final) == "BuildingType")]
 
-exportTable(item152.os.final.SF, "SF", "Table 159", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item152.os.final.SF, "SF", "Table 159", weighted = FALSE, osIndicator = export.ind, OS = T)
 
 
 
@@ -541,7 +541,7 @@ item153.os.final <- item153.os.final[which(item153.os.final$CK_Building_ID %noti
 item153.os.final.SF <- item153.os.final[which(item153.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item153.os.final) == "BuildingType")]
 
-exportTable(item153.os.final.SF, "SF", "Table 160", weighted = TRUE, osIndicator = "SCL", OS = T)
+exportTable(item153.os.final.SF, "SF", "Table 160", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #####################
 # unweighted analysis
@@ -554,4 +554,4 @@ item153.os.final <- item153.os.final[which(item153.os.final$CK_Building_ID %noti
 item153.os.final.SF <- item153.os.final[which(item153.os.final$BuildingType == "Single Family")
                                   ,-which(colnames(item153.os.final) == "BuildingType")]
 
-exportTable(item153.os.final.SF, "SF", "Table 160", weighted = FALSE, osIndicator = "SCL", OS = T)
+exportTable(item153.os.final.SF, "SF", "Table 160", weighted = FALSE, osIndicator = export.ind, OS = T)

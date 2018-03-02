@@ -66,7 +66,7 @@ item224.melt <- melt(item224.dat, id = c("CK_Building_ID","Total.Area"))
 colnames(item224.melt) <- c("CK_Building_ID", "Total.Area", "Nonres.Type", "Area")
 item224.melt$CK_Building_ID <- as.character(item224.melt$CK_Building_ID)
 
-item224.merge <- left_join(rbsa.dat, item224.melt)
+item224.merge <- left_join(rbsa.dat.bldg, item224.melt)
 
 #subset to only MF sites
 item224.dat1 <- item224.merge[which(item224.merge$BuildingTypeXX %in% c("Apartment Building (3 or fewer floors)"

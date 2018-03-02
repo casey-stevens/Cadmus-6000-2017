@@ -278,7 +278,7 @@ exportTable(item297.final, "MF", "Table 91", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
-item297.final <- proportions_one_group_MF(CustomerLevelData = item297.data
+item297.final <- proportions_one_group(CustomerLevelData = item297.data
                                           ,valueVariable = 'count'
                                           ,groupingVariable = 'Dryer.Age'
                                           ,total.name = 'Remove'

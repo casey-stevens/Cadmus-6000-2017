@@ -47,7 +47,7 @@ colnames(item228.dat) <- c("PercentUnoccupied"
 which(duplicated(item228.dat$CK_Building_ID))
 
 #merge together analysis data with cleaned RBSA data
-item228.dat1 <- left_join(rbsa.dat, item228.dat)
+item228.dat1 <- left_join(rbsa.dat.bldg, item228.dat)
 
 #Subset to Multifamily
 item228.dat2 <- item228.dat1[grep("Multifamily", item228.dat1$BuildingType),]
@@ -66,7 +66,7 @@ item228.data <- left_join(item228.data, item228.dat4[which(colnames(item228.dat4
                                                                                            ,"PercentUnoccupied"))])
 
 
-item228.data$PercentUnoccupied <- as.numeric(as.character(item228.data$PercentUnoccupied)) / 100
+item228.data$PercentUnoccupied <- as.numeric(as.character(item228.data$PercentUnoccupied))
 item228.data$count <- 1
 #######################
 # weighted analysis

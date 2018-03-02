@@ -369,7 +369,7 @@ item258.final <- proportionRowsAndColumns1(CustomerLevelData = item258.data
 item258.final <- item258.final[which(item258.final$Clean.Room != "Remove"),]
 # item258.final <- item258.final[which(item258.final$Lamp.Category != "Total"),]
 
-item258.all.sizes <- proportions_one_group_MF(CustomerLevelData = item258.data
+item258.all.sizes <- proportions_one_group(CustomerLevelData = item258.data
                                               ,valueVariable = 'SiteCount'
                                               ,groupingVariable = 'Lamp.Category'
                                               ,total.name = 'All Sizes'
@@ -425,7 +425,7 @@ item258.final <- proportions_two_groups_unweighted(CustomerLevelData = item258.d
 item258.final <- item258.final[which(item258.final$Clean.Room != "Remove"),]
 # item258.final <- item258.final[which(item258.final$Lamp.Category != "Total"),]
 
-item258.all.sizes <- proportions_one_group_MF(CustomerLevelData = item258.data
+item258.all.sizes <- proportions_one_group(CustomerLevelData = item258.data
                                               ,valueVariable = 'SiteCount'
                                               ,groupingVariable = 'Lamp.Category'
                                               ,total.name = 'All Sizes'

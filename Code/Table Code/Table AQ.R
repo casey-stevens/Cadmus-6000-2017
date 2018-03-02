@@ -237,11 +237,11 @@ exportTable(tableAQ.table.MH, "MH", "Table 38", weighted = FALSE)
 #
 ############################################################################################################
 
-# Read in clean scl data
-scl.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = "")))
-length(unique(scl.dat$CK_Cadmus_ID))
-scl.dat$CK_Building_ID <- scl.dat$Category
-scl.dat <- scl.dat[which(names(scl.dat) != "Category")]
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 
 #############################################################################################
@@ -262,7 +262,7 @@ tableAQ.os.dat2$SEER <- as.numeric(as.character(tableAQ.os.dat2$SEER))
 tableAQ.os.dat2$HSPF <- as.numeric(as.character(tableAQ.os.dat2$HSPF))
 
 #Join cleaned item 50 mechanical information with cleaned RBSA site information
-tableAQ.os.dat3 <- left_join(scl.dat, tableAQ.os.dat2, by = "CK_Cadmus_ID")
+tableAQ.os.dat3 <- left_join(os.dat, tableAQ.os.dat2, by = "CK_Cadmus_ID")
 tableAQ.os.dat4 <- tableAQ.os.dat3[which(!is.na(tableAQ.os.dat3$`Heating.Efficiency.-.High`)),]
 tableAQ.os.dat5 <- tableAQ.os.dat4[which(!is.na(tableAQ.os.dat4$SEER)),]
 tableAQ.os.dat6 <- tableAQ.os.dat5[which(!is.na(tableAQ.os.dat5$HSPF)),]
@@ -338,8 +338,6 @@ tableAQ.os.table <- data.frame(tableAQ.os.table)
 #subset to only the relevant building types for this item
 tableAQ.os.table.SF <- tableAQ.os.table[which(tableAQ.os.table$BuildingType == "Single Family"),-which(colnames(tableAQ.os.table) %in% c("BuildingType"))]
 
-exportTable(tableAQ.os.table.SF, "SF", "Table AQ", weighted = TRUE)
-
 ###########################
 # Unweighted Analysis
 ###########################
@@ -383,5 +381,3 @@ tableAQ.os.table <- data.frame(tableAQ.os.table)
 
 #subset to only the relevant building types for this item
 tableAQ.os.table.SF <- tableAQ.os.table[which(tableAQ.os.table$BuildingType == "Single Family"),-which(colnames(tableAQ.os.table) %in% c("BuildingType"))]
-
-exportTable(tableAQ.os.table.SF, "SF", "Table AQ", weighted = FALSE)

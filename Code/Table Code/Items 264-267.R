@@ -127,7 +127,7 @@ item264.summary <- proportionRowsAndColumns1(CustomerLevelData = item264.data
 item264.summary <- item264.summary[which(item264.summary$Clean.Room != "Remove"),]
 # item264.summary <- item264.summary[which(item264.summary$Lamp.Category != "Total"),]
 
-item264.all.categories <- proportions_one_group_MF(CustomerLevelData = item264.data
+item264.all.categories <- proportions_one_group(CustomerLevelData = item264.data
                                                    ,valueVariable = 'SiteWattage'
                                                    ,groupingVariable = 'Lamp.Category'
                                                    ,total.name = 'All Categories'
@@ -180,7 +180,7 @@ item264.summary <- proportions_two_groups_unweighted(CustomerLevelData = item264
 item264.summary <- item264.summary[which(item264.summary$Clean.Room != "Remove"),]
 # item264.summary <- item264.summary[which(item264.summary$Lamp.Category != "Total"),]
 
-item264.all.categories <- proportions_one_group_MF(CustomerLevelData = item264.data
+item264.all.categories <- proportions_one_group(CustomerLevelData = item264.data
                                                    ,valueVariable = 'SiteWattage'
                                                    ,groupingVariable = 'Lamp.Category'
                                                    ,total.name = 'All Categories'
@@ -233,7 +233,7 @@ item265.summary <- proportionRowsAndColumns1(CustomerLevelData = item265.data
 item265.summary <- item265.summary[which(item265.summary$Clean.Room != "Remove"),]
 # item265.summary <- item265.summary[which(item265.summary$Lamp.Category != "Total"),]
 
-item265.all.categories <- proportions_one_group_MF(CustomerLevelData = item265.data
+item265.all.categories <- proportions_one_group(CustomerLevelData = item265.data
                                                    ,valueVariable = 'SiteLampCount'
                                                    ,groupingVariable = 'Lamp.Category'
                                                    ,total.name = 'All Categories'
@@ -286,7 +286,7 @@ item265.summary <- proportions_two_groups_unweighted(CustomerLevelData = item265
 item265.summary <- item265.summary[which(item265.summary$Clean.Room != "Remove"),]
 # item265.summary <- item265.summary[which(item265.summary$Lamp.Category != "Total"),]
 
-item265.all.categories <- proportions_one_group_MF(CustomerLevelData = item265.data
+item265.all.categories <- proportions_one_group(CustomerLevelData = item265.data
                                                    ,valueVariable = 'SiteLampCount'
                                                    ,groupingVariable = 'Lamp.Category'
                                                    ,total.name = 'All Categories'
@@ -441,7 +441,7 @@ item267.summary <- proportionRowsAndColumns1(CustomerLevelData = item267.data
 item267.summary <- item267.summary[which(item267.summary$Clean.Room != "Remove"),]
 # item267.summary <- item267.summary[which(item267.summary$Switch.Type != "Total"),]
 
-item267.all.categories <- proportions_one_group_MF(CustomerLevelData = item267.data
+item267.all.categories <- proportions_one_group(CustomerLevelData = item267.data
                                                    ,valueVariable = 'SiteLampCount'
                                                    ,groupingVariable = 'Switch.Type'
                                                    ,total.name = 'All Types'
@@ -497,7 +497,7 @@ item267.summary <- proportions_two_groups_unweighted(CustomerLevelData = item267
 item267.summary <- item267.summary[which(item267.summary$Clean.Room != "Remove"),]
 # item267.summary <- item267.summary[which(item267.summary$Switch.Type != "Total"),]
 
-item267.all.categories <- proportions_one_group_MF(CustomerLevelData = item267.data
+item267.all.categories <- proportions_one_group(CustomerLevelData = item267.data
                                                    ,valueVariable = 'SiteLampCount'
                                                    ,groupingVariable = 'Switch.Type'
                                                    ,total.name = 'All Types'
@@ -532,3 +532,4 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"n"                          = item267.cast$n_Total)
 
 exportTable(item267.table, "MF", "Table 59", weighted = FALSE)
+
