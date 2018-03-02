@@ -60,14 +60,14 @@ one.line.dat1 <- left_join(building.id.dat.dedup, one.line.dat1)
 one.line.dat1$HomeYearBuilt <- as.numeric(as.character(one.line.dat1$HomeYearBuilt))
 names(one.line.dat1)
 
-ii=5
-for (ii in 1:nrow(one.line.dat1)){
-  if (!is.na(one.line.dat1$MF.HomeYearBuilt[ii])){
-    one.line.dat1$HomeYearBuilt[ii] <- one.line.dat1$MF.HomeYearBuilt[ii]
-  }else{
-    one.line.dat1$HomeYearBuilt[ii] <- one.line.dat1$HomeYearBuilt[ii]
-  }
-}
+# ii=5
+# for (ii in 1:nrow(one.line.dat1)){
+#   if (!is.na(one.line.dat1$MF.HomeYearBuilt[ii])){
+#     one.line.dat1$HomeYearBuilt[ii] <- one.line.dat1$MF.HomeYearBuilt[ii]
+#   }else{
+#     one.line.dat1$HomeYearBuilt[ii] <- one.line.dat1$HomeYearBuilt[ii]
+#   }
+# }
 
 one.line.dat1 <- one.line.dat1[which(names(one.line.dat1) != "MF.HomeYearBuilt")]
 # site.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
@@ -313,6 +313,7 @@ rbsa.dat9 <- rbsa.dat8[which(names(rbsa.dat8) %notin% c("County"))]
 rbsa.dat9$Conditioned.Area <- as.numeric(as.character(rbsa.dat9$Conditioned.Area))
 rbsa.dat9$Conditioned.Volume <- as.numeric(as.character(rbsa.dat9$Conditioned.Volume))
 
+rbsa.dat.bldg <- rbsa.dat9[grep("BLDG",rbsa.dat8$CK_Building_ID),]
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")

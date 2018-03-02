@@ -7,6 +7,8 @@ item80.cast[is.na(item80.cast),] <- 0
 item80.melt <- melt(item80.cast, id.vars = "CK_Cadmus_ID")
 names(item80.melt) <- c("CK_Cadmus_ID", "Type", "Count")
 
+#melt by two variables
+item224.melt <- melt(item224.dat, id = c("CK_Building_ID","Total.Area"))
 
 # row ordering example code
 ####################################

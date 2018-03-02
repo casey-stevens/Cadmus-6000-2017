@@ -414,6 +414,7 @@ item240.dat1 <- item240.dat1[which(!is.na(item240.dat1$Total.Units.in.Building))
 item240.dat1 <- item240.dat1[which(item240.dat1$Total.Units.in.Building > 0),]
 
 item240.dat1$UA.per.unit <- item240.dat1$Whole.House.UA / item240.dat1$Total.Units.in.Building
+item240.dat1 <- item240.dat1[which(item240.dat1$UA.per.unit > 0),]
 
 item240.merge <- left_join(rbsa.dat.MF, item240.dat1)
 item240.merge <- item240.merge[which(!is.na(item240.merge$UA.per.unit)),]
@@ -436,7 +437,7 @@ item240.data$count <- 1
 # weighted analysis
 #########################
 item240.final <- mean_one_group(CustomerLevelData = item240.data
-                                ,valueVariable = "Whole.House.UA"
+                                ,valueVariable = "UA.per.unit"
                                 ,byVariable = "HomeType"
                                 ,aggregateRow = "All Sizes")
 item240.final.MF <- item240.final[which(names(item240.final) != "BuildingType")]
@@ -447,7 +448,7 @@ exportTable(item240.final.MF, "MF", "Table 32", weighted = TRUE)
 # unweighted analysis
 #########################
 item240.final <- mean_one_group_unweighted(CustomerLevelData = item240.data
-                                           ,valueVariable = "Whole.House.UA"
+                                           ,valueVariable = "UA.per.unit"
                                            ,byVariable = "HomeType"
                                            ,aggregateRow = "All Sizes")
 item240.final.MF <- item240.final[which(names(item240.final) != "BuildingType")]
@@ -471,6 +472,7 @@ item241.dat1 <- item241.dat1[which(!is.na(item241.dat1$Total.Units.in.Building))
 item241.dat1 <- item241.dat1[which(item241.dat1$Total.Units.in.Building > 0),]
 
 item241.dat1$UA.per.unit <- item241.dat1$Whole.House.UA / item241.dat1$Total.Units.in.Building
+item241.dat1 <- item241.dat1[which(item241.dat1$UA.per.unit > 0),]
 
 item241.merge <- left_join(rbsa.dat.MF, item241.dat1)
 item241.merge <- item241.merge[which(!is.na(item241.merge$UA.per.unit)),]
@@ -544,14 +546,14 @@ exportTable(item241.final.MF, "MF", "Table 33", weighted = FALSE)
 #############################################################################################
 item242.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
                                                                           ,"Whole.House.UA"
-                                                                          ,"Conditioned.Area"))]
+                                                                          ,"Total.Conditioned.Area"))]
 
 item242.dat$Whole.House.UA <- as.numeric(as.character(item242.dat$Whole.House.UA))
 
-item242.dat0 <- item242.dat[which(item242.dat$Conditioned.Area > 0),]
+item242.dat0 <- item242.dat[which(item242.dat$Total.Conditioned.Area > 0),]
 
 item242.dat1 <- item242.dat0[which(!is.na(item242.dat0$Whole.House.UA)),]
-item242.dat1$UA.per.area <- item242.dat1$Whole.House.UA / as.numeric(item242.dat1$Conditioned.Area)
+item242.dat1$UA.per.area <- item242.dat1$Whole.House.UA / as.numeric(item242.dat1$Total.Conditioned.Area)
 
 item242.merge <- left_join(rbsa.dat.MF, item242.dat1, by = "CK_Building_ID")
 item242.merge <- item242.merge[which(!is.na(item242.merge$UA.per.area)),]
@@ -562,12 +564,12 @@ item242.merge <- item242.merge[which(!is.na(item242.merge$UA.per.area)),]
 ######################################
 item242.data <- weightedData(item242.merge[which(colnames(item242.merge) %notin% c("Whole.House.UA"
                                                                                    ,"UA.per.area"
-                                                                                   ,"Conditioned.Area.y"))])
+                                                                                   ,"Total.Conditioned.Area"))])
 
 item242.data <- left_join(item242.data, item242.merge[which(colnames(item242.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Whole.House.UA"
                                                                                            ,"UA.per.area"
-                                                                                           ,"Conditioned.Area.y"))])
+                                                                                           ,"Total.Conditioned.Area"))])
 item242.data$count <- 1
 
 #########################

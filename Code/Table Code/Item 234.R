@@ -27,7 +27,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 
 #read in Envelope data for MF table
-envelope.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, envelope.export))
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_SiteID"
                                                                   ,"Wall.Area"
@@ -41,8 +41,11 @@ envelope.dat.MF <- envelope.dat2[grep("Multifamily", envelope.dat2$BuildingType)
 #############################################################################################
 #Item 234: Table 26
 #############################################################################################
-
+envelope.dat.MF$Wall.Area <- as.numeric(as.character(envelope.dat.MF$Wall.Area))
 item234.dat <- envelope.dat.MF[which(!is.na(envelope.dat.MF$Wall.Area)),]
+item234.dat <- item234.dat[which(item234.dat$Wall.Type %notin% c("Knee Wall")),]
+item234.dat <- item234.dat[grep("BLDG", item234.dat$CK_Building_ID),]
+item234.dat <- item234.dat[which(item234.dat$Wall.Type %notin% c("N/A")),]
 unique(item234.dat$Wall.Type)
 
 item234.dat$WallType <- ""
@@ -52,9 +55,9 @@ item234.dat$WallType[which(!(item234.dat$WallType %in% c("Masonry", "Framed")))]
 item234.dat$WallType[which(item234.dat$WallType == "Framed")] <- paste(item234.dat$Wall.Framing.Material[which(item234.dat$WallType == "Framed")], "Frame", sep = " ")
 unique(item234.dat$WallType)
 
-item234.dat1 <- item234.dat[which(item234.dat$WallType != "Unknown Frame"),]
+item234.dat$WallType[which(item234.dat$WallType == "Unknown Frame")] <- "Other"
 
-item234.merge <- left_join(rbsa.dat, item234.dat1)
+item234.merge <- left_join(rbsa.dat, item234.dat)
 item234.merge <- item234.merge[which(!is.na(item234.merge$WallType)),]
 
 ################################################
@@ -65,15 +68,17 @@ item234.data <- weightedData(item234.merge[-which(colnames(item234.merge) %in% c
                                                                                  ,"Wall.Framing.Material"
                                                                                  ,"WallType"))])
 item234.data <- left_join(item234.data, item234.merge[which(colnames(item234.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"WallType"))])
+                                                                                           ,"WallType"
+                                                                                           ,"Wall.Area"))])
 
 item234.data$count <- 1
+item234.data$Count <- 1
 
 #######################
 # Weighted Analysis
 #######################
 item234.final <- proportionRowsAndColumns1(CustomerLevelData = item234.data
-                                           ,valueVariable    = 'count'
+                                           ,valueVariable    = 'Wall.Area'
                                            ,columnVariable   = 'HomeType'
                                            ,rowVariable      = 'WallType'
                                            ,aggregateColumnName = "Remove")
@@ -82,7 +87,7 @@ item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
 
 
 item234.all.vintages <- proportions_one_group(CustomerLevelData = item234.data
-                                                 ,valueVariable = 'count'
+                                                 ,valueVariable = 'Wall.Area'
                                                  ,groupingVariable = 'WallType'
                                                  ,total.name = "All Sizes"
                                                  ,columnName = "HomeType"

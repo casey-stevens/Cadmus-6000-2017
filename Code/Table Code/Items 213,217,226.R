@@ -52,12 +52,12 @@ item213.interview.dat <- buildings.interview.dat[which(colnames(buildings.interv
                                                                ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding"))]
 names(item213.interview.dat) <- c("Number.of.Units", "CK_Building_ID")
 
-item213.building.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
-                                                                           ,"SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround"))]
-names(item213.building.dat) <- c("Total.Floors", "CK_Building_ID")
+# item213.building.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
+#                                                                            ,"SITES_MFB_cfg_MFB_CONFIG_TotalNumberFloorsAboveGround"))]
+# names(item213.building.dat) <- c("Total.Floors", "CK_Building_ID")
 
 
-item213.dat <- left_join(item213.building.dat, item213.interview.dat)
+item213.dat <- item213.interview.dat#left_join(item213.building.dat, item213.interview.dat)
 item213.dat1 <- item213.dat[which(item213.dat$Number.of.Units %notin% c("N/A",NA)),]
 
 item213.merge <- left_join(rbsa.dat.bldg, item213.dat1)

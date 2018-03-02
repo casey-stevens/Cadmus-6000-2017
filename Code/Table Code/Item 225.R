@@ -52,8 +52,7 @@ colnames(item225.dat) <- c("Ownership", "CK_Building_ID")
 item225.dat0 <- item225.dat[which(item225.dat$Ownership %notin% c("N/A",NA)),]
 item225.dat1 <- item225.dat0[which(item225.dat0$Ownership != "Unknown"),]
 
-
-item225.dat2 <- left_join(rbsa.dat,item225.dat1)
+item225.dat2 <- left_join(rbsa.dat.bldg,item225.dat1)
 
 #subset to only MF sites
 item225.dat3 <- item225.dat2[which(item225.dat2$BuildingType %in% "Multifamily"),]
@@ -81,7 +80,7 @@ item225.final <- item225.final[which(item225.final$HomeType != "Remove"),]
 # item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
 
 
-item225.all.sizes <- proportions_one_group_MF(CustomerLevelData = item225.data
+item225.all.sizes <- proportions_one_group(CustomerLevelData = item225.data
                                               ,valueVariable = 'count'
                                               ,groupingVariable = 'Ownership'
                                               ,total.name = "All Sizes"
@@ -95,14 +94,14 @@ item225.final <- rbind.data.frame(item225.final, item225.all.sizes, stringsAsFac
 item225.cast <- dcast(setDT(item225.final)
                       ,formula = Ownership ~ HomeType
                       ,value.var = c("w.percent","w.SE", "count","n","N", "EB"))
-
+names(item225.cast)
 item225.table <- data.frame("Ownership"                = item225.cast$Ownership
                             ,"Low_Rise_1.3_Percent"    = item225.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low_Rise_SE"             = item225.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"High_Rise_n"             = item225.cast$`n_Apartment Building (3 or fewer floors)`
+                            ,"Low_Rise_n"              = item225.cast$`n_Apartment Building (3 or fewer floors)`
                             ,"Mid_Rise_4.6_Percent"    = item225.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid_Rise_SE"             = item225.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_n"             = item225.cast$`n_Apartment Building (4 to 6 floors)`
+                            ,"Mid_Rise_n"              = item225.cast$`n_Apartment Building (4 to 6 floors)`
                             ,"High_Rise_7Plus_Percent" = NA#item225.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High_Rise_SE"            = NA#item225.cast$`w.SE_Apartment Building (More than 6 floors)`
                             ,"High_Rise_n"             = NA#item225.cast$
@@ -127,7 +126,7 @@ item225.final <- item225.final[which(item225.final$HomeType != "Remove"),]
 # item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
 
 
-item225.all.sizes <- proportions_one_group_MF(CustomerLevelData = item225.data
+item225.all.sizes <- proportions_one_group(CustomerLevelData = item225.data
                                               ,valueVariable = 'count'
                                               ,groupingVariable = 'Ownership'
                                               ,total.name = "All Sizes"

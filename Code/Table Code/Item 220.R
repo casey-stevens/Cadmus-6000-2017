@@ -54,16 +54,27 @@ rooms.dat1 <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
                                                          ,"Area"))]
 colnames(rooms.dat1) <- c("CK_Cadmus_ID","CK_SiteID","Clean.Room","Area")
 
-rooms.dat2 <- rooms.dat1[which(rooms.dat1$Area > 0),]
-rooms.dat2$Area <- as.numeric(as.character(rooms.dat2$Area))
+rooms.dat1 <- rooms.dat1[which(rooms.dat1$Area %notin% c("Unknown","N/A")),]
+
+rooms.dat1$Area <- as.numeric(as.character(rooms.dat1$Area))
+rooms.dat1$Area[which(rooms.dat1$Area == "N/A")] <- 0
+rooms.dat2 <- rooms.dat1#[which(rooms.dat1$Area > 0),]
+rooms.dat2 <- rooms.dat2[which(!is.na(rooms.dat2$Area)),]
 
 rooms.dat3 <- rooms.dat2[grep("BLDG", rooms.dat2$CK_SiteID),]
-
-rooms.dat4 <- summarise(group_by(rooms.dat3, CK_Cadmus_ID, CK_SiteID, Clean.Room)
+rooms.dat4 <- summarise(group_by(rooms.dat3, CK_SiteID, Clean.Room)
                         ,SiteArea = mean(Area, na.rm = T))
 
+rooms.cast <- dcast(setDT(rooms.dat4)
+                    ,formula = CK_SiteID ~ Clean.Room
+                    ,value.var = c("SiteArea"))
+rooms.cast[is.na(rooms.cast),] <- 0
+
+rooms.melt <- melt(rooms.cast, id.vars = c("CK_SiteID"))
+names(rooms.melt) <- c("CK_SiteID", "Clean.Room", "SiteArea") 
+
 #merge together analysis data with cleaned RBSA data
-rooms.final <- left_join(rbsa.dat.bldg, rooms.dat4, by = c("CK_Building_ID"="CK_SiteID"))
+rooms.final <- left_join(rbsa.dat.bldg, rooms.melt, by = c("CK_Building_ID"="CK_SiteID"))
 rooms.final <- rooms.final[which(rooms.final$BuildingType == "Multifamily"),]
 rooms.final <- rooms.final[which(rooms.final$SiteArea %notin% c("N/A",NA)),]
 names(rooms.final)[which(names(rooms.final) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID" 
@@ -86,42 +97,27 @@ item220.dat1$CommonFloorArea[which(is.na(item220.dat1$CommonFloorArea))] <- 0
 
 item220.dat1$SiteArea <- as.numeric(as.character(item220.dat1$SiteArea))
 
-#calculate total area
-item220.dat1$Total.Area <- item220.dat1$SiteArea + item220.dat1$CommonFloorArea
-
 #remove any NAs
-item220.dat2 <- item220.dat1[which(!(is.na(item220.dat1$Total.Area))),]
+item220.dat2 <- item220.dat1[which(!is.na(item220.dat1$SiteArea)),]
 
-# subset to only clean rooms types wanted:
-# item220.dat3 <- item220.dat2[which(item220.dat2$Clean.Room %in% c("Hall"
-#                                                                   ,"Kitchen"
-#                                                                   ,"Laundry" 
-#                                                                   ,"Lobby" 
-#                                                                   ,"Mechanical" 
-#                                                                   ,"Office" 
-#                                                                   ,"Recreation" 
-#                                                                   ,"Bathroom" 
-#                                                                   ,"Store" #equivalent to closets? Store? 
-#                                                                   ,"Closet"
-#                                                                   ,"Other")),]
 unique(item220.dat2$Clean.Room)
 
 #subset to only relevant columns
 item220.merge <- left_join(rbsa.dat, item220.dat2)
 item220.merge <- item220.merge[which(!is.na(item220.merge$Clean.Room)),]
 item220.merge <- item220.merge[which(item220.merge$BuildingType == "Multifamily"),]
-item220.merge$Total.Area[which(is.na(item220.merge$Total.Area))] <- 0
+# item220.merge$Total.Area[which(is.na(item220.merge$Total.Area))] <- 0
 
 
 item220.data <- weightedData(item220.merge[which(colnames(item220.merge) %notin% c("CK_Cadmus_ID.y"
                                                                                    ,"Clean.Room"
                                                                                    ,"SiteArea"
-                                                                                   ,"Total.Area"
+                                                                                   # ,"Total.Area"
                                                                                    ,"CommonFloorArea"))])
 item220.data <- left_join(item220.data, item220.merge[which(colnames(item220.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Clean.Room"
                                                                                            ,"SiteArea"
-                                                                                           ,"Total.Area"
+                                                                                           # ,"Total.Area"
                                                                                            ,"CommonFloorArea"))])
 item220.data$count <- 1
 ##################################
@@ -158,6 +154,7 @@ rowOrder <- c("Hall"
               ,"Mechanical"
               ,"Office"
               ,"Other"
+              ,"Outside"
               ,"Parking"
               ,"Recreation"
               ,"Store"
@@ -204,80 +201,3 @@ item220.table <- item220.table %>% mutate(Room_Type = factor(Room_Type, levels =
 item220.table <- data.frame(item220.table)
 
 exportTable(item220.table, "MF", "Table 12", weighted = FALSE)
-
-
-
-
-
-
-#############################################################################################
-# Item 221: DISTRIBUTION OF BUILDING FLOOR AREA BY FLOOR CATEGORY AND BUILDING SIZE (MF table 13)
-#############################################################################################
-# item221.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Cadmus_ID"
-#                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
-#                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotalResidentialFloorArea"
-#                                                                   ,"SITES_MFB_cfg_MFB_CONFIG_TotEnclosedBldgArea_IncludResidentialAndCommercialButExcludPkgGarages"
-#                                                                   # ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_AreaOfCommercialSpaceInBuilding_SqFt"
-#                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Grocery_SqFt"
-#                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Office_SqFt"
-#                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Other_SqFt"
-#                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Retail_SqFt"
-#                                                                   ,"SITES_MFB_cfg_MFB_NONRESIDENTIAL_Vacant_SqFt"
-#                                                                   ,""))]
-# 
-# colnames(item221.dat) <- c("CK_Cadmus_ID"
-#                            ,"Common.Area"
-#                            ,"Total.Residential.Floor.Area"
-#                            ,"Total.Residential.Commercial.Floor.Area"
-#                            # ,"Total.Commercial.Area"
-#                            ,"Nonres.Grocery.SQFT"
-#                            ,"Nonres.Office.SQFT"
-#                            ,"Nonres.Other.SQFT"
-#                            ,"Nonres.Retail.SQFT"
-#                            ,"Nonres.Vacant.SQFT")
-# 
-# item221.dat[is.na(item221.dat)] <- 0
-# 
-# for (i in 2:ncol(item221.dat)){
-#   item221.dat[,i] <- as.numeric(as.character(item221.dat[,i]))
-# }
-# 
-# #calculate total nonres floor area
-# item221.dat$Total.Commercial.Area <- item221.dat$Nonres.Office.SQFT +
-#   item221.dat$Nonres.Grocery.SQFT +
-#   item221.dat$Nonres.Other.SQFT +
-#   item221.dat$Nonres.Retail.SQFT +
-#   item221.dat$Nonres.Vacant.SQFT
-# 
-# #calcualte combined total floor area across common area, res, and nonres
-# item221.dat$Total.Floor.Area <- item221.dat$Total.Commercial.Area +
-#   item221.dat$Total.Residential.Floor.Area +
-#   item221.dat$Common.Area
-# 
-# 
-# item221.merge <- left_join(item221.dat, rbsa.dat, by = "CK_Cadmus_ID")
-# 
-# item221.dat1 <- item221.merge[grep("Multifamily", item221.merge$BuildingType),]
-# 
-# # summarise by building types
-# item221.sum1 <- summarise(group_by(item221.dat1, BuildingTypeXX)
-#                           ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
-#                           ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
-#                           ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
-#                           ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / length(unique(CK_Cadmus_ID)))
-#                           ,Percent_Nonres = sum(Total.Commercial.Area) / sum(Total.Floor.Area)
-#                           ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
-#                           ,SampleSize = length(unique(CK_Cadmus_ID)))
-# # summarise across building types
-# item221.sum2 <- summarise(group_by(item221.dat1)
-#                           ,BuildingTypeXX = "All Sizes"
-#                           ,Percent_CommonArea = sum(Common.Area) / sum(Total.Floor.Area)
-#                           ,SE_CommonArea = sqrt(Percent_CommonArea * (1 - Percent_CommonArea) / length(unique(CK_Cadmus_ID)))
-#                           ,Percent_Residential = sum(Total.Residential.Floor.Area) / sum(Total.Floor.Area)
-#                           ,SE_Residential = sqrt(Percent_Residential * (1 - Percent_Residential) / length(unique(CK_Cadmus_ID)))
-#                           ,Percent_Nonres = sum(Total.Commercial.Area) / sum(Total.Floor.Area)
-#                           ,SE_Nonres = sqrt(Percent_Nonres * (1 - Percent_Nonres) / length(unique(CK_Cadmus_ID)))
-#                           ,SampleSize = length(unique(CK_Cadmus_ID)))
-# 
-# 
-# item221.final <- rbind.data.frame(item221.sum1, item221.sum2, stringsAsFactors = F)
