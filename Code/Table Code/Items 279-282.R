@@ -274,7 +274,7 @@ item280.data <- left_join(item280.data, item280.merge[which(colnames(item280.mer
                                                                                          ,"Heating_System"))])
 item280.data$count <- 1
 item280.data$Ind <- 1
-
+length(unique(item280.data$CK_Cadmus_ID))
 
 ######################
 # weighted analysis

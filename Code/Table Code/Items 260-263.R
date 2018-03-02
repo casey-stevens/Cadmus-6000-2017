@@ -315,14 +315,12 @@ exportTable(item262.table, "MF", "Table 54", weighted = FALSE)
 #############################################################################################
 #Item 263: DISTRIBUTION OF COMMON AREA LIGHTING POWER (WATTS) BY CONTROL TYPE (MF Table 55)
 #############################################################################################
-item263.dat <- item260.dat5
+item263.dat <- item260.dat5[which(item260.dat5$Switch.Type != "Unknown"),]
 unique(item263.dat$Switch.Type)
-item263.dat$Switch.Type[grep("On/off|3", item263.dat$Switch.Type, ignore.case = T)] <- "Manual Switch"
+item263.dat$Switch.Type[grep("On/off", item263.dat$Switch.Type, ignore.case = T)] <- "Manual Switch"
 item263.dat$Switch.Type[grep("Other", item263.dat$Switch.Type, ignore.case = T)] <- "Other"
 item263.dat$Switch.Type[grep("Timer", item263.dat$Switch.Type, ignore.case = T)] <- "Timer Control"
 item263.dat$Switch.Type[grep("Dimmer", item263.dat$Switch.Type, ignore.case = T)] <- "Dimmer Switch"
-item263.dat$Switch.Type[grep("Unknown", item263.dat$Switch.Type, ignore.case = T)] <- "Unknown Switch"
-
 
 #summarise up to the site level
 item263.dat1 <- summarise(group_by(item263.dat, CK_Cadmus_ID, Switch.Type)

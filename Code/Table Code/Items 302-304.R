@@ -216,7 +216,7 @@ item303.summary <- proportionRowsAndColumns1(CustomerLevelData = item303.data
 # item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
 item303.summary <- item303.summary[which(item303.summary$Age.Cat != "All Vintages"),]
 
-item303.all.vintages <- proportions_one_group_MF(CustomerLevelData = item303.data
+item303.all.vintages <- proportions_one_group(CustomerLevelData = item303.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'TV.Screen.Cat'
                                                  ,total.name = "All Vintages"
@@ -265,7 +265,7 @@ item303.summary <- proportions_two_groups_unweighted(CustomerLevelData = item303
 # item303.summary <- item303.summary[which(item303.summary$TV.Screen.Cat != "Total"),]
 item303.summary <- item303.summary[which(item303.summary$Age.Cat != "All Vintages"),]
 
-item303.all.vintages <- proportions_one_group_MF(CustomerLevelData = item303.data
+item303.all.vintages <- proportions_one_group(CustomerLevelData = item303.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'TV.Screen.Cat'
                                                  ,total.name = "All Vintages"

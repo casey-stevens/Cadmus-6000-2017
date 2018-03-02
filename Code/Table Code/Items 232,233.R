@@ -163,7 +163,7 @@ item232.dat2 <- item232.dat1#[which(item232.dat1$WindowToWallArea <= 1),]
 
 item232.merge <- left_join(rbsa.dat, item232.dat2)
 item232.merge <- item232.merge[which(!is.na(item232.merge$WindowToWallArea)),]
-item232.merge <- item232.merge[which(item232.merge$BuildingTypeXX == "Apartment Building (3 or fewer floors)"),]
+# item232.merge <- item232.merge[which(item232.merge$BuildingTypeXX == "Apartment Building (3 or fewer floors)"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################

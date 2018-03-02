@@ -248,7 +248,19 @@ tableAU.final.MH <- tableAU.final[which(tableAU.final$BuildingType == "Manufactu
                                   ,-which(colnames(tableAU.final) %in% c("BuildingType"))]
 
 # exportTable(tableAU.final.SF, "SF", "Table AU", weighted = TRUE)
-exportTable(tableAU.final.MH, "MH", "Table AU", weighted = TRUE)
+# exportTable(tableAU.final.MH, "MH", "Table AU", weighted = TRUE)
+
+#######################
+# MF
+#######################
+tableAU.final <- mean_one_group(tableAU.data
+                                ,valueVariable = 'Cooling.Setup'
+                                ,byVariable = 'HomeType'
+                                ,aggregateRow = 'All Sizes')
+
+tableAU.final.MF <- tableAU.final[which(tableAU.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAU.final) %in% c("BuildingType"))]
+exportTable(tableAU.final.MF, "MF", "Table AU", weighted = TRUE)
 
 
 
@@ -266,7 +278,19 @@ tableAU.final.MH <- tableAU.final[which(tableAU.final$BuildingType == "Manufactu
                                   ,-which(colnames(tableAU.final) %in% c("BuildingType"))]
 
 # exportTable(tableAU.final.SF, "SF", "Table AU", weighted = FALSE)
-exportTable(tableAU.final.MH, "MH", "Table AU", weighted = FALSE)
+# exportTable(tableAU.final.MH, "MH", "Table AU", weighted = FALSE)
+
+#######################
+# MF
+#######################
+tableAU.final <- mean_one_group_unweighted(tableAU.data
+                                ,valueVariable = 'Cooling.Setup'
+                                ,byVariable = 'HomeType'
+                                ,aggregateRow = 'All Sizes')
+
+tableAU.final.MF <- tableAU.final[which(tableAU.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAU.final) %in% c("BuildingType"))]
+exportTable(tableAU.final.MF, "MF", "Table AU", weighted = FALSE)
 
 
 

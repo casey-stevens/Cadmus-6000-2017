@@ -57,7 +57,7 @@ colnames(rooms.dat1) <- c("CK_Cadmus_ID","CK_SiteID","Clean.Room","Area")
 rooms.dat1 <- rooms.dat1[which(rooms.dat1$Area %notin% c("Unknown","N/A")),]
 
 rooms.dat1$Area <- as.numeric(as.character(rooms.dat1$Area))
-rooms.dat1$Area[which(rooms.dat1$Area == "N/A")] <- 0
+# rooms.dat1$Area[which(rooms.dat1$Area == "N/A")] <- 0
 rooms.dat2 <- rooms.dat1#[which(rooms.dat1$Area > 0),]
 rooms.dat2 <- rooms.dat2[which(!is.na(rooms.dat2$Area)),]
 

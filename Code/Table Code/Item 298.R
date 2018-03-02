@@ -65,7 +65,7 @@ unique(item298.dat3$Dryer.Loads.per.Washer.Load)
 #remove any sites that do not have clothes washers
 item298.dat4 <- item298.dat3[which(item298.dat3$Clothes.Washer.Loads.per.Week != "No Washing Machine"),]
 item298.dat4$Clothes.Washer.Loads.per.Week <- as.numeric(as.character(item298.dat4$Clothes.Washer.Loads.per.Week))
-item298.dat4$Dryer.Loads.per.Washer.Load   <- as.numeric(as.character(item298.dat4$Dryer.Loads.per.Washer.Load)) / 100
+item298.dat4$Dryer.Loads.per.Washer.Load   <- as.numeric(as.character(item298.dat4$Dryer.Loads.per.Washer.Load))
 
 ################################################
 # Adding pop and sample sizes for weights

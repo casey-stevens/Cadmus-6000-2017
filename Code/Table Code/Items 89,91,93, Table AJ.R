@@ -162,7 +162,7 @@ tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Fa
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
 # exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
-exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
+# exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
 
 ###############################
 # MULTIFAMILY
@@ -173,7 +173,7 @@ tableAJ.final.MF <- mean_one_group(CustomerLevelData = tableAJ.data
                                 ,aggregateRow  = "All Types")
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
-# exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
+exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
 
 
 ###############################
@@ -198,7 +198,7 @@ tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Fa
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
 # exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
-exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
+# exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
 
 ###############################
 # MULTIFAMILY
@@ -209,7 +209,7 @@ tableAJ.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAJ.data
                                    ,aggregateRow  = "All Types")
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
-# exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
+exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
 
 
 

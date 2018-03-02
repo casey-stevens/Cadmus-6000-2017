@@ -176,6 +176,7 @@ item274.data <- left_join(item274.data, item274.dat4[which(colnames(item274.dat4
                                                                                          ,"count"))])
 item274.data$Count <- 1
 names(item274.data)
+length(unique(item274.data$CK_Cadmus_ID))
 ######################
 # weighted analysis
 ######################

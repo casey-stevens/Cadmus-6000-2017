@@ -105,7 +105,7 @@ item268.summary <- proportionRowsAndColumns1(CustomerLevelData = item268.data
 item268.summary <- item268.summary[which(item268.summary$HomeYearBuilt_bins_MF != "Remove"),]
 # item268.summary <- item268.summary[which(item268.summary$Laundry.Location != "Total"),]
 
-item268.all.vintages <- proportions_one_group_MF(CustomerLevelData = item268.data
+item268.all.vintages <- proportions_one_group(CustomerLevelData = item268.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'Laundry.Location'
                                                  ,total.name = 'All Vintages'
@@ -148,7 +148,7 @@ item268.summary <- proportions_two_groups_unweighted(CustomerLevelData = item268
                                              ,aggregateColumnName = "Remove")
 item268.summary <- item268.summary[which(item268.summary$HomeYearBuilt_bins_MF != "Remove"),]
 
-item268.all.vintages <- proportions_one_group_MF(CustomerLevelData = item268.data
+item268.all.vintages <- proportions_one_group(CustomerLevelData = item268.data
                                                  ,valueVariable = 'count'
                                                  ,groupingVariable = 'Laundry.Location'
                                                  ,total.name = 'All Vintages'
