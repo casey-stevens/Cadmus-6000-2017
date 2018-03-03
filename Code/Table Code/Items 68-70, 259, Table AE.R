@@ -24,6 +24,10 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
@@ -244,7 +248,7 @@ unique(item69.dat3$Lamp.Category)
 
 
 item69.merge <- left_join(rbsa.dat, item69.dat3)
-item69.merge <- item69.merge[which(item69.merge$Lamp.Category %notin% c("N/A", NA, "Unknown")),]
+item69.merge <- item69.merge[which(item69.merge$Lamp.Category %notin% c("N/A", NA)),]
 item69.merge <- item69.merge[which(item69.merge$Lamps %notin% c("Unknown", "N/A", NA)),]
 
 
@@ -319,9 +323,9 @@ exportTable(item69.final.MH, "MH", "Table 55", weighted = TRUE)
 item69.table.MF <- proportions_one_group(CustomerLevelData = item69.data
                                          ,valueVariable    = 'Lamps'
                                          ,groupingVariable = 'Lamp.Category'
-                                         ,total.name       = "Remove"
+                                         ,total.name       = "All Lamp Types"
                                          ,weighted         = TRUE)
-item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total"),]
+# item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total"),]
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
@@ -376,9 +380,9 @@ exportTable(item69.final.MH, "MH", "Table 55", weighted = FALSE)
 item69.table.MF <- proportions_one_group(CustomerLevelData = item69.data
                                          ,valueVariable    = 'Lamps'
                                          ,groupingVariable = 'Lamp.Category'
-                                         ,total.name       = "Remove"
+                                         ,total.name       = "All Lamp Types"
                                          ,weighted         = FALSE)
-item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total"),]
+# item69.table.MF <- item69.table.MF[which(item69.table.MF$Lamp.Category != "Total"),]
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
@@ -904,17 +908,30 @@ exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
 #############################################################################################
 #item 259: DISTRIBUTION OF COMMON AREA LAMPS BY EISA CATEGORY (MF table 51)
 #############################################################################################
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat <- one.line.bldg.dat[which(one.line.bldg.dat$Area.of.Conditioned.Common.Space > 0),]
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
+
+one.line.bldg.dat <- one.line.bldg.dat[names(one.line.bldg.dat) %in% c("CK_Building_ID", "Area.of.Conditioned.Common.Space")]
+
+rbsa.merge <- left_join(rbsa.dat.bldg, one.line.bldg.dat)
+rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$Area.of.Conditioned.Common.Space)),]
+
+
+
 #subset to columns needed for analysis
 item259.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
-                                                               ,"Lamp.Category"
-                                                               ,"Fixture.Qty"
-                                                               ,"LIGHTING_BulbsPerFixture"
-                                                               ,"Status"
-                                                               ,""
-                                                               ,""))]
+                                                                ,"CK_SiteID"
+                                                                ,"Lamp.Category"
+                                                                ,"Fixture.Qty"
+                                                                ,"LIGHTING_BulbsPerFixture"
+                                                                ,"Status"
+                                                                ,""
+                                                                ,""))]
 item259.dat$count <- 1
 
-item259.dat1 <- left_join(rbsa.dat, item259.dat, by = "CK_Cadmus_ID")
+item259.dat1 <- left_join(rbsa.dat, item259.dat, by = c("CK_Building_ID" = "CK_SiteID"))
+names(item259.dat1)[which(names(item259.dat1) %in% c("CK_Cadmus_ID.x"))] <- "CK_Cadmus_ID"
 
 item259.dat2 <- item259.dat1[grep("BLDG", item259.dat1$CK_Building_ID),]
 
@@ -929,23 +946,28 @@ item259.dat3 <- item259.dat2[which(item259.dat2$Lamps %notin% c("N/A",NA)),]
 unique(item259.dat3$Status)
 item259.dat4 <- item259.dat3[which(item259.dat3$Status %notin% c("Empty Socket", "Unknown")),]
 
-
+item259.merge <- left_join(rbsa.merge, item259.dat4)
+item259.merge <- item259.merge[which(!is.na(item259.merge$Lamps)),]
+length(unique(item259.merge$CK_Cadmus_ID))
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item259.data <- weightedData(item259.dat4[-which(colnames(item259.dat4) %in% c("Fixture.Qty"
-                                                                            ,"LIGHTING_BulbsPerFixture"
-                                                                            ,"Lamp.Category"
-                                                                            ,"Lamps"
-                                                                            ,"count"
-                                                                            ,"Status"))])
-item259.data <- left_join(item259.data, item259.dat4[which(colnames(item259.dat4) %in% c("CK_Cadmus_ID"               
-                                                                                     ,"Fixture.Qty"
-                                                                                     ,"LIGHTING_BulbsPerFixture"
-                                                                                     ,"Lamp.Category"
-                                                                                     ,"Lamps"
-                                                                                     ,"count"
-                                                                                     ,"Status"))])
+item259.data <- weightedData(item259.merge[-which(colnames(item259.merge) %in% c("CK_Cadmus_ID.y"
+                                                                               ,"Fixture.Qty"
+                                                                               ,"LIGHTING_BulbsPerFixture"
+                                                                               ,"Lamp.Category"
+                                                                               ,"Lamps"
+                                                                               ,"count"
+                                                                               ,"Area.of.Conditioned.Common.Space"
+                                                                               ,"Status"))])
+item259.data <- left_join(item259.data, item259.merge[which(colnames(item259.merge) %in% c("CK_Cadmus_ID"               
+                                                                                         ,"Fixture.Qty"
+                                                                                         ,"LIGHTING_BulbsPerFixture"
+                                                                                         ,"Lamp.Category"
+                                                                                         ,"Lamps"
+                                                                                         ,"count"
+                                                                                         ,"Area.of.Conditioned.Common.Space"
+                                                                                         ,"Status"))])
 item259.data$count <- 1
 #######################
 # Weighted Analysis

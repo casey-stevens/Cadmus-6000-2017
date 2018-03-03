@@ -23,6 +23,9 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat.site <- rbsa.dat.MF[grep("site",rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg",rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
 one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
 
@@ -578,54 +581,28 @@ item248.dat <- unique(mechanical.dat.MF[which(colnames(mechanical.dat.MF) %in% c
                                                                                  "CK_Building_ID",
                                                                                  "System.Type"
                                                                                  ,"Primary.Cooling.System"))])
-item248.dat <- item248.dat[which(item248.dat$Primary.Cooling.System %in% c("Yes","No")),]
+item248.dat <- item248.dat[grep("site", item248.dat$Cool.Iteration, ignore.case = T),]
 
-item248.dat$CoolingInd <- 0
-item248.dat$CoolingInd[which(item248.dat$Primary.Cooling.System == "Yes")] <- 1
+item248.dat$CoolingInd <- 1
 
 unique(item248.dat$System.Type)
-item248.dat$System.Type[grep("mini", item248.dat$System.Type, ignore.case = T)] <- "Mini-split HP"
-item248.dat$System.Type[grep("plug", item248.dat$System.Type, ignore.case = T)] <- "Plug In Heater"
-item248.dat$System.Type[grep("baseboard", item248.dat$System.Type, ignore.case = T)] <- "Electric Baseboard"
-item248.dat$System.Type[grep("fireplace", item248.dat$System.Type, ignore.case = T)] <- "Stove/Fireplace"
-item248.dat$System.Type[grep("boiler", item248.dat$System.Type, ignore.case = T)] <- "Boiler"
-item248.dat$System.Type[grep("furnace", item248.dat$System.Type, ignore.case = T)] <- "Furnace"
-
+item248.dat$System.Type[grep("central", item248.dat$System.Type, ignore.case = T)] <- "Central Ac"
 
 item248.dat1 <- data.frame(summarise(group_by(item248.dat,CK_Cadmus_ID,System.Type),
                                      CoolingInd = sum(unique(CoolingInd), na.rm = T)), stringsAsFactors = F)
-# item248.dat2 <- data.frame(
-#   summarise(group_by(item248.dat1,CK_Cadmus_ID),
-#             CoolingSum = sum(CoolingInd)),stringsAsFactors = F )
 
-item248.dat1 <- left_join(rbsa.dat, item248.dat1)
+item248.dat1 <- left_join(rbsa.dat.site, item248.dat1)
 
 item248.dat1$CoolingInd[which(is.na(item248.dat1$CoolingInd))] <- 0
 item248.dat1$System.Type[which(item248.dat1$CoolingInd == 0)] <- "No Cooling"
-item248.dat1$System.Type[which(item248.dat1$CoolingInd > 0)] <- item248.dat1$System.Type[which(item248.dat1$CoolingInd > 0)]
-
-item248.dat2 <- unique(item248.dat1[,c("CK_Cadmus_ID","System.Type")])
-
-item248.dat3 <- left_join(item248.dat2,item248.dat1)
-item248.dat3$CoolingSum <- as.numeric(as.character(item248.dat3$CoolingInd))
-item248.dat4 <- item248.dat3[which(item248.dat3$System.Type %notin% c(NA,"No Cooling","-- Unassigned --","N/A")),]
-
-item248.merge <- left_join(rbsa.dat, item248.dat4)
-item248.merge <- item248.merge[which(item248.merge$BuildingType == "Multifamily"),]
-item248.merge <- item248.merge[grep("SITE",item248.merge$CK_Building_ID),]
-item248.merge$CoolingSum[which(item248.merge$CoolingSum %in% c("N/A",NA))] <- 1
-item248.merge$System.Type[which(item248.merge$System.Type %in% c("N/A",NA))] <- "No Cooling"
-unique(item248.merge$System.Type)
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item248.data <- weightedData(item248.merge[-which(colnames(item248.merge) %in% c("System.Type"
-                                                                                 ,"CoolingSum"
+item248.data <- weightedData(item248.dat1[-which(colnames(item248.dat1) %in% c("System.Type"
                                                                                  ,"CoolingInd"))])
-item248.data <- left_join(item248.data, item248.merge[which(colnames(item248.merge) %in% c("CK_Cadmus_ID"
+item248.data <- left_join(item248.data, item248.dat1[which(colnames(item248.dat1) %in% c("CK_Cadmus_ID"
                                                                                            ,"System.Type"
-                                                                                           ,"CoolingSum"
                                                                                            ,"CoolingInd"))])
 
 item248.data$count <- 1
@@ -662,59 +639,45 @@ exportTable(item248.final.MF, "MF", "Table 40", weighted = FALSE)
 #############################################################################################
 #Item 249: DISTRIBUTION OF COMMON AREA COOLING SYSTEMS / Table 41
 #############################################################################################
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat <- one.line.bldg.dat[which(one.line.bldg.dat$Area.of.Conditioned.Common.Space > 0),]
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
+
+one.line.bldg.dat <- one.line.bldg.dat[names(one.line.bldg.dat) %in% c("CK_Building_ID", "Area.of.Conditioned.Common.Space")]
+
+rbsa.merge <- left_join(rbsa.dat.bldg, one.line.bldg.dat)
+rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$Area.of.Conditioned.Common.Space)),]
+
 item249.dat <- unique(mechanical.dat.MF[which(colnames(mechanical.dat.MF) %in% c("CK_Cadmus_ID",
                                                                                  "Cool.Iteration",
                                                                                  "CK_Building_ID",
                                                                                  "System.Type"
                                                                                  ,"Primary.Cooling.System"))])
-item249.dat <- item249.dat[which(item249.dat$Primary.Cooling.System %in% c("Yes","No")),]
+item249.dat <- item249.dat[grep("bldg", item249.dat$Cool.Iteration, ignore.case = T),]
 
-item249.dat$CoolingInd <- 0
-item249.dat$CoolingInd[which(item249.dat$Primary.Cooling.System == "Yes")] <- 1
+item249.dat$CoolingInd <- 1
 
 unique(item249.dat$System.Type)
-item249.dat$System.Type[grep("mini", item249.dat$System.Type, ignore.case = T)] <- "Mini-split HP"
-item249.dat$System.Type[grep("plug", item249.dat$System.Type, ignore.case = T)] <- "Plug In Heater"
-item249.dat$System.Type[grep("baseboard", item249.dat$System.Type, ignore.case = T)] <- "Electric Baseboard"
-item249.dat$System.Type[grep("fireplace", item249.dat$System.Type, ignore.case = T)] <- "Stove/Fireplace"
-item249.dat$System.Type[grep("boiler", item249.dat$System.Type, ignore.case = T)] <- "Boiler"
-item249.dat$System.Type[grep("furnace", item249.dat$System.Type, ignore.case = T)] <- "Furnace"
+item249.dat$System.Type[grep("central", item249.dat$System.Type, ignore.case = T)] <- "Central Ac"
 
 item249.dat1 <- data.frame(summarise(group_by(item249.dat,CK_Cadmus_ID,System.Type),
                                      CoolingInd = sum(unique(CoolingInd), na.rm = T)), stringsAsFactors = F)
-# item249.dat2 <- data.frame(
-#   summarise(group_by(item249.dat1,CK_Cadmus_ID),
-#             CoolingSum = sum(CoolingInd)),stringsAsFactors = F )
 
-item249.dat1 <- left_join(rbsa.dat, item249.dat1)
+item249.dat1 <- left_join(rbsa.merge, item249.dat1)
 
 item249.dat1$CoolingInd[which(is.na(item249.dat1$CoolingInd))] <- 0
 item249.dat1$System.Type[which(item249.dat1$CoolingInd == 0)] <- "No Cooling"
-item249.dat1$System.Type[which(item249.dat1$CoolingInd > 0)] <- item249.dat1$System.Type[which(item249.dat1$CoolingInd > 0)]
-
-item249.dat2 <- unique(item249.dat1[,c("CK_Cadmus_ID","System.Type")])
-
-item249.dat3 <- left_join(item249.dat2,item249.dat1)
-item249.dat3$CoolingSum <- as.numeric(as.character(item249.dat3$CoolingInd))
-item249.dat4 <- item249.dat3[which(item249.dat3$System.Type %notin% c(NA,"No Cooling","-- Unassigned --","N/A")),]
-
-item249.merge <- left_join(rbsa.dat, item249.dat4)
-item249.merge <- item249.merge[which(item249.merge$BuildingType == "Multifamily"),]
-item249.merge <- item249.merge[grep("BLDG",item249.merge$CK_Building_ID),]
-item249.merge$CoolingSum[which(item249.merge$CoolingSum %in% c("N/A",NA))] <- 1
-item249.merge$System.Type[which(item249.merge$System.Type %in% c("N/A",NA))] <- "No Cooling"
-unique(item249.merge$System.Type)
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item249.data <- weightedData(item249.merge[-which(colnames(item249.merge) %in% c("System.Type"
-                                                                                 ,"CoolingSum"
-                                                                                 ,"CoolingInd"))])
-item249.data <- left_join(item249.data, item249.merge[which(colnames(item249.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"System.Type"
-                                                                                           ,"CoolingSum"
-                                                                                           ,"CoolingInd"))])
+item249.data <- weightedData(item249.dat1[-which(colnames(item249.dat1) %in% c("System.Type"
+                                                                               ,"Area.of.Conditioned.Common.Space"
+                                                                               ,"CoolingInd"))])
+item249.data <- left_join(item249.data, item249.dat1[which(colnames(item249.dat1) %in% c("CK_Cadmus_ID"
+                                                                                         ,"System.Type"
+                                                                                         ,"Area.of.Conditioned.Common.Space"
+                                                                                         ,"CoolingInd"))])
 
 item249.data$count <- 1
 

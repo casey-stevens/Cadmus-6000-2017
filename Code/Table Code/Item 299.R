@@ -82,8 +82,9 @@ item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 1980 & item299.dat5$Ag
 item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 1990 & item299.dat5$Age.Num < 1995)] <- "1990-1994"
 item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 1995 & item299.dat5$Age.Num < 2000)] <- "1995-1999"
 item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 2000 & item299.dat5$Age.Num < 2005)] <- "2000-2004"
-item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 2005 & item299.dat5$Age.Num < 2009)] <- "2005-2009"
-item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 2009)] <- "Post 2009"
+item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 2005 & item299.dat5$Age.Num < 2010)] <- "2005-2009"
+item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 2010 & item299.dat5$Age.Num < 2015)] <- "2010-2014"
+item299.dat5$Dishwasher.Cat[which(item299.dat5$Age.Num >= 2015)] <- "Post 2014"
 unique(item299.dat5$Dishwasher.Cat)
 ####################
 # end cleaning
@@ -129,7 +130,8 @@ rowOrder <- c("Pre 1980"
               ,"1995-1999"
               ,"2000-2004"
               ,"2005-2009"
-              ,"Post 2009"
+              ,"2010-2014"
+              ,"Post 2014"
               ,"None"
               ,"Unknown"
               ,"Total")
@@ -156,7 +158,8 @@ rowOrder <- c("Pre 1980"
               ,"1995-1999"
               ,"2000-2004"
               ,"2005-2009"
-              ,"Post 2009"
+              ,"2010-2014"
+              ,"Post 2014"
               ,"None"
               ,"Unknown"
               ,"Total")

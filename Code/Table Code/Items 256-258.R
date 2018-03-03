@@ -23,6 +23,9 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
@@ -77,8 +80,10 @@ item256.dat5 <- summarise(group_by(item256.dat4, CK_Cadmus_ID, CK_Building_ID)
 
 
 item256.dat6 <- left_join(item256.dat5, item256.buildings.int)
+item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding <- as.numeric(as.character(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding))
+item256.dat6 <- item256.dat6[which(!is.na(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding)),]
 
-item256.dat6$LampsPerUnit <- item256.dat6$SiteCount / as.numeric(as.character(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding))
+item256.dat6$LampsPerUnit <- item256.dat6$SiteCount / item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding
 
 #subset to remove any missing number of units, or unit size equal to 1 (doesn't make sense)
 item256.dat7 <- item256.dat6[which(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding > 1),]
@@ -134,6 +139,14 @@ exportTable(item256.final.MF, "MF", "Table 48", weighted = FALSE)
 #############################################################################################
 #Item 257: DISTRIBUTION OF COMMON AREA LAMPS BY LAMP TYPE AND BUILDING SIZE (MF Table 49)
 #############################################################################################
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat <- one.line.bldg.dat[which(one.line.bldg.dat$Area.of.Conditioned.Common.Space > 0),]
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
+
+one.line.bldg.dat <- one.line.bldg.dat[names(one.line.bldg.dat) %in% c("CK_Building_ID", "Area.of.Conditioned.Common.Space")]
+
+rbsa.merge <- left_join(rbsa.dat.bldg, one.line.bldg.dat)
+rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$Area.of.Conditioned.Common.Space)),]
 
 #subset to columns needed for analysis
 item257.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
@@ -171,18 +184,20 @@ unique(item257.dat5$Lamp.Category)
 
 item257.dat6 <- item257.dat5[which(item257.dat5$Lamp.Category != "Unknown"),]
 
-item257.merge <- left_join(rbsa.dat, item257.dat6)
+item257.merge <- left_join(rbsa.merge, item257.dat6)
 item257.merge <- item257.merge[which(!is.na(item257.merge$SiteCount)),]
-
+length(unique(item257.merge$CK_Cadmus_ID))
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item257.data <- weightedData(item257.merge[which(colnames(item257.merge) %notin% c("Lamp.Category"
-                                                                                   ,"SiteCount"))])
+                                                                                   ,"SiteCount"
+                                                                                   ,"Area.of.Conditioned.Common.Space"))])
 
 item257.data <- left_join(item257.data, item257.merge[which(colnames(item257.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Lamp.Category"
-                                                                                           ,"SiteCount"))])
+                                                                                           ,"SiteCount"
+                                                                                           ,"Area.of.Conditioned.Common.Space"))])
 item257.data$count <- 1
 length(unique(item257.data$CK_Cadmus_ID))
 ##############################
@@ -293,6 +308,13 @@ item257.table <- data.frame("Building.Size"            = item257.cast$HomeType
                             ,"Other"                   = item257.cast$Percent_Other
                             ,"Other.SE"                = item257.cast$SE_Other
                             ,"n"                       = item257.cast$n_Total)
+levels(item257.table$Building.Size)
+rowOrder <- c("Apartment Building (3 or fewer floors)"
+              ,"Apartment Building (4 to 6 floors)"
+              ,"Apartment Building (More than 6 floors)"
+              ,"All Sizes")
+item257.table <- item257.table %>% mutate(Building.Size = factor(Building.Size, levels = rowOrder)) %>% arrange(Building.Size)  
+item257.table <- data.frame(item257.table)
 
 exportTable(item257.table, "MF", "Table 49", weighted = FALSE)
 
@@ -342,7 +364,7 @@ unique(item258.dat5$Lamp.Category)
 item258.dat6 <- item258.dat5[which(item258.dat5$Lamp.Category != "Unknown"),]
 
 
-item258.merge <- left_join(rbsa.dat, item258.dat6)
+item258.merge <- left_join(rbsa.merge, item258.dat6)
 item258.merge <- item258.merge[which(!is.na(item258.merge$SiteCount)),]
 
 ######################################
@@ -350,12 +372,14 @@ item258.merge <- item258.merge[which(!is.na(item258.merge$SiteCount)),]
 ######################################
 item258.data <- weightedData(item258.merge[which(colnames(item258.merge) %notin% c("Lamp.Category"
                                                                                    ,"SiteCount"
-                                                                                   ,"Clean.Room"))])
+                                                                                   ,"Clean.Room"
+                                                                                   ,"Area.of.Conditioned.Common.Space"))])
 
 item258.data <- left_join(item258.data, item258.merge[which(colnames(item258.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Lamp.Category"
                                                                                            ,"SiteCount"
-                                                                                           ,"Clean.Room"))])
+                                                                                           ,"Clean.Room"
+                                                                                           ,"Area.of.Conditioned.Common.Space"))])
 item258.data$count <- 1
 
 ##############################
@@ -385,7 +409,7 @@ item258.cast <- dcast(setDT(item258.final)
                       ,formula = Clean.Room ~ Lamp.Category
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-
+names(item258.cast)
 item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Compact.Fluorescent"     = item258.cast$`w.percent_Compact Fluorescent`
                             ,"Compact.Fluorescent.SE"  = item258.cast$`w.SE_Compact Fluorescent`

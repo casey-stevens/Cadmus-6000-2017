@@ -23,6 +23,9 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -36,6 +39,16 @@ buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, build
 #clean cadmus IDs
 buildings.interview.dat$CK_Building_ID <- trimws(toupper(buildings.interview.dat$CK_BuildingID))
 
+
+
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat <- one.line.bldg.dat[which(one.line.bldg.dat$Area.of.Conditioned.Common.Space > 0),]
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
+
+one.line.bldg.dat <- one.line.bldg.dat[names(one.line.bldg.dat) %in% c("CK_Building_ID", "Area.of.Conditioned.Common.Space")]
+
+rbsa.merge <- left_join(rbsa.dat.bldg, one.line.bldg.dat)
+rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$Area.of.Conditioned.Common.Space)),]
 
 
 
@@ -53,7 +66,7 @@ item277.dat0 <- item277.dat[grep("BLDG",item277.dat$CK_Building_ID),]
 item277.dat00 <- item277.dat0[which(item277.dat0$Type == "Refrigerator"),]
 
 #merge on appliances data with rbsa cleaned data
-item277.dat1 <- left_join(rbsa.dat, item277.dat00, by = "CK_Building_ID")
+item277.dat1 <- left_join(rbsa.merge, item277.dat00, by = "CK_Building_ID")
 colnames(item277.dat1)[which(colnames(item277.dat1) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 
@@ -69,12 +82,14 @@ item277.dat2$Ind[which(item277.dat2$Type == "Refrigerator")] <- 1
 item277.data <- weightedData(item277.dat2[which(colnames(item277.dat2) %notin% c("CK_Cadmus_ID.y"
                                                                                  ,"Iteration"
                                                                                  ,"Type"
-                                                                                 ,"Ind"))])
+                                                                                 ,"Ind"
+                                                                                 ,"Area.of.Conditioned.Common.Space"))])
 
 item277.data <- left_join(item277.data, item277.dat2[which(colnames(item277.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Iteration"
                                                                                          ,"Type"
-                                                                                         ,"Ind"))])
+                                                                                         ,"Ind"
+                                                                                         ,"Area.of.Conditioned.Common.Space"))])
 item277.data$count <- 1
 
 

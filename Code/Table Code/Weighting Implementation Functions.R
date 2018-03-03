@@ -1452,7 +1452,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , total.count = sum(Count)
                                                  , p.h = count / total.count), stringsAsFactors = F)
     
-  }else if(columnVariable %in% c("HomeType","Lamp.Category") & valueVariable %in% c("Ind", "Lamps")){
+  }else if(columnVariable %in% c("HomeType","Lamp.Category") & valueVariable %in% c("Ind")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1466,7 +1466,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
-  }else if(columnVariable %in% c("HomeType") & valueVariable %in% c("StorageBulbs")){
+  }else if(columnVariable %in% c("HomeType","Lamp.Category","Status") & valueVariable %in% c("StorageBulbs", "Lamps")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1555,7 +1555,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #################################################################################
   #obtain the total population size for the strata and columnVariable combination
   #################################################################################
-  if(columnVariable %in% c("Heating_System", "Primary.Heating.System")){
+  if(columnVariable %in% c("Heating_System", "Primary.Heating.System", "Washer.Age")){
     StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
                                                                         ,"State"
                                                                         ,"Region"
@@ -1621,6 +1621,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      ,n         = sum(n_hj)
                                      ,EB   = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F) 
   }else if(columnVariable %in% c("Heating_System","Primary.Heating.System")){
+    #say i did this for washer.age
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
@@ -1705,16 +1706,30 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   
   
   #summarise by second grouping variable
-  item.agg.weighted <- ddply(item.agg.join, c("BuildingType", rowVariable), summarise
-                             ,aggregateName = aggregateColumnName
-                             ,w.percent = sum(N.h * p.h) / sum(N.h)#unique(aggregate.N.h)
-                             ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(N.h)#unique(aggregate.N.h)
-                             ,count     = sum(count)
-                             ,N         = unique(aggregate.N.h)
-                             ,n         = sum(n_hj)
-                             ,EB   = w.SE * qt(1-(1-0.9)/2, n)
-                             # ,n         = unique(aggregate.n.h)
-                             )
+  # if (columnVariable == "Something"){
+  #   item.agg.weighted <- ddply(item.agg.join, c("BuildingType", rowVariable), summarise
+  #                              ,aggregateName = aggregateColumnName
+  #                              ,w.percent = sum(N.h * p.h) / sum(N.h)#unique(aggregate.N.h)
+  #                              ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(N.h)#unique(aggregate.N.h)
+  #                              ,count     = sum(count)
+  #                              ,N         = unique(aggregate.N.h)
+  #                              ,n         = sum(n_hj)
+  #                              ,EB   = w.SE * qt(1-(1-0.9)/2, n)
+  #                              # ,n         = unique(aggregate.n.h)
+  #   )
+  # }else{
+    item.agg.weighted <- ddply(item.agg.join, c("BuildingType", rowVariable), summarise
+                               ,aggregateName = aggregateColumnName
+                               ,w.percent = sum(N.h * p.h) / unique(aggregate.N.h)
+                               ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(aggregate.N.h)
+                               ,count     = sum(count)
+                               ,N         = unique(aggregate.N.h)
+                               ,n         = sum(n_hj)
+                               ,EB   = w.SE * qt(1-(1-0.9)/2, n)
+                               # ,n         = unique(aggregate.n.h)
+    )
+  # }
+
   #rename column
   colnames(item.agg.weighted)[which(colnames(item.agg.weighted) == 'aggregateName')] <- columnVariable
   

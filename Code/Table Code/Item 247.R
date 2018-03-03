@@ -131,4 +131,3 @@ item247.table <- item247.table %>% mutate(Common.Area.Primary.Heating.System = f
 item247.table <- data.frame(item247.table)
 
 exportTable(item247.table, "MF", "Table 39", weighted = FALSE)
-

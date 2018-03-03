@@ -23,6 +23,9 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
@@ -71,10 +74,12 @@ unique(item279.dat3$Heating_System)
 #remove NA in heating fuel types
 unique(item279.dat3$Heating.Fuel)
 item279.dat4 <- item279.dat3[-grep("other|unknown|hot water",item279.dat3$Heating.Fuel, ignore.case = T),]
+item279.dat4 <- item279.dat4[-grep("water heat",item279.dat4$Heating_System, ignore.case = T),]
 item279.dat4$Heating.Fuel[which(item279.dat4$Heating.Fuel == "Natural gas")] <- "Natural Gas"
 item279.dat4$Heating.Fuel[grep("wood",item279.dat4$Heating.Fuel, ignore.case = T)] <- "Wood"
 item279.dat4 <- item279.dat4[which(item279.dat4$Heating.Fuel %notin% c("N/A", NA, "Unknown")),]
 unique(item279.dat4$Heating.Fuel)
+unique(item279.dat4$Heating_System)
 names(item279.dat4)
 
 ######################################
@@ -148,6 +153,20 @@ item279.table <- data.frame("Primary.Heating.System" = item279.cast$Heating_Syst
                             ,"Wood.EB"               = item279.cast$`EB_Wood`
                             ,"All.Types.EB"          = item279.cast$`EB_All Types`
                             )
+levels(item279.table$Primary.Heating.System)
+rowOrder <- c("Air Handler"
+              ,"Air Source Heat Pump"
+              ,"Boiler"
+              ,"Electric Baseboard"
+              ,"Furnace"
+              ,"Mini-Split Hp"
+              ,"Packaged HP"
+              ,"Radiant Heat"
+              ,"Stove/Fireplace"
+              ,"Zonal Heat"
+              ,"All Systems")
+item279.table <- item279.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
+item279.table <- data.frame(item279.table)
 
 exportTable(item279.table, "MF", "Table 71", weighted = TRUE)
 
@@ -156,36 +175,37 @@ exportTable(item279.table, "MF", "Table 71", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
+item279.data$Fuel <- item279.data$Heating.Fuel
 item279.summary <- proportions_two_groups_unweighted(CustomerLevelData = item279.data
                                              ,valueVariable = 'count'
                                              ,columnVariable = 'Heating_System'
-                                             ,rowVariable = 'Heating.Fuel'
+                                             ,rowVariable = 'Fuel'
                                              ,aggregateColumnName = "All Systems")
-item279.summary <- item279.summary[which(item279.summary$Heating.Fuel != "Total"),]
+item279.summary <- item279.summary[which(item279.summary$Fuel != "Total"),]
 item279.summary <- item279.summary[which(item279.summary$Heating_System != "All Systems"),]
 
-item279.all.types <- proportions_one_group_MF(CustomerLevelData = item279.data
+item279.all.types <- proportions_one_group(CustomerLevelData = item279.data
                                               ,valueVariable = 'count'
                                               ,groupingVariable = 'Heating_System'
                                               ,total.name = 'All Types'
-                                              ,columnName = 'Heating.Fuel'
+                                              ,columnName = 'Fuel'
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
 item279.all.types$Heating_System[which(item279.all.types$Heating_System == "Total")] <- "All Systems"
 
-item279.all.systems <- proportions_one_group_MF(CustomerLevelData = item279.data
+item279.all.systems <- proportions_one_group(CustomerLevelData = item279.data
                                                 ,valueVariable = 'count'
-                                                ,groupingVariable = 'Heating.Fuel'
+                                                ,groupingVariable = 'Fuel'
                                                 ,total.name = 'All Systems'
                                                 ,columnName = 'Heating_System'
                                                 ,weighted = FALSE
                                                 ,two.prop.total = TRUE)
-# item279.all.systems <- item279.all.systems[which(item279.all.systems$Heating.Fuel != "Total"),]
+# item279.all.systems <- item279.all.systems[which(item279.all.systems$Fuel != "Total"),]
 
 item279.final <- rbind.data.frame(item279.summary, item279.all.types, item279.all.systems, stringsAsFactors = F)
 
 item279.cast <- dcast(setDT(item279.final)
-                      ,formula = Heating_System ~ Heating.Fuel
+                      ,formula = Heating_System ~ Fuel
                       ,value.var = c("Percent", "SE","Count","n"))
 
 item279.table <- data.frame("Primary.Heating.System" = item279.cast$Heating_System
@@ -198,6 +218,20 @@ item279.table <- data.frame("Primary.Heating.System" = item279.cast$Heating_Syst
                             ,"All.Types"             = item279.cast$`Percent_All Types`
                             ,"All.Types.SE"          = item279.cast$`SE_All Types`
                             ,"n"                     = item279.cast$`n_All Types`)
+levels(item279.table$Primary.Heating.System)
+rowOrder <- c("Air Handler"
+              ,"Air Source Heat Pump"
+              ,"Boiler"
+              ,"Electric Baseboard"
+              ,"Furnace"
+              ,"Mini-Split Hp"
+              ,"Packaged HP"
+              ,"Radiant Heat"
+              ,"Stove/Fireplace"
+              ,"Zonal Heat"
+              ,"All Systems")
+item279.table <- item279.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
+item279.table <- data.frame(item279.table)
 
 exportTable(item279.table, "MF", "Table 71", weighted = FALSE)
 
@@ -243,18 +277,18 @@ unique(item280.dat3$Heating.Fuel)
 item280.dat4 <- item280.dat3[-grep("other|unknown|hot water",item280.dat3$Heating.Fuel, ignore.case = T),]
 item280.dat4$Heating.Fuel[which(item280.dat4$Heating.Fuel == "Natural gas")] <- "Natural Gas"
 item280.dat4$Heating.Fuel[grep("wood",item280.dat4$Heating.Fuel, ignore.case = T)] <- "Wood"
-item280.dat4 <- item280.dat4[which(item280.dat4$Heating.Fuel  %notin% c("N/A",NA,"None")),]
+item280.dat4 <- item280.dat4[which(item280.dat4$Heating.Fuel  %notin% c("N/A",NA,"None","Building Central System")),]
 unique(item280.dat4$Heating.Fuel)
 names(item280.dat4)
 
 
-item280.merge <- left_join(rbsa.dat, item280.dat4)
-item280.merge <- item280.merge[which(item280.merge$BuildingType == "Multifamily"),]
-item280.merge <- item280.merge[which(item280.merge$Heating.Fuel %notin% c("N/A",NA,"None")),]
-# item280.merge$Heating.Fuel[which(item280.merge$Heating.Fuel %in% c("N/A",NA))] <- "None"
+item280.merge <- left_join(rbsa.dat.site, item280.dat4)
+# item280.merge <- item280.merge[which(item280.merge$Heating.Fuel %notin% c("N/A",NA,"None")),]
+item280.merge$Heating.Fuel[which(item280.merge$Heating.Fuel %in% c("N/A",NA))] <- "None"
+item280.merge$Heating_System[which(item280.merge$Heating_System %in% c("N/A",NA))] <- "None"
 item280.merge$count <- 1
 
-
+unique(item280.merge$Heating.Fuel)
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -300,6 +334,8 @@ item280.table <- data.frame("Primary.Heating.System" = item280.cast$Heating_Syst
                             ,"Wood.SE"               = item280.cast$`w.SE_Wood`
                             ,"Propane"               = item280.cast$`w.percent_Propane`
                             ,"Propane.SE"            = item280.cast$`w.SE_Propane`
+                            ,"None"                  = item280.cast$w.percent_None
+                            ,"None.SE"               = item280.cast$w.SE_None
                             ,"All.Types"             = item280.cast$`w.percent_All Types`
                             ,"All.Types.SE"          = item280.cast$`w.SE_All Types`
                             ,"n"                     = item280.cast$`n_All Types`
@@ -307,7 +343,19 @@ item280.table <- data.frame("Primary.Heating.System" = item280.cast$Heating_Syst
                             ,"Gas.EB"                = item280.cast$`EB_Natural Gas`
                             ,"Wood.EB"               = item280.cast$`EB_Wood`
                             ,"Propane.EB"            = item280.cast$`EB_Propane`
+                            ,"None.EB"               = item280.cast$EB_None
                             ,"All.Types.EB"          = item280.cast$`EB_All Types`)
+
+levels(item280.table$Primary.Heating.System)
+rowOrder <- c("Electric Baseboard"
+              ,"Furnace"
+              ,"Mini-Split Hp"
+              ,"Stove/Fireplace"
+              ,"Zonal Heat"
+              ,"None"
+              ,"All Systems")
+item280.table <- item280.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
+item280.table <- data.frame(item280.table)
 
 exportTable(item280.table, "MF", "Table 72", weighted = TRUE)
 
@@ -316,27 +364,43 @@ exportTable(item280.table, "MF", "Table 72", weighted = TRUE)
 ######################
 # unweighted analysis
 ######################
+item280.data$Fuel <- item280.data$Heating.Fuel
 item280.summary <- proportions_two_groups_unweighted(CustomerLevelData = item280.data
-                                             ,valueVariable = 'count'
-                                             ,columnVariable = 'Heating_System'
-                                             ,rowVariable = 'Heating.Fuel'
-                                             ,aggregateColumnName = "All Systems")
-item280.summary$Heating.Fuel[which(item280.summary$Heating.Fuel == "Total")] <- "All Types"
+                                                     ,valueVariable = 'count'
+                                                     ,columnVariable = 'Heating_System'
+                                                     ,rowVariable = 'Fuel'
+                                                     ,aggregateColumnName = "All Systems")
+item280.summary$Fuel[which(item280.summary$Fuel == "Total")] <- "All Types"
 
 item280.cast <- dcast(setDT(item280.summary)
-                      ,formula = Heating_System ~ Heating.Fuel
+                      ,formula = Heating_System ~ Fuel
                       ,value.var = c("Percent", "SE","Count","n"))
-
+names(item280.cast)
 item280.table <- data.frame("Primary.Heating.System" = item280.cast$Heating_System
                             ,"Electric"              = item280.cast$Percent_Electric
                             ,"Electric.SE"           = item280.cast$SE_Electric
                             ,"Gas"                   = item280.cast$`Percent_Natural Gas`
                             ,"Gas.SE"                = item280.cast$`SE_Natural Gas`
+                            ,"Propane"               = item280.cast$`Percent_Propane`
+                            ,"Propane.SE"            = item280.cast$`SE_Propane`
                             ,"Wood"                  = item280.cast$`Percent_Wood`
                             ,"Wood.SE"               = item280.cast$`SE_Wood`
+                            ,"None"                  = item280.cast$Percent_None
+                            ,"None.SE"               = item280.cast$SE_None
                             ,"All.Types"             = item280.cast$`Percent_All Types`
                             ,"All.Types.SE"          = item280.cast$`SE_All Types`
                             ,"n"                     = item280.cast$`n_All Types`)
+
+levels(item280.table$Primary.Heating.System)
+rowOrder <- c("Electric Baseboard"
+              ,"Furnace"
+              ,"Mini-Split Hp"
+              ,"Stove/Fireplace"
+              ,"Zonal Heat"
+              ,"None"
+              ,"All Systems")
+item280.table <- item280.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
+item280.table <- data.frame(item280.table)
 
 exportTable(item280.table, "MF", "Table 72", weighted = FALSE)
 

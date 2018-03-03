@@ -23,6 +23,9 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -34,6 +37,16 @@ sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.int
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 grep("loads",names(sites.interview.dat), ignore.case = T)
+
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat <- one.line.bldg.dat[which(one.line.bldg.dat$Area.of.Conditioned.Common.Space > 0),]
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
+
+one.line.bldg.dat <- one.line.bldg.dat[names(one.line.bldg.dat) %in% c("CK_Building_ID", "Area.of.Conditioned.Common.Space")]
+
+rbsa.merge <- left_join(rbsa.dat.bldg, one.line.bldg.dat)
+rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$Area.of.Conditioned.Common.Space)),]
+
 
 
 #############################################################################################
@@ -67,7 +80,9 @@ item268.dat3 <- item268.dat3[which(item268.dat3$BuildingType == "Multifamily"),]
 item268.dat4 <- (item268.dat3[which(!is.na(item268.dat3$CK_Cadmus_ID.y)),])
 
 item268.dat5 <- unique(data.frame("CK_Cadmus_ID" = item268.dat4$CK_Cadmus_ID.x
-                             ,"Laundry.Location" = item268.dat4$Laundry.Location, stringsAsFactors = F))
+                                  ,"CK_Building_ID" = item268.dat4$CK_Building_ID
+                                  ,"Laundry.Location" = item268.dat4$Laundry.Location
+                                  , stringsAsFactors = F))
 
 #############################################################################################
 #Identify which sites have in-unit and common area washers/dryers
@@ -75,7 +90,7 @@ item268.dat5 <- unique(data.frame("CK_Cadmus_ID" = item268.dat4$CK_Cadmus_ID.x
 dup.ind <- unique(item268.dat5$CK_Cadmus_ID[which(duplicated(item268.dat5$CK_Cadmus_ID))])
 item268.dat5$Laundry.Location[which(item268.dat5$CK_Cadmus_ID %in% dup.ind)] <- "In.Unit.and.Common"
 
-item268.merge <- left_join(rbsa.dat, item268.dat5, by = "CK_Cadmus_ID")
+item268.merge <- left_join(rbsa.dat, item268.dat5)
 
 #subset to only MF
 item268.merge <- item268.merge[grep("Multifamily", item268.merge$BuildingType),]
@@ -189,7 +204,7 @@ exportTable(item268.table, "MF", "Table 60", weighted = FALSE)
 #Item 269: DISTRIBUTION OF COMMON AREA CLOTHES WASHER TYPE BY WASHER VINTAGE (MF Table 61)
 #############################################################################################
 #subset to columns needed for analysis
-item269.dat <- item268.dat4
+item269.dat <- item268.dat4[grep("common",item268.dat4$Laundry.Location, ignore.case = T),]
 names(item269.dat)[which(names(item269.dat) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 #subset to only common area washers that have observed age info
@@ -233,7 +248,7 @@ item269.data <- left_join(item269.data, item269.dat3[which(colnames(item269.dat3
                                                                                        ,"Laundry.Location"
                                                                                        ,"EquipVintage_bins"))])
 item269.data$count <- 1
-
+length(unique(item269.data$CK_Cadmus_ID))
 #######################
 # Weighted Analysis
 #######################
@@ -273,8 +288,8 @@ names(item269.cast)
 item269.table <- data.frame("Washer.Type" = item269.cast$Washer.Type
                             ,"Pre.1980"     = NA#item269.cast$`w.percent_Pre 1980`
                             ,"Pre.1980.SE"  = NA#item269.cast$`w.SE_Pre 1980`
-                            ,"1980.1989"    = item269.cast$`w.percent_1980-1989`
-                            ,"1980.1989.SE" = item269.cast$`w.SE_1980-1989`
+                            ,"1980.1989"    = NA#item269.cast$`w.percent_1980-1989`
+                            ,"1980.1989.SE" = NA#item269.cast$`w.SE_1980-1989`
                             ,"1990.1994"    = item269.cast$`w.percent_1990-1994`
                             ,"1990.1994.SE" = item269.cast$`w.SE_1990-1994`
                             ,"1995.1999"    = item269.cast$`w.percent_1995-1999`
@@ -291,7 +306,7 @@ item269.table <- data.frame("Washer.Type" = item269.cast$Washer.Type
                             ,"All.Vintages.SE" = item269.cast$`w.SE_All Vintages`
                             ,"n" = item269.cast$`n_All Vintages`
                             ,"Pre.1980.EB"  = NA#item269.cast$`EB_Pre 1980`
-                            ,"1980.1989.EB" = item269.cast$`EB_1980-1989`
+                            ,"1980.1989.EB" = NA#item269.cast$`EB_1980-1989`
                             ,"1990.1994.EB" = item269.cast$`EB_1990-1994`
                             ,"1995.1999.EB" = item269.cast$`EB_1995-1999`
                             ,"2000.2004.EB" = item269.cast$`EB_2000-2004`
@@ -353,8 +368,8 @@ item269.cast[is.na(item269.cast)] <- 0
 item269.table <- data.frame("Washer.Type" = item269.cast$Washer.Type
                             ,"Pre.1980"     = NA#item269.cast$
                             ,"Pre.1980.SE"  = NA#item269.cast$
-                            ,"1980.1989"    = item269.cast$`Percent_1980-1989`
-                            ,"1980.1989.SE" = item269.cast$`SE_1980-1989`
+                            ,"1980.1989"    = NA#item269.cast$`Percent_1980-1989`
+                            ,"1980.1989.SE" = NA#item269.cast$`SE_1980-1989`
                             ,"1990.1994"    = item269.cast$`Percent_1990-1994`
                             ,"1990.1994.SE" = item269.cast$`SE_1990-1994`
                             ,"1995.1999"    = item269.cast$`Percent_1995-1999`
