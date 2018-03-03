@@ -29,7 +29,8 @@ billing.dat <-
                                  paste("Final Compiled MF Building Data.xlsx")),
             sheet = "Building Data Final")
 billing.keep <- c("PK_BuildingID", "Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage",
-                  "Unit.Decision", "Common.Decision")
+                  "Unit.Decision", "Common.Decision", "Average.Common.Area.Therms.Usage",
+                  "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage")
 billing.dat2 <- billing.dat[,billing.keep]
 length(which(billing.dat2$Average.Unit.kWh.Usage > 0))
 
@@ -213,30 +214,114 @@ item308.final <- mean_one_group_unweighted(CustomerLevelData = item308.data
 exportTable(item308.final, "MF", "Table 102", weighted = FALSE)
 
 ###################################################################################################################
+# ITEM 309: AVERAGE ANNUAL TOTAL RESIDENTIAL GAS THERMS PER RESIDENTIAL UNIT BY BUILDING SIZE FOR BUILDINGS WITH GAS SERVICE  (Table 103)
+###################################################################################################################
+
+item309.dat1 <- BillingFinalClean[which(BillingFinalClean$Average.Unit.Therms.Usage > 0 |
+                                          BillingFinalClean$Master.Meter.Therms.Usage > 0),]
+item309.dat1$TotalUnitUsage <- 
+  item309.dat1$Average.Unit.Therms.Usage * item309.dat1$UnitsFinal
+item309.dat1$TotalGasUsage <- 
+  item309.dat1$TotalUnitUsage + item309.dat1$Master.Meter.Therms.Usage 
+item309.dat1$GasPerUnit <- item309.dat1$TotalGasUsage/item309.dat1$UnitsFinal
+
+keep.cols <- 
+  c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
+    "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalGasUsage", "GasPerUnit")
+
+item309.data <- weightedData(item309.dat1[which(colnames(item309.dat1) %notin% c(keep.cols))])
+
+item309.data <- left_join(item309.data, item309.dat1[which(colnames(item309.dat1) %in% c("CK_Building_ID",keep.cols))])
+item309.data$count <- 1
+
+item309.final <- mean_one_group(CustomerLevelData = item309.data
+                                ,valueVariable = 'GasPerUnit'
+                                ,byVariable = 'HomeType'
+                                ,aggregateRow = "All Sizes")
+
+exportTable(item309.final, "MF", "Table 103", weighted = TRUE)
+
+item309.final <- mean_one_group_unweighted(CustomerLevelData = item309.data
+                                           ,valueVariable = 'GasPerUnit'
+                                           ,byVariable = 'HomeType'
+                                           ,aggregateRow = "All Sizes")
+
+exportTable(item309.final, "MF", "Table 103", weighted = FALSE)
+
+###################################################################################################################
+# ITEM 310: AVERAGE ANNUAL TOTAL RESIDENTIAL GAS THERMS PER RESIDENTIAL UNIT BY BUILDING SIZE FOR BUILDINGS WITH GAS SERVICE  (Table 104)
+###################################################################################################################
+
+item310.dat1 <- BillingFinalClean[which(BillingFinalClean$Average.Unit.Therms.Usage > 0 |
+                                          BillingFinalClean$Master.Meter.Therms.Usage > 0),]
+
+item310.dat1$TotalUnitUsage <- 
+  item310.dat1$Average.Unit.Therms.Usage * item310.dat1$UnitsFinal
+item310.dat1$TotalGasUsage <- 
+  item310.dat1$TotalUnitUsage + item310.dat1$Master.Meter.Therms.Usage 
+
+item310.dat2 <- item310.dat1[which(item310.dat1$Total.Residential.Floor.Area > 0), ]
+item310.dat2$EUI <- item310.dat2$TotalGasUsage/item310.dat2$Total.Residential.Floor.Area
+
+keep.cols <- 
+  c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
+    "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalGasUsage", "EUI")
+
+item310.data <- weightedData(item310.dat2[which(colnames(item310.dat2) %notin% c(keep.cols))])
+
+item310.data <- left_join(item310.data, item310.dat2[which(colnames(item310.dat2) %in% c("CK_Building_ID",keep.cols))])
+item310.data$count <- 1
+
+item310.final <- mean_one_group(CustomerLevelData = item310.data
+                                ,valueVariable = 'EUI'
+                                ,byVariable = 'HomeType'
+                                ,aggregateRow = "All Sizes")
+
+exportTable(item309.final, "MF", "Table 104", weighted = TRUE)
+
+item309.final <- mean_one_group_unweighted(CustomerLevelData = item310.data
+                                           ,valueVariable = 'EUI'
+                                           ,byVariable = 'HomeType'
+                                           ,aggregateRow = "All Sizes")
+
+exportTable(item309.final, "MF", "Table 104", weighted = FALSE)
+
+###################################################################################################################
 # ITEM 311: AVERAGE ANNUAL TOTAL ELECTRIC CONSUMPTION BY BUILDING SIZE (Table 105)
 ###################################################################################################################
 ### Careful with this table... should not include buildings that have common area bt did  nto receive
 item311.dat1 <- BillingFinalClean[which(BillingFinalClean$Average.Unit.kWh.Usage > 0),]
-item311.dat1$TotalUnitUsage <- 
-  item311.dat1$Average.Unit.kWh.Usage * item311.dat1$UnitsFinal
-item311.dat1$TotalCommonUsage <-  
-  item311.dat1$Average.Common.Area.kWh.Usage * item311.dat1$Common.Decision
+item311.dat2 <- item311.dat1[-which((item311.dat1$Area.of.Conditioned.Common.Space > 0 &
+                                      is.na(item311.dat1$Average.Common.Area.kWh.Usage)) |
+                                      (item311.dat1$Area.of.Conditioned.Common.Space == 0 &
+                                      item311.dat1$Average.Common.Area.kWh.Usage > 0)),]
+item311.dat2$TotalUnitUsage <- 
+  item311.dat2$Average.Unit.kWh.Usage * item311.dat2$UnitsFinal
+item311.dat2$TotalCommonUsage <-  
+  item311.dat2$Average.Common.Area.kWh.Usage * item311.dat2$Common.Decision
 
-item311.dat1$TotalUsage <- 
-  rowSums(item311.dat1[,c('TotalUnitUsage', 'TotalCommonUsage')], na.rm = T)
+item311.dat2$TotalUsage <- 
+  rowSums(item311.dat2[,c('TotalUnitUsage', 'TotalCommonUsage')], na.rm = T)
 
-item311.dat1$AvgPerUnit <- item311.dat1$TotalUsage/item311.dat1$UnitsFinal
+item311.dat2$AvgPerUnit <- item311.dat2$TotalUsage/item311.dat2$UnitsFinal
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage", 
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalCommonUsage",
     "TotalUsage", "AvgPerUnit")
 
-item311.data <- weightedData(item311.dat1[which(colnames(item311.dat1) %notin% c(keep.cols))])
+item311.data <- weightedData(item311.dat2[which(colnames(item311.dat2) %notin% c(keep.cols))])
 
-item311.data <- left_join(item311.data, item311.dat1[which(colnames(item311.dat1) %in% c("CK_Building_ID",keep.cols))])
+item311.data <- left_join(item311.data, item311.dat2[which(colnames(item311.dat2) %in% c("CK_Building_ID",keep.cols))])
 item311.data$count <- 1
 
 item311.final <- mean_one_group(CustomerLevelData = item311.data
@@ -252,46 +337,53 @@ item311.final <- mean_one_group_unweighted(CustomerLevelData = item311.data
                                 ,aggregateRow = "All Sizes")
 
 exportTable(item311.final, "MF", "Table 105", weighted = FALSE)
+
 ###################################################################################################################
 # ITEM 312: AVERAGE ANNUAL TOTAL ELECTRIC CONSUMPTION PER UNIT SQUARE FOOT BY BUILDING SIZE (Table 106)
 ###################################################################################################################
 
-########Not DONEEEE
-
+### Careful with this table... should not include buildings that have common area bt did  nto receive
 item312.dat1 <- BillingFinalClean[which(BillingFinalClean$Average.Unit.kWh.Usage > 0),]
-item312.dat1$TotalUnitUsage <- 
-  item312.dat1$Average.Unit.kWh.Usage * item312.dat1$UnitsFinal
-item312.dat1$TotalCommonUsage <-  
-  item312.dat1$Average.Common.Area.kWh.Usage * item312.dat1$Common.Decision
+item312.dat2 <- item312.dat1[-which((item312.dat1$Area.of.Conditioned.Common.Space > 0 &
+                                      is.na(item312.dat1$Average.Common.Area.kWh.Usage)) |
+                                      (item312.dat1$Area.of.Conditioned.Common.Space == 0 &
+                                      is.na(item312.dat1$Average.Common.Area.kWh.Usage > 0))),]
 
-item312.dat1$TotalUsage <- 
-  rowSums(item312.dat1[,c('TotalUnitUsage', 'TotalCommonUsage')], na.rm = T)
+item312.dat2$TotalUnitUsage <- 
+  item312.dat2$Average.Unit.kWh.Usage * item312.dat2$UnitsFinal
+item312.dat2$TotalCommonUsage <-  
+  item312.dat2$Average.Common.Area.kWh.Usage * item312.dat2$Common.Decision
 
+item312.dat2$TotalUsage <- 
+  rowSums(item312.dat2[,c('TotalUnitUsage', 'TotalCommonUsage')], na.rm = T)
+item312.dat2$TotalSqFt <- 
+  item312.dat2$Area.of.Conditioned.Common.Space + item312.dat2$Total.Residential.Floor.Area
 
-item312.dat1$EUI <- item312.dat1$TotalUsage/item312.dat1
+item312.dat2$BuildingEUI <- item312.dat2$TotalUsage/item312.dat2$TotalSqFt
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage", 
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalCommonUsage",
-    "TotalUsage", "AvgPerUnit")
+    "TotalUsage", "TotalSqFt", "BuildingEUI")
 
-item311.data <- weightedData(item311.dat1[which(colnames(item311.dat1) %notin% c(keep.cols))])
+item312.data <- weightedData(item312.dat2[which(colnames(item312.dat2) %notin% c(keep.cols))])
 
-item311.data <- left_join(item311.data, item311.dat1[which(colnames(item311.dat1) %in% c("CK_Building_ID",keep.cols))])
-item311.data$count <- 1
+item312.data <- left_join(item312.data, item312.dat2[which(colnames(item312.dat2) %in% c("CK_Building_ID",keep.cols))])
+item312.data$count <- 1
 
-item311.final <- mean_one_group(CustomerLevelData = item311.data
-                                ,valueVariable = 'AvgPerUnit'
+item312.final <- mean_one_group(CustomerLevelData = item312.data
+                                ,valueVariable = 'BuildingEUI'
                                 ,byVariable = 'HomeType'
                                 ,aggregateRow = "All Sizes")
 
-exportTable(item305.final, "MF", "Table 99", weighted = TRUE)
+exportTable(item312.final, "MF", "Table 106", weighted = TRUE)
 
-item311.final <- mean_one_group(CustomerLevelData = item311.data
-                                ,valueVariable = 'AvgPerUnit'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+item312.final <- mean_one_group_unweighted(CustomerLevelData = item312.data
+                                           ,valueVariable = 'BuildingEUI'
+                                           ,byVariable = 'HomeType'
+                                           ,aggregateRow = "All Sizes")
 
-exportTable(item305.final, "MF", "Table 99", weighted = TRUE)
+exportTable(item312.final, "MF", "Table 106", weighted = FALSE)
