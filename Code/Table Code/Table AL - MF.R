@@ -24,20 +24,23 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
+rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID,ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
-# Bring in Usages
-billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
-                         ,startRow = 1, sheet = 1)
+billing.dat <-read.xlsx(xlsxFile = file.path(filepathBillingData,paste("Final Compiled MF Building Data.xlsx")),sheet = "Building Data Final")
+billing.keep <- c("PK_BuildingID", "Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage","Unit.Decision", "Common.Decision")
+billing.dat2 <- billing.dat[,billing.keep]
+length(which(billing.dat2$Average.Unit.kWh.Usage > 0))
 
-results.dat <- left_join(rbsa.dat, billing.dat, by = "CK_Cadmus_ID")
+results.dat <- left_join(rbsa.dat, billing.dat2, by = "CK_Cadmus_ID")
 
 results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case = T),]
 # results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-mechanical.dat <- read.xlsx(mechanical.export)
+# mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"

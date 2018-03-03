@@ -1466,6 +1466,21 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataGroupedProportions     <- left_join(StrataGroupedProportions, StrataProportion)
     StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
     
+  }else if(columnVariable %in% c("HomeType") & valueVariable %in% c("StorageBulbs")){
+    StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                 , summarise
+                                                 , count = sum(get(valueVariable))
+                                                 , n_hj = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
+    StrataProportion         <- data.frame(ddply(CustomerLevelData
+                                                 , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                                 , summarise
+                                                 , total.count = sum(get(valueVariable))), stringsAsFactors = F)
+    StrataProportion <- StrataProportion[which(StrataProportion$total.count > 0),]
+    StrataGroupedProportions     <- left_join(StrataProportion, StrataGroupedProportions)
+    StrataGroupedProportions$p.h <- StrataGroupedProportions$count / StrataGroupedProportions$total.count
+    # StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
+    
   }else if(columnVariable %in% c("TankSize", "Washer.Age","Heating_System","Primary.Heating.System")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType","Territory", rowVariable, columnVariable)
@@ -1582,7 +1597,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
-                                                 ,w.percent = sum(N.h * p.h) / sum(unique(N.h))
+                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / sum(unique(N.h))
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
                                                                          (p.h * (1 - p.h)), na.rm = T)) / sum(unique(N.h))
@@ -1609,7 +1624,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
-                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h) #sum(unique(N.h))
+                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / unique(columnVar.N.h) #sum(unique(N.h))
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
                                                                          (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
@@ -1692,8 +1707,8 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #summarise by second grouping variable
   item.agg.weighted <- ddply(item.agg.join, c("BuildingType", rowVariable), summarise
                              ,aggregateName = aggregateColumnName
-                             ,w.percent = sum(N.h * p.h) / unique(aggregate.N.h)
-                             ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / unique(aggregate.N.h)
+                             ,w.percent = sum(N.h * p.h) / sum(N.h)#unique(aggregate.N.h)
+                             ,w.SE      = sqrt(sum((1 - n.h / N.h) * (N.h^2 / n.h) * (p.h * (1 - p.h)))) / sum(N.h)#unique(aggregate.N.h)
                              ,count     = sum(count)
                              ,N         = unique(aggregate.N.h)
                              ,n         = sum(n_hj)

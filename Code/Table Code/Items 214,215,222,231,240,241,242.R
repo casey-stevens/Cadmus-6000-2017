@@ -156,17 +156,8 @@ exportTable(item215.final.MF, "MF","Table 7",weighted = FALSE)
 item222.one.line.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
                                                                                    ,"Total.Units.in.Building"))]
 item222.building.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
-                                                                           ,"SITES_MFB_cfg_MFB_PARKING_ParkingStalls_Number"
-                                                                           # ,"SITES_MFB_cfg_MFB_PARKING_CoveredLot"
-                                                                           # ,"SITES_MFB_cfg_MFB_PARKING_EnclosedGarage"
-                                                                           # ,"SITES_MFB_cfg_MFB_PARKING_OpenGarage"
-                                                                           # ,"SITES_MFB_cfg_MFB_PARKING_ParkingLot"
-                                                                           ))]
-names(item222.building.dat) <- c(#"Covered.Parking.Lot"
-#                                  ,"Enclosed.Parking.Garage"
-#                                  ,"Open.Parking.Garage"
-#                                  ,"Open.Parkng.Lot"
-                                 "Number.of.Stalls"
+                                                                           ,"SITES_MFB_cfg_MFB_PARKING_ParkingStalls_Number"))]
+names(item222.building.dat) <- c("Number.of.Stalls"
                                  ,"CK_Building_ID")
 
 item222.dat <- left_join(item222.one.line.dat, item222.building.dat)
@@ -178,23 +169,6 @@ item222.dat1 <- item222.dat1[which(!is.na(item222.dat1$Total.Units.in.Building))
 item222.dat1 <- item222.dat1[which(item222.dat1$Total.Units.in.Building > 0),]
 
 item222.dat1$Stalls.per.unit <- item222.dat1$Number.of.Stalls / item222.dat1$Total.Units.in.Building
-
-# item222.sub <- item222.dat1[which(names(item222.dat1) %in% c("CK_Building_ID"
-#                                                              ,"Covered.Parking.Lot"
-#                                                              ,"Enclosed.Parking.Garage"
-#                                                              ,"Open.Parking.Garage"
-#                                                              ,"Open.Parkng.Lot"))]
-# item222.melt <- melt(item222.sub, id.vars = "CK_Building_ID")
-# item222.melt <- item222.melt[which(item222.melt$value == "Yes"),]
-# names(item222.melt) <- c("CK_Building_ID","Parking.Type","Parking.Ind")
-# item222.melt <- item222.melt[which(names(item222.melt) %in% c("CK_Building_ID","Parking.Type"))]
-# 
-# item222.dat2 <- item222.dat1[which(names(item222.dat1) %in% c("CK_Building_ID"
-#                                                               ,"Number.of.Stalls"
-#                                                               ,"Total.Units.in.Building"
-#                                                               ,"Stalls.per.unit"))]
-# 
-# item222.dat2 <- left_join(item222.melt, item222.dat2)
 
 item222.merge <- left_join(rbsa.dat.MF, item222.dat1)
 item222.merge <- item222.merge[which(!is.na(item222.merge$Stalls.per.unit)),]

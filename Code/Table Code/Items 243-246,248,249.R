@@ -90,7 +90,7 @@ item243.data <- left_join(item243.data, item243.merge[which(colnames(item243.mer
                                                                                            ,"Central.Building.Heat"))])
 
 item243.data$count <- 1
-
+length(unique(item243.data$CK_Cadmus_ID[grep("central",item243.data$Primary.Heating.System, ignore.case = T)]))
 #######################
 # Weighted Analysis
 #######################

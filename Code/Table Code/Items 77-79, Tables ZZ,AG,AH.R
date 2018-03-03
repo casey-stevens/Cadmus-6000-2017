@@ -649,6 +649,128 @@ exportTable(tableAG.final.MH, "MH", "Table AG", weighted = FALSE)
 
 
 
+#######################################################
+# AG Multifamily
+#######################################################
+#######################
+# Weighted Analysis
+#######################
+tableAG.MF.data <- tableAF.data[which(tableAF.data$BuildingType == "Multifamily"),]
+tableAG.MF.data <- tableAG.MF.data[grep("site",tableAG.MF.data$CK_Building_ID,ignore.case = T),]
+tableAG.MF.data$Count <- 1
+
+tableAG.MF.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.MF.data
+                                             ,valueVariable = "StorageBulbs"
+                                             ,columnVariable = "HomeType"
+                                             ,rowVariable = "Lamp.Category"
+                                             ,aggregateColumnName = "All Sizes")
+# tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$Lamp.Category != "Total"),]
+
+tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.summary)
+                                    ,formula = BuildingType + Lamp.Category ~ HomeType
+                                    ,value.var = c("w.percent","w.SE","count","n","N","EB")))
+names(tableAG.MF.cast)
+tableAG.MF.final <- data.frame("BuildingType"       = tableAG.MF.cast$BuildingType
+                               ,"Lamp.Category"     = tableAG.MF.cast$Lamp.Category
+                               ,"Percent.Low.Rise"  = tableAG.MF.cast$w.percent_Apartment.Building..3.or.fewer.floors.
+                               ,"SE.Low.Rise"       = tableAG.MF.cast$w.SE_Apartment.Building..3.or.fewer.floors.
+                               ,"n.Low.Rise"        = tableAG.MF.cast$n_Apartment.Building..3.or.fewer.floors.
+                               ,"Percent.Mid.Rise"  = tableAG.MF.cast$w.percent_Apartment.Building..4.to.6.floors.
+                               ,"SE.Mid.Rise"       = tableAG.MF.cast$w.SE_Apartment.Building..4.to.6.floors.
+                               ,"n.Mid.Rise"        = tableAG.MF.cast$n_Apartment.Building..4.to.6.floors.
+                               ,"Percent.High.Rise" = tableAG.MF.cast$w.percent_Apartment.Building..More.than.6.floors.
+                               ,"SE.High.Rise"      = tableAG.MF.cast$w.SE_Apartment.Building..More.than.6.floors.
+                               ,"n.High.Rise"       = tableAG.MF.cast$n_Apartment.Building..More.than.6.floors.
+                               ,"Percent.All.Sizes" = tableAG.MF.cast$w.percent_All.Sizes
+                               ,"SE.All.Sizes"      = tableAG.MF.cast$w.SE_All.Sizes
+                               ,"n.All.Sizes"       = tableAG.MF.cast$n_All.Sizes
+                               ,"EB.Low.Rise"       = tableAG.MF.cast$EB_Apartment.Building..3.or.fewer.floors.
+                               ,"EB.Mid.Rise"       = tableAG.MF.cast$EB_Apartment.Building..4.to.6.floors.
+                               ,"EB.High.Rise"      = tableAG.MF.cast$EB_Apartment.Building..More.than.6.floors.
+                               ,"EB.All.Sizes"      = tableAG.MF.cast$EB_All.Sizes
+)
+
+unique(tableAG.MF.final$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"Unknown"
+              ,"Total")
+tableAG.MF.final <- tableAG.MF.final %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAG.MF.final <- data.frame(tableAG.MF.final)
+
+tableAG.MF.final.MF <- tableAG.MF.final[which(tableAG.MF.final$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAG.MF.final) %in% c("BuildingType"))]
+tableAG.MF.final.MF$n.Low.Rise <- min(tableAG.MF.final.MF$n.Low.Rise)
+tableAG.MF.final.MF$n.Mid.Rise <- min(tableAG.MF.final.MF$n.Mid.Rise)
+tableAG.MF.final.MF$n.High.Rise <- min(tableAG.MF.final.MF$n.High.Rise)
+tableAG.MF.final.MF$n.All.Sizes <- min(tableAG.MF.final.MF$n.All.Sizes)
+
+exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAG.MF.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAG.MF.data
+                                                     ,valueVariable = "StorageBulbs"
+                                                     ,columnVariable = "HomeType"
+                                                     ,rowVariable = "Lamp.Category"
+                                                     ,aggregateColumnName = "All Sizes")
+# tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$Lamp.Category != "Total"),]
+
+tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.summary)
+                                    ,formula = BuildingType + Lamp.Category ~ HomeType
+                                    ,value.var = c("Percent","SE","Count","n")))
+
+tableAG.MF.final <- data.frame("BuildingType"       = tableAG.MF.cast$BuildingType
+                               ,"Lamp.Category"     = tableAG.MF.cast$Lamp.Category
+                               ,"Percent.Low.Rise"  = tableAG.MF.cast$Percent_Apartment.Building..3.or.fewer.floors.
+                               ,"SE.Low.Rise"       = tableAG.MF.cast$SE_Apartment.Building..3.or.fewer.floors.
+                               ,"n.Low.Rise"        = tableAG.MF.cast$n_Apartment.Building..3.or.fewer.floors.
+                               ,"Percent.Mid.Rise"  = tableAG.MF.cast$Percent_Apartment.Building..4.to.6.floors.
+                               ,"SE.Mid.Rise"       = tableAG.MF.cast$SE_Apartment.Building..4.to.6.floors.
+                               ,"n.Mid.Rise"        = tableAG.MF.cast$n_Apartment.Building..4.to.6.floors.
+                               ,"Percent.High.Rise" = tableAG.MF.cast$Percent_Apartment.Building..More.than.6.floors.
+                               ,"SE.High.Rise"      = tableAG.MF.cast$SE_Apartment.Building..More.than.6.floors.
+                               ,"n.High.Rise"       = tableAG.MF.cast$n_Apartment.Building..More.than.6.floors.
+                               ,"Percent.All.Sizes" = tableAG.MF.cast$Percent_All.Sizes
+                               ,"SE.All.Sizes"      = tableAG.MF.cast$SE_All.Sizes
+                               ,"n.All.Sizes"       = tableAG.MF.cast$n_All.Sizes
+)
+
+unique(tableAG.MF.final$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"Unknown"
+              ,"Total")
+tableAG.MF.final <- tableAG.MF.final %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAG.MF.final <- data.frame(tableAG.MF.final)
+
+tableAG.MF.final.MF <- tableAG.MF.final[which(tableAG.MF.final$BuildingType == "Multifamily")
+                                        ,-which(colnames(tableAG.MF.final) %in% c("BuildingType"))]
+
+exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

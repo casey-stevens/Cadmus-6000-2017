@@ -901,6 +901,112 @@ exportTable(tableAF.final.MH, "MH", "Table AF", weighted = FALSE)
 
 
 
+#######################################################
+# AF Multifamily
+#######################################################
+#######################
+# Weighted Analysis
+#######################
+tableAF.data.MF <- tableAF.data[which(tableAF.data$BuildingType == "Multifamily"),]
+tableAF.data.MF <- tableAF.data.MF[grep("site",tableAF.data.MF$CK_Building_ID,ignore.case = T),]
+
+tableAF.MF.summary <- mean_two_groups(CustomerLevelData = tableAF.data.MF
+                                   ,valueVariable = "StorageBulbs"
+                                   ,byVariableRow = "Lamp.Category"
+                                   ,byVariableColumn = "HomeType"
+                                   ,columnAggregate = "All Sizes"
+                                   ,rowAggregate = "All Categories")
+tableAF.MF.summary <- tableAF.MF.summary[which(tableAF.MF.summary$Lamp.Category != "All Categories"),]
+
+tableAF.MF.cast <- data.frame(tableAF.MF.summary, stringsAsFactors = F)
+names(tableAF.MF.cast)
+tableAF.MF.table <- data.frame("BuildingType"    = tableAF.MF.cast$BuildingType
+                               ,"Lamp.Category"  = tableAF.MF.cast$Lamp.Category
+                               ,"Mean.Low.Rise"  = tableAF.MF.cast$Mean_Apartment.Building..3.or.fewer.floors.
+                               ,"SE.Low.Rise"    = tableAF.MF.cast$SE_Apartment.Building..3.or.fewer.floors.
+                               ,"n.Low.Rise"     = tableAF.MF.cast$n_Apartment.Building..3.or.fewer.floors.
+                               ,"Mean.Mid.Rise"  = tableAF.MF.cast$Mean_Apartment.Building..4.to.6.floors.
+                               ,"SE.Mid.Rise"    = tableAF.MF.cast$SE_Apartment.Building..4.to.6.floors.
+                               ,"n.Mid.Rise"     = tableAF.MF.cast$n_Apartment.Building..4.to.6.floors.
+                               ,"Mean.High.Rise" = tableAF.MF.cast$Mean_Apartment.Building..More.than.6.floors.
+                               ,"SE.High.Rise"   = tableAF.MF.cast$SE_Apartment.Building..More.than.6.floors.
+                               ,"n.High.Rise"    = tableAF.MF.cast$n_Apartment.Building..More.than.6.floors.
+                               ,"Mean.All.Sizes" = tableAF.MF.cast$Mean_All.Sizes
+                               ,"SE.All.Sizes"   = tableAF.MF.cast$SE_All.Sizes
+                               ,"n.All.Sizes"    = tableAF.MF.cast$n_All.Sizes
+                               ,"EB.Low.Rise"    = tableAF.MF.cast$EB_Apartment.Building..3.or.fewer.floors.
+                               ,"EB.Mid.Rise"    = tableAF.MF.cast$EB_Apartment.Building..4.to.6.floors.
+                               ,"EB.High.Rise"   = tableAF.MF.cast$EB_Apartment.Building..More.than.6.floors.
+                               ,"EB.All.Sizes"   = tableAF.MF.cast$EB_All.Sizes
+)
+
+levels(tableAF.MF.table$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"Unknown"
+              ,"All Categories")
+tableAF.MF.table <- tableAF.MF.table %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAF.MF.table <- data.frame(tableAF.MF.table)
+
+tableAF.MF.final.MF <- tableAF.MF.table[which(tableAF.MF.table$BuildingType == "Multifamily")
+                                  ,which(colnames(tableAF.MF.table) %notin% c("BuildingType"))]
+
+exportTable(tableAF.MF.final.MF, "MF", "Table AF", weighted = TRUE)
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAF.MF.final <- mean_two_groups_unweighted(CustomerLevelData = tableAF.data.MF
+                                            ,valueVariable = "StorageBulbs"
+                                            ,byVariableRow = "Lamp.Category"
+                                            ,byVariableColumn = "HomeType"
+                                            ,columnAggregate = "All Sizes"
+                                            ,rowAggregate = "All Categories")
+tableAF.MF.cast <- data.frame(tableAF.MF.final, stringsAMFactors = F)
+
+tableAF.MF.table <- data.frame("BuildingType"    = tableAF.MF.cast$BuildingType
+                               ,"Lamp.Category"  = tableAF.MF.cast$Lamp.Category
+                               ,"Mean.Low.Rise"  = tableAF.MF.cast$Mean_Apartment.Building..3.or.fewer.floors.
+                               ,"SE.Low.Rise"    = tableAF.MF.cast$SE_Apartment.Building..3.or.fewer.floors.
+                               ,"n.Low.Rise"     = tableAF.MF.cast$n_Apartment.Building..3.or.fewer.floors.
+                               ,"Mean.Mid.Rise"  = tableAF.MF.cast$Mean_Apartment.Building..4.to.6.floors.
+                               ,"SE.Mid.Rise"    = tableAF.MF.cast$SE_Apartment.Building..4.to.6.floors.
+                               ,"n.Mid.Rise"     = tableAF.MF.cast$n_Apartment.Building..4.to.6.floors.
+                               ,"Mean.High.Rise" = tableAF.MF.cast$Mean_Apartment.Building..More.than.6.floors.
+                               ,"SE.High.Rise"   = tableAF.MF.cast$SE_Apartment.Building..More.than.6.floors.
+                               ,"n.High.Rise"    = tableAF.MF.cast$n_Apartment.Building..More.than.6.floors.
+                               ,"Mean.All.Sizes" = tableAF.MF.cast$Mean_All.Sizes
+                               ,"SE.All.Sizes"   = tableAF.MF.cast$SE_All.Sizes
+                               ,"n.All.Sizes"    = tableAF.MF.cast$n_All.Sizes
+)
+
+levels(tableAF.MF.table$Lamp.Category)
+rowOrder <- c("Compact Fluorescent"
+              ,"Halogen"
+              ,"Incandescent"
+              ,"Incandescent / Halogen"
+              ,"Light Emitting Diode"
+              ,"Linear Fluorescent"
+              ,"Other"
+              ,"Unknown"
+              ,"All Categories")
+tableAF.MF.table <- tableAF.MF.table %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
+tableAF.MF.table <- data.frame(tableAF.MF.table)
+
+tableAF.MF.final.MF <- tableAF.MF.table[which(tableAF.MF.table$BuildingType == "Multifamily")
+                                  ,which(colnames(tableAF.MF.table) %notin% c("BuildingType"))]
+
+exportTable(tableAF.MF.final.MF, "MF", "Table AF", weighted = FALSE)
+
+
+
+
 
 
 
