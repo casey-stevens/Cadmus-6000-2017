@@ -503,6 +503,7 @@ item282.dat$System.Type[grep("baseboard", item282.dat$System.Type, ignore.case =
 item282.dat$System.Type[grep("fireplace", item282.dat$System.Type, ignore.case = T)] <- "Stove/Fireplace"
 item282.dat$System.Type[grep("boiler", item282.dat$System.Type, ignore.case = T)] <- "Boiler"
 item282.dat$System.Type[grep("furnace", item282.dat$System.Type, ignore.case = T)] <- "Furnace"
+item282.dat$System.Type[grep("central", item282.dat$System.Type, ignore.case = T)] <- "Central AC"
 
 #subset to only buidling level information
 item282.dat0 <- item282.dat[grep("SITE",item282.dat$CK_SiteID),]
@@ -577,6 +578,19 @@ item282.table <- data.frame("Cooling.Systems"          = item282.cast$Heating_Sy
                             ,"All_Sizes_EB"            = item282.cast$`EB_All Sizes`
                             )
 
+levels(item282.table$Cooling.Systems)
+rowOrder <- c("Air Source Heat Pump"
+              ,"Central AC"
+              ,"Evaporative Cooling"
+              ,"Mini-split HP"
+              ,"Packaged Ac"
+              ,"Packaged Hp"
+              ,"Packaged Unit"
+              ,"All Systems")
+item282.table <- item282.table %>% mutate(Cooling.Systems = factor(Cooling.Systems, levels = rowOrder)) %>% arrange(Cooling.Systems)  
+item282.table <- data.frame(item282.table)
+
+
 exportTable(item282.table, "MF","Table 74",weighted = TRUE)
 
 
@@ -608,5 +622,17 @@ item282.table <- data.frame("Cooling.Systems"          = item282.cast$System.Typ
                             ,"All_Sizes_Mean"          = item282.cast$`Percent_All Sizes`
                             ,"All_Sizes_SE"            = item282.cast$`SE_All Sizes`
                             ,"All_Sizes_n"             = item282.cast$`n_All Sizes`)
+
+levels(item282.table$Cooling.Systems)
+rowOrder <- c("Air Source Heat Pump"
+              ,"Central AC"
+              ,"Evaporative Cooling"
+              ,"Mini-split HP"
+              ,"Packaged Ac"
+              ,"Packaged Hp"
+              ,"Packaged Unit"
+              ,"All Systems")
+item282.table <- item282.table %>% mutate(Cooling.Systems = factor(Cooling.Systems, levels = rowOrder)) %>% arrange(Cooling.Systems)  
+item282.table <- data.frame(item282.table)
 
 exportTable(item282.table, "MF","Table 74",weighted = FALSE)

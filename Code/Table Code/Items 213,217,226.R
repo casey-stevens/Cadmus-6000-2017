@@ -98,6 +98,7 @@ item213.all.vintages <- proportions_one_group_within_row(CustomerLevelData = ite
                                              ,columnName = 'HomeYearBuilt_bins_MF'
                                              ,weighted = TRUE
                                              ,two.prop.total = TRUE)
+item213.all.vintages$HomeType[which(item213.all.vintages$HomeType == "Total")] <- "All Sizes"
 
 item213.all.sizes <- proportions_one_group_within_row(CustomerLevelData = item213.data
                                              ,valueVariable = 'Number.of.Units'
@@ -126,6 +127,8 @@ item213.table <- data.frame("BuildingType"     = item213.cast$BuildingType
                             ,"Mid.Rise.SE"     = item213.cast$`w.SE_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.7.Plus"= NA #item213.cast$
                             ,"High.Rise.SE"    = NA #item213.cast$
+                            ,"All.Sizes"       = item213.cast$`w.percent_All Sizes`
+                            ,"All.Sizes.SE"    = item213.cast$`w.SE_All Sizes`
                             ,"n"               = item213.cast$n
                             ,"Low.Rise.EB"     = item213.cast$`EB_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.EB"     = item213.cast$`EB_Apartment Building (4 to 6 floors)`
@@ -166,7 +169,7 @@ item213.all.vintages <- proportions_one_group(CustomerLevelData = item213.data
                                               ,columnName = 'HomeYearBuilt_bins_MF'
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item213.all.vintages <- item213.all.vintages[which(item213.all.vintages$HomeType != "Total"),]
+item213.all.vintages$HomeType[which(item213.all.vintages$HomeType == "Total")] <- "All Sizes"
 
 item213.all.sizes <- proportions_one_group(CustomerLevelData = item213.data
                                            ,valueVariable = 'Number.of.Units'
@@ -191,6 +194,8 @@ item213.table <- data.frame("BuildingType" = item213.cast$BuildingType
                             ,"Mid.Rise.SE"     = item213.cast$`SE_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.7.Plus"= NA #item213.cast$
                             ,"High.Rise.SE"    = NA #item213.cast$
+                            ,"All.Sizes"       = item213.cast$`Percent_All Sizes`
+                            ,"All.Sizes.SE"    = item213.cast$`SE_All Sizes`
                             ,"n"               = item213.cast$`n_All Sizes`
 )
 # row ordering example code

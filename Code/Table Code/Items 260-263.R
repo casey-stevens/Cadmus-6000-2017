@@ -73,7 +73,7 @@ item260.lighting <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_
                                                                 ,"Clean.Wattage"
                                                                 ,"Clean.Room"
                                                                 ,"Switch.Type"))]
-# tmp.dat <- item260.lighting[grep("BLDG", item260.lighting$CK_SiteID),]
+item260.lighting <- item260.lighting[which(item260.lighting$Clean.Room %notin% c("Parking")),]
 item260.lighting$count <- 1
 
 item260.lighting1 <- item260.lighting[which(!(item260.lighting$Clean.Room %in% c("Outside", "Storage"))),]

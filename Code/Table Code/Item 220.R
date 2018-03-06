@@ -55,6 +55,7 @@ rooms.dat1 <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
 colnames(rooms.dat1) <- c("CK_Cadmus_ID","CK_SiteID","Clean.Room","Area")
 
 rooms.dat1 <- rooms.dat1[which(rooms.dat1$Area %notin% c("Unknown","N/A")),]
+rooms.dat1 <- rooms.dat1[which(rooms.dat1$Clean.Room %notin% c("Parking")),]
 
 rooms.dat1$Area <- as.numeric(as.character(rooms.dat1$Area))
 # rooms.dat1$Area[which(rooms.dat1$Area == "N/A")] <- 0
@@ -65,16 +66,16 @@ rooms.dat3 <- rooms.dat2[grep("BLDG", rooms.dat2$CK_SiteID),]
 rooms.dat4 <- summarise(group_by(rooms.dat3, CK_SiteID, Clean.Room)
                         ,SiteArea = mean(Area, na.rm = T))
 
-rooms.cast <- dcast(setDT(rooms.dat4)
-                    ,formula = CK_SiteID ~ Clean.Room
-                    ,value.var = c("SiteArea"))
-rooms.cast[is.na(rooms.cast),] <- 0
-
-rooms.melt <- melt(rooms.cast, id.vars = c("CK_SiteID"))
-names(rooms.melt) <- c("CK_SiteID", "Clean.Room", "SiteArea") 
+# rooms.cast <- dcast(setDT(rooms.dat4)
+#                     ,formula = CK_SiteID ~ Clean.Room
+#                     ,value.var = c("SiteArea"))
+# rooms.cast[is.na(rooms.cast),] <- 0
+# 
+# rooms.melt <- melt(rooms.cast, id.vars = c("CK_SiteID"))
+# names(rooms.melt) <- c("CK_SiteID", "Clean.Room", "SiteArea") 
 
 #merge together analysis data with cleaned RBSA data
-rooms.final <- left_join(rbsa.dat.bldg, rooms.melt, by = c("CK_Building_ID"="CK_SiteID"))
+rooms.final <- left_join(rbsa.dat.bldg, rooms.dat4, by = c("CK_Building_ID"="CK_SiteID"))
 rooms.final <- rooms.final[which(rooms.final$BuildingType == "Multifamily"),]
 rooms.final <- rooms.final[which(rooms.final$SiteArea %notin% c("N/A",NA)),]
 names(rooms.final)[which(names(rooms.final) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID" 
@@ -105,6 +106,7 @@ unique(item220.dat2$Clean.Room)
 #subset to only relevant columns
 item220.merge <- left_join(rbsa.dat, item220.dat2)
 item220.merge <- item220.merge[which(!is.na(item220.merge$Clean.Room)),]
+item220.merge <- item220.merge[which(item220.merge$Clean.Room != "Parking"),]
 item220.merge <- item220.merge[which(item220.merge$BuildingType == "Multifamily"),]
 # item220.merge$Total.Area[which(is.na(item220.merge$Total.Area))] <- 0
 
@@ -155,7 +157,6 @@ rowOrder <- c("Hall"
               ,"Office"
               ,"Other"
               ,"Outside"
-              ,"Parking"
               ,"Recreation"
               ,"Store"
               ,"All Rooms")

@@ -619,7 +619,7 @@ if(os.ind == "scl"){
 }
 
 # row ordering example code
-levels(item9.os.table$Home.Type)
+levels(item9.os.table$Room.Type)
 rowOrder <- c("Bathroom"
               ,"Bedroom"
               ,"Closet"
@@ -634,7 +634,7 @@ rowOrder <- c("Bathroom"
               ,"Other"
               ,"Outside"
               ,"All Room Types")
-item9.os.table <- item9.os.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item9.os.table <- item9.os.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)  
 item9.os.table <- data.frame(item9.os.table)
 
 
@@ -684,7 +684,7 @@ if(os.ind == "scl"){
 }
 
 # row ordering example code
-levels(item9.os.table$Home.Type)
+levels(item9.os.table$Room.Type)
 rowOrder <- c("Bathroom"
               ,"Bedroom"
               ,"Closet"
@@ -699,7 +699,7 @@ rowOrder <- c("Bathroom"
               ,"Other"
               ,"Outside"
               ,"All Room Types")
-item9.os.table <- item9.os.table %>% mutate(Home.Type = factor(Home.Type, levels = rowOrder)) %>% arrange(Home.Type)  
+item9.os.table <- item9.os.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)  
 item9.os.table <- data.frame(item9.os.table)
 
 #subset by home type

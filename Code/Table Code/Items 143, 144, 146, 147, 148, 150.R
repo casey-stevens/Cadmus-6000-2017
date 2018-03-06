@@ -37,7 +37,7 @@ usage.columns <- c("CADID", "UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
                    "UsageNAC_therms", "UsageRaw_therms", "heating_therms")
 
 ### Bring in primary system fuel types
-mechanical.dat <- read.xlsx(mechanical.export)
+# mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"

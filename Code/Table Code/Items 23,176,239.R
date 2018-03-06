@@ -28,8 +28,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
-envelope.dat <- read.xlsx(envelope.export)
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+# envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
@@ -1097,8 +1097,8 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,"SE.R1.R3"        = item23.os.cast$w.SE_R1.R3
                               ,"Percent.R4.R10"  = item23.os.cast$w.percent_R4.R10  
                               ,"SE.R4.R10"       = item23.os.cast$w.SE_R4.R10
-                              ,"Percent.R11.R15" = NA#item23.os.cast$w.percent_R11.R15
-                              ,"SE.R11.R15"      = NA#item23.os.cast$w.SE_R11.R15
+                              ,"Percent.R11.R15" = item23.os.cast$w.percent_R11.R15
+                              ,"SE.R11.R15"      = item23.os.cast$w.SE_R11.R15
                               ,"Percent.R16.R22" = item23.os.cast$w.percent_R16.R22
                               ,"SE.R16.R22"      = item23.os.cast$w.SE_R16.R22
                               ,"Percent.R23.R27" = item23.os.cast$w.percent_R23.R27
@@ -1111,7 +1111,7 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,'EB.None'         = item23.os.cast$EB_None
                               ,'EB.R1.R3'        = item23.os.cast$EB_R1.R3
                               ,'EB.R4.R10'       = item23.os.cast$EB_R4.R10
-                              ,'EB.R11.R15'      = NA#item23.os.cast$EB_R11.R15
+                              ,'EB.R11.R15'      = item23.os.cast$EB_R11.R15
                               ,'EB.R16.R22'      = item23.os.cast$EB_R16.R22
                               ,'EB.R23.R27'      = item23.os.cast$EB_R23.R27
                               ,'EB.R28.R35'      = item23.os.cast$EB_R28.R35
@@ -1183,8 +1183,8 @@ item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_
                               ,"SE.R1.R3"        = item23.os.cast$SE_R1.R3
                               ,"Percent.R4.R10"  = item23.os.cast$Percent_R4.R10  
                               ,"SE.R4.R10"       = item23.os.cast$SE_R4.R10
-                              ,"Percent.R11.R15" = NA#item23.os.cast$Percent_R11.R15
-                              ,"SE.R11.R15"      = NA#item23.os.cast$SE_R11.R15
+                              ,"Percent.R11.R15" = item23.os.cast$Percent_R11.R15
+                              ,"SE.R11.R15"      = item23.os.cast$SE_R11.R15
                               ,"Percent.R16.R22" = item23.os.cast$Percent_R16.R22
                               ,"SE.R16.R22"      = item23.os.cast$SE_R16.R22
                               ,"Percent.R23.R27" = item23.os.cast$Percent_R23.R27

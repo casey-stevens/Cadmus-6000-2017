@@ -414,7 +414,7 @@ item245.final$Fuel[which(item245.final$Fuel == "Total")] <- "All Types"
 item245.cast <- dcast(setDT(item245.final)
                       ,formula = BuildingType + Heating_System ~ Fuel
                       ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
-
+names(item245.cast)
 
 item245.table <- data.frame("Secondary.Heating.System" = item245.cast$Heating_System
                             ,"Electric"              = item245.cast$w.percent_Electric
@@ -580,7 +580,8 @@ item248.dat <- unique(mechanical.dat.MF[which(colnames(mechanical.dat.MF) %in% c
                                                                                  "Cool.Iteration",
                                                                                  "CK_Building_ID",
                                                                                  "System.Type"
-                                                                                 ,"Primary.Cooling.System"))])
+                                                                                 ,"Primary.Cooling.System"
+                                                                                 ))])
 item248.dat <- item248.dat[grep("site", item248.dat$Cool.Iteration, ignore.case = T),]
 
 item248.dat$CoolingInd <- 1

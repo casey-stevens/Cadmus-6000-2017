@@ -334,8 +334,8 @@ mean_two_groups <- function(CustomerLevelData
   ######################################################
   StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N_h   = sum(unique(N.h))
-                                        ,n_h   = sum(unique(n.h))), stringsAsFactors = F)
+                                        ,N_h   = unique(N.h)
+                                        ,n_h   = unique(n.h)), stringsAsFactors = F)
   if (byVariableRow == 'State') {
     item.strata.group <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory", byVariableColumn), summarise
@@ -380,11 +380,6 @@ mean_two_groups <- function(CustomerLevelData
                                      ,n_h  = sum(n_h)
                                      ,N_h  = sum(N_h)
                                      ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
-                          # ,Mean = sum(N_h * strataMean) / sum(N_h)
-                          # ,SE   = sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                          # ,n    = sum(n)
-                          # ,N    = sum(unique(N_h))
-                          # ,EB   = SE * qt(1-(1-0.9)/2, n)
                           ), stringsAsFactors = F)
   
   #merge samples sizes onto mean and SE info
@@ -402,11 +397,6 @@ mean_two_groups <- function(CustomerLevelData
                                ,n_h  = sum(n_h)
                                ,N_h  = sum(N_h)
                                ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
-                               # ,Mean       = sum(N_h * strataMean) / sum(N_h)
-                               # ,SE         = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                               # ,n          = sum(n)
-                               # ,N          = sum(unique(N_h))
-                               # ,EB   = SE * qt(1-(1-0.9)/2, n)
                                ), stringsAsFactors = F)
     #Rename column byrow
     item.group.rowAgg <- ConvertColName(item.group.rowAgg,
@@ -424,11 +414,6 @@ mean_two_groups <- function(CustomerLevelData
                                 ,n_h  = sum(n_h)
                                 ,N_h  = sum(N_h)
                                 ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
-                                # ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                # ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                # ,n     = sum(n)
-                                # ,N     = sum(unique(N_h))
-                                # ,EB   = SE * qt(1-(1-0.9)/2, n)
                                 ), stringsAsFactors = F)
     #rename column byCol
     item.group.colAgg1 <- ConvertColName(item.group.colAgg1, "byCol",
@@ -444,11 +429,6 @@ mean_two_groups <- function(CustomerLevelData
                                   ,n_h  = sum(n_h)
                                   ,N_h  = sum(N_h)
                                   ,EB   = SE * qt(1-(1-0.9)/2, n-length(strataMean))
-                                  # ,Mean  = sum(N_h * strataMean) / sum(N_h)
-                                  # ,SE    = 1/4*sqrt(sum((1 - n_h / N_h) * (N_h^2 / n_h) * strataSD^2, na.rm = T)) / sum(unique(N_h))
-                                  # ,n     = sum(n)
-                                  # ,N     = sum(unique(N_h))
-                                  # ,EB   = SE * qt(1-(1-0.9)/2, n)
                                   ), stringsAsFactors = F)
       #rename columns byCol and by Row
       item.group.colAgg2 <- ConvertColName(item.group.colAgg2, "byRow",byVariableRow)

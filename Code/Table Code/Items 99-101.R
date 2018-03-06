@@ -924,11 +924,10 @@ item99.os.data <- item99.os.data[which(item99.os.data$CK_Building_ID == subset.i
 #######################
 item99.os.summary <- proportionRowsAndColumns1(CustomerLevelData = item99.os.data
                                             ,valueVariable    = 'DHW.Count'
-                                            ,columnVariable   = 'DHW.Location'
-                                            ,rowVariable      = 'Heating.Fuel'
+                                            ,columnVariable   = 'Heating.Fuel'
+                                            ,rowVariable      = 'DHW.Location'
                                             ,aggregateColumnName = "Remove")
-item99.os.summary <- item99.os.summary[which(item99.os.summary$DHW.Location %notin% c("Remove")),]
-item99.os.summary <- item99.os.summary[which(item99.os.summary$Heating.Fuel %notin% c("Total")),]
+item99.os.summary <- item99.os.summary[which(item99.os.summary$Heating.Fuel %notin% c("Remove")),]
 
 item99.os.all.fuels <- proportions_one_group(CustomerLevelData = item99.os.data
                                           ,valueVariable = "DHW.Count"
@@ -937,18 +936,8 @@ item99.os.all.fuels <- proportions_one_group(CustomerLevelData = item99.os.data
                                           ,columnName = "Heating.Fuel"
                                           ,weighted = TRUE
                                           ,two.prop.total = TRUE)
-item99.os.all.fuels <- item99.os.all.fuels[which(item99.os.all.fuels$DHW.Location != "Total"),]# <- "All Locations"
 
-item99.os.locations <- proportions_one_group(CustomerLevelData = item99.os.data
-                                          ,valueVariable = "DHW.Count"
-                                          ,groupingVariable = "Heating.Fuel"
-                                          ,total.name = "All Locations"
-                                          ,columnName = "DHW.Location"
-                                          ,weighted = TRUE
-                                          ,two.prop.total = TRUE)
-item99.os.locations$Heating.Fuel[which(item99.os.locations$Heating.Fuel == "Total")] <- "All Fuels"
-
-item99.os.final <- rbind.data.frame(item99.os.summary, item99.os.all.fuels, item99.os.locations, stringsAsFactors = F)
+item99.os.final <- rbind.data.frame(item99.os.summary, item99.os.all.fuels, stringsAsFactors = F)
 
 item99.os.cast <- dcast(setDT(item99.os.final)
                      ,formula = BuildingType + DHW.Location ~ Heating.Fuel
@@ -1027,7 +1016,7 @@ rowOrder <- c("Basement"
               ,"Garage"
               ,"Other"
               ,"Main House"
-              ,"All Locations")
+              ,"Total")
 item99.os.table <- item99.os.table %>% mutate(DHW.Location = factor(DHW.Location, levels = rowOrder)) %>% arrange(DHW.Location)  
 item99.os.table <- data.frame(item99.os.table)
 
@@ -1040,36 +1029,26 @@ exportTable(item99.os.final.SF, "SF", "Table 106", weighted = TRUE, osIndicator 
 # unweighted Analysis
 #######################
 item99.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = item99.os.data
-                                                    ,valueVariable    = 'DHW.Count'
-                                                    ,columnVariable   = 'DHW.Location'
-                                                    ,rowVariable      = 'Heating.Fuel'
-                                                    ,aggregateColumnName = "Remove")
-item99.os.summary <- item99.os.summary[which(item99.os.summary$DHW.Location %notin% c("Remove")),]
-item99.os.summary <- item99.os.summary[which(item99.os.summary$Heating.Fuel %notin% c("Total")),]
+                                               ,valueVariable    = 'DHW.Count'
+                                               ,columnVariable   = 'Heating.Fuel'
+                                               ,rowVariable      = 'DHW.Location'
+                                               ,aggregateColumnName = "Remove")
+item99.os.summary <- item99.os.summary[which(item99.os.summary$Heating.Fuel %notin% c("Remove")),]
 
 item99.os.all.fuels <- proportions_one_group(CustomerLevelData = item99.os.data
-                                          ,valueVariable = "DHW.Count"
-                                          ,groupingVariable = "DHW.Location"
-                                          ,total.name = "All Fuels"
-                                          ,columnName = "Heating.Fuel"
-                                          ,weighted = FALSE
-                                          ,two.prop.total = TRUE)
-item99.os.all.fuels <- item99.os.all.fuels[which(item99.os.all.fuels$DHW.Location != "Total"),]# <- "All Locations"
+                                             ,valueVariable = "DHW.Count"
+                                             ,groupingVariable = "DHW.Location"
+                                             ,total.name = "All Fuels"
+                                             ,columnName = "Heating.Fuel"
+                                             ,weighted = FALSE
+                                             ,two.prop.total = TRUE)
 
-item99.os.locations <- proportions_one_group(CustomerLevelData = item99.os.data
-                                          ,valueVariable = "DHW.Count"
-                                          ,groupingVariable = "Heating.Fuel"
-                                          ,total.name = "All Locations"
-                                          ,columnName = "DHW.Location"
-                                          ,weighted = FALSE
-                                          ,two.prop.total = TRUE)
-item99.os.locations$Heating.Fuel[which(item99.os.locations$Heating.Fuel == "Total")] <- "All Fuels"
-
-item99.os.final <- rbind.data.frame(item99.os.summary, item99.os.all.fuels, item99.os.locations, stringsAsFactors = F)
+item99.os.final <- rbind.data.frame(item99.os.summary, item99.os.all.fuels, stringsAsFactors = F)
 
 item99.os.cast <- dcast(setDT(item99.os.final)
-                     ,formula = BuildingType + DHW.Location ~ Heating.Fuel
-                     ,value.var = c("Percent", "SE", "Count", "n"))
+                        ,formula = BuildingType + DHW.Location ~ Heating.Fuel
+                        ,value.var = c("Percent", "SE", "n"))
+names(item99.os.cast)
 
 if(os.ind == "scl"){
   item99.os.table <- data.frame("BuildingType"         = item99.os.cast$BuildingType

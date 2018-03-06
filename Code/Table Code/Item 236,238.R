@@ -25,6 +25,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
+rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg",rbsa.dat.MF$CK_Building_ID),]
 
 #read in Envelope data for MF table
 envelope.dat <- read.xlsx(envelope.export)
@@ -35,7 +36,8 @@ envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_SiteID"
                                                                   ,"Floor.Type"
                                                                   ,"Floor.Area"
                                                                   ,"Floor.Sub-Type",
-                                                                  "Type.of.Area.Below"))]
+                                                                  "Type.of.Area.Below"
+                                                                  ,"Area.Below.Heated?"))]
 
 envelope.dat2 <- left_join(rbsa.dat, envelope.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
 length(unique(envelope.dat2$CK_Cadmus_ID))
@@ -53,43 +55,49 @@ unique(envelope.dat.MF$CeilingType)
 unique(envelope.dat.MF$Floor.Type)
 unique(envelope.dat.MF$`Floor.Sub-Type`)
 unique(envelope.dat.MF$Type.of.Area.Below)
-envelope.dat.MF$FloorType <- ""
-envelope.dat.MF$FloorType[grep("Slab",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Slab"
-envelope.dat.MF$FloorType[grep("Crawlspace",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Crawlspace"
-envelope.dat.MF$FloorType[grep("Basement",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Basement"
-envelope.dat.MF$FloorType[grep("Floor over other area",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Framed"
-envelope.dat.MF$FloorType[grep("Cantilever",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Cantilever"
-unique(envelope.dat.MF$FloorType)
+unique(envelope.dat.MF$`Area.Below.Heated?`)
 
-envelope.dat.MF$SubFloorType <- "Unknown"
-unique(envelope.dat.MF$SubFloorType)
-envelope.dat.MF$SubFloorType[grep("framed",envelope.dat.MF$FloorType,ignore.case = T)] <- 
-  envelope.dat.MF$Type.of.Area.Below[grep("framed",envelope.dat.MF$FloorType,ignore.case = T)]
-envelope.dat.MF$SubFloorType[grep("conditioned",envelope.dat.MF$`Floor.Sub-Type`,ignore.case = T)] <- "Conditioned"
-envelope.dat.MF$SubFloorType[grep("unconditioned",envelope.dat.MF$`Floor.Sub-Type`,ignore.case = T)] <- "Unconditioned"
-envelope.dat.MF$SubFloorType[grep("slab",envelope.dat.MF$`Floor.Sub-Type`,ignore.case = T)] <- "Slab"
+# Bring in clean ground contact types
+FloorMappingTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "MF Floor Type Lookup.xlsx"), sheet = 1)
 
-envelope.dat.MF$Floor.Sub.Type <- paste(envelope.dat.MF$FloorType, envelope.dat.MF$SubFloorType)
-unique(envelope.dat.MF$Floor.Sub.Type)
 
-envelope.sub <- envelope.dat.MF[-grep("Unknown", envelope.dat.MF$Floor.Sub.Type),]
-ii=1
-for(ii in 1:nrow(envelope.sub)){
-  if(envelope.sub$Floor.Type[ii] %in% c("Floor over other area")){
-    envelope.sub$Floor.Sub.Type[ii] <- paste(envelope.sub$Floor.Sub.Type[ii], "Over", envelope.sub$Type.of.Area.Below[ii], sep = " ")
-  }else{
-    envelope.sub$Floor.Sub.Type[ii] <- envelope.sub$Floor.Sub.Type[ii]
-  }
-}
-# envelope.sub$Floor.Sub.Type <- gsub("Framed Parking", "Framed Floor", envelope.sub$Floor.Sub.Type)
-# envelope.sub$Floor.Sub.Type <- gsub("Framed Garage", "Framed Floor", envelope.sub$Floor.Sub.Type)
-# envelope.sub$Floor.Sub.Type <- gsub("Framed Storage", "Framed Floor", envelope.sub$Floor.Sub.Type)
-# envelope.sub$Floor.Sub.Type <- gsub("Framed Conditioned", "Framed Floor", envelope.sub$Floor.Sub.Type)
-# envelope.sub$Floor.Sub.Type <- gsub("Framed Crawlspace", "Framed Floor", envelope.sub$Floor.Sub.Type)
-unique(envelope.sub$Floor.Sub.Type)
-
-envelope.sub <- envelope.sub[-grep("Other|Residential|Outside",envelope.sub$Floor.Sub.Type),]
-unique(envelope.sub$Floor.Sub.Type)
+# envelope.dat.MF$FloorType <- ""
+# envelope.dat.MF$FloorType[grep("Slab",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Slab"
+# envelope.dat.MF$FloorType[grep("Crawlspace",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Crawlspace"
+# envelope.dat.MF$FloorType[grep("Basement",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Basement"
+# envelope.dat.MF$FloorType[grep("Floor over other area",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Framed"
+# envelope.dat.MF$FloorType[grep("Cantilever",envelope.dat.MF$Floor.Type,ignore.case = T)] <- "Cantilever"
+# unique(envelope.dat.MF$FloorType)
+# 
+# envelope.dat.MF$SubFloorType <- "Unknown"
+# unique(envelope.dat.MF$SubFloorType)
+# envelope.dat.MF$SubFloorType[grep("framed",envelope.dat.MF$FloorType,ignore.case = T)] <- 
+#   envelope.dat.MF$Type.of.Area.Below[grep("framed",envelope.dat.MF$FloorType,ignore.case = T)]
+# envelope.dat.MF$SubFloorType[grep("conditioned",envelope.dat.MF$`Floor.Sub-Type`,ignore.case = T)] <- "Conditioned"
+# envelope.dat.MF$SubFloorType[grep("unconditioned",envelope.dat.MF$`Floor.Sub-Type`,ignore.case = T)] <- "Unconditioned"
+# envelope.dat.MF$SubFloorType[grep("slab",envelope.dat.MF$`Floor.Sub-Type`,ignore.case = T)] <- "Slab"
+# 
+# envelope.dat.MF$Floor.Sub.Type <- paste(envelope.dat.MF$FloorType, envelope.dat.MF$SubFloorType)
+# unique(envelope.dat.MF$Floor.Sub.Type)
+# 
+# envelope.sub <- envelope.dat.MF[-grep("Unknown", envelope.dat.MF$Floor.Sub.Type),]
+# ii=1
+# for(ii in 1:nrow(envelope.sub)){
+#   if(envelope.sub$Floor.Type[ii] %in% c("Floor over other area")){
+#     envelope.sub$Floor.Sub.Type[ii] <- paste(envelope.sub$Floor.Sub.Type[ii], "Over", envelope.sub$Type.of.Area.Below[ii], sep = " ")
+#   }else{
+#     envelope.sub$Floor.Sub.Type[ii] <- envelope.sub$Floor.Sub.Type[ii]
+#   }
+# }
+# # envelope.sub$Floor.Sub.Type <- gsub("Framed Parking", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# # envelope.sub$Floor.Sub.Type <- gsub("Framed Garage", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# # envelope.sub$Floor.Sub.Type <- gsub("Framed Storage", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# # envelope.sub$Floor.Sub.Type <- gsub("Framed Conditioned", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# # envelope.sub$Floor.Sub.Type <- gsub("Framed Crawlspace", "Framed Floor", envelope.sub$Floor.Sub.Type)
+# unique(envelope.sub$Floor.Sub.Type)
+# 
+# envelope.sub <- envelope.sub[-grep("Other|Residential|Outside",envelope.sub$Floor.Sub.Type),]
+# unique(envelope.sub$Floor.Sub.Type)
 
 #############################################################################################
 #Item 236: Table 28
@@ -209,33 +217,66 @@ exportTable(item236.final, "MF", "Table 28", weighted = FALSE)
 
 
 
+
+
+
+
+
+
+
+
+
 #############################################################################################
 #Item 238: Table 30
 #############################################################################################
 
-item238.dat <- unique(envelope.sub[which(colnames(envelope.sub) %in% c("CK_Cadmus_ID",
-                                                                          "CK_SiteID",
-                                                                          "BuildingTypeXX",
-                                                                          "FloorType",
-                                                                          "Floor.Sub.Type",
-                                                                          "Floor.Area"))])
+item238.dat <- unique(envelope.dat.MF[which(colnames(envelope.dat.MF) %in% c("CK_Cadmus_ID",
+                                                                             "CK_Building_ID",
+                                                                             "BuildingTypeXX",
+                                                                             "Floor.Type",
+                                                                             "Floor.Sub-Type",
+                                                                             "Floor.Area"
+                                                                             ,"Type.of.Area.Below"
+                                                                             ,"Area.Below.Heated?"))])
+item238.dat$Floor.Area <- as.numeric(as.character(item238.dat$Floor.Area))
+
 item238.dat1 <- item238.dat[which(item238.dat$Floor.Area > 0),] 
+item238.dat1 <- item238.dat[which(!is.na(item238.dat$Floor.Area)),] 
 
-item238.dat1$Floor.Area <- as.numeric(as.character(item238.dat1$Floor.Area))
+#floor type mapping
+item238.dat1$FloorType <- NA
 
-item238.merge <- left_join(rbsa.dat, item238.dat1)
-item238.merge <- item238.merge[which(!is.na(item238.merge$Floor.Area)),]
+i=1
+for (i in 1:length(FloorMappingTypes$Final.Floor.Type)){
+  item238.dat1$FloorType[which(item238.dat1[,4] == FloorMappingTypes[i,1] & 
+                                 item238.dat1[,5] == FloorMappingTypes[i,2] &
+                                 item238.dat1[,6] == FloorMappingTypes[i,3] &
+                                 item238.dat1[,7] == FloorMappingTypes[i,4])] <- FloorMappingTypes$Final.Floor.Type[i]
+}
+item238.dat1$FloorType <- trimws(item238.dat1$FloorType)
+unique(item238.dat1$FloorType)
+
+item238.dat2 <- item238.dat1[which(!is.na(item238.dat1$FloorType)),]
+
+item238.merge <- left_join(rbsa.dat, item238.dat2)
+item238.merge <- item238.merge[which(!is.na(item238.merge$FloorType)),]
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 item238.data <- weightedData(item238.merge[-which(colnames(item238.merge) %in% c("FloorType",
-                                                                                 "Floor.Sub.Type",
-                                                                                 "Floor.Area"))])
+                                                                                 "Floor.Sub-Type",
+                                                                                 "Floor.Area"
+                                                                                 ,"Floor.Type"
+                                                                                 ,"Type.of.Area.Below"
+                                                                                 ,"Area.Below.Heated?"))])
 item238.data <- left_join(item238.data, item238.merge[which(colnames(item238.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"FloorType",
-                                                                                           "Floor.Sub.Type",
-                                                                                           "Floor.Area"))])
+                                                                                           "Floor.Sub-Type",
+                                                                                           "Floor.Area"
+                                                                                           ,"Floor.Type"
+                                                                                           ,"Type.of.Area.Below"
+                                                                                           ,"Area.Below.Heated?"))])
 
 item238.data$count <- 1
 item238.data$Floor.Area <- as.numeric(as.character(item238.data$Floor.Area))
@@ -246,7 +287,7 @@ item238.data$Floor.Area <- as.numeric(as.character(item238.data$Floor.Area))
 item238.final <- proportionRowsAndColumns1(CustomerLevelData = item238.data
                                            ,valueVariable    = 'Floor.Area'
                                            ,columnVariable   = 'HomeType'
-                                           ,rowVariable      = 'Floor.Sub.Type'
+                                           ,rowVariable      = 'FloorType'
                                            ,aggregateColumnName = "Remove")
 item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
 # item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
@@ -254,7 +295,7 @@ item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
 
 item238.all.sizes <- proportions_one_group(CustomerLevelData = item238.data
                                                  ,valueVariable = 'Floor.Area'
-                                                 ,groupingVariable = 'Floor.Sub.Type'
+                                                 ,groupingVariable = 'FloorType'
                                                  ,total.name = "All Sizes"
                                                  ,columnName = "HomeType"
                                                  ,weighted = TRUE
@@ -263,12 +304,12 @@ item238.all.sizes <- proportions_one_group(CustomerLevelData = item238.data
 item238.final <- rbind.data.frame(item238.final, item238.all.sizes, stringsAsFactors = F)
 
 item238.cast <- dcast(setDT(item238.final)
-                      ,formula = Floor.Sub.Type ~ HomeType
+                      ,formula = FloorType ~ HomeType
                       ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 
 
 
-item238.final <- data.frame( "Floor.Type"    = item238.cast$Floor.Sub.Type
+item238.final <- data.frame( "Floor.Type"    = item238.cast$FloorType
                              ,"Low.Rise.1.3"    = item238.cast$`w.percent_Apartment Building (3 or fewer floors)`
                              ,"Low.Rise.1.3.SE" = item238.cast$`w.SE_Apartment Building (3 or fewer floors)`
                              ,"Low.Rise.1.3.n"  = item238.cast$`n_Apartment Building (3 or fewer floors)`
@@ -295,15 +336,15 @@ exportTable(item238.final, "MF", "Table 30", weighted = TRUE)
 item238.final <- proportions_two_groups_unweighted(CustomerLevelData = item238.data
                                            ,valueVariable    = 'Floor.Area'
                                            ,columnVariable   = 'HomeType'
-                                           ,rowVariable      = 'Floor.Sub.Type'
+                                           ,rowVariable      = 'FloorType'
                                            ,aggregateColumnName = "Remove")
 item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
 # item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
 
 
-item238.all.sizes <- proportions_one_group_MF(CustomerLevelData = item238.data
+item238.all.sizes <- proportions_one_group(CustomerLevelData = item238.data
                                               ,valueVariable = 'Floor.Area'
-                                              ,groupingVariable = 'Floor.Sub.Type'
+                                              ,groupingVariable = 'FloorType'
                                               ,total.name = "All Sizes"
                                               ,columnName = "HomeType"
                                               ,weighted = FALSE
@@ -312,10 +353,10 @@ item238.all.sizes <- proportions_one_group_MF(CustomerLevelData = item238.data
 item238.final <- rbind.data.frame(item238.final, item238.all.sizes, stringsAsFactors = F)
 
 item238.cast <- dcast(setDT(item238.final)
-                      ,formula = Floor.Sub.Type ~ HomeType
+                      ,formula = FloorType ~ HomeType
                       ,value.var = c("Percent","SE", "Count","n"))
 
-item238.final <- data.frame( "Floor.Type"    = item238.cast$Floor.Sub.Type
+item238.final <- data.frame( "Floor.Type"    = item238.cast$FloorType
                              ,"Low.Rise.1.3"    = item238.cast$`Percent_Apartment Building (3 or fewer floors)`
                              ,"Low.Rise.1.3.SE" = item238.cast$`SE_Apartment Building (3 or fewer floors)`
                              ,"Low.Rise.1.3.n"  = item238.cast$`n_Apartment Building (3 or fewer floors)`

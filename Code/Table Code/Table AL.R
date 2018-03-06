@@ -37,7 +37,7 @@ results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case
 
 ### Bring in primary system fuel types
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-mechanical.dat <- read.xlsx(mechanical.export)
+# mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -629,9 +629,9 @@ summary(UsageDataSF_Final7$EUI)
 if(os.ind == "scl"){
   #for single family
   UsageDataSF_Final7$EUI_Quartile <- 4
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 2.835480)] <- 1
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 2.835480 & UsageDataSF_Final7$EUI < 4.089530)] <- 2
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 4.089530 & UsageDataSF_Final7$EUI < 6.330065)] <- 3
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.901750)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.901750 & UsageDataSF_Final7$EUI < 6.382588)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.382588 & UsageDataSF_Final7$EUI < 9.690480)] <- 3
   
 }else if(os.ind == "snopud"){
   #for single family
