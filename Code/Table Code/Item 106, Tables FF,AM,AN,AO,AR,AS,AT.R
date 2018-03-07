@@ -1852,6 +1852,8 @@ exportTable(tableAM.os.final.SF, "SF", "Table AM", weighted = FALSE, osIndicator
 
 
 
+
+
 #############################################################################################
 # Table AR: DISTRIBUTION OF SHOWERHEAD FLOW RATE BY CK_Building_ID (new bins)
 #############################################################################################
@@ -1875,8 +1877,8 @@ tableAR.os.dat4 <- summarise(group_by(tableAR.os.dat3, CK_Cadmus_ID, CK_Building
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAR.os.dat4$GPM_bins <- tableAR.os.dat4$GPM.Measured.Site
-tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site <  2.5)] <- "< 2.5"
-tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site >= 2.5)] <- ">= 2.5"
+tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site <=  2.5)] <- "<= 2.5"
+tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site > 2.5)] <- "> 2.5"
 unique(tableAR.os.dat4$GPM_bins)
 
 tableAR.os.merge <- left_join(os.dat, tableAR.os.dat4)
@@ -1951,8 +1953,8 @@ if(os.ind == "scl"){
 }
 
 levels(tableAR.os.table$Flow.Rate.GPM)
-rowOrder <- c("< 2.5"
-              ,">= 2.5"
+rowOrder <- c("<= 2.5"
+              ,"> 2.5"
               ,"Total")
 tableAR.os.table <- tableAR.os.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
 tableAR.os.table <- data.frame(tableAR.os.table)
@@ -2009,8 +2011,8 @@ if(os.ind == "scl"){
 }
 
 levels(tableAR.os.table$Flow.Rate.GPM)
-rowOrder <- c("< 2.5"
-              ,">= 2.5"
+rowOrder <- c("<= 2.5"
+              ,"> 2.5"
               ,"Total")
 tableAR.os.table <- tableAR.os.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
 tableAR.os.table <- data.frame(tableAR.os.table)
@@ -2045,8 +2047,8 @@ tableAS.os.dat4 <- summarise(group_by(tableAS.os.dat3, CK_Cadmus_ID, CK_Building
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAS.os.dat4$GPM_bins <- tableAS.os.dat4$GPM.Measured.Site
-tableAS.os.dat4$GPM_bins[which(tableAS.os.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
-tableAS.os.dat4$GPM_bins[which(tableAS.os.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+tableAS.os.dat4$GPM_bins[which(tableAS.os.dat4$GPM.Measured.Site <=  2.2)] <- "<= 2.2"
+tableAS.os.dat4$GPM_bins[which(tableAS.os.dat4$GPM.Measured.Site > 2.2)] <- "> 2.2"
 unique(tableAS.os.dat4$GPM_bins)
 
 tableAS.os.merge <- left_join(os.dat, tableAS.os.dat4)
@@ -2212,8 +2214,8 @@ tableAT.os.dat4 <- summarise(group_by(tableAT.os.dat3, CK_Cadmus_ID, CK_Building
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAT.os.dat4$GPM_bins <- tableAT.os.dat4$GPM.Measured.Site
-tableAT.os.dat4$GPM_bins[which(tableAT.os.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
-tableAT.os.dat4$GPM_bins[which(tableAT.os.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+tableAT.os.dat4$GPM_bins[which(tableAT.os.dat4$GPM.Measured.Site <=  2.2)] <- "<= 2.2"
+tableAT.os.dat4$GPM_bins[which(tableAT.os.dat4$GPM.Measured.Site > 2.2)] <- "> 2.2"
 unique(tableAT.os.dat4$GPM_bins)
 
 tableAT.os.merge <- left_join(os.dat, tableAT.os.dat4)

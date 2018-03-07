@@ -456,9 +456,10 @@ tableII.table.MH <- tableII.table[which(tableII.table$BuildingType == "Manufactu
 # Table KK: Percent of Homes with Vented Dryers by State
 #############################################################################################
 #For everything else
-tableKK.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Vented"))]
+tableKK.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","CK_SiteID","Type","Dryer.Vented"))]
 
 tableKK.dat0 <- tableKK.dat[grep("dryer",tableKK.dat$Type, ignore.case = T),]
+tableKK.dat0 <- tableKK.dat0[grep("site", tableKK.dat$CK_SiteID,ignore.case = T),]
 tableKK.dat1 <- tableKK.dat0[which(tableKK.dat0$Dryer.Vented %in% c("Yes","No")),]
 
 tableKK.merge <- left_join(rbsa.dat, tableKK.dat1, by = "CK_Cadmus_ID")
@@ -556,9 +557,10 @@ exportTable(tableKK.table.MF, "MF","Table KK",weighted = FALSE)
 # Table MM: Percent of homes with smart powerstips by State
 #############################################################################################
 #For everything else
-tableMM.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Fuel"))]
+tableMM.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","CK_SiteID","Type","Dryer.Fuel"))]
 
 tableMM.dat0 <- tableMM.dat[grep("dryer",tableMM.dat$Type, ignore.case = T),]
+tableMM.dat0 <- tableMM.dat0[grep("site", tableMM.dat0$CK_SiteID, ignore.case = T),]
 
 tableMM.merge <- left_join(rbsa.dat, tableMM.dat0, by = "CK_Cadmus_ID")
 
@@ -569,7 +571,8 @@ tableMM.merge$Dryer.Fuel <- trimws(tableMM.merge$Dryer.Fuel)
 # Adding pop and sample sizes for weights
 ################################################
 tableMM.data <- weightedData(tableMM.merge[-which(colnames(tableMM.merge) %in% c("Type"
-                                                                                 ,"Dryer.Fuel"))])
+                                                                                 ,"Dryer.Fuel"
+                                                                                 ,"CK_SiteID"))])
 tableMM.data <- left_join(tableMM.data, tableMM.merge[which(colnames(tableMM.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Type"
                                                                                            ,"Dryer.Fuel"))])

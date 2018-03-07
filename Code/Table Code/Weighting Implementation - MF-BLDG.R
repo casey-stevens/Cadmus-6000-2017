@@ -27,7 +27,7 @@ mean_one_group <- function(CustomerLevelData, valueVariable,
   Popandns <- data.frame(ddply(CustomerLevelData
                                , c("BuildingType", "State", "Region", "Territory"), summarise
                                ,n_h        = unique(n.h)
-                               ,N_h        = sum(unique(N.h))), stringsAsFactors = F)
+                               ,N_h        = sum(N.h)), stringsAsFactors = F)
 
   if(byVariable %in% c("State","BuildingType")){
     
@@ -124,7 +124,7 @@ mean_one_group_domain <- function(CustomerLevelData, valueVariable, byVariable, 
   strata_domain_level <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory"), summarise
                                           ,n_l        = unique(n.h)
-                                          ,N_l        = sum(unique(N.h))), stringsAsFactors = F)
+                                          ,N_l        = sum(N.h)), stringsAsFactors = F)
   
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
@@ -334,7 +334,7 @@ mean_two_groups <- function(CustomerLevelData
   ######################################################
   StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N_h   = sum(unique(N.h))
+                                        ,N_h   = sum(N.h)
                                         ,n_h   = unique(n.h)), stringsAsFactors = F)
   if (byVariableRow == 'State') {
     item.strata.group <- data.frame(ddply(CustomerLevelData
@@ -489,7 +489,7 @@ mean_two_groups_domain <- function(CustomerLevelData
   strata_domain_level <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory"), summarise
                                           ,n_l        = unique(n.h)
-                                          ,N_l        = sum(unique(N.h))), stringsAsFactors = F)
+                                          ,N_l        = sum(N.h)), stringsAsFactors = F)
   
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary    <- data.frame(ddply(CustomerLevelData
@@ -867,7 +867,7 @@ proportions_one_group <- function(CustomerLevelData
     #sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N.h   = sum(unique(N.h))
+                                        ,N.h   = sum(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
     
     if(groupingVariable %in% c("State","BuildingType", "EUI_Quartile")){
@@ -981,7 +981,7 @@ proportions_one_group <- function(CustomerLevelData
                                                                           ,"n.h"))])
 
       columnVarWeights <- data.frame(ddply(StrataData, c("BuildingType"),summarise
-                                           ,columnVar.N.h = sum(unique(N.h))
+                                           ,columnVar.N.h = sum(N.h)
                                            ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
 
       #join strata data with weights by column grouping variable
@@ -1040,7 +1040,7 @@ proportions_one_group <- function(CustomerLevelData
                                            ,w.percent = 1
                                            ,w.SE      = NA
                                            ,count     = sum(count)
-                                           ,N         = sum(unique(N.h))
+                                           ,N         = sum(N.h)
                                            ,n         = length(unique(CK_Cadmus_ID))
                                            ,EB        = w.SE * qt(1-(1-0.9)/2, n)), stringsAsFactors = F)
         }else {
@@ -1225,13 +1225,13 @@ proportions_one_group_domain <- function(CustomerLevelData, valueVariable, byVar
   strata_domain_level <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory"), summarise
                                           ,n_l        = unique(n.h)
-                                          ,N_l        = sum(unique(N.h))), stringsAsFactors = F)
+                                          ,N_l        = sum(N.h)), stringsAsFactors = F)
   
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary1    <- data.frame(ddply(CustomerLevelData
                                                , c("BuildingType", "State", "Region", "Territory", byVariable), summarise
                                                ,n_lk    = length(unique(CK_Cadmus_ID))
-                                               ,N_lk    = sum(unique(N.h)) * n_lk / unique(n.h)
+                                               ,N_lk    = sum(N.h) * n_lk / unique(n.h)
                                                ,m_lk    = sum(m_ilk)
                                                ,m_bar_lk    = sum(m_ilk) / unique(n.h)
   ), stringsAsFactors = F)
@@ -1368,13 +1368,13 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory", columnVariable)
                                         , summarise
-                                        ,N.h   = sum(unique(N.h))
+                                        ,N.h   = sum(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
   }  else {
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory")
                                         , summarise
-                                        ,N.h   = sum(unique(N.h))
+                                        ,N.h   = sum(N.h)
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
   }
   
@@ -1577,12 +1577,12 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
-                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / sum(unique(N.h))
+                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / sum(N.h)
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
-                                                                         (p.h * (1 - p.h)), na.rm = T)) / sum(unique(N.h))
+                                                                         (p.h * (1 - p.h)), na.rm = T)) / sum(N.h)
                                                  ,count     = sum(count)
-                                                 ,N         = sum(unique(N.h))
+                                                 ,N         = sum(N.h)
                                                  ,n         = sum(n_hj)
                                                  ,EB   = w.SE * qt(1-(1-0.9)/2, n)
     ), stringsAsFactors = F)
@@ -1605,7 +1605,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
-                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / unique(columnVar.N.h) #sum(unique(N.h))
+                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / unique(columnVar.N.h) #sum(N.h)
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
                                                                          (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
@@ -1633,7 +1633,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
-                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h) #sum(unique(N.h))
+                                                 ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h) #sum(N.h)
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
                                                                          (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
@@ -1774,7 +1774,7 @@ proportions_two_groups_domain <- function(CustomerLevelData
   strata_domain_level <- data.frame(ddply(CustomerLevelData
                                           , c("BuildingType", "State", "Region", "Territory"), summarise
                                           ,n_l        = unique(n.h)
-                                          ,N_l        = sum(unique(N.h))), stringsAsFactors = F)
+                                          ,N_l        = sum(N.h)), stringsAsFactors = F)
   
   ### Get sum and mean of metrics when applicable as well as the strata-domain sample size and unit size
   strata_domain_summary1    <- data.frame(ddply(CustomerLevelData
@@ -2536,7 +2536,7 @@ proportionRowsAndColumns1_within_row <- function(CustomerLevelData
   # 
   columnVarWeights <- data.frame(ddply(StrataData_n0, c("BuildingType", columnVariable)
                                        ,summarise
-                                       ,columnVar.N.h = sum(unique(N.h))), stringsAsFactors = F)
+                                       ,columnVar.N.h = sum(N.h)), stringsAsFactors = F)
   # 
   # #join strata data with weights by column grouping variable 
   StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType", columnVariable))

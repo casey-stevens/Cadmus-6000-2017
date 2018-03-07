@@ -48,8 +48,8 @@ one.line.bldg.dat$CK_Building_ID <- trimws(toupper(one.line.bldg.dat$PK_Building
 #############################################################################################
 #subset to columns needed for analysis
 #from buildings interview data:
-item213.interview.dat <- buildings.interview.dat[which(colnames(buildings.interview.dat) %in% c("CK_Building_ID"
-                                                               ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding"))]
+item213.interview.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
+                                                               ,"Total.Units.in.Building"))]
 names(item213.interview.dat) <- c("Number.of.Units", "CK_Building_ID")
 
 # item213.building.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
@@ -83,7 +83,7 @@ colnames(item213.data)
 #######################
 # Weighted Analysis
 #######################
-item213.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item213.data
+item213.summary <- proportionRowsAndColumns1(CustomerLevelData = item213.data
                                           ,valueVariable = 'Number.of.Units'
                                           ,columnVariable = 'HomeYearBuilt_bins_MF'
                                           ,rowVariable = 'HomeType'
@@ -91,33 +91,32 @@ item213.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item
 item213.summary <- item213.summary[which(item213.summary$HomeYearBuilt_bins_MF != "Remove"),]
 item213.summary <- item213.summary[which(item213.summary$HomeType != "Total"),]
 
-item213.all.vintages <- proportions_one_group_within_row(CustomerLevelData = item213.data
+item213.data$HousingType <- item213.data$HomeType
+item213.all.vintages <- proportions_one_group(CustomerLevelData = item213.data
                                              ,valueVariable = 'Number.of.Units'
-                                             ,groupingVariable = 'HomeType'
+                                             ,groupingVariable = 'HousingType'
                                              ,total.name = "All Vintages"
                                              ,columnName = 'HomeYearBuilt_bins_MF'
                                              ,weighted = TRUE
                                              ,two.prop.total = TRUE)
+names(item213.all.vintages)[which(names(item213.all.vintages) == "HousingType")] <- "HomeType"
 item213.all.vintages$HomeType[which(item213.all.vintages$HomeType == "Total")] <- "All Sizes"
 
-item213.all.sizes <- proportions_one_group_within_row(CustomerLevelData = item213.data
+item213.all.sizes <- proportions_one_group(CustomerLevelData = item213.data
                                              ,valueVariable = 'Number.of.Units'
                                              ,groupingVariable = 'HomeYearBuilt_bins_MF'
                                              ,total.name = "All Sizes"
                                              ,columnName = 'HomeType'
                                              ,weighted = TRUE
                                              ,two.prop.total = TRUE)
-item213.all.sizes <- item213.all.sizes[which(colnames(item213.all.sizes) %notin% c("n","N"))]
 item213.all.sizes <- item213.all.sizes[which(item213.all.sizes$HomeYearBuilt_bins_MF != "Total"),]
-item213.sample.sizes <- unique(item213.summary[which(colnames(item213.summary) %in% c("BuildingType", "HomeYearBuilt_bins_MF","n", "N"))])
-item213.all.sizes <- left_join(item213.all.sizes, item213.sample.sizes)
 
 item213.final <- rbind.data.frame(item213.summary, item213.all.vintages, item213.all.sizes, stringsAsFactors = F)
 item213.final$HomeYearBuilt_bins_MF[which(item213.final$HomeYearBuilt_bins_MF == "Total")] <- "All Vintages"
 
 item213.cast <- dcast(setDT(item213.final)
-                      ,formula = BuildingType + HomeYearBuilt_bins_MF + n + N ~ HomeType
-                      ,value.var = c("w.percent", "w.SE", "count", "EB"))
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF~ HomeType
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 colnames(item213.cast)
 item213.table <- data.frame("BuildingType"     = item213.cast$BuildingType
                             ,"Housing.Vintage" = item213.cast$HomeYearBuilt_bins_MF
@@ -125,14 +124,14 @@ item213.table <- data.frame("BuildingType"     = item213.cast$BuildingType
                             ,"Low.Rise.SE"     = item213.cast$`w.SE_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"    = item213.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.SE"     = item213.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.Plus"= NA #item213.cast$
-                            ,"High.Rise.SE"    = NA #item213.cast$
+                            ,"High.Rise.7.Plus"= item213.cast$`w.percent_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.SE"    = item213.cast$`w.SE_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"       = item213.cast$`w.percent_All Sizes`
                             ,"All.Sizes.SE"    = item213.cast$`w.SE_All Sizes`
-                            ,"n"               = item213.cast$n
+                            ,"n"               = item213.cast$`n_All Sizes`
                             ,"Low.Rise.EB"     = item213.cast$`EB_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.EB"     = item213.cast$`EB_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.EB"    = NA #item213.cast$
+                            ,"High.Rise.EB"    = item213.cast$`EB_Apartment Building (More than 6 floors)`
                             )
 # row ordering example code
 levels(item213.table$Housing.Vintage)
@@ -162,13 +161,15 @@ item213.summary <- proportions_two_groups_unweighted(CustomerLevelData = item213
 item213.summary <- item213.summary[which(item213.summary$HomeYearBuilt_bins_MF != "Remove"),]
 item213.summary <- item213.summary[which(item213.summary$HomeType != "Total"),]
 
+item213.data$HousingType <- item213.data$HomeType
 item213.all.vintages <- proportions_one_group(CustomerLevelData = item213.data
                                               ,valueVariable = 'Number.of.Units'
-                                              ,groupingVariable = 'HomeType'
+                                              ,groupingVariable = 'HousingType'
                                               ,total.name = "All Vintages"
                                               ,columnName = 'HomeYearBuilt_bins_MF'
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
+names(item213.all.vintages)[which(names(item213.all.vintages) == "HousingType")] <- "HomeType"
 item213.all.vintages$HomeType[which(item213.all.vintages$HomeType == "Total")] <- "All Sizes"
 
 item213.all.sizes <- proportions_one_group(CustomerLevelData = item213.data
@@ -178,13 +179,14 @@ item213.all.sizes <- proportions_one_group(CustomerLevelData = item213.data
                                            ,columnName = 'HomeType'
                                            ,weighted = FALSE
                                            ,two.prop.total = TRUE)
+item213.all.sizes <- item213.all.sizes[which(item213.all.sizes$HomeYearBuilt_bins_MF != "Total"),]
 
 item213.final <- rbind.data.frame(item213.summary, item213.all.vintages, item213.all.sizes, stringsAsFactors = F)
 item213.final$HomeYearBuilt_bins_MF[which(item213.final$HomeYearBuilt_bins_MF == "Total")] <- "All Vintages"
 
 item213.cast <- dcast(setDT(item213.final)
-                      ,formula = BuildingType + HomeYearBuilt_bins_MF ~ HomeType
-                      ,value.var = c("Percent", "SE", "Count", "n"))
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF~ HomeType
+                      ,value.var = c("Percent", "SE", "n"))
 colnames(item213.cast)
 item213.table <- data.frame("BuildingType" = item213.cast$BuildingType
                             ,"Housing.Vintage" = item213.cast$HomeYearBuilt_bins_MF
@@ -192,8 +194,8 @@ item213.table <- data.frame("BuildingType" = item213.cast$BuildingType
                             ,"Low.Rise.SE"     = item213.cast$`SE_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.4.6"    = item213.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid.Rise.SE"     = item213.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.Plus"= NA #item213.cast$
-                            ,"High.Rise.SE"    = NA #item213.cast$
+                            ,"High.Rise.7.Plus"= item213.cast$`Percent_Apartment Building (More than 6 floors)`
+                            ,"High.Rise.SE"    = item213.cast$`SE_Apartment Building (More than 6 floors)`
                             ,"All.Sizes"       = item213.cast$`Percent_All Sizes`
                             ,"All.Sizes.SE"    = item213.cast$`SE_All Sizes`
                             ,"n"               = item213.cast$`n_All Sizes`

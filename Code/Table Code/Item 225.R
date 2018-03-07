@@ -51,6 +51,8 @@ colnames(item225.dat) <- c("Ownership", "CK_Building_ID")
 
 item225.dat0 <- item225.dat[which(item225.dat$Ownership %notin% c("N/A",NA)),]
 item225.dat1 <- item225.dat0[which(item225.dat0$Ownership != "Unknown"),]
+item225.dat1$Ownership[which(item225.dat1$Ownership %in% c("COOP", "HOA"))] <- "Cooperative"
+item225.dat1$Ownership[which(item225.dat1$Ownership %in% c("LLC"))] <- "Corporation/REIT"
 
 item225.dat2 <- left_join(rbsa.dat.bldg,item225.dat1)
 

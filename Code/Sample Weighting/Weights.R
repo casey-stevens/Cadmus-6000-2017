@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat
+# itemData <- item106.os.merge[-which(colnames(item106.os.merge) %in% c("GPM.Measured.Site","GPM_bins","count"))]
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -205,7 +205,8 @@ weightedData <- function(itemData){
                             ,"HomeYearBuilt_bins_MF"
                             ,"BuildingHeight"
                             ,"ZIPCode"
-                            ,"Utility.Customer.Data"
+                            ,"UnitCounts"
+                            ,"Utility"
                             ,"Region"
                             ,"BPA_vs_IOU"
                             ,"tally")
@@ -389,24 +390,15 @@ popCounts.MH <- summarise(group_by(popCounts.1,
                           ,BuildingType = "Manufactured"
                           ,N.h = sum(MH.pop))
 
-one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
-one.line.bldg.dat$Total.Units.in.Building <- as.numeric(as.character(one.line.bldg.dat$Total.Units.in.Building))
-unit.counts <- summarise(group_by(one.line.bldg.dat, State, Region, Strata.Territory)
-                         ,UnitCounts = sum(Total.Units.in.Building, na.rm = T))
-unit.counts$Region[which(unit.counts$Region == "Idaho")] <- "-"
-unit.counts$Region[grep("west",unit.counts$Region,ignore.case = T)] <- "W"
-unit.counts$Region[grep("east",unit.counts$Region,ignore.case = T)] <- "E"
-unit.counts$Region[grep("puget",unit.counts$Region,ignore.case = T)] <- "PS"
-names(unit.counts)[which(names(unit.counts) == "Strata.Territory")] <- "Territory"
 
 popCounts.MF <- summarise(group_by(popCounts.1, 
                                    State, Region, Territory)
                           ,BuildingType = "Multifamily"
                           ,N.h = sum(MF.pop))
-popCounts.MF <- left_join(popCounts.MF, unit.counts)
-popCounts.MF$N.h <- popCounts.MF$N.h / popCounts.MF$UnitCounts
-"%notin%" <- Negate("%in%")
-popCounts.MF <- popCounts.MF[which(names(popCounts.MF) %notin% c("UnitCounts"))]
+# popCounts.MF <- left_join(popCounts.MF, unit.counts)
+# popCounts.MF$N.h <- popCounts.MF$N.h / popCounts.MF$UnitCounts
+# "%notin%" <- Negate("%in%")
+# popCounts.MF <- popCounts.MF[which(names(popCounts.MF) %notin% c("UnitCounts"))]
 
 
 #############################################################################################
@@ -448,6 +440,8 @@ samp.dat.MH <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactur
 samp.dat.MF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),]
                          , total.counts.MF)
 
+
+
 samp.dat.final <- unique(rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F))
 samp.dat.final <- samp.dat.final[which(!is.na(samp.dat.final$N.h)),]
 samp.dat.final <- samp.dat.final[which(names(samp.dat.final) != "Territory.y")]
@@ -470,7 +464,7 @@ missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
 #            append = T, row.names = F, showNA = F)
-
+samp.dat.final$N.h <- samp.dat.final$N.h / samp.dat.final$UnitCounts
 
 return(samp.dat.final)
 

@@ -312,12 +312,38 @@ rbsa.dat8$CK_Cadmus_ID <- trimws(toupper(rbsa.dat8$CK_Cadmus_ID))
 rbsa.dat9 <- rbsa.dat8[which(names(rbsa.dat8) %notin% c("County"))]
 rbsa.dat9$Conditioned.Area <- as.numeric(as.character(rbsa.dat9$Conditioned.Area))
 rbsa.dat9$Conditioned.Volume <- as.numeric(as.character(rbsa.dat9$Conditioned.Volume))
+#fix issues that don't map
+rbsa.dat9$Detailed.Region[which(rbsa.dat9$CK_Cadmus_ID == "BM70609 OS BPA")] <- "Western Oregon"
 
+names(rbsa.dat9)
 rbsa.dat.bldg <- rbsa.dat9[grep("BLDG",rbsa.dat8$CK_Building_ID),]
+
+
+
+
+
+one.line.bldg.dat$Total.Units.in.Building <- as.numeric(as.character(one.line.bldg.dat$Total.Units.in.Building))
+unit.counts <- summarise(group_by(one.line.bldg.dat, PK_BuildingID, State, Region, Strata.Territory)
+                         ,UnitCounts = sum(Total.Units.in.Building, na.rm = T))
+# unit.counts$Region[which(unit.counts$Region == "Idaho")] <- "-"
+# unit.counts$Region[grep("west",unit.counts$Region,ignore.case = T)]  <- "W"
+# unit.counts$Region[grep("east",unit.counts$Region,ignore.case = T)]  <- "E"
+# unit.counts$Region[grep("puget",unit.counts$Region,ignore.case = T)] <- "PS"
+names(unit.counts)[which(names(unit.counts) == "Strata.Territory")]  <- "Territory"
+names(unit.counts)[which(names(unit.counts) == "PK_BuildingID")]  <- "CK_Building_ID"
+names(unit.counts)[which(names(unit.counts) == "Region")]  <- "Detailed.Region"
+unit.counts$State <- trimws(toupper(unit.counts$State))
+unit.counts$Detailed.Region[which(unit.counts$CK_Building_ID == "BLDG_BB5E9419-DB4E-4F2F-88CF-76859AC7B9A1")] <- "Eastern Washington"
+unit.counts$Detailed.Region[which(unit.counts$CK_Building_ID == "BLDG_ACAEBB25-C74E-4DEA-81B4-024954AC257C")] <- "Puget Sound"
+
+
+rbsa.dat10 <- left_join(rbsa.dat9, unit.counts)
+names(rbsa.dat10)
+rbsa.dat10$UnitCounts[which(is.na(rbsa.dat10$UnitCounts))] <- 1
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(rbsa.dat9, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
+write.xlsx(rbsa.dat10, paste(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = ""), sep="/"),
            append = T, row.names = F, showNA = F)
 
 
@@ -342,13 +368,13 @@ write.xlsx(rbsa.dat9, paste(filepathCleanData, paste("clean.rbsa.data", rundate,
 # SCL
 #
 #############################################################################################
-scl.dat <- rbsa.dat9[grep("SCL",rbsa.dat9$Territory, ignore.case = T),]
+scl.dat <- rbsa.dat10[grep("SCL",rbsa.dat10$Territory, ignore.case = T),]
 scl.dat$Category <- "SCL GenPop"
-scl.li.dat <- rbsa.dat9[grep("SCL LI",rbsa.dat9$Territory, ignore.case = T),]
+scl.li.dat <- rbsa.dat10[grep("SCL LI",rbsa.dat10$Territory, ignore.case = T),]
 scl.li.dat$Category <- "SCL LI"
-scl.eh.dat <- rbsa.dat9[grep("SCL EH|SCL LI and EH",rbsa.dat9$Territory, ignore.case = T),]
+scl.eh.dat <- rbsa.dat10[grep("SCL EH|SCL LI and EH",rbsa.dat10$Territory, ignore.case = T),]
 scl.eh.dat$Category <- "SCL EH"
-scl.ps.dat <- rbsa.dat9[grep("puget",rbsa.dat9$Detailed.Region, ignore.case = T),]
+scl.ps.dat <- rbsa.dat10[grep("puget",rbsa.dat10$Detailed.Region, ignore.case = T),]
 scl.ps.dat$Category <- "2017 RBSA PS"
 
 scl.data <- rbind.data.frame(scl.dat
@@ -374,12 +400,12 @@ write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, "
 # SnoPUD
 #
 #############################################################################################
-rbsa.dat9 <- rbsa.dat9[grep("single family",rbsa.dat9$BuildingType, ignore.case = T),]
-snopud.dat <- rbsa.dat9[grep("snopud",rbsa.dat9$Territory, ignore.case = T),]
+rbsa.dat10 <- rbsa.dat10[grep("single family",rbsa.dat10$BuildingType, ignore.case = T),]
+snopud.dat <- rbsa.dat10[grep("snopud",rbsa.dat10$Territory, ignore.case = T),]
 snopud.dat$Category <- "SnoPUD"
-snopud.rbsa.dat <- rbsa.dat9[grep("site", rbsa.dat9$CK_Building_ID, ignore.case = T),]
+snopud.rbsa.dat <- rbsa.dat10[grep("site", rbsa.dat10$CK_Building_ID, ignore.case = T),]
 snopud.rbsa.dat$Category <- "2017 RBSA NW"
-snopud.ps.dat <- rbsa.dat9[grep("puget",rbsa.dat9$Detailed.Region, ignore.case = T),]
+snopud.ps.dat <- rbsa.dat10[grep("puget",rbsa.dat10$Detailed.Region, ignore.case = T),]
 snopud.ps.dat$Category <- "2017 RBSA PS"
 
 snopud.data <- rbind.data.frame(snopud.dat
