@@ -65,13 +65,15 @@ item212.summary <- proportionRowsAndColumns1(CustomerLevelData = item212.data
 item212.summary <- item212.summary[which(item212.summary$HomeYearBuilt_bins_MF != "All Vintages"),]
 item212.summary <- item212.summary[which(item212.summary$HomeType != "Total"),]
 
+item212.data$HousingType <- item212.data$HomeType
 item212.all.vintages <- proportions_one_group(CustomerLevelData = item212.data
                                               ,valueVariable = 'count'
-                                              ,groupingVariable = 'HomeType'
+                                              ,groupingVariable = 'HousingType'
                                               ,total.name = "All Vintages"
                                               ,columnName = 'HomeYearBuilt_bins_MF'
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
+names(item212.all.vintages)[which(names(item212.all.vintages) == "HousingType")] <- "HomeType"
 item212.all.vintages <- item212.all.vintages[which(item212.all.vintages$HomeType != "Total"),]
 
 
@@ -131,15 +133,16 @@ item212.summary <- proportions_two_groups_unweighted(CustomerLevelData = item212
 item212.summary <- item212.summary[which(item212.summary$HomeYearBuilt_bins_MF != "All Vintages"),]
 item212.summary <- item212.summary[which(item212.summary$HomeType != "Total"),]
 
+item212.data$HousingType <- item212.data$HomeType
 item212.all.vintages <- proportions_one_group(CustomerLevelData = item212.data
                                               ,valueVariable = 'count'
-                                              ,groupingVariable = 'HomeType'
+                                              ,groupingVariable = 'HousingType'
                                               ,total.name = "All Vintages"
                                               ,columnName = 'HomeYearBuilt_bins_MF'
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
+names(item212.all.vintages)[which(names(item212.all.vintages) == "HousingType")] <- "HomeType"
 item212.all.vintages <- item212.all.vintages[which(item212.all.vintages$HomeType != "Total"),]
-
 
 item212.all.sizes <- proportions_one_group(CustomerLevelData = item212.data
                                            ,valueVariable = 'count'

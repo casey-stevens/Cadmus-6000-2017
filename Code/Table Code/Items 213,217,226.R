@@ -224,17 +224,17 @@ exportTable(item213.table.MF, "MF", "Table 5", weighted = FALSE)
 #############################################################################################
 #subset to columns needed for analysis
 #from buildings interview data:
-item217.dat <- buildings.interview.dat[which(colnames(buildings.interview.dat) %in% c("CK_Building_ID"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataNumberOfFourPlusBedroomUnitsInAuditedBuilding"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataNumberOfOneBedroomUnitsInAuditedBuilding"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataNumberOfStudioUnitsInAuditedBuilding"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataNumberOfThreeBedroomUnitsInAuditedBuilding"
-                                                                                      ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataNumberOfTwoBedroomUnitsInAuditedBuilding"))]
-names(item217.dat) <- c("Number.of.4.Plus.Bedroom.Units"
+item217.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
+                                                                          ,"Qty.Studio.Units"
+                                                                          ,"Qty.One-Bedroom.Units"
+                                                                          ,"Qty.Two-Bedroom.Units"
+                                                                          ,"Qty.Three-Bedroom.Units"
+                                                                          ,"Qty.Four-Bedroom.Units"))]
+names(item217.dat) <- c("Number.of.Studio.Units"
                         ,"Number.of.1.Bedroom.Units"
-                        ,"Number.of.Studio.Units"
-                        ,"Number.of.3.Bedroom.Units"
                         ,"Number.of.2.Bedroom.Units"
+                        ,"Number.of.3.Bedroom.Units"
+                        ,"Number.of.4.Plus.Bedroom.Units"
                         ,"CK_Building_ID")
 
 item217.dat$Number.of.Studio.Units <- as.numeric(as.character(item217.dat$Number.of.Studio.Units))

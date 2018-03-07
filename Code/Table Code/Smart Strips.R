@@ -124,9 +124,9 @@ tableHH.new.merge <- left_join(os.dat, tableHH.new.sum)
 tableHH.new.final <- tableHH.new.merge[which(tableHH.new.merge$CK_Building_ID == "SCL GenPop"),]
 names(tableHH.new.final)[which(names(tableHH.new.final) == "CK_Building_ID")] <- "Sample"
 #  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(tableHH.new.final, paste(filepathCleaningDocs, "Insulation Exports", paste("Power Strips by Use Type ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(tableHH.new.final, paste(filepathCleaningDocs, "Insulation Exports", paste("Power Strips by Use Type ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 tableHH.2.new.sum <- summarise(group_by(tableHH.new.dat2, CK_Cadmus_ID, CK_Building_ID, Smart.Power.Strip)
                              ,Power.Strips = sum(Ind))
@@ -135,9 +135,9 @@ tableHH.2.new.merge <- left_join(os.dat, tableHH.2.new.sum)
 tableHH.2.new.final <- tableHH.2.new.merge[which(tableHH.2.new.merge$CK_Building_ID == "SCL GenPop"),]
 names(tableHH.2.new.final)[which(names(tableHH.2.new.final) == "CK_Building_ID")] <- "Sample"
 #  Write out confidence/precision info
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(tableHH.2.new.final, paste(filepathCleaningDocs, "Insulation Exports", paste("Power Strips ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(tableHH.2.new.final, paste(filepathCleaningDocs, "Insulation Exports", paste("Power Strips ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 

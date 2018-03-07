@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- tableHH.merge[-which(colnames(tableHH.merge) %in% c("Smart.Strips"))]
+# itemData <- rbsa.dat
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -388,11 +388,25 @@ popCounts.MH <- summarise(group_by(popCounts.1,
                                    State, Region, Territory)
                           ,BuildingType = "Manufactured"
                           ,N.h = sum(MH.pop))
+
+one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat$Total.Units.in.Building <- as.numeric(as.character(one.line.bldg.dat$Total.Units.in.Building))
+unit.counts <- summarise(group_by(one.line.bldg.dat, State, Region, Strata.Territory)
+                         ,UnitCounts = sum(Total.Units.in.Building, na.rm = T))
+unit.counts$Region[which(unit.counts$Region == "Idaho")] <- "-"
+unit.counts$Region[grep("west",unit.counts$Region,ignore.case = T)] <- "W"
+unit.counts$Region[grep("east",unit.counts$Region,ignore.case = T)] <- "E"
+unit.counts$Region[grep("puget",unit.counts$Region,ignore.case = T)] <- "PS"
+names(unit.counts)[which(names(unit.counts) == "Strata.Territory")] <- "Territory"
+
 popCounts.MF <- summarise(group_by(popCounts.1, 
                                    State, Region, Territory)
                           ,BuildingType = "Multifamily"
                           ,N.h = sum(MF.pop))
-
+popCounts.MF <- left_join(popCounts.MF, unit.counts)
+popCounts.MF$N.h <- popCounts.MF$N.h / popCounts.MF$UnitCounts
+"%notin%" <- Negate("%in%")
+popCounts.MF <- popCounts.MF[which(names(popCounts.MF) %notin% c("UnitCounts"))]
 
 
 #############################################################################################

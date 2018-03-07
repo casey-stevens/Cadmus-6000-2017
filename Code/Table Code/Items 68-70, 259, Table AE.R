@@ -662,226 +662,226 @@ exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
 
 
 
-# #############################################################################################
-# # Table AE: DISTRIBUTION OF LAMPS BY TYPE AND ROOM - DIFF BINS
-# #############################################################################################
-# tableAE.merge <- item70.merge
-# tableAE.merge$Clean.Room[which(tableAE.merge$Clean.Room %in% c("Dining Room","Living Room","Family Room"))] <- "Living Room"
-# 
-# ################################################
-# # Adding pop and sample sizes for weights
-# ################################################
-# tableAE.data <- weightedData(tableAE.merge[-which(colnames(tableAE.merge) %in% c("CK_SiteID"               
-#                                                                               ,"Fixture.Qty"
-#                                                                               ,"LIGHTING_BulbsPerFixture"
-#                                                                               ,"Lamp.Category"
-#                                                                               ,"count"
-#                                                                               ,"Lamps"
-#                                                                               ,"Clean.Room"))])
-# tableAE.data <- left_join(tableAE.data, tableAE.merge[which(colnames(tableAE.merge) %in% c("CK_Cadmus_ID"
-#                                                                                        ,"CK_SiteID"               
-#                                                                                        ,"Fixture.Qty"
-#                                                                                        ,"LIGHTING_BulbsPerFixture"
-#                                                                                        ,"Lamp.Category"
-#                                                                                        ,"count"
-#                                                                                        ,"Lamps"
-#                                                                                        ,"Clean.Room"))])
-# 
-# 
-# #######################
-# # Weighted Analysis
-# #######################
-# tableAE.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAE.data
-#                                             ,valueVariable    = 'Lamps'
-#                                             ,columnVariable   = 'Clean.Room'
-#                                             ,rowVariable      = 'Lamp.Category'
-#                                             ,aggregateColumnName = "All Room Types")
-# tableAE.summary <- tableAE.summary[which(tableAE.summary$Clean.Room != "All Room Types"),]
-# # tableAE.summary <- tableAE.summary[which(colnames(tableAE.summary)     != "n")]
-# # colnames(tableAE.summary)[which(colnames(tableAE.summary) == "n_hj")] <- "n"
-# 
-# tableAE.all.room.types <- proportions_one_group(CustomerLevelData = tableAE.data
-#                                                ,valueVariable = 'Lamps'
-#                                                ,groupingVariable = "Lamp.Category"
-#                                                ,total.name = "All Room Types"
-#                                                ,columnName = "Clean.Room"
-#                                                ,weighted = TRUE
-#                                                ,two.prop.total = TRUE)
-# tableAE.all.room.types$Lamp.Category[which(tableAE.all.room.types$Lamp.Category == "Total")] <- "All Categories"
-# 
-# tableAE.samplesize <- proportions_one_group(CustomerLevelData = tableAE.data
-#                                            ,valueVariable = 'Lamps'
-#                                            ,groupingVariable = 'Clean.Room'
-#                                            ,total.name = 'All Categories'
-#                                            ,columnName = 'Lamp.Category'
-#                                            ,weighted = TRUE
-#                                            ,two.prop.total = TRUE)
-# tableAE.samplesize <- tableAE.samplesize[which(tableAE.samplesize$Clean.Room != "Total"),]
-# 
-# tableAE.final <- rbind.data.frame(tableAE.summary, tableAE.all.room.types, tableAE.samplesize, stringsAsFactors = F)
-# 
-# tableAE.cast <- dcast(setDT(tableAE.final)
-#                      , formula = BuildingType + Clean.Room ~ Lamp.Category
-#                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-# 
-# tableAE.table <- data.frame("BuildingType"                  = tableAE.cast$BuildingType
-#                            ,"Room.Type"                    = tableAE.cast$Clean.Room
-#                            ,"Percent_CFL"                  = tableAE.cast$`w.percent_Compact Fluorescent`
-#                            ,"SE_CFL"                       = tableAE.cast$`w.SE_Compact Fluorescent`
-#                            # ,"n_CFL"                        = tableAE.cast$`n_Compact Fluorescent`
-#                            ,"Percent_Halogen"              = tableAE.cast$w.percent_Halogen
-#                            ,"SE_Halogen"                   = tableAE.cast$w.SE_Halogen
-#                            # ,"n_Halogen"                    = tableAE.cast$n_Halogen
-#                            ,"Percent_Incandescent"         = tableAE.cast$w.percent_Incandescent
-#                            ,"SE_Incandescent"              = tableAE.cast$w.SE_Incandescent
-#                            # ,"n_Incandescent"               = tableAE.cast$n_Incandescent
-#                            ,"Percent_Incandescent.Halogen" = tableAE.cast$`w.percent_Incandescent / Halogen`
-#                            ,"SE_Incandescent.Halogen"      = tableAE.cast$`w.SE_Incandescent / Halogen`
-#                            # ,"n_Incandescent.Halogen"       = tableAE.cast$`n_Incandescent / Halogen`
-#                            ,"Percent_LED"                  = tableAE.cast$`w.percent_Light Emitting Diode`
-#                            ,"SE_LED"                       = tableAE.cast$`w.SE_Light Emitting Diode`
-#                            # ,"n_LED"                        = tableAE.cast$`n_Light Emitting Diode`
-#                            ,"Percent_LF"                   = tableAE.cast$`w.percent_Linear Fluorescent`
-#                            ,"SE_LF"                        = tableAE.cast$`w.SE_Linear Fluorescent`
-#                            # ,"n_LF"                         = tableAE.cast$`n_Linear Fluorescent`
-#                            ,"Percent_Other"                = tableAE.cast$w.percent_Other
-#                            ,"SE_Other"                     = tableAE.cast$w.SE_Other
-#                            # ,"n_Other"                      = tableAE.cast$n_Other
-#                            ,"n"                            = tableAE.cast$`n_All Categories`
-#                            ,"EB_CFL"                       = tableAE.cast$`EB_Compact Fluorescent`
-#                            ,"EB_Halogen"                   = tableAE.cast$EB_Halogen
-#                            ,"EB_Incandescent"              = tableAE.cast$EB_Incandescent
-#                            ,"EB_Incandescent.Halogen"      = tableAE.cast$`EB_Incandescent / Halogen`
-#                            ,"EB_LED"                       = tableAE.cast$`EB_Light Emitting Diode`
-#                            ,"EB_LF"                        = tableAE.cast$`EB_Linear Fluorescent`
-#                            ,"EB_Other"                     = tableAE.cast$EB_Other
-# )
-# 
-# # row ordering example code
-# levels(tableAE.table$Room.Type)
-# rowOrder <- c("Bathroom"
-#               ,"Bedroom"
-#               ,"Closet"
-#               ,"Dining Room"
-#               ,"Family Room"
-#               ,"Garage"
-#               ,"Hall"
-#               ,"Kitchen"
-#               ,"Laundry"
-#               ,"Living Room"
-#               ,"Office"
-#               ,"Other"
-#               ,"Outside"
-#               ,"All Room Types")
-# tableAE.table <- tableAE.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)  
-# tableAE.table <- data.frame(tableAE.table)
-# 
-# 
-# tableAE.final.SF <- tableAE.table[which(tableAE.table$BuildingType == "Single Family")
-#                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
-# tableAE.final.MH <- tableAE.table[which(tableAE.table$BuildingType == "Manufactured")
-#                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
-# tableAE.final.MF <- tableAE.table[which(tableAE.table$BuildingType == "Multifamily")
-#                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
-# 
-# # exportTable(tableAE.final.SF, "SF", "Table AE", weighted = TRUE)
-# exportTable(tableAE.final.MH, "MH", "Table AE", weighted = TRUE)
-# exportTable(tableAE.final.MF, "MF", "Table AE", weighted = TRUE)
-# 
-# 
-# #######################
+#############################################################################################
+# Table AE: DISTRIBUTION OF LAMPS BY TYPE AND ROOM - DIFF BINS
+#############################################################################################
+tableAE.merge <- item70.merge
+tableAE.merge$Clean.Room[which(tableAE.merge$Clean.Room %in% c("Dining Room","Living Room","Family Room"))] <- "Living Room"
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAE.data <- weightedData(tableAE.merge[-which(colnames(tableAE.merge) %in% c("CK_SiteID"
+                                                                              ,"Fixture.Qty"
+                                                                              ,"LIGHTING_BulbsPerFixture"
+                                                                              ,"Lamp.Category"
+                                                                              ,"count"
+                                                                              ,"Lamps"
+                                                                              ,"Clean.Room"))])
+tableAE.data <- left_join(tableAE.data, tableAE.merge[which(colnames(tableAE.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"CK_SiteID"
+                                                                                       ,"Fixture.Qty"
+                                                                                       ,"LIGHTING_BulbsPerFixture"
+                                                                                       ,"Lamp.Category"
+                                                                                       ,"count"
+                                                                                       ,"Lamps"
+                                                                                       ,"Clean.Room"))])
+
+
+#######################
+# Weighted Analysis
+#######################
+tableAE.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAE.data
+                                            ,valueVariable    = 'Lamps'
+                                            ,columnVariable   = 'Clean.Room'
+                                            ,rowVariable      = 'Lamp.Category'
+                                            ,aggregateColumnName = "All Room Types")
+tableAE.summary <- tableAE.summary[which(tableAE.summary$Clean.Room != "All Room Types"),]
+# tableAE.summary <- tableAE.summary[which(colnames(tableAE.summary)     != "n")]
+# colnames(tableAE.summary)[which(colnames(tableAE.summary) == "n_hj")] <- "n"
+
+tableAE.all.room.types <- proportions_one_group(CustomerLevelData = tableAE.data
+                                               ,valueVariable = 'Lamps'
+                                               ,groupingVariable = "Lamp.Category"
+                                               ,total.name = "All Room Types"
+                                               ,columnName = "Clean.Room"
+                                               ,weighted = TRUE
+                                               ,two.prop.total = TRUE)
+tableAE.all.room.types$Lamp.Category[which(tableAE.all.room.types$Lamp.Category == "Total")] <- "All Categories"
+
+tableAE.samplesize <- proportions_one_group(CustomerLevelData = tableAE.data
+                                           ,valueVariable = 'Lamps'
+                                           ,groupingVariable = 'Clean.Room'
+                                           ,total.name = 'All Categories'
+                                           ,columnName = 'Lamp.Category'
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
+tableAE.samplesize <- tableAE.samplesize[which(tableAE.samplesize$Clean.Room != "Total"),]
+
+tableAE.final <- rbind.data.frame(tableAE.summary, tableAE.all.room.types, tableAE.samplesize, stringsAsFactors = F)
+
+tableAE.cast <- dcast(setDT(tableAE.final)
+                     , formula = BuildingType + Clean.Room ~ Lamp.Category
+                     , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+tableAE.table <- data.frame("BuildingType"                  = tableAE.cast$BuildingType
+                           ,"Room.Type"                    = tableAE.cast$Clean.Room
+                           ,"Percent_CFL"                  = tableAE.cast$`w.percent_Compact Fluorescent`
+                           ,"SE_CFL"                       = tableAE.cast$`w.SE_Compact Fluorescent`
+                           # ,"n_CFL"                        = tableAE.cast$`n_Compact Fluorescent`
+                           ,"Percent_Halogen"              = tableAE.cast$w.percent_Halogen
+                           ,"SE_Halogen"                   = tableAE.cast$w.SE_Halogen
+                           # ,"n_Halogen"                    = tableAE.cast$n_Halogen
+                           ,"Percent_Incandescent"         = tableAE.cast$w.percent_Incandescent
+                           ,"SE_Incandescent"              = tableAE.cast$w.SE_Incandescent
+                           # ,"n_Incandescent"               = tableAE.cast$n_Incandescent
+                           ,"Percent_Incandescent.Halogen" = tableAE.cast$`w.percent_Incandescent / Halogen`
+                           ,"SE_Incandescent.Halogen"      = tableAE.cast$`w.SE_Incandescent / Halogen`
+                           # ,"n_Incandescent.Halogen"       = tableAE.cast$`n_Incandescent / Halogen`
+                           ,"Percent_LED"                  = tableAE.cast$`w.percent_Light Emitting Diode`
+                           ,"SE_LED"                       = tableAE.cast$`w.SE_Light Emitting Diode`
+                           # ,"n_LED"                        = tableAE.cast$`n_Light Emitting Diode`
+                           ,"Percent_LF"                   = tableAE.cast$`w.percent_Linear Fluorescent`
+                           ,"SE_LF"                        = tableAE.cast$`w.SE_Linear Fluorescent`
+                           # ,"n_LF"                         = tableAE.cast$`n_Linear Fluorescent`
+                           ,"Percent_Other"                = tableAE.cast$w.percent_Other
+                           ,"SE_Other"                     = tableAE.cast$w.SE_Other
+                           # ,"n_Other"                      = tableAE.cast$n_Other
+                           ,"n"                            = tableAE.cast$`n_All Categories`
+                           ,"EB_CFL"                       = tableAE.cast$`EB_Compact Fluorescent`
+                           ,"EB_Halogen"                   = tableAE.cast$EB_Halogen
+                           ,"EB_Incandescent"              = tableAE.cast$EB_Incandescent
+                           ,"EB_Incandescent.Halogen"      = tableAE.cast$`EB_Incandescent / Halogen`
+                           ,"EB_LED"                       = tableAE.cast$`EB_Light Emitting Diode`
+                           ,"EB_LF"                        = tableAE.cast$`EB_Linear Fluorescent`
+                           ,"EB_Other"                     = tableAE.cast$EB_Other
+)
+
+# row ordering example code
+levels(tableAE.table$Room.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+tableAE.table <- tableAE.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)
+tableAE.table <- data.frame(tableAE.table)
+
+
+tableAE.final.SF <- tableAE.table[which(tableAE.table$BuildingType == "Single Family")
+                                ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
+tableAE.final.MH <- tableAE.table[which(tableAE.table$BuildingType == "Manufactured")
+                                ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
+tableAE.final.MF <- tableAE.table[which(tableAE.table$BuildingType == "Multifamily")
+                                ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
+
+# exportTable(tableAE.final.SF, "SF", "Table AE", weighted = TRUE)
+exportTable(tableAE.final.MH, "MH", "Table AE", weighted = TRUE)
+exportTable(tableAE.final.MF, "MF", "Table AE", weighted = TRUE)
+
+
+#######################
 # # Unweighted Analysis
 # #######################
-# tableAE.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAE.data
-#                                                     ,valueVariable    = 'count'
-#                                                     ,columnVariable   = 'Clean.Room'
-#                                                     ,rowVariable      = 'Lamp.Category'
-#                                                     ,aggregateColumnName = "All Room Types")
-# tableAE.summary <- tableAE.summary[which(tableAE.summary$Clean.Room != "All Room Types"),]
-# 
-# 
-# tableAE.all.room.types <- proportions_one_group(CustomerLevelData = tableAE.data
-#                                                ,valueVariable = 'Lamps'
-#                                                ,groupingVariable = "Lamp.Category"
-#                                                ,total.name = "All Room Types"
-#                                                ,columnName = "Clean.Room"
-#                                                ,weighted = FALSE
-#                                                ,two.prop.total = TRUE)
-# tableAE.all.room.types$Lamp.Category[which(tableAE.all.room.types$Lamp.Category == "Total")] <- "All Categories"
-# 
-# tableAE.samplesize <- proportions_one_group(CustomerLevelData = tableAE.data
-#                                            ,valueVariable = 'Lamps'
-#                                            ,groupingVariable = 'Clean.Room'
-#                                            ,total.name = 'All Categories'
-#                                            ,columnName = 'Lamp.Category'
-#                                            ,weighted = FALSE
-#                                            ,two.prop.total = TRUE)
-# tableAE.samplesize <- tableAE.samplesize[which(tableAE.samplesize$Clean.Room != "Total"),]
-# 
-# tableAE.final <- rbind.data.frame(tableAE.summary, tableAE.all.room.types, tableAE.samplesize, stringsAsFactors = F)
-# 
-# tableAE.cast <- dcast(setDT(tableAE.final)
-#                      , formula = BuildingType + Clean.Room ~ Lamp.Category
-#                      , value.var = c("Percent", "SE", "Count", "n"))
-# 
-# tableAE.table <- data.frame("BuildingType"                  = tableAE.cast$BuildingType
-#                            ,"Room.Type"                    = tableAE.cast$Clean.Room
-#                            ,"Percent_CFL"                  = tableAE.cast$`Percent_Compact Fluorescent`
-#                            ,"SE_CFL"                       = tableAE.cast$`SE_Compact Fluorescent`
-#                            # ,"n_CFL"                        = tableAE.cast$`n_Compact Fluorescent`
-#                            ,"Percent_Halogen"              = tableAE.cast$Percent_Halogen
-#                            ,"SE_Halogen"                   = tableAE.cast$SE_Halogen
-#                            # ,"n_Halogen"                    = tableAE.cast$n_Halogen
-#                            ,"Percent_Incandescent"         = tableAE.cast$Percent_Incandescent
-#                            ,"SE_Incandescent"              = tableAE.cast$SE_Incandescent
-#                            # ,"n_Incandescent"               = tableAE.cast$n_Incandescent
-#                            ,"Percent_Incandescent.Halogen" = tableAE.cast$`Percent_Incandescent / Halogen`
-#                            ,"SE_Incandescent.Halogen"      = tableAE.cast$`SE_Incandescent / Halogen`
-#                            # ,"n_Incandescent.Halogen"       = tableAE.cast$`n_Incandescent / Halogen`
-#                            ,"Percent_LED"                  = tableAE.cast$`Percent_Light Emitting Diode`
-#                            ,"SE_LED"                       = tableAE.cast$`SE_Light Emitting Diode`
-#                            # ,"n_LED"                        = tableAE.cast$`n_Light Emitting Diode`
-#                            ,"Percent_LF"                   = tableAE.cast$`Percent_Linear Fluorescent`
-#                            ,"SE_LF"                        = tableAE.cast$`SE_Linear Fluorescent`
-#                            # ,"n_LF"                         = tableAE.cast$`n_Linear Fluorescent`
-#                            ,"Percent_Other"                = tableAE.cast$Percent_Other
-#                            ,"SE_Other"                     = tableAE.cast$SE_Other
-#                            # ,"n_Other"                      = tableAE.cast$n_Other
-#                            ,"n"                            = tableAE.cast$`n_All Categories`
-# )
-# 
-# 
-# # row ordering example code
-# levels(tableAE.table$Room.Type)
-# rowOrder <- c("Bathroom"
-#               ,"Bedroom"
-#               ,"Closet"
-#               ,"Dining Room"
-#               ,"Family Room"
-#               ,"Garage"
-#               ,"Hall"
-#               ,"Kitchen"
-#               ,"Laundry"
-#               ,"Living Room"
-#               ,"Office"
-#               ,"Other"
-#               ,"Outside"
-#               ,"All Room Types")
-# tableAE.table <- tableAE.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)  
-# tableAE.table <- data.frame(tableAE.table)
-# 
-# 
-# tableAE.final.SF <- tableAE.table[which(tableAE.table$BuildingType == "Single Family")
-#                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
-# tableAE.final.MH <- tableAE.table[which(tableAE.table$BuildingType == "Manufactured")
-#                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
-# tableAE.final.MF <- tableAE.table[which(tableAE.table$BuildingType == "Multifamily")
-#                                 ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
-# 
-# # exportTable(tableAE.final.SF, "SF", "Table AE", weighted = FALSE)
-# exportTable(tableAE.final.MH, "MH", "Table AE", weighted = FALSE)
-# exportTable(tableAE.final.MF, "MF", "Table AE", weighted = FALSE)
-# 
+tableAE.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAE.data
+                                                    ,valueVariable    = 'count'
+                                                    ,columnVariable   = 'Clean.Room'
+                                                    ,rowVariable      = 'Lamp.Category'
+                                                    ,aggregateColumnName = "All Room Types")
+tableAE.summary <- tableAE.summary[which(tableAE.summary$Clean.Room != "All Room Types"),]
+
+
+tableAE.all.room.types <- proportions_one_group(CustomerLevelData = tableAE.data
+                                               ,valueVariable = 'Lamps'
+                                               ,groupingVariable = "Lamp.Category"
+                                               ,total.name = "All Room Types"
+                                               ,columnName = "Clean.Room"
+                                               ,weighted = FALSE
+                                               ,two.prop.total = TRUE)
+tableAE.all.room.types$Lamp.Category[which(tableAE.all.room.types$Lamp.Category == "Total")] <- "All Categories"
+
+tableAE.samplesize <- proportions_one_group(CustomerLevelData = tableAE.data
+                                           ,valueVariable = 'Lamps'
+                                           ,groupingVariable = 'Clean.Room'
+                                           ,total.name = 'All Categories'
+                                           ,columnName = 'Lamp.Category'
+                                           ,weighted = FALSE
+                                           ,two.prop.total = TRUE)
+tableAE.samplesize <- tableAE.samplesize[which(tableAE.samplesize$Clean.Room != "Total"),]
+
+tableAE.final <- rbind.data.frame(tableAE.summary, tableAE.all.room.types, tableAE.samplesize, stringsAsFactors = F)
+
+tableAE.cast <- dcast(setDT(tableAE.final)
+                     , formula = BuildingType + Clean.Room ~ Lamp.Category
+                     , value.var = c("Percent", "SE", "Count", "n"))
+
+tableAE.table <- data.frame("BuildingType"                  = tableAE.cast$BuildingType
+                           ,"Room.Type"                    = tableAE.cast$Clean.Room
+                           ,"Percent_CFL"                  = tableAE.cast$`Percent_Compact Fluorescent`
+                           ,"SE_CFL"                       = tableAE.cast$`SE_Compact Fluorescent`
+                           # ,"n_CFL"                        = tableAE.cast$`n_Compact Fluorescent`
+                           ,"Percent_Halogen"              = tableAE.cast$Percent_Halogen
+                           ,"SE_Halogen"                   = tableAE.cast$SE_Halogen
+                           # ,"n_Halogen"                    = tableAE.cast$n_Halogen
+                           ,"Percent_Incandescent"         = tableAE.cast$Percent_Incandescent
+                           ,"SE_Incandescent"              = tableAE.cast$SE_Incandescent
+                           # ,"n_Incandescent"               = tableAE.cast$n_Incandescent
+                           ,"Percent_Incandescent.Halogen" = tableAE.cast$`Percent_Incandescent / Halogen`
+                           ,"SE_Incandescent.Halogen"      = tableAE.cast$`SE_Incandescent / Halogen`
+                           # ,"n_Incandescent.Halogen"       = tableAE.cast$`n_Incandescent / Halogen`
+                           ,"Percent_LED"                  = tableAE.cast$`Percent_Light Emitting Diode`
+                           ,"SE_LED"                       = tableAE.cast$`SE_Light Emitting Diode`
+                           # ,"n_LED"                        = tableAE.cast$`n_Light Emitting Diode`
+                           ,"Percent_LF"                   = tableAE.cast$`Percent_Linear Fluorescent`
+                           ,"SE_LF"                        = tableAE.cast$`SE_Linear Fluorescent`
+                           # ,"n_LF"                         = tableAE.cast$`n_Linear Fluorescent`
+                           ,"Percent_Other"                = tableAE.cast$Percent_Other
+                           ,"SE_Other"                     = tableAE.cast$SE_Other
+                           # ,"n_Other"                      = tableAE.cast$n_Other
+                           ,"n"                            = tableAE.cast$`n_All Categories`
+)
+
+
+# row ordering example code
+levels(tableAE.table$Room.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+tableAE.table <- tableAE.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)
+tableAE.table <- data.frame(tableAE.table)
+
+
+tableAE.final.SF <- tableAE.table[which(tableAE.table$BuildingType == "Single Family")
+                                ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
+tableAE.final.MH <- tableAE.table[which(tableAE.table$BuildingType == "Manufactured")
+                                ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
+tableAE.final.MF <- tableAE.table[which(tableAE.table$BuildingType == "Multifamily")
+                                ,-which(colnames(tableAE.table) %in% c("BuildingType"))]
+
+# exportTable(tableAE.final.SF, "SF", "Table AE", weighted = FALSE)
+exportTable(tableAE.final.MH, "MH", "Table AE", weighted = FALSE)
+exportTable(tableAE.final.MF, "MF", "Table AE", weighted = FALSE)
+
 
 
 
@@ -1627,3 +1627,220 @@ item70.os.final.SF <- item70.os.table[which(item70.os.table$BuildingType == "Sin
                                 ,-which(colnames(item70.os.table) %in% c("BuildingType"))]
 
 exportTable(item70.os.final.SF, "SF", "Table 77", weighted = FALSE, osIndicator = export.ind, OS = T)
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Table AE: DISTRIBUTION OF LAMPS BY TYPE AND ROOM - DIFF BINS
+#############################################################################################
+tableAE.os.merge <- item70.merge
+tableAE.os.merge$Clean.Room[which(tableAE.os.merge$Clean.Room %in% c("Dining Room","Living Room","Family Room"))] <- "Living Room"
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAE.os.data <- weightedData(tableAE.os.merge[-which(colnames(tableAE.os.merge) %in% c("CK_SiteID"
+                                                                                 ,"Fixture.Qty"
+                                                                                 ,"LIGHTING_BulbsPerFixture"
+                                                                                 ,"Lamp.Category"
+                                                                                 ,"count"
+                                                                                 ,"Lamps"
+                                                                                 ,"Clean.Room"))])
+tableAE.os.data <- left_join(tableAE.os.data, tableAE.os.merge[which(colnames(tableAE.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"CK_SiteID"
+                                                                                           ,"Fixture.Qty"
+                                                                                           ,"LIGHTING_BulbsPerFixture"
+                                                                                           ,"Lamp.Category"
+                                                                                           ,"count"
+                                                                                           ,"Lamps"
+                                                                                           ,"Clean.Room"))])
+
+
+#######################
+# Weighted Analysis
+#######################
+tableAE.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAE.os.data
+                                             ,valueVariable    = 'Lamps'
+                                             ,columnVariable   = 'Clean.Room'
+                                             ,rowVariable      = 'Lamp.Category'
+                                             ,aggregateColumnName = "All Room Types")
+tableAE.os.summary <- tableAE.os.summary[which(tableAE.os.summary$Clean.Room != "All Room Types"),]
+# tableAE.os.summary <- tableAE.os.summary[which(colnames(tableAE.os.summary)     != "n")]
+# colnames(tableAE.os.summary)[which(colnames(tableAE.os.summary) == "n_hj")] <- "n"
+
+tableAE.os.all.room.types <- proportions_one_group(CustomerLevelData = tableAE.os.data
+                                                ,valueVariable = 'Lamps'
+                                                ,groupingVariable = "Lamp.Category"
+                                                ,total.name = "All Room Types"
+                                                ,columnName = "Clean.Room"
+                                                ,weighted = TRUE
+                                                ,two.prop.total = TRUE)
+tableAE.os.all.room.types$Lamp.Category[which(tableAE.os.all.room.types$Lamp.Category == "Total")] <- "All Categories"
+
+tableAE.os.samplesize <- proportions_one_group(CustomerLevelData = tableAE.os.data
+                                            ,valueVariable = 'Lamps'
+                                            ,groupingVariable = 'Clean.Room'
+                                            ,total.name = 'All Categories'
+                                            ,columnName = 'Lamp.Category'
+                                            ,weighted = TRUE
+                                            ,two.prop.total = TRUE)
+tableAE.os.samplesize <- tableAE.os.samplesize[which(tableAE.os.samplesize$Clean.Room != "Total"),]
+
+tableAE.os.final <- rbind.data.frame(tableAE.os.summary, tableAE.os.all.room.types, tableAE.os.samplesize, stringsAsFactors = F)
+
+tableAE.os.cast <- dcast(setDT(tableAE.os.final)
+                      , formula = BuildingType + Clean.Room ~ Lamp.Category
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+tableAE.os.table <- data.frame("BuildingType"                  = tableAE.os.cast$BuildingType
+                            ,"Room.Type"                    = tableAE.os.cast$Clean.Room
+                            ,"Percent_CFL"                  = tableAE.os.cast$`w.percent_Compact Fluorescent`
+                            ,"SE_CFL"                       = tableAE.os.cast$`w.SE_Compact Fluorescent`
+                            # ,"n_CFL"                        = tableAE.os.cast$`n_Compact Fluorescent`
+                            ,"Percent_Halogen"              = tableAE.os.cast$w.percent_Halogen
+                            ,"SE_Halogen"                   = tableAE.os.cast$w.SE_Halogen
+                            # ,"n_Halogen"                    = tableAE.os.cast$n_Halogen
+                            ,"Percent_Incandescent"         = tableAE.os.cast$w.percent_Incandescent
+                            ,"SE_Incandescent"              = tableAE.os.cast$w.SE_Incandescent
+                            # ,"n_Incandescent"               = tableAE.os.cast$n_Incandescent
+                            ,"Percent_Incandescent.Halogen" = tableAE.os.cast$`w.percent_Incandescent / Halogen`
+                            ,"SE_Incandescent.Halogen"      = tableAE.os.cast$`w.SE_Incandescent / Halogen`
+                            # ,"n_Incandescent.Halogen"       = tableAE.os.cast$`n_Incandescent / Halogen`
+                            ,"Percent_LED"                  = tableAE.os.cast$`w.percent_Light Emitting Diode`
+                            ,"SE_LED"                       = tableAE.os.cast$`w.SE_Light Emitting Diode`
+                            # ,"n_LED"                        = tableAE.os.cast$`n_Light Emitting Diode`
+                            ,"Percent_LF"                   = tableAE.os.cast$`w.percent_Linear Fluorescent`
+                            ,"SE_LF"                        = tableAE.os.cast$`w.SE_Linear Fluorescent`
+                            # ,"n_LF"                         = tableAE.os.cast$`n_Linear Fluorescent`
+                            ,"Percent_Other"                = tableAE.os.cast$w.percent_Other
+                            ,"SE_Other"                     = tableAE.os.cast$w.SE_Other
+                            # ,"n_Other"                      = tableAE.os.cast$n_Other
+                            ,"n"                            = tableAE.os.cast$`n_All Categories`
+                            ,"EB_CFL"                       = tableAE.os.cast$`EB_Compact Fluorescent`
+                            ,"EB_Halogen"                   = tableAE.os.cast$EB_Halogen
+                            ,"EB_Incandescent"              = tableAE.os.cast$EB_Incandescent
+                            ,"EB_Incandescent.Halogen"      = tableAE.os.cast$`EB_Incandescent / Halogen`
+                            ,"EB_LED"                       = tableAE.os.cast$`EB_Light Emitting Diode`
+                            ,"EB_LF"                        = tableAE.os.cast$`EB_Linear Fluorescent`
+                            ,"EB_Other"                     = tableAE.os.cast$EB_Other
+)
+
+# row ordering example code
+levels(tableAE.os.table$Room.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+tableAE.os.table <- tableAE.os.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)
+tableAE.os.table <- data.frame(tableAE.os.table)
+
+
+tableAE.os.final.SF <- tableAE.os.table[which(tableAE.os.table$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAE.os.table) %in% c("BuildingType"))]
+
+exportTable(tableAE.os.final.SF, "SF", "Table AE", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
+
+
+#######################
+# # Unweighted Analysis
+# #######################
+tableAE.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAE.os.data
+                                                     ,valueVariable    = 'count'
+                                                     ,columnVariable   = 'Clean.Room'
+                                                     ,rowVariable      = 'Lamp.Category'
+                                                     ,aggregateColumnName = "All Room Types")
+tableAE.os.summary <- tableAE.os.summary[which(tableAE.os.summary$Clean.Room != "All Room Types"),]
+
+
+tableAE.os.all.room.types <- proportions_one_group(CustomerLevelData = tableAE.os.data
+                                                ,valueVariable = 'Lamps'
+                                                ,groupingVariable = "Lamp.Category"
+                                                ,total.name = "All Room Types"
+                                                ,columnName = "Clean.Room"
+                                                ,weighted = FALSE
+                                                ,two.prop.total = TRUE)
+tableAE.os.all.room.types$Lamp.Category[which(tableAE.os.all.room.types$Lamp.Category == "Total")] <- "All Categories"
+
+tableAE.os.samplesize <- proportions_one_group(CustomerLevelData = tableAE.os.data
+                                            ,valueVariable = 'Lamps'
+                                            ,groupingVariable = 'Clean.Room'
+                                            ,total.name = 'All Categories'
+                                            ,columnName = 'Lamp.Category'
+                                            ,weighted = FALSE
+                                            ,two.prop.total = TRUE)
+tableAE.os.samplesize <- tableAE.os.samplesize[which(tableAE.os.samplesize$Clean.Room != "Total"),]
+
+tableAE.os.final <- rbind.data.frame(tableAE.os.summary, tableAE.os.all.room.types, tableAE.os.samplesize, stringsAsFactors = F)
+
+tableAE.os.cast <- dcast(setDT(tableAE.os.final)
+                      , formula = BuildingType + Clean.Room ~ Lamp.Category
+                      , value.var = c("Percent", "SE", "Count", "n"))
+
+tableAE.os.table <- data.frame("BuildingType"                  = tableAE.os.cast$BuildingType
+                            ,"Room.Type"                    = tableAE.os.cast$Clean.Room
+                            ,"Percent_CFL"                  = tableAE.os.cast$`Percent_Compact Fluorescent`
+                            ,"SE_CFL"                       = tableAE.os.cast$`SE_Compact Fluorescent`
+                            # ,"n_CFL"                        = tableAE.os.cast$`n_Compact Fluorescent`
+                            ,"Percent_Halogen"              = tableAE.os.cast$Percent_Halogen
+                            ,"SE_Halogen"                   = tableAE.os.cast$SE_Halogen
+                            # ,"n_Halogen"                    = tableAE.os.cast$n_Halogen
+                            ,"Percent_Incandescent"         = tableAE.os.cast$Percent_Incandescent
+                            ,"SE_Incandescent"              = tableAE.os.cast$SE_Incandescent
+                            # ,"n_Incandescent"               = tableAE.os.cast$n_Incandescent
+                            ,"Percent_Incandescent.Halogen" = tableAE.os.cast$`Percent_Incandescent / Halogen`
+                            ,"SE_Incandescent.Halogen"      = tableAE.os.cast$`SE_Incandescent / Halogen`
+                            # ,"n_Incandescent.Halogen"       = tableAE.os.cast$`n_Incandescent / Halogen`
+                            ,"Percent_LED"                  = tableAE.os.cast$`Percent_Light Emitting Diode`
+                            ,"SE_LED"                       = tableAE.os.cast$`SE_Light Emitting Diode`
+                            # ,"n_LED"                        = tableAE.os.cast$`n_Light Emitting Diode`
+                            ,"Percent_LF"                   = tableAE.os.cast$`Percent_Linear Fluorescent`
+                            ,"SE_LF"                        = tableAE.os.cast$`SE_Linear Fluorescent`
+                            # ,"n_LF"                         = tableAE.os.cast$`n_Linear Fluorescent`
+                            ,"Percent_Other"                = tableAE.os.cast$Percent_Other
+                            ,"SE_Other"                     = tableAE.os.cast$SE_Other
+                            # ,"n_Other"                      = tableAE.os.cast$n_Other
+                            ,"n"                            = tableAE.os.cast$`n_All Categories`
+)
+
+
+# row ordering example code
+levels(tableAE.os.table$Room.Type)
+rowOrder <- c("Bathroom"
+              ,"Bedroom"
+              ,"Closet"
+              ,"Dining Room"
+              ,"Family Room"
+              ,"Garage"
+              ,"Hall"
+              ,"Kitchen"
+              ,"Laundry"
+              ,"Living Room"
+              ,"Office"
+              ,"Other"
+              ,"Outside"
+              ,"All Room Types")
+tableAE.os.table <- tableAE.os.table %>% mutate(Room.Type = factor(Room.Type, levels = rowOrder)) %>% arrange(Room.Type)
+tableAE.os.table <- data.frame(tableAE.os.table)
+
+
+tableAE.os.final.SF <- tableAE.os.table[which(tableAE.os.table$BuildingType == "Single Family")
+                                  ,-which(colnames(tableAE.os.table) %in% c("BuildingType"))]
+
+exportTable(tableAE.os.final.SF, "SF", "Table AE", weighted = FALSE, osIndicator = export.ind, OS = TRUE)
