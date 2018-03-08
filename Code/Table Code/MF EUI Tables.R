@@ -53,10 +53,7 @@ length(which(billing.combined$Average.Unit.kWh.Usage > 0))
 # Did any not merge?
 stopifnot(length(which(is.na(billing.combined$BuildingFlag))) == 0)
 
-billing.combined$UnitsFinal <- 
-  as.numeric(ifelse(test = billing.combined$Unit.Decision == "RBSA", 
-                    yes = billing.combined$Total.Units.in.Building,
-                    no = billing.combined$Unit.Decision))
+billing.combined$UnitsFinal <- billing.combined$Total.Units.in.Building
 
 # Merge on the RBSA file 
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -76,8 +73,9 @@ BillingFinalClean <- BillingFinal[-which(duplicated(BillingFinal$CK_Building_ID)
 ## Should be 361 rows
 item305.dat1 <- BillingFinalClean[which(BillingFinalClean$Average.Unit.kWh.Usage > 0),]
 keep.cols <- 
-  c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+  c( "Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal")
 
@@ -116,9 +114,10 @@ item306.dat2$EUI <-
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
-    "BuildingFlag", "UnitsFinal", "TotalResidentialUsage", "EUI")
+    "BuildingFlag","UnitsFinal", "TotalResidentialUsage", "EUI")
 
 item306.data <- weightedData(item306.dat2[which(colnames(item306.dat2) %notin% c(keep.cols))])
 
@@ -153,7 +152,8 @@ item307.dat1$CommonPerUnit <-
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalCommonUsage", "CommonPerUnit")
 
@@ -190,7 +190,8 @@ item308.dat2$CommonEUI <-
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision", "Total.Units.in.Building", "Total.Residential.Floor.Area",
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
+    "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalCommonUsage", "CommonEUI")
 
@@ -313,7 +314,7 @@ item311.dat2$AvgPerUnit <- item311.dat2$TotalUsage/item311.dat2$UnitsFinal
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage", 
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
     "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalCommonUsage",
@@ -363,7 +364,7 @@ item312.dat2$BuildingEUI <- item312.dat2$TotalUsage/item312.dat2$TotalSqFt
 
 keep.cols <- 
   c("Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage", "Unit.Decision", 
-    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage", 
+    "Common.Decision","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
     "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalCommonUsage",
