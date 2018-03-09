@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -59,7 +59,7 @@ unique(item234.dat$WallType)
 
 item234.dat$WallType[which(item234.dat$WallType == "Unknown Frame")] <- "Other"
 
-item234.merge <- left_join(rbsa.dat, item234.dat)
+item234.merge <- left_join(rbsa.dat.MF, item234.dat)
 item234.merge <- item234.merge[which(!is.na(item234.merge$WallType)),]
 
 ################################################

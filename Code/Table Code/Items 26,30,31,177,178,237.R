@@ -27,13 +27,14 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
 envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
 rvals <- rvals[-nrow(rvals),-ncol(rvals)]
+rvals$Type.of.Insulation <- trimws(tolower(rvals$Type.of.Insulation))
 
 
 
@@ -47,20 +48,20 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
                                                              ,"CK_SiteID"
                                                              ,"PK_Envelope_ID"
-                                                                , "Category"
-                                                                , "Ceiling.Type"
-                                                                , "Ceiling.Sub-Type"
-                                                                , "Ceiling.Area"
-                                                                , "Ceiling.Insulated?"
-                                                                , "Ceiling.Insulation.Type.1"
-                                                                , "Ceiling.Insulation.Thickness.1"
-                                                                , "Ceiling.Insulation.Condition.1"
-                                                                , "Ceiling.Insulation.Type.2"                                                  
-                                                                , "Ceiling.Insulation.Thickness.2"
-                                                                , "Ceiling.Insulation.Condition.2"
-                                                                , "Ceiling.Insulation.Type.3"
-                                                                , "Ceiling.Insulation.Thickness.3"
-                                                                , "Ceiling.Insulation.Condition.3"))]
+                                                             , "Category"
+                                                             , "Ceiling.Type"
+                                                             , "Ceiling.Sub-Type"
+                                                             , "Ceiling.Area"
+                                                             , "Ceiling.Insulated?"
+                                                             , "Ceiling.Insulation.Type.1"
+                                                             , "Ceiling.Insulation.Thickness.1"
+                                                             , "Ceiling.Insulation.Condition.1"
+                                                             , "Ceiling.Insulation.Type.2"                                                  
+                                                             , "Ceiling.Insulation.Thickness.2"
+                                                             , "Ceiling.Insulation.Condition.2"
+                                                             , "Ceiling.Insulation.Type.3"
+                                                             , "Ceiling.Insulation.Thickness.3"
+                                                             , "Ceiling.Insulation.Condition.3"))]
 prep.dat0 <- prep.dat[which(prep.dat$`Ceiling.Insulated?` %in% c("Yes", "No")),]
 prep.dat1.0 <- prep.dat0[which(!(is.na(as.numeric(as.character(prep.dat0$Ceiling.Area))))),]
 prep.dat1.2 <- prep.dat1.0[which(prep.dat1.0$Ceiling.Insulation.Thickness.1  %notin% c("Unknown")),]
@@ -80,6 +81,12 @@ for(i in 1:ncol(prep.dat3)){
 for (i in grep("condition", names(prep.dat3), ignore.case = T)){
   prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("Unknown","N/A"), 1, prep.dat3[,i])
 }
+
+# replace Unknown or NA in Condition columns with 1 (or 100%)
+for (i in grep("insulation.type", names(prep.dat3), ignore.case = T)){
+  prep.dat3[,i] <- trimws(tolower(prep.dat3[,i]))
+}
+
 
 # when Ceiling or slab insulated columns = No, make condition 0%
 prep.dat3$Ceiling.Insulation.Condition.1[which(prep.dat3$`Ceiling.Insulated?` == "No")] <- "0%"
@@ -195,7 +202,7 @@ prep.condition.sub1$total.r.val <- NA
 prep.dat5 <- rbind.data.frame(prep.dat4.5
                               ,prep.condition.sub1
                               , stringsAsFactors = F)
-
+# prep.dat5 <- prep.dat4.5
 prep.dat5$Ceiling.Insulation.Condition.1[which(is.na(prep.dat5$Ceiling.Insulation.Condition.1))] <- 1 
 
 ###########################
@@ -580,7 +587,7 @@ item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
                             ,"EB.R22.R30"           = item177.cast$EB_R22.R30
                             ,"EB.R31.R40"           = item177.cast$EB_R31.R40
                             ,"EB.All.Ceilings"      = item177.cast$`EB_All Ceilings`
-                            )
+)
 
 levels(item177.table$Housing.Vintage)
 rowOrder <- c("Pre 1951"
@@ -658,7 +665,7 @@ item177.table <- data.frame("BuildingType"          = item177.cast$BuildingType
                             ,"Percent.All.Ceilings" = item177.cast$`Percent_All Ceilings`
                             ,"SE.All.Ceilings"      = item177.cast$`SE_All Ceilings`
                             ,"n" = item177.cast$`n_All Ceilings`
-                            )
+)
 
 levels(item177.table$Housing.Vintage)
 rowOrder <- c("Pre 1951"
@@ -782,6 +789,7 @@ prep.dat6 <- left_join(weightedU, Ceiling.unique, by = "CK_SiteID")
 
 #merge weighted u values onto cleaned RBSA data
 prep.dat7 <- left_join(prep.dat6, rbsa.dat.MF, by = c("CK_SiteID" = "CK_Building_ID"))
+prep.dat7 <- prep.dat7[grep("3 or fewer floors", prep.dat7$BuildingTypeXX),]
 item237.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
 
 unique(item237.dat$Ceiling.Type)
@@ -888,6 +896,7 @@ unique(item237.table$Ceiling.Type)
 rowOrder <- c("Attic"
               ,"Roof Deck"
               ,"Sloped / Vaulted (no attic)"
+              ,"Other"
               ,"All Types")
 item237.table <- item237.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)  
 item237.table <- data.frame(item237.table)
@@ -905,10 +914,10 @@ exportTable(item237.table.MF, "MF", "Table 29", weighted = TRUE)
 # Unweighted Analysis
 ################################
 item237.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item237.data
-                                             , valueVariable       = 'count'
-                                             , columnVariable      = 'Ceiling.Type'
-                                             , rowVariable         = 'rvalue.bins'
-                                             , aggregateColumnName = "All Types"
+                                                     , valueVariable       = 'count'
+                                                     , columnVariable      = 'Ceiling.Type'
+                                                     , rowVariable         = 'rvalue.bins'
+                                                     , aggregateColumnName = "All Types"
 )
 item237.summary <- item237.summary[which(item237.summary$Ceiling.Type != "All Types"),]
 
@@ -959,6 +968,7 @@ unique(item237.table$Ceiling.Type)
 rowOrder <- c("Attic"
               ,"Roof Deck"
               ,"Sloped / Vaulted (no attic)"
+              ,"Other"
               ,"All Types")
 item237.table <- item237.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)  
 item237.table <- data.frame(item237.table)
@@ -1036,48 +1046,48 @@ item26.os.merge <- left_join(os.dat, item26.os.dat1)
 item26.os.merge <- item26.os.merge[which(!is.na(item26.os.merge$count)),]
 
 item26.os.data <- weightedData(unique(item26.os.merge[which(colnames(item26.os.merge) %notin% c("aveUval"
-                                                                                                   ,"aveRval"
-                                                                                                   ,"rvalue.bins.SF"
-                                                                                                   ,"count"
-                                                                                                   ,"Ceiling.Type"))]))
+                                                                                                ,"aveRval"
+                                                                                                ,"rvalue.bins.SF"
+                                                                                                ,"count"
+                                                                                                ,"Ceiling.Type"))]))
 item26.os.data <- left_join(item26.os.data, unique(item26.os.merge[which(colnames(item26.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                                       ,"aveUval"
-                                                                                                       ,"aveRval"
-                                                                                                       ,"rvalue.bins.SF"
-                                                                                                       ,"count"
-                                                                                                       ,"Ceiling.Type"))]))
+                                                                                                          ,"aveUval"
+                                                                                                          ,"aveRval"
+                                                                                                          ,"rvalue.bins.SF"
+                                                                                                          ,"count"
+                                                                                                          ,"Ceiling.Type"))]))
 
 ######################
 # Weighted - Single Family
 ######################
 item26.os.summary <- proportionRowsAndColumns1(CustomerLevelData     = item26.os.data
-                                                , valueVariable       = 'count'
-                                                , columnVariable      = 'CK_Building_ID'
-                                                , rowVariable         = 'rvalue.bins.SF'
-                                                , aggregateColumnName = "Remove"
+                                               , valueVariable       = 'count'
+                                               , columnVariable      = 'CK_Building_ID'
+                                               , rowVariable         = 'rvalue.bins.SF'
+                                               , aggregateColumnName = "Remove"
 )
 item26.os.summary <- item26.os.summary[which(item26.os.summary$CK_Building_ID != "Remove"),]
 item26.os.summary <- item26.os.summary[which(item26.os.summary$rvalue.bins.SF != "Total"),]
 
 ## Summary for only "All Insulation Levels"
 item26.os.all.insul.levels <-  proportions_one_group(item26.os.data
-                                                      ,valueVariable    = "count"
-                                                      ,groupingVariable = "CK_Building_ID"
-                                                      ,total.name       = "Total"
-                                                      ,columnName       = "rvalue.bins.SF"
-                                                      ,weighted = TRUE
-                                                      ,two.prop.total = TRUE
+                                                     ,valueVariable    = "count"
+                                                     ,groupingVariable = "CK_Building_ID"
+                                                     ,total.name       = "Total"
+                                                     ,columnName       = "rvalue.bins.SF"
+                                                     ,weighted = TRUE
+                                                     ,two.prop.total = TRUE
 )
 item26.os.all.insul.levels <- item26.os.all.insul.levels[which(item26.os.all.insul.levels$CK_Building_ID != "Total"),]
 
 #merge together!
 item26.os.final <- rbind.data.frame(item26.os.summary
-                                     , item26.os.all.insul.levels
-                                     , stringsAsFactors = F)
+                                    , item26.os.all.insul.levels
+                                    , stringsAsFactors = F)
 
 item26.os.cast <- dcast(setDT(item26.os.final),
-                         formula   = rvalue.bins.SF ~ CK_Building_ID,
-                         value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+                        formula   = rvalue.bins.SF ~ CK_Building_ID,
+                        value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item26.os.cast)
 
 if(os.ind == "scl"){
@@ -1140,29 +1150,29 @@ exportTable(item26.os.table, "SF", "Table 33", weighted = TRUE, osIndicator = ex
 # Unweighted - Single Family
 ######################
 item26.os.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item26.os.data
-                                                        , valueVariable       = 'count'
-                                                        , columnVariable      = 'CK_Building_ID'
-                                                        , rowVariable         = 'rvalue.bins.SF'
-                                                        , aggregateColumnName = "Remove"
+                                                       , valueVariable       = 'count'
+                                                       , columnVariable      = 'CK_Building_ID'
+                                                       , rowVariable         = 'rvalue.bins.SF'
+                                                       , aggregateColumnName = "Remove"
 )
 item26.os.summary <- item26.os.summary[which(item26.os.summary$CK_Building_ID != "Remove"),]
 item26.os.summary <- item26.os.summary[which(item26.os.summary$rvalue.bins.SF != "Total"),]
 
 ## Summary for only "All Insulation Levels"
 item26.os.all.insul.levels <-  proportions_one_group(item26.os.data
-                                                      ,valueVariable    = "count"
-                                                      ,groupingVariable = "CK_Building_ID"
-                                                      ,total.name       = "Total"
-                                                      ,columnName       = "rvalue.bins.SF"
-                                                      ,weighted = FALSE
-                                                      ,two.prop.total = TRUE
+                                                     ,valueVariable    = "count"
+                                                     ,groupingVariable = "CK_Building_ID"
+                                                     ,total.name       = "Total"
+                                                     ,columnName       = "rvalue.bins.SF"
+                                                     ,weighted = FALSE
+                                                     ,two.prop.total = TRUE
 )
 item26.os.all.insul.levels <- item26.os.all.insul.levels[which(item26.os.all.insul.levels$CK_Building_ID != "Total"),]
 
 #merge together!
 item26.os.final <- rbind.data.frame(item26.os.summary
-                                     , item26.os.all.insul.levels
-                                     , stringsAsFactors = F)
+                                    , item26.os.all.insul.levels
+                                    , stringsAsFactors = F)
 
 item26.os.cast <- dcast(setDT(item26.os.final),
                         formula   = rvalue.bins.SF ~ CK_Building_ID,
@@ -1250,11 +1260,11 @@ item30.os.data <- weightedData(item30.os.merge[-which(colnames(item30.os.merge) 
                                                                                        ,"rvalue.bins"
                                                                                        ,"count"))])
 item30.os.data <- left_join(item30.os.data, unique(item30.os.merge[which(colnames(item30.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                                   ,"Ceiling.Type"
-                                                                                                   ,"aveUval"
-                                                                                                   ,"aveRval"
-                                                                                                   ,"rvalue.bins"
-                                                                                                   ,"count"))]))
+                                                                                                          ,"Ceiling.Type"
+                                                                                                          ,"aveUval"
+                                                                                                          ,"aveRval"
+                                                                                                          ,"rvalue.bins"
+                                                                                                          ,"count"))]))
 ##############################
 # Weighted Analysis
 ##############################
@@ -1346,10 +1356,10 @@ exportTable(item30.os.table, "SF", "Table 37", weighted = TRUE, osIndicator = ex
 # Unweighted Analysis
 ##############################
 item30.os.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item30.os.data
-                                               , valueVariable       = 'count'
-                                               , columnVariable      = 'CK_Building_ID'
-                                               , rowVariable         = 'rvalue.bins'
-                                               , aggregateColumnName = "Remove"
+                                                       , valueVariable       = 'count'
+                                                       , columnVariable      = 'CK_Building_ID'
+                                                       , rowVariable         = 'rvalue.bins'
+                                                       , aggregateColumnName = "Remove"
 )
 item30.os.summary <- item30.os.summary[which(item30.os.summary$CK_Building_ID != "Remove"),]
 item30.os.summary <- item30.os.summary[which(item30.os.summary$rvalue.bins != "Total"),]
@@ -1437,20 +1447,20 @@ item31.os.dat1 <- left_join(os.dat, item31.os.dat0)
 item31.os.dat2 <- item31.os.dat1[which(!is.na(item31.os.dat1$uvalue)),]
 
 item31.os.data <- weightedData(item31.os.dat2[-c(grep("Ceiling", colnames(item31.os.dat2),ignore.case = T)
-                                           ,which(colnames(item31.os.dat2) %in% c("Category"
-                                                                               ,"count"
-                                                                               ,"uvalue"
-                                                                               ,"total.r.val"
-                                                                               ,"TMP_ID"
-                                                                               ,"PK_Envelope_ID"
-                                                                               ,"CK_SiteID"
-                                                                               ,"CK_Cadmus_ID.y")))])
+                                                 ,which(colnames(item31.os.dat2) %in% c("Category"
+                                                                                        ,"count"
+                                                                                        ,"uvalue"
+                                                                                        ,"total.r.val"
+                                                                                        ,"TMP_ID"
+                                                                                        ,"PK_Envelope_ID"
+                                                                                        ,"CK_SiteID"
+                                                                                        ,"CK_Cadmus_ID.y")))])
 item31.os.data <- left_join(item31.os.data,unique(item31.os.dat2[c(grep("Ceiling|ceiling", colnames(item31.os.dat2))
-                                                   ,which(colnames(item31.os.dat2) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Category"
-                                                                                       ,"count"
-                                                                                       ,"uvalue"
-                                                                                       ,"total.r.val")))]))
+                                                                   ,which(colnames(item31.os.dat2) %in% c("CK_Cadmus_ID"
+                                                                                                          ,"Category"
+                                                                                                          ,"count"
+                                                                                                          ,"uvalue"
+                                                                                                          ,"total.r.val")))]))
 
 ##############################
 # Weighted Analysis
@@ -1510,10 +1520,10 @@ exportTable(item31.os.table, "SF", "Table 38", weighted = TRUE, osIndicator = ex
 # Unweighted Analysis
 ##############################
 item31.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item31.os.data
-                                             ,valueVariable = 'count'
-                                             ,columnVariable = 'CK_Building_ID'
-                                             ,rowVariable = "Ceiling.Insulation.Thickness.1"
-                                             ,aggregateColumnName = "Remove")
+                                                     ,valueVariable = 'count'
+                                                     ,columnVariable = 'CK_Building_ID'
+                                                     ,rowVariable = "Ceiling.Insulation.Thickness.1"
+                                                     ,aggregateColumnName = "Remove")
 item31.os.final <- item31.os.final[which(item31.os.final$CK_Building_ID != "Remove"),]
 
 item31.os.cast <- dcast(setDT(item31.os.final)

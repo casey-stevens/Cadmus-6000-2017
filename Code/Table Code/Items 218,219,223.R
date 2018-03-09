@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -48,27 +48,39 @@ rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 item218.dat <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
                                                           ,"Area"
                                                           ,"Clean.Type"
-                                                          ,"Description"))]
+                                                          ,"Description"
+                                                          ,"Survey.Bedrooms"))]
 
 item218.dat1 <- item218.dat[which(item218.dat$Clean.Type == "Bedroom"),]
 item218.dat1$count <- 1
 item218.dat1$Clean.Type[grep("Studio|studio",item218.dat1$Description)] <- "Studio"
-
+item218.dat1$Survey.Bedrooms <- as.numeric(as.character(item218.dat1$Survey.Bedrooms))
 item218.sum <- summarise(group_by(item218.dat1, CK_Cadmus_ID, Clean.Type)
-                          ,Count = sum(count))
+                          ,Count = sum(count)
+                         ,Survey.Bedrooms = sum(unique(Survey.Bedrooms),na.rm = T))
 
+item218.sum$Final.Bedrooms <- item218.sum$Count
+for(ii in 1:nrow(item218.sum)){
+  if(item218.sum$Survey.Bedrooms[ii] > item218.sum$Final.Bedrooms[ii]){
+    item218.sum$Survey.Bedrooms[ii] <- item218.sum$Final.Bedrooms[ii]
+  }else{
+    item218.sum$Final.Bedrooms[ii]
+  }
+}
 
-item218.sum$Unit.Type <- item218.sum$Clean.Type
-item218.sum$Unit.Type[which(item218.sum$Count == 1 & item218.sum$Clean.Type == "Bedroom")]  <- "One Bedroom"
-item218.sum$Unit.Type[which(item218.sum$Count == 2 & item218.sum$Clean.Type == "Bedroom")]  <- "Two Bedroom"
-item218.sum$Unit.Type[which(item218.sum$Count >= 3 & item218.sum$Clean.Type == "Bedroom")]  <- "Three or More Bedrooms"
+item218.sum$Final.Bedrooms[which(item218.sum$Survey.Bedrooms == 0)] <- 0
+
+item218.sum$Unit.Type <- "Studio"
+item218.sum$Unit.Type[which(item218.sum$Final.Bedrooms == 1 & item218.sum$Clean.Type == "Bedroom")]  <- "One Bedroom"
+item218.sum$Unit.Type[which(item218.sum$Final.Bedrooms == 2 & item218.sum$Clean.Type == "Bedroom")]  <- "Two Bedroom"
+item218.sum$Unit.Type[which(item218.sum$Final.Bedrooms >= 3 & item218.sum$Clean.Type == "Bedroom")]  <- "Three or More Bedrooms"
 unique(item218.sum$Unit.Type)
 
 item218.sum1 <- item218.sum[which(colnames(item218.sum) %in% c("CK_Cadmus_ID", "Unit.Type"))]
 
 item218.dat2 <- left_join(item218.dat, item218.sum1)
 
-item218.dat3 <- left_join(rbsa.dat.site, item218.dat2)
+item218.dat3 <- left_join(rbsa.dat.bldg, item218.dat2)
 item218.dat3 <- item218.dat3[which(!(is.na(item218.dat3$HomeYearBuilt_MF))),]
 item218.dat3 <- item218.dat3[which(!(is.na(item218.dat3$Unit.Type))),]
 #subset to only MF sites
@@ -83,7 +95,7 @@ item218.SITE <- summarise(group_by(item218.dat4, CK_Cadmus_ID, HomeYearBuilt_MF,
                                ,SiteArea = sum(Area, na.rm = T))
 which(duplicated(item218.SITE$CK_Cadmus_ID))
 
-item218.merge <- left_join(rbsa.dat.site, item218.SITE)
+item218.merge <- left_join(rbsa.dat.bldg, item218.SITE)
 item218.merge <- item218.merge[which(!is.na(item218.merge$SiteArea)),]
 
 

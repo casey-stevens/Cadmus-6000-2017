@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -155,8 +155,12 @@ colnames(item278.dat4)[which(colnames(item278.dat4) == "CK_Cadmus_ID.x")] <- "CK
 
 #remove NA building interview info
 item278.dat5 <- item278.dat4[which(!(item278.dat4$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership %in% c(NA, "Unknown","N/A"))),]
+item278.dat5$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership[which(item278.dat5$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership %in% c("COOP", "HOA"))] <- "Cooperative"
+item278.dat5$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership[which(item278.dat5$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership %in% c("LLC"))] <- "Corporation/REIT"
+unique(item278.dat5$INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership)
 
 item278.dat6 <- left_join(item278.dat5, item278.dat3)
+item278.dat6 <- item278.dat6[grep("3 or fewer floors", item278.dat6$BuildingTypeXX, ignore.case = T),]
 item278.dat7 <- item278.dat6[which(item278.dat6$BuildingType == "Multifamily"),]
 
 item278.merge <- item278.dat7

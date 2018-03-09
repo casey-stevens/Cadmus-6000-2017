@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -248,7 +248,7 @@ item217.dat1 <- item217.dat[which(!is.na(item217.dat$Number.of.Studio.Units)),]
 item217.melt <- melt(item217.dat1, id.vars = "CK_Building_ID")
 names(item217.melt) <- c("CK_Building_ID", "Number.of.Units", "Count")
 
-item217.merge <- left_join(rbsa.dat, item217.melt)
+item217.merge <- left_join(rbsa.dat.bldg, item217.melt)
 item217.merge <- item217.merge[which(!is.na(item217.merge$Number.of.Units)),]
 item217.merge <- item217.merge[which(!is.na(item217.merge$Count)),]
 item217.merge <- item217.merge[which(!is.na(item217.merge$HomeYearBuilt)),]
@@ -412,7 +412,7 @@ item226.dat2$Income.Restriction[which(item226.dat2$Low.Income.Tenants == "Yes")]
 item226.dat2$Tenant.Type <- "No Demographic Restrictions"
 item226.dat2$Tenant.Type[which(item226.dat2$Senior.Tenants == "Yes")] <- "Senior Housing"
 
-item226.merge <- left_join(rbsa.dat, item226.dat2)
+item226.merge <- left_join(rbsa.dat.bldg, item226.dat2)
 item226.merge <- item226.merge[which(!is.na(item226.merge$Tenant.Type)),]
 which(duplicated(item226.merge$CK_Cadmus_ID))
 

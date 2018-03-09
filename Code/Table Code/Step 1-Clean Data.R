@@ -313,7 +313,7 @@ rbsa.dat9 <- rbsa.dat8[which(names(rbsa.dat8) %notin% c("County"))]
 rbsa.dat9$Conditioned.Area <- as.numeric(as.character(rbsa.dat9$Conditioned.Area))
 rbsa.dat9$Conditioned.Volume <- as.numeric(as.character(rbsa.dat9$Conditioned.Volume))
 #fix issues that don't map
-rbsa.dat9$Detailed.Region[which(rbsa.dat9$CK_Cadmus_ID == "BM70609 OS BPA")] <- "Western Oregon"
+# rbsa.dat9$Detailed.Region[which(rbsa.dat9$CK_Cadmus_ID == "BM70609 OS BPA")] <- "Western Oregon"
 
 names(rbsa.dat9)
 rbsa.dat.bldg <- rbsa.dat9[grep("BLDG",rbsa.dat8$CK_Building_ID),]
@@ -323,23 +323,30 @@ rbsa.dat.bldg <- rbsa.dat9[grep("BLDG",rbsa.dat8$CK_Building_ID),]
 
 
 one.line.bldg.dat$Total.Units.in.Building <- as.numeric(as.character(one.line.bldg.dat$Total.Units.in.Building))
-unit.counts <- summarise(group_by(one.line.bldg.dat, PK_BuildingID, State, Region, Strata.Territory)
-                         ,UnitCounts = sum(Total.Units.in.Building, na.rm = T))
-# unit.counts$Region[which(unit.counts$Region == "Idaho")] <- "-"
-# unit.counts$Region[grep("west",unit.counts$Region,ignore.case = T)]  <- "W"
-# unit.counts$Region[grep("east",unit.counts$Region,ignore.case = T)]  <- "E"
-# unit.counts$Region[grep("puget",unit.counts$Region,ignore.case = T)] <- "PS"
+one.line.bldg.dat$Region[which(one.line.bldg.dat$PK_BuildingID == "BLDG_BB5E9419-DB4E-4F2F-88CF-76859AC7B9A1")] <- "Eastern Washington"
+one.line.bldg.dat$Region[which(one.line.bldg.dat$PK_BuildingID == "BLDG_ACAEBB25-C74E-4DEA-81B4-024954AC257C")] <- "Puget Sound"
+one.line.bldg.dat$State <- toupper(one.line.bldg.dat$State)
+unit.counts <- ddply(one.line.bldg.dat, c("State", "Region", "Strata.Territory")
+                     ,summarise
+                     ,UnitCounts = sum(Total.Units.in.Building, na.rm = T))
+
 names(unit.counts)[which(names(unit.counts) == "Strata.Territory")]  <- "Territory"
 names(unit.counts)[which(names(unit.counts) == "PK_BuildingID")]  <- "CK_Building_ID"
 names(unit.counts)[which(names(unit.counts) == "Region")]  <- "Detailed.Region"
+
 unit.counts$State <- trimws(toupper(unit.counts$State))
-unit.counts$Detailed.Region[which(unit.counts$CK_Building_ID == "BLDG_BB5E9419-DB4E-4F2F-88CF-76859AC7B9A1")] <- "Eastern Washington"
-unit.counts$Detailed.Region[which(unit.counts$CK_Building_ID == "BLDG_ACAEBB25-C74E-4DEA-81B4-024954AC257C")] <- "Puget Sound"
 
 
 rbsa.dat10 <- left_join(rbsa.dat9, unit.counts)
 names(rbsa.dat10)
-rbsa.dat10$UnitCounts[which(is.na(rbsa.dat10$UnitCounts))] <- 1
+# rbsa.dat10$UnitCounts[which(is.na(rbsa.dat10$UnitCounts))] <- 1
+rbsa.dat10$UnitCounts[grep("site",rbsa.dat10$CK_Building_ID, ignore.case = T)] <- 1
+length(unique(rbsa.dat10$CK_Cadmus_ID[grep("bldg",rbsa.dat10$CK_Building_ID, ignore.case = T)]))
+
+rbsa.dat10 <- unique(rbsa.dat10)
+rbsa.dat.check <- rbsa.dat10[grep("site", rbsa.dat10$CK_Building_ID, ignore.case = T),]
+stopifnot(which(duplicated(rbsa.dat.check$CK_Cadmus_ID)) == 0)
+
 
 ##  Write out confidence/precision info
 Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")

@@ -16,13 +16,15 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID,ignore.case = T),]
+rbsa.dat.site.MF   <- rbsa.dat.site[grep("multifamily",rbsa.dat.site$BuildingType, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID,ignore.case = T),]
 rbsa.dat.MF   <- rbsa.dat.bldg[grep("multifamily",rbsa.dat.bldg$BuildingType, ignore.case = T),]
 
@@ -60,9 +62,10 @@ item214.merge <- item214.merge[which(!is.na(item214.merge$Ind)),]
 item214.data <- weightedData(item214.merge[which(colnames(item214.merge) %notin% c("Qty.Buildings.in.Complex"
                                                                                    ,"Ind"))])
 
-item214.data <- left_join(item214.data, item214.merge[which(colnames(item214.merge) %in% c("CK_Cadmus_ID"
+item214.data <- left_join(item214.data, unique(item214.merge[which(colnames(item214.merge) %in% c("CK_Cadmus_ID"
+                                                                                                  ,"CK_Building_ID"
                                                                                            ,"Qty.Buildings.in.Complex"
-                                                                                           ,"Ind"))])
+                                                                                           ,"Ind"))]))
 item214.data$count <- 1
 item214.data$Count <- 1
 
@@ -117,10 +120,10 @@ item215.data <- weightedData(item215.merge[which(colnames(item215.merge) %notin%
                                                                                    ,"Total.Units.in.Building"
                                                                                    ,"Ind"))])
 
-item215.data <- left_join(item215.data, item215.merge[which(colnames(item215.merge) %in% c("CK_Cadmus_ID"
+item215.data <- left_join(item215.data, unique(item215.merge[which(colnames(item215.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Qty.Buildings.in.Complex"
                                                                                            ,"Total.Units.in.Building"
-                                                                                           ,"Ind"))])
+                                                                                           ,"Ind"))]))
 item215.data$count <- 1
 item215.data$Count <- item215.data$Total.Units.in.Building
 

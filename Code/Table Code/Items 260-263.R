@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -114,6 +114,7 @@ item260.dat6 <- summarise(group_by(item260.dat5, CK_Cadmus_ID)
 #merge on building data
 item260.dat7 <- left_join(rbsa.dat, item260.dat6)
 item260.merge <- left_join(item260.dat7, item260.buildings3)
+item260.merge <- item260.merge[grep("3 or fewer floors", item260.merge$BuildingTypeXX, ignore.case = T),]
 
 #remove NA
 item260.merge1 <- item260.merge[which(!(is.na(item260.merge$CommonFloorArea))),]
@@ -338,6 +339,7 @@ item263.dat1 <- summarise(group_by(item263.dat, CK_Cadmus_ID, Switch.Type)
                           ,Site.Wattage = sum(Total.Wattage))
 
 item263.merge <- left_join(rbsa.dat, item263.dat1)
+item263.merge <- item263.merge[grep("3 or fewer floors", item263.merge$BuildingTypeXX, ignore.case = T),]
 item263.merge <- item263.merge[grep("BLDG", item263.merge$CK_Building_ID),]
 item263.merge <- item263.merge[which(!is.na(item263.merge$Site.Wattage)),]
 

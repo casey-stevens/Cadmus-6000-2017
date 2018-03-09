@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -94,7 +94,7 @@ item268.merge <- left_join(rbsa.dat, item268.dat5)
 
 #subset to only MF
 item268.merge <- item268.merge[grep("Multifamily", item268.merge$BuildingType),]
-
+item268.merge <- item268.merge[grep("3 or fewer floors", item268.merge$BuildingTypeXX, ignore.case = T),]
 item268.merge$Laundry.Location[which(is.na(item268.merge$Laundry.Location))] <- "None"
 item268.merge$count <- 1
 
@@ -105,8 +105,9 @@ item268.data <- weightedData(item268.merge[which(colnames(item268.merge) %notin%
                                                                                      ,"count"))])
 
 item268.data <- left_join(item268.data, item268.merge[which(colnames(item268.merge) %in% c("CK_Cadmus_ID"
-                                                                                             ,"Laundry.Location"
-                                                                                           ,"count"))])
+                                                                                                  ,"CK_Building_ID"
+                                                                                                  ,"Laundry.Location"
+                                                                                                  ,"count"))])
 
 names(item268.data)
 ######################
@@ -216,6 +217,7 @@ item269.dat2 <- item269.dat2[which(item269.dat2$Washer.Type %notin% c("N/A",NA))
 unique(item269.dat2$Washer.Type)
 item269.dat3 <- item269.dat2[which(item269.dat2$Washer.Type %notin% c("Unknown", NA)),]
 
+item269.dat3 <- item269.dat3[grep("3 or fewer floors", item269.dat3$BuildingTypeXX, ignore.case = T),]
 #####################
 # At this point, code will be needed to bin ages into categories according to previous table
 #####################
@@ -241,7 +243,7 @@ item269.data <- weightedData(item269.dat3[-which(colnames(item269.dat3) %in% c("
                                                                                ,"Washer.Type"
                                                                                ,"Laundry.Location"
                                                                                ,"EquipVintage_bins"))])
-item269.data <- left_join(item269.data, item269.dat3[which(colnames(item269.dat3) %in% c("CK_Cadmus_ID"
+item269.data <- left_join(item269.data, item269.dat3[which(colnames(item269.dat3) %in% c("CK_Building_ID"
                                                                                        ,"Type"
                                                                                        ,"Age"
                                                                                        ,"Washer.Type"
@@ -252,7 +254,7 @@ length(unique(item269.data$CK_Cadmus_ID))
 #######################
 # Weighted Analysis
 #######################
-item269.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item269.data
+item269.summary <- proportionRowsAndColumns1(CustomerLevelData = item269.data
                                                         ,valueVariable = 'count'
                                                         ,columnVariable = "EquipVintage_bins"
                                                         ,rowVariable = "Washer.Type"
@@ -260,7 +262,7 @@ item269.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item
 item269.summary <- item269.summary[which(item269.summary$EquipVintage_bins %notin% c("Total","Remove")),]
 item269.summary <- item269.summary[which(item269.summary$Washer.Type %notin% c("Total","Remove")),]
 
-item269.all.vintages <- proportions_one_group_within_row(CustomerLevelData = item269.data
+item269.all.vintages <- proportions_one_group(CustomerLevelData = item269.data
                                                          ,valueVariable    = 'count'
                                                          ,groupingVariable = 'Washer.Type'
                                                          ,total.name = 'All Vintages'
@@ -269,7 +271,7 @@ item269.all.vintages <- proportions_one_group_within_row(CustomerLevelData = ite
                                                          ,two.prop.total = TRUE)
 item269.all.vintages <- item269.all.vintages[which(item269.all.vintages$Washer.Type %notin% c("Total","Remove")),]
 
-item269.all.types <- proportions_one_group_within_row(CustomerLevelData = item269.data
+item269.all.types <- proportions_one_group(CustomerLevelData = item269.data
                                                           ,valueVariable    = 'count'
                                                           ,groupingVariable = 'EquipVintage_bins'
                                                           ,total.name = 'All Types'
@@ -340,7 +342,7 @@ item269.summary <- proportions_two_groups_unweighted(CustomerLevelData = item269
 item269.summary <- item269.summary[which(item269.summary$EquipVintage_bins %notin% c("Total","Remove")),]
 item269.summary <- item269.summary[which(item269.summary$Washer.Type %notin% c("Total","Remove")),]
 
-item269.all.vintages <- proportions_one_group_within_row(CustomerLevelData = item269.data
+item269.all.vintages <- proportions_one_group(CustomerLevelData = item269.data
                                                          ,valueVariable    = 'count'
                                                          ,groupingVariable = 'Washer.Type'
                                                          ,total.name = 'All Vintages'
@@ -349,7 +351,7 @@ item269.all.vintages <- proportions_one_group_within_row(CustomerLevelData = ite
                                                          ,two.prop.total = TRUE)
 item269.all.vintages <- item269.all.vintages[which(item269.all.vintages$Washer.Type %notin% c("Total","Remove")),]
 
-item269.all.types <- proportions_one_group_within_row(CustomerLevelData = item269.data
+item269.all.types <- proportions_one_group(CustomerLevelData = item269.data
                                                       ,valueVariable    = 'count'
                                                       ,groupingVariable = 'EquipVintage_bins'
                                                       ,total.name = 'All Types'
@@ -416,10 +418,10 @@ interview.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) 
                                                                                      ,"CK_SiteID"
                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
                                                                                     ,""))])
-colnames(interview.dat) <- c("CK_Cadmus_ID", "CK_SiteID", "Clothes.Washes.Per.Week")
+colnames(interview.dat) <- c("CK_Cadmus_ID", "CK_Building_ID", "Clothes.Washes.Per.Week")
 interview.dat1 <- 
 
-item270.dat1 <- left_join(item270.dat, interview.dat, by = "CK_Cadmus_ID")
+item270.dat1 <- left_join(item270.dat, interview.dat, by = c("CK_Cadmus_ID", "CK_Building_ID"))
 
 item270.dat2 <- unique(item270.dat1[which(colnames(item270.dat1) != "CK_Building_ID")])
 item270.dat2$CK_Cadmus_ID[which(duplicated(item270.dat2$CK_Cadmus_ID))]
@@ -432,8 +434,8 @@ item270.sub <- unique(data.frame("CK_Cadmus_ID" = item270.dat1$CK_Cadmus_ID
                           ,"CK_Building_ID" = item270.dat1$CK_Building_ID))
 
 item270.merge <- left_join(item270.sub, item270.dat3)
-item270.merge <- item270.merge[which(!is.na(item270.merge$CK_SiteID)),]
-item270.merge <- item270.merge[-grep("bldg",item270.merge$CK_Building_ID, ignore.case = T),]
+item270.merge <- item270.merge[which(!is.na(item270.merge$Clothes.Washes.Per.Week)),]
+# item270.merge <- item270.merge[-grep("bldg",item270.merge$CK_Building_ID, ignore.case = T),]
 
 # Weighting
 item270.data <- weightedData(item270.merge[-which(colnames(item270.merge) %in% c("Laundry.Location"
@@ -441,12 +443,12 @@ item270.data <- weightedData(item270.merge[-which(colnames(item270.merge) %in% c
                                                                                  ,"count"
                                                                                  ,"CK_SiteID"))])
 
-item270.data <- left_join(item270.data, item270.merge[which(colnames(item270.merge) %in% c("CK_Cadmus_ID"
+item270.data <- left_join(item270.data, unique(item270.merge[which(colnames(item270.merge) %in% c("CK_Cadmus_ID"
+                                                                                                  ,"CK_Building_ID"
                                                                                            ,"Laundry.Location"
                                                                                            ,"Clothes.Washes.Per.Week"
-                                                                                           ,"count"
-                                                                                           ,"CK_SiteID"))])
-
+                                                                                           ,"count"))]))
+item270.data
 #######################
 # weighted Analysis
 #######################
@@ -487,6 +489,8 @@ item271.dat2 <- left_join(rbsa.dat, item271.dat1, by = c("CK_Building_ID" = "CK_
 
 #subset to only MF
 item271.dat3 <- item271.dat2[grep("Multifamily", item271.dat2$BuildingType),]
+item271.dat3 <- item271.dat3[grep("3 or fewer floors", item271.dat3$BuildingTypeXX, ignore.case = T),]
+
 
 #subset to only Dryers
 item271.dat4 <- item271.dat3[which(item271.dat3$Type %in% c("Dryer")),]
@@ -515,7 +519,7 @@ unique(item271.dat5$EquipVintage_bins)
 item271.data <- weightedData(item271.dat5[-which(colnames(item271.dat5) %in% c("Type"
                                                                                ,"Age"
                                                                                ,"EquipVintage_bins"))])
-item271.data <- left_join(item271.data, item271.dat5[which(colnames(item271.dat5) %in% c("CK_Cadmus_ID"
+item271.data <- left_join(item271.data, item271.dat5[which(colnames(item271.dat5) %in% c("CK_Building_ID"
                                                                                          ,"Type"
                                                                                          ,"Age"
                                                                                          ,"EquipVintage_bins"))])

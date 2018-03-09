@@ -23,7 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-
+rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = TRUE),]
 #Read in data for analysis
 rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 #clean cadmus IDs
@@ -46,7 +46,7 @@ item276.dat0 <- item276.dat[grep("BLDG",item276.dat$CK_SiteID),]
 item276.dat00 <- item276.dat0[which(item276.dat0$Clean.Type == "Kitchen"),]
 
 #merge on rooms data with rbsa cleaned data
-item276.dat1 <- left_join(rbsa.dat, item276.dat00, by = c("CK_Building_ID" = "CK_SiteID"))
+item276.dat1 <- left_join(rbsa.dat.bldg, item276.dat00, by = c("CK_Building_ID" = "CK_SiteID"))
 colnames(item276.dat1)[which(colnames(item276.dat1) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 #subset to only multifamily units

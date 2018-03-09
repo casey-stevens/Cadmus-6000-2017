@@ -35,6 +35,7 @@ envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 #Bring in R-value table
 rvals <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "R value table.xlsx"), sheet = 1)
 rvals <- rvals[-nrow(rvals),-ncol(rvals)]
+rvals$Type.of.Insulation <- trimws(tolower(rvals$Type.of.Insulation))
 
 ###################################################################################################################
 #
@@ -50,32 +51,32 @@ rvals <- rvals[-nrow(rvals),-ncol(rvals)]
 #############################################################################################
 #subset envelope data to necessary columns
 prep.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                             ,"CK_SiteID"
-                                                             ,"PK_Envelope_ID"
-                                                               , "Category"
-                                                               , "Floor.Type"
-                                                               , "Floor.Sub-Type"
-                                                               , "Floor.Area"
-                                                               , "Floor.Insulated?"
-                                                               , "Floor.Insulation.Type.1"
-                                                               , "Floor.Insulation.Thickness.1"
-                                                               , "Floor.Insulation.Condition.1"
-                                                               , "Floor.Insulation.Type.2"                                                  
-                                                               , "Floor.Insulation.Thickness.2"
-                                                               , "Floor.Insulation.Condition.2"
-                                                               , "Floor.Insulation.Type.3"
-                                                               , "Floor.Insulation.Thickness.3"
-                                                               , "Floor.Insulation.Condition.3"
-                                                               , "Slab.Insulated?"
-                                                               , "Slab.Insulation.Type.1"
-                                                               , "Slab.Insulation.Thickness.1"
-                                                               , "Slab.Insulation.Condition.1"
-                                                               , "Slab.Insulation.Type.2"                                                  
-                                                               , "Slab.Insulation.Thickness.2"
-                                                               , "Slab.Insulation.Condition.2"
-                                                               , "Slab.Insulation.Type.3"
-                                                               , "Slab.Insulation.Thickness.3"
-                                                               , "Slab.Insulation.Condition.3"
+                                                             , "CK_SiteID"
+                                                             , "PK_Envelope_ID"
+                                                             , "Category"
+                                                             , "Floor.Type"
+                                                             , "Floor.Sub-Type"
+                                                             , "Floor.Area"
+                                                             , "Floor.Insulated?"
+                                                             , "Floor.Insulation.Type.1"
+                                                             , "Floor.Insulation.Thickness.1"
+                                                             , "Floor.Insulation.Condition.1"
+                                                             , "Floor.Insulation.Type.2"                                                  
+                                                             , "Floor.Insulation.Thickness.2"
+                                                             , "Floor.Insulation.Condition.2"
+                                                             , "Floor.Insulation.Type.3"
+                                                             , "Floor.Insulation.Thickness.3"
+                                                             , "Floor.Insulation.Condition.3"
+                                                             , "Slab.Insulated?"
+                                                             , "Slab.Insulation.Type.1"
+                                                             , "Slab.Insulation.Thickness.1"
+                                                             , "Slab.Insulation.Condition.1"
+                                                             , "Slab.Insulation.Type.2"                                                  
+                                                             , "Slab.Insulation.Thickness.2"
+                                                             , "Slab.Insulation.Condition.2"
+                                                             , "Slab.Insulation.Type.3"
+                                                             , "Slab.Insulation.Thickness.3"
+                                                             , "Slab.Insulation.Condition.3"
 ))]
 
 prep.dat0 <- prep.dat[which(prep.dat$`Floor.Insulated?` %in% c("Yes", "No")),]
@@ -103,6 +104,12 @@ for(i in 1:ncol(prep.dat3)){
 for (i in grep("condition", names(prep.dat3), ignore.case = T)){
   prep.dat3[,i] <- ifelse(prep.dat3[,i] %in% c("Unknown","N/A"), 1, prep.dat3[,i])
 }
+
+# replace Unknown or NA in Condition columns with 1 (or 100%)
+for (i in grep("insulation.type", names(prep.dat3), ignore.case = T)){
+  prep.dat3[,i] <- trimws(tolower(prep.dat3[,i]))
+}
+
 
 # when floor or slab insulated columns = No, make condition 0%
 prep.dat3$Floor.Insulation.Condition.1[which(prep.dat3$`Floor.Insulated?` == "No")] <- "0%"
@@ -342,12 +349,12 @@ item23.merge <- left_join(rbsa.dat, item23.dat1)
 item23.merge <- item23.merge[which(!is.na(item23.merge$count)),]
 
 item23.data <- weightedData(unique(item23.merge[which(colnames(item23.merge) %notin% c("Wall.Type"
-                                                                                     ,"aveUval"
-                                                                                     ,"aveRval"
-                                                                                     ,"rvalue.bins.SF"
-                                                                                     ,"rvalue.bins.MH"
-                                                                                     ,"count"
-                                                                                     ,"Floor.Type"))]))
+                                                                                       ,"aveUval"
+                                                                                       ,"aveRval"
+                                                                                       ,"rvalue.bins.SF"
+                                                                                       ,"rvalue.bins.MH"
+                                                                                       ,"count"
+                                                                                       ,"Floor.Type"))]))
 item23.data <- left_join(item23.data, item23.merge[which(colnames(item23.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"Wall.Type"
                                                                                        ,"aveUval"
@@ -428,7 +435,7 @@ item23.table <- data.frame("BuildingType"     = item23.cast$BuildingType
                            ,'EB.R23.R27'      = item23.cast$EB_R23.R27
                            ,'EB.R28.R35'      = item23.cast$EB_R28.R35
                            ,'EB.RGT36'        = item23.cast$EB_RGT36
-                           )
+)
 
 # row ordering example code
 levels(item23.table$Housing.Vintage)
@@ -451,10 +458,10 @@ exportTable(item23.table.SF, "SF", "Table 30", weighted = TRUE)
 # Unweighted - Single Family
 ######################
 item23.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item23.data
-                                            , valueVariable       = 'count'
-                                            , columnVariable      = 'HomeYearBuilt_bins3'
-                                            , rowVariable         = 'rvalue.bins.SF'
-                                            , aggregateColumnName = "All Housing Vintages"
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'HomeYearBuilt_bins3'
+                                                    , rowVariable         = 'rvalue.bins.SF'
+                                                    , aggregateColumnName = "All Housing Vintages"
 )
 item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
 
@@ -598,7 +605,7 @@ item23.table <- data.frame("BuildingType"        = item23.cast$BuildingType
                            ,'EB.R22.R30'         = item23.cast$EB_R22.R30
                            ,'EB.R31.R40'         = item23.cast$EB_R31.R40
                            ,"EB.All.Floors"      = item23.cast$`EB_All Floors`
-                           )
+)
 
 # row ordering example code
 levels(item23.table$Housing.Vintage)
@@ -625,10 +632,10 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
 # Unweighted - Manufactured
 ######################
 item23.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item23.data
-                                            , valueVariable       = 'count'
-                                            , columnVariable      = 'HomeYearBuilt_bins2'
-                                            , rowVariable         = 'rvalue.bins.MH'
-                                            , aggregateColumnName = "All Housing Vintages"
+                                                    , valueVariable       = 'count'
+                                                    , columnVariable      = 'HomeYearBuilt_bins2'
+                                                    , rowVariable         = 'rvalue.bins.MH'
+                                                    , aggregateColumnName = "All Housing Vintages"
 )
 item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins2 != "All Housing Vintages"),]
 item23.summary <- item23.summary[which(item23.summary$rvalue.bins.MH != "Total"),]
@@ -795,6 +802,7 @@ prep.dat6 <- left_join(weightedU, Floor.unique, by = "CK_SiteID")
 
 #merge weighted u values onto cleaned RBSA data
 prep.dat7 <- left_join(prep.dat6, rbsa.dat.MF, by = c("CK_SiteID" = "CK_Building_ID"))
+prep.dat7 <- prep.dat7[grep("3 or fewer floors", prep.dat7$BuildingTypeXX),]
 item239.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
 unique(item239.dat$Floor.Type)
 
@@ -869,8 +877,8 @@ item239.table <- data.frame("BuildingType"                  = item239.cast$Build
                             ,"Floor.Type"                   = item239.cast$Floor.Type
                             ,"Percent.None"                 = item239.cast$w.percent_None
                             ,"SE.None"                      = item239.cast$w.SE_None
-                            ,"Percent.R0.R3"                = NA#item239.cast$w.percent_R0.R3
-                            ,"SE.R0.R3"                     = NA#item239.cast$w.SE_R0.R3
+                            ,"Percent.R0.R3"                = item239.cast$w.percent_R0.R3
+                            ,"SE.R0.R3"                     = item239.cast$w.SE_R0.R3
                             ,"Percent.R4.R10"               = item239.cast$w.percent_R4.R10
                             ,"SE.R4.R10"                    = item239.cast$w.SE_R4.R10
                             ,"Percent.R11.R15"              = item239.cast$w.percent_R11.R15
@@ -883,7 +891,7 @@ item239.table <- data.frame("BuildingType"                  = item239.cast$Build
                             ,"SE.R28.R35"                   = item239.cast$w.SE_R28.R35
                             ,"n"                            = item239.cast$n_Total
                             ,"EB.None"                      = item239.cast$EB_None
-                            ,"EB.R0.R3"                     = NA#item239.cast$EB_R0.R3
+                            ,"EB.R0.R3"                     = item239.cast$EB_R0.R3
                             ,"EB.R4.R10"                    = item239.cast$EB_R4.R10
                             ,"EB.R11.R15"                   = item239.cast$EB_R11.R15
                             ,"EB.R16.R22"                   = item239.cast$EB_R16.R22
@@ -893,6 +901,7 @@ item239.table <- data.frame("BuildingType"                  = item239.cast$Build
 # row ordering example code
 unique(item239.table$Floor.Type)
 rowOrder <- c("Crawlspace"
+              ,"Cantilever"
               ,"Floor over other area"
               ,"Basement"
               ,"All Types")
@@ -912,10 +921,10 @@ exportTable(item239.table.MF, "MF", "Table 31", weighted = TRUE)
 # Unweighted Analysis
 ################################
 item239.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item239.data
-                                             , valueVariable       = 'count'
-                                             , columnVariable      = 'Floor.Type'
-                                             , rowVariable         = 'rvalue.bins'
-                                             , aggregateColumnName = "All Types"
+                                                     , valueVariable       = 'count'
+                                                     , columnVariable      = 'Floor.Type'
+                                                     , rowVariable         = 'rvalue.bins'
+                                                     , aggregateColumnName = "All Types"
 )
 item239.summary <- item239.summary[which(item239.summary$Floor.Type != "All Types"),]
 
@@ -944,8 +953,8 @@ item239.table <- data.frame("BuildingType"                  = item239.cast$Build
                             ,"Floor.Type"                   = item239.cast$Floor.Type
                             ,"Percent.None"                 = item239.cast$Percent_None
                             ,"SE.None"                      = item239.cast$SE_None
-                            ,"Percent.R0.R3"                = NA#item239.cast$Percent_R0.R3
-                            ,"SE.R0.R3"                     = NA#item239.cast$SE_R0.R3
+                            ,"Percent.R0.R3"                = item239.cast$Percent_R0.R3
+                            ,"SE.R0.R3"                     = item239.cast$SE_R0.R3
                             ,"Percent.R4.R10"               = item239.cast$Percent_R4.R10
                             ,"SE.R4.R10"                    = item239.cast$SE_R4.R10
                             ,"Percent.R11.R15"              = item239.cast$Percent_R11.R15
@@ -961,6 +970,7 @@ item239.table <- data.frame("BuildingType"                  = item239.cast$Build
 # row ordering example code
 unique(item239.table$Floor.Type)
 rowOrder <- c("Crawlspace"
+              ,"Cantilever"
               ,"Floor over other area"
               ,"Basement"
               ,"All Types")
@@ -1049,46 +1059,46 @@ item23.os.data <- left_join(item23.os.data, item23.os.merge[which(colnames(item2
 # Weighted - Single Family
 ######################
 item23.os.summary <- proportionRowsAndColumns1(CustomerLevelData     = item23.os.data
-                                            , valueVariable       = 'count'
-                                            , columnVariable      = 'HomeYearBuilt_bins3'
-                                            , rowVariable         = 'rvalue.bins.SF'
-                                            , aggregateColumnName = "All Housing Vintages"
+                                               , valueVariable       = 'count'
+                                               , columnVariable      = 'HomeYearBuilt_bins3'
+                                               , rowVariable         = 'rvalue.bins.SF'
+                                               , aggregateColumnName = "All Housing Vintages"
 )
 item23.os.summary <- item23.os.summary[which(item23.os.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
 
 ## Summary only for "All Frame Types"
 item23.os.all.frame.types <- proportions_one_group(item23.os.data
-                                                ,valueVariable    = "count"
-                                                ,groupingVariable = "rvalue.bins.SF"
-                                                ,total.name       = "All Housing Vintages"
-                                                ,columnName       = "HomeYearBuilt_bins3"
-                                                ,weighted = TRUE
-                                                ,two.prop.total = TRUE
+                                                   ,valueVariable    = "count"
+                                                   ,groupingVariable = "rvalue.bins.SF"
+                                                   ,total.name       = "All Housing Vintages"
+                                                   ,columnName       = "HomeYearBuilt_bins3"
+                                                   ,weighted = TRUE
+                                                   ,two.prop.total = TRUE
 )
 
 ## Summary for only "All Insulation Levels"
 item23.os.all.insul.levels <-  proportions_one_group(item23.os.data
-                                                  ,valueVariable    = "count"
-                                                  ,groupingVariable = "HomeYearBuilt_bins3"
-                                                  ,total.name       = "All Housing Vintages"
-                                                  ,columnName       = "rvalue.bins.SF"
-                                                  ,weighted = TRUE
-                                                  ,two.prop.total = TRUE
+                                                     ,valueVariable    = "count"
+                                                     ,groupingVariable = "HomeYearBuilt_bins3"
+                                                     ,total.name       = "All Housing Vintages"
+                                                     ,columnName       = "rvalue.bins.SF"
+                                                     ,weighted = TRUE
+                                                     ,two.prop.total = TRUE
 )
 
 
 #merge together!
 item23.os.final <- rbind.data.frame(item23.os.summary
-                                 , item23.os.all.frame.types
-                                 , item23.os.all.insul.levels
-                                 , stringsAsFactors = F)
+                                    , item23.os.all.frame.types
+                                    , item23.os.all.insul.levels
+                                    , stringsAsFactors = F)
 item23.os.final <- item23.os.final[which(item23.os.final$rvalue.bins.SF != "Total"),]
 item23.os.final$HomeYearBuilt_bins3[which(item23.os.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 
 item23.os.cast <- dcast(setDT(item23.os.final),
-                     formula   = HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+                        formula   = HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                        value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item23.os.cast)
 item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_bins3
                               ,"Percent.None"    = item23.os.cast$w.percent_None
@@ -1136,45 +1146,45 @@ exportTable(item23.os.table, "SF", "Table 30", weighted = TRUE, osIndicator = ex
 # Unweighted - Single Family
 ######################
 item23.os.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item23.os.data
-                                                    , valueVariable       = 'count'
-                                                    , columnVariable      = 'HomeYearBuilt_bins3'
-                                                    , rowVariable         = 'rvalue.bins.SF'
-                                                    , aggregateColumnName = "All Housing Vintages"
+                                                       , valueVariable       = 'count'
+                                                       , columnVariable      = 'HomeYearBuilt_bins3'
+                                                       , rowVariable         = 'rvalue.bins.SF'
+                                                       , aggregateColumnName = "All Housing Vintages"
 )
 item23.os.summary <- item23.os.summary[which(item23.os.summary$HomeYearBuilt_bins3 != "All Housing Vintages"),]
 
 ## Summary only for "All Frame Types"
 item23.os.all.frame.types <- proportions_one_group(item23.os.data
-                                                ,valueVariable    = "count"
-                                                ,groupingVariable = "rvalue.bins.SF"
-                                                ,total.name       = "All Housing Vintages"
-                                                ,columnName       = "HomeYearBuilt_bins3"
-                                                ,weighted = FALSE
-                                                ,two.prop.total = TRUE
+                                                   ,valueVariable    = "count"
+                                                   ,groupingVariable = "rvalue.bins.SF"
+                                                   ,total.name       = "All Housing Vintages"
+                                                   ,columnName       = "HomeYearBuilt_bins3"
+                                                   ,weighted = FALSE
+                                                   ,two.prop.total = TRUE
 )
 
 ## Summary for only "All Insulation Levels"
 item23.os.all.insul.levels <-  proportions_one_group(item23.os.data
-                                                  ,valueVariable    = "count"
-                                                  ,groupingVariable = "HomeYearBuilt_bins3"
-                                                  ,total.name       = "All Housing Vintages"
-                                                  ,columnName       = "rvalue.bins.SF"
-                                                  ,weighted = FALSE
-                                                  ,two.prop.total = TRUE
+                                                     ,valueVariable    = "count"
+                                                     ,groupingVariable = "HomeYearBuilt_bins3"
+                                                     ,total.name       = "All Housing Vintages"
+                                                     ,columnName       = "rvalue.bins.SF"
+                                                     ,weighted = FALSE
+                                                     ,two.prop.total = TRUE
 )
 
 
 #merge together!
 item23.os.final <- rbind.data.frame(item23.os.summary
-                                 , item23.os.all.frame.types
-                                 , item23.os.all.insul.levels
-                                 , stringsAsFactors = F)
+                                    , item23.os.all.frame.types
+                                    , item23.os.all.insul.levels
+                                    , stringsAsFactors = F)
 item23.os.final <- item23.os.final[which(item23.os.final$rvalue.bins.SF != "Total"),]
 item23.os.final$HomeYearBuilt_bins3[which(item23.os.final$HomeYearBuilt_bins3 == "Total")] <- "All Housing Vintages"
 
 item23.os.cast <- dcast(setDT(item23.os.final),
-                     formula   = HomeYearBuilt_bins3 ~ rvalue.bins.SF,
-                     value.var = c("Percent", "SE", "Count", "n"))
+                        formula   = HomeYearBuilt_bins3 ~ rvalue.bins.SF,
+                        value.var = c("Percent", "SE", "Count", "n"))
 names(item23.os.cast)
 item23.os.table <- data.frame("Housing.Vintage"  = item23.os.cast$HomeYearBuilt_bins3
                               ,"Percent.None"    = item23.os.cast$Percent_None
@@ -1242,46 +1252,46 @@ item23A.os.merge <- left_join(os.dat, item23A.os.dat1)
 item23A.os.merge <- item23A.os.merge[which(!is.na(item23A.os.merge$count)),]
 
 item23A.os.data <- weightedData(unique(item23A.os.merge[which(colnames(item23A.os.merge) %notin% c("aveUval"
-                                                                                                ,"aveRval"
-                                                                                                ,"rvalue.bins.SF"
-                                                                                                ,"count"))]))
-item23A.os.data <- left_join(item23A.os.data, unique(item23A.os.merge[which(colnames(item23A.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                                   ,"aveUval"
                                                                                                    ,"aveRval"
                                                                                                    ,"rvalue.bins.SF"
                                                                                                    ,"count"))]))
+item23A.os.data <- left_join(item23A.os.data, unique(item23A.os.merge[which(colnames(item23A.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                              ,"aveUval"
+                                                                                                              ,"aveRval"
+                                                                                                              ,"rvalue.bins.SF"
+                                                                                                              ,"count"))]))
 
 ######################
 # Weighted - Single Family
 ######################
 item23A.os.summary <- proportionRowsAndColumns1(CustomerLevelData     = item23A.os.data
-                                               , valueVariable       = 'count'
-                                               , columnVariable      = 'CK_Building_ID'
-                                               , rowVariable         = 'rvalue.bins.SF'
-                                               , aggregateColumnName = "Remove"
+                                                , valueVariable       = 'count'
+                                                , columnVariable      = 'CK_Building_ID'
+                                                , rowVariable         = 'rvalue.bins.SF'
+                                                , aggregateColumnName = "Remove"
 )
 item23A.os.summary <- item23A.os.summary[which(item23A.os.summary$CK_Building_ID != "Remove"),]
 item23A.os.summary <- item23A.os.summary[which(item23A.os.summary$rvalue.bins.SF != "Total"),]
 
 ## Summary for only "All Insulation Levels"
 item23A.os.all.insul.levels <-  proportions_one_group(item23A.os.data
-                                                     ,valueVariable    = "count"
-                                                     ,groupingVariable = "CK_Building_ID"
-                                                     ,total.name       = "Total"
-                                                     ,columnName       = "rvalue.bins.SF"
-                                                     ,weighted = TRUE
-                                                     ,two.prop.total = TRUE
+                                                      ,valueVariable    = "count"
+                                                      ,groupingVariable = "CK_Building_ID"
+                                                      ,total.name       = "Total"
+                                                      ,columnName       = "rvalue.bins.SF"
+                                                      ,weighted = TRUE
+                                                      ,two.prop.total = TRUE
 )
 item23A.os.all.insul.levels <- item23A.os.all.insul.levels[which(item23A.os.all.insul.levels$CK_Building_ID != "Total"),]
 
 #merge together!
 item23A.os.final <- rbind.data.frame(item23A.os.summary
-                                    , item23A.os.all.insul.levels
-                                    , stringsAsFactors = F)
+                                     , item23A.os.all.insul.levels
+                                     , stringsAsFactors = F)
 
 item23A.os.cast <- dcast(setDT(item23A.os.final),
-                        formula   = rvalue.bins.SF ~ CK_Building_ID,
-                        value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+                         formula   = rvalue.bins.SF ~ CK_Building_ID,
+                         value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
 names(item23A.os.cast)
 
 if(os.ind == "scl"){
@@ -1368,8 +1378,8 @@ item23A.os.final <- rbind.data.frame(item23A.os.summary
                                      , stringsAsFactors = F)
 
 item23A.os.cast <- dcast(setDT(item23A.os.final),
-                        formula   = rvalue.bins.SF ~ CK_Building_ID,
-                        value.var = c("Percent", "SE", "Count", "n"))
+                         formula   = rvalue.bins.SF ~ CK_Building_ID,
+                         value.var = c("Percent", "SE", "Count", "n"))
 names(item23A.os.cast)
 
 if(os.ind == "scl"){

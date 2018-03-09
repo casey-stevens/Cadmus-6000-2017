@@ -16,14 +16,14 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-
+rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
@@ -41,7 +41,7 @@ item272.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_I
                                                                   ,"SITES_MFB_MFB_MISC_NumberOfElevators"))]
 
 #merge on buildings data with rbsa cleaned data
-item272.dat1 <- left_join(rbsa.dat,item272.dat)
+item272.dat1 <- left_join(rbsa.dat.bldg,item272.dat)
 
 #subset to only multifamily units
 item272.dat2 <- item272.dat1[grep("Multifamily",item272.dat1$BuildingType),]
@@ -151,7 +151,7 @@ unique(item274.dat0$SITES_Pool_POOL_HOT_TUB_PoolType)
 item274.dat1 <- item274.dat0[which(item274.dat0$SITES_Pool_POOL_HOT_TUB_PoolLocation %notin% c("N/A", NA)),]
 
 #merge on buildings data with rbsa cleaned data
-item274.dat2 <- left_join(rbsa.dat, item274.dat1)
+item274.dat2 <- left_join(rbsa.dat.bldg, item274.dat1)
 # item274.dat2 <- item274.dat2[which(!is.na(item274.dat2$SITES_Pool_POOL_HOT_TUB_PoolLocation)),]
 
 #subset to only multifamily units
@@ -290,7 +290,7 @@ exportTable(item274.table, "MF", "Table 66", weighted = FALSE)
 # item275.dat0 <- unique(item275.dat[which(!(item275.dat$SITES_Pool_POOL_HOT_TUB_PoolType %in% c(NA))),])
 # 
 # #merge on buildings data with rbsa cleaned data
-# item275.dat1 <- left_join(item275.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+# item275.dat1 <- left_join(item275.dat0, rbsa.dat.bldg, by = "CK_Cadmus_ID")
 # which(duplicated(item272.dat1$CK_Cadmus_ID))
 # 
 # #subset to only multifamily units

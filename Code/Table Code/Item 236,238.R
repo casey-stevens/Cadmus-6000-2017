@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -122,10 +122,10 @@ item236.merge <- item236.merge[which(!is.na(item236.merge$Ceiling.Area)),]
 item236.data <- weightedData(item236.merge[-which(colnames(item236.merge) %in% c("Ceiling.Type"
                                                                                  ,"Ceiling.Area"
                                                                                  ,"CeilingType"))])
-item236.data <- left_join(item236.data, item236.merge[which(colnames(item236.merge) %in% c("CK_Cadmus_ID"
+item236.data <- left_join(item236.data, unique(item236.merge[which(colnames(item236.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ceiling.Type"
                                                                                            ,"Ceiling.Area"
-                                                                                           ,"CeilingType"))])
+                                                                                           ,"CeilingType"))]))
 
 item236.data$count <- 1
 item236.data$Ceiling.Area <- as.numeric(as.character(item236.data$Ceiling.Area))
@@ -156,7 +156,7 @@ item236.final <- rbind.data.frame(item236.final, item236.all.vintages, stringsAs
 item236.cast <- dcast(setDT(item236.final)
                       ,formula = HomeType ~ CeilingType
                       ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
-
+names(item236.cast)
 item236.final <- data.frame( "Building.Size" = item236.cast$HomeType
                              ,"Attic"        = item236.cast$w.percent_Attic
                              ,"Attic.SE"     = item236.cast$w.SE_Attic
@@ -187,7 +187,7 @@ item236.final <- item236.final[which(item236.final$HomeType != "Remove"),]
 # item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
 
 
-item236.all.vintages <- proportions_one_group_MF(CustomerLevelData = item236.data
+item236.all.vintages <- proportions_one_group(CustomerLevelData = item236.data
                                                  ,valueVariable = 'Ceiling.Area'
                                                  ,groupingVariable = 'CeilingType'
                                                  ,total.name = "All Sizes"
@@ -270,13 +270,13 @@ item238.data <- weightedData(item238.merge[-which(colnames(item238.merge) %in% c
                                                                                  ,"Floor.Type"
                                                                                  ,"Type.of.Area.Below"
                                                                                  ,"Area.Below.Heated?"))])
-item238.data <- left_join(item238.data, item238.merge[which(colnames(item238.merge) %in% c("CK_Cadmus_ID"
+item238.data <- left_join(item238.data, unique(item238.merge[which(colnames(item238.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"FloorType",
                                                                                            "Floor.Sub-Type",
                                                                                            "Floor.Area"
                                                                                            ,"Floor.Type"
                                                                                            ,"Type.of.Area.Below"
-                                                                                           ,"Area.Below.Heated?"))])
+                                                                                           ,"Area.Below.Heated?"))]))
 
 item238.data$count <- 1
 item238.data$Floor.Area <- as.numeric(as.character(item238.data$Floor.Area))

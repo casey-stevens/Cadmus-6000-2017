@@ -17,31 +17,33 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
+mechanical.dat$CK_Building_ID <- trimws(toupper(mechanical.dat$CK_SiteID))
 
 one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
-
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
 #############################################################################################
 #Item 252: DISTRIBUTION OF DHW SERVICE TYPE BY BUILDING SIZE (MF Table 44)
 #############################################################################################
 #subset to columns needed for analysis
-item252.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_BuildingID","Water.Heater.In-Unit?", "Associated.Site.1"))]
-names(item252.dat) <- c("CK_Building_ID","CK_Cadmus_ID","Water.Heater.In.Unit")
+item252.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID","Water.Heater.In-Unit?", "Associated.Site.1"))]
+names(item252.dat) <- c("CK_Cadmus_ID","Water.Heater.In.Unit", "CK_Building_ID")
 which(duplicated(item252.dat$CK_Cadmus_ID))
 
-item252.dat1 <- left_join(rbsa.dat, item252.dat)
+item252.dat1 <- left_join(rbsa.dat.bldg, item252.dat)
 
 #Subset to Multifamily
 item252.dat2 <- item252.dat1[grep("Multifamily", item252.dat1$BuildingType),]
@@ -173,7 +175,7 @@ item254.dat0 <- item254.dat[grep("water heat",item254.dat$System.Type, ignore.ca
 item254.dat1 <- item254.dat0[grep("bldg",item254.dat0$CK_SiteID, ignore.case = T),]
 item254.dat2 <- item254.dat1[which(item254.dat1$DHW.Fuel != "Unknown"),]
 
-item254.dat3 <- left_join(rbsa.dat, item254.dat2, by = c("CK_Building_ID" = "CK_SiteID"))
+item254.dat3 <- left_join(rbsa.dat.bldg, item254.dat2, by = c("CK_Building_ID" = "CK_SiteID"))
 colnames(item254.dat3)[which(colnames(item254.dat3) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 
 #Subset to Multifamily
@@ -209,7 +211,7 @@ item254.summary <- item254.summary[which(item254.summary$DHW.Fuel != "Total"),]
 item254.cast <- dcast(setDT(item254.summary)
                       ,formula = System.Type + n + N ~ DHW.Fuel
                       ,value.var = c("w.percent", "w.SE", "count","n","N","EB"))
-
+names(item254.cast)
 item254.table <- data.frame("System.Type" = item254.cast$System.Type
                             ,"Electric"   = item254.cast$w.percent_Electric
                             ,"Electric.SE" = item254.cast$w.SE_Electric

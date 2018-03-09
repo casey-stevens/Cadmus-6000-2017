@@ -28,7 +28,7 @@ rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.cas
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-mechanical.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, mechanical.export))
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -43,6 +43,7 @@ item279.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
                                                                     ,"CK_SiteID"
                                                                     # ,"Generic"
                                                                     ,"System.Type"
+                                                                    ,"System.Sub-Type"
                                                                     ,"Heating.Fuel"
                                                                     ,"Primary.Heating.System"))]
 
@@ -50,11 +51,20 @@ item279.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_I
 item279.dat0 <- item279.dat[grep("SITE",item279.dat$CK_SiteID),]
 
 #merge on mechanical data with rbsa cleaned data
-item279.dat1 <- left_join(rbsa.dat, item279.dat0, by = "CK_Cadmus_ID")
+item279.dat1 <- left_join(rbsa.dat.site, item279.dat0, by = "CK_Cadmus_ID")
 
 #subset to only multifamily units
 item279.dat2 <- item279.dat1[grep("Multifamily",item279.dat1$BuildingType),]
 item279.dat2 <- item279.dat2[grep("site",item279.dat2$CK_Building_ID,ignore.case = T),]
+
+for (ii in 1:nrow(item279.dat2)){
+  if (item279.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+    item279.dat2$System.Type[ii] <- "Electric Baseboard and Wall Heaters"
+  }
+  if (item279.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+    item279.dat2$System.Type[ii] <- "Plug-In Heaters"
+  }
+}
 
 #subset to only primary heating rows
 item279.dat3 <- unique(item279.dat2[which(item279.dat2$Primary.Heating.System == "Yes"),])
@@ -62,18 +72,18 @@ which(duplicated(item279.dat3$CK_Cadmus_ID))
 item279.dat3$count <- 1
 
 item279.dat3$Heating_System <- item279.dat3$System.Type
-item279.dat3$Heating_System[grep("baseboard",item279.dat3$Heating_System,ignore.case = T)] <- "Electric Baseboard"
+item279.dat3$Heating_System[grep("baseboard",item279.dat3$Heating_System,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item279.dat3$Heating_System[grep("fireplace",item279.dat3$Heating_System,ignore.case = T)] <- "Stove/Fireplace"
 item279.dat3$Heating_System[grep("package",item279.dat3$Heating_System,ignore.case = T)] <- "Packaged HP"
 item279.dat3$Heating_System[grep("ductless",item279.dat3$Heating_System,ignore.case = T)] <- "Mini-split HP"
 item279.dat3$Heating_System[grep("boiler",item279.dat3$Heating_System,ignore.case = T)] <- "Boiler"
-item279.dat3$Heating_System[grep("ceiling",item279.dat3$Heating_System,ignore.case = T)] <- "Ceiling Radiant Heat"
-item279.dat3$Heating_System[grep("plug in",item279.dat3$Heating_System,ignore.case = T)] <- "Plug In Heater"
+item279.dat3$Heating_System[grep("ceiling|radiant|zonal",item279.dat3$Heating_System,ignore.case = T)] <- "Other Zonal Heat"
+item279.dat3$Heating_System[grep("plug-in",item279.dat3$Heating_System,ignore.case = T)] <- "Plug In Heaters"
 unique(item279.dat3$Heating_System)
 
 #remove NA in heating fuel types
 unique(item279.dat3$Heating.Fuel)
-item279.dat4 <- item279.dat3[-grep("other|unknown|hot water",item279.dat3$Heating.Fuel, ignore.case = T),]
+item279.dat4 <- item279.dat3[grep("electric|gas|wood",item279.dat3$Heating.Fuel, ignore.case = T),]
 item279.dat4 <- item279.dat4[-grep("water heat",item279.dat4$Heating_System, ignore.case = T),]
 item279.dat4$Heating.Fuel[which(item279.dat4$Heating.Fuel == "Natural gas")] <- "Natural Gas"
 item279.dat4$Heating.Fuel[grep("wood",item279.dat4$Heating.Fuel, ignore.case = T)] <- "Wood"
@@ -87,6 +97,7 @@ names(item279.dat4)
 ######################################
 item279.data <- weightedData(item279.dat4[which(colnames(item279.dat4) %notin% c("CK_SiteID"
                                                                                  ,"System.Type"
+                                                                                 ,"System.Sub-Type"
                                                                                  ,"Primary.Heating.System"
                                                                                  ,"Heating.Fuel"
                                                                                  ,"count"
@@ -95,6 +106,7 @@ item279.data <- weightedData(item279.dat4[which(colnames(item279.dat4) %notin% c
 item279.data <- left_join(item279.data, item279.dat4[which(colnames(item279.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
                                                                                          ,"System.Type"
+                                                                                         ,"System.Sub-Type"
                                                                                          ,"Primary.Heating.System"
                                                                                          ,"Heating.Fuel"
                                                                                          ,"count"
@@ -157,13 +169,13 @@ levels(item279.table$Primary.Heating.System)
 rowOrder <- c("Air Handler"
               ,"Air Source Heat Pump"
               ,"Boiler"
-              ,"Electric Baseboard"
+              ,"Electric Baseboard and Wall Heaters"
               ,"Furnace"
-              ,"Mini-Split Hp"
+              ,"Mini-Split HP"
               ,"Packaged HP"
-              ,"Radiant Heat"
               ,"Stove/Fireplace"
-              ,"Zonal Heat"
+              ,"Plug In Heaters"
+              ,"Other Zonal Heat"
               ,"All Systems")
 item279.table <- item279.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
 item279.table <- data.frame(item279.table)
@@ -222,13 +234,13 @@ levels(item279.table$Primary.Heating.System)
 rowOrder <- c("Air Handler"
               ,"Air Source Heat Pump"
               ,"Boiler"
-              ,"Electric Baseboard"
+              ,"Electric Baseboard and Wall Heaters"
               ,"Furnace"
-              ,"Mini-Split Hp"
+              ,"Mini-Split HP"
               ,"Packaged HP"
-              ,"Radiant Heat"
               ,"Stove/Fireplace"
-              ,"Zonal Heat"
+              ,"Plug In Heaters"
+              ,"Other Zonal Heat"
               ,"All Systems")
 item279.table <- item279.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
 item279.table <- data.frame(item279.table)
@@ -244,31 +256,20 @@ exportTable(item279.table, "MF", "Table 71", weighted = FALSE)
 #############################################################################################
 #Item 280: DISTRIBUTION OF SECONDARY IN-UNIT HEATING SYSTEMS BY SYSTEM AND FUEL TYPE (MF Table 71)
 #############################################################################################
-item280.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
-                                                                    ,"CK_SiteID"
-                                                                    ,"System.Type"
-                                                                    ,"Heating.Fuel"
-                                                                    ,"Primary.Heating.System"))]
-
-#subset to only buidling level information
-item280.dat0 <- item280.dat[grep("SITE",item280.dat$CK_SiteID),]
-
-#merge on mechanical data with rbsa cleaned data
-item280.dat1 <- left_join(rbsa.dat, item280.dat0, by = "CK_Cadmus_ID")
-
-#subset to only multifamily units
-item280.dat2 <- item280.dat1[grep("Multifamily",item280.dat1$BuildingType),]
-
 #subset to only primary heating rows
-item280.dat3 <- unique(item280.dat2[which(item280.dat2$Primary.Heating.System == "No"),])
+item280.dat3 <- unique(item279.dat2[which(item279.dat2$Primary.Heating.System == "No"),])
 which(duplicated(item280.dat3$CK_Cadmus_ID))
 
+
+
 item280.dat3$Heating_System <- item280.dat3$System.Type
-item280.dat3$Heating_System[grep("baseboard",item280.dat3$Heating_System,ignore.case = T)] <- "Electric Baseboard"
+item280.dat3$Heating_System[grep("baseboard",item280.dat3$Heating_System,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item280.dat3$Heating_System[grep("fireplace",item280.dat3$Heating_System,ignore.case = T)] <- "Stove/Fireplace"
 item280.dat3$Heating_System[grep("package",item280.dat3$Heating_System,ignore.case = T)] <- "Packaged HP"
 item280.dat3$Heating_System[grep("ductless",item280.dat3$Heating_System,ignore.case = T)] <- "Mini-split HP"
-# item280.dat3$Primary.Heating.System[grep("fireplace",item280.dat3$Primary.Heating.System,ignore.case = T)] <- "Stove/Fireplace"
+item280.dat3$Heating_System[grep("boiler",item280.dat3$Heating_System,ignore.case = T)] <- "Boiler"
+item280.dat3$Heating_System[grep("ceiling|radiant|zonal",item280.dat3$Heating_System,ignore.case = T)] <- "Other Zonal Heat"
+item280.dat3$Heating_System[grep("plug-in",item280.dat3$Heating_System,ignore.case = T)] <- "Plug In Heaters"
 unique(item280.dat3$Heating_System)
 
 
@@ -294,6 +295,7 @@ unique(item280.merge$Heating.Fuel)
 ######################################
 item280.data <- weightedData(item280.merge[which(colnames(item280.merge) %notin% c("CK_SiteID"
                                                                                  ,"System.Type"
+                                                                                 ,"System.Sub-Type"
                                                                                  ,"Primary.Heating.System"
                                                                                  ,"Heating.Fuel"
                                                                                  ,"count"
@@ -302,6 +304,7 @@ item280.data <- weightedData(item280.merge[which(colnames(item280.merge) %notin%
 item280.data <- left_join(item280.data, item280.merge[which(colnames(item280.merge) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
                                                                                          ,"System.Type"
+                                                                                         ,"System.Sub-Type"
                                                                                          ,"Primary.Heating.System"
                                                                                          ,"Heating.Fuel"
                                                                                          ,"count"
@@ -347,11 +350,12 @@ item280.table <- data.frame("Primary.Heating.System" = item280.cast$Heating_Syst
                             ,"All.Types.EB"          = item280.cast$`EB_All Types`)
 
 levels(item280.table$Primary.Heating.System)
-rowOrder <- c("Electric Baseboard"
+rowOrder <- c("Electric Baseboard and Wall Heaters"
               ,"Furnace"
-              ,"Mini-Split Hp"
+              ,"Mini-Split HP"
               ,"Stove/Fireplace"
-              ,"Zonal Heat"
+              ,"Other Zonal Heat"
+              ,"Plug In Heaters"
               ,"None"
               ,"All Systems")
 item280.table <- item280.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
@@ -392,11 +396,12 @@ item280.table <- data.frame("Primary.Heating.System" = item280.cast$Heating_Syst
                             ,"n"                     = item280.cast$`n_All Types`)
 
 levels(item280.table$Primary.Heating.System)
-rowOrder <- c("Electric Baseboard"
+rowOrder <- c("Electric Baseboard and Wall Heaters"
               ,"Furnace"
-              ,"Mini-Split Hp"
+              ,"Mini-Split HP"
               ,"Stove/Fireplace"
-              ,"Zonal Heat"
+              ,"Other Zonal Heat"
+              ,"Plug In Heaters"
               ,"None"
               ,"All Systems")
 item280.table <- item280.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
@@ -435,7 +440,7 @@ item281.dat1 <- unique(item281.dat0[which(item281.dat0$Primary.Cooling.System ==
 which(duplicated(item281.dat1$CK_Cadmus_ID))
 
 #merge on mechanical data with rbsa cleaned data
-item281.dat2 <- left_join(rbsa.dat, item281.dat1, by = "CK_Cadmus_ID")
+item281.dat2 <- left_join(rbsa.dat.site, item281.dat1, by = "CK_Cadmus_ID")
 
 #subset to only multifamily units
 item281.dat3 <- item281.dat2[grep("Multifamily",item281.dat2$BuildingType),]
@@ -453,12 +458,11 @@ item281.data <- weightedData(item281.dat3[which(colnames(item281.dat3) %notin% c
                                                                                  ,"Ind"
                                                                                  ,"count"))])
 
-item281.data <- left_join(item281.data, item281.dat3[which(colnames(item281.dat3) %in% c("CK_Cadmus_ID"
-                                                                                         ,"CK_SiteID"
-                                                                                         ,"System.Type"
-                                                                                         ,"Primary.Cooling.System"
-                                                                                         ,"Ind"
-                                                                                         ,"count"))])
+item281.data <- left_join(item281.data, unique(item281.dat3[which(colnames(item281.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                ,"System.Type"
+                                                                                                ,"Primary.Cooling.System"
+                                                                                                ,"Ind"
+                                                                                                ,"count"))]))
 item281.data$Count <- 1
 
 
@@ -514,7 +518,7 @@ item282.dat1 <- unique(item282.dat0[which(item282.dat0$Primary.Cooling.System ==
 which(duplicated(item282.dat1$CK_Cadmus_ID))
 
 #merge on mechanical data with rbsa cleaned data
-item282.dat2 <- left_join(rbsa.dat, item282.dat1, by = "CK_Cadmus_ID")
+item282.dat2 <- left_join(rbsa.dat.site, item282.dat1, by = "CK_Cadmus_ID")
 
 #subset to only multifamily units
 item282.dat3 <- item282.dat2[grep("Multifamily",item282.dat2$BuildingType),]
@@ -583,8 +587,8 @@ rowOrder <- c("Air Source Heat Pump"
               ,"Central AC"
               ,"Evaporative Cooling"
               ,"Mini-split HP"
-              ,"Packaged Ac"
-              ,"Packaged Hp"
+              ,"Packaged AC"
+              ,"Packaged HP"
               ,"Packaged Unit"
               ,"All Systems")
 item282.table <- item282.table %>% mutate(Cooling.Systems = factor(Cooling.Systems, levels = rowOrder)) %>% arrange(Cooling.Systems)  
@@ -628,8 +632,8 @@ rowOrder <- c("Air Source Heat Pump"
               ,"Central AC"
               ,"Evaporative Cooling"
               ,"Mini-split HP"
-              ,"Packaged Ac"
-              ,"Packaged Hp"
+              ,"Packaged AC"
+              ,"Packaged HP"
               ,"Packaged Unit"
               ,"All Systems")
 item282.table <- item282.table %>% mutate(Cooling.Systems = factor(Cooling.Systems, levels = rowOrder)) %>% arrange(Cooling.Systems)  

@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item106.os.merge[-which(colnames(item106.os.merge) %in% c("GPM.Measured.Site","GPM_bins","count"))]
+# itemData <- 
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -464,7 +464,7 @@ missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
 #            append = T, row.names = F, showNA = F)
-samp.dat.final$N.h <- samp.dat.final$N.h / samp.dat.final$UnitCounts
+samp.dat.final$N.h <- samp.dat.final$N.h / samp.dat.final$UnitCounts * samp.dat.final$n.h
 
 return(samp.dat.final)
 

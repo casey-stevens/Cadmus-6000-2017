@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -42,6 +42,7 @@ unique(item247.dat$Common.Area.Primary.Heating.Fuel)
 item247.dat1 <- item247.dat[which(item247.dat$Common.Area.Primary.Heating.Fuel %notin% c("N/A","Unknown")),]
 
 item247.merge <- left_join(rbsa.dat.MF, item247.dat1)
+item247.merge <- item247.merge[grep("3 or fewer floors", item247.merge$BuildingTypeXX, ignore.case = T),]
 item247.merge <- item247.merge[which(item247.merge$Common.Area.Primary.Heating.Fuel %notin% c("N/A",NA)),]
 
 unique(item247.merge$Common.Area.Primary.Heating.System)

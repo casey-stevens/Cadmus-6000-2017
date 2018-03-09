@@ -16,14 +16,14 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-
+rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
@@ -97,7 +97,8 @@ item264.dat6 <- summarise(group_by(item264.dat5, CK_Cadmus_ID, CK_Building_ID, C
                           ,SiteLampCount = sum(Lamps)
                           ,SiteWattage = sum(Total.Wattage))
 
-item264.merge <- left_join(rbsa.dat, item264.dat6)
+item264.merge <- left_join(rbsa.dat.bldg, item264.dat6)
+item264.merge <- item264.merge[grep("3 or fewer floors", item264.merge$BuildingTypeXX, ignore.case = T),]
 item264.merge <- item264.merge[which(!is.na(item264.merge$SiteWattage)),]
 
 ######################################
@@ -340,23 +341,23 @@ item266.cast <- mean_two_groups(CustomerLevelData = item266.data
                                    ,columnAggregate = "All Sizes"
                                    ,rowAggregate = "All Categories")
 item266.cast <- data.frame(item266.cast, stringsAsFactors = F)
-
+names(item266.cast)
 item266.table <- data.frame("Exterior.Category"        = item266.cast$Clean.Room
                             ,"Low_Rise_1.3_Mean"       = item266.cast$Mean_Apartment.Building..3.or.fewer.floors.
                             ,"Low_Rise_SE"             = item266.cast$SE_Apartment.Building..3.or.fewer.floors.
                             ,"Low_Rise_n"              = item266.cast$n_Apartment.Building..3.or.fewer.floors.
-                            ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
-                            ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
-                            ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
-                            ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
+                            # ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
+                            # ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
+                            # ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
+                            # ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
+                            # ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
+                            # ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_Mean"          = item266.cast$Mean_All.Sizes
                             ,"All_Sizes_SE"            = item266.cast$SE_All.Sizes
                             ,"All_Sizes_n"             = item266.cast$n_All.Sizes
                             ,"Low_Rise_EB"             = item266.cast$EB_Apartment.Building..3.or.fewer.floors.
-                            ,"Mid_Rise_EB"             = item266.cast$EB_Apartment.Building..4.to.6.floors.
-                            ,"High_Rise_EB"            = NA#item266.cast$`EB_Apartment Building (More than 6 floors)`
+                            # ,"Mid_Rise_EB"             = item266.cast$EB_Apartment.Building..4.to.6.floors.
+                            # ,"High_Rise_EB"            = NA#item266.cast$`EB_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_EB"            = item266.cast$EB_All.Sizes
                             
 )
@@ -379,12 +380,12 @@ item266.table <- data.frame("Exterior.Category"        = item266.cast$Clean.Room
                             ,"Low_Rise_1.3_Mean"       = item266.cast$Mean_Apartment.Building..3.or.fewer.floors.
                             ,"Low_Rise_SE"             = item266.cast$SE_Apartment.Building..3.or.fewer.floors.
                             ,"Low_Rise_n"              = item266.cast$n_Apartment.Building..3.or.fewer.floors.
-                            ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
-                            ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
-                            ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
-                            ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
+                            # ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
+                            # ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
+                            # ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
+                            # ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
+                            # ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
+                            # ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
                             ,"All_Sizes_Mean"          = item266.cast$Mean_All.Sizes
                             ,"All_Sizes_SE"            = item266.cast$SE_All.Sizes
                             ,"All_Sizes_n"             = item266.cast$n_All.Sizes
@@ -410,6 +411,7 @@ item267.dat6 <- summarise(group_by(item267.dat5, CK_Cadmus_ID, CK_Building_ID, C
                           ,SiteWattage = sum(Total.Wattage))
 
 item267.merge <- left_join(rbsa.dat, item267.dat6)
+item267.merge <- item267.merge[grep("3 or fewer floors", item267.merge$BuildingTypeXX, ignore.case = T),]
 item267.merge <- item267.merge[which(!is.na(item267.merge$SiteWattage)),]
 
 ######################################

@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -161,7 +161,7 @@ summary(item232.dat1$WindowToWallArea)
 
 item232.dat2 <- item232.dat1#[which(item232.dat1$WindowToWallArea <= 1),]
 
-item232.merge <- left_join(rbsa.dat, item232.dat2)
+item232.merge <- left_join(rbsa.dat.MF, item232.dat2)
 item232.merge <- item232.merge[which(!is.na(item232.merge$WindowToWallArea)),]
 # item232.merge <- item232.merge[which(item232.merge$BuildingTypeXX == "Apartment Building (3 or fewer floors)"),]
 ################################################
@@ -235,7 +235,7 @@ summary(item233.dat1$WindowToFloorArea)
 
 item233.dat2 <- item233.dat1[which(item233.dat1$WindowToFloorArea <= 1),]
 
-item233.merge <- left_join(rbsa.dat, item233.dat2)
+item233.merge <- left_join(rbsa.dat.MF, item233.dat2)
 item233.merge <- item233.merge[which(!is.na(item233.merge$WindowToFloorArea)),]
 
 ################################################

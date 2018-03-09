@@ -23,7 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-
+rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
@@ -166,15 +166,17 @@ item303.dat2$Age.Cat[which(item303.dat2$Age < 1990)] <- "Pre 1990"
 item303.dat2$Age.Cat[which(item303.dat2$Age >= 1990 & item303.dat2$Age < 2000)] <- "1990-1999"
 item303.dat2$Age.Cat[which(item303.dat2$Age >= 2000 & item303.dat2$Age < 2005)] <- "2000-2004"
 item303.dat2$Age.Cat[which(item303.dat2$Age >= 2005 & item303.dat2$Age < 2010)] <- "2005-2009"
-item303.dat2$Age.Cat[which(item303.dat2$Age >= 2010)] <- "Post 2009"
+item303.dat2$Age.Cat[which(item303.dat2$Age >= 2010 & item303.dat2$Age < 2015)] <- "2010-2014"
+item303.dat2$Age.Cat[which(item303.dat2$Age >= 2015)] <- "Post 2014"
 #check age category mapping
 unique(item303.dat2$Age.Cat)
 
 ###### create TV screen type categories accoring to previous RBSA table (CRT and other)
-item303.dat2$TV.Screen.Cat <- NA
-item303.dat2$TV.Screen.Cat[grep("crt", item303.dat2$TV.Screen.Type, ignore.case = T)] <- "CRT"
-item303.dat2$TV.Screen.Cat[which(is.na(item303.dat2$TV.Screen.Cat))] <- "Other"
-
+unique(item303.dat2$TV.Screen.Type)
+item303.dat2$TV.Screen.Cat <- item303.dat2$TV.Screen.Type
+item303.dat2$TV.Screen.Cat[grep("tube", item303.dat2$TV.Screen.Type, ignore.case = T)] <- "CRT"
+item303.dat2$TV.Screen.Cat[grep("non-crt|unknown",item303.dat2$TV.Screen.Type, ignore.case = T)] <- "Other"
+unique(item303.dat2$TV.Screen.Cat)
 names(item303.dat2)
 
 item303.dat3 <- item303.dat2[which(!is.na(item303.dat2$Age.Cat)),]
@@ -234,10 +236,19 @@ item303.cast <- dcast(setDT(item303.final)
 item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"CRT_Percent"      = item303.cast$w.percent_CRT
                             ,"CRT_SE"           = item303.cast$w.SE_CRT
+                            ,"LED_Percent"      = item303.cast$w.percent_LED
+                            ,"LED_SE"           = item303.cast$w.SE_LED
+                            ,"LED_LCD_Percent"      = item303.cast$`w.percent_LED LCD`
+                            ,"LED_LCD_SE"           = item303.cast$`w.SE_LED LCD`
+                            ,"Plasma_Percent"      = item303.cast$w.percent_Plasma
+                            ,"Plasma_SE"           = item303.cast$w.SE_Plasma
                             ,"Other_Percent"    = item303.cast$w.percent_Other
                             ,"Other_SE"         = item303.cast$w.SE_Other
                             ,"n"                = item303.cast$n_Total
                             ,"CRT_EB"           = item303.cast$EB_CRT
+                            ,"LED_EB"           = item303.cast$EB_LED
+                            ,"LED_LCD_EB"           = item303.cast$`EB_LED LCD`
+                            ,"Plasma_EB"           = item303.cast$EB_Plasma
                             ,"Other_EB"         = item303.cast$EB_Other
                             )
 levels(item303.table$Equipment_Vintage)
@@ -245,7 +256,8 @@ rowOrder <- c("Pre 1990"
               ,"1990-1999"
               ,"2000-2004"
               ,"2005-2009"
-              ,"Post 2009"
+              ,"2010-2014"
+              ,"Post 2014"
               ,"All Vintages")
 item303.table <- item303.table %>% mutate(Equipment_Vintage = factor(Equipment_Vintage, levels = rowOrder)) %>% arrange(Equipment_Vintage)  
 item303.table <- data.frame(item303.table)

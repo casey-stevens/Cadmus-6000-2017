@@ -23,7 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-
+rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
@@ -68,11 +68,12 @@ item296.dat5$Age <- as.numeric(as.character(item296.dat5$Age))
 item296.dat5$Washer.Age <- as.numeric(as.character(item296.dat5$Age))
 item296.dat5$Washer.Age[which(item296.dat5$Age < 1980)] <- "Pre 1980"
 item296.dat5$Washer.Age[which(item296.dat5$Age >= 1980 & item296.dat5$Age < 1990)] <- "1980-1989"
-item296.dat5$Washer.Age[which(item296.dat5$Age >= 1990 & item296.dat5$Age < 1995)] <- "1990-1994"
-item296.dat5$Washer.Age[which(item296.dat5$Age >= 1995 & item296.dat5$Age < 2000)] <- "1995-1999"
-item296.dat5$Washer.Age[which(item296.dat5$Age >= 2000 & item296.dat5$Age < 2005)] <- "2000-2004"
-item296.dat5$Washer.Age[which(item296.dat5$Age >= 2005 & item296.dat5$Age < 2009)] <- "2005-2009"
-item296.dat5$Washer.Age[which(item296.dat5$Age >= 2009)] <- "Post 2009"
+item296.dat5$Washer.Age[which(item296.dat5$Age > 1990 & item296.dat5$Age <= 1995)] <- "1990-1994"
+item296.dat5$Washer.Age[which(item296.dat5$Age > 1995 & item296.dat5$Age <= 2000)] <- "1995-1999"
+item296.dat5$Washer.Age[which(item296.dat5$Age > 2000 & item296.dat5$Age <= 2005)] <- "2000-2004"
+item296.dat5$Washer.Age[which(item296.dat5$Age > 2005 & item296.dat5$Age <= 2009)] <- "2005-2009"
+item296.dat5$Washer.Age[which(item296.dat5$Age > 2009 & item296.dat5$Age <= 2014)] <- "2010-2014"
+item296.dat5$Washer.Age[which(item296.dat5$Age > 2014)] <- "Post 2014"
 unique(item296.dat5$Washer.Age)
 
 item296.dat5$Washer.Type[grep("Stacked|stacked|top", item296.dat5$Washer.Type)] <- "Stacked Washer/Dryer"
@@ -146,11 +147,13 @@ rowOrder <- c("Pre 1980"
               ,"1995-1999"
               ,"2000-2004"
               ,"2005-2009"
-              ,"Post 2009"
+              ,"2010-2014"
+              ,"Post 2014"
               ,"All Vintages")
 item296.table <- item296.table %>% mutate(Clothes.Washer.Age = factor(Clothes.Washer.Age, levels = rowOrder)) %>% arrange(Clothes.Washer.Age)  
 item296.table <- data.frame(item296.table)
-
+item296.table$All.Types.SE <- sqrt(item296.table$All.Types * (1-item296.table$All.Types) / item296.table$n)
+item296.table$All.Types.EB <- item296.table$All.Types.SE * 1.645
 exportTable(item296.table, "MF", "Table 90", weighted = TRUE)
 
 ######################
@@ -190,7 +193,8 @@ rowOrder <- c("Pre 1980"
               ,"1995-1999"
               ,"2000-2004"
               ,"2005-2009"
-              ,"Post 2009"
+              ,"2010-2014"
+              ,"Post 2014"
               ,"All Vintages")
 item296.table <- item296.table %>% mutate(Clothes.Washer.Age = factor(Clothes.Washer.Age, levels = rowOrder)) %>% arrange(Clothes.Washer.Age)  
 item296.table <- data.frame(item296.table)
@@ -227,24 +231,24 @@ item297.dat4 <- item297.dat3[grep("SITE", item297.dat3$CK_SiteID),]
 
 #subset to only common area Dryers that have observed age info
 item297.dat5 <- item297.dat4[which(item297.dat4$Age > 0),]
-
 ####################
 # Clean AGE
 ####################
-item297.dat5$Age       <- as.numeric(as.character(item297.dat5$Age))
 item297.dat5$Dryer.Age <- as.numeric(as.character(item297.dat5$Age))
 item297.dat5$Dryer.Age[which(item297.dat5$Age < 1980)] <- "Pre 1980"
 item297.dat5$Dryer.Age[which(item297.dat5$Age >= 1980 & item297.dat5$Age < 1990)] <- "1980-1989"
-item297.dat5$Dryer.Age[which(item297.dat5$Age >= 1990 & item297.dat5$Age < 1995)] <- "1990-1994"
-item297.dat5$Dryer.Age[which(item297.dat5$Age >= 1995 & item297.dat5$Age < 2000)] <- "1995-1999"
-item297.dat5$Dryer.Age[which(item297.dat5$Age >= 2000 & item297.dat5$Age < 2005)] <- "2000-2004"
-item297.dat5$Dryer.Age[which(item297.dat5$Age >= 2005 & item297.dat5$Age < 2009)] <- "2005-2009"
-item297.dat5$Dryer.Age[which(item297.dat5$Age >= 2009)] <- "Post 2009"
+item297.dat5$Dryer.Age[which(item297.dat5$Age > 1990 & item297.dat5$Age <= 1995)] <- "1990-1994"
+item297.dat5$Dryer.Age[which(item297.dat5$Age > 1995 & item297.dat5$Age <= 2000)] <- "1995-1999"
+item297.dat5$Dryer.Age[which(item297.dat5$Age > 2000 & item297.dat5$Age <= 2005)] <- "2000-2004"
+item297.dat5$Dryer.Age[which(item297.dat5$Age > 2005 & item297.dat5$Age <= 2009)] <- "2005-2009"
+item297.dat5$Dryer.Age[which(item297.dat5$Age > 2009 & item297.dat5$Age <= 2014)] <- "2010-2014"
+item297.dat5$Dryer.Age[which(item297.dat5$Age > 2014)] <- "Post 2014"
 unique(item297.dat5$Dryer.Age)
+item297.dat5$Dryer.Age[which(item297.dat5$Age == "Unknown")] <- "Unknown"
 ####################
 # end cleaning
 ####################
-item297.dat5 <- item297.dat5[which(!is.na(item297.dat5$Dryer.Age)),]
+item297.dat5 <- item297.dat5[which(item297.dat5$Dryer.Age != "Unknown"),]
 # item297.dat5$Dryer.Age[which(is.na(item297.dat5$Dryer.Age))] <- "Unknown"
 
 

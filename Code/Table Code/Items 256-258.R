@@ -16,7 +16,7 @@ options(scipen = 999)
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
@@ -37,14 +37,14 @@ buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, build
 #clean cadmus IDs
 buildings.interview.dat$CK_Building_ID <- trimws(toupper(buildings.interview.dat$CK_BuildingID))
 
-
+one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
 #############################################################################################
 #Item 256: AVERAGE NUMBER OF COMMON AREA LAMPS PER UNIT BY BUILDING SIZE (MF Table 48)
 #############################################################################################
-item256.buildings.int <- unique(buildings.interview.dat[which(colnames(buildings.interview.dat) %in% c("CK_Building_ID"
-                                                                                                ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding"))])
+item256.buildings.int <- unique(one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
+                                                                                           ,"Total.Units.in.Building"))])
 
-which(duplicated(item256.buildings.int$CK_Cadmus_ID))
 
 #subset to columns needed for analysis
 item256.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
@@ -80,15 +80,15 @@ item256.dat5 <- summarise(group_by(item256.dat4, CK_Cadmus_ID, CK_Building_ID)
 
 
 item256.dat6 <- left_join(item256.dat5, item256.buildings.int)
-item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding <- as.numeric(as.character(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding))
-item256.dat6 <- item256.dat6[which(!is.na(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding)),]
+item256.dat6$Total.Units.in.Building <- as.numeric(as.character(item256.dat6$Total.Units.in.Building))
+item256.dat6 <- item256.dat6[which(!is.na(item256.dat6$Total.Units.in.Building)),]
 
-item256.dat6$LampsPerUnit <- item256.dat6$SiteCount / item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding
+item256.dat6$LampsPerUnit <- item256.dat6$SiteCount / item256.dat6$Total.Units.in.Building
 
 #subset to remove any missing number of units, or unit size equal to 1 (doesn't make sense)
-item256.dat7 <- item256.dat6[which(item256.dat6$INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding > 1),]
+item256.dat7 <- item256.dat6[which(item256.dat6$Total.Units.in.Building > 1),]
 
-item256.merge <- left_join(rbsa.dat, item256.dat7)
+item256.merge <- left_join(rbsa.dat.bldg, item256.dat7)
 item256.merge <- item256.merge[which(!is.na(item256.merge$LampsPerUnit)),]
 
 
@@ -96,12 +96,12 @@ item256.merge <- item256.merge[which(!is.na(item256.merge$LampsPerUnit)),]
 #Pop and Sample Sizes for weights
 ######################################
 item256.data <- weightedData(item256.merge[which(colnames(item256.merge) %notin% c("SiteCount"
-                                                                                   ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding"
+                                                                                   ,"Total.Units.in.Building"
                                                                                    ,"LampsPerUnit"))])
 
 item256.data <- left_join(item256.data, item256.merge[which(colnames(item256.merge) %in% c("CK_Cadmus_ID"
                                                                                               ,"SiteCount"
-                                                                                              ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataTotalNumberOfUnitsInAuditedBuilding"
+                                                                                              ,"Total.Units.in.Building"
                                                                                               ,"LampsPerUnit"))])
 item256.data$count <- 1
 
@@ -139,7 +139,6 @@ exportTable(item256.final.MF, "MF", "Table 48", weighted = FALSE)
 #############################################################################################
 #Item 257: DISTRIBUTION OF COMMON AREA LAMPS BY LAMP TYPE AND BUILDING SIZE (MF Table 49)
 #############################################################################################
-one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
 one.line.bldg.dat <- one.line.bldg.dat[which(one.line.bldg.dat$Area.of.Conditioned.Common.Space > 0),]
 one.line.bldg.dat$CK_Building_ID <- one.line.bldg.dat$PK_BuildingID
 
@@ -157,7 +156,7 @@ item257.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item257.dat$count <- 1
 
 #join clean rbsa data onto lighting analysis data
-item257.dat1 <- left_join(rbsa.dat, item257.dat, by = c("CK_Building_ID" = "CK_SiteID"))
+item257.dat1 <- left_join(rbsa.dat.bldg, item257.dat, by = c("CK_Building_ID" = "CK_SiteID"))
 names(item257.dat1)[which(names(item257.dat1) %in% c("CK_Cadmus_ID.x"))] <- "CK_Cadmus_ID"
 
 #remove building info
@@ -365,6 +364,7 @@ item258.dat6 <- item258.dat5[which(item258.dat5$Lamp.Category != "Unknown"),]
 
 
 item258.merge <- left_join(rbsa.merge, item258.dat6)
+item258.merge <- item258.merge[grep("3 or fewer floors", item258.merge$BuildingTypeXX, ignore.case = T),]
 item258.merge <- item258.merge[which(!is.na(item258.merge$SiteCount)),]
 
 ######################################
@@ -396,7 +396,7 @@ item258.final <- item258.final[which(item258.final$Clean.Room != "Remove"),]
 item258.all.sizes <- proportions_one_group(CustomerLevelData = item258.data
                                               ,valueVariable = 'SiteCount'
                                               ,groupingVariable = 'Lamp.Category'
-                                              ,total.name = 'All Sizes'
+                                              ,total.name = 'All Rooms'
                                               ,columnName = "Clean.Room"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
