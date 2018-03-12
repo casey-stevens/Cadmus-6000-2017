@@ -231,24 +231,27 @@ item303.final <- rbind.data.frame(item303.summary, item303.all.vintages, strings
 item303.cast <- dcast(setDT(item303.final)
                       ,formula = Age.Cat ~ TV.Screen.Cat
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-
+names(item303.cast)
 #put into correct table format
 item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"CRT_Percent"      = item303.cast$w.percent_CRT
                             ,"CRT_SE"           = item303.cast$w.SE_CRT
                             ,"LED_Percent"      = item303.cast$w.percent_LED
                             ,"LED_SE"           = item303.cast$w.SE_LED
-                            ,"LED_LCD_Percent"      = item303.cast$`w.percent_LED LCD`
-                            ,"LED_LCD_SE"           = item303.cast$`w.SE_LED LCD`
-                            ,"Plasma_Percent"      = item303.cast$w.percent_Plasma
-                            ,"Plasma_SE"           = item303.cast$w.SE_Plasma
+                            ,"LCD_Percent"      = item303.cast$w.percent_LCD
+                            ,"LCD_SE"           = item303.cast$w.SE_LCD
+                            ,"LED_LCD_Percent"  = item303.cast$`w.percent_LED LCD`
+                            ,"LED_LCD_SE"       = item303.cast$`w.SE_LED LCD`
+                            ,"Plasma_Percent"   = item303.cast$w.percent_Plasma
+                            ,"Plasma_SE"        = item303.cast$w.SE_Plasma
                             ,"Other_Percent"    = item303.cast$w.percent_Other
                             ,"Other_SE"         = item303.cast$w.SE_Other
                             ,"n"                = item303.cast$n_Total
                             ,"CRT_EB"           = item303.cast$EB_CRT
                             ,"LED_EB"           = item303.cast$EB_LED
-                            ,"LED_LCD_EB"           = item303.cast$`EB_LED LCD`
-                            ,"Plasma_EB"           = item303.cast$EB_Plasma
+                            ,"LCD_EB"           = item303.cast$EB_LCD
+                            ,"LED_LCD_EB"       = item303.cast$`EB_LED LCD`
+                            ,"Plasma_EB"        = item303.cast$EB_Plasma
                             ,"Other_EB"         = item303.cast$EB_Other
                             )
 levels(item303.table$Equipment_Vintage)
@@ -295,15 +298,25 @@ item303.cast <- dcast(setDT(item303.final)
 item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"CRT_Percent"      = item303.cast$Percent_CRT
                             ,"CRT_SE"           = item303.cast$SE_CRT
+                            ,"LED_Percent"      = item303.cast$Percent_LED
+                            ,"LED_SE"           = item303.cast$SE_LED
+                            ,"LCD_Percent"      = item303.cast$Percent_LCD
+                            ,"LCD_SE"           = item303.cast$SE_LCD
+                            ,"LED_LCD_Percent"  = item303.cast$`Percent_LED LCD`
+                            ,"LED_LCD_SE"       = item303.cast$`SE_LED LCD`
+                            ,"Plasma_Percent"   = item303.cast$Percent_Plasma
+                            ,"Plasma_SE"        = item303.cast$SE_Plasma
                             ,"Other_Percent"    = item303.cast$Percent_Other
                             ,"Other_SE"         = item303.cast$SE_Other
-                            ,"n"                = item303.cast$n_Total)
+                            ,"n"                = item303.cast$n_Total
+                            )
 levels(item303.table$Equipment_Vintage)
 rowOrder <- c("Pre 1990"
               ,"1990-1999"
               ,"2000-2004"
               ,"2005-2009"
-              ,"Post 2009"
+              ,"2010-2014"
+              ,"Post 2014"
               ,"All Vintages")
 item303.table <- item303.table %>% mutate(Equipment_Vintage = factor(Equipment_Vintage, levels = rowOrder)) %>% arrange(Equipment_Vintage)  
 item303.table <- data.frame(item303.table)

@@ -1474,13 +1474,13 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
   }else if(columnVariable %in% c("TankSize", "Washer.Age","Heating_System","Primary.Heating.System")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
-                                                 , c("BuildingType","Territory", rowVariable, columnVariable)
+                                                 , c("BuildingType", "State", "Region","Territory", rowVariable, columnVariable)
                                                  , summarise
                                                  , count = sum(get(valueVariable))
                                                  , n_hj = length(unique(CK_Cadmus_ID))), stringsAsFactors = F)
     
     StrataProportion         <- data.frame(ddply(CustomerLevelData
-                                                 , c("BuildingType","Territory")
+                                                 , c("BuildingType", "State", "Region","Territory")
                                                  , summarise
                                                  , total.count = sum(count)), stringsAsFactors = F)
     
@@ -1546,7 +1546,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #################################################################################
   #obtain the total population size for the strata and columnVariable combination
   #################################################################################
-  if(columnVariable %in% c("Heating_System", "Primary.Heating.System", "Washer.Age")){
+  if(columnVariable %in% c("Heating_System", "Primary.Heating.System", "Washer.Age", "TankSize")){
     StrataData_n <- unique(StrataData[which(colnames(StrataData) %in% c("BuildingType"
                                                                         ,"State"
                                                                         ,"Region"

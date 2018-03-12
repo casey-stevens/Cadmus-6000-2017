@@ -47,21 +47,36 @@ one.line.bldg.dat <- one.line.bldg.dat[names(one.line.bldg.dat) %in% c("CK_Build
 rbsa.merge <- left_join(rbsa.dat.bldg, one.line.bldg.dat)
 rbsa.merge <- rbsa.merge[which(!is.na(rbsa.merge$Area.of.Conditioned.Common.Space)),]
 
+rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
+rooms.dat$CK_Building_ID <- trimws(toupper(rooms.dat$CK_SiteID))
+
 
 
 
 #############################################################################################
 #Item 260: AVERAGE COMMON AREA LPD (W/SQ.FT.) BY BUILDING VINTAGE (MF Table 52)
 #############################################################################################
-item260.buildings <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
-                                                            ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"))]
+# item260.buildings <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
+#                                                             ,"SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"))]
+# 
+# item260.buildings1 <- item260.buildings[which(!(is.na(item260.buildings$SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea))),]
+# 
+# item260.buildings2 <- summarise(group_by(item260.buildings1, CK_Building_ID)
+#                             ,CommonFloorArea = sum(SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea))
+# 
+# item260.buildings3 <- item260.buildings2[which(item260.buildings2$CommonFloorArea > 0),]
+rooms.dat1 <- rooms.dat[grep("bldg", rooms.dat$CK_Building_ID, ignore.case = T),]
+rooms.dat1$Area <- as.numeric(as.character(rooms.dat1$Area))
 
-item260.buildings1 <- item260.buildings[which(!(is.na(item260.buildings$SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea))),]
+rooms.dat2 <- rooms.dat1[which(!is.na(rooms.dat1$Area)),]
+names(rooms.dat2)[which(names(rooms.dat2) == "Clean.Type")] <- "Clean.Room"
+unique(rooms.dat2$Clean.Room)
 
-item260.buildings2 <- summarise(group_by(item260.buildings1, CK_Building_ID)
-                            ,CommonFloorArea = sum(SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea))
+rooms.dat3 <- rooms.dat2[which(rooms.dat2$Clean.Room %notin% c("Parking", "Store")),]
 
-item260.buildings3 <- item260.buildings2[which(item260.buildings2$CommonFloorArea > 0),]
+rooms.sum <- summarise(group_by(rooms.dat3, CK_Building_ID)
+                       ,CommonFloorArea = sum(Area))
 
 
 #subset to columns needed for analysis
@@ -108,12 +123,12 @@ item260.dat5 <- item260.dat4[grep("Multifamily", item260.dat4$BuildingType),]
 
 
 #summarise up to the site level
-item260.dat6 <- summarise(group_by(item260.dat5, CK_Cadmus_ID)
+item260.dat6 <- summarise(group_by(item260.dat5, CK_Building_ID)
                           ,SiteWattage = sum(Total.Wattage))
 
 #merge on building data
 item260.dat7 <- left_join(rbsa.dat, item260.dat6)
-item260.merge <- left_join(item260.dat7, item260.buildings3)
+item260.merge <- left_join(item260.dat7, rooms.sum)
 item260.merge <- item260.merge[grep("3 or fewer floors", item260.merge$BuildingTypeXX, ignore.case = T),]
 
 #remove NA
@@ -228,18 +243,30 @@ exportTable(item261.final, "MF", "Table 53", weighted = FALSE)
 #############################################################################################
 #Item 262: AVERAGE COMMON AREA ROOM LPD (W/SQ.FT.) BY COMMON AREA ROOM TYPE (MF Table 54)
 #############################################################################################
+rooms.dat1 <- rooms.dat[grep("bldg", rooms.dat$CK_Building_ID, ignore.case = T),]
+rooms.dat1$Area <- as.numeric(as.character(rooms.dat1$Area))
+
+rooms.dat2 <- rooms.dat1[which(!is.na(rooms.dat1$Area)),]
+names(rooms.dat2)[which(names(rooms.dat2) == "Clean.Type")] <- "Clean.Room"
+unique(rooms.dat2$Clean.Room)
+
+rooms.dat3 <- rooms.dat2[which(rooms.dat2$Clean.Room %notin% c("Parking", "Store")),]
+
+rooms.sum <- summarise(group_by(rooms.dat3, CK_Building_ID, Clean.Room)
+                       ,CommonFloorArea = sum(Area))
+
 item262.dat <- item260.dat5
 
 #summarise up to the site level
-item262.dat1 <- summarise(group_by(item262.dat, CK_Cadmus_ID, Clean.Room)
+item262.dat1 <- summarise(group_by(item262.dat, CK_Building_ID, Clean.Room)
                           ,SiteWattage = sum(Total.Wattage))
 
 #merge on building data
 item262.dat2 <- left_join(rbsa.dat, item262.dat1)
-item262.merge <- left_join(item262.dat2, item260.buildings3)
+item262.merge <- left_join(item262.dat2, rooms.sum)
 
 #remove NA
-item262.merge1 <- item262.merge[which(!(is.na(item262.merge$CommonFloorArea))),]
+item262.merge1 <- item262.merge[which(!is.na(item262.merge$CommonFloorArea)),]
 item262.merge1 <- item262.merge1[which(!(is.na(item262.merge1$SiteWattage))),]
 
 item262.merge1$LPD <- item262.merge1$SiteWattage / item262.merge1$CommonFloorArea

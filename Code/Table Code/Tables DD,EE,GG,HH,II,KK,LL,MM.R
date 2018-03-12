@@ -373,6 +373,7 @@ tableII.summary <- proportionRowsAndColumns1(CustomerLevelData = tableII.data
                                              ,columnVariable = "State"
                                              ,rowVariable = "Power.Strip.Use"
                                              ,aggregateColumnName = "Region")
+
 tableII.cast <- dcast(setDT(tableII.summary)
                       ,formula = BuildingType + Power.Strip.Use ~ State
                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))

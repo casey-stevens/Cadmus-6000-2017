@@ -1486,13 +1486,13 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
   }else if(columnVariable %in% c("TankSize", "Washer.Age","Heating_System","Primary.Heating.System")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
-                                                 , c("BuildingType","Territory", rowVariable, columnVariable)
+                                                 , c("BuildingType", "State", "Region","Territory", rowVariable, columnVariable)
                                                  , summarise
                                                  , count = sum(get(valueVariable))
                                                  , n_hj = length(unique(CK_Building_ID))), stringsAsFactors = F)
     
     StrataProportion         <- data.frame(ddply(CustomerLevelData
-                                                 , c("BuildingType","Territory")
+                                                 , c("BuildingType", "State", "Region","Territory")
                                                  , summarise
                                                  , total.count = sum(count)), stringsAsFactors = F)
     

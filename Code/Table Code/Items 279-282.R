@@ -257,7 +257,7 @@ exportTable(item279.table, "MF", "Table 71", weighted = FALSE)
 #Item 280: DISTRIBUTION OF SECONDARY IN-UNIT HEATING SYSTEMS BY SYSTEM AND FUEL TYPE (MF Table 71)
 #############################################################################################
 #subset to only primary heating rows
-item280.dat3 <- unique(item279.dat2[which(item279.dat2$Primary.Heating.System == "No"),])
+item280.dat3 <- unique(item279.dat2[which(item279.dat2$Primary.Heating.System %in% c("No","Unknown")),])
 which(duplicated(item280.dat3$CK_Cadmus_ID))
 
 

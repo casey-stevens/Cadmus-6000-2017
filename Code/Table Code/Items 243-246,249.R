@@ -363,12 +363,13 @@ item245.dat2$Fuel[grep("N/A", item245.dat2$Fuel, ignore.case = T)] <- "Unknown"
 unique(item245.dat2$Fuel)
 
 item245.dat2 <- item245.dat2[which(item245.dat2$Fuel != "Unknown"),]
+item245.dat2 <- item245.dat2[which(item245.dat2$System.Type != "Air Handler"),]
 unique(item245.dat2$Fuel)
 unique(item245.dat2$System.Type)
 
 item245.dat2$System.Type[grep("Electric Baseboard|baseboard electric",item245.dat2$System.Type,ignore.case = T)] <- "Electric Baseboard"
 item245.dat2$System.Type[grep("zonal heat",item245.dat2$System.Type,ignore.case = T)] <- "Other Zonal Heat"
-item245.dat2$System.Type[grep("ductless",item245.dat2$System.Type,ignore.case = T)] <- "Mini-split Hp"
+item245.dat2$System.Type[grep("ductless|mini|packaged",item245.dat2$System.Type,ignore.case = T)] <- "PTHP/DPH"
 item245.dat2$System.Type[grep("furnace",item245.dat2$System.Type,ignore.case = T)] <- "Furnace"
 item245.dat2$System.Type[grep("boiler",item245.dat2$System.Type,ignore.case = T)] <- "Boiler"
 unique(item245.dat2$System.Type)

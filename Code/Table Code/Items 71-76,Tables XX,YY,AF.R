@@ -25,6 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
@@ -776,7 +777,7 @@ tableAF.data <- left_join(tableAF.data, tableAF.merge[which(colnames(tableAF.mer
                                                                                            # ,"TotalBulbs"
                                                                                            ))])
 tableAF.data$count <- 1
-
+stopifnot(nrow(tableAF.data) == nrow(tableAF.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -787,6 +788,8 @@ tableAF.summary <- mean_two_groups(CustomerLevelData = tableAF.data
                                  ,columnAggregate = "Region"
                                  ,rowAggregate = "All Categories")
 tableAF.summary <- tableAF.summary[which(tableAF.summary$Lamp.Category != "All Categories"),]
+
+
 
 
 # tableAF.total <- mean_one_group(CustomerLevelData = tableAF.data
@@ -916,7 +919,17 @@ tableAF.MF.summary <- mean_two_groups(CustomerLevelData = tableAF.data.MF
                                    ,byVariableColumn = "HomeType"
                                    ,columnAggregate = "All Sizes"
                                    ,rowAggregate = "All Categories")
-tableAF.MF.summary <- tableAF.MF.summary[which(tableAF.MF.summary$Lamp.Category != "All Categories"),]
+# tableAF.MF.summary <- tableAF.MF.summary[which(tableAF.MF.summary$Lamp.Category != "All Categories"),]
+# tableAF.data.MF$HousingType <- tableAF.data.MF$HomeType
+# tableAF.all.categories <- proportions_one_group(CustomerLevelData = tableAF.data.MF
+#                                            ,valueVariable = "StorageBulbs"
+#                                            ,groupingVariable = "HousingType"
+#                                            ,total.name = "All Categories"
+#                                            ,columnName = "Lamp.Category"
+#                                            ,weighted = TRUE
+#                                            ,two.prop.total = TRUE
+# )
+
 
 tableAF.MF.cast <- data.frame(tableAF.MF.summary, stringsAsFactors = F)
 names(tableAF.MF.cast)

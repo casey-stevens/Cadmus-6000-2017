@@ -112,9 +112,11 @@ item236.dat <- unique(envelope.dat.MF[which(colnames(envelope.dat.MF) %in% c("CK
 item236.dat1 <- item236.dat[which(item236.dat$Ceiling.Area > 0),] 
 item236.dat1$Ceiling.Area <- as.numeric(as.character(item236.dat1$Ceiling.Area))
 
-item236.merge <- left_join(rbsa.dat, item236.dat1)
-item236.merge <- item236.merge[which(!is.na(item236.merge$Ceiling.Area)),]
+item236.dat2 <- item236.dat1[which(item236.dat1$Ceiling.Type %notin% c("N/A")),]
 
+item236.merge <- left_join(rbsa.dat, item236.dat2)
+item236.merge <- item236.merge[which(!is.na(item236.merge$Ceiling.Area)),]
+item236.merge <- item236.merge[grep("bldg", item236.merge$CK_Building_ID, ignore.case = T),]
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -123,6 +125,7 @@ item236.data <- weightedData(item236.merge[-which(colnames(item236.merge) %in% c
                                                                                  ,"Ceiling.Area"
                                                                                  ,"CeilingType"))])
 item236.data <- left_join(item236.data, unique(item236.merge[which(colnames(item236.merge) %in% c("CK_Cadmus_ID"
+                                                                                                  ,"CK_Building_ID"
                                                                                            ,"Ceiling.Type"
                                                                                            ,"Ceiling.Area"
                                                                                            ,"CeilingType"))]))
@@ -130,7 +133,7 @@ item236.data <- left_join(item236.data, unique(item236.merge[which(colnames(item
 item236.data$count <- 1
 item236.data$Ceiling.Area <- as.numeric(as.character(item236.data$Ceiling.Area))
 
-
+length(unique(item236.data$CK_Building_ID))
 #######################
 # Weighted Analysis
 #######################

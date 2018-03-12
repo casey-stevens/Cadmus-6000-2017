@@ -25,10 +25,8 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
-rbsa.dat.MF <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat.site <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
-length(unique(rbsa.dat.MF$CK_Cadmus_ID))
 
 #Read in data for analysis
 lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
@@ -270,14 +268,14 @@ exportTable(tableNN.table.MH, "MH", "Table NN", weighted = FALSE)
 ###########################################################
 # Multifamily
 ###########################################################
-tableNN.MF.dat <- left_join(rbsa.dat.MF, lighting.dat.CFL)
+tableNN.MF.dat <- left_join(rbsa.dat, lighting.dat.CFL)
 tableNN.MF.dat$Ind <- 0
 tableNN.MF.dat$Ind[which(tableNN.MF.dat$Lamp.Category == "Compact Fluorescent")] <- 1
 
 tableNN.MF.sum <- summarise(group_by(tableNN.MF.dat, CK_Cadmus_ID)
                             ,Ind = sum(unique((Ind))))
 
-tableNN.MF.merge <- left_join(rbsa.dat.MF, tableNN.MF.sum)
+tableNN.MF.merge <- left_join(rbsa.dat, tableNN.MF.sum)
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -376,14 +374,14 @@ exportTable(tableOO.table.MH, "MH", "Table OO", weighted = FALSE)
 ###########################################################
 # Multifamily
 ###########################################################
-tableOO.MF.dat <- left_join(rbsa.dat.MF, lighting.dat.LED)
+tableOO.MF.dat <- left_join(rbsa.dat, lighting.dat.LED)
 tableOO.MF.dat$Ind <- 0
 tableOO.MF.dat$Ind[which(tableOO.MF.dat$Lamp.Category == "Light Emitting Diode")] <- 1
 
 tableOO.MF.sum <- summarise(group_by(tableOO.MF.dat, CK_Cadmus_ID)
                             ,Ind = sum(unique((Ind))))
 
-tableOO.MF.merge <- left_join(rbsa.dat.MF, tableOO.MF.sum)
+tableOO.MF.merge <- left_join(rbsa.dat, tableOO.MF.sum)
 
 ################################################
 # Adding pop and sample sizes for weights

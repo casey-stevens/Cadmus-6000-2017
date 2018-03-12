@@ -24,9 +24,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
-rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
-rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
+rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
@@ -271,6 +269,7 @@ item69.data <- left_join(item69.data, item69.merge[which(colnames(item69.merge) 
                                                                                        ,"Lamps"
                                                                                        ,"Clean.Room"))])
 item69.data$count <- 1
+stopifnot(nrow(item69.data) == nrow(item69.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -329,7 +328,7 @@ item69.table.MF <- proportions_one_group(CustomerLevelData = item69.data
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
-# exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
+exportTable(item69.final.MF, "MF", "Table 83", weighted = TRUE)
 
 
 
@@ -386,7 +385,7 @@ item69.table.MF <- proportions_one_group(CustomerLevelData = item69.data
 
 item69.final.MF <- item69.table.MF[which(item69.table.MF$BuildingType == "Multifamily")
                                    ,-which(colnames(item69.table.MF) %in% c("BuildingType"))]
-# exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
+exportTable(item69.final.MF, "MF", "Table 83", weighted = FALSE)
 
 
 
@@ -467,7 +466,7 @@ item70.data <- left_join(item70.data, item70.merge[which(colnames(item70.merge) 
                                                                                        ,"Lamps"
                                                                                        ,"Clean.Room"))])
 
-
+stopifnot(nrow(item70.data) == nrow(item70.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -558,8 +557,8 @@ item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily"
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 # exportTable(item70.final.SF, "SF", "Table 77", weighted = TRUE)
-exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
-# exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
+# exportTable(item70.final.MH, "MH", "Table 56", weighted = TRUE)
+exportTable(item70.final.MF, "MF", "Table 84", weighted = TRUE)
 
 
 #######################
@@ -652,8 +651,8 @@ item70.final.MF <- item70.table[which(item70.table$BuildingType == "Multifamily"
                                 ,-which(colnames(item70.table) %in% c("BuildingType"))]
 
 # exportTable(item70.final.SF, "SF", "Table 77", weighted = FALSE)
-exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
-# exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
+# exportTable(item70.final.MH, "MH", "Table 56", weighted = FALSE)
+exportTable(item70.final.MF, "MF", "Table 84", weighted = FALSE)
 
 
 

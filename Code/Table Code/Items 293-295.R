@@ -194,7 +194,7 @@ item294.dat$count <- 1
 
 item294.merge <- left_join(rbsa.dat,item294.dat)
 item294.merge <- item294.merge[grep("SITE",item294.merge$CK_Building_ID),]
-item294.merge$APPLIANCE_FRIDGE_FREEZER_Type[which(is.na(item294.merge$count))] <- "No Refrigerator"
+item294.merge$APPLIANCE_FRIDGE_FREEZER_Type[which(is.na(item294.merge$count))] <- "Unknown"
 
 item294.merge <- item294.merge[which(item294.merge$BuildingType == "Multifamily"),]
 

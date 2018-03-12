@@ -25,6 +25,7 @@ source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis -- Item 77 and table ZZ
@@ -531,7 +532,7 @@ tableAG.data <- left_join(tableAG.data, tableAG.merge[which(colnames(tableAG.mer
                                                                                            ,"TotalBulbs"
                                                                                            ,"Lamp.Category"))])
 tableAG.data$count <- 1
-
+stopifnot(nrow(tableAG.data) == nrow(tableAG.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -541,6 +542,8 @@ tableAG.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.data
                                              ,rowVariable = "Lamp.Category"
                                              ,aggregateColumnName = "Region")
 # tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
+
+
 
 tableAG.cast <- dcast(setDT(tableAG.summary)
                       ,formula = BuildingType + Lamp.Category ~ State
@@ -655,7 +658,7 @@ exportTable(tableAG.final.MH, "MH", "Table AG", weighted = FALSE)
 #######################
 # Weighted Analysis
 #######################
-tableAG.MF.data <- tableAF.data[which(tableAF.data$BuildingType == "Multifamily"),]
+tableAG.MF.data <- tableAG.data[which(tableAG.data$BuildingType == "Multifamily"),]
 tableAG.MF.data <- tableAG.MF.data[grep("site",tableAG.MF.data$CK_Building_ID,ignore.case = T),]
 tableAG.MF.data$Count <- 1
 
@@ -664,9 +667,20 @@ tableAG.MF.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.MF.d
                                              ,columnVariable = "HomeType"
                                              ,rowVariable = "Lamp.Category"
                                              ,aggregateColumnName = "All Sizes")
-# tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$Lamp.Category != "Total"),]
+tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$HomeType != "All Sizes"),]
 
-tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.summary)
+tableAG.all.sizes <- proportions_one_group(CustomerLevelData = tableAG.MF.data
+                                           ,valueVariable = "StorageBulbs"
+                                           ,groupingVariable = "Lamp.Category"
+                                           ,total.name = "All Sizes"
+                                           ,columnName = "HomeType"
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE
+)
+
+tableAG.MF.merge <- rbind.data.frame(tableAG.MF.summary, tableAG.all.sizes, stringsAsFactors = F)
+
+tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.merge)
                                     ,formula = BuildingType + Lamp.Category ~ HomeType
                                     ,value.var = c("w.percent","w.SE","count","n","N","EB")))
 names(tableAG.MF.cast)
@@ -818,7 +832,7 @@ tableAH.prep1 <- tableAH.prep1[which(tableAH.prep1$Wattage.per.bulb != "Inf"),]
 tableAH.data <- weightedData(tableAH.prep1[-which(colnames(tableAH.prep1) %in% c("Wattage.per.bulb"))])
 tableAH.data <- left_join(tableAH.data, tableAH.prep1[which(colnames(tableAH.prep1) %in% c("CK_Cadmus_ID"
                                                                                        ,"Wattage.per.bulb"))])
-
+stopifnot(nrow(tableAH.data) == nrow(tableAH.data))
 #######################
 # Weighted Analysis
 #######################
@@ -845,7 +859,7 @@ tableAH.final.MF <- mean_one_group(CustomerLevelData = tableAH.data
 
 # Export table
 tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Multifamily"),-1]
-# exportTable(tableAH.final.MF, "MF", "Table AH", weighted = TRUE)
+exportTable(tableAH.final.MF, "MF", "Table AH", weighted = TRUE)
 
 
 
@@ -876,7 +890,7 @@ tableAH.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAH.data
 
 # Export table
 tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Multifamily"),-1]
-# exportTable(tableAH.final.MF, "MF", "Table AH", weighted = FALSE)
+exportTable(tableAH.final.MF, "MF", "Table AH", weighted = FALSE)
 
 
 

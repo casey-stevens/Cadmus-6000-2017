@@ -141,7 +141,7 @@ unique(item286.dat3$TankSize)
 
 item286.merge <- left_join(rbsa.dat, item286.dat3)
 item286.merge <- item286.merge[which(!is.na(item286.merge$TankSize)),]
-
+item286.merge <- item286.merge[which(item286.merge$DHW.Fuel %notin% c("N/A", NA)),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################

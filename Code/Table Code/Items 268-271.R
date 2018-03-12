@@ -110,6 +110,15 @@ item268.data <- left_join(item268.data, item268.merge[which(colnames(item268.mer
                                                                                                   ,"count"))])
 
 names(item268.data)
+length(unique(item268.data$CK_Cadmus_ID))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "Pre 1955")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "1955-1970")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "1971-1980")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "1981-1990")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "1991-2000")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "2001-2010")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "Post 2010")]))
+
 ######################
 # weighted analysis
 ######################
