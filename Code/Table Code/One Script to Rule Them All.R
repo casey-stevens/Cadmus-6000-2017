@@ -24,7 +24,7 @@ appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.exp
 sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
 survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated")
-
+sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 
 
 
@@ -56,11 +56,12 @@ source("Code/Table Code/Items 71-76,Tables XX,YY,AF.R")
 source("Code/Table Code/Items 77-79, Tables ZZ,AG,AH.R")
 #appliances
 source("Code/Table Code/Items 80,81, Tables AB,AC.R")
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 source("Code/Table Code/Items 82-85.R")
-
-#not ran yet
 source("Code/Table Code/Items 86-88.R")
 source("Code/Table Code/Items 89,91,93, Table AJ.R")
+
+#not ran yet
 source("Code/Table Code/Items 90,92.R")
 source("Code/Table Code/Items 94,95.R")
 source("Code/Table Code/Items 96-98, Tables SS,AI.R")
@@ -95,9 +96,6 @@ source("Code/Table Code/Items 167,168.R")
 source("Code/Table Code/Item 169.R")
 source("Code/Table Code/Item 170,171.R")
 source("Code/Table Code/Item 172.R")
-
-
-#not yet updated in script
 source("Code/Table Code/Table AA, Table BB.R")
 source("Code/Table Code/Table AK.R")
 source("Code/Table Code/Table AL.R")

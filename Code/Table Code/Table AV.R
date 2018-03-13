@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -26,7 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
-survey.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated"), stringsAsFactors = F)
+# survey.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated"), stringsAsFactors = F)
 #clean cadmus IDs
 survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
 
@@ -99,8 +99,8 @@ tableAV.final.SF <- tableAV.table[which(tableAV.table$BuildingType == "Single Fa
 tableAV.final.MH <- tableAV.table[which(tableAV.table$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAV.table) %in% c("BuildingType"))]
 
-# exportTable(tableAV.final.SF, "SF", "Table AV", weighted = TRUE)
-exportTable(tableAV.final.MH, "MH", "Table AV", weighted = TRUE)
+exportTable(tableAV.final.SF, "SF", "Table AV", weighted = TRUE)
+# exportTable(tableAV.final.MH, "MH", "Table AV", weighted = TRUE)
 
 
 #######################
@@ -141,8 +141,8 @@ tableAV.final.SF <- tableAV.table[which(tableAV.table$BuildingType == "Single Fa
 tableAV.final.MH <- tableAV.table[which(tableAV.table$BuildingType == "Manufactured")
                                   ,-which(colnames(tableAV.table) %in% c("BuildingType"))]
 
-# exportTable(tableAV.final.SF, "SF", "Table AV", weighted = FALSE)
-exportTable(tableAV.final.MH, "MH", "Table AV", weighted = FALSE)
+exportTable(tableAV.final.SF, "SF", "Table AV", weighted = FALSE)
+# exportTable(tableAV.final.MH, "MH", "Table AV", weighted = FALSE)
 
 
 
@@ -196,7 +196,7 @@ tableAV.table <- data.frame("BuildingType"          = tableAV.cast$BuildingType
 tableAV.final.MF <- tableAV.table[which(tableAV.table$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAV.table) %in% c("BuildingType"))]
 
-exportTable(tableAV.final.MF, "MF", "Table AV", weighted = TRUE)
+# exportTable(tableAV.final.MF, "MF", "Table AV", weighted = TRUE)
 
 
 #######################
@@ -232,7 +232,7 @@ tableAV.table <- data.frame("BuildingType"          = tableAV.cast$BuildingType
 tableAV.final.MF <- tableAV.table[which(tableAV.table$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAV.table) %in% c("BuildingType"))]
 
-exportTable(tableAV.final.MF, "MF", "Table AV", weighted = TRUE)
+# exportTable(tableAV.final.MF, "MF", "Table AV", weighted = TRUE)
 
 
 
@@ -260,154 +260,154 @@ exportTable(tableAV.final.MF, "MF", "Table AV", weighted = TRUE)
 
 
 
-############################################################################################################
-#
-#
-# OVERSAMPLE ANALYSIS
-#
-#
-############################################################################################################
-# Read in clean os data
-os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
-length(unique(os.dat$CK_Cadmus_ID))
-os.dat$CK_Building_ID <- os.dat$Category
-os.dat <- os.dat[which(names(os.dat) != "Category")]
-
-#############################################################################################
-#Table AK: Average CFM by Tons of System Capacity by System Type and/or CK_Building_ID
-#############################################################################################
-#subset to columns needed for analysis
-tableAV.os.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
-                                                            ,"Was.it....0.to.under..25.000"
-                                                            ,"Was.it....25.000.to.under..50.000"
-                                                            ,"Was.it....50.000.or.more"))]
-colnames(tableAV.os.dat) <- c("2015.Houshold.Income.0.to.under.25000"
-                           , "2015.Houshold.Income.25000.to.under.50000"
-                           , "2015.Houshold.Income.50000.or.more"
-                           , "CK_Cadmus_ID")
-
-tableAV.os.melt <- melt(tableAV.os.dat, id.vars = "CK_Cadmus_ID")
-tableAV.os.melt <- tableAV.os.melt[which(tableAV.os.melt$value %notin% c("Unknown","N/A", NA, "Don't know", "Prefer not to say")),]
-names(tableAV.os.melt) <- c("CK_Cadmus_ID", "Income.Level", "Detailed.Income.Level")
-
-
-#merge together analysis data with cleaned RBSA data
-tableAV.os.dat1 <- left_join(os.dat, tableAV.os.melt, by = "CK_Cadmus_ID")
-tableAV.os.dat1 <- tableAV.os.dat1[which(!is.na(tableAV.os.dat1$Income.Level)),]
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableAV.os.data <- weightedData(tableAV.os.dat1[-which(colnames(tableAV.os.dat1) %in% c("Income.Level"
-                                                                               , "Detailed.Income.Level"))])
-tableAV.os.data <- left_join(tableAV.os.data, unique(tableAV.os.dat1[which(colnames(tableAV.os.dat1) %in% c("CK_Cadmus_ID"
-                                                                                                ,"Income.Level"
-                                                                                                , "Detailed.Income.Level"))]))
-tableAV.os.data$count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableAV.os.final <- proportionRowsAndColumns1(CustomerLevelData = tableAV.os.data
-                                           ,valueVariable    = 'count'
-                                           ,columnVariable   = 'CK_Building_ID'
-                                           ,rowVariable      = 'Income.Level'
-                                           ,aggregateColumnName = "Remove")
-
-tableAV.os.cast <- dcast(setDT(tableAV.os.final)
-                      , formula = BuildingType + Income.Level ~ CK_Building_ID
-                      , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
-
-if(os.ind == "scl"){
-  tableAV.os.table <- data.frame("BuildingType"          = tableAV.os.cast$BuildingType
-                                 ,"Income.Level"         = tableAV.os.cast$Income.Level
-                                 ,"Percent_SCL.GenPop"   = tableAV.os.cast$`w.percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableAV.os.cast$`w.SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableAV.os.cast$`w.percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableAV.os.cast$`w.SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableAV.os.cast$`w.percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableAV.os.cast$`w.SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
-                                 ,"EB_SCL.GenPop"        = tableAV.os.cast$`EB_SCL GenPop`
-                                 ,"EB_SCL.LI"            = tableAV.os.cast$`EB_SCL LI`
-                                 ,"EB_SCL.EH"            = tableAV.os.cast$`EB_SCL EH`
-                                 ,"EB_2017.RBSA.PS"      = tableAV.os.cast$`EB_2017 RBSA PS`
-  )
-  
-}else if(os.ind == "snopud"){
-  tableAV.os.table <- data.frame("BuildingType"             = tableAV.os.cast$BuildingType
-                                 ,"Income.Level"            = tableAV.os.cast$Income.Level
-                                 ,"Percent_SnoPUD"          = tableAV.os.cast$`w.percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableAV.os.cast$`w.SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableAV.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableAV.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableAV.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableAV.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableAV.os.cast$`w.percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableAV.os.cast$`w.SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableAV.os.cast$`n_2017 RBSA NW`
-                                 ,"EB_SnoPUD"               = tableAV.os.cast$`EB_SnoPUD`
-                                 ,"EB_2017.RBSA.PS"         = tableAV.os.cast$`EB_2017 RBSA PS`
-                                 ,"EB_RBSA.NW"              = tableAV.os.cast$`EB_2017 RBSA NW`
-  )
-  
-}
-
-tableAV.os.final.SF <- tableAV.os.table[which(tableAV.os.table$BuildingType == "Single Family")
-                                  ,-which(colnames(tableAV.os.table) %in% c("BuildingType"))]
-
-exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-
-#######################
-# Unweighted Analysis
-#######################
-tableAV.os.final <- proportions_two_groups_unweighted(CustomerLevelData = tableAV.os.data
-                                                   ,valueVariable    = 'count'
-                                                   ,columnVariable   = 'CK_Building_ID'
-                                                   ,rowVariable      = 'Income.Level'
-                                                   ,aggregateColumnName = "Remove")
-
-tableAV.os.cast <- dcast(setDT(tableAV.os.final)
-                      , formula = BuildingType + Income.Level ~ CK_Building_ID
-                      , value.var = c("Percent", "SE", "Count", "n"))
-
-if(os.ind == "scl"){
-  tableAV.os.table <- data.frame("BuildingType"          = tableAV.os.cast$BuildingType
-                                 ,"Income.Level"         = tableAV.os.cast$Income.Level
-                                 ,"Percent_SCL.GenPop"   = tableAV.os.cast$`Percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableAV.os.cast$`SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableAV.os.cast$`Percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableAV.os.cast$`SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableAV.os.cast$`Percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableAV.os.cast$`SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
-  )
-}else if(os.ind == "snopud"){
-  tableAV.os.table <- data.frame("BuildingType"             = tableAV.os.cast$BuildingType
-                                 ,"Income.Level"            = tableAV.os.cast$Income.Level
-                                 ,"Percent_SnoPUD"          = tableAV.os.cast$`Percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableAV.os.cast$`SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableAV.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableAV.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableAV.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableAV.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableAV.os.cast$`Percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableAV.os.cast$`SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableAV.os.cast$`n_2017 RBSA NW`
-  )
-}
-
-
-tableAV.os.final.SF <- tableAV.os.table[which(tableAV.os.table$BuildingType == "Single Family")
-                                  ,-which(colnames(tableAV.os.table) %in% c("BuildingType"))]
-
-exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = FALSE, osIndicator = export.ind, OS = T)
+# ############################################################################################################
+# #
+# #
+# # OVERSAMPLE ANALYSIS
+# #
+# #
+# ############################################################################################################
+# # Read in clean os data
+# os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+# length(unique(os.dat$CK_Cadmus_ID))
+# os.dat$CK_Building_ID <- os.dat$Category
+# os.dat <- os.dat[which(names(os.dat) != "Category")]
+# 
+# #############################################################################################
+# #Table AK: Average CFM by Tons of System Capacity by System Type and/or CK_Building_ID
+# #############################################################################################
+# #subset to columns needed for analysis
+# tableAV.os.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
+#                                                             ,"Was.it....0.to.under..25.000"
+#                                                             ,"Was.it....25.000.to.under..50.000"
+#                                                             ,"Was.it....50.000.or.more"))]
+# colnames(tableAV.os.dat) <- c("2015.Houshold.Income.0.to.under.25000"
+#                            , "2015.Houshold.Income.25000.to.under.50000"
+#                            , "2015.Houshold.Income.50000.or.more"
+#                            , "CK_Cadmus_ID")
+# 
+# tableAV.os.melt <- melt(tableAV.os.dat, id.vars = "CK_Cadmus_ID")
+# tableAV.os.melt <- tableAV.os.melt[which(tableAV.os.melt$value %notin% c("Unknown","N/A", NA, "Don't know", "Prefer not to say")),]
+# names(tableAV.os.melt) <- c("CK_Cadmus_ID", "Income.Level", "Detailed.Income.Level")
+# 
+# 
+# #merge together analysis data with cleaned RBSA data
+# tableAV.os.dat1 <- left_join(os.dat, tableAV.os.melt, by = "CK_Cadmus_ID")
+# tableAV.os.dat1 <- tableAV.os.dat1[which(!is.na(tableAV.os.dat1$Income.Level)),]
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableAV.os.data <- weightedData(tableAV.os.dat1[-which(colnames(tableAV.os.dat1) %in% c("Income.Level"
+#                                                                                , "Detailed.Income.Level"))])
+# tableAV.os.data <- left_join(tableAV.os.data, unique(tableAV.os.dat1[which(colnames(tableAV.os.dat1) %in% c("CK_Cadmus_ID"
+#                                                                                                 ,"Income.Level"
+#                                                                                                 , "Detailed.Income.Level"))]))
+# tableAV.os.data$count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableAV.os.final <- proportionRowsAndColumns1(CustomerLevelData = tableAV.os.data
+#                                            ,valueVariable    = 'count'
+#                                            ,columnVariable   = 'CK_Building_ID'
+#                                            ,rowVariable      = 'Income.Level'
+#                                            ,aggregateColumnName = "Remove")
+# 
+# tableAV.os.cast <- dcast(setDT(tableAV.os.final)
+#                       , formula = BuildingType + Income.Level ~ CK_Building_ID
+#                       , value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+# 
+# if(os.ind == "scl"){
+#   tableAV.os.table <- data.frame("BuildingType"          = tableAV.os.cast$BuildingType
+#                                  ,"Income.Level"         = tableAV.os.cast$Income.Level
+#                                  ,"Percent_SCL.GenPop"   = tableAV.os.cast$`w.percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableAV.os.cast$`w.SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableAV.os.cast$`w.percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableAV.os.cast$`w.SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableAV.os.cast$`w.percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableAV.os.cast$`w.SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
+#                                  ,"EB_SCL.GenPop"        = tableAV.os.cast$`EB_SCL GenPop`
+#                                  ,"EB_SCL.LI"            = tableAV.os.cast$`EB_SCL LI`
+#                                  ,"EB_SCL.EH"            = tableAV.os.cast$`EB_SCL EH`
+#                                  ,"EB_2017.RBSA.PS"      = tableAV.os.cast$`EB_2017 RBSA PS`
+#   )
+#   
+# }else if(os.ind == "snopud"){
+#   tableAV.os.table <- data.frame("BuildingType"             = tableAV.os.cast$BuildingType
+#                                  ,"Income.Level"            = tableAV.os.cast$Income.Level
+#                                  ,"Percent_SnoPUD"          = tableAV.os.cast$`w.percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableAV.os.cast$`w.SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableAV.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableAV.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableAV.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableAV.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableAV.os.cast$`w.percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableAV.os.cast$`w.SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableAV.os.cast$`n_2017 RBSA NW`
+#                                  ,"EB_SnoPUD"               = tableAV.os.cast$`EB_SnoPUD`
+#                                  ,"EB_2017.RBSA.PS"         = tableAV.os.cast$`EB_2017 RBSA PS`
+#                                  ,"EB_RBSA.NW"              = tableAV.os.cast$`EB_2017 RBSA NW`
+#   )
+#   
+# }
+# 
+# tableAV.os.final.SF <- tableAV.os.table[which(tableAV.os.table$BuildingType == "Single Family")
+#                                   ,-which(colnames(tableAV.os.table) %in% c("BuildingType"))]
+# 
+# exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# 
+# #######################
+# # Unweighted Analysis
+# #######################
+# tableAV.os.final <- proportions_two_groups_unweighted(CustomerLevelData = tableAV.os.data
+#                                                    ,valueVariable    = 'count'
+#                                                    ,columnVariable   = 'CK_Building_ID'
+#                                                    ,rowVariable      = 'Income.Level'
+#                                                    ,aggregateColumnName = "Remove")
+# 
+# tableAV.os.cast <- dcast(setDT(tableAV.os.final)
+#                       , formula = BuildingType + Income.Level ~ CK_Building_ID
+#                       , value.var = c("Percent", "SE", "Count", "n"))
+# 
+# if(os.ind == "scl"){
+#   tableAV.os.table <- data.frame("BuildingType"          = tableAV.os.cast$BuildingType
+#                                  ,"Income.Level"         = tableAV.os.cast$Income.Level
+#                                  ,"Percent_SCL.GenPop"   = tableAV.os.cast$`Percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableAV.os.cast$`SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableAV.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableAV.os.cast$`Percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableAV.os.cast$`SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableAV.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableAV.os.cast$`Percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableAV.os.cast$`SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableAV.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableAV.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableAV.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableAV.os.cast$`n_2017 RBSA PS`
+#   )
+# }else if(os.ind == "snopud"){
+#   tableAV.os.table <- data.frame("BuildingType"             = tableAV.os.cast$BuildingType
+#                                  ,"Income.Level"            = tableAV.os.cast$Income.Level
+#                                  ,"Percent_SnoPUD"          = tableAV.os.cast$`Percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableAV.os.cast$`SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableAV.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableAV.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableAV.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableAV.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableAV.os.cast$`Percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableAV.os.cast$`SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableAV.os.cast$`n_2017 RBSA NW`
+#   )
+# }
+# 
+# 
+# tableAV.os.final.SF <- tableAV.os.table[which(tableAV.os.table$BuildingType == "Single Family")
+#                                   ,-which(colnames(tableAV.os.table) %in% c("BuildingType"))]
+# 
+# exportTable(tableAV.os.final.SF, "SF", "Table AV", weighted = FALSE, osIndicator = export.ind, OS = T)

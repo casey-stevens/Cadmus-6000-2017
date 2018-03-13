@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list=ls())
+# rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
@@ -29,9 +29,9 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
-                             ,stringsAsFactors = FALSE)
-
+# appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+#                              ,stringsAsFactors = FALSE)
+applliances.dat <- data.frame(appliances.dat, stringsAsFactors = F)
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -123,7 +123,7 @@ tableDD.table.SF <- tableDD.table[which(tableDD.table$BuildingType == "Single Fa
 tableDD.table.MH <- tableDD.table[which(tableDD.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableDD.table) %notin% c("BuildingType"))]
 
-# exportTable(tableDD.table.SF, "SF", "Table DD", weighted = TRUE)
+exportTable(tableDD.table.SF, "SF", "Table DD", weighted = TRUE)
 # exportTable(tableDD.table.MH, "MH", "Table DD", weighted = TRUE)
 
 #######################
@@ -135,7 +135,7 @@ tableDD.final.MF <- proportions_one_group(CustomerLevelData = tableDD.data
                                           ,total.name = "All Types")
 tableDD.table.MF <- tableDD.final.MF[which(tableDD.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableDD.final.MF) != "BuildingType")]
-exportTable(tableDD.table.MF, "MF", "Table DD", weighted = TRUE)
+# exportTable(tableDD.table.MF, "MF", "Table DD", weighted = TRUE)
 
 
 #######################
@@ -188,7 +188,7 @@ tableDD.table.SF <- tableDD.table[which(tableDD.table$BuildingType == "Single Fa
 tableDD.table.MH <- tableDD.table[which(tableDD.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableDD.table) %notin% c("BuildingType"))]
 
-# exportTable(tableDD.table.SF, "SF", "Table DD", weighted = FALSE)
+exportTable(tableDD.table.SF, "SF", "Table DD", weighted = FALSE)
 # exportTable(tableDD.table.MH, "MH", "Table DD", weighted = FALSE)
 
 #######################
@@ -201,7 +201,7 @@ tableDD.final.MF <- proportions_one_group(CustomerLevelData = tableDD.data
                                           ,weighted = FALSE)
 tableDD.table.MF <- tableDD.final.MF[which(tableDD.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableDD.final.MF) != "BuildingType")]
-exportTable(tableDD.table.MF, "MF", "Table DD", weighted = FALSE)
+# exportTable(tableDD.table.MF, "MF", "Table DD", weighted = FALSE)
 
 
 
@@ -245,7 +245,7 @@ tableEE.table.SF <- tableEE.table[which(tableEE.table$BuildingType == "Single Fa
 tableEE.table.MH <- tableEE.table[which(tableEE.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableEE.table) %notin% c("BuildingType"))]
 
-# exportTable(tableEE.table.SF, "SF", "Table EE", weighted = TRUE)
+exportTable(tableEE.table.SF, "SF", "Table EE", weighted = TRUE)
 # exportTable(tableEE.table.MH, "MH", "Table EE", weighted = TRUE)
 
 #######################
@@ -262,7 +262,7 @@ tableEE.table.SF <- tableEE.table[which(tableEE.table$BuildingType == "Single Fa
 tableEE.table.MH <- tableEE.table[which(tableEE.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableEE.table) %notin% c("BuildingType"))]
 
-# exportTable(tableEE.table.SF, "SF", "Table EE", weighted = FALSE)
+exportTable(tableEE.table.SF, "SF", "Table EE", weighted = FALSE)
 # exportTable(tableEE.table.MH, "MH", "Table EE", weighted = FALSE)
 
 
@@ -312,7 +312,7 @@ tableHH.table.SF <- tableHH.table[which(tableHH.table$BuildingType == "Single Fa
 tableHH.table.MH <- tableHH.table[which(tableHH.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableHH.table) %notin% c("BuildingType"))]
 
-# exportTable(tableHH.table.SF, "SF", "Table HH", weighted = TRUE)
+exportTable(tableHH.table.SF, "SF", "Table HH", weighted = TRUE)
 # exportTable(tableHH.table.MH, "MH", "Table HH", weighted = TRUE)
 
 #######################
@@ -329,7 +329,7 @@ tableHH.table.SF <- tableHH.table[which(tableHH.table$BuildingType == "Single Fa
 tableHH.table.MH <- tableHH.table[which(tableHH.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableHH.table) %notin% c("BuildingType"))]
 
-# exportTable(tableHH.table.SF, "SF", "Table HH", weighted = FALSE)
+exportTable(tableHH.table.SF, "SF", "Table HH", weighted = FALSE)
 # exportTable(tableHH.table.MH, "MH", "Table HH", weighted = FALSE)
 
 
@@ -406,7 +406,7 @@ tableII.table.SF <- tableII.table[which(tableII.table$BuildingType == "Single Fa
 tableII.table.MH <- tableII.table[which(tableII.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableII.table) %notin% c("BuildingType"))]
 
-# exportTable(tableII.table.SF, "SF", "Table II", weighted = TRUE)
+exportTable(tableII.table.SF, "SF", "Table II", weighted = TRUE)
 # exportTable(tableII.table.MH, "MH", "Table II", weighted = TRUE)
 
 
@@ -445,7 +445,7 @@ tableII.table.SF <- tableII.table[which(tableII.table$BuildingType == "Single Fa
 tableII.table.MH <- tableII.table[which(tableII.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableII.table) %notin% c("BuildingType"))]
 
-# exportTable(tableII.table.SF, "SF", "Table II", weighted = FALSE)
+exportTable(tableII.table.SF, "SF", "Table II", weighted = FALSE)
 # exportTable(tableII.table.MH, "MH", "Table II", weighted = FALSE)
 
 
@@ -498,7 +498,7 @@ tableKK.table.SF <- tableKK.table[which(tableKK.table$BuildingType == "Single Fa
 tableKK.table.MH <- tableKK.table[which(tableKK.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableKK.table) %notin% c("BuildingType"))]
 
-# exportTable(tableKK.table.SF, "SF", "Table KK", weighted = TRUE)
+exportTable(tableKK.table.SF, "SF", "Table KK", weighted = TRUE)
 # exportTable(tableKK.table.MH, "MH", "Table KK", weighted = TRUE)
 
 
@@ -513,7 +513,7 @@ tableKK.table <- proportions_one_group(CustomerLevelData = tableKK.data
 
 tableKK.table.MF <- tableKK.table[which(tableKK.table$BuildingType == "Multifamily")
                                   ,which(colnames(tableKK.table) %notin% c("BuildingType"))]
-exportTable(tableKK.table.MF, "MF","Table KK",weighted = TRUE)
+# exportTable(tableKK.table.MF, "MF","Table KK",weighted = TRUE)
 
 
 
@@ -533,7 +533,7 @@ tableKK.table.SF <- tableKK.table[which(tableKK.table$BuildingType == "Single Fa
 tableKK.table.MH <- tableKK.table[which(tableKK.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableKK.table) %notin% c("BuildingType"))]
 
-# exportTable(tableKK.table.SF, "SF", "Table KK", weighted = FALSE)
+exportTable(tableKK.table.SF, "SF", "Table KK", weighted = FALSE)
 # exportTable(tableKK.table.MH, "MH", "Table KK", weighted = FALSE)
 
 ########################
@@ -547,7 +547,7 @@ tableKK.table <- proportions_one_group(CustomerLevelData = tableKK.data
 
 tableKK.table.MF <- tableKK.table[which(tableKK.table$BuildingType == "Multifamily")
                                   ,which(colnames(tableKK.table) %notin% c("BuildingType"))]
-exportTable(tableKK.table.MF, "MF","Table KK",weighted = FALSE)
+# exportTable(tableKK.table.MF, "MF","Table KK",weighted = FALSE)
 
 
 
@@ -618,7 +618,7 @@ tableMM.table.SF <- tableMM.table[which(tableMM.table$BuildingType == "Single Fa
 tableMM.table.MH <- tableMM.table[which(tableMM.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableMM.table) %notin% c("BuildingType"))]
 
-# exportTable(tableMM.table.SF, "SF", "Table MM", weighted = TRUE)
+exportTable(tableMM.table.SF, "SF", "Table MM", weighted = TRUE)
 # exportTable(tableMM.table.MH, "MH", "Table MM", weighted = TRUE)
 
 #######################
@@ -659,7 +659,7 @@ tableMM.cast.MF <- data.frame("BuildingType"        = tableMM.cast.MF$BuildingTy
 
 tableMM.table.MF <- tableMM.cast.MF[which(tableMM.cast.MF$BuildingType == "Multifamily")
                                      ,which(names(tableMM.cast.MF) != "BuildingType")]
-exportTable(tableMM.table.MF, "MF","Table MM",weighted = TRUE)
+# exportTable(tableMM.table.MF, "MF","Table MM",weighted = TRUE)
 
 
 
@@ -698,7 +698,7 @@ tableMM.table.SF <- tableMM.table[which(tableMM.table$BuildingType == "Single Fa
 tableMM.table.MH <- tableMM.table[which(tableMM.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableMM.table) %notin% c("BuildingType"))]
 
-# exportTable(tableMM.table.SF, "SF", "Table MM", weighted = FALSE)
+exportTable(tableMM.table.SF, "SF", "Table MM", weighted = FALSE)
 # exportTable(tableMM.table.MH, "MH", "Table MM", weighted = FALSE)
 
 #######################
@@ -734,7 +734,7 @@ tableMM.cast.MF <- data.frame("BuildingType"        = tableMM.cast.MF$BuildingTy
 
 tableMM.table.MF <- tableMM.cast.MF[which(tableMM.cast.MF$BuildingType == "Multifamily")
                                     ,which(names(tableMM.cast.MF) != "BuildingType")]
-exportTable(tableMM.table.MF, "MF","Table MM",weighted = FALSE)
+# exportTable(tableMM.table.MF, "MF","Table MM",weighted = FALSE)
 
 
 
@@ -839,7 +839,7 @@ tableLL.table.SF <- tableLL.table[which(tableLL.table$BuildingType == "Single Fa
 tableLL.table.MH <- tableLL.table[which(tableLL.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableLL.table) %notin% c("BuildingType"))]
 
-# exportTable(tableLL.table.SF, "SF", "Table LL", weighted = TRUE)
+exportTable(tableLL.table.SF, "SF", "Table LL", weighted = TRUE)
 # exportTable(tableLL.table.MH, "MH", "Table LL", weighted = TRUE)
 
 #######################
@@ -852,7 +852,7 @@ tableLL.final.MF <- proportions_one_group(CustomerLevelData = tableLL.data
                                           ,weighted = TRUE)
 tableLL.table.MF <- tableLL.final.MF[which(tableLL.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableLL.final.MF) != "BuildingType")]
-exportTable(tableLL.table.MF, "MF","Table LL",weighted = TRUE)
+# exportTable(tableLL.table.MF, "MF","Table LL",weighted = TRUE)
 
 
 
@@ -895,7 +895,7 @@ tableLL.table.SF <- tableLL.table[which(tableLL.table$BuildingType == "Single Fa
 tableLL.table.MH <- tableLL.table[which(tableLL.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableLL.table) %notin% c("BuildingType"))]
 
-# exportTable(tableLL.table.SF, "SF", "Table LL", weighted = FALSE)
+exportTable(tableLL.table.SF, "SF", "Table LL", weighted = FALSE)
 # exportTable(tableLL.table.MH, "MH", "Table LL", weighted = FALSE)
 
 #######################
@@ -908,7 +908,7 @@ tableLL.final.MF <- proportions_one_group(CustomerLevelData = tableLL.data
                                           ,weighted = FALSE)
 tableLL.table.MF <- tableLL.final.MF[which(tableLL.final.MF$BuildingType == "Multifamily")
                                      ,which(names(tableLL.final.MF) != "BuildingType")]
-exportTable(tableLL.table.MF, "MF","Table LL",weighted = FALSE)
+# exportTable(tableLL.table.MF, "MF","Table LL",weighted = FALSE)
 
 
 
@@ -959,7 +959,7 @@ tableGG.table.SF <- tableGG.table[which(tableGG.table$BuildingType == "Single Fa
 tableGG.table.MH <- tableGG.table[which(tableGG.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableGG.table) %notin% c("BuildingType"))]
 
-# exportTable(tableGG.table.SF, "SF", "Table GG", weighted = TRUE)
+exportTable(tableGG.table.SF, "SF", "Table GG", weighted = TRUE)
 # exportTable(tableGG.table.MH, "MH", "Table GG", weighted = TRUE)
 
 #######################
@@ -975,7 +975,7 @@ tableGG.table.SF <- tableGG.table[which(tableGG.table$BuildingType == "Single Fa
 tableGG.table.MH <- tableGG.table[which(tableGG.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableGG.table) %notin% c("BuildingType"))]
 
-# exportTable(tableGG.table.SF, "SF", "Table GG", weighted = FALSE)
+exportTable(tableGG.table.SF, "SF", "Table GG", weighted = FALSE)
 # exportTable(tableGG.table.MH, "MH", "Table GG", weighted = FALSE)
 
 
@@ -1010,840 +1010,840 @@ tableGG.table.MH <- tableGG.table[which(tableGG.table$BuildingType == "Manufactu
 
 
 
-############################################################################################################
-#
-#
-# OVERSAMPLE ANALYSIS
-#
-#
-############################################################################################################
-
-# Read in clean os data
-os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
-length(unique(os.dat$CK_Cadmus_ID))
-os.dat$CK_Building_ID <- os.dat$Category
-os.dat <- os.dat[which(names(os.dat) != "Category")]
-
-#############################################################################################
-# Table DD: Distribution of thermostats by Type
-#############################################################################################
-#For everything else
-tableDD.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Thermostat.Type"))]
-
-tableDD.os.dat0 <- tableDD.os.dat[which(tableDD.os.dat$Type == "Thermostat"),]
-
-tableDD.os.merge <- left_join(os.dat, tableDD.os.dat0, by = "CK_Cadmus_ID")
-tableDD.os.merge <- tableDD.os.merge[which(!is.na(tableDD.os.merge$Thermostat.Type)),]
-
-unique(tableDD.os.merge$Thermostat.Type)
-tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual Thermostat - Digital"
-tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable Thermostat"
-tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual Thermostat - Analog"
-
-
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableDD.os.data <- weightedData(tableDD.os.merge[-which(colnames(tableDD.os.merge) %in% c("Count"
-                                                                                 ,"Type"
-                                                                                 ,"Thermostat.Type"))])
-tableDD.os.data <- left_join(tableDD.os.data, unique(tableDD.os.merge[which(colnames(tableDD.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Count"
-                                                                                           ,"Type"
-                                                                                           ,"Thermostat.Type"))]))
-tableDD.os.data$count <- 1
-tableDD.os.data$Thermostat.Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableDD.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableDD.os.data
-                                             ,valueVariable = "Thermostat.Count"
-                                             ,columnVariable = "CK_Building_ID"
-                                             ,rowVariable = "Thermostat.Type"
-                                             ,aggregateColumnName = "Remove")
-
-tableDD.os.cast <- dcast(setDT(tableDD.os.summary)
-                      ,formula = BuildingType + Thermostat.Type ~ CK_Building_ID
-                      ,value.var = c("w.percent","w.SE","count","n", "N","EB"))
-
-if(os.ind == "scl"){
-  tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
-                                 ,"Thermostat.Type"= tableDD.os.cast$Thermostat.Type
-                                 ,"Percent_SCL.GenPop"   = tableDD.os.cast$`w.percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableDD.os.cast$`w.SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableDD.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableDD.os.cast$`w.percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableDD.os.cast$`w.SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableDD.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableDD.os.cast$`w.percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableDD.os.cast$`w.SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableDD.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableDD.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableDD.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableDD.os.cast$`n_2017 RBSA PS`
-                                 ,"EB_SCL.GenPop"        = tableDD.os.cast$`EB_SCL GenPop`
-                                 ,"EB_SCL.LI"            = tableDD.os.cast$`EB_SCL LI`
-                                 ,"EB_SCL.EH"            = tableDD.os.cast$`EB_SCL EH`
-                                 ,"EB_2017.RBSA.PS"      = tableDD.os.cast$`EB_2017 RBSA PS`
-  )
-  
-}else if(os.ind == "snopud"){
-  tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
-                                 ,"Thermostat.Type"= tableDD.os.cast$Thermostat.Type
-                                 ,"Percent_SnoPUD"          = tableDD.os.cast$`w.percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableDD.os.cast$`w.SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableDD.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableDD.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableDD.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableDD.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableDD.os.cast$`w.percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableDD.os.cast$`w.SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableDD.os.cast$`n_2017 RBSA NW`
-                                 ,"EB_SnoPUD"               = tableDD.os.cast$`EB_SnoPUD`
-                                 ,"EB_2017.RBSA.PS"         = tableDD.os.cast$`EB_2017 RBSA PS`
-                                 ,"EB_RBSA.NW"              = tableDD.os.cast$`EB_2017 RBSA NW`
-  )
-  
-}
-
-levels(tableDD.os.table$Thermostat.Type)
-rowOrder <- c("Manual Thermostat - Analog"
-              ,"Manual Thermostat - Digital"
-              ,"Programmable Thermostat"
-              ,"Smart Thermostat"
-              ,"Smart/Wi-Fi Thermostat"
-              ,"Wi-Fi Enabled Thermostat"
-              ,"None"
-              ,"Unknown"
-              ,"Total")
-tableDD.os.table <- tableDD.os.table %>% mutate(Thermostat.Type = factor(Thermostat.Type, levels = rowOrder)) %>% arrange(Thermostat.Type)  
-tableDD.os.table <- data.frame(tableDD.os.table)
-
-tableDD.os.table.SF <- tableDD.os.table[which(tableDD.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableDD.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableDD.os.table.SF, "SF", "Table DD", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# unweighted Analysis
-#######################
-tableDD.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableDD.os.data
-                                                     ,valueVariable = "Thermostat.Count"
-                                                     ,columnVariable = "CK_Building_ID"
-                                                     ,rowVariable = "Thermostat.Type"
-                                                     ,aggregateColumnName = "Remove")
-
-tableDD.os.cast <- dcast(setDT(tableDD.os.summary)
-                      ,formula = BuildingType + Thermostat.Type ~ CK_Building_ID
-                      ,value.var = c("Percent","SE","Count","n"))
-
-if(os.ind == "scl"){
-  tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
-                                 ,"Thermostat.Type" = tableDD.os.cast$Thermostat.Type
-                                 ,"Percent_SCL.GenPop"   = tableDD.os.cast$`Percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableDD.os.cast$`SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableDD.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableDD.os.cast$`Percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableDD.os.cast$`SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableDD.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableDD.os.cast$`Percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableDD.os.cast$`SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableDD.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableDD.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableDD.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableDD.os.cast$`n_2017 RBSA PS`
-  )
-  
-}else if(os.ind == "snopud"){
-  tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
-                                 ,"Thermostat.Type" = tableDD.os.cast$Thermostat.Type
-                                 ,"Percent_SnoPUD"          = tableDD.os.cast$`Percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableDD.os.cast$`SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableDD.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableDD.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableDD.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableDD.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableDD.os.cast$`Percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableDD.os.cast$`SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableDD.os.cast$`n_2017 RBSA NW`
-  )
-  
-}
-
-levels(tableDD.os.table$Thermostat.Type)
-rowOrder <- c("Manual Thermostat - Analog"
-              ,"Manual Thermostat - Digital"
-              ,"Programmable Thermostat"
-              ,"Smart Thermostat"
-              ,"Smart/Wi-Fi Thermostat"
-              ,"Wi-Fi Enabled Thermostat"
-              ,"None"
-              ,"Unknown"
-              ,"Total")
-tableDD.os.table <- tableDD.os.table %>% mutate(Thermostat.Type = factor(Thermostat.Type, levels = rowOrder)) %>% arrange(Thermostat.Type)  
-tableDD.os.table <- data.frame(tableDD.os.table)
-
-tableDD.os.table.SF <- tableDD.os.table[which(tableDD.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableDD.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableDD.os.table.SF, "SF", "Table DD", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table EE: Percent of homes with smart thermostats by CK_Building_ID
-#############################################################################################
-#For everything else
-tableEE.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Thermostat.Type"))]
-
-tableEE.os.dat0 <- tableEE.os.dat[grep("smart",tableEE.os.dat$Thermostat.Type, ignore.case = T),]
-
-tableEE.os.merge <- left_join(os.dat, tableEE.os.dat0, by = "CK_Cadmus_ID")
-tableEE.os.merge$Ind <- 0
-tableEE.os.merge$Ind[which(!is.na(tableEE.os.merge$Thermostat.Type))] <- 1
-
-
-################################################
-# AEEing pop and sample sizes for weights
-################################################
-tableEE.os.data <- weightedData(tableEE.os.merge[-which(colnames(tableEE.os.merge) %in% c("Count"
-                                                                                 ,"Type"
-                                                                                 ,"Thermostat.Type","Ind"))])
-tableEE.os.data <- left_join(tableEE.os.data, unique(tableEE.os.merge[which(colnames(tableEE.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Count"
-                                                                                           ,"Type"
-                                                                                           ,"Thermostat.Type","Ind"))]))
-tableEE.os.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableEE.os.table <- proportions_one_group(CustomerLevelData = tableEE.os.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "CK_Building_ID"
-                                       ,total.name = "Remove"
-                                       ,weighted = TRUE)
-tableEE.os.table <- tableEE.os.table[which(tableEE.os.table$CK_Building_ID %notin% c("Remove","Total")),]
-
-tableEE.os.table.SF <- tableEE.os.table[which(tableEE.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableEE.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableEE.os.table.SF, "SF", "Table EE", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# Weighted Analysis
-#######################
-tableEE.os.table <- proportions_one_group(CustomerLevelData = tableEE.os.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "CK_Building_ID"
-                                       ,total.name = "Remove"
-                                       ,weighted = FALSE)
-
-tableEE.os.table <- tableEE.os.table[which(tableEE.os.table$CK_Building_ID %notin% c("Remove","Total")),]
-
-tableEE.os.table.SF <- tableEE.os.table[which(tableEE.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableEE.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableEE.os.table.SF, "SF", "Table EE", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table HH: Percent of homes with smart powerstips by CK_Building_ID
-#############################################################################################
-#For everything else
-tableHH.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Smart.Power.Strip"))]
-
-tableHH.os.dat0 <- tableHH.os.dat[grep("power",tableHH.os.dat$Type, ignore.case = T),]
-tableHH.os.dat1 <- tableHH.os.dat0[which(tableHH.os.dat0$Smart.Power.Strip %in% c("Yes","No")),]
-
-tableHH.os.merge <- left_join(os.dat, tableHH.os.dat1, by = "CK_Cadmus_ID")
-
-tableHH.os.merge <- tableHH.os.merge[which(!is.na(tableHH.os.merge$Smart.Power.Strip)),]
-tableHH.os.merge$Ind <- 0
-tableHH.os.merge$Ind[which(tableHH.os.merge$Smart.Power.Strip == "Yes")] <- 1
-
-tableHH.os.sum <- summarise(group_by(tableHH.os.merge, CK_Cadmus_ID)
-                         ,Ind = sum(Ind))
-
-tableHH.os.sum$Ind[which(tableHH.os.sum$Ind > 0)] <- 1
-
-tableHH.os.merge <- left_join(os.dat, tableHH.os.sum, by = "CK_Cadmus_ID")
-tableHH.os.merge$Ind[which(is.na(tableHH.os.merge$Ind))] <- 0
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableHH.os.data <- weightedData(tableHH.os.merge[-which(colnames(tableHH.os.merge) %in% c("Ind"))])
-tableHH.os.data <- left_join(tableHH.os.data, unique(tableHH.os.merge[which(colnames(tableHH.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))]))
-tableHH.os.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableHH.os.table <- proportions_one_group(CustomerLevelData = tableHH.os.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "CK_Building_ID"
-                                       ,total.name = "Remove"
-                                       ,weighted = TRUE)
-tableHH.os.table <- tableHH.os.table[which(tableHH.os.table$CK_Building_ID %notin% c("Remove","Total")),]
-
-tableHH.os.table.SF <- tableHH.os.table[which(tableHH.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableHH.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableHH.os.table.SF, "SF", "Table HH", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# Weighted Analysis
-#######################
-tableHH.os.table <- proportions_one_group(CustomerLevelData = tableHH.os.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "CK_Building_ID"
-                                       ,total.name = "Remove"
-                                       ,weighted = FALSE)
-
-tableHH.os.table <- tableHH.os.table[which(tableHH.os.table$CK_Building_ID %notin% c("Remove","Total")),]
-
-tableHH.os.table.SF <- tableHH.os.table[which(tableHH.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableHH.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableHH.os.table.SF, "SF", "Table HH", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table II: Distribution of power strips by use type and CK_Building_ID
-#############################################################################################
-#For everything else
-colnames(appliances.dat)[grep("power",colnames(appliances.dat), ignore.case = T)]
-tableII.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Power.Strip.Use"))]
-
-tableII.os.dat0 <- tableII.os.dat[grep("power",tableII.os.dat$Type, ignore.case = T),]
-
-tableII.os.merge <- left_join(os.dat, tableII.os.dat0, by = "CK_Cadmus_ID")
-
-tableII.os.merge <- tableII.os.merge[which((tableII.os.merge$Power.Strip.Use %notin% c("Unknown",NA))),]
-tableII.os.merge$Power.Strip.Use <- trimws(tableII.os.merge$Power.Strip.Use)
-unique(tableII.os.merge$Power.Strip.Use)
-
-tableII.os.merge$Power.Strip.Use[grep("aquarium|charger", tableII.os.merge$Power.Strip.Use, ignore.case = T)] <- "Other"
-
-tableII.os.merge <- left_join(os.dat, tableII.os.merge)
-tableII.os.merge <- tableII.os.merge[which(!is.na(tableII.os.merge$Power.Strip.Use)),]
-length(unique(tableII.os.merge$CK_Cadmus_ID[which(tableII.os.merge$BuildingType == "Single Family")]))
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableII.os.data <- weightedData(tableII.os.merge[-which(colnames(tableII.os.merge) %in% c("Type"
-                                                                                 ,"Power.Strip.Use"))])
-tableII.os.data <- left_join(tableII.os.data, unique(tableII.os.merge[which(colnames(tableII.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Type"
-                                                                                           ,"Power.Strip.Use"))]))
-tableII.os.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableII.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableII.os.data
-                                             ,valueVariable = "Count"
-                                             ,columnVariable = "CK_Building_ID"
-                                             ,rowVariable = "Power.Strip.Use"
-                                             ,aggregateColumnName = "Remove")
-tableII.os.cast <- dcast(setDT(tableII.os.summary)
-                      ,formula = BuildingType + Power.Strip.Use ~ CK_Building_ID
-                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
-
-if(os.ind == "scl"){
-  tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
-                                 ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
-                                 ,"Percent_SCL.GenPop"   = tableII.os.cast$`w.percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableII.os.cast$`w.SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableII.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableII.os.cast$`w.percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableII.os.cast$`w.SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableII.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableII.os.cast$`w.percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableII.os.cast$`w.SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableII.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableII.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableII.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableII.os.cast$`n_2017 RBSA PS`
-                                 ,"EB_SCL.GenPop"        = tableII.os.cast$`EB_SCL GenPop`
-                                 ,"EB_SCL.LI"            = tableII.os.cast$`EB_SCL LI`
-                                 ,"EB_SCL.EH"            = tableII.os.cast$`EB_SCL EH`
-                                 ,"EB_2017.RBSA.PS"      = tableII.os.cast$`EB_2017 RBSA PS`)
-  
-}else if(os.ind == "snopud"){
-  tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
-                                 ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
-                                 ,"Percent_SnoPUD"          = tableII.os.cast$`w.percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableII.os.cast$`w.SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableII.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableII.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableII.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableII.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableII.os.cast$`w.percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableII.os.cast$`w.SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableII.os.cast$`n_2017 RBSA NW`
-                                 ,"EB_SnoPUD"               = tableII.os.cast$`EB_SnoPUD`
-                                 ,"EB_2017.RBSA.PS"         = tableII.os.cast$`EB_2017 RBSA PS`
-                                 ,"EB_RBSA.NW"              = tableII.os.cast$`EB_2017 RBSA NW`)
-  
-}
-
-tableII.os.table.SF <- tableII.os.table[which(tableII.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableII.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableII.os.table.SF, "SF", "Table II", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# Weighted Analysis
-#######################
-tableII.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableII.os.data
-                                                     ,valueVariable = "Count"
-                                                     ,columnVariable = "CK_Building_ID"
-                                                     ,rowVariable = "Power.Strip.Use"
-                                                     ,aggregateColumnName = "Remove")
-tableII.os.cast <- dcast(setDT(tableII.os.summary)
-                      ,formula = BuildingType + Power.Strip.Use ~ CK_Building_ID
-                      ,value.var = c("Percent","SE","Count","n"))
-
-if(os.ind == "scl"){
-  tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
-                                 ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
-                                 ,"Percent_SCL.GenPop"   = tableII.os.cast$`Percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableII.os.cast$`SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableII.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableII.os.cast$`Percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableII.os.cast$`SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableII.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableII.os.cast$`Percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableII.os.cast$`SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableII.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableII.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableII.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableII.os.cast$`n_2017 RBSA PS`)
-  
-}else if(os.ind == "snopud"){
-  tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
-                                 ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
-                                 ,"Percent_SnoPUD"          = tableII.os.cast$`Percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableII.os.cast$`SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableII.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableII.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableII.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableII.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableII.os.cast$`Percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableII.os.cast$`SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableII.os.cast$`n_2017 RBSA NW`)
-  
-}
-
-tableII.os.table.SF <- tableII.os.table[which(tableII.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableII.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableII.os.table.SF, "SF", "Table II", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table KK: Percent of Homes with Vented Dryers by CK_Building_ID
-#############################################################################################
-#For everything else
-tableKK.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Vented"))]
-
-tableKK.os.dat0 <- tableKK.os.dat[grep("dryer",tableKK.os.dat$Type, ignore.case = T),]
-tableKK.os.dat1 <- tableKK.os.dat0[which(tableKK.os.dat0$Dryer.Vented %in% c("Yes","No")),]
-
-tableKK.os.merge <- left_join(os.dat, tableKK.os.dat1, by = "CK_Cadmus_ID")
-
-tableKK.os.merge <- tableKK.os.merge[which(!is.na(tableKK.os.merge$Dryer.Vented)),]
-tableKK.os.merge$Ind <- 0
-tableKK.os.merge$Ind[which(tableKK.os.merge$Dryer.Vented == "Yes")] <- 1
-
-tableKK.os.sum <- summarise(group_by(tableKK.os.merge, CK_Cadmus_ID)
-                         ,Ind = sum(Ind))
-
-tableKK.os.sum$Ind[which(tableKK.os.sum$Ind > 0)] <- 1
-
-tableKK.os.merge <- left_join(os.dat, tableKK.os.sum, by = "CK_Cadmus_ID")
-tableKK.os.merge <- tableKK.os.merge[which(!is.na(tableKK.os.merge$Ind)),]
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableKK.os.data <- weightedData(tableKK.os.merge[-which(colnames(tableKK.os.merge) %in% c("Ind"))])
-tableKK.os.data <- left_join(tableKK.os.data, unique(tableKK.os.merge[which(colnames(tableKK.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))]))
-tableKK.os.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableKK.os.table <- proportions_one_group(CustomerLevelData = tableKK.os.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "CK_Building_ID"
-                                       ,total.name = "Remove"
-                                       ,weighted = TRUE)
-tableKK.os.table <- tableKK.os.table[which(tableKK.os.table$CK_Building_ID %notin% c("Remove", "Total")),]
-
-tableKK.os.table.SF <- tableKK.os.table[which(tableKK.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableKK.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableKK.os.table.SF, "SF", "Table KK", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# unweighted Analysis
-#######################
-tableKK.os.table <- proportions_one_group(CustomerLevelData = tableKK.os.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "CK_Building_ID"
-                                       ,total.name = "Remove"
-                                       ,weighted = FALSE)
-tableKK.os.table <- tableKK.os.table[which(tableKK.os.table$CK_Building_ID %notin% c("Remove", "Total")),]
-
-tableKK.os.table.SF <- tableKK.os.table[which(tableKK.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableKK.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableKK.os.table.SF, "SF", "Table KK", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table MM: Percent of homes with smart powerstips by CK_Building_ID
-#############################################################################################
-#For everything else
-tableMM.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Fuel"))]
-
-tableMM.os.dat0 <- tableMM.os.dat[grep("dryer",tableMM.os.dat$Type, ignore.case = T),]
-
-tableMM.os.merge <- left_join(os.dat, tableMM.os.dat0, by = "CK_Cadmus_ID")
-
-tableMM.os.merge <- tableMM.os.merge[which((tableMM.os.merge$Dryer.Fuel %notin% c("N/A",NA,"Unknown"))),]
-tableMM.os.merge$Dryer.Fuel <- trimws(tableMM.os.merge$Dryer.Fuel)
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableMM.os.data <- weightedData(tableMM.os.merge[-which(colnames(tableMM.os.merge) %in% c("Type"
-                                                                                 ,"Dryer.Fuel"))])
-tableMM.os.data <- left_join(tableMM.os.data, unique(tableMM.os.merge[which(colnames(tableMM.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Type"
-                                                                                           ,"Dryer.Fuel"))]))
-tableMM.os.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableMM.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableMM.os.data
-                                             ,valueVariable = "Count"
-                                             ,columnVariable = "CK_Building_ID"
-                                             ,rowVariable = "Dryer.Fuel"
-                                             ,aggregateColumnName = "Remove")
-tableMM.os.cast <- dcast(setDT(tableMM.os.summary)
-                      ,formula = BuildingType + Dryer.Fuel ~ CK_Building_ID
-                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
-
-if(os.ind == "scl"){
-  tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
-                                 ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
-                                 ,"Percent_SCL.GenPop"   = tableMM.os.cast$`w.percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableMM.os.cast$`w.SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableMM.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableMM.os.cast$`w.percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableMM.os.cast$`w.SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableMM.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableMM.os.cast$`w.percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableMM.os.cast$`w.SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableMM.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableMM.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableMM.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableMM.os.cast$`n_2017 RBSA PS`
-                                 ,"EB_SCL.GenPop"        = tableMM.os.cast$`EB_SCL GenPop`
-                                 ,"EB_SCL.LI"            = tableMM.os.cast$`EB_SCL LI`
-                                 ,"EB_SCL.EH"            = tableMM.os.cast$`EB_SCL EH`
-                                 ,"EB_2017.RBSA.PS"      = tableMM.os.cast$`EB_2017 RBSA PS`)
-  
-}else if(os.ind == "snopud"){
-  tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
-                                 ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
-                                 ,"Percent_SnoPUD"          = tableMM.os.cast$`w.percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableMM.os.cast$`w.SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableMM.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableMM.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableMM.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableMM.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableMM.os.cast$`w.percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableMM.os.cast$`w.SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableMM.os.cast$`n_2017 RBSA NW`
-                                 ,"EB_SnoPUD"               = tableMM.os.cast$`EB_SnoPUD`
-                                 ,"EB_2017.RBSA.PS"         = tableMM.os.cast$`EB_2017 RBSA PS`
-                                 ,"EB_RBSA.NW"              = tableMM.os.cast$`EB_2017 RBSA NW`)
-  
-}
-
-tableMM.os.table.SF <- tableMM.os.table[which(tableMM.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableMM.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableMM.os.table.SF, "SF", "Table MM", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# unweighted Analysis
-#######################
-tableMM.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableMM.os.data
-                                                     ,valueVariable = "Count"
-                                                     ,columnVariable = "CK_Building_ID"
-                                                     ,rowVariable = "Dryer.Fuel"
-                                                     ,aggregateColumnName = "Remove")
-tableMM.os.cast <- dcast(setDT(tableMM.os.summary)
-                      ,formula = BuildingType + Dryer.Fuel ~ CK_Building_ID
-                      ,value.var = c("Percent","SE","Count","n"))
-
-if(os.ind == "scl"){
-  tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
-                                 ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
-                                 ,"Percent_SCL.GenPop"   = tableMM.os.cast$`Percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableMM.os.cast$`SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableMM.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableMM.os.cast$`Percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableMM.os.cast$`SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableMM.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableMM.os.cast$`Percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableMM.os.cast$`SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableMM.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableMM.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableMM.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableMM.os.cast$`n_2017 RBSA PS`)
-  
-}else if(os.ind == "snopud"){
-  tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
-                                 ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
-                                 ,"Percent_SnoPUD"          = tableMM.os.cast$`Percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableMM.os.cast$`SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableMM.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableMM.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableMM.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableMM.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableMM.os.cast$`Percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableMM.os.cast$`SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableMM.os.cast$`n_2017 RBSA NW`)
-  
-}
-
-tableMM.os.table.SF <- tableMM.os.table[which(tableMM.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableMM.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableMM.os.table.SF, "SF", "Table MM", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table LL: Percent of homes with smart powerstips by CK_Building_ID
-#############################################################################################
-#For everything else
-tableLL.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                    ,"Type"
-                                                                    ,"Wifi.Enabled"))]
-names(tableLL.os.dat)
-
-tableLL.os.melt <- melt(tableLL.os.dat, id.vars = c("CK_Cadmus_ID","Type"))
-tableLL.os.melt <- tableLL.os.melt[which(!is.na(tableLL.os.melt$value)),]
-tableLL.os.melt <- tableLL.os.melt[which(tableLL.os.melt$value %in% c("Yes","No")),]
-unique(tableLL.os.melt$value)
-names(tableLL.os.melt) <- c("CK_Cadmus_ID","Type","Type.Wifi","Wifi.Connected")
-
-tableLL.os.melt$Ind <- 0
-tableLL.os.melt$Ind[which(tableLL.os.melt$Wifi.Connected == "Yes")] <- 1
-unique(tableLL.os.melt$Type)
-
-tableLL.os.sum <- summarise(group_by(tableLL.os.melt, CK_Cadmus_ID, Type)
-                         ,Site.Count = sum(Ind))
-
-
-tableLL.os.sub <- tableLL.os.sum[which(tableLL.os.sum$Type %in% c("Dryer","Washer","Refrigerator","Freezer","Stove/Oven")),]
-
-tableLL.os.merge <- left_join(os.dat, tableLL.os.sub)
-tableLL.os.merge <- tableLL.os.merge[which(!is.na(tableLL.os.merge$Type)),]
-
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableLL.os.data <- weightedData(tableLL.os.merge[-which(colnames(tableLL.os.merge) %in% c("Type"
-                                                                                 ,"Site.Count"))])
-tableLL.os.data <- left_join(tableLL.os.data, unique(tableLL.os.merge[which(colnames(tableLL.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Type"
-                                                                                           ,"Site.Count"))]))
-tableLL.os.data$Count <- 1
-tableLL.os.data$Ind <- tableLL.os.data$Site.Count
-
-#######################
-# Weighted Analysis
-#######################
-tableLL.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableLL.os.data
-                                             ,valueVariable = "Ind"
-                                             ,columnVariable = "CK_Building_ID"
-                                             ,rowVariable = "Type"
-                                             ,aggregateColumnName = "Remove")
-tableLL.os.summary <- tableLL.os.summary[which(tableLL.os.summary$Type != "Total"),]
-
-tableLL.os.cast <- dcast(setDT(tableLL.os.summary)
-                      ,formula = BuildingType + Type ~ CK_Building_ID
-                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
-
-if(os.ind == "scl"){
-  tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
-                                 ,"Type"           = tableLL.os.cast$Type
-                                 ,"Percent_SCL.GenPop"   = tableLL.os.cast$`w.percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableLL.os.cast$`w.SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableLL.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableLL.os.cast$`w.percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableLL.os.cast$`w.SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableLL.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableLL.os.cast$`w.percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableLL.os.cast$`w.SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableLL.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableLL.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableLL.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableLL.os.cast$`n_2017 RBSA PS`
-                                 ,"EB_SCL.GenPop"        = tableLL.os.cast$`EB_SCL GenPop`
-                                 ,"EB_SCL.LI"            = tableLL.os.cast$`EB_SCL LI`
-                                 ,"EB_SCL.EH"            = tableLL.os.cast$`EB_SCL EH`
-                                 ,"EB_2017.RBSA.PS"      = tableLL.os.cast$`EB_2017 RBSA PS`)
-  
-}else if(os.ind == "snopud"){
-  tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
-                                 ,"Type"           = tableLL.os.cast$Type
-                                 ,"Percent_SnoPUD"          = tableLL.os.cast$`w.percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableLL.os.cast$`w.SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableLL.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableLL.os.cast$`w.percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableLL.os.cast$`w.SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableLL.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableLL.os.cast$`w.percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableLL.os.cast$`w.SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableLL.os.cast$`n_2017 RBSA NW`
-                                 ,"EB_SnoPUD"               = tableLL.os.cast$`EB_SnoPUD`
-                                 ,"EB_2017.RBSA.PS"         = tableLL.os.cast$`EB_2017 RBSA PS`
-                                 ,"EB_RBSA.NW"              = tableLL.os.cast$`EB_2017 RBSA NW`)
-  
-}
-
-tableLL.os.table.SF <- tableLL.os.table[which(tableLL.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableLL.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableLL.os.table.SF, "SF", "Table LL", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# unweighted Analysis
-#######################
-tableLL.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableLL.os.data
-                                                     ,valueVariable = "Ind"
-                                                     ,columnVariable = "CK_Building_ID"
-                                                     ,rowVariable = "Type"
-                                                     ,aggregateColumnName = "Remove")
-tableLL.os.summary <- tableLL.os.summary[which(tableLL.os.summary$Type != "Total"),]
-
-tableLL.os.cast <- dcast(setDT(tableLL.os.summary)
-                      ,formula = BuildingType + Type ~ CK_Building_ID
-                      ,value.var = c("Percent","SE","Count","n"))
-
-if(os.ind == "scl"){
-  tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
-                                 ,"Type"           = tableLL.os.cast$Type
-                                 ,"Percent_SCL.GenPop"   = tableLL.os.cast$`Percent_SCL GenPop`
-                                 ,"SE_SCL.GenPop"        = tableLL.os.cast$`SE_SCL GenPop`
-                                 ,"n_SCL.GenPop"         = tableLL.os.cast$`n_SCL GenPop`
-                                 ,"Percent_SCL.LI"       = tableLL.os.cast$`Percent_SCL LI`
-                                 ,"SE_SCL.LI"            = tableLL.os.cast$`SE_SCL LI`
-                                 ,"n_SCL.LI"             = tableLL.os.cast$`n_SCL LI`
-                                 ,"Percent_SCL.EH"       = tableLL.os.cast$`Percent_SCL EH`
-                                 ,"SE_SCL.EH"            = tableLL.os.cast$`SE_SCL EH`
-                                 ,"n_SCL.EH"             = tableLL.os.cast$`n_SCL EH`
-                                 ,"Percent_2017.RBSA.PS" = tableLL.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"      = tableLL.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"       = tableLL.os.cast$`n_2017 RBSA PS`)
-  
-}else if(os.ind == "snopud"){
-  tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
-                                 ,"Type"           = tableLL.os.cast$Type
-                                 ,"Percent_SnoPUD"          = tableLL.os.cast$`Percent_SnoPUD`
-                                 ,"SE_SnoPUD"               = tableLL.os.cast$`SE_SnoPUD`
-                                 ,"n_SnoPUD"                = tableLL.os.cast$`n_SnoPUD`
-                                 ,"Percent_2017.RBSA.PS"    = tableLL.os.cast$`Percent_2017 RBSA PS`
-                                 ,"SE_2017.RBSA.PS"         = tableLL.os.cast$`SE_2017 RBSA PS`
-                                 ,"n_2017.RBSA.PS"          = tableLL.os.cast$`n_2017 RBSA PS`
-                                 ,"Percent_RBSA.NW"         = tableLL.os.cast$`Percent_2017 RBSA NW`
-                                 ,"SE_RBSA.NW"              = tableLL.os.cast$`SE_2017 RBSA NW`
-                                 ,"n_RBSA.NW"               = tableLL.os.cast$`n_2017 RBSA NW`)
-  
-}
-
-tableLL.os.table.SF <- tableLL.os.table[which(tableLL.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableLL.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableLL.os.table.SF, "SF", "Table LL", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-# Table GG: Distribution of Vented Dryers by CK_Building_ID
-#############################################################################################
-#For everything else
-tableGG.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","TV.Size"))]
-
-tableGG.os.dat0 <- tableGG.os.dat[grep("television",tableGG.os.dat$Type, ignore.case = T),]
-unique(tableGG.os.dat0$TV.Size)
-tableGG.os.dat0$TV.Size <- as.numeric(as.character(tableGG.os.dat0$TV.Size))
-
-tableGG.os.dat1 <- tableGG.os.dat0[which(!is.na(tableGG.os.dat0$TV.Size)),]
-
-tableGG.os.merge <- left_join(os.dat, tableGG.os.dat1, by = "CK_Cadmus_ID")
-
-tableGG.os.merge <- tableGG.os.merge[which(!is.na(tableGG.os.merge$TV.Size)),]
-
-tableGG.os.mean <- summarise(group_by(tableGG.os.merge, CK_Cadmus_ID)
-                          ,TV.Size = mean(TV.Size))
-
-tableGG.os.merge <- left_join(os.dat, tableGG.os.mean, by = "CK_Cadmus_ID")
-tableGG.os.merge <- tableGG.os.merge[which(!is.na(tableGG.os.merge$TV.Size)),]
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableGG.os.data <- weightedData(tableGG.os.merge[-which(colnames(tableGG.os.merge) %in% c("TV.Size"))])
-tableGG.os.data <- left_join(tableGG.os.data, unique(tableGG.os.merge[which(colnames(tableGG.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"TV.Size"))]))
-tableGG.os.data$Count <- 1
-tableGG.os.data$count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableGG.os.table <- mean_one_group(CustomerLevelData = tableGG.os.data
-                                ,valueVariable = "TV.Size"
-                                ,byVariable = "CK_Building_ID"
-                                ,aggregateRow = "Remove")
-tableGG.os.table <- tableGG.os.table[which(tableGG.os.table$CK_Building_ID %notin% c("Remove","Total")),]
-
-tableGG.os.table.SF <- tableGG.os.table[which(tableGG.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableGG.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableGG.os.table.SF, "SF", "Table GG", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# Weighted Analysis
-#######################
-tableGG.os.table <- mean_one_group_unweighted(CustomerLevelData = tableGG.os.data
-                                           ,valueVariable = "TV.Size"
-                                           ,byVariable = "CK_Building_ID"
-                                           ,aggregateRow = "Remove")
-tableGG.os.table <- tableGG.os.table[which(tableGG.os.table$CK_Building_ID %notin% c("Remove","Total")),]
-
-tableGG.os.table.SF <- tableGG.os.table[which(tableGG.os.table$BuildingType == "Single Family")
-                                  ,which(colnames(tableGG.os.table) %notin% c("BuildingType"))]
-
-exportTable(tableGG.os.table.SF, "SF", "Table GG", weighted = FALSE, osIndicator = export.ind, OS = T)
+# ############################################################################################################
+# #
+# #
+# # OVERSAMPLE ANALYSIS
+# #
+# #
+# ############################################################################################################
+# 
+# # Read in clean os data
+# os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+# length(unique(os.dat$CK_Cadmus_ID))
+# os.dat$CK_Building_ID <- os.dat$Category
+# os.dat <- os.dat[which(names(os.dat) != "Category")]
+# 
+# #############################################################################################
+# # Table DD: Distribution of thermostats by Type
+# #############################################################################################
+# #For everything else
+# tableDD.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Thermostat.Type"))]
+# 
+# tableDD.os.dat0 <- tableDD.os.dat[which(tableDD.os.dat$Type == "Thermostat"),]
+# 
+# tableDD.os.merge <- left_join(os.dat, tableDD.os.dat0, by = "CK_Cadmus_ID")
+# tableDD.os.merge <- tableDD.os.merge[which(!is.na(tableDD.os.merge$Thermostat.Type)),]
+# 
+# unique(tableDD.os.merge$Thermostat.Type)
+# tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type %in% c("Manual Remote", "Hand remote"))]<- "Manual Thermostat - Digital"
+# tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Programmable Remote")]        <- "Programmable Thermostat"
+# tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Manual Thermostat - Analog")] <- "Manual Thermostat - Analog"
+# 
+# 
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableDD.os.data <- weightedData(tableDD.os.merge[-which(colnames(tableDD.os.merge) %in% c("Count"
+#                                                                                  ,"Type"
+#                                                                                  ,"Thermostat.Type"))])
+# tableDD.os.data <- left_join(tableDD.os.data, unique(tableDD.os.merge[which(colnames(tableDD.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Count"
+#                                                                                            ,"Type"
+#                                                                                            ,"Thermostat.Type"))]))
+# tableDD.os.data$count <- 1
+# tableDD.os.data$Thermostat.Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableDD.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableDD.os.data
+#                                              ,valueVariable = "Thermostat.Count"
+#                                              ,columnVariable = "CK_Building_ID"
+#                                              ,rowVariable = "Thermostat.Type"
+#                                              ,aggregateColumnName = "Remove")
+# 
+# tableDD.os.cast <- dcast(setDT(tableDD.os.summary)
+#                       ,formula = BuildingType + Thermostat.Type ~ CK_Building_ID
+#                       ,value.var = c("w.percent","w.SE","count","n", "N","EB"))
+# 
+# if(os.ind == "scl"){
+#   tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
+#                                  ,"Thermostat.Type"= tableDD.os.cast$Thermostat.Type
+#                                  ,"Percent_SCL.GenPop"   = tableDD.os.cast$`w.percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableDD.os.cast$`w.SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableDD.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableDD.os.cast$`w.percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableDD.os.cast$`w.SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableDD.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableDD.os.cast$`w.percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableDD.os.cast$`w.SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableDD.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableDD.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableDD.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableDD.os.cast$`n_2017 RBSA PS`
+#                                  ,"EB_SCL.GenPop"        = tableDD.os.cast$`EB_SCL GenPop`
+#                                  ,"EB_SCL.LI"            = tableDD.os.cast$`EB_SCL LI`
+#                                  ,"EB_SCL.EH"            = tableDD.os.cast$`EB_SCL EH`
+#                                  ,"EB_2017.RBSA.PS"      = tableDD.os.cast$`EB_2017 RBSA PS`
+#   )
+#   
+# }else if(os.ind == "snopud"){
+#   tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
+#                                  ,"Thermostat.Type"= tableDD.os.cast$Thermostat.Type
+#                                  ,"Percent_SnoPUD"          = tableDD.os.cast$`w.percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableDD.os.cast$`w.SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableDD.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableDD.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableDD.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableDD.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableDD.os.cast$`w.percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableDD.os.cast$`w.SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableDD.os.cast$`n_2017 RBSA NW`
+#                                  ,"EB_SnoPUD"               = tableDD.os.cast$`EB_SnoPUD`
+#                                  ,"EB_2017.RBSA.PS"         = tableDD.os.cast$`EB_2017 RBSA PS`
+#                                  ,"EB_RBSA.NW"              = tableDD.os.cast$`EB_2017 RBSA NW`
+#   )
+#   
+# }
+# 
+# levels(tableDD.os.table$Thermostat.Type)
+# rowOrder <- c("Manual Thermostat - Analog"
+#               ,"Manual Thermostat - Digital"
+#               ,"Programmable Thermostat"
+#               ,"Smart Thermostat"
+#               ,"Smart/Wi-Fi Thermostat"
+#               ,"Wi-Fi Enabled Thermostat"
+#               ,"None"
+#               ,"Unknown"
+#               ,"Total")
+# tableDD.os.table <- tableDD.os.table %>% mutate(Thermostat.Type = factor(Thermostat.Type, levels = rowOrder)) %>% arrange(Thermostat.Type)  
+# tableDD.os.table <- data.frame(tableDD.os.table)
+# 
+# tableDD.os.table.SF <- tableDD.os.table[which(tableDD.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableDD.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableDD.os.table.SF, "SF", "Table DD", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # unweighted Analysis
+# #######################
+# tableDD.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableDD.os.data
+#                                                      ,valueVariable = "Thermostat.Count"
+#                                                      ,columnVariable = "CK_Building_ID"
+#                                                      ,rowVariable = "Thermostat.Type"
+#                                                      ,aggregateColumnName = "Remove")
+# 
+# tableDD.os.cast <- dcast(setDT(tableDD.os.summary)
+#                       ,formula = BuildingType + Thermostat.Type ~ CK_Building_ID
+#                       ,value.var = c("Percent","SE","Count","n"))
+# 
+# if(os.ind == "scl"){
+#   tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
+#                                  ,"Thermostat.Type" = tableDD.os.cast$Thermostat.Type
+#                                  ,"Percent_SCL.GenPop"   = tableDD.os.cast$`Percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableDD.os.cast$`SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableDD.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableDD.os.cast$`Percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableDD.os.cast$`SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableDD.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableDD.os.cast$`Percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableDD.os.cast$`SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableDD.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableDD.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableDD.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableDD.os.cast$`n_2017 RBSA PS`
+#   )
+#   
+# }else if(os.ind == "snopud"){
+#   tableDD.os.table <- data.frame("BuildingType"    = tableDD.os.cast$BuildingType
+#                                  ,"Thermostat.Type" = tableDD.os.cast$Thermostat.Type
+#                                  ,"Percent_SnoPUD"          = tableDD.os.cast$`Percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableDD.os.cast$`SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableDD.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableDD.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableDD.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableDD.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableDD.os.cast$`Percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableDD.os.cast$`SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableDD.os.cast$`n_2017 RBSA NW`
+#   )
+#   
+# }
+# 
+# levels(tableDD.os.table$Thermostat.Type)
+# rowOrder <- c("Manual Thermostat - Analog"
+#               ,"Manual Thermostat - Digital"
+#               ,"Programmable Thermostat"
+#               ,"Smart Thermostat"
+#               ,"Smart/Wi-Fi Thermostat"
+#               ,"Wi-Fi Enabled Thermostat"
+#               ,"None"
+#               ,"Unknown"
+#               ,"Total")
+# tableDD.os.table <- tableDD.os.table %>% mutate(Thermostat.Type = factor(Thermostat.Type, levels = rowOrder)) %>% arrange(Thermostat.Type)  
+# tableDD.os.table <- data.frame(tableDD.os.table)
+# 
+# tableDD.os.table.SF <- tableDD.os.table[which(tableDD.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableDD.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableDD.os.table.SF, "SF", "Table DD", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table EE: Percent of homes with smart thermostats by CK_Building_ID
+# #############################################################################################
+# #For everything else
+# tableEE.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Thermostat.Type"))]
+# 
+# tableEE.os.dat0 <- tableEE.os.dat[grep("smart",tableEE.os.dat$Thermostat.Type, ignore.case = T),]
+# 
+# tableEE.os.merge <- left_join(os.dat, tableEE.os.dat0, by = "CK_Cadmus_ID")
+# tableEE.os.merge$Ind <- 0
+# tableEE.os.merge$Ind[which(!is.na(tableEE.os.merge$Thermostat.Type))] <- 1
+# 
+# 
+# ################################################
+# # AEEing pop and sample sizes for weights
+# ################################################
+# tableEE.os.data <- weightedData(tableEE.os.merge[-which(colnames(tableEE.os.merge) %in% c("Count"
+#                                                                                  ,"Type"
+#                                                                                  ,"Thermostat.Type","Ind"))])
+# tableEE.os.data <- left_join(tableEE.os.data, unique(tableEE.os.merge[which(colnames(tableEE.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Count"
+#                                                                                            ,"Type"
+#                                                                                            ,"Thermostat.Type","Ind"))]))
+# tableEE.os.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableEE.os.table <- proportions_one_group(CustomerLevelData = tableEE.os.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "CK_Building_ID"
+#                                        ,total.name = "Remove"
+#                                        ,weighted = TRUE)
+# tableEE.os.table <- tableEE.os.table[which(tableEE.os.table$CK_Building_ID %notin% c("Remove","Total")),]
+# 
+# tableEE.os.table.SF <- tableEE.os.table[which(tableEE.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableEE.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableEE.os.table.SF, "SF", "Table EE", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # Weighted Analysis
+# #######################
+# tableEE.os.table <- proportions_one_group(CustomerLevelData = tableEE.os.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "CK_Building_ID"
+#                                        ,total.name = "Remove"
+#                                        ,weighted = FALSE)
+# 
+# tableEE.os.table <- tableEE.os.table[which(tableEE.os.table$CK_Building_ID %notin% c("Remove","Total")),]
+# 
+# tableEE.os.table.SF <- tableEE.os.table[which(tableEE.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableEE.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableEE.os.table.SF, "SF", "Table EE", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table HH: Percent of homes with smart powerstips by CK_Building_ID
+# #############################################################################################
+# #For everything else
+# tableHH.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Smart.Power.Strip"))]
+# 
+# tableHH.os.dat0 <- tableHH.os.dat[grep("power",tableHH.os.dat$Type, ignore.case = T),]
+# tableHH.os.dat1 <- tableHH.os.dat0[which(tableHH.os.dat0$Smart.Power.Strip %in% c("Yes","No")),]
+# 
+# tableHH.os.merge <- left_join(os.dat, tableHH.os.dat1, by = "CK_Cadmus_ID")
+# 
+# tableHH.os.merge <- tableHH.os.merge[which(!is.na(tableHH.os.merge$Smart.Power.Strip)),]
+# tableHH.os.merge$Ind <- 0
+# tableHH.os.merge$Ind[which(tableHH.os.merge$Smart.Power.Strip == "Yes")] <- 1
+# 
+# tableHH.os.sum <- summarise(group_by(tableHH.os.merge, CK_Cadmus_ID)
+#                          ,Ind = sum(Ind))
+# 
+# tableHH.os.sum$Ind[which(tableHH.os.sum$Ind > 0)] <- 1
+# 
+# tableHH.os.merge <- left_join(os.dat, tableHH.os.sum, by = "CK_Cadmus_ID")
+# tableHH.os.merge$Ind[which(is.na(tableHH.os.merge$Ind))] <- 0
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableHH.os.data <- weightedData(tableHH.os.merge[-which(colnames(tableHH.os.merge) %in% c("Ind"))])
+# tableHH.os.data <- left_join(tableHH.os.data, unique(tableHH.os.merge[which(colnames(tableHH.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Ind"))]))
+# tableHH.os.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableHH.os.table <- proportions_one_group(CustomerLevelData = tableHH.os.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "CK_Building_ID"
+#                                        ,total.name = "Remove"
+#                                        ,weighted = TRUE)
+# tableHH.os.table <- tableHH.os.table[which(tableHH.os.table$CK_Building_ID %notin% c("Remove","Total")),]
+# 
+# tableHH.os.table.SF <- tableHH.os.table[which(tableHH.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableHH.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableHH.os.table.SF, "SF", "Table HH", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # Weighted Analysis
+# #######################
+# tableHH.os.table <- proportions_one_group(CustomerLevelData = tableHH.os.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "CK_Building_ID"
+#                                        ,total.name = "Remove"
+#                                        ,weighted = FALSE)
+# 
+# tableHH.os.table <- tableHH.os.table[which(tableHH.os.table$CK_Building_ID %notin% c("Remove","Total")),]
+# 
+# tableHH.os.table.SF <- tableHH.os.table[which(tableHH.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableHH.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableHH.os.table.SF, "SF", "Table HH", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table II: Distribution of power strips by use type and CK_Building_ID
+# #############################################################################################
+# #For everything else
+# colnames(appliances.dat)[grep("power",colnames(appliances.dat), ignore.case = T)]
+# tableII.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Power.Strip.Use"))]
+# 
+# tableII.os.dat0 <- tableII.os.dat[grep("power",tableII.os.dat$Type, ignore.case = T),]
+# 
+# tableII.os.merge <- left_join(os.dat, tableII.os.dat0, by = "CK_Cadmus_ID")
+# 
+# tableII.os.merge <- tableII.os.merge[which((tableII.os.merge$Power.Strip.Use %notin% c("Unknown",NA))),]
+# tableII.os.merge$Power.Strip.Use <- trimws(tableII.os.merge$Power.Strip.Use)
+# unique(tableII.os.merge$Power.Strip.Use)
+# 
+# tableII.os.merge$Power.Strip.Use[grep("aquarium|charger", tableII.os.merge$Power.Strip.Use, ignore.case = T)] <- "Other"
+# 
+# tableII.os.merge <- left_join(os.dat, tableII.os.merge)
+# tableII.os.merge <- tableII.os.merge[which(!is.na(tableII.os.merge$Power.Strip.Use)),]
+# length(unique(tableII.os.merge$CK_Cadmus_ID[which(tableII.os.merge$BuildingType == "Single Family")]))
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableII.os.data <- weightedData(tableII.os.merge[-which(colnames(tableII.os.merge) %in% c("Type"
+#                                                                                  ,"Power.Strip.Use"))])
+# tableII.os.data <- left_join(tableII.os.data, unique(tableII.os.merge[which(colnames(tableII.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Type"
+#                                                                                            ,"Power.Strip.Use"))]))
+# tableII.os.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableII.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableII.os.data
+#                                              ,valueVariable = "Count"
+#                                              ,columnVariable = "CK_Building_ID"
+#                                              ,rowVariable = "Power.Strip.Use"
+#                                              ,aggregateColumnName = "Remove")
+# tableII.os.cast <- dcast(setDT(tableII.os.summary)
+#                       ,formula = BuildingType + Power.Strip.Use ~ CK_Building_ID
+#                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+# 
+# if(os.ind == "scl"){
+#   tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
+#                                  ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
+#                                  ,"Percent_SCL.GenPop"   = tableII.os.cast$`w.percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableII.os.cast$`w.SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableII.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableII.os.cast$`w.percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableII.os.cast$`w.SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableII.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableII.os.cast$`w.percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableII.os.cast$`w.SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableII.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableII.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableII.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableII.os.cast$`n_2017 RBSA PS`
+#                                  ,"EB_SCL.GenPop"        = tableII.os.cast$`EB_SCL GenPop`
+#                                  ,"EB_SCL.LI"            = tableII.os.cast$`EB_SCL LI`
+#                                  ,"EB_SCL.EH"            = tableII.os.cast$`EB_SCL EH`
+#                                  ,"EB_2017.RBSA.PS"      = tableII.os.cast$`EB_2017 RBSA PS`)
+#   
+# }else if(os.ind == "snopud"){
+#   tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
+#                                  ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
+#                                  ,"Percent_SnoPUD"          = tableII.os.cast$`w.percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableII.os.cast$`w.SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableII.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableII.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableII.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableII.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableII.os.cast$`w.percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableII.os.cast$`w.SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableII.os.cast$`n_2017 RBSA NW`
+#                                  ,"EB_SnoPUD"               = tableII.os.cast$`EB_SnoPUD`
+#                                  ,"EB_2017.RBSA.PS"         = tableII.os.cast$`EB_2017 RBSA PS`
+#                                  ,"EB_RBSA.NW"              = tableII.os.cast$`EB_2017 RBSA NW`)
+#   
+# }
+# 
+# tableII.os.table.SF <- tableII.os.table[which(tableII.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableII.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableII.os.table.SF, "SF", "Table II", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # Weighted Analysis
+# #######################
+# tableII.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableII.os.data
+#                                                      ,valueVariable = "Count"
+#                                                      ,columnVariable = "CK_Building_ID"
+#                                                      ,rowVariable = "Power.Strip.Use"
+#                                                      ,aggregateColumnName = "Remove")
+# tableII.os.cast <- dcast(setDT(tableII.os.summary)
+#                       ,formula = BuildingType + Power.Strip.Use ~ CK_Building_ID
+#                       ,value.var = c("Percent","SE","Count","n"))
+# 
+# if(os.ind == "scl"){
+#   tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
+#                                  ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
+#                                  ,"Percent_SCL.GenPop"   = tableII.os.cast$`Percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableII.os.cast$`SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableII.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableII.os.cast$`Percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableII.os.cast$`SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableII.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableII.os.cast$`Percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableII.os.cast$`SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableII.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableII.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableII.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableII.os.cast$`n_2017 RBSA PS`)
+#   
+# }else if(os.ind == "snopud"){
+#   tableII.os.table <- data.frame("BuildingType" = tableII.os.cast$BuildingType
+#                                  ,"Power.Strip.Use" = tableII.os.cast$Power.Strip.Use
+#                                  ,"Percent_SnoPUD"          = tableII.os.cast$`Percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableII.os.cast$`SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableII.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableII.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableII.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableII.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableII.os.cast$`Percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableII.os.cast$`SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableII.os.cast$`n_2017 RBSA NW`)
+#   
+# }
+# 
+# tableII.os.table.SF <- tableII.os.table[which(tableII.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableII.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableII.os.table.SF, "SF", "Table II", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table KK: Percent of Homes with Vented Dryers by CK_Building_ID
+# #############################################################################################
+# #For everything else
+# tableKK.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Vented"))]
+# 
+# tableKK.os.dat0 <- tableKK.os.dat[grep("dryer",tableKK.os.dat$Type, ignore.case = T),]
+# tableKK.os.dat1 <- tableKK.os.dat0[which(tableKK.os.dat0$Dryer.Vented %in% c("Yes","No")),]
+# 
+# tableKK.os.merge <- left_join(os.dat, tableKK.os.dat1, by = "CK_Cadmus_ID")
+# 
+# tableKK.os.merge <- tableKK.os.merge[which(!is.na(tableKK.os.merge$Dryer.Vented)),]
+# tableKK.os.merge$Ind <- 0
+# tableKK.os.merge$Ind[which(tableKK.os.merge$Dryer.Vented == "Yes")] <- 1
+# 
+# tableKK.os.sum <- summarise(group_by(tableKK.os.merge, CK_Cadmus_ID)
+#                          ,Ind = sum(Ind))
+# 
+# tableKK.os.sum$Ind[which(tableKK.os.sum$Ind > 0)] <- 1
+# 
+# tableKK.os.merge <- left_join(os.dat, tableKK.os.sum, by = "CK_Cadmus_ID")
+# tableKK.os.merge <- tableKK.os.merge[which(!is.na(tableKK.os.merge$Ind)),]
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableKK.os.data <- weightedData(tableKK.os.merge[-which(colnames(tableKK.os.merge) %in% c("Ind"))])
+# tableKK.os.data <- left_join(tableKK.os.data, unique(tableKK.os.merge[which(colnames(tableKK.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Ind"))]))
+# tableKK.os.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableKK.os.table <- proportions_one_group(CustomerLevelData = tableKK.os.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "CK_Building_ID"
+#                                        ,total.name = "Remove"
+#                                        ,weighted = TRUE)
+# tableKK.os.table <- tableKK.os.table[which(tableKK.os.table$CK_Building_ID %notin% c("Remove", "Total")),]
+# 
+# tableKK.os.table.SF <- tableKK.os.table[which(tableKK.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableKK.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableKK.os.table.SF, "SF", "Table KK", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # unweighted Analysis
+# #######################
+# tableKK.os.table <- proportions_one_group(CustomerLevelData = tableKK.os.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "CK_Building_ID"
+#                                        ,total.name = "Remove"
+#                                        ,weighted = FALSE)
+# tableKK.os.table <- tableKK.os.table[which(tableKK.os.table$CK_Building_ID %notin% c("Remove", "Total")),]
+# 
+# tableKK.os.table.SF <- tableKK.os.table[which(tableKK.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableKK.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableKK.os.table.SF, "SF", "Table KK", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table MM: Percent of homes with smart powerstips by CK_Building_ID
+# #############################################################################################
+# #For everything else
+# tableMM.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","Dryer.Fuel"))]
+# 
+# tableMM.os.dat0 <- tableMM.os.dat[grep("dryer",tableMM.os.dat$Type, ignore.case = T),]
+# 
+# tableMM.os.merge <- left_join(os.dat, tableMM.os.dat0, by = "CK_Cadmus_ID")
+# 
+# tableMM.os.merge <- tableMM.os.merge[which((tableMM.os.merge$Dryer.Fuel %notin% c("N/A",NA,"Unknown"))),]
+# tableMM.os.merge$Dryer.Fuel <- trimws(tableMM.os.merge$Dryer.Fuel)
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableMM.os.data <- weightedData(tableMM.os.merge[-which(colnames(tableMM.os.merge) %in% c("Type"
+#                                                                                  ,"Dryer.Fuel"))])
+# tableMM.os.data <- left_join(tableMM.os.data, unique(tableMM.os.merge[which(colnames(tableMM.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Type"
+#                                                                                            ,"Dryer.Fuel"))]))
+# tableMM.os.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableMM.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableMM.os.data
+#                                              ,valueVariable = "Count"
+#                                              ,columnVariable = "CK_Building_ID"
+#                                              ,rowVariable = "Dryer.Fuel"
+#                                              ,aggregateColumnName = "Remove")
+# tableMM.os.cast <- dcast(setDT(tableMM.os.summary)
+#                       ,formula = BuildingType + Dryer.Fuel ~ CK_Building_ID
+#                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+# 
+# if(os.ind == "scl"){
+#   tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
+#                                  ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
+#                                  ,"Percent_SCL.GenPop"   = tableMM.os.cast$`w.percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableMM.os.cast$`w.SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableMM.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableMM.os.cast$`w.percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableMM.os.cast$`w.SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableMM.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableMM.os.cast$`w.percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableMM.os.cast$`w.SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableMM.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableMM.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableMM.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableMM.os.cast$`n_2017 RBSA PS`
+#                                  ,"EB_SCL.GenPop"        = tableMM.os.cast$`EB_SCL GenPop`
+#                                  ,"EB_SCL.LI"            = tableMM.os.cast$`EB_SCL LI`
+#                                  ,"EB_SCL.EH"            = tableMM.os.cast$`EB_SCL EH`
+#                                  ,"EB_2017.RBSA.PS"      = tableMM.os.cast$`EB_2017 RBSA PS`)
+#   
+# }else if(os.ind == "snopud"){
+#   tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
+#                                  ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
+#                                  ,"Percent_SnoPUD"          = tableMM.os.cast$`w.percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableMM.os.cast$`w.SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableMM.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableMM.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableMM.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableMM.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableMM.os.cast$`w.percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableMM.os.cast$`w.SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableMM.os.cast$`n_2017 RBSA NW`
+#                                  ,"EB_SnoPUD"               = tableMM.os.cast$`EB_SnoPUD`
+#                                  ,"EB_2017.RBSA.PS"         = tableMM.os.cast$`EB_2017 RBSA PS`
+#                                  ,"EB_RBSA.NW"              = tableMM.os.cast$`EB_2017 RBSA NW`)
+#   
+# }
+# 
+# tableMM.os.table.SF <- tableMM.os.table[which(tableMM.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableMM.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableMM.os.table.SF, "SF", "Table MM", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # unweighted Analysis
+# #######################
+# tableMM.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableMM.os.data
+#                                                      ,valueVariable = "Count"
+#                                                      ,columnVariable = "CK_Building_ID"
+#                                                      ,rowVariable = "Dryer.Fuel"
+#                                                      ,aggregateColumnName = "Remove")
+# tableMM.os.cast <- dcast(setDT(tableMM.os.summary)
+#                       ,formula = BuildingType + Dryer.Fuel ~ CK_Building_ID
+#                       ,value.var = c("Percent","SE","Count","n"))
+# 
+# if(os.ind == "scl"){
+#   tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
+#                                  ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
+#                                  ,"Percent_SCL.GenPop"   = tableMM.os.cast$`Percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableMM.os.cast$`SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableMM.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableMM.os.cast$`Percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableMM.os.cast$`SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableMM.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableMM.os.cast$`Percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableMM.os.cast$`SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableMM.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableMM.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableMM.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableMM.os.cast$`n_2017 RBSA PS`)
+#   
+# }else if(os.ind == "snopud"){
+#   tableMM.os.table <- data.frame("BuildingType" = tableMM.os.cast$BuildingType
+#                                  ,"Dryer.Fuel" = tableMM.os.cast$Dryer.Fuel
+#                                  ,"Percent_SnoPUD"          = tableMM.os.cast$`Percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableMM.os.cast$`SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableMM.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableMM.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableMM.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableMM.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableMM.os.cast$`Percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableMM.os.cast$`SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableMM.os.cast$`n_2017 RBSA NW`)
+#   
+# }
+# 
+# tableMM.os.table.SF <- tableMM.os.table[which(tableMM.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableMM.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableMM.os.table.SF, "SF", "Table MM", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table LL: Percent of homes with smart powerstips by CK_Building_ID
+# #############################################################################################
+# #For everything else
+# tableLL.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+#                                                                     ,"Type"
+#                                                                     ,"Wifi.Enabled"))]
+# names(tableLL.os.dat)
+# 
+# tableLL.os.melt <- melt(tableLL.os.dat, id.vars = c("CK_Cadmus_ID","Type"))
+# tableLL.os.melt <- tableLL.os.melt[which(!is.na(tableLL.os.melt$value)),]
+# tableLL.os.melt <- tableLL.os.melt[which(tableLL.os.melt$value %in% c("Yes","No")),]
+# unique(tableLL.os.melt$value)
+# names(tableLL.os.melt) <- c("CK_Cadmus_ID","Type","Type.Wifi","Wifi.Connected")
+# 
+# tableLL.os.melt$Ind <- 0
+# tableLL.os.melt$Ind[which(tableLL.os.melt$Wifi.Connected == "Yes")] <- 1
+# unique(tableLL.os.melt$Type)
+# 
+# tableLL.os.sum <- summarise(group_by(tableLL.os.melt, CK_Cadmus_ID, Type)
+#                          ,Site.Count = sum(Ind))
+# 
+# 
+# tableLL.os.sub <- tableLL.os.sum[which(tableLL.os.sum$Type %in% c("Dryer","Washer","Refrigerator","Freezer","Stove/Oven")),]
+# 
+# tableLL.os.merge <- left_join(os.dat, tableLL.os.sub)
+# tableLL.os.merge <- tableLL.os.merge[which(!is.na(tableLL.os.merge$Type)),]
+# 
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableLL.os.data <- weightedData(tableLL.os.merge[-which(colnames(tableLL.os.merge) %in% c("Type"
+#                                                                                  ,"Site.Count"))])
+# tableLL.os.data <- left_join(tableLL.os.data, unique(tableLL.os.merge[which(colnames(tableLL.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"Type"
+#                                                                                            ,"Site.Count"))]))
+# tableLL.os.data$Count <- 1
+# tableLL.os.data$Ind <- tableLL.os.data$Site.Count
+# 
+# #######################
+# # Weighted Analysis
+# #######################
+# tableLL.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableLL.os.data
+#                                              ,valueVariable = "Ind"
+#                                              ,columnVariable = "CK_Building_ID"
+#                                              ,rowVariable = "Type"
+#                                              ,aggregateColumnName = "Remove")
+# tableLL.os.summary <- tableLL.os.summary[which(tableLL.os.summary$Type != "Total"),]
+# 
+# tableLL.os.cast <- dcast(setDT(tableLL.os.summary)
+#                       ,formula = BuildingType + Type ~ CK_Building_ID
+#                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
+# 
+# if(os.ind == "scl"){
+#   tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
+#                                  ,"Type"           = tableLL.os.cast$Type
+#                                  ,"Percent_SCL.GenPop"   = tableLL.os.cast$`w.percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableLL.os.cast$`w.SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableLL.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableLL.os.cast$`w.percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableLL.os.cast$`w.SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableLL.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableLL.os.cast$`w.percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableLL.os.cast$`w.SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableLL.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableLL.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableLL.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableLL.os.cast$`n_2017 RBSA PS`
+#                                  ,"EB_SCL.GenPop"        = tableLL.os.cast$`EB_SCL GenPop`
+#                                  ,"EB_SCL.LI"            = tableLL.os.cast$`EB_SCL LI`
+#                                  ,"EB_SCL.EH"            = tableLL.os.cast$`EB_SCL EH`
+#                                  ,"EB_2017.RBSA.PS"      = tableLL.os.cast$`EB_2017 RBSA PS`)
+#   
+# }else if(os.ind == "snopud"){
+#   tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
+#                                  ,"Type"           = tableLL.os.cast$Type
+#                                  ,"Percent_SnoPUD"          = tableLL.os.cast$`w.percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableLL.os.cast$`w.SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableLL.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableLL.os.cast$`w.percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableLL.os.cast$`w.SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableLL.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableLL.os.cast$`w.percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableLL.os.cast$`w.SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableLL.os.cast$`n_2017 RBSA NW`
+#                                  ,"EB_SnoPUD"               = tableLL.os.cast$`EB_SnoPUD`
+#                                  ,"EB_2017.RBSA.PS"         = tableLL.os.cast$`EB_2017 RBSA PS`
+#                                  ,"EB_RBSA.NW"              = tableLL.os.cast$`EB_2017 RBSA NW`)
+#   
+# }
+# 
+# tableLL.os.table.SF <- tableLL.os.table[which(tableLL.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableLL.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableLL.os.table.SF, "SF", "Table LL", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # unweighted Analysis
+# #######################
+# tableLL.os.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableLL.os.data
+#                                                      ,valueVariable = "Ind"
+#                                                      ,columnVariable = "CK_Building_ID"
+#                                                      ,rowVariable = "Type"
+#                                                      ,aggregateColumnName = "Remove")
+# tableLL.os.summary <- tableLL.os.summary[which(tableLL.os.summary$Type != "Total"),]
+# 
+# tableLL.os.cast <- dcast(setDT(tableLL.os.summary)
+#                       ,formula = BuildingType + Type ~ CK_Building_ID
+#                       ,value.var = c("Percent","SE","Count","n"))
+# 
+# if(os.ind == "scl"){
+#   tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
+#                                  ,"Type"           = tableLL.os.cast$Type
+#                                  ,"Percent_SCL.GenPop"   = tableLL.os.cast$`Percent_SCL GenPop`
+#                                  ,"SE_SCL.GenPop"        = tableLL.os.cast$`SE_SCL GenPop`
+#                                  ,"n_SCL.GenPop"         = tableLL.os.cast$`n_SCL GenPop`
+#                                  ,"Percent_SCL.LI"       = tableLL.os.cast$`Percent_SCL LI`
+#                                  ,"SE_SCL.LI"            = tableLL.os.cast$`SE_SCL LI`
+#                                  ,"n_SCL.LI"             = tableLL.os.cast$`n_SCL LI`
+#                                  ,"Percent_SCL.EH"       = tableLL.os.cast$`Percent_SCL EH`
+#                                  ,"SE_SCL.EH"            = tableLL.os.cast$`SE_SCL EH`
+#                                  ,"n_SCL.EH"             = tableLL.os.cast$`n_SCL EH`
+#                                  ,"Percent_2017.RBSA.PS" = tableLL.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"      = tableLL.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"       = tableLL.os.cast$`n_2017 RBSA PS`)
+#   
+# }else if(os.ind == "snopud"){
+#   tableLL.os.table <- data.frame("BuildingType"    = tableLL.os.cast$BuildingType
+#                                  ,"Type"           = tableLL.os.cast$Type
+#                                  ,"Percent_SnoPUD"          = tableLL.os.cast$`Percent_SnoPUD`
+#                                  ,"SE_SnoPUD"               = tableLL.os.cast$`SE_SnoPUD`
+#                                  ,"n_SnoPUD"                = tableLL.os.cast$`n_SnoPUD`
+#                                  ,"Percent_2017.RBSA.PS"    = tableLL.os.cast$`Percent_2017 RBSA PS`
+#                                  ,"SE_2017.RBSA.PS"         = tableLL.os.cast$`SE_2017 RBSA PS`
+#                                  ,"n_2017.RBSA.PS"          = tableLL.os.cast$`n_2017 RBSA PS`
+#                                  ,"Percent_RBSA.NW"         = tableLL.os.cast$`Percent_2017 RBSA NW`
+#                                  ,"SE_RBSA.NW"              = tableLL.os.cast$`SE_2017 RBSA NW`
+#                                  ,"n_RBSA.NW"               = tableLL.os.cast$`n_2017 RBSA NW`)
+#   
+# }
+# 
+# tableLL.os.table.SF <- tableLL.os.table[which(tableLL.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableLL.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableLL.os.table.SF, "SF", "Table LL", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# # Table GG: Distribution of Vented Dryers by CK_Building_ID
+# #############################################################################################
+# #For everything else
+# tableGG.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID","Type","TV.Size"))]
+# 
+# tableGG.os.dat0 <- tableGG.os.dat[grep("television",tableGG.os.dat$Type, ignore.case = T),]
+# unique(tableGG.os.dat0$TV.Size)
+# tableGG.os.dat0$TV.Size <- as.numeric(as.character(tableGG.os.dat0$TV.Size))
+# 
+# tableGG.os.dat1 <- tableGG.os.dat0[which(!is.na(tableGG.os.dat0$TV.Size)),]
+# 
+# tableGG.os.merge <- left_join(os.dat, tableGG.os.dat1, by = "CK_Cadmus_ID")
+# 
+# tableGG.os.merge <- tableGG.os.merge[which(!is.na(tableGG.os.merge$TV.Size)),]
+# 
+# tableGG.os.mean <- summarise(group_by(tableGG.os.merge, CK_Cadmus_ID)
+#                           ,TV.Size = mean(TV.Size))
+# 
+# tableGG.os.merge <- left_join(os.dat, tableGG.os.mean, by = "CK_Cadmus_ID")
+# tableGG.os.merge <- tableGG.os.merge[which(!is.na(tableGG.os.merge$TV.Size)),]
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableGG.os.data <- weightedData(tableGG.os.merge[-which(colnames(tableGG.os.merge) %in% c("TV.Size"))])
+# tableGG.os.data <- left_join(tableGG.os.data, unique(tableGG.os.merge[which(colnames(tableGG.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                            ,"TV.Size"))]))
+# tableGG.os.data$Count <- 1
+# tableGG.os.data$count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableGG.os.table <- mean_one_group(CustomerLevelData = tableGG.os.data
+#                                 ,valueVariable = "TV.Size"
+#                                 ,byVariable = "CK_Building_ID"
+#                                 ,aggregateRow = "Remove")
+# tableGG.os.table <- tableGG.os.table[which(tableGG.os.table$CK_Building_ID %notin% c("Remove","Total")),]
+# 
+# tableGG.os.table.SF <- tableGG.os.table[which(tableGG.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableGG.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableGG.os.table.SF, "SF", "Table GG", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # Weighted Analysis
+# #######################
+# tableGG.os.table <- mean_one_group_unweighted(CustomerLevelData = tableGG.os.data
+#                                            ,valueVariable = "TV.Size"
+#                                            ,byVariable = "CK_Building_ID"
+#                                            ,aggregateRow = "Remove")
+# tableGG.os.table <- tableGG.os.table[which(tableGG.os.table$CK_Building_ID %notin% c("Remove","Total")),]
+# 
+# tableGG.os.table.SF <- tableGG.os.table[which(tableGG.os.table$BuildingType == "Single Family")
+#                                   ,which(colnames(tableGG.os.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableGG.os.table.SF, "SF", "Table GG", weighted = FALSE, osIndicator = export.ind, OS = T)
