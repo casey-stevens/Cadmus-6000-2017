@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- 
+# itemData <- rbsa.dat.bldg
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")

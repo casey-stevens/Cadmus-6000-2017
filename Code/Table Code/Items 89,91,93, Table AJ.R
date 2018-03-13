@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -25,11 +25,11 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+# appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+# sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
@@ -83,8 +83,8 @@ item89.final <- data.frame(item89.final)
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item89.final.SF, "SF", "Table 96", weighted = TRUE)
-exportTable(item89.final.MH, "MH", "Table 77", weighted = TRUE)
+exportTable(item89.final.SF, "SF", "Table 96", weighted = TRUE)
+# exportTable(item89.final.MH, "MH", "Table 77", weighted = TRUE)
 
 
 ###############################
@@ -109,8 +109,8 @@ item89.final <- data.frame(item89.final)
 item89.final.SF <- item89.final[which(item89.final$BuildingType == "Single Family"),-1]
 item89.final.MH <- item89.final[which(item89.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(item89.final.SF, "SF", "Table 96", weighted = FALSE)
-exportTable(item89.final.MH, "MH", "Table 77", weighted = FALSE)
+exportTable(item89.final.SF, "SF", "Table 96", weighted = FALSE)
+# exportTable(item89.final.MH, "MH", "Table 77", weighted = FALSE)
 
 
 
@@ -161,7 +161,7 @@ tableAJ.final <- data.frame(tableAJ.final)
 tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Family"),-1]
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
+exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
 # exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
 
 ###############################
@@ -173,7 +173,7 @@ tableAJ.final.MF <- mean_one_group(CustomerLevelData = tableAJ.data
                                 ,aggregateRow  = "All Types")
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
-exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
+# exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
 
 
 ###############################
@@ -197,7 +197,7 @@ tableAJ.final <- data.frame(tableAJ.final)
 tableAJ.final.SF <- tableAJ.final[which(tableAJ.final$BuildingType == "Single Family"),-1]
 tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 
-# exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
+exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
 # exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
 
 ###############################
@@ -209,8 +209,7 @@ tableAJ.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAJ.data
                                    ,aggregateRow  = "All Types")
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
-exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
-
+# exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
 
 
 
@@ -268,8 +267,8 @@ item91.final.SF <- item91.final[which(item91.final$BuildingType == "Single Famil
 item91.final.MH <- item91.final[which(item91.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item91.final) %in% c("BuildingType"))]
 
-# exportTable(item91.final.SF, "SF", "Table 98", weighted = TRUE)
-exportTable(item91.final.MH, "MH", "Table 79", weighted = TRUE)
+exportTable(item91.final.SF, "SF", "Table 98", weighted = TRUE)
+# exportTable(item91.final.MH, "MH", "Table 79", weighted = TRUE)
 
 
 #######################
@@ -285,8 +284,8 @@ item91.final.SF <- item91.final[which(item91.final$BuildingType == "Single Famil
 item91.final.MH <- item91.final[which(item91.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item91.final) %in% c("BuildingType"))]
 
-# exportTable(item91.final.SF, "SF", "Table 98", weighted = FALSE)
-exportTable(item91.final.MH, "MH", "Table 79", weighted = FALSE)
+exportTable(item91.final.SF, "SF", "Table 98", weighted = FALSE)
+# exportTable(item91.final.MH, "MH", "Table 79", weighted = FALSE)
 
 
 
@@ -343,8 +342,8 @@ item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Famil
 item93.final.MH <- item93.final[which(item93.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item93.final) %in% c("BuildingType"))]
 
-# exportTable(item93.final.SF, "SF", "Table 100", weighted = TRUE)
-exportTable(item93.final.MH, "MH", "Table 81", weighted = TRUE)
+exportTable(item93.final.SF, "SF", "Table 100", weighted = TRUE)
+# exportTable(item93.final.MH, "MH", "Table 81", weighted = TRUE)
 
 ###############################
 # Unweighted Analysis
@@ -370,392 +369,392 @@ item93.final.SF <- item93.final[which(item93.final$BuildingType == "Single Famil
 item93.final.MH <- item93.final[which(item93.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item93.final) %in% c("BuildingType"))]
 
-# exportTable(item93.final.SF, "SF", "Table 100", weighted = FALSE)
-exportTable(item93.final.MH, "MH", "Table 81", weighted = FALSE)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-############################################################################################################
-#
-#
-# OVERSAMPLE ANALYSIS
-#
-#
-############################################################################################################
-
-# Read in clean scl data
-os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
-length(unique(os.dat$CK_Cadmus_ID))
-os.dat$CK_Building_ID <- os.dat$Category
-os.dat <- os.dat[which(names(os.dat) != "Category")]
-names(os.dat)
-
-#############################################################################################
-#Item 89: AVERAGE NUMBER OF CLOTHES WASHER LOADS PER WEEK BY CK_Building_ID (SF table 96, MH table 77)
-#############################################################################################
-#subset to columns needed for analysis
-item89.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                    ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
-                                                                                    ,""))])
-colnames(item89.os.dat) <- c("CK_Cadmus_ID", "Clothes.Washes.Per.Week")
-item89.os.dat$count <- 1
-
-item89.os.dat0 <- unique(item89.os.dat)
-
-item89.os.dat1 <- left_join(os.dat, item89.os.dat0, by = "CK_Cadmus_ID")
-
-unique(item89.os.dat1$Clothes.Washes.Per.Week)
-item89.os.dat1$Clothes.Washes.Per.Week[which(item89.os.dat1$Clothes.Washes.Per.Week %in% c("No Washing Machine", NA))] <- 0
-item89.os.dat1$Clothes.Washes.Per.Week <- as.numeric(as.character(item89.os.dat1$Clothes.Washes.Per.Week))
-
-
-# Weighting
-item89.os.data <- weightedData(item89.os.dat1[-which(colnames(item89.os.dat1) %in% c("Clothes.Washes.Per.Week"
-                                                                            ,"count"))])
-
-item89.os.data <- left_join(item89.os.data, unique(item89.os.dat1[which(colnames(item89.os.dat1) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Clothes.Washes.Per.Week"
-                                                                                     ,"count"))]))
-
-###############################
-# Weighted Analysis
-###############################
-item89.os.final <- mean_one_group(CustomerLevelData = item89.os.data
-                               ,valueVariable = 'Clothes.Washes.Per.Week' 
-                               ,byVariable    = 'CK_Building_ID'
-                               ,aggregateRow  = "Remove")
-item89.os.final <- item89.os.final[which(item89.os.final$CK_Building_ID != "Remove"),]
-
-
-levels(item89.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item89.os.final <- item89.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item89.os.final <- data.frame(item89.os.final)
-
-item89.os.final.SF <- item89.os.final[which(item89.os.final$BuildingType == "Single Family"),-1]
-
-exportTable(item89.os.final.SF, "SF", "Table 96", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-###############################
-# Unweighted Analysis
-###############################
-
-item89.os.final <- mean_one_group_unweighted(CustomerLevelData = item89.os.data
-                                          ,valueVariable = 'Clothes.Washes.Per.Week' 
-                                          ,byVariable    = 'CK_Building_ID'
-                                          ,aggregateRow  = "Remove")
-item89.os.final <- item89.os.final[which(item89.os.final$CK_Building_ID != "Remove"),]
-
-levels(item89.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item89.os.final <- item89.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item89.os.final <- data.frame(item89.os.final)
-
-item89.os.final.SF <- item89.os.final[which(item89.os.final$BuildingType == "Single Family"),-1]
-
-exportTable(item89.os.final.SF, "SF", "Table 96", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-#Table AJ: AVERAGE CLOTHES WASHER SIZE (CU. FT.) BY CK_Building_ID
-#############################################################################################
-#subset to columns needed for analysis
-tableAJ.os.dat <- unique(appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                           ,"Washer.Size"
-                                                                           ,""))])
-
-tableAJ.os.dat0 <- tableAJ.os.dat[which(!is.na(tableAJ.os.dat$Washer.Size)),]
-tableAJ.os.dat1 <- tableAJ.os.dat0[-grep("unknown|-- Datapoint not asked for --|Datapoint not asked for|N/A",tableAJ.os.dat0$Washer.Size, ignore.case = T),]
-tableAJ.os.dat1$Washer.Size <- gsub(" cu ft| u ft","",tableAJ.os.dat1$Washer.Size)
-tableAJ.os.dat1$Washer.Size <- as.numeric(as.character(tableAJ.os.dat1$Washer.Size))
-unique(tableAJ.os.dat1$Washer.Size)
-
-tableAJ.os.dat2 <- left_join(os.dat, tableAJ.os.dat1, by = "CK_Cadmus_ID")
-tableAJ.os.dat2$CK_Cadmus_ID[which(duplicated(tableAJ.os.dat2$CK_Cadmus_ID))]
-
-# Weighting
-tableAJ.os.data <- weightedData(tableAJ.os.dat2[-which(colnames(tableAJ.os.dat2) %in% c("Washer.Size"))])
-
-tableAJ.os.data <- left_join(tableAJ.os.data, unique(tableAJ.os.dat2[which(colnames(tableAJ.os.dat2) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Washer.Size"))]))
-
-tableAJ.os.data$count <- 1
-###############################
-# Weighted Analysis
-###############################
-tableAJ.os.final <- mean_one_group(CustomerLevelData = tableAJ.os.data
-                                ,valueVariable = 'Washer.Size' 
-                                ,byVariable    = 'CK_Building_ID'
-                                ,aggregateRow  = "Remove")
-tableAJ.os.final <- tableAJ.os.final[which(tableAJ.os.final$CK_Building_ID != "Remove"),]
-
-
-levels(tableAJ.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-tableAJ.os.final <- tableAJ.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-tableAJ.os.final <- data.frame(tableAJ.os.final)
-
-
-tableAJ.os.final.SF <- tableAJ.os.final[which(tableAJ.os.final$BuildingType == "Single Family"),-1]
-
-exportTable(tableAJ.os.final.SF, "SF", "Table AJ", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-###############################
-# Unweighted Analysis
-###############################
-tableAJ.os.final <- mean_one_group_unweighted(CustomerLevelData = tableAJ.os.data
-                                           ,valueVariable = 'Washer.Size' 
-                                           ,byVariable    = 'CK_Building_ID'
-                                           ,aggregateRow  = "Remove")
-tableAJ.os.final <- tableAJ.os.final[which(tableAJ.os.final$CK_Building_ID != "Remove"),]
-
-levels(tableAJ.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-tableAJ.os.final <- tableAJ.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-tableAJ.os.final <- data.frame(tableAJ.os.final)
-
-tableAJ.os.final.SF <- tableAJ.os.final[which(tableAJ.os.final$BuildingType == "Single Family"),-1]
-
-exportTable(tableAJ.os.final.SF, "SF", "Table AJ", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-#############################################################################################
-#Item 91: AVERAGE NUMBER OF CLOTHES WASHER LOADS PER WEEK BY CK_Building_ID (SF table 98, MH table 79)
-#############################################################################################
-#subset to columns needed for analysis
-item91.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                    ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
-                                                                                    ,"INTRVW_CUST_RES_HomeandEnergyUseHome_PercentOfLoadsThatGoInDryer"))])
-colnames(item91.os.dat) <- c("CK_Cadmus_ID", "Clothes.Washes.Per.Week", "Percent.Loads.Go.In.Dryer")
-item91.os.dat$count <- 1
-
-item91.os.dat0 <- item91.os.dat[which(item91.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-
-item91.os.dat1 <- left_join(os.dat, item91.os.dat0, by = "CK_Cadmus_ID")
-
-item91.os.dat2 <- item91.os.dat1[which(item91.os.dat1$Clothes.Washes.Per.Week != "No Washing Machine"),]
-item91.os.dat2$Clothes.Washes.Per.Week   <- as.numeric(as.character(item91.os.dat2$Clothes.Washes.Per.Week))
-item91.os.dat2$Percent.Loads.Go.In.Dryer <- as.numeric(as.character(item91.os.dat2$Percent.Loads.Go.In.Dryer))
-item91.os.dat2$Dryer.Loads.Per.Week <- item91.os.dat2$Clothes.Washes.Per.Week * (item91.os.dat2$Percent.Loads.Go.In.Dryer)
-
-item91.os.dat2$Dryer.Loads.Per.Wash <- item91.os.dat2$Dryer.Loads.Per.Week / item91.os.dat2$Clothes.Washes.Per.Week
-unique(item91.os.dat2$Dryer.Loads.Per.Wash)
-
-item91.os.dat3 <- item91.os.dat2[which(item91.os.dat2$Dryer.Loads.Per.Wash %notin% c("NaN", NA,"N/A")),]
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-item91.os.data <- weightedData(item91.os.dat3[-which(colnames(item91.os.dat3) %in% c("Clothes.Washes.Per.Week"
-                                                                            ,"Percent.Loads.Go.In.Dryer"
-                                                                            ,"count"
-                                                                            ,"Dryer.Loads.Per.Week"
-                                                                            ,"Dryer.Loads.Per.Wash"))])
-item91.os.data <- left_join(item91.os.data, unique(item91.os.dat3[which(colnames(item91.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Clothes.Washes.Per.Week"
-                                                                                     ,"Percent.Loads.Go.In.Dryer"
-                                                                                     ,"count"
-                                                                                     ,"Dryer.Loads.Per.Week"
-                                                                                     ,"Dryer.Loads.Per.Wash"))]))
-item91.os.data$count <- 1
-
-#######################
-# Weighted Analysis
-#######################
-item91.os.final <- mean_one_group(CustomerLevelData = item91.os.data
-                               ,valueVariable = 'Dryer.Loads.Per.Wash'
-                               ,byVariable = 'CK_Building_ID'
-                               ,aggregateRow = "Remove")
-item91.os.final <- item91.os.final[which(item91.os.final$CK_Building_ID != "Remove"),]
-
-
-levels(item91.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item91.os.final <- item91.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item91.os.final <- data.frame(item91.os.final)
-
-item91.os.final.SF <- item91.os.final[which(item91.os.final$BuildingType == "Single Family")
-                                ,-which(colnames(item91.os.final) %in% c("BuildingType"))]
-
-exportTable(item91.os.final.SF, "SF", "Table 98", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-#######################
-# Unweighted Analysis
-#######################
-item91.os.final <- mean_one_group_unweighted(CustomerLevelData = item91.os.data
-                                          ,valueVariable = 'Dryer.Loads.Per.Wash'
-                                          ,byVariable = 'CK_Building_ID'
-                                          ,aggregateRow = "Remove")
-item91.os.final <- item91.os.final[which(item91.os.final$CK_Building_ID != "Remove"),]
-
-levels(item91.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item91.os.final <- item91.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item91.os.final <- data.frame(item91.os.final)
-
-item91.os.final.SF <- item91.os.final[which(item91.os.final$BuildingType == "Single Family")
-                                ,-which(colnames(item91.os.final) %in% c("BuildingType"))]
-
-exportTable(item91.os.final.SF, "SF", "Table 98", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-#############################################################################################
-#Item 93: AVERAGE NUMBER OF DISHWASHER LOADS PER WEEK (SF table 100, MH table 81)
-#############################################################################################
-#subset to columns needed for analysis
-item93.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
-                                                                                    ,"INTRVW_CUST_RES_HomeandEnergyUseHome_DishwasherLoadsPerWeek"
-                                                                                    ,""))])
-colnames(item93.os.dat) <- c("CK_Cadmus_ID", "Dishwashes.Per.Week")
-item93.os.dat$count <- 1
-
-item93.os.dat0 <- item93.os.dat[which(item93.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
-
-item93.os.dat1 <- left_join(os.dat, item93.os.dat0, by = "CK_Cadmus_ID")
-
-item93.os.dat2 <- item93.os.dat1[which(!(is.na(item93.os.dat1$Dishwashes.Per.Week))),]
-item93.os.dat2$Dishwashes.Per.Week <- as.numeric(as.character(item93.os.dat2$Dishwashes.Per.Week))
-
-# Weighting
-item93.os.data <- weightedData(item93.os.dat2[-which(colnames(item93.os.dat2) %in% c("Dishwashes.Per.Week"
-                                                                            ,"count"))])
-
-item93.os.data <- left_join(item93.os.data, unique(item93.os.dat2[which(colnames(item93.os.dat2) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Dishwashes.Per.Week"
-                                                                                     ,"count"))]))
-
-###############################
-# Weighted Analysis
-###############################
-item93.os.final <- mean_one_group(CustomerLevelData = item93.os.data
-                               ,valueVariable = 'Dishwashes.Per.Week' 
-                               ,byVariable    = 'CK_Building_ID'
-                               ,aggregateRow  = "Remove")
-item93.os.final <- item93.os.final[which(item93.os.final$CK_Building_ID != "Remove"),]
-
-levels(item93.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item93.os.final <- item93.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item93.os.final <- data.frame(item93.os.final)
-
-item93.os.final.SF <- item93.os.final[which(item93.os.final$BuildingType == "Single Family")
-                                ,-which(colnames(item93.os.final) %in% c("BuildingType"))]
-
-exportTable(item93.os.final.SF, "SF", "Table 100", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-###############################
-# Unweighted Analysis
-###############################
-item93.os.final <- mean_one_group_unweighted(CustomerLevelData = item93.os.data
-                                          ,valueVariable = 'Dishwashes.Per.Week' 
-                                          ,byVariable    = 'CK_Building_ID'
-                                          ,aggregateRow  = "Remove")
-item93.os.final <- item93.os.final[which(item93.os.final$CK_Building_ID != "Remove"),]
-
-
-levels(item93.os.final$CK_Building_ID)
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item93.os.final <- item93.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item93.os.final <- data.frame(item93.os.final)
-
-
-item93.os.final.SF <- item93.os.final[which(item93.os.final$BuildingType == "Single Family")
-                                ,-which(colnames(item93.os.final) %in% c("BuildingType"))]
-
-exportTable(item93.os.final.SF, "SF", "Table 100", weighted = FALSE, osIndicator = export.ind, OS = T)
+exportTable(item93.final.SF, "SF", "Table 100", weighted = FALSE)
+# exportTable(item93.final.MH, "MH", "Table 81", weighted = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ############################################################################################################
+# #
+# #
+# # OVERSAMPLE ANALYSIS
+# #
+# #
+# ############################################################################################################
+# 
+# # Read in clean scl data
+# os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+# length(unique(os.dat$CK_Cadmus_ID))
+# os.dat$CK_Building_ID <- os.dat$Category
+# os.dat <- os.dat[which(names(os.dat) != "Category")]
+# names(os.dat)
+# 
+# #############################################################################################
+# #Item 89: AVERAGE NUMBER OF CLOTHES WASHER LOADS PER WEEK BY CK_Building_ID (SF table 96, MH table 77)
+# #############################################################################################
+# #subset to columns needed for analysis
+# item89.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+#                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
+#                                                                                     ,""))])
+# colnames(item89.os.dat) <- c("CK_Cadmus_ID", "Clothes.Washes.Per.Week")
+# item89.os.dat$count <- 1
+# 
+# item89.os.dat0 <- unique(item89.os.dat)
+# 
+# item89.os.dat1 <- left_join(os.dat, item89.os.dat0, by = "CK_Cadmus_ID")
+# 
+# unique(item89.os.dat1$Clothes.Washes.Per.Week)
+# item89.os.dat1$Clothes.Washes.Per.Week[which(item89.os.dat1$Clothes.Washes.Per.Week %in% c("No Washing Machine", NA))] <- 0
+# item89.os.dat1$Clothes.Washes.Per.Week <- as.numeric(as.character(item89.os.dat1$Clothes.Washes.Per.Week))
+# 
+# 
+# # Weighting
+# item89.os.data <- weightedData(item89.os.dat1[-which(colnames(item89.os.dat1) %in% c("Clothes.Washes.Per.Week"
+#                                                                             ,"count"))])
+# 
+# item89.os.data <- left_join(item89.os.data, unique(item89.os.dat1[which(colnames(item89.os.dat1) %in% c("CK_Cadmus_ID"
+#                                                                                      ,"Clothes.Washes.Per.Week"
+#                                                                                      ,"count"))]))
+# 
+# ###############################
+# # Weighted Analysis
+# ###############################
+# item89.os.final <- mean_one_group(CustomerLevelData = item89.os.data
+#                                ,valueVariable = 'Clothes.Washes.Per.Week' 
+#                                ,byVariable    = 'CK_Building_ID'
+#                                ,aggregateRow  = "Remove")
+# item89.os.final <- item89.os.final[which(item89.os.final$CK_Building_ID != "Remove"),]
+# 
+# 
+# levels(item89.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item89.os.final <- item89.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item89.os.final <- data.frame(item89.os.final)
+# 
+# item89.os.final.SF <- item89.os.final[which(item89.os.final$BuildingType == "Single Family"),-1]
+# 
+# exportTable(item89.os.final.SF, "SF", "Table 96", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# ###############################
+# # Unweighted Analysis
+# ###############################
+# 
+# item89.os.final <- mean_one_group_unweighted(CustomerLevelData = item89.os.data
+#                                           ,valueVariable = 'Clothes.Washes.Per.Week' 
+#                                           ,byVariable    = 'CK_Building_ID'
+#                                           ,aggregateRow  = "Remove")
+# item89.os.final <- item89.os.final[which(item89.os.final$CK_Building_ID != "Remove"),]
+# 
+# levels(item89.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item89.os.final <- item89.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item89.os.final <- data.frame(item89.os.final)
+# 
+# item89.os.final.SF <- item89.os.final[which(item89.os.final$BuildingType == "Single Family"),-1]
+# 
+# exportTable(item89.os.final.SF, "SF", "Table 96", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# #Table AJ: AVERAGE CLOTHES WASHER SIZE (CU. FT.) BY CK_Building_ID
+# #############################################################################################
+# #subset to columns needed for analysis
+# tableAJ.os.dat <- unique(appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+#                                                                            ,"Washer.Size"
+#                                                                            ,""))])
+# 
+# tableAJ.os.dat0 <- tableAJ.os.dat[which(!is.na(tableAJ.os.dat$Washer.Size)),]
+# tableAJ.os.dat1 <- tableAJ.os.dat0[-grep("unknown|-- Datapoint not asked for --|Datapoint not asked for|N/A",tableAJ.os.dat0$Washer.Size, ignore.case = T),]
+# tableAJ.os.dat1$Washer.Size <- gsub(" cu ft| u ft","",tableAJ.os.dat1$Washer.Size)
+# tableAJ.os.dat1$Washer.Size <- as.numeric(as.character(tableAJ.os.dat1$Washer.Size))
+# unique(tableAJ.os.dat1$Washer.Size)
+# 
+# tableAJ.os.dat2 <- left_join(os.dat, tableAJ.os.dat1, by = "CK_Cadmus_ID")
+# tableAJ.os.dat2$CK_Cadmus_ID[which(duplicated(tableAJ.os.dat2$CK_Cadmus_ID))]
+# 
+# # Weighting
+# tableAJ.os.data <- weightedData(tableAJ.os.dat2[-which(colnames(tableAJ.os.dat2) %in% c("Washer.Size"))])
+# 
+# tableAJ.os.data <- left_join(tableAJ.os.data, unique(tableAJ.os.dat2[which(colnames(tableAJ.os.dat2) %in% c("CK_Cadmus_ID"
+#                                                                                          ,"Washer.Size"))]))
+# 
+# tableAJ.os.data$count <- 1
+# ###############################
+# # Weighted Analysis
+# ###############################
+# tableAJ.os.final <- mean_one_group(CustomerLevelData = tableAJ.os.data
+#                                 ,valueVariable = 'Washer.Size' 
+#                                 ,byVariable    = 'CK_Building_ID'
+#                                 ,aggregateRow  = "Remove")
+# tableAJ.os.final <- tableAJ.os.final[which(tableAJ.os.final$CK_Building_ID != "Remove"),]
+# 
+# 
+# levels(tableAJ.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# tableAJ.os.final <- tableAJ.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# tableAJ.os.final <- data.frame(tableAJ.os.final)
+# 
+# 
+# tableAJ.os.final.SF <- tableAJ.os.final[which(tableAJ.os.final$BuildingType == "Single Family"),-1]
+# 
+# exportTable(tableAJ.os.final.SF, "SF", "Table AJ", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# ###############################
+# # Unweighted Analysis
+# ###############################
+# tableAJ.os.final <- mean_one_group_unweighted(CustomerLevelData = tableAJ.os.data
+#                                            ,valueVariable = 'Washer.Size' 
+#                                            ,byVariable    = 'CK_Building_ID'
+#                                            ,aggregateRow  = "Remove")
+# tableAJ.os.final <- tableAJ.os.final[which(tableAJ.os.final$CK_Building_ID != "Remove"),]
+# 
+# levels(tableAJ.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# tableAJ.os.final <- tableAJ.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# tableAJ.os.final <- data.frame(tableAJ.os.final)
+# 
+# tableAJ.os.final.SF <- tableAJ.os.final[which(tableAJ.os.final$BuildingType == "Single Family"),-1]
+# 
+# exportTable(tableAJ.os.final.SF, "SF", "Table AJ", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# #############################################################################################
+# #Item 91: AVERAGE NUMBER OF CLOTHES WASHER LOADS PER WEEK BY CK_Building_ID (SF table 98, MH table 79)
+# #############################################################################################
+# #subset to columns needed for analysis
+# item91.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+#                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseHome_ClothesWasherLoadsPerWeek"
+#                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseHome_PercentOfLoadsThatGoInDryer"))])
+# colnames(item91.os.dat) <- c("CK_Cadmus_ID", "Clothes.Washes.Per.Week", "Percent.Loads.Go.In.Dryer")
+# item91.os.dat$count <- 1
+# 
+# item91.os.dat0 <- item91.os.dat[which(item91.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+# 
+# item91.os.dat1 <- left_join(os.dat, item91.os.dat0, by = "CK_Cadmus_ID")
+# 
+# item91.os.dat2 <- item91.os.dat1[which(item91.os.dat1$Clothes.Washes.Per.Week != "No Washing Machine"),]
+# item91.os.dat2$Clothes.Washes.Per.Week   <- as.numeric(as.character(item91.os.dat2$Clothes.Washes.Per.Week))
+# item91.os.dat2$Percent.Loads.Go.In.Dryer <- as.numeric(as.character(item91.os.dat2$Percent.Loads.Go.In.Dryer))
+# item91.os.dat2$Dryer.Loads.Per.Week <- item91.os.dat2$Clothes.Washes.Per.Week * (item91.os.dat2$Percent.Loads.Go.In.Dryer)
+# 
+# item91.os.dat2$Dryer.Loads.Per.Wash <- item91.os.dat2$Dryer.Loads.Per.Week / item91.os.dat2$Clothes.Washes.Per.Week
+# unique(item91.os.dat2$Dryer.Loads.Per.Wash)
+# 
+# item91.os.dat3 <- item91.os.dat2[which(item91.os.dat2$Dryer.Loads.Per.Wash %notin% c("NaN", NA,"N/A")),]
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# item91.os.data <- weightedData(item91.os.dat3[-which(colnames(item91.os.dat3) %in% c("Clothes.Washes.Per.Week"
+#                                                                             ,"Percent.Loads.Go.In.Dryer"
+#                                                                             ,"count"
+#                                                                             ,"Dryer.Loads.Per.Week"
+#                                                                             ,"Dryer.Loads.Per.Wash"))])
+# item91.os.data <- left_join(item91.os.data, unique(item91.os.dat3[which(colnames(item91.os.dat3) %in% c("CK_Cadmus_ID"
+#                                                                                      ,"Clothes.Washes.Per.Week"
+#                                                                                      ,"Percent.Loads.Go.In.Dryer"
+#                                                                                      ,"count"
+#                                                                                      ,"Dryer.Loads.Per.Week"
+#                                                                                      ,"Dryer.Loads.Per.Wash"))]))
+# item91.os.data$count <- 1
+# 
+# #######################
+# # Weighted Analysis
+# #######################
+# item91.os.final <- mean_one_group(CustomerLevelData = item91.os.data
+#                                ,valueVariable = 'Dryer.Loads.Per.Wash'
+#                                ,byVariable = 'CK_Building_ID'
+#                                ,aggregateRow = "Remove")
+# item91.os.final <- item91.os.final[which(item91.os.final$CK_Building_ID != "Remove"),]
+# 
+# 
+# levels(item91.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item91.os.final <- item91.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item91.os.final <- data.frame(item91.os.final)
+# 
+# item91.os.final.SF <- item91.os.final[which(item91.os.final$BuildingType == "Single Family")
+#                                 ,-which(colnames(item91.os.final) %in% c("BuildingType"))]
+# 
+# exportTable(item91.os.final.SF, "SF", "Table 98", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# #######################
+# # Unweighted Analysis
+# #######################
+# item91.os.final <- mean_one_group_unweighted(CustomerLevelData = item91.os.data
+#                                           ,valueVariable = 'Dryer.Loads.Per.Wash'
+#                                           ,byVariable = 'CK_Building_ID'
+#                                           ,aggregateRow = "Remove")
+# item91.os.final <- item91.os.final[which(item91.os.final$CK_Building_ID != "Remove"),]
+# 
+# levels(item91.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item91.os.final <- item91.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item91.os.final <- data.frame(item91.os.final)
+# 
+# item91.os.final.SF <- item91.os.final[which(item91.os.final$BuildingType == "Single Family")
+#                                 ,-which(colnames(item91.os.final) %in% c("BuildingType"))]
+# 
+# exportTable(item91.os.final.SF, "SF", "Table 98", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# #############################################################################################
+# #Item 93: AVERAGE NUMBER OF DISHWASHER LOADS PER WEEK (SF table 100, MH table 81)
+# #############################################################################################
+# #subset to columns needed for analysis
+# item93.os.dat <- unique(sites.interview.dat[which(colnames(sites.interview.dat) %in% c("CK_Cadmus_ID"
+#                                                                                     ,"INTRVW_CUST_RES_HomeandEnergyUseHome_DishwasherLoadsPerWeek"
+#                                                                                     ,""))])
+# colnames(item93.os.dat) <- c("CK_Cadmus_ID", "Dishwashes.Per.Week")
+# item93.os.dat$count <- 1
+# 
+# item93.os.dat0 <- item93.os.dat[which(item93.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+# 
+# item93.os.dat1 <- left_join(os.dat, item93.os.dat0, by = "CK_Cadmus_ID")
+# 
+# item93.os.dat2 <- item93.os.dat1[which(!(is.na(item93.os.dat1$Dishwashes.Per.Week))),]
+# item93.os.dat2$Dishwashes.Per.Week <- as.numeric(as.character(item93.os.dat2$Dishwashes.Per.Week))
+# 
+# # Weighting
+# item93.os.data <- weightedData(item93.os.dat2[-which(colnames(item93.os.dat2) %in% c("Dishwashes.Per.Week"
+#                                                                             ,"count"))])
+# 
+# item93.os.data <- left_join(item93.os.data, unique(item93.os.dat2[which(colnames(item93.os.dat2) %in% c("CK_Cadmus_ID"
+#                                                                                      ,"Dishwashes.Per.Week"
+#                                                                                      ,"count"))]))
+# 
+# ###############################
+# # Weighted Analysis
+# ###############################
+# item93.os.final <- mean_one_group(CustomerLevelData = item93.os.data
+#                                ,valueVariable = 'Dishwashes.Per.Week' 
+#                                ,byVariable    = 'CK_Building_ID'
+#                                ,aggregateRow  = "Remove")
+# item93.os.final <- item93.os.final[which(item93.os.final$CK_Building_ID != "Remove"),]
+# 
+# levels(item93.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item93.os.final <- item93.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item93.os.final <- data.frame(item93.os.final)
+# 
+# item93.os.final.SF <- item93.os.final[which(item93.os.final$BuildingType == "Single Family")
+#                                 ,-which(colnames(item93.os.final) %in% c("BuildingType"))]
+# 
+# exportTable(item93.os.final.SF, "SF", "Table 100", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# ###############################
+# # Unweighted Analysis
+# ###############################
+# item93.os.final <- mean_one_group_unweighted(CustomerLevelData = item93.os.data
+#                                           ,valueVariable = 'Dishwashes.Per.Week' 
+#                                           ,byVariable    = 'CK_Building_ID'
+#                                           ,aggregateRow  = "Remove")
+# item93.os.final <- item93.os.final[which(item93.os.final$CK_Building_ID != "Remove"),]
+# 
+# 
+# levels(item93.os.final$CK_Building_ID)
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item93.os.final <- item93.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item93.os.final <- data.frame(item93.os.final)
+# 
+# 
+# item93.os.final.SF <- item93.os.final[which(item93.os.final$BuildingType == "Single Family")
+#                                 ,-which(colnames(item93.os.final) %in% c("BuildingType"))]
+# 
+# exportTable(item93.os.final.SF, "SF", "Table 100", weighted = FALSE, osIndicator = export.ind, OS = T)

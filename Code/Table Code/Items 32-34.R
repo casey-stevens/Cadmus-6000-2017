@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -24,7 +24,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
+# windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
 windows.doors.dat$CK_Cadmus_ID <- trimws(toupper(windows.doors.dat$CK_Cadmus_ID))
 
 
@@ -439,531 +439,531 @@ exportTable(item34.final.SF, "SF", "Table 41", weighted = FALSE)
 
 
 
-############################################################################################################
-#
-#
-# OVERSAMPLE ANALYSIS
-#
-#
-############################################################################################################
-# Read in clean os data
-os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
-length(unique(os.dat$CK_Cadmus_ID))
-os.dat$CK_Building_ID <- os.dat$Category
-os.dat <- os.dat[which(names(os.dat) != "Category")]
-
-#############################################################################################
-#Item 32: DISTRIBUTION OF DOOR TYPES
-#############################################################################################
-item32.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
-                                                                         ,"Type"
-                                                                         ,"Sub-Type"
-                                                                         ,"Area"
-                                                                         ,"Quantity"
-                                                                         ,"Frame./.Body.Type"
-                                                                         ,"Glazing.Type"))]
-item32.os.dat1 <- left_join(os.dat, item32.os.dat, by = "CK_Cadmus_ID")
-length(unique(item32.os.dat1$CK_Cadmus_ID)) 
-
-#subset to only doors
-item32.os.dat2 <- item32.os.dat1[which(item32.os.dat1$Type == "Door"),]
-
-#clean up frame/body type
-item32.os.dat2$Frame.Type <- trimws(item32.os.dat2$`Frame./.Body.Type`)
-item32.os.dat2$Frame.Type[grep("wood|fiberglass", item32.os.dat2$Frame.Type, ignore.case = T)] <- "Wood/Fiberglass"
-item32.os.dat2$Frame.Type[grep("metal|aluminum", item32.os.dat2$Frame.Type, ignore.case = T)] <- "Metal"
-item32.os.dat2$Frame.Type[grep("plastic|other|vinyl", item32.os.dat2$Frame.Type, ignore.case = T)] <- "Other"
-unique(item32.os.dat2$Frame.Type)
-
-#clean up glazing types
-item32.os.dat2$Glazing <- trimws(item32.os.dat2$Glazing.Type)
-unique(item32.os.dat2$Glazing)
-item32.os.dat2$Glazing[which(item32.os.dat2$Glazing %in% c("Decorative window (arch, etc.)"
-                                                     ,"Half window"
-                                                     ,"Double"
-                                                     ,"Single"
-                                                     ,"French door"
-                                                     ,"Type unknown"))] <- "with Glazing"
-item32.os.dat2$Framing.Categories <- paste(item32.os.dat2$Frame.Type, item32.os.dat2$Glazing, sep = " ")
-unique(item32.os.dat2$Framing.Categories)
-
-item32.os.dat2$count <- 1
-item32.os.dat3 <- item32.os.dat2[-grep("Unknown|NA", item32.os.dat2$Framing.Categories, ignore.case = T),]
-item32.os.dat3$Framing.Categories <- gsub(" None", "", item32.os.dat3$Framing.Categories)
-unique(item32.os.dat3$Framing.Categories)
-
-
-item32.os.data <- weightedData(item32.os.dat3[-which(colnames(item32.os.dat3) %in% c("Type"
-                                                                            ,"Sub-Type"
-                                                                            ,"Area"
-                                                                            ,"Quantity"
-                                                                            ,"Frame./.Body.Type"
-                                                                            ,"Glazing.Type"
-                                                                            ,"Frame.Type"
-                                                                            ,"Glazing"
-                                                                            ,"Framing.Categories"
-                                                                            ,"count"))])
-item32.os.data <- left_join(item32.os.data, unique(item32.os.dat3[which(colnames(item32.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Type"
-                                                                                     ,"Sub-Type"
-                                                                                     ,"Area"
-                                                                                     ,"Quantity"
-                                                                                     ,"Frame./.Body.Type"
-                                                                                     ,"Glazing.Type"
-                                                                                     ,"Frame.Type"
-                                                                                     ,"Glazing"
-                                                                                     ,"Framing.Categories"
-                                                                                     ,"count"))]))
-
-item32.os.data$Quantity <- as.numeric(as.character(item32.os.data$Quantity))
-
-
-
-#################################
-# Weighted Analysis
-#################################
-item32.os.final <- proportionRowsAndColumns1(CustomerLevelData = item32.os.data
-                                             ,valueVariable = 'Quantity'
-                                             ,columnVariable = 'CK_Building_ID'
-                                             ,rowVariable = 'Framing.Categories'
-                                             ,aggregateColumnName = "Remove")
-item32.os.final <- item32.os.final[which(item32.os.final$CK_Building_ID != "Remove"),]
-
-item32.os.cast <- dcast(setDT(item32.os.final)
-                        ,formula = Framing.Categories ~ CK_Building_ID
-                        ,value.var = c("w.percent","w.SE","n","EB"))
-names(item32.os.cast)
-
-if(os.ind == "scl"){
-  item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
-                                ,"Percent_SCL.GenPop"   = item32.os.cast$`w.percent_SCL GenPop`
-                                ,"SE_SCL.GenPop"        = item32.os.cast$`w.SE_SCL GenPop`
-                                ,"n_SCL.GenPop"         = item32.os.cast$`n_SCL GenPop`
-                                ,"Percent_SCL.LI"       = item32.os.cast$`w.percent_SCL LI`
-                                ,"SE_SCL.LI"            = item32.os.cast$`w.SE_SCL LI`
-                                ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
-                                ,"Percent_SCL.EH"       = item32.os.cast$`w.percent_SCL EH`
-                                ,"SE_SCL.EH"            = item32.os.cast$`w.SE_SCL EH`
-                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
-                                ,"Percent_2017.RBSA.PS" = item32.os.cast$`w.percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"      = item32.os.cast$`w.SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`
-                                ,"EB_SCL.GenPop"        = item32.os.cast$`EB_SCL GenPop`
-                                ,"EB_SCL.LI"            = item32.os.cast$`EB_SCL LI`
-                                ,"EB_SCL.EH"            = item32.os.cast$`EB_SCL EH`
-                                ,"EB_2017.RBSA.PS"      = item32.os.cast$`EB_2017 RBSA PS`)
-}else if(os.ind == "snopud"){
-  item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
-                                ,"Percent_SnoPUD"          = item32.os.cast$`w.percent_SnoPUD`
-                                ,"SE_SnoPUD"               = item32.os.cast$`w.SE_SnoPUD`
-                                ,"n_SnoPUD"                = item32.os.cast$`n_SnoPUD`
-                                ,"Percent_2017.RBSA.PS"    = item32.os.cast$`w.percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"         = item32.os.cast$`w.SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"          = item32.os.cast$`n_2017 RBSA PS`
-                                ,"Percent_RBSA.NW"         = item32.os.cast$`w.percent_2017 RBSA NW`
-                                ,"SE_RBSA.NW"              = item32.os.cast$`w.SE_2017 RBSA NW`
-                                ,"n_RBSA.NW"               = item32.os.cast$`n_2017 RBSA NW`
-                                ,"EB_SnoPUD"               = item32.os.cast$`EB_SnoPUD`
-                                ,"EB_2017.RBSA.PS"         = item32.os.cast$`EB_2017 RBSA PS`
-                                ,"EB_RBSA.NW"              = item32.os.cast$`EB_2017 RBSA NW`)  
-}
-
-
-
-# row ordering example code
-levels(item32.os.table$Door.Type)
-rowOrder <- c("Garage Door with Glazing"
-              ,"Metal"
-              ,"Metal with Glazing"
-              ,"Other"
-              ,"Other with Glazing"
-              ,"Wood/Fiberglass"
-              ,"Wood/Fiberglass with Glazing"
-              ,"Total")
-item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, levels = rowOrder)) %>% arrange(Door.Type)  
-item32.os.table <- data.frame(item32.os.table)
-
-
-exportTable(item32.os.table, "SF", "Table 39", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-
-
-#################################
-# Unweighted Analysis
-#################################
-item32.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item32.os.data
-                                             ,valueVariable = 'Quantity'
-                                             ,columnVariable = 'CK_Building_ID'
-                                             ,rowVariable = 'Framing.Categories'
-                                             ,aggregateColumnName = "Remove")
-item32.os.final <- item32.os.final[which(item32.os.final$CK_Building_ID != "Remove"),]
-
-item32.os.cast <- dcast(setDT(item32.os.final)
-                         ,formula = Framing.Categories ~ CK_Building_ID
-                         ,value.var = c("Percent","SE","n"))
-
-names(item32.os.cast)
-
-if(os.ind == "scl"){
-  item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
-                                ,"Percent_SCL.GenPop"   = item32.os.cast$`Percent_SCL GenPop`
-                                ,"SE_SCL.GenPop"        = item32.os.cast$`SE_SCL GenPop`
-                                ,"n_SCL.GenPop"         = item32.os.cast$`n_SCL GenPop`
-                                ,"Percent_SCL.LI"       = item32.os.cast$`Percent_SCL LI`
-                                ,"SE_SCL.LI"            = item32.os.cast$`SE_SCL LI`
-                                ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
-                                ,"Percent_SCL.EH"       = item32.os.cast$`Percent_SCL EH`
-                                ,"SE_SCL.EH"            = item32.os.cast$`SE_SCL EH`
-                                ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
-                                ,"Percent_2017.RBSA.PS" = item32.os.cast$`Percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"      = item32.os.cast$`SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`)  
-}else if(os.ind == "snopud"){
-  item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
-                                ,"Percent_SnoPUD"          = item32.os.cast$`Percent_SnoPUD`
-                                ,"SE_SnoPUD"               = item32.os.cast$`SE_SnoPUD`
-                                ,"n_SnoPUD"                = item32.os.cast$`n_SnoPUD`
-                                ,"Percent_2017.RBSA.PS"    = item32.os.cast$`Percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"         = item32.os.cast$`SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"          = item32.os.cast$`n_2017 RBSA PS`
-                                ,"Percent_RBSA.NW"         = item32.os.cast$`Percent_2017 RBSA NW`
-                                ,"SE_RBSA.NW"              = item32.os.cast$`SE_2017 RBSA NW`
-                                ,"n_RBSA.NW"               = item32.os.cast$`n_2017 RBSA NW`)
-}
-
-
-
-
-# row ordering example code
-levels(item32.os.table$Door.Type)
-rowOrder <- c("Garage Door with Glazing"
-              ,"Metal"
-              ,"Metal with Glazing"
-              ,"Other"
-              ,"Other with Glazing"
-              ,"Wood/Fiberglass"
-              ,"Wood/Fiberglass with Glazing"
-              ,"Total")
-item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, levels = rowOrder)) %>% arrange(Door.Type)  
-item32.os.table <- data.frame(item32.os.table)
-
-exportTable(item32.os.table, "SF", "Table 39", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-
-
-#############################################################################################
-#Item 33: DISTRIBUTION OF WINDOW TYPES BY CK_Building_ID
-#############################################################################################
-item33.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
-                                                                         ,"Type"
-                                                                         ,"Sub-Type"
-                                                                         ,"Area"
-                                                                         ,"Quantity"
-                                                                         ,"Frame./.Body.Type"
-                                                                         ,"Glazing.Type"))]
-item33.os.dat1 <- left_join(os.dat, item33.os.dat, by = "CK_Cadmus_ID")
-length(unique(item33.os.dat1$CK_Cadmus_ID))
-
-#subset to only windows
-item33.os.dat2 <- item33.os.dat1[which(item33.os.dat1$Type == "Window"),]
-
-#clean up frame/body type
-unique(item33.os.dat2$`Frame./.Body.Type`)
-item33.os.dat2$Frame.Type <- trimws(item33.os.dat2$`Frame./.Body.Type`)
-item33.os.dat2$Frame.Type[grep("Wood|Vinyl|Fiberglass|wood|vinyl|fiberglass|tile|Garage", item33.os.dat2$Frame.Type)] <- "Wood/Vinyl/Fiberglass/Tile"
-item33.os.dat2$Frame.Type[grep("Metal|Aluminum|metal|aluminum", item33.os.dat2$Frame.Type)] <- "Metal"
-item33.os.dat2$Frame.Type[grep("N/A", item33.os.dat2$Frame.Type)] <- "Unknown"
-item33.os.dat2$Frame.Type[which(is.na(item33.os.dat2$Frame.Type))] <- "Unknown"
-unique(item33.os.dat2$Frame.Type)
-
-item33.os.dat2 <- item33.os.dat2[which(item33.os.dat2$Frame.Type != "Unknown"),]
-
-#clean up glazing types
-item33.os.dat2$Glazing <- trimws(item33.os.dat2$Glazing.Type)
-item33.os.dat2$Glazing[grep("Single", item33.os.dat2$Glazing)] <- "Single Glazed"
-item33.os.dat2$Glazing[grep("Double", item33.os.dat2$Glazing)] <- "Double Glazed"
-item33.os.dat2$Glazing[grep("Triple", item33.os.dat2$Glazing)] <- "Triple Glazed"
-item33.os.dat2$Glazing[which(!(item33.os.dat2$Glazing %in% c("Single Glazed", "Double Glazed", "Triple Glazed")))] <- "Unknown"
-unique(item33.os.dat2$Glazing)
-
-item33.os.dat2 <- item33.os.dat2[which(item33.os.dat2$Glazing != "Unknown"),]
-
-item33.os.dat2$Framing.Categories <- paste(item33.os.dat2$Frame.Type, item33.os.dat2$Glazing, sep = " ")
-
-item33.os.dat2$count <- 1
-item33.os.dat3 <- item33.os.dat2[which(!is.na(as.numeric(as.character(item33.os.dat2$Quantity)))),]
-
-
-#insert weights
-item33.os.data <- weightedData(item33.os.dat3[-which(colnames(item33.os.dat3) %in% c("Type"
-                                                                            ,"Sub-Type"
-                                                                            ,"Area"
-                                                                            ,"Quantity"
-                                                                            ,"Frame./.Body.Type"
-                                                                            ,"Glazing.Type"
-                                                                            ,"Frame.Type"
-                                                                            ,"Glazing"
-                                                                            ,"Framing.Categories"
-                                                                            ,"count"))])
-item33.os.data <- left_join(item33.os.data, unique(item33.os.dat3[which(colnames(item33.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Type"
-                                                                                     ,"Sub-Type"
-                                                                                     ,"Area"
-                                                                                     ,"Quantity"
-                                                                                     ,"Frame./.Body.Type"
-                                                                                     ,"Glazing.Type"
-                                                                                     ,"Frame.Type"
-                                                                                     ,"Glazing"
-                                                                                     ,"Framing.Categories"
-                                                                                     ,"count"))]))
-
-item33.os.data$Quantity <- as.numeric(as.character(item33.os.data$Quantity))
-
-#################################
-# Weighted Analysis
-#################################
-item33.os.final <- proportionRowsAndColumns1(CustomerLevelData     = item33.os.data
-                                          , valueVariable       = 'Quantity'
-                                          , columnVariable      = 'CK_Building_ID'
-                                          , rowVariable         = 'Framing.Categories'
-                                          , aggregateColumnName = 'Remove')
-# item33.os.final <- item33.os.final[which(item33.os.final$Framing.Categories != "Total"),]
-item33.os.final <- item33.os.final[which(item33.os.final$CK_Building_ID != "Remove"),]
-
-item33.os.cast <- dcast(setDT(item33.os.final)
-                     , formula = BuildingType + Framing.Categories ~ CK_Building_ID
-                     , value.var = c("w.percent", "w.SE", "count", "n", "EB"))
-
-names(item33.os.cast)
-
-if(os.ind == "scl"){
-  item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
-                                ,"Framing.Categories"   = item33.os.cast$Framing.Categories
-                                ,"Percent_SCL.GenPop"   = item33.os.cast$`w.percent_SCL GenPop`
-                                ,"SE_SCL.GenPop"        = item33.os.cast$`w.SE_SCL GenPop`
-                                ,"n_SCL.GenPop"         = item33.os.cast$`n_SCL GenPop`
-                                ,"Percent_SCL.LI"       = item33.os.cast$`w.percent_SCL LI`
-                                ,"SE_SCL.LI"            = item33.os.cast$`w.SE_SCL LI`
-                                ,"n_SCL.LI"             = item33.os.cast$`n_SCL LI`
-                                ,"Percent_SCL.EH"       = item33.os.cast$`w.percent_SCL EH`
-                                ,"SE_SCL.EH"            = item33.os.cast$`w.SE_SCL EH`
-                                ,"n_SCL.EH"             = item33.os.cast$`n_SCL EH`
-                                ,"Percent_2017.RBSA.PS" = item33.os.cast$`w.percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"      = item33.os.cast$`w.SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"       = item33.os.cast$`n_2017 RBSA PS`
-                                ,"EB_SCL.GenPop"        = item33.os.cast$`EB_SCL GenPop`
-                                ,"EB_SCL.LI"            = item33.os.cast$`EB_SCL LI`
-                                ,"EB_SCL.EH"            = item33.os.cast$`EB_SCL EH`
-                                ,"EB_2017.RBSA.PS"      = item33.os.cast$`EB_2017 RBSA PS`)
-}else if(os.ind == "snopud"){
-  item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
-                                ,"Framing.Categories"   = item33.os.cast$Framing.Categories
-                                ,"Percent_SnoPUD"          = item33.os.cast$`w.percent_SnoPUD`
-                                ,"SE_SnoPUD"               = item33.os.cast$`w.SE_SnoPUD`
-                                ,"n_SnoPUD"                = item33.os.cast$`n_SnoPUD`
-                                ,"Percent_2017.RBSA.PS"    = item33.os.cast$`w.percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"         = item33.os.cast$`w.SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"          = item33.os.cast$`n_2017 RBSA PS`
-                                ,"Percent_RBSA.NW"         = item33.os.cast$`w.percent_2017 RBSA NW`
-                                ,"SE_RBSA.NW"              = item33.os.cast$`w.SE_2017 RBSA NW`
-                                ,"n_RBSA.NW"               = item33.os.cast$`n_2017 RBSA NW`
-                                ,"EB_SnoPUD"               = item33.os.cast$`EB_SnoPUD`
-                                ,"EB_2017.RBSA.PS"         = item33.os.cast$`EB_2017 RBSA PS`
-                                ,"EB_RBSA.NW"              = item33.os.cast$`EB_2017 RBSA NW`)
-}
-
-
-
-
-levels(item33.os.table$Framing.Categories)
-rowOrder <- c("Metal Single Glazed"
-              ,"Metal Double Glazed"
-              ,"Metal Triple Glazed"
-              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
-              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
-              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
-              ,"Other Double Glazed" 
-              ,"Total"
-)
-item33.os.table <- item33.os.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
-item33.os.table <- data.frame(item33.os.table)
-
-
-item33.os.final.SF <- item33.os.table[which(item33.os.table$BuildingType == "Single Family"),-which(colnames(item33.os.table) %in% c("BuildingType"))]
-
-exportTable(item33.os.final.SF, "SF", "Table 40", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-
-#################################
-# Unweighted Analysis
-#################################
-item33.os.final <- proportions_two_groups_unweighted(CustomerLevelData     = item33.os.data
-                                                  , valueVariable       = 'Quantity'
-                                                  , columnVariable      = 'CK_Building_ID'
-                                                  , rowVariable         = 'Framing.Categories'
-                                                  , aggregateColumnName = 'Remove')
-item33.os.final <- item33.os.final[which(item33.os.final$CK_Building_ID != "Remove"),]
-
-item33.os.cast <- dcast(setDT(item33.os.final)
-                     , formula = BuildingType + Framing.Categories ~ CK_Building_ID
-                     , value.var = c("Percent", "SE", "Count", "n"))
-
-names(item32.os.cast)
-
-
-if(os.ind == "scl"){
-  item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
-                                ,"Framing.Categories"   = item33.os.cast$Framing.Categories
-                                ,"Percent_SCL.GenPop"   = item33.os.cast$`Percent_SCL GenPop`
-                                ,"SE_SCL.GenPop"        = item33.os.cast$`SE_SCL GenPop`
-                                ,"n_SCL.GenPop"         = item33.os.cast$`n_SCL GenPop`
-                                ,"Percent_SCL.LI"       = item33.os.cast$`Percent_SCL LI`
-                                ,"SE_SCL.LI"            = item33.os.cast$`SE_SCL LI`
-                                ,"n_SCL.LI"             = item33.os.cast$`n_SCL LI`
-                                ,"Percent_SCL.EH"       = item33.os.cast$`Percent_SCL EH`
-                                ,"SE_SCL.EH"            = item33.os.cast$`SE_SCL EH`
-                                ,"n_SCL.EH"             = item33.os.cast$`n_SCL EH`
-                                ,"Percent_2017.RBSA.PS" = item33.os.cast$`Percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"      = item33.os.cast$`SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"       = item33.os.cast$`n_2017 RBSA PS`)
-}else if(os.ind == "snopud"){
-  item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
-                                ,"Framing.Categories"   = item33.os.cast$Framing.Categories
-                                ,"Percent_SnoPUD"          = item33.os.cast$`Percent_SnoPUD`
-                                ,"SE_SnoPUD"               = item33.os.cast$`SE_SnoPUD`
-                                ,"n_SnoPUD"                = item33.os.cast$`n_SnoPUD`
-                                ,"Percent_2017.RBSA.PS"    = item33.os.cast$`Percent_2017 RBSA PS`
-                                ,"SE_2017.RBSA.PS"         = item33.os.cast$`SE_2017 RBSA PS`
-                                ,"n_2017.RBSA.PS"          = item33.os.cast$`n_2017 RBSA PS`
-                                ,"Percent_RBSA.NW"         = item33.os.cast$`Percent_2017 RBSA NW`
-                                ,"SE_RBSA.NW"              = item33.os.cast$`SE_2017 RBSA NW`
-                                ,"n_RBSA.NW"               = item33.os.cast$`n_2017 RBSA NW`)
-}
-
-
-
-
-levels(item33.os.table$Framing.Categories)
-rowOrder <- c("Metal Single Glazed"
-              ,"Metal Double Glazed"
-              ,"Metal Triple Glazed"
-              ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
-              ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
-              ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
-              ,"Other Double Glazed" 
-              ,"Total"
-)
-item33.os.table <- item33.os.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
-item33.os.table <- data.frame(item33.os.table)
-
-
-item33.os.final.SF <- item33.os.table[which(item33.os.table$BuildingType == "Single Family")
-                                ,-which(colnames(item33.os.table) %in% c("BuildingType"))]
-
-exportTable(item33.os.final.SF, "SF", "Table 40", weighted = FALSE, osIndicator = export.ind, OS = T)
-
-
-
-
-
-
-#############################################################################################
-#Item 34: PERCENTAGE OF HOMES WITH STORM WINDOWS BY CK_Building_ID
-#############################################################################################
-item34.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
-                                                                         ,"Type"
-                                                                         ,"Sub-Type"
-                                                                         ,"Area"
-                                                                         ,"Quantity"
-                                                                         ,"Frame./.Body.Type"
-                                                                         ,"Glazing.Type"))]
-item34.os.dat1 <- left_join(os.dat, item34.os.dat, by = "CK_Cadmus_ID")
-length(unique(item34.os.dat1$CK_Cadmus_ID))
-
-item34.os.dat1$Indicator <- 0
-item34.os.dat1$Indicator[grep("storm",item34.os.dat1$Type, ignore.case = T)] <- 1
-
-item34.os.summary <- summarise(group_by(item34.os.dat1, CK_Cadmus_ID)
-                            ,Ind = sum(unique(Indicator)))
-
-item34.os.merge <- left_join(os.dat, item34.os.summary)
-item34.os.merge <- item34.os.merge[which(!is.na(item34.os.merge$Ind)),]
-
-
-#insert weights
-item34.os.data <- weightedData(item34.os.merge[-which(colnames(item34.os.merge) %in% c("Type"
-                                                                              ,"Sub-Type"
-                                                                              ,"Area"
-                                                                              ,"Quantity"
-                                                                              ,"Frame./.Body.Type"
-                                                                              ,"Glazing.Type"
-                                                                              ,"Ind"))])
-item34.os.data <- left_join(item34.os.data, unique(item34.os.merge[which(colnames(item34.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Type"
-                                                                                       ,"Sub-Type"
-                                                                                       ,"Area"
-                                                                                       ,"Quantity"
-                                                                                       ,"Frame./.Body.Type"
-                                                                                       ,"Glazing.Type"
-                                                                                       ,"Ind"))]))
-item34.os.data$Count <- 1
-
-###############################
-# Weighted Analysis
-###############################
-item34.os.final <- proportions_one_group(CustomerLevelData  = item34.os.data
-                                      , valueVariable    = 'Ind'
-                                      , groupingVariable = 'CK_Building_ID'
-                                      , total.name       = "Remove"
-                                      , weighted = TRUE)
-
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item34.os.final <- item34.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item34.os.final <- data.frame(item34.os.final)
-
-
-item34.os.final <- item34.os.final[which(item34.os.final$CK_Building_ID != "Total"),]
-item34.os.final.SF <- item34.os.final[which(item34.os.final$BuildingType == "Single Family"),-1]
-
-exportTable(item34.os.final.SF, "SF", "Table 41", weighted = TRUE, osIndicator = export.ind, OS = T)
-
-###############################
-# Weighted Analysis
-###############################
-item34.os.final <- proportions_one_group(CustomerLevelData  = item34.os.data
-                                      , valueVariable    = 'Ind'
-                                      , groupingVariable = 'CK_Building_ID'
-                                      , total.name       = "Region"
-                                      , weighted = FALSE)
-
-if(os.ind == "scl"){
-  rowOrder <- c("SCL GenPop"
-                ,"SCL LI"
-                ,"SCL EH"
-                ,"2017 RBSA PS")
-}else if(os.ind == "snopud"){
-  rowOrder <- c("SnoPUD"
-                ,"2017 RBSA PS"
-                ,"2017 RBSA NW")
-}
-item34.os.final <- item34.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
-item34.os.final <- data.frame(item34.os.final)
-item34.os.final <- item34.os.final[which(item34.os.final$CK_Building_ID != "Total"),]
-
-item34.os.final.SF <- item34.os.final[which(item34.os.final$BuildingType == "Single Family")
-                                ,-which(colnames(item34.os.final) %in% c("BuildingType"))]
-
-exportTable(item34.os.final.SF, "SF", "Table 41", weighted = FALSE, osIndicator = export.ind, OS = T)
-
+# ############################################################################################################
+# #
+# #
+# # OVERSAMPLE ANALYSIS
+# #
+# #
+# ############################################################################################################
+# # Read in clean os data
+# os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+# length(unique(os.dat$CK_Cadmus_ID))
+# os.dat$CK_Building_ID <- os.dat$Category
+# os.dat <- os.dat[which(names(os.dat) != "Category")]
+# 
+# #############################################################################################
+# #Item 32: DISTRIBUTION OF DOOR TYPES
+# #############################################################################################
+# item32.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
+#                                                                          ,"Type"
+#                                                                          ,"Sub-Type"
+#                                                                          ,"Area"
+#                                                                          ,"Quantity"
+#                                                                          ,"Frame./.Body.Type"
+#                                                                          ,"Glazing.Type"))]
+# item32.os.dat1 <- left_join(os.dat, item32.os.dat, by = "CK_Cadmus_ID")
+# length(unique(item32.os.dat1$CK_Cadmus_ID)) 
+# 
+# #subset to only doors
+# item32.os.dat2 <- item32.os.dat1[which(item32.os.dat1$Type == "Door"),]
+# 
+# #clean up frame/body type
+# item32.os.dat2$Frame.Type <- trimws(item32.os.dat2$`Frame./.Body.Type`)
+# item32.os.dat2$Frame.Type[grep("wood|fiberglass", item32.os.dat2$Frame.Type, ignore.case = T)] <- "Wood/Fiberglass"
+# item32.os.dat2$Frame.Type[grep("metal|aluminum", item32.os.dat2$Frame.Type, ignore.case = T)] <- "Metal"
+# item32.os.dat2$Frame.Type[grep("plastic|other|vinyl", item32.os.dat2$Frame.Type, ignore.case = T)] <- "Other"
+# unique(item32.os.dat2$Frame.Type)
+# 
+# #clean up glazing types
+# item32.os.dat2$Glazing <- trimws(item32.os.dat2$Glazing.Type)
+# unique(item32.os.dat2$Glazing)
+# item32.os.dat2$Glazing[which(item32.os.dat2$Glazing %in% c("Decorative window (arch, etc.)"
+#                                                      ,"Half window"
+#                                                      ,"Double"
+#                                                      ,"Single"
+#                                                      ,"French door"
+#                                                      ,"Type unknown"))] <- "with Glazing"
+# item32.os.dat2$Framing.Categories <- paste(item32.os.dat2$Frame.Type, item32.os.dat2$Glazing, sep = " ")
+# unique(item32.os.dat2$Framing.Categories)
+# 
+# item32.os.dat2$count <- 1
+# item32.os.dat3 <- item32.os.dat2[-grep("Unknown|NA", item32.os.dat2$Framing.Categories, ignore.case = T),]
+# item32.os.dat3$Framing.Categories <- gsub(" None", "", item32.os.dat3$Framing.Categories)
+# unique(item32.os.dat3$Framing.Categories)
+# 
+# 
+# item32.os.data <- weightedData(item32.os.dat3[-which(colnames(item32.os.dat3) %in% c("Type"
+#                                                                             ,"Sub-Type"
+#                                                                             ,"Area"
+#                                                                             ,"Quantity"
+#                                                                             ,"Frame./.Body.Type"
+#                                                                             ,"Glazing.Type"
+#                                                                             ,"Frame.Type"
+#                                                                             ,"Glazing"
+#                                                                             ,"Framing.Categories"
+#                                                                             ,"count"))])
+# item32.os.data <- left_join(item32.os.data, unique(item32.os.dat3[which(colnames(item32.os.dat3) %in% c("CK_Cadmus_ID"
+#                                                                                      ,"Type"
+#                                                                                      ,"Sub-Type"
+#                                                                                      ,"Area"
+#                                                                                      ,"Quantity"
+#                                                                                      ,"Frame./.Body.Type"
+#                                                                                      ,"Glazing.Type"
+#                                                                                      ,"Frame.Type"
+#                                                                                      ,"Glazing"
+#                                                                                      ,"Framing.Categories"
+#                                                                                      ,"count"))]))
+# 
+# item32.os.data$Quantity <- as.numeric(as.character(item32.os.data$Quantity))
+# 
+# 
+# 
+# #################################
+# # Weighted Analysis
+# #################################
+# item32.os.final <- proportionRowsAndColumns1(CustomerLevelData = item32.os.data
+#                                              ,valueVariable = 'Quantity'
+#                                              ,columnVariable = 'CK_Building_ID'
+#                                              ,rowVariable = 'Framing.Categories'
+#                                              ,aggregateColumnName = "Remove")
+# item32.os.final <- item32.os.final[which(item32.os.final$CK_Building_ID != "Remove"),]
+# 
+# item32.os.cast <- dcast(setDT(item32.os.final)
+#                         ,formula = Framing.Categories ~ CK_Building_ID
+#                         ,value.var = c("w.percent","w.SE","n","EB"))
+# names(item32.os.cast)
+# 
+# if(os.ind == "scl"){
+#   item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
+#                                 ,"Percent_SCL.GenPop"   = item32.os.cast$`w.percent_SCL GenPop`
+#                                 ,"SE_SCL.GenPop"        = item32.os.cast$`w.SE_SCL GenPop`
+#                                 ,"n_SCL.GenPop"         = item32.os.cast$`n_SCL GenPop`
+#                                 ,"Percent_SCL.LI"       = item32.os.cast$`w.percent_SCL LI`
+#                                 ,"SE_SCL.LI"            = item32.os.cast$`w.SE_SCL LI`
+#                                 ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
+#                                 ,"Percent_SCL.EH"       = item32.os.cast$`w.percent_SCL EH`
+#                                 ,"SE_SCL.EH"            = item32.os.cast$`w.SE_SCL EH`
+#                                 ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
+#                                 ,"Percent_2017.RBSA.PS" = item32.os.cast$`w.percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"      = item32.os.cast$`w.SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`
+#                                 ,"EB_SCL.GenPop"        = item32.os.cast$`EB_SCL GenPop`
+#                                 ,"EB_SCL.LI"            = item32.os.cast$`EB_SCL LI`
+#                                 ,"EB_SCL.EH"            = item32.os.cast$`EB_SCL EH`
+#                                 ,"EB_2017.RBSA.PS"      = item32.os.cast$`EB_2017 RBSA PS`)
+# }else if(os.ind == "snopud"){
+#   item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
+#                                 ,"Percent_SnoPUD"          = item32.os.cast$`w.percent_SnoPUD`
+#                                 ,"SE_SnoPUD"               = item32.os.cast$`w.SE_SnoPUD`
+#                                 ,"n_SnoPUD"                = item32.os.cast$`n_SnoPUD`
+#                                 ,"Percent_2017.RBSA.PS"    = item32.os.cast$`w.percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"         = item32.os.cast$`w.SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"          = item32.os.cast$`n_2017 RBSA PS`
+#                                 ,"Percent_RBSA.NW"         = item32.os.cast$`w.percent_2017 RBSA NW`
+#                                 ,"SE_RBSA.NW"              = item32.os.cast$`w.SE_2017 RBSA NW`
+#                                 ,"n_RBSA.NW"               = item32.os.cast$`n_2017 RBSA NW`
+#                                 ,"EB_SnoPUD"               = item32.os.cast$`EB_SnoPUD`
+#                                 ,"EB_2017.RBSA.PS"         = item32.os.cast$`EB_2017 RBSA PS`
+#                                 ,"EB_RBSA.NW"              = item32.os.cast$`EB_2017 RBSA NW`)  
+# }
+# 
+# 
+# 
+# # row ordering example code
+# levels(item32.os.table$Door.Type)
+# rowOrder <- c("Garage Door with Glazing"
+#               ,"Metal"
+#               ,"Metal with Glazing"
+#               ,"Other"
+#               ,"Other with Glazing"
+#               ,"Wood/Fiberglass"
+#               ,"Wood/Fiberglass with Glazing"
+#               ,"Total")
+# item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, levels = rowOrder)) %>% arrange(Door.Type)  
+# item32.os.table <- data.frame(item32.os.table)
+# 
+# 
+# exportTable(item32.os.table, "SF", "Table 39", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# #################################
+# # Unweighted Analysis
+# #################################
+# item32.os.final <- proportions_two_groups_unweighted(CustomerLevelData = item32.os.data
+#                                              ,valueVariable = 'Quantity'
+#                                              ,columnVariable = 'CK_Building_ID'
+#                                              ,rowVariable = 'Framing.Categories'
+#                                              ,aggregateColumnName = "Remove")
+# item32.os.final <- item32.os.final[which(item32.os.final$CK_Building_ID != "Remove"),]
+# 
+# item32.os.cast <- dcast(setDT(item32.os.final)
+#                          ,formula = Framing.Categories ~ CK_Building_ID
+#                          ,value.var = c("Percent","SE","n"))
+# 
+# names(item32.os.cast)
+# 
+# if(os.ind == "scl"){
+#   item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
+#                                 ,"Percent_SCL.GenPop"   = item32.os.cast$`Percent_SCL GenPop`
+#                                 ,"SE_SCL.GenPop"        = item32.os.cast$`SE_SCL GenPop`
+#                                 ,"n_SCL.GenPop"         = item32.os.cast$`n_SCL GenPop`
+#                                 ,"Percent_SCL.LI"       = item32.os.cast$`Percent_SCL LI`
+#                                 ,"SE_SCL.LI"            = item32.os.cast$`SE_SCL LI`
+#                                 ,"n_SCL.LI"             = item32.os.cast$`n_SCL LI`
+#                                 ,"Percent_SCL.EH"       = item32.os.cast$`Percent_SCL EH`
+#                                 ,"SE_SCL.EH"            = item32.os.cast$`SE_SCL EH`
+#                                 ,"n_SCL.EH"             = item32.os.cast$`n_SCL EH`
+#                                 ,"Percent_2017.RBSA.PS" = item32.os.cast$`Percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"      = item32.os.cast$`SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"       = item32.os.cast$`n_2017 RBSA PS`)  
+# }else if(os.ind == "snopud"){
+#   item32.os.table <- data.frame("Door.Type"             = item32.os.cast$Framing.Categories
+#                                 ,"Percent_SnoPUD"          = item32.os.cast$`Percent_SnoPUD`
+#                                 ,"SE_SnoPUD"               = item32.os.cast$`SE_SnoPUD`
+#                                 ,"n_SnoPUD"                = item32.os.cast$`n_SnoPUD`
+#                                 ,"Percent_2017.RBSA.PS"    = item32.os.cast$`Percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"         = item32.os.cast$`SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"          = item32.os.cast$`n_2017 RBSA PS`
+#                                 ,"Percent_RBSA.NW"         = item32.os.cast$`Percent_2017 RBSA NW`
+#                                 ,"SE_RBSA.NW"              = item32.os.cast$`SE_2017 RBSA NW`
+#                                 ,"n_RBSA.NW"               = item32.os.cast$`n_2017 RBSA NW`)
+# }
+# 
+# 
+# 
+# 
+# # row ordering example code
+# levels(item32.os.table$Door.Type)
+# rowOrder <- c("Garage Door with Glazing"
+#               ,"Metal"
+#               ,"Metal with Glazing"
+#               ,"Other"
+#               ,"Other with Glazing"
+#               ,"Wood/Fiberglass"
+#               ,"Wood/Fiberglass with Glazing"
+#               ,"Total")
+# item32.os.table <- item32.os.table %>% mutate(Door.Type = factor(Door.Type, levels = rowOrder)) %>% arrange(Door.Type)  
+# item32.os.table <- data.frame(item32.os.table)
+# 
+# exportTable(item32.os.table, "SF", "Table 39", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# 
+# 
+# #############################################################################################
+# #Item 33: DISTRIBUTION OF WINDOW TYPES BY CK_Building_ID
+# #############################################################################################
+# item33.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
+#                                                                          ,"Type"
+#                                                                          ,"Sub-Type"
+#                                                                          ,"Area"
+#                                                                          ,"Quantity"
+#                                                                          ,"Frame./.Body.Type"
+#                                                                          ,"Glazing.Type"))]
+# item33.os.dat1 <- left_join(os.dat, item33.os.dat, by = "CK_Cadmus_ID")
+# length(unique(item33.os.dat1$CK_Cadmus_ID))
+# 
+# #subset to only windows
+# item33.os.dat2 <- item33.os.dat1[which(item33.os.dat1$Type == "Window"),]
+# 
+# #clean up frame/body type
+# unique(item33.os.dat2$`Frame./.Body.Type`)
+# item33.os.dat2$Frame.Type <- trimws(item33.os.dat2$`Frame./.Body.Type`)
+# item33.os.dat2$Frame.Type[grep("Wood|Vinyl|Fiberglass|wood|vinyl|fiberglass|tile|Garage", item33.os.dat2$Frame.Type)] <- "Wood/Vinyl/Fiberglass/Tile"
+# item33.os.dat2$Frame.Type[grep("Metal|Aluminum|metal|aluminum", item33.os.dat2$Frame.Type)] <- "Metal"
+# item33.os.dat2$Frame.Type[grep("N/A", item33.os.dat2$Frame.Type)] <- "Unknown"
+# item33.os.dat2$Frame.Type[which(is.na(item33.os.dat2$Frame.Type))] <- "Unknown"
+# unique(item33.os.dat2$Frame.Type)
+# 
+# item33.os.dat2 <- item33.os.dat2[which(item33.os.dat2$Frame.Type != "Unknown"),]
+# 
+# #clean up glazing types
+# item33.os.dat2$Glazing <- trimws(item33.os.dat2$Glazing.Type)
+# item33.os.dat2$Glazing[grep("Single", item33.os.dat2$Glazing)] <- "Single Glazed"
+# item33.os.dat2$Glazing[grep("Double", item33.os.dat2$Glazing)] <- "Double Glazed"
+# item33.os.dat2$Glazing[grep("Triple", item33.os.dat2$Glazing)] <- "Triple Glazed"
+# item33.os.dat2$Glazing[which(!(item33.os.dat2$Glazing %in% c("Single Glazed", "Double Glazed", "Triple Glazed")))] <- "Unknown"
+# unique(item33.os.dat2$Glazing)
+# 
+# item33.os.dat2 <- item33.os.dat2[which(item33.os.dat2$Glazing != "Unknown"),]
+# 
+# item33.os.dat2$Framing.Categories <- paste(item33.os.dat2$Frame.Type, item33.os.dat2$Glazing, sep = " ")
+# 
+# item33.os.dat2$count <- 1
+# item33.os.dat3 <- item33.os.dat2[which(!is.na(as.numeric(as.character(item33.os.dat2$Quantity)))),]
+# 
+# 
+# #insert weights
+# item33.os.data <- weightedData(item33.os.dat3[-which(colnames(item33.os.dat3) %in% c("Type"
+#                                                                             ,"Sub-Type"
+#                                                                             ,"Area"
+#                                                                             ,"Quantity"
+#                                                                             ,"Frame./.Body.Type"
+#                                                                             ,"Glazing.Type"
+#                                                                             ,"Frame.Type"
+#                                                                             ,"Glazing"
+#                                                                             ,"Framing.Categories"
+#                                                                             ,"count"))])
+# item33.os.data <- left_join(item33.os.data, unique(item33.os.dat3[which(colnames(item33.os.dat3) %in% c("CK_Cadmus_ID"
+#                                                                                      ,"Type"
+#                                                                                      ,"Sub-Type"
+#                                                                                      ,"Area"
+#                                                                                      ,"Quantity"
+#                                                                                      ,"Frame./.Body.Type"
+#                                                                                      ,"Glazing.Type"
+#                                                                                      ,"Frame.Type"
+#                                                                                      ,"Glazing"
+#                                                                                      ,"Framing.Categories"
+#                                                                                      ,"count"))]))
+# 
+# item33.os.data$Quantity <- as.numeric(as.character(item33.os.data$Quantity))
+# 
+# #################################
+# # Weighted Analysis
+# #################################
+# item33.os.final <- proportionRowsAndColumns1(CustomerLevelData     = item33.os.data
+#                                           , valueVariable       = 'Quantity'
+#                                           , columnVariable      = 'CK_Building_ID'
+#                                           , rowVariable         = 'Framing.Categories'
+#                                           , aggregateColumnName = 'Remove')
+# # item33.os.final <- item33.os.final[which(item33.os.final$Framing.Categories != "Total"),]
+# item33.os.final <- item33.os.final[which(item33.os.final$CK_Building_ID != "Remove"),]
+# 
+# item33.os.cast <- dcast(setDT(item33.os.final)
+#                      , formula = BuildingType + Framing.Categories ~ CK_Building_ID
+#                      , value.var = c("w.percent", "w.SE", "count", "n", "EB"))
+# 
+# names(item33.os.cast)
+# 
+# if(os.ind == "scl"){
+#   item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
+#                                 ,"Framing.Categories"   = item33.os.cast$Framing.Categories
+#                                 ,"Percent_SCL.GenPop"   = item33.os.cast$`w.percent_SCL GenPop`
+#                                 ,"SE_SCL.GenPop"        = item33.os.cast$`w.SE_SCL GenPop`
+#                                 ,"n_SCL.GenPop"         = item33.os.cast$`n_SCL GenPop`
+#                                 ,"Percent_SCL.LI"       = item33.os.cast$`w.percent_SCL LI`
+#                                 ,"SE_SCL.LI"            = item33.os.cast$`w.SE_SCL LI`
+#                                 ,"n_SCL.LI"             = item33.os.cast$`n_SCL LI`
+#                                 ,"Percent_SCL.EH"       = item33.os.cast$`w.percent_SCL EH`
+#                                 ,"SE_SCL.EH"            = item33.os.cast$`w.SE_SCL EH`
+#                                 ,"n_SCL.EH"             = item33.os.cast$`n_SCL EH`
+#                                 ,"Percent_2017.RBSA.PS" = item33.os.cast$`w.percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"      = item33.os.cast$`w.SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"       = item33.os.cast$`n_2017 RBSA PS`
+#                                 ,"EB_SCL.GenPop"        = item33.os.cast$`EB_SCL GenPop`
+#                                 ,"EB_SCL.LI"            = item33.os.cast$`EB_SCL LI`
+#                                 ,"EB_SCL.EH"            = item33.os.cast$`EB_SCL EH`
+#                                 ,"EB_2017.RBSA.PS"      = item33.os.cast$`EB_2017 RBSA PS`)
+# }else if(os.ind == "snopud"){
+#   item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
+#                                 ,"Framing.Categories"   = item33.os.cast$Framing.Categories
+#                                 ,"Percent_SnoPUD"          = item33.os.cast$`w.percent_SnoPUD`
+#                                 ,"SE_SnoPUD"               = item33.os.cast$`w.SE_SnoPUD`
+#                                 ,"n_SnoPUD"                = item33.os.cast$`n_SnoPUD`
+#                                 ,"Percent_2017.RBSA.PS"    = item33.os.cast$`w.percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"         = item33.os.cast$`w.SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"          = item33.os.cast$`n_2017 RBSA PS`
+#                                 ,"Percent_RBSA.NW"         = item33.os.cast$`w.percent_2017 RBSA NW`
+#                                 ,"SE_RBSA.NW"              = item33.os.cast$`w.SE_2017 RBSA NW`
+#                                 ,"n_RBSA.NW"               = item33.os.cast$`n_2017 RBSA NW`
+#                                 ,"EB_SnoPUD"               = item33.os.cast$`EB_SnoPUD`
+#                                 ,"EB_2017.RBSA.PS"         = item33.os.cast$`EB_2017 RBSA PS`
+#                                 ,"EB_RBSA.NW"              = item33.os.cast$`EB_2017 RBSA NW`)
+# }
+# 
+# 
+# 
+# 
+# levels(item33.os.table$Framing.Categories)
+# rowOrder <- c("Metal Single Glazed"
+#               ,"Metal Double Glazed"
+#               ,"Metal Triple Glazed"
+#               ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+#               ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+#               ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+#               ,"Other Double Glazed" 
+#               ,"Total"
+# )
+# item33.os.table <- item33.os.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
+# item33.os.table <- data.frame(item33.os.table)
+# 
+# 
+# item33.os.final.SF <- item33.os.table[which(item33.os.table$BuildingType == "Single Family"),-which(colnames(item33.os.table) %in% c("BuildingType"))]
+# 
+# exportTable(item33.os.final.SF, "SF", "Table 40", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# 
+# #################################
+# # Unweighted Analysis
+# #################################
+# item33.os.final <- proportions_two_groups_unweighted(CustomerLevelData     = item33.os.data
+#                                                   , valueVariable       = 'Quantity'
+#                                                   , columnVariable      = 'CK_Building_ID'
+#                                                   , rowVariable         = 'Framing.Categories'
+#                                                   , aggregateColumnName = 'Remove')
+# item33.os.final <- item33.os.final[which(item33.os.final$CK_Building_ID != "Remove"),]
+# 
+# item33.os.cast <- dcast(setDT(item33.os.final)
+#                      , formula = BuildingType + Framing.Categories ~ CK_Building_ID
+#                      , value.var = c("Percent", "SE", "Count", "n"))
+# 
+# names(item32.os.cast)
+# 
+# 
+# if(os.ind == "scl"){
+#   item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
+#                                 ,"Framing.Categories"   = item33.os.cast$Framing.Categories
+#                                 ,"Percent_SCL.GenPop"   = item33.os.cast$`Percent_SCL GenPop`
+#                                 ,"SE_SCL.GenPop"        = item33.os.cast$`SE_SCL GenPop`
+#                                 ,"n_SCL.GenPop"         = item33.os.cast$`n_SCL GenPop`
+#                                 ,"Percent_SCL.LI"       = item33.os.cast$`Percent_SCL LI`
+#                                 ,"SE_SCL.LI"            = item33.os.cast$`SE_SCL LI`
+#                                 ,"n_SCL.LI"             = item33.os.cast$`n_SCL LI`
+#                                 ,"Percent_SCL.EH"       = item33.os.cast$`Percent_SCL EH`
+#                                 ,"SE_SCL.EH"            = item33.os.cast$`SE_SCL EH`
+#                                 ,"n_SCL.EH"             = item33.os.cast$`n_SCL EH`
+#                                 ,"Percent_2017.RBSA.PS" = item33.os.cast$`Percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"      = item33.os.cast$`SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"       = item33.os.cast$`n_2017 RBSA PS`)
+# }else if(os.ind == "snopud"){
+#   item33.os.table <- data.frame("BuildingType"          = item33.os.cast$BuildingType
+#                                 ,"Framing.Categories"   = item33.os.cast$Framing.Categories
+#                                 ,"Percent_SnoPUD"          = item33.os.cast$`Percent_SnoPUD`
+#                                 ,"SE_SnoPUD"               = item33.os.cast$`SE_SnoPUD`
+#                                 ,"n_SnoPUD"                = item33.os.cast$`n_SnoPUD`
+#                                 ,"Percent_2017.RBSA.PS"    = item33.os.cast$`Percent_2017 RBSA PS`
+#                                 ,"SE_2017.RBSA.PS"         = item33.os.cast$`SE_2017 RBSA PS`
+#                                 ,"n_2017.RBSA.PS"          = item33.os.cast$`n_2017 RBSA PS`
+#                                 ,"Percent_RBSA.NW"         = item33.os.cast$`Percent_2017 RBSA NW`
+#                                 ,"SE_RBSA.NW"              = item33.os.cast$`SE_2017 RBSA NW`
+#                                 ,"n_RBSA.NW"               = item33.os.cast$`n_2017 RBSA NW`)
+# }
+# 
+# 
+# 
+# 
+# levels(item33.os.table$Framing.Categories)
+# rowOrder <- c("Metal Single Glazed"
+#               ,"Metal Double Glazed"
+#               ,"Metal Triple Glazed"
+#               ,"Wood/Vinyl/Fiberglass/Tile Single Glazed"
+#               ,"Wood/Vinyl/Fiberglass/Tile Double Glazed"
+#               ,"Wood/Vinyl/Fiberglass/Tile Triple Glazed"
+#               ,"Other Double Glazed" 
+#               ,"Total"
+# )
+# item33.os.table <- item33.os.table %>% mutate(Framing.Categories = factor(Framing.Categories, levels = rowOrder)) %>% arrange(Framing.Categories)  
+# item33.os.table <- data.frame(item33.os.table)
+# 
+# 
+# item33.os.final.SF <- item33.os.table[which(item33.os.table$BuildingType == "Single Family")
+#                                 ,-which(colnames(item33.os.table) %in% c("BuildingType"))]
+# 
+# exportTable(item33.os.final.SF, "SF", "Table 40", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
+# 
+# 
+# 
+# 
+# 
+# #############################################################################################
+# #Item 34: PERCENTAGE OF HOMES WITH STORM WINDOWS BY CK_Building_ID
+# #############################################################################################
+# item34.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
+#                                                                          ,"Type"
+#                                                                          ,"Sub-Type"
+#                                                                          ,"Area"
+#                                                                          ,"Quantity"
+#                                                                          ,"Frame./.Body.Type"
+#                                                                          ,"Glazing.Type"))]
+# item34.os.dat1 <- left_join(os.dat, item34.os.dat, by = "CK_Cadmus_ID")
+# length(unique(item34.os.dat1$CK_Cadmus_ID))
+# 
+# item34.os.dat1$Indicator <- 0
+# item34.os.dat1$Indicator[grep("storm",item34.os.dat1$Type, ignore.case = T)] <- 1
+# 
+# item34.os.summary <- summarise(group_by(item34.os.dat1, CK_Cadmus_ID)
+#                             ,Ind = sum(unique(Indicator)))
+# 
+# item34.os.merge <- left_join(os.dat, item34.os.summary)
+# item34.os.merge <- item34.os.merge[which(!is.na(item34.os.merge$Ind)),]
+# 
+# 
+# #insert weights
+# item34.os.data <- weightedData(item34.os.merge[-which(colnames(item34.os.merge) %in% c("Type"
+#                                                                               ,"Sub-Type"
+#                                                                               ,"Area"
+#                                                                               ,"Quantity"
+#                                                                               ,"Frame./.Body.Type"
+#                                                                               ,"Glazing.Type"
+#                                                                               ,"Ind"))])
+# item34.os.data <- left_join(item34.os.data, unique(item34.os.merge[which(colnames(item34.os.merge) %in% c("CK_Cadmus_ID"
+#                                                                                        ,"Type"
+#                                                                                        ,"Sub-Type"
+#                                                                                        ,"Area"
+#                                                                                        ,"Quantity"
+#                                                                                        ,"Frame./.Body.Type"
+#                                                                                        ,"Glazing.Type"
+#                                                                                        ,"Ind"))]))
+# item34.os.data$Count <- 1
+# 
+# ###############################
+# # Weighted Analysis
+# ###############################
+# item34.os.final <- proportions_one_group(CustomerLevelData  = item34.os.data
+#                                       , valueVariable    = 'Ind'
+#                                       , groupingVariable = 'CK_Building_ID'
+#                                       , total.name       = "Remove"
+#                                       , weighted = TRUE)
+# 
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item34.os.final <- item34.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item34.os.final <- data.frame(item34.os.final)
+# 
+# 
+# item34.os.final <- item34.os.final[which(item34.os.final$CK_Building_ID != "Total"),]
+# item34.os.final.SF <- item34.os.final[which(item34.os.final$BuildingType == "Single Family"),-1]
+# 
+# exportTable(item34.os.final.SF, "SF", "Table 41", weighted = TRUE, osIndicator = export.ind, OS = T)
+# 
+# ###############################
+# # Weighted Analysis
+# ###############################
+# item34.os.final <- proportions_one_group(CustomerLevelData  = item34.os.data
+#                                       , valueVariable    = 'Ind'
+#                                       , groupingVariable = 'CK_Building_ID'
+#                                       , total.name       = "Region"
+#                                       , weighted = FALSE)
+# 
+# if(os.ind == "scl"){
+#   rowOrder <- c("SCL GenPop"
+#                 ,"SCL LI"
+#                 ,"SCL EH"
+#                 ,"2017 RBSA PS")
+# }else if(os.ind == "snopud"){
+#   rowOrder <- c("SnoPUD"
+#                 ,"2017 RBSA PS"
+#                 ,"2017 RBSA NW")
+# }
+# item34.os.final <- item34.os.final %>% mutate(CK_Building_ID = factor(CK_Building_ID, levels = rowOrder)) %>% arrange(CK_Building_ID)  
+# item34.os.final <- data.frame(item34.os.final)
+# item34.os.final <- item34.os.final[which(item34.os.final$CK_Building_ID != "Total"),]
+# 
+# item34.os.final.SF <- item34.os.final[which(item34.os.final$BuildingType == "Single Family")
+#                                 ,-which(colnames(item34.os.final) %in% c("BuildingType"))]
+# 
+# exportTable(item34.os.final.SF, "SF", "Table 41", weighted = FALSE, osIndicator = export.ind, OS = T)
+# 
