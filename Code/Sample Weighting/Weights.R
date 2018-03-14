@@ -464,7 +464,13 @@ missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
 #            append = T, row.names = F, showNA = F)
-samp.dat.final$N.h <- samp.dat.final$N.h / samp.dat.final$UnitCounts * samp.dat.final$n.h
+for (ii in 1:nrow(samp.dat.final)){
+  if(samp.dat.final$UnitCounts[ii] > 1){
+    samp.dat.final$N.h[ii] <- samp.dat.final$N.h[ii] / samp.dat.final$UnitCounts[ii] * samp.dat.final$n.h[ii]
+  }else{
+    samp.dat.final$N.h[ii] <- samp.dat.final$N.h[ii]
+  }
+}
 
 return(samp.dat.final)
 

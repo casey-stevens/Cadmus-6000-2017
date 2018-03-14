@@ -119,7 +119,6 @@ run <- try(source("Code/Table Code/MH/Items 4,5.R"))
 run <- try(source("Code/Table Code/MH/Items 7-9.R"))
 run <- try(source("Code/Table Code/MH/Items 12,175,Table AP.R")) #insulation
 run <- try(source("Code/Table Code/MH/Items 23,176.R")) #insulaion
-#ran up to here
 run <- try(source("Code/Table Code/MH/Items 177,178.R")) #insulaion
 run <- try(source("Code/Table Code/MH/Items 36,37,182.R"))
 run <- try(source("Code/Table Code/MH/Items 38-42.R"))
@@ -129,11 +128,9 @@ run <- try(source("Code/Table Code/MH/Items 50-53.R"))
 run <- try(source("Code/Table Code/MH/Items 54,55,190.R"))
 run <- try(source("Code/Table Code/MH/Items 56-58.R"))
 run <- try(source("Code/Table Code/MH/Items 66-67.R"))
-
-#not updated for MH yet
-run <- try(source("Code/Table Code/MH/Items 68-70, Table AE.R"))
+run <- try(source("Code/Table Code/MH/Items 68-70, Table AE.R")) #Error in `$<-.data.frame`(`*tmp*`, "tally", value = 1) : replacement has 1 row, data has 0
 run <- try(source("Code/Table Code/MH/Items 71-76,Tables XX,YY,AF.R"))
-run <- try(source("Code/Table Code/MH/Items 77-79, Tables ZZ,AG,AH.R"))
+run <- try(source("Code/Table Code/MH/Items 77-79, Tables ZZ,AG,AH.R"))#Error in `$<-.data.frame`(`*tmp*`, "tally", value = 1) : replacement has 1 row, data has 0
 run <- try(source("Code/Table Code/MH/Items 80,81, Tables AB,AC.R"))
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 run <- try(source("Code/Table Code/MH/Items 82-85.R"))
@@ -142,8 +139,11 @@ run <- try(source("Code/Table Code/MH/Items 89,91,93, Table AJ.R"))
 run <- try(source("Code/Table Code/MH/Items 90,92.R"))
 run <- try(source("Code/Table Code/MH/Items 94,95.R"))
 run <- try(source("Code/Table Code/MH/Items 96-98, Tables SS,AI.R"))
-run <- try(source("Code/Table Code/MH/Items 99-101.R"))
-run <- try(source("Code/Table Code/MH/Items 102-105.R"))
+run <- try(source("Code/Table Code/MH/Item 99.R"))
+run <- try(source("Code/Table Code/MH/Item 105.R"))
+#ran up to here
+
+#not updated for MH yet
 run <- try(source("Code/Table Code/MH/Item 106, Tables FF,AM,AR,AS,AT.R"))
 run <- try(source("Code/Table Code/MH/Items 107-110.R"))
 run <- try(source("Code/Table Code/MH/Item 111.R"))
