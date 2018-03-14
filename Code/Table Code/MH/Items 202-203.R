@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list=ls())
+# rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
@@ -28,13 +28,13 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 3)
+# lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 3)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
 
 #Read in data for analysis
-rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+# rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 #clean cadmus IDs
 rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 

@@ -31,6 +31,7 @@ sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.int
 water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
 survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated")
 sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
+windows.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
 
 
 
@@ -45,6 +46,7 @@ run <- try(source("Code/Table Code/SF/Items 10-18,175,235,Table AP.R")) #insulat
 run <- try(source("Code/Table Code/SF/Items 19-22.R"))
 run <- try(source("Code/Table Code/SF/Items 23,176,239.R")) #insulaion
 run <- try(source("Code/Table Code/SF/Items 24,25,28,29.R"))
+#25 in 1 hour
 run <- try(source("Code/Table Code/SF/Items 26,30,31,177,178,237.R")) #insulaion
 run <- try(source("Code/Table Code/SF/Items 32-34.R"))
 run <- try(source("Code/Table Code/SF/Item 35.R"))
@@ -141,9 +143,6 @@ run <- try(source("Code/Table Code/MH/Items 94,95.R"))
 run <- try(source("Code/Table Code/MH/Items 96-98, Tables SS,AI.R"))
 run <- try(source("Code/Table Code/MH/Item 99.R"))
 run <- try(source("Code/Table Code/MH/Item 105.R"))
-#ran up to here
-
-#not updated for MH yet
 run <- try(source("Code/Table Code/MH/Item 106, Tables FF,AM,AR,AS,AT.R"))
 run <- try(source("Code/Table Code/MH/Items 107-110.R"))
 run <- try(source("Code/Table Code/MH/Item 111.R"))
@@ -154,11 +153,17 @@ run <- try(source("Code/Table Code/MH/Items 124-127, Table AD.R"))
 run <- try(source("Code/Table Code/MH/Items 128-131.R"))
 run <- try(source("Code/Table Code/MH/Items 132-134, Table AU.R"))
 run <- try(source("Code/Table Code/MH/Items 135-138.R"))
+run <- try(source("Code/Table Code/MH/Items 139-142.R"))
 run <- try(source("Code/Table Code/MH/Items 143, 144, 146, 147, 148, 150.R"))
 run <- try(source("Code/Table Code/MH/Items 145 and 149.R"))
 run <- try(source("Code/Table Code/MH/Items 151-153.R"))
 run <- try(source("Code/Table Code/MH/Items 154, 155.R"))
-run <- try(source("Code/Table Code/MH/Items 139-142.R"))
+run <- try(source("Code/Table Code/MH/Item 173.R"))
+run <- try(source("Code/Table Code/MH/Items 177,178.R"))
+run <- try(source("Code/Table Code/MH/Item 179.R"))
+run <- try(source("Code/Table Code/MH/Item 180.R"))
+run <- try(source("Code/Table Code/MH/Item 192.R"))
+run <- try(source("Code/Table Code/MH/Items 202-203.R"))
 run <- try(source("Code/Table Code/MH/Table AA, Table BB.R"))
 run <- try(source("Code/Table Code/MH/Table AK.R"))
 run <- try(source("Code/Table Code/MH/Table AL.R"))

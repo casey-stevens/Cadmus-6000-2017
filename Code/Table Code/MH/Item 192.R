@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list=ls())
+# rm(list=ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
@@ -28,8 +28,8 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-mechanical.dat <- read.xlsx(mechanical.export)
+# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+# mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
