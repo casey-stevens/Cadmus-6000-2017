@@ -83,13 +83,13 @@ run <- try(source("Code/Table Code/Items 132-134, Table AU.R"))
 run <- try(source("Code/Table Code/Items 135-138.R"))
 run <- try(source("Code/Table Code/Items 143, 144, 146, 147, 148, 150.R"))
 run <- try(source("Code/Table Code/Items 145 and 149.R"))
+run <- try(source("Code/Table Code/Items 151-153.R"))
+run <- try(source("Code/Table Code/Items 154, 155.R"))
 
 #not ran  through yet
 run <- try(source("Code/Table Code/Items 99-101.R")) #error early
 run <- try(source("Code/Table Code/Items 102-105.R")) #error second table I think
 run <- try(source("Code/Table Code/Items 139-142.R")) #ERROR TABLE 148 - TYPO - Error : Sheet 'TableC 148' does not exist.
-run <- try(source("Code/Table Code/Items 151-153.R"))
-run <- try(source("Code/Table Code/Items 154, 155.R"))
 run <- try(source("Code/Table Code/Item 156.R"))
 run <- try(source("Code/Table Code/Item 157.R"))
 run <- try(source("Code/Table Code/Item 158.R"))
