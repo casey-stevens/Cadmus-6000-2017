@@ -26,8 +26,9 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
-# survey.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated"), stringsAsFactors = F)
+survey.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated"), stringsAsFactors = F)
 #clean cadmus IDs
+# survey.dat <- data.frame(survey.dat, stringsAsFactors = F)
 survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
 
 #subset to columns needed for analysis

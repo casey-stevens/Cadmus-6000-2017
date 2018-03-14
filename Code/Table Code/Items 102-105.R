@@ -156,14 +156,14 @@ item102.final <- rbind.data.frame(item102.final, item102.all.fuels)
 
 item102.cast <- dcast(setDT(item102.final)
                       ,formula = BuildingType + DHW.Fuel ~ Gallon_bins
-                      ,value.var = c("w.percent", "w.SE", "count", "n", "N"))
+                      ,value.var = c("Percent", "SE", "n"))
 
 item102.table <- data.frame("BuildingType"          = item102.cast$BuildingType
                             ,"DHW.Fuel"             = item102.cast$DHW.Fuel
-                            ,"Percent_0.50.Gallons" = item102.cast$`w.percent_0-55 Gallons`
-                            ,"SE_0.50.Gallons"      = item102.cast$`w.SE_0-55 Gallons`
-                            ,"Percent_GT50.Gallons" = item102.cast$`w.percent_>55 Gallons`
-                            ,"SE_GT50.Gallons"      = item102.cast$`w.SE_>55 Gallons`
+                            ,"Percent_0.50.Gallons" = item102.cast$`Percent_0-55 Gallons`
+                            ,"SE_0.50.Gallons"      = item102.cast$`SE_0-55 Gallons`
+                            ,"Percent_GT50.Gallons" = item102.cast$`Percent_>55 Gallons`
+                            ,"SE_GT50.Gallons"      = item102.cast$`SE_>55 Gallons`
                             ,"n" = item102.cast$n_Total
 )
 
@@ -495,7 +495,7 @@ item104.cast <- dcast(setDT(item104.final)
                       ,value.var = c("Percent", "SE", "Count", "n"))
 
 item104.table <- data.frame("BuildingType"          = item104.cast$BuildingType
-                            ,"DHLocation"         = item104.cast$DHLocation
+                            ,"DHW.Location"         = item104.cast$DHW.Location
                             ,"Percent_0.50.Gallons" = item104.cast$`Percent_0-55 Gallons`
                             ,"SE_0.50.Gallons"      = item104.cast$`SE_0-55 Gallons`
                             ,"Percent_GT50.Gallons" = item104.cast$`Percent_>55 Gallons`

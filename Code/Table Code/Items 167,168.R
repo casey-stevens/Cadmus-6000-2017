@@ -79,9 +79,9 @@ item167.merge <- item167.merge[which(!is.na(item167.merge$Heating.Fuel)),]
 item167.mechanical <- item167.merge
 
 
-Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-write.xlsx(item167.data, paste(filepathCleaningDocs, "Insulation Exports", paste("UA Cadmus IDs ", rundate, ".xlsx", sep = ""), sep="/"),
-           append = T, row.names = F, showNA = F)
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(item167.data, paste(filepathCleaningDocs, "Insulation Exports", paste("UA Cadmus IDs ", rundate, ".xlsx", sep = ""), sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 
 

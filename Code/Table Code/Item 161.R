@@ -96,7 +96,7 @@ item161.dat$Ind <- 0
 item161.dat$Ind[which(item161.dat$Floor.Type == "Basement")] <- 1
 
 item161.dat1 <- unique(item161.dat[which(item161.dat$Ind == 1),])
-which(duplicated(item161.dat3$CK_Cadmus_ID))
+which(duplicated(item161.dat1$CK_Cadmus_ID))
 
 item161.merge <- left_join(rbsa.dat, item161.dat1)
 item161.merge$Ind[which(is.na(item161.merge$Ind))] <- 0

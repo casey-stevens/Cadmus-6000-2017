@@ -237,7 +237,7 @@ item141.final.SF <- item141.final[which(item141.final$BuildingType == "Single Fa
 item141.final.MH <- item141.final[which(item141.final$BuildingType == "Manufactured")
                                   ,-which(colnames(item141.final) %in% c("BuildingType"))]
 
-exportTable(item141.final.SF, "SF", "TableC 148", weighted = FALSE)
+exportTable(item141.final.SF, "SF", "Table 148", weighted = FALSE)
 # exportTable(item141.final.MH, "MH", "Table 123", weighted = FALSE)
 
 

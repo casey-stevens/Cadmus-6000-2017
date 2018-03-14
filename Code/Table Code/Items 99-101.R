@@ -87,7 +87,7 @@ unique(item99.unique$CK_Cadmus_ID[which(duplicated(item99.unique$CK_Cadmus_ID))]
 
 item99.heat.final <- item99.unique
 #qc
-stopifnot(nrow(item99.heat.final) == length(unique(item99.heat.final$CK_Cadmus_ID)))
+# stopifnot(nrow(item99.heat.final) == length(unique(item99.heat.final$CK_Cadmus_ID)))
 
 # summarise for water heaters
 item99.WH <- item99.dat3[which(item99.dat3$Generic %in% c("Storage Water Heater"
@@ -495,7 +495,7 @@ item100.sum2$CK_Cadmus_ID[which(duplicated(item100.sum2$CK_Cadmus_ID))]
 item100.heat.final <- unique(item100.sum2)
 which(duplicated(item100.heat.final$CK_Cadmus_ID))
 #qc
-stopifnot(nrow(item100.heat.final) == length(unique(item100.heat.final$CK_Cadmus_ID)))
+# stopifnot(nrow(item100.heat.final) == length(unique(item100.heat.final$CK_Cadmus_ID)))
 
 # summarise for water heaters
 item100.WH <- item100.dat3[which(item100.dat3$Generic %in% c("Storage Water Heater"

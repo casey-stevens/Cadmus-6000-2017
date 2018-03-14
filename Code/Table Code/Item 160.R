@@ -364,7 +364,7 @@ wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID",
 prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
 
 #merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat.orig)
+prep.dat7 <- left_join(prep.dat6, rbsa.dat)
 # prep.dat7.0 <- left_join(rbsa.dat, prep.dat5)
 # prep.dat7 <- left_join(prep.dat6, prep.dat7.0)
 prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
