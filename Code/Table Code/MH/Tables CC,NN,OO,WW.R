@@ -265,51 +265,51 @@ tableNN.table.MH <- tableNN.table[which(tableNN.table$BuildingType == "Manufactu
 exportTable(tableNN.table.MH, "MH", "Table NN", weighted = FALSE)
 
 
-###########################################################
-# Multifamily
-###########################################################
-tableNN.MF.dat <- left_join(rbsa.dat, lighting.dat.CFL)
-tableNN.MF.dat$Ind <- 0
-tableNN.MF.dat$Ind[which(tableNN.MF.dat$Lamp.Category == "Compact Fluorescent")] <- 1
-
-tableNN.MF.sum <- summarise(group_by(tableNN.MF.dat, CK_Cadmus_ID)
-                            ,Ind = sum(unique((Ind))))
-
-tableNN.MF.merge <- left_join(rbsa.dat, tableNN.MF.sum)
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableNN.MF.data <- weightedData(tableNN.MF.merge[-which(colnames(tableNN.MF.merge) %in% c("Ind"))])
-tableNN.MF.data <- left_join(tableNN.MF.data, tableNN.MF.merge[which(colnames(tableNN.MF.merge) %in% c("CK_Cadmus_ID"
-                                                                                                       ,"Ind"))])
-tableNN.MF.data$count <- 1
-tableNN.MF.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableNN.MF.table <- proportions_one_group(CustomerLevelData = tableNN.MF.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "HomeType"
-                                       ,total.name = "All Sizes"
-                                       ,weighted = TRUE)
-tableNN.MF.table.MF <- tableNN.MF.table[which(tableNN.MF.table$BuildingType == "Multifamily")
-                                  ,which(colnames(tableNN.MF.table) %notin% c("BuildingType"))]
-
-exportTable(tableNN.MF.table.MF, "MF", "Table NN", weighted = TRUE)
-
-#######################
-# unweighted Analysis
-#######################
-tableNN.MF.table <- proportions_one_group(CustomerLevelData = tableNN.MF.data
-                                       ,valueVariable = "Ind"
-                                       ,groupingVariable = "HomeType"
-                                       ,total.name = "All Sizes"
-                                       ,weighted = FALSE)
-tableNN.MF.table.MF <- tableNN.MF.table[which(tableNN.MF.table$BuildingType == "Multifamily")
-                                  ,which(colnames(tableNN.MF.table) %notin% c("BuildingType"))]
-
-exportTable(tableNN.MF.table.MF, "MF", "Table NN", weighted = FALSE)
+# ###########################################################
+# # Multifamily
+# ###########################################################
+# tableNN.MF.dat <- left_join(rbsa.dat, lighting.dat.CFL)
+# tableNN.MF.dat$Ind <- 0
+# tableNN.MF.dat$Ind[which(tableNN.MF.dat$Lamp.Category == "Compact Fluorescent")] <- 1
+# 
+# tableNN.MF.sum <- summarise(group_by(tableNN.MF.dat, CK_Cadmus_ID)
+#                             ,Ind = sum(unique((Ind))))
+# 
+# tableNN.MF.merge <- left_join(rbsa.dat, tableNN.MF.sum)
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableNN.MF.data <- weightedData(tableNN.MF.merge[-which(colnames(tableNN.MF.merge) %in% c("Ind"))])
+# tableNN.MF.data <- left_join(tableNN.MF.data, tableNN.MF.merge[which(colnames(tableNN.MF.merge) %in% c("CK_Cadmus_ID"
+#                                                                                                        ,"Ind"))])
+# tableNN.MF.data$count <- 1
+# tableNN.MF.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableNN.MF.table <- proportions_one_group(CustomerLevelData = tableNN.MF.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "HomeType"
+#                                        ,total.name = "All Sizes"
+#                                        ,weighted = TRUE)
+# tableNN.MF.table.MF <- tableNN.MF.table[which(tableNN.MF.table$BuildingType == "Multifamily")
+#                                   ,which(colnames(tableNN.MF.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableNN.MF.table.MF, "MF", "Table NN", weighted = TRUE)
+# 
+# #######################
+# # unweighted Analysis
+# #######################
+# tableNN.MF.table <- proportions_one_group(CustomerLevelData = tableNN.MF.data
+#                                        ,valueVariable = "Ind"
+#                                        ,groupingVariable = "HomeType"
+#                                        ,total.name = "All Sizes"
+#                                        ,weighted = FALSE)
+# tableNN.MF.table.MF <- tableNN.MF.table[which(tableNN.MF.table$BuildingType == "Multifamily")
+#                                   ,which(colnames(tableNN.MF.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableNN.MF.table.MF, "MF", "Table NN", weighted = FALSE)
 
 
 
@@ -371,51 +371,51 @@ tableOO.table.MH <- tableOO.table[which(tableOO.table$BuildingType == "Manufactu
 exportTable(tableOO.table.MH, "MH", "Table OO", weighted = FALSE)
 
 
-###########################################################
-# Multifamily
-###########################################################
-tableOO.MF.dat <- left_join(rbsa.dat, lighting.dat.LED)
-tableOO.MF.dat$Ind <- 0
-tableOO.MF.dat$Ind[which(tableOO.MF.dat$Lamp.Category == "Light Emitting Diode")] <- 1
-
-tableOO.MF.sum <- summarise(group_by(tableOO.MF.dat, CK_Cadmus_ID)
-                            ,Ind = sum(unique((Ind))))
-
-tableOO.MF.merge <- left_join(rbsa.dat, tableOO.MF.sum)
-
-################################################
-# Adding pop and sample sizes for weights
-################################################
-tableOO.MF.data <- weightedData(tableOO.MF.merge[-which(colnames(tableOO.MF.merge) %in% c("Ind"))])
-tableOO.MF.data <- left_join(tableOO.MF.data, tableOO.MF.merge[which(colnames(tableOO.MF.merge) %in% c("CK_Cadmus_ID"
-                                                                                                       ,"Ind"))])
-tableOO.MF.data$count <- 1
-tableOO.MF.data$Count <- 1
-#######################
-# Weighted Analysis
-#######################
-tableOO.MF.table <- proportions_one_group(CustomerLevelData = tableOO.MF.data
-                                          ,valueVariable = "Ind"
-                                          ,groupingVariable = "HomeType"
-                                          ,total.name = "All Sizes"
-                                          ,weighted = TRUE)
-tableOO.MF.table.MF <- tableOO.MF.table[which(tableOO.MF.table$BuildingType == "Multifamily")
-                                        ,which(colnames(tableOO.MF.table) %notin% c("BuildingType"))]
-
-exportTable(tableOO.MF.table.MF, "MF", "Table OO", weighted = TRUE)
-
-#######################
-# unweighted Analysis
-#######################
-tableOO.MF.table <- proportions_one_group(CustomerLevelData = tableOO.MF.data
-                                          ,valueVariable = "Ind"
-                                          ,groupingVariable = "HomeType"
-                                          ,total.name = "All Sizes"
-                                          ,weighted = FALSE)
-tableOO.MF.table.MF <- tableOO.MF.table[which(tableOO.MF.table$BuildingType == "Multifamily")
-                                        ,which(colnames(tableOO.MF.table) %notin% c("BuildingType"))]
-
-exportTable(tableOO.MF.table.MF, "MF", "Table OO", weighted = FALSE)
+# ###########################################################
+# # Multifamily
+# ###########################################################
+# tableOO.MF.dat <- left_join(rbsa.dat, lighting.dat.LED)
+# tableOO.MF.dat$Ind <- 0
+# tableOO.MF.dat$Ind[which(tableOO.MF.dat$Lamp.Category == "Light Emitting Diode")] <- 1
+# 
+# tableOO.MF.sum <- summarise(group_by(tableOO.MF.dat, CK_Cadmus_ID)
+#                             ,Ind = sum(unique((Ind))))
+# 
+# tableOO.MF.merge <- left_join(rbsa.dat, tableOO.MF.sum)
+# 
+# ################################################
+# # Adding pop and sample sizes for weights
+# ################################################
+# tableOO.MF.data <- weightedData(tableOO.MF.merge[-which(colnames(tableOO.MF.merge) %in% c("Ind"))])
+# tableOO.MF.data <- left_join(tableOO.MF.data, tableOO.MF.merge[which(colnames(tableOO.MF.merge) %in% c("CK_Cadmus_ID"
+#                                                                                                        ,"Ind"))])
+# tableOO.MF.data$count <- 1
+# tableOO.MF.data$Count <- 1
+# #######################
+# # Weighted Analysis
+# #######################
+# tableOO.MF.table <- proportions_one_group(CustomerLevelData = tableOO.MF.data
+#                                           ,valueVariable = "Ind"
+#                                           ,groupingVariable = "HomeType"
+#                                           ,total.name = "All Sizes"
+#                                           ,weighted = TRUE)
+# tableOO.MF.table.MF <- tableOO.MF.table[which(tableOO.MF.table$BuildingType == "Multifamily")
+#                                         ,which(colnames(tableOO.MF.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableOO.MF.table.MF, "MF", "Table OO", weighted = TRUE)
+# 
+# #######################
+# # unweighted Analysis
+# #######################
+# tableOO.MF.table <- proportions_one_group(CustomerLevelData = tableOO.MF.data
+#                                           ,valueVariable = "Ind"
+#                                           ,groupingVariable = "HomeType"
+#                                           ,total.name = "All Sizes"
+#                                           ,weighted = FALSE)
+# tableOO.MF.table.MF <- tableOO.MF.table[which(tableOO.MF.table$BuildingType == "Multifamily")
+#                                         ,which(colnames(tableOO.MF.table) %notin% c("BuildingType"))]
+# 
+# exportTable(tableOO.MF.table.MF, "MF", "Table OO", weighted = FALSE)
 
 
 

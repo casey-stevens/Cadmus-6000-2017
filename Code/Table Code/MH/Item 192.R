@@ -51,8 +51,8 @@ item192.dat0 <- item192.dat[which(item192.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 item192.dat1 <- left_join(rbsa.dat, item192.dat0)
 
 #subset to only crossover present == Yes or No
-unique(item192.dat2$MECH_Ducting_DUCTS_DuctCrossoverPresent_Y_N)
 item192.dat2 <- item192.dat1[which(item192.dat1$MECH_Ducting_DUCTS_DuctCrossoverPresent_Y_N %in% c("Yes", "No")),]
+unique(item192.dat2$MECH_Ducting_DUCTS_DuctCrossoverPresent_Y_N)
 
 item192.dat2$DuctCount <- 0
 item192.dat2$DuctCount[which(item192.dat2$MECH_Ducting_DUCTS_DuctCrossoverPresent_Y_N == "Yes")] <- 1
@@ -180,8 +180,8 @@ item192.table <- data.frame("BuildingType"       = item192.cast$BuildingType
                             ,"SE.Connected"      = item192.cast$SE_Connected
                             ,"Percent.Partially.Connected" = NA #item192.cast$w.percent_Partially.Connected
                             ,"SE.Partially.Connected"      = NA #item192.cast$w.SE_Partially.Connected
-                            ,"Percent.Disconnected" = item192.cast$w.percent_Disconnected
-                            ,"SE.Disconnected"      = item192.cast$w.SE_Disconnected
+                            ,"Percent.Disconnected" = item192.cast$Percent_Disconnected
+                            ,"SE.Disconnected"      = item192.cast$SE_Disconnected
                             ,"n"                    = item192.cast$`n_All Types`
 )
 

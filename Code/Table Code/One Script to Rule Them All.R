@@ -46,7 +46,6 @@ run <- try(source("Code/Table Code/SF/Items 10-18,175,235,Table AP.R")) #insulat
 run <- try(source("Code/Table Code/SF/Items 19-22.R"))
 run <- try(source("Code/Table Code/SF/Items 23,176,239.R")) #insulaion
 run <- try(source("Code/Table Code/SF/Items 24,25,28,29.R"))
-#25 in 1 hour
 run <- try(source("Code/Table Code/SF/Items 26,30,31,177,178,237.R")) #insulaion
 run <- try(source("Code/Table Code/SF/Items 32-34.R"))
 run <- try(source("Code/Table Code/SF/Item 35.R"))
@@ -130,17 +129,16 @@ run <- try(source("Code/Table Code/MH/Items 50-53.R"))
 run <- try(source("Code/Table Code/MH/Items 54,55,190.R"))
 run <- try(source("Code/Table Code/MH/Items 56-58.R"))
 run <- try(source("Code/Table Code/MH/Items 66-67.R"))
-run <- try(source("Code/Table Code/MH/Items 68-70, Table AE.R")) #Error in `$<-.data.frame`(`*tmp*`, "tally", value = 1) : replacement has 1 row, data has 0
+run <- try(source("Code/Table Code/MH/Items 68-70, Table AE.R"))
 run <- try(source("Code/Table Code/MH/Items 71-76,Tables XX,YY,AF.R"))
-run <- try(source("Code/Table Code/MH/Items 77-79, Tables ZZ,AG,AH.R"))#Error in `$<-.data.frame`(`*tmp*`, "tally", value = 1) : replacement has 1 row, data has 0
+run <- try(source("Code/Table Code/MH/Items 77-79, Tables ZZ,AG,AH.R"))
 run <- try(source("Code/Table Code/MH/Items 80,81, Tables AB,AC.R"))
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 run <- try(source("Code/Table Code/MH/Items 82-85.R"))
 run <- try(source("Code/Table Code/MH/Items 86-88.R"))
-run <- try(source("Code/Table Code/MH/Items 89,91,93, Table AJ.R"))
+run <- try(source("Code/Table Code/MH/Items 89,91,93, Table AJ.R")) #no errors unless otherwise specfied after this scripts
 run <- try(source("Code/Table Code/MH/Items 90,92.R"))
 run <- try(source("Code/Table Code/MH/Items 94,95.R"))
-run <- try(source("Code/Table Code/MH/Items 96-98, Tables SS,AI.R"))
+run <- try(source("Code/Table Code/MH/Items 96-98, Tables SS,AI.R")) #Error, sheet SS does not exist
 run <- try(source("Code/Table Code/MH/Item 99.R"))
 run <- try(source("Code/Table Code/MH/Item 105.R"))
 run <- try(source("Code/Table Code/MH/Item 106, Tables FF,AM,AR,AS,AT.R"))
@@ -165,7 +163,7 @@ run <- try(source("Code/Table Code/MH/Item 180.R"))
 run <- try(source("Code/Table Code/MH/Item 192.R"))
 run <- try(source("Code/Table Code/MH/Items 202-203.R"))
 run <- try(source("Code/Table Code/MH/Table AA, Table BB.R"))
-run <- try(source("Code/Table Code/MH/Table AK.R"))
+run <- try(source("Code/Table Code/MH/Table AK.R")) #wrong total n for weighted
 run <- try(source("Code/Table Code/MH/Table AL.R"))
 run <- try(source("Code/Table Code/MH/Table AV.R"))
 run <- try(source("Code/Table Code/MH/Tables CC,NN,OO,WW.R"))
