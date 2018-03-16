@@ -121,7 +121,7 @@ run <- try(source("Code/Table Code/MH/Items 7-9.R"))
 run <- try(source("Code/Table Code/MH/Items 12,175,Table AP.R")) #insulation
 run <- try(source("Code/Table Code/MH/Items 23,176.R")) #insulaion
 run <- try(source("Code/Table Code/MH/Items 177,178.R")) #insulaion
-run <- try(source("Code/Table Code/MH/Items 36,37,182.R"))
+run <- try(source("Code/Table Code/MH/Items 36,37,182.R")) #heat-loss
 run <- try(source("Code/Table Code/MH/Items 38-42.R"))
 run <- try(source("Code/Table Code/MH/Items 43-46.R"))
 run <- try(source("Code/Table Code/MH/Items 47-49.R"))
