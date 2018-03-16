@@ -265,14 +265,14 @@ item190.table <- data.frame("BuildingType"               = item190.cast$Building
                            ,"EB_All.Cooling.Zones"      = item190.cast$`EB_All Cooling Zones`)
 # row ordering example code
 levels(item190.table$Cooling.System.Type)
-rowOrder <- c("Packaged Ac"
-              ,"Packaged Hp"
+rowOrder <- c("Packaged AC"
+              ,"Packaged HP"
               ,"Central Ac"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
-              ,"Mini-Split Hp"
-              ,"Mini-Split Ac"
+              ,"Mini-Split HP"
+              ,"Mini-Split AC"
               ,"Furnace"
               ,"Geothermal Heat Pump"
               ,"All Types")
@@ -331,14 +331,14 @@ item190.table <- data.frame("BuildingType"               = item190.cast$Building
                            ,"n.All.Cooling.Zones"       = item190.cast$`n_All Cooling Zones`)
 # row ordering example code
 levels(item190.table$Cooling.System.Type)
-rowOrder <- c("Packaged Ac"
-              ,"Packaged Hp"
+rowOrder <- c("Packaged AC"
+              ,"Packaged HP"
               ,"Central Ac"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
-              ,"Mini-Split Hp"
-              ,"Mini-Split Ac"
+              ,"Mini-Split HP"
+              ,"Mini-Split AC"
               ,"Furnace"
               ,"Geothermal Heat Pump"
               ,"All Types")

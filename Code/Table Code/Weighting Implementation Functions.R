@@ -867,7 +867,7 @@ proportions_one_group <- function(CustomerLevelData
     #sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N.h   = sum(N.h)
+                                        ,N.h   = sum(unique(N.h))
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
     
     if(groupingVariable %in% c("State","BuildingType", "EUI_Quartile")){
@@ -1004,23 +1004,23 @@ proportions_one_group <- function(CustomerLevelData
                                                    ,EB   = w.SE * qt(1-(1-0.9)/2, n)
       ), stringsAsFactors = F)
       #summarise across home types (total level)
-      ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
-                                       ,rowTotal  = "Total"
-                                       ,w.percent = sum(N * w.percent) / sum(N)
-                                       ,w.SE      = sqrt(sum(N^2 * (1 / n) * (1 - n / N) * w.percent * (1 - w.percent))) / sum(N)
-                                       ,count     = sum(count)
-                                       ,N         = sum(N)
-                                       ,n         = sum(n)
-                                       ,EB   = w.SE * qt(1-(1-0.9)/2, n)
-                                       
-      # ColumnTotals <- data.frame(ddply(StrataData, "BuildingType", summarise
+      # ColumnTotals <- data.frame(ddply(ColumnProportionsByGroup, "BuildingType", summarise
       #                                  ,rowTotal  = "Total"
-      #                                  ,w.percent = sum(N.h * p.h) / sum(N.h)
-      #                                  ,w.SE      = sqrt(sum(N.h^2 * (1 / n.h) * (1 - n.h / N.h) * p.h * (1 - p.h))) / sum(N.h)
+      #                                  ,w.percent = sum(N * w.percent) / sum(N)
+      #                                  ,w.SE      = sqrt(sum(N^2 * (1 / n) * (1 - n / N) * w.percent * (1 - w.percent))) / sum(N)
       #                                  ,count     = sum(count)
-      #                                  ,N         = sum(N.h)
-      #                                  ,n         = sum(n_hj)
+      #                                  ,N         = sum(N)
+      #                                  ,n         = sum(n)
       #                                  ,EB   = w.SE * qt(1-(1-0.9)/2, n)
+                                       
+      ColumnTotals <- data.frame(ddply(StrataData, "BuildingType", summarise
+                                       ,rowTotal  = "Total"
+                                       ,w.percent = sum(N.h * p.h) / sum(N.h)
+                                       ,w.SE      = sqrt(sum(N.h^2 * (1 / n.h) * (1 - n.h / N.h) * p.h * (1 - p.h))) / sum(N.h)
+                                       ,count     = sum(count)
+                                       ,N         = sum(N.h)
+                                       ,n         = sum(n_hj)
+                                       ,EB   = w.SE * qt(1-(1-0.9)/2, n)
       ), stringsAsFactors = F) 
       # ColumnProportionsByGroup$N.times.p <- ColumnProportionsByGroup$N*ColumnProportionsByGroup$w.percent
       # sum(ColumnProportionsByGroup$N.times.p) / sum(ColumnProportionsByGroup$N)
