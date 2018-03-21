@@ -9,7 +9,7 @@
 ### EUI Table For Steve
 
 ##  Clear variables
-rm(list = ls())
+#rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -139,8 +139,8 @@ heating.final$ElectricInd[which(heating.final$ElectricInd > 0)] <- 1
 ##### Bring in lighting information
 #lighting <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
 keep.cols <- c("CK_Cadmus_ID","Clean.Room", "Lamp.Category", "LIGHTING_BulbsPerFixture", "Fixture.Qty")
-keep.cols.ind <- which(colnames(lighting) %in% keep.cols)
-lighting.clean <- lighting[,keep.cols.ind]
+keep.cols.ind <- which(colnames(lighting.dat) %in% keep.cols)
+lighting.clean <- lighting.dat[,keep.cols.ind]
 lighting.clean2 <- lighting.clean[-which(lighting.clean$Clean.Room == "Storage"),]
 unique(lighting.clean2$Lamp.Category)
 lighting.clean2$Efficient <- 0 
