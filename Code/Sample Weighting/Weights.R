@@ -13,7 +13,19 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item212.dat2
+# itemData <- UsageDataSF_Final7[-which(colnames(UsageDataSF_Final7) %in% c("Conditioned.Area.x"
+#                                                                           ,"EUI"
+#                                                                           ,"EUI_Quartile"
+#                                                                           ,"ElectricInd"
+#                                                                           ,"TotalBulbs"
+#                                                                           ,"EfficientTotal"
+#                                                                           ,"EfficientSaturation"
+#                                                                           ,"ACtotal"
+#                                                                           ,"Has_AC"
+#                                                                           ,"Electric_DWH"
+#                                                                           ,"Conditioned.Area.y"
+#                                                                           ,"Qty.Occupants"
+#                                                                           ,"count"))]
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -378,7 +390,9 @@ popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL Not LI 
 unique(popCounts.0$Territory)
 
 # Get sample sizes in each Territory
-popCounts.SF <- summarise(group_by(popCounts.0, 
+popCounts.SF <- popCounts.0
+popCounts.SF$Territory[which(popCounts.SF$Territory == "PSE - Non-King County")] <- "PSE"
+popCounts.SF <- summarise(group_by(popCounts.SF, 
                                    State, Region, Territory)
                           ,BuildingType = "Single Family"
                          , N.h = sum(SF.pop)
@@ -398,7 +412,9 @@ popCounts.SF$N.h[which(popCounts.SF$Territory == "SCL LI and EH")] <- round(popC
 
 popCounts.1 <- popCounts.0
 popCounts.1$Territory[grep("scl", popCounts.1$Territory, ignore.case = T)] <- "SCL"
-popCounts.MH <- summarise(group_by(popCounts.1, 
+popCounts.MH <- data.frame(popCounts.1, stringsAsFactors = F)
+popCounts.MH$Territory[which(popCounts.MH$Territory == "PSE - Non-King County")] <- "PSE"
+popCounts.MH <- summarise(group_by(popCounts.MH, 
                                    State, Region, Territory)
                           ,BuildingType = "Manufactured"
                           ,N.h = sum(MH.pop))

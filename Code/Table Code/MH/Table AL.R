@@ -132,7 +132,7 @@ lighting.clean3$AllBulbs <-
 lighting.clean3$EfficientBulbs <- 
   as.numeric(lighting.clean3$Fixture.Qty) * 
   as.numeric(lighting.clean3$LIGHTING_BulbsPerFixture) * lighting.clean3$Efficient
-View(lighting.clean3)
+# View(lighting.clean3)
 lighting.clean4 <- summarize(group_by(lighting.clean3,CK_Cadmus_ID),
                              TotalBulbs = sum(AllBulbs),
                              EfficientTotal = sum(EfficientBulbs))
@@ -163,7 +163,7 @@ central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pum
                                                             "Packaged Hp", 
                                                             "Mini-Split HP", 
                                                             "Packaged HP",
-                                                            ,"Package Terminal Heat Pump"
+                                                            "Package Terminal Heat Pump"
                                                             ,"Packaged Unit"))] <- 1
 
 central_Ac.dat2 <- summarize(group_by(central_Ac.dat1,CK_Cadmus_ID),

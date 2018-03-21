@@ -185,12 +185,12 @@ run <- try(source("Code/Table Code/MF/Table AL - MF.R"))
 # run <- try(source("Code/Table Code/MF/Table AV.R"))
 run <- try(source("Code/Table Code/MF/Table AJ.R"))
 run <- try(source("Code/Table Code/MF/Tables CC,NN,OO,WW.R"))
-run <- try(source("Code/Table Code/MF/Tables DD,EE,GG,HH,II,KK,LL,MM.R")) #Error in data.frame(BuildingType = tableMM.cast.MF$BuildingType, Home.Type = tableMM.cast.MF$HomeType,  : arguments imply differing number of rows: 10, 0
+run <- try(source("Code/Table Code/MF/Tables DD,EE,GG,HH,II,KK,LL,MM.R")) ###################RE RUN MM
 run <- try(source("Code/Table Code/MF/Tables RR,TT,UU,VV.R"))
 # run <- try(source("Code/Table Code/MF/Items 212,216.R"))
 # run <- try(source("Code/Table Code/MF/Items 213,217,226.R"))
 # run <- try(source("Code/Table Code/MF/Items 214,215,222,231,240,241,242.R"))
-run <- try(source("Code/Table Code/MF/Items 218,219,223.R")) #Error in data.frame(Housing.Vintage = item218.cast$HomeYearBuilt_bins_MF,  : arguments imply differing number of rows: 8, 0
+run <- try(source("Code/Table Code/MF/Items 218,219,223.R"))
 run <- try(source("Code/Table Code/MF/Item 220.R"))
 run <- try(source("Code/Table Code/MF/Item 224.R"))
 run <- try(source("Code/Table Code/MF/Item 225.R"))
@@ -203,28 +203,21 @@ run <- try(source("Code/Table Code/MF/Item 236,238.R"))
 run <- try(source("Code/Table Code/MF/Item 237.R"))
 run <- try(source("Code/Table Code/MF/Item 239.R"))
 run <- try(source("Code/Table Code/MF/Items 243-246,249.R"))
-run <- try(source("Code/Table Code/MF/Item 247.R")) #Error in `$<-.data.frame`(`*tmp*`, "CK_Building_ID", value = character(0)) : replacement has 0 rows, data has 184
-run <- try(source("Code/Table Code/MF/Item 248.R")) #Error : `by` can't contain join column `PK_BuildingID` which is missing from RHS
+run <- try(source("Code/Table Code/MF/Item 247.R"))
+run <- try(source("Code/Table Code/MF/Item 248.R"))
 #250,251 don't exist
 run <- try(source("Code/Table Code/MF/Items 252,254.R"))
 run <- try(source("Code/Table Code/MF/Item 253.R"))
 #255 doesn't exist
 run <- try(source("Code/Table Code/MF/Items 256-258.R"))
 run <- try(source("Code/Table Code/MF/Item 259.R"))
-
-
-###
-#Ran up to here
-###
-
-run <- try(source("Code/Table Code/MF/Items 260-263.R")) #Error : `by` required, because the data sources have no common variables
+run <- try(source("Code/Table Code/MF/Items 260-263.R"))
 run <- try(source("Code/Table Code/MF/Items 264-267.R"))
-run <- try(source("Code/Table Code/MF/Items 268-271.R")) #Error in one.line.bldg.dat$PK_BuildingID : $ operator is invalid for atomic vectors
+run <- try(source("Code/Table Code/MF/Items 268-271.R"))
 run <- try(source("Code/Table Code/MF/Items 272-274.R"))
 #275 - doesn't exist
 run <- try(source("Code/Table Code/MF/Item 276.R"))
-run <- try(source("Code/Table Code/MF/Items 277,278.R")) #Error in one.line.bldg.dat$Area.of.Conditioned.Common.Space : $ operator is invalid for atomic vectors
-run <- try(source("Code/Table Code/MF/Items 279-282.R"))
+run <- try(source("Code/Table Code/MF/Items 277,278.R"))
 run <- try(source("Code/Table Code/MF/Item 283.R"))
 #284 - doesn't exist
 run <- try(source("Code/Table Code/MF/Items 285-287.R"))
@@ -234,9 +227,13 @@ run <- try(source("Code/Table Code/MF/Items 293-295.R"))
 run <- try(source("Code/Table Code/MF/Items 296,297.R"))
 run <- try(source("Code/Table Code/MF/Item 298.R"))
 run <- try(source("Code/Table Code/MF/Item 299.R"))
-# run <- try(source("Code/Table Code/MF/Item 301A.R"))
+# run <- try(source("Code/Table Code/MF/Item 301A.R")) -- doesn't look like this has a place to export
 run <- try(source("Code/Table Code/MF/Items 300,301.R"))
 run <- try(source("Code/Table Code/MF/Items 302-304.R"))
-
 run <- try(source("Code/Table Code/MF/MF EUI Tables.R"))
 run <- try(source("Code/Table Code/MF/MF Gas EUI Tables.R"))
+
+
+
+run <- try(source("Code/Table Code/MF/Table AI.R"))
+run <- try(source("Code/Table Code/MF/Tables AG,AH.R"))

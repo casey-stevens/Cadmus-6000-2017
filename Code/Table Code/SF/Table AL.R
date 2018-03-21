@@ -132,7 +132,7 @@ lighting.clean3$AllBulbs <-
 lighting.clean3$EfficientBulbs <- 
   as.numeric(lighting.clean3$Fixture.Qty) * 
   as.numeric(lighting.clean3$LIGHTING_BulbsPerFixture) * lighting.clean3$Efficient
-View(lighting.clean3)
+# View(lighting.clean3)
 lighting.clean4 <- summarize(group_by(lighting.clean3,CK_Cadmus_ID),
                              TotalBulbs = sum(AllBulbs),
                              EfficientTotal = sum(EfficientBulbs))
@@ -163,8 +163,9 @@ central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pum
                                                             "Packaged Hp", 
                                                             "Mini-Split HP", 
                                                             "Packaged HP",
-                                                            ,"Package Terminal Heat Pump"
-                                                            ,"Packaged Unit"))] <- 1
+                                                            "Package Terminal Heat Pump"
+                                                            ,"Packaged Unit"
+                                                            ,"Air Handler"))] <- 1
 
 central_Ac.dat2 <- summarize(group_by(central_Ac.dat1,CK_Cadmus_ID),
                              ACtotal = sum(AC))
@@ -249,7 +250,7 @@ UsageDataSF_Final7$EUI_Quartile <- 4
 UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5344431)] <- 1
 UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5344431 & UsageDataSF_Final7$EUI < 5.9624753)] <- 2
 UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9624753 & UsageDataSF_Final7$EUI < 9.2508641)] <- 3
-
+table(UsageDataSF_Final7$EUI_Quartile)
 #for manufactured
 # UsageDataSF_Final7$EUI_Quartile <- 4
 # UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 6.333907)] <- 1
