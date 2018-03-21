@@ -36,8 +36,8 @@ results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case
 # results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
-# download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-# mechanical.dat <- read.xlsx(mechanical.export)
+download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -152,12 +152,16 @@ central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pum
                                                             "Central Ac", 
                                                             "Central AC", 
                                                             "Packaged Ac",
+                                                            "Packaged AC",
                                                             "Evaporative Cooling",
                                                             "GeoThermal Heat Pump",
                                                             "Mini-Split Ac", 
+                                                            "Mini-Split AC", 
                                                             "Water Source Heat Pump", 
-                                                            "Mini-Split Hp", 
+                                                            "Mini-Split Hp",
+                                                            "Mini-Split HP",
                                                             "Packaged Hp",
+                                                            "Packaged HP",
                                                             "Air Handler"
                                                             ,"Package Terminal Heat Pump"
                                                             ,"Packaged Unit"))] <- 1
