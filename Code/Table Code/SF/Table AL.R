@@ -36,8 +36,8 @@ results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case
 # results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-mechanical.dat <- read.xlsx(mechanical.export)
+#download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+#mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -111,7 +111,7 @@ heating.final$ElectricInd[which(heating.final$ElectricInd > 0)] <- 1
 # There are four people with multiple heating systems wil run with this for now
 
 ##### Bring in lighting information
-lighting <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
+#lighting <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
 keep.cols <- c("CK_Cadmus_ID","Clean.Room", "Lamp.Category", "LIGHTING_BulbsPerFixture", "Fixture.Qty")
 keep.cols.ind <- which(colnames(lighting) %in% keep.cols)
 lighting.clean <- lighting[,keep.cols.ind]
@@ -155,17 +155,17 @@ central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pum
                                                             "Packaged AC",
                                                             "Evaporative Cooling",
                                                             "GeoThermal Heat Pump",
+                                                            "Geothermal Heat Pump",
                                                             "Mini-Split Ac", 
                                                             "Mini-Split AC", 
                                                             "Water Source Heat Pump", 
                                                             "Mini-Split Hp",
                                                             "Mini-Split HP",
                                                             "Packaged Hp",
-                                                            "Packaged HP",
-                                                            "Air Handler"
+                                                            "Packaged HP"
                                                             ,"Package Terminal Heat Pump"
                                                             ,"Packaged Unit"))] <- 1
-
+unique(central_Ac.dat1$System.Type[which(central_Ac.dat1$AC != 1)])
 central_Ac.dat2 <- summarize(group_by(central_Ac.dat1,CK_Cadmus_ID),
                              ACtotal = sum(AC))
 central_Ac.dat2$Has_AC <- 0
@@ -229,7 +229,7 @@ UsageDataSF_Final5 <- merge(UsageDataSF_Final4, dhw.final       , by = "CK_Cadmu
 UsageDataSF_Final6 <- merge(UsageDataSF_Final5, survey.final    , by = "CK_Cadmus_ID",all.x = T)
 # View(UsageDataSF_Final6)
 
-ii=5
+
 for (ii in colnames(UsageDataSF_Final6)){
   UsageDataSF_Final6[is.na(UsageDataSF_Final6[ii]),ii] <- 0
 }
@@ -346,7 +346,7 @@ names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c
 #######################
 UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
 
-exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
+#exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
 
 
