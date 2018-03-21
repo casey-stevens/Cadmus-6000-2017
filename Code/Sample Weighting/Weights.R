@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat.bldg
+# itemData <- item212.dat2
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -126,6 +126,7 @@ weightedData <- function(itemData){
   zipMap.dat1 <- data.frame("ZIPCode"          = zipMap.dat$ZIPCode
                             , "State"          = zipMap.dat$State
                             , "Region"         = zipMap.dat$Region
+                            , "County"         = zipMap.dat$County
                             , "Utility"        = zipMap.dat$Utility
                             , "BPA_vs_IOU"     = zipMap.dat$BPA_vs_IOU
                             , stringsAsFactors = F)
@@ -208,6 +209,7 @@ weightedData <- function(itemData){
                             ,"UnitCounts"
                             ,"Utility"
                             ,"Region"
+                            ,"County"
                             ,"BPA_vs_IOU"
                             ,"tally")
   
@@ -336,6 +338,17 @@ sampCounts.MH <- summarise(group_by(samp.dat.7[which(samp.dat.7$BuildingType == 
                                     BuildingType, State, Region, Territory)
                            ,n.h = length(unique(CK_Cadmus_ID)))
 sum(sampCounts.MH$n.h)
+
+for(ii in 1:nrow(samp.dat.7)){
+  if(samp.dat.7$Territory[ii] == "PSE"){
+    if(samp.dat.7$County[ii] == "King"){
+      samp.dat.7$Territory[ii]  <- "PSE - King County"
+    }else{
+      samp.dat.7$Territory[ii]  <- "PSE - Non-King County"
+    }
+  }
+}
+
 sampCounts.MF <- summarise(group_by(samp.dat.7[which(samp.dat.7$BuildingType == "Multifamily"),], 
                                     BuildingType, State, Region, Territory)
                            ,n.h = length(unique(CK_Cadmus_ID)))
@@ -360,7 +373,7 @@ popCounts.0$Territory <- rep("MISSING", nrow(popCounts.0))
 popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
 popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU %in% c("IOU", "NOT BPA", NA))]    <- "Non-BPA.Non-PSE"
 popCounts.0$Territory[grep("SNOHOMISH",    popCounts.0$Utility)] <- "SnoPUD"
-popCounts.0$Territory[grep("PUGET SOUND",  popCounts.0$Utility)] <- "PSE"
+popCounts.0$Territory[grep("PUGET SOUND",  popCounts.0$Utility)] <- "PSE - Non-King County"
 popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL Not LI or EH"
 unique(popCounts.0$Territory)
 
@@ -395,6 +408,13 @@ popCounts.MF <- summarise(group_by(popCounts.1,
                                    State, Region, Territory)
                           ,BuildingType = "Multifamily"
                           ,N.h = sum(MF.pop))
+pse.king.Row <- data.frame(popCounts.MF[which(popCounts.MF$Territory == "PSE - Non-King County"),],stringsAsFactors = F)
+pse.king.Row$Territory <- "PSE - King County"
+popCounts.MF <- rbind.data.frame(popCounts.MF, pse.king.Row)
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] * 30/52,0)
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] * 22/52,0)
+
+
 # popCounts.MF <- left_join(popCounts.MF, unit.counts)
 # popCounts.MF$N.h <- popCounts.MF$N.h / popCounts.MF$UnitCounts
 # "%notin%" <- Negate("%in%")
@@ -437,7 +457,7 @@ samp.dat.SF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Single Fam
                          , total.counts.SF)
 samp.dat.MH <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Manufactured"),]
                          , total.counts.MH)
-samp.dat.MF <- left_join(samp.dat.6[which(samp.dat.6$BuildingType == "Multifamily"),]
+samp.dat.MF <- left_join(samp.dat.7[which(samp.dat.7$BuildingType == "Multifamily"),]
                          , total.counts.MF)
 
 

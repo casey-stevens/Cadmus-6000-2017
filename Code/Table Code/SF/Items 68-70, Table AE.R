@@ -246,7 +246,7 @@ unique(item69.dat3$Lamp.Category)
 
 
 item69.merge <- left_join(rbsa.dat, item69.dat3)
-item69.merge <- item69.merge[which(item69.merge$Lamp.Category %notin% c("N/A", NA)),]
+item69.merge <- item69.merge[which(item69.merge$Lamp.Category %notin% c("Unknown","N/A", NA)),]
 item69.merge <- item69.merge[which(item69.merge$Lamps %notin% c("Unknown", "N/A", NA)),]
 
 

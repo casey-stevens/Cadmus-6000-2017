@@ -565,7 +565,7 @@ tableMM.dat0 <- tableMM.dat0[grep("site", tableMM.dat0$CK_SiteID, ignore.case = 
 
 tableMM.merge <- left_join(rbsa.dat, tableMM.dat0, by = "CK_Cadmus_ID")
 
-tableMM.merge <- tableMM.merge[which((tableMM.merge$Dryer.Fuel %notin% c("N/A",NA))),]
+tableMM.merge <- tableMM.merge[which((tableMM.merge$Dryer.Fuel %notin% c("Unknown","N/A",NA))),]
 tableMM.merge$Dryer.Fuel <- trimws(tableMM.merge$Dryer.Fuel)
 
 ################################################

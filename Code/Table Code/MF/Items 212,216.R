@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -44,7 +44,7 @@ length(unique(item212.dat$CK_Building_ID[which(!is.na(item212.dat$HomeYearBuilt)
 item212.dat1 <- item212.dat[grep("Multifamily", item212.dat$BuildingType),]
 
 #remove missing vintage information
-item212.dat2 <- item212.dat1[which(item212.dat1$HomeYearBuilt %notin% c("N/A",NA)),]
+item212.dat2 <- unique(item212.dat1[which(item212.dat1$HomeYearBuilt %notin% c("N/A",NA)),])
 names(item212.dat2)
 
 ################################################

@@ -867,7 +867,7 @@ proportions_one_group <- function(CustomerLevelData
     #sample and pop sizes within defined strata - this is to account for the fact that not all categories from each table will be observed in each strata
     StrataPopCounts <- data.frame(ddply(CustomerLevelData
                                         , c("BuildingType", "State", "Region", "Territory"), summarise
-                                        ,N.h   = sum(unique(N.h))
+                                        ,N.h   = sum((N.h))
                                         ,n.h   = unique(n.h)), stringsAsFactors = F)
     
     if(groupingVariable %in% c("State","BuildingType", "EUI_Quartile")){

@@ -81,11 +81,11 @@ run <- try(source("Code/Table Code/SF/Items 124-127, Table AD.R"))
 run <- try(source("Code/Table Code/SF/Items 128-131.R"))
 run <- try(source("Code/Table Code/SF/Items 132-134, Table AU.R"))
 run <- try(source("Code/Table Code/SF/Items 135-138.R"))
+run <- try(source("Code/Table Code/SF/Items 139-142.R"))
 run <- try(source("Code/Table Code/SF/Items 143, 144, 146, 147, 148, 150.R"))
 run <- try(source("Code/Table Code/SF/Items 145 and 149.R"))
 run <- try(source("Code/Table Code/SF/Items 151-153.R"))
 run <- try(source("Code/Table Code/SF/Items 154, 155.R"))
-run <- try(source("Code/Table Code/SF/Items 139-142.R"))
 run <- try(source("Code/Table Code/SF/Item 156.R"))
 run <- try(source("Code/Table Code/SF/Item 157.R"))
 run <- try(source("Code/Table Code/SF/Item 158.R"))
@@ -96,8 +96,8 @@ run <- try(source("Code/Table Code/SF/Item 162.R"))
 run <- try(source("Code/Table Code/SF/Item 163.R"))
 run <- try(source("Code/Table Code/SF/Items 164,165.R"))
 run <- try(source("Code/Table Code/SF/Item 166.R"))
-run <- try(source("Code/Table Code/SF/Items 167,168.R"))
-run <- try(source("Code/Table Code/SF/Item 169.R"))
+run <- try(source("Code/Table Code/SF/Items 167,168.R")) #Error in read.xlsx.default(xlsxFile = file.path(filepathRawData, meter.export),  : File does not exist.
+run <- try(source("Code/Table Code/SF/Item 169.R")) # must need to comment out a read in file
 run <- try(source("Code/Table Code/SF/Items 170,171.R"))
 run <- try(source("Code/Table Code/SF/Item 172.R"))
 run <- try(source("Code/Table Code/SF/Table AA, Table BB.R"))
@@ -169,3 +169,49 @@ run <- try(source("Code/Table Code/MH/Table AV.R"))
 run <- try(source("Code/Table Code/MH/Tables CC,NN,OO,WW.R"))
 run <- try(source("Code/Table Code/MH/Tables DD,EE,GG,HH,II,KK,LL,MM.R"))
 run <- try(source("Code/Table Code/MH/Tables RR,TT,UU,VV.R"))
+
+
+
+
+
+#############################################################################################
+# Source all MF scripts
+#############################################################################################
+run <- try(source("Code/Table Code/MF/Items 68-70, Table AE.R"))
+run <- try(source("Code/Table Code/MF/Items 80,81, Tables AB,AC.R"))
+run <- try(source("Code/Table Code/MF/Item 106, Tables FF,AM,AR,AS,AT.R"))
+# run <- try(source("Code/Table Code/MF/Table AA, Table BB.R"))
+# run <- try(source("Code/Table Code/MF/Table AK.R")) #wrong total n for weighted
+run <- try(source("Code/Table Code/MF/Table AL - MF.R"))
+# run <- try(source("Code/Table Code/MF/Table AV.R"))
+# run <- try(source("Code/Table Code/MF/Tables CC,NN,OO,WW.R"))
+# run <- try(source("Code/Table Code/MF/Tables DD,EE,GG,HH,II,KK,LL,MM.R"))
+# run <- try(source("Code/Table Code/MF/Tables RR,TT,UU,VV.R"))
+run <- try(source("Code/Table Code/MF/Items 212,216.R"))
+run <- try(source("Code/Table Code/MF/Items 213,217,226.R"))
+run <- try(source("Code/Table Code/MF/Items 214,215,222,231,240,241,242.R"))
+run <- try(source("Code/Table Code/MF/Items 218,219,223.R"))
+run <- try(source("Code/Table Code/MF/Item 220.R"))
+run <- try(source("Code/Table Code/MF/Item 224.R"))
+run <- try(source("Code/Table Code/MF/Item 225.R"))
+run <- try(source("Code/Table Code/MF/Item 227.R"))
+run <- try(source("Code/Table Code/MF/Item 228.R"))
+run <- try(source("Code/Table Code/MF/Items 232,233.R"))
+run <- try(source("Code/Table Code/MF/Item 234.R"))
+#235? 237?
+run <- try(source("Code/Table Code/MF/Item 236,238.R"))
+run <- try(source("Code/Table Code/MF/Items 243-246,249.R"))
+#239?
+run <- try(source("Code/Table Code/MF/Item 247.R"))
+run <- try(source("Code/Table Code/MF/Item 248.R"))
+#250,251?
+run <- try(source("Code/Table Code/MF/Items 252,254.R"))
+run <- try(source("Code/Table Code/MF/Item 253.R"))
+#255?
+run <- try(source("Code/Table Code/MF/Items 256-258.R"))
+run <- try(source("Code/Table Code/MF/Item 259.R"))
+run <- try(source("Code/Table Code/MF/Item 276.R"))
+run <- try(source("Code/Table Code/MF/Item 283.R"))
+run <- try(source("Code/Table Code/MF/Item 298.R"))
+run <- try(source("Code/Table Code/MF/Item 299.R"))
+run <- try(source("Code/Table Code/MF/Item 301A.R"))
