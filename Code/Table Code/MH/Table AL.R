@@ -155,14 +155,14 @@ central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pum
                                                             "Packaged AC",
                                                             "Evaporative Cooling",
                                                             "GeoThermal Heat Pump",
+                                                            "Geothermal Heat Pump",
                                                             "Mini-Split Ac", 
                                                             "Mini-Split AC", 
                                                             "Water Source Heat Pump", 
-                                                            "Mini-Split Hp", 
-                                                            "Mini-Split HP", 
-                                                            "Packaged Hp", 
-                                                            "Packaged HP",
-                                                            "Air Handler"
+                                                            "Mini-Split Hp",
+                                                            "Mini-Split HP",
+                                                            "Packaged Hp",
+                                                            "Packaged HP"
                                                             ,"Package Terminal Heat Pump"
                                                             ,"Packaged Unit"))] <- 1
 
