@@ -35,9 +35,9 @@ results.keep <- c("CK_Cadmus_ID","CK_Building_ID", "Average.Common.Area.kWh.Usag
 results.tmp2 <- results.tmp[,results.keep]
 
 # Read in Building Data and Clean
-building.summary <-
-  read.xlsx(xlsxFile = file.path(filepathRawData, 
-                                 one.line.bldg.export), startRow = 2)
+#building.summary <-
+#  read.xlsx(xlsxFile = file.path(filepathRawData, 
+#                                 one.line.bldg.export), startRow = 2)
 building.keep <- c("PK_BuildingID", "Total.Units.in.Building", "Total.Residential.Floor.Area",
                    "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area")
 building.summary2 <- building.summary[,building.keep]
@@ -56,8 +56,8 @@ length(which(results.dat$Average.Unit.kWh.Usage > 0))
 results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
-download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-mechanical.dat <- read.xlsx(mechanical.export)
+#download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
+#mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -136,7 +136,7 @@ heating.final$ElectricInd[which(heating.final$ElectricInd > 0)] <- 1
 # There are four people with multiple heating systems wil run with this for now
 
 ##### Bring in lighting information
-lighting <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
+#lighting <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
 keep.cols <- c("CK_Cadmus_ID","Clean.Room", "Lamp.Category", "LIGHTING_BulbsPerFixture", "Fixture.Qty")
 keep.cols.ind <- which(colnames(lighting) %in% keep.cols)
 lighting.clean <- lighting[,keep.cols.ind]
@@ -177,13 +177,17 @@ central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pum
                                                             "Central Ac", 
                                                             "Central AC", 
                                                             "Packaged Ac",
+                                                            "Packaged AC",
                                                             "Evaporative Cooling",
                                                             "GeoThermal Heat Pump",
+                                                            "Geothermal Heat Pump",
                                                             "Mini-Split Ac", 
+                                                            "Mini-Split AC", 
                                                             "Water Source Heat Pump", 
-                                                            "Mini-Split Hp", 
+                                                            "Mini-Split Hp",
+                                                            "Mini-Split HP",
                                                             "Packaged Hp",
-                                                            "Air Handler"
+                                                            "Packaged HP"
                                                             ,"Package Terminal Heat Pump"
                                                             ,"Packaged Unit"))] <- 1
 
