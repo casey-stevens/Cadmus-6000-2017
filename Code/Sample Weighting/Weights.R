@@ -411,8 +411,8 @@ popCounts.MF <- summarise(group_by(popCounts.1,
 pse.king.Row <- data.frame(popCounts.MF[which(popCounts.MF$Territory == "PSE - Non-King County"),],stringsAsFactors = F)
 pse.king.Row$Territory <- "PSE - King County"
 popCounts.MF <- rbind.data.frame(popCounts.MF, pse.king.Row)
-popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] * 30/52,0)
-popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] * 22/52,0)
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] *22/52,0)
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] * 30/52,0)
 
 
 # popCounts.MF <- left_join(popCounts.MF, unit.counts)

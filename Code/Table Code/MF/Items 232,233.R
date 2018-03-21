@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -28,15 +28,15 @@ rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 rbsa.dat.MF <- rbsa.dat.MF[grep("BLDG", rbsa.dat.MF$CK_Building_ID),]
 
 
-buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 
-sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
+# sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 
 
 #read in Envelope data for MF table
-envelope.dat <- read.xlsx(envelope.export)
+# envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 envelope.dat1 <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_SiteID"
                                                                   ,"Wall.Area"

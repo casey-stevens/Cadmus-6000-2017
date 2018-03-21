@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -29,12 +29,12 @@ rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID,ignore.case = T),]
 rbsa.dat.MF   <- rbsa.dat.bldg[grep("multifamily",rbsa.dat.bldg$BuildingType, ignore.case = T),]
 
 #Read in data for analysis
-one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
+# one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
 #clean cadmus IDs
 one.line.bldg.dat$CK_Building_ID <- trimws(toupper(one.line.bldg.dat$PK_BuildingID))
 
 #Read in data for analysis
-buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 

@@ -7,7 +7,7 @@
 #############################################################################################
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -28,7 +28,7 @@ rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 length(unique(buildings.dat$CK_Building_ID))
@@ -36,7 +36,7 @@ buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building
 
 
 #Read in data for analysis
-rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+# rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 #clean cadmus IDs
 rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 
@@ -50,7 +50,7 @@ item218.dat <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
                                                           ,"Clean.Type"
                                                           ,"Description"
                                                           ,"Survey.Bedrooms"))]
-
+unique(item218.dat$Survey.Bedrooms)
 item218.dat1 <- item218.dat[which(item218.dat$Clean.Type == "Bedroom"),]
 item218.dat1$count <- 1
 item218.dat1$Clean.Type[grep("Studio|studio",item218.dat1$Description)] <- "Studio"

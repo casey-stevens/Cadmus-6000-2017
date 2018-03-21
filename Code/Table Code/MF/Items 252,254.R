@@ -8,7 +8,7 @@
 
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -28,7 +28,7 @@ rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T)
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
 #Read in data for analysis
-mechanical.dat <- read.xlsx(mechanical.export)
+# mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 mechanical.dat$CK_Building_ID <- trimws(toupper(mechanical.dat$CK_SiteID))

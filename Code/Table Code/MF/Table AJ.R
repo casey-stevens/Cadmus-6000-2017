@@ -60,9 +60,9 @@ tableAJ.data <- left_join(tableAJ.data, tableAJ.dat2[which(colnames(tableAJ.dat2
                                                                                          ,"Washer.Size"))])
 
 tableAJ.data$count <- 1
-###############################
-# Weighted Analysis
-###############################
+# ###############################
+# # Weighted Analysis
+# ###############################
 # tableAJ.final <- mean_one_group(CustomerLevelData = tableAJ.data
 #                                ,valueVariable = 'Washer.Size' 
 #                                ,byVariable    = 'State'
@@ -82,7 +82,7 @@ tableAJ.data$count <- 1
 # tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 # 
 # # exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = TRUE)
-# # exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
+# exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = TRUE)
 
 ###############################
 # MULTIFAMILY
@@ -96,9 +96,9 @@ tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Mul
 exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
 
 
-###############################
-# Unweighted Analysis
-###############################
+# ###############################
+# # Unweighted Analysis
+# ###############################
 # tableAJ.final <- mean_one_group_unweighted(CustomerLevelData = tableAJ.data
 #                                           ,valueVariable = 'Washer.Size' 
 #                                           ,byVariable    = 'State'
@@ -118,7 +118,7 @@ exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = TRUE)
 # tableAJ.final.MH <- tableAJ.final[which(tableAJ.final$BuildingType == "Manufactured"),-1]
 # 
 # # exportTable(tableAJ.final.SF, "SF", "Table AJ", weighted = FALSE)
-# # exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
+# exportTable(tableAJ.final.MH, "MH", "Table AJ", weighted = FALSE)
 
 ###############################
 # MULTIFAMILY
@@ -130,5 +130,4 @@ tableAJ.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAJ.data
 
 tableAJ.final.MF <- tableAJ.final.MF[which(tableAJ.final.MF$BuildingType == "Multifamily"),-1]
 exportTable(tableAJ.final.MF, "MF", "Table AJ", weighted = FALSE)
-
 
