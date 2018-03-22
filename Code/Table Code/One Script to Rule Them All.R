@@ -178,18 +178,9 @@ run <- try(source("Code/Table Code/MH/Tables RR,TT,UU,VV.R"))
 #############################################################################################
 # Source all MF scripts
 #############################################################################################
-run <- try(source("Code/Table Code/MF/Items 68-70, Table AE.R"))
-run <- try(source("Code/Table Code/MF/Items 80,81, Tables AB,AC.R"))
-run <- try(source("Code/Table Code/MF/Item 106, Tables FF,AM,AR,AS,AT.R"))
-run <- try(source("Code/Table Code/MF/Table AL - MF.R"))
-# run <- try(source("Code/Table Code/MF/Table AV.R"))
-run <- try(source("Code/Table Code/MF/Table AJ.R"))
-run <- try(source("Code/Table Code/MF/Tables CC,NN,OO,WW.R"))
-run <- try(source("Code/Table Code/MF/Tables DD,EE,GG,HH,II,KK,LL,MM.R")) ###################RE RUN MM
-run <- try(source("Code/Table Code/MF/Tables RR,TT,UU,VV.R"))
-# run <- try(source("Code/Table Code/MF/Items 212,216.R"))
-# run <- try(source("Code/Table Code/MF/Items 213,217,226.R"))
-# run <- try(source("Code/Table Code/MF/Items 214,215,222,231,240,241,242.R"))
+run <- try(source("Code/Table Code/MF/Items 212,216.R"))
+run <- try(source("Code/Table Code/MF/Items 213,217,226.R"))
+run <- try(source("Code/Table Code/MF/Items 214,215,222,231,240,241,242.R"))
 run <- try(source("Code/Table Code/MF/Items 218,219,223.R"))
 run <- try(source("Code/Table Code/MF/Item 220.R"))
 run <- try(source("Code/Table Code/MF/Item 224.R"))
@@ -218,22 +209,31 @@ run <- try(source("Code/Table Code/MF/Items 272-274.R"))
 #275 - doesn't exist
 run <- try(source("Code/Table Code/MF/Item 276.R"))
 run <- try(source("Code/Table Code/MF/Items 277,278.R"))
+#end BLDG tables
+
+run <- try(source("Code/Table Code/MF/Items 68-70, Table AE.R"))
+run <- try(source("Code/Table Code/MF/Items 80,81, Tables AB,AC.R"))
+run <- try(source("Code/Table Code/MF/Item 106, Tables FF,AM,AR,AS,AT.R"))
+run <- try(source("Code/Table Code/MF/Table AL - MF.R"))
+run <- try(source("Code/Table Code/MF/Table AV.R"))
+run <- try(source("Code/Table Code/MF/Table AJ.R"))
+run <- try(source("Code/Table Code/MF/Tables CC,NN,OO,WW.R"))
+run <- try(source("Code/Table Code/MF/Tables DD,EE,GG,HH,II,KK,LL,MM.R"))
+run <- try(source("Code/Table Code/MF/Tables RR,TT,UU,VV.R"))
 run <- try(source("Code/Table Code/MF/Item 283.R"))
 #284 - doesn't exist
 run <- try(source("Code/Table Code/MF/Items 285-287.R"))
 #288, 289 are completed in a previous code
-run <- try(source("Code/Table Code/MF/Items 290-292.R"))
+run <- try(source("Code/Table Code/MF/Items 290-292.R")) #Table 82A was for storage lighting characteristics, is commented out
 run <- try(source("Code/Table Code/MF/Items 293-295.R"))
 run <- try(source("Code/Table Code/MF/Items 296,297.R"))
 run <- try(source("Code/Table Code/MF/Item 298.R"))
 run <- try(source("Code/Table Code/MF/Item 299.R"))
-# run <- try(source("Code/Table Code/MF/Item 301A.R")) -- doesn't look like this has a place to export
 run <- try(source("Code/Table Code/MF/Items 300,301.R"))
+run <- try(source("Code/Table Code/MF/Item 301A.R")) #This is for Tables HH and II
 run <- try(source("Code/Table Code/MF/Items 302-304.R"))
-run <- try(source("Code/Table Code/MF/MF EUI Tables.R"))
-run <- try(source("Code/Table Code/MF/MF Gas EUI Tables.R"))
-
-
-
-run <- try(source("Code/Table Code/MF/Table AI.R"))
+run <- try(source("Code/Table Code/MF/MF EUI Tables.R")) #EUI Tables are BLDG tables
+run <- try(source("Code/Table Code/MF/MF Gas EUI Tables.R")) #EUI Tables are BLDG tables
+run <- try(source("Code/Table Code/MF/Table AI .R"))
 run <- try(source("Code/Table Code/MF/Tables AG,AH.R"))
+run <- try(source("Code/Table Code/MF/Table AD.R"))

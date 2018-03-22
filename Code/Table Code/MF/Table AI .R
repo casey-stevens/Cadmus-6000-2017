@@ -52,7 +52,7 @@ tableAI.dat2 <- tableAI.dat1[grep("Water Heater",tableAI.dat1$Generic),]
 tableAI.dat2$Detailed.Type <- paste(tableAI.dat2$DHW.Type, tableAI.dat2$DHW.Technology, sep = "-")
 unique(tableAI.dat2$Detailed.Type)
 
-tableAI.dat3 <- tableAI.dat2[-grep("unknown",tableAI.dat2$Detailed.Type, ignore.case = T),]
+tableAI.dat3 <- tableAI.dat2[-grep("unknown|N/A",tableAI.dat2$Detailed.Type, ignore.case = T),]
 
 ################################################
 # Adding pop and sample sizes for weights

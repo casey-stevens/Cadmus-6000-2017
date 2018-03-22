@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 
 #Read in data for analysis
-# appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -185,9 +185,9 @@ fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type[which(fridge.type.dat1$APPLIANCE_
 fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type[which(fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type == "Full Size Single Refrigerator Only")] <- "Full Size Refrigerator Only"
 fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type[which(fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type == "Mini-Fridge")] <- "Mini Refrigerator"
 
-# fridge.type.dat2 <- fridge.type.dat1[which(fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type != "Unknown"),]
+fridge.type.dat2 <- fridge.type.dat1[which(fridge.type.dat1$APPLIANCE_FRIDGE_FREEZER_Type != "N/A"),]
 
-fridge.type.dat3 <- fridge.type.dat1[which(fridge.type.dat1$Type == "Refrigerator"),]
+fridge.type.dat3 <- fridge.type.dat2[which(fridge.type.dat2$Type == "Refrigerator"),]
 
 item294.dat <- fridge.type.dat3[grep("SITE",fridge.type.dat3$CK_Building_ID),]
 item294.dat$count <- 1

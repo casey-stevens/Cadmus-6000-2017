@@ -273,31 +273,35 @@ item231.final <- rbind.data.frame(item231.summary, item231.all.vintages)
 item231.cast <- dcast(setDT(item231.final)
                       ,formula = BuildingType + HomeYearBuilt_bins_MF ~ Window.Type
                       ,value.var = c("w.percent","w.SE","count","N","n","EB"))
-
+names(item231.cast)
 item231.table <- data.frame("BuildingType"                          = item231.cast$BuildingType
                             ,"Housing.Vintage"                      = item231.cast$HomeYearBuilt_bins_MF
                             ,"Percent.Metal.Single"                 = item231.cast$`w.percent_%.Metal.+.Single`
                             ,"SE.Metal.Single"                      = item231.cast$`w.SE_%.Metal.+.Single`
                             ,"Percent.Metal.Double"                 = item231.cast$`w.percent_%.Metal.+.Double`
                             ,"SE.Metal.Double"                      = item231.cast$`w.SE_%.Metal.+.Double`
+                            ,"Percent.Metal.Other"                  = item231.cast$`w.percent_%.Metal.+.Other`
+                            ,"SE.Metal.Other"                       = item231.cast$`w.SE_%.Metal.+.Other`
                             ,"Percent.Wood.Vinyl.Fiberglass.Single" = item231.cast$`w.percent_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
                             ,"SE.Wood.Vinyl.Fiberglass.Single"      = item231.cast$`w.SE_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
                             ,"Percent.Wood.Vinyl.Fiberglass.Double" = item231.cast$`w.percent_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
                             ,"SE.Wood.Vinyl.Fiberglass.Double"      = item231.cast$`w.SE_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
                             ,"Percent.Wood.Vinyl.Fiberglass.Other"  = item231.cast$`w.percent_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
                             ,"SE.Wood.Vinyl.Fiberglass.Other"       = item231.cast$`w.SE_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
-                            ,"Percent.Other.Double"                 = item231.cast$`w.percent_%.Other.+.Double`
-                            ,"SE.Other.Double"                      = item231.cast$`w.SE_%.Other.+.Double`
-                            ,"Percent.Other.Other"                  = item231.cast$`w.percent_%.Other.+.Other`
-                            ,"SE.Other.Other"                       = item231.cast$`w.SE_%.Other.+.Other`
+                            # ,"Percent.Other.Double"                 = item231.cast$`w.percent_%.Other.+.Double`
+                            # ,"SE.Other.Double"                      = item231.cast$`w.SE_%.Other.+.Double`
+                            # ,"Percent.Other.Other"                  = item231.cast$`w.percent_%.Other.+.Other`
+                            # ,"SE.Other.Other"                       = item231.cast$`w.SE_%.Other.+.Other`
                             ,"n"                                    = item231.cast$n_Total
                             ,"EB.Metal.Single"                      = item231.cast$`EB_%.Metal.+.Single`
                             ,"EB.Metal.Double"                      = item231.cast$`EB_%.Metal.+.Double`
+                            ,"EB.Metal.Other"                      = item231.cast$`EB_%.Metal.+.Other`
                             ,"EB.Wood.Vinyl.Fiberglass.Single"      = item231.cast$`EB_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
                             ,"EB.Wood.Vinyl.Fiberglass.Double"      = item231.cast$`EB_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
                             ,"EB.Wood.Vinyl.Fiberglass.Other"       = item231.cast$`EB_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
-                            ,"EB.Other.Double"                      = item231.cast$`EB_%.Other.+.Double`
-                            ,"EB.Other.Other"                       = item231.cast$`EB_%.Other.+.Other`)
+                            # ,"EB.Other.Double"                      = item231.cast$`EB_%.Other.+.Double`
+                            # ,"EB.Other.Other"                       = item231.cast$`EB_%.Other.+.Other`
+                            )
 levels(item231.table$Housing.Vintage)
 rowOrder <- c("Pre 1955"
               ,"1955-1970"
@@ -344,16 +348,18 @@ item231.table <- data.frame("BuildingType"                          = item231.ca
                             ,"SE.Metal.Single"                      = item231.cast$`SE_%.Metal.+.Single`
                             ,"Percent.Metal.Double"                 = item231.cast$`Percent_%.Metal.+.Double`
                             ,"SE.Metal.Double"                      = item231.cast$`SE_%.Metal.+.Double`
+                            ,"Percent.Metal.Other"                 = item231.cast$`Percent_%.Metal.+.Other`
+                            ,"SE.Metal.Other"                      = item231.cast$`SE_%.Metal.+.Other`
                             ,"Percent.Wood.Vinyl.Fiberglass.Single" = item231.cast$`Percent_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
                             ,"SE.Wood.Vinyl.Fiberglass.Single"      = item231.cast$`SE_%.Wood,.Vinyl,.or.Fiberglass.+.Single`
                             ,"Percent.Wood.Vinyl.Fiberglass.Double" = item231.cast$`Percent_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
                             ,"SE.Wood.Vinyl.Fiberglass.Double"      = item231.cast$`SE_%.Wood,.Vinyl,.or.Fiberglass.+.Double`
                             ,"Percent.Wood.Vinyl.Fiberglass.Other"  = item231.cast$`Percent_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
                             ,"SE.Wood.Vinyl.Fiberglass.Other"       = item231.cast$`SE_%.Wood,.Vinyl,.or.Fiberglass.+.Other`
-                            ,"Percent.Other.Double"                 = item231.cast$`Percent_%.Other.+.Double`
-                            ,"SE.Other.Double"                      = item231.cast$`SE_%.Other.+.Double`
-                            ,"Percent.Other.Other"                  = item231.cast$`Percent_%.Other.+.Other`
-                            ,"SE.Other.Other"                       = item231.cast$`SE_%.Other.+.Other`
+                            # ,"Percent.Other.Double"                 = item231.cast$`Percent_%.Other.+.Double`
+                            # ,"SE.Other.Double"                      = item231.cast$`SE_%.Other.+.Double`
+                            # ,"Percent.Other.Other"                  = item231.cast$`Percent_%.Other.+.Other`
+                            # ,"SE.Other.Other"                       = item231.cast$`SE_%.Other.+.Other`
                             ,"n"                                    = item231.cast$n_Total)
 levels(item231.table$Housing.Vintage)
 rowOrder <- c("Pre 1955"

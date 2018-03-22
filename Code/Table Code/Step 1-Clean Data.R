@@ -323,9 +323,11 @@ rbsa.dat.bldg <- rbsa.dat9[grep("BLDG",rbsa.dat8$CK_Building_ID),]
 
 
 one.line.bldg.dat$Total.Units.in.Building <- as.numeric(as.character(one.line.bldg.dat$Total.Units.in.Building))
-one.line.bldg.dat$Region[which(one.line.bldg.dat$PK_BuildingID == "BLDG_BB5E9419-DB4E-4F2F-88CF-76859AC7B9A1")] <- "Eastern Washington"
-one.line.bldg.dat$Region[which(one.line.bldg.dat$PK_BuildingID == "BLDG_ACAEBB25-C74E-4DEA-81B4-024954AC257C")] <- "Puget Sound"
+# one.line.bldg.dat$Region[which(one.line.bldg.dat$PK_BuildingID == "BLDG_BB5E9419-DB4E-4F2F-88CF-76859AC7B9A1")] <- "Eastern Washington"
+# one.line.bldg.dat$Region[which(one.line.bldg.dat$PK_BuildingID == "BLDG_ACAEBB25-C74E-4DEA-81B4-024954AC257C")] <- "Puget Sound"
 one.line.bldg.dat$State <- toupper(one.line.bldg.dat$State)
+unique(one.line.bldg.dat$Strata.Territory)
+
 unit.counts <- ddply(one.line.bldg.dat, c("State", "Region", "Strata.Territory")
                      ,summarise
                      ,UnitCounts = sum(Total.Units.in.Building, na.rm = T))

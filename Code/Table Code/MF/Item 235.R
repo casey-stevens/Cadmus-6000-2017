@@ -31,7 +31,7 @@ rbsa.dat.MF <- rbsa.dat.orig[grep("bldg", rbsa.dat.orig$CK_Building_ID, ignore.c
 
 #Read in data for analysis
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
-# envelope.dat <- read.xlsx(envelope.export)
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
@@ -83,8 +83,8 @@ prep.dat0$Furred.Wall.Insulation.Thickness <- as.numeric(prep.dat0$Furred.Wall.I
 prep.dat0$Wall.Cavity.Insulation.Thickness.1 <- as.numeric(prep.dat0$Wall.Cavity.Insulation.Thickness.1)
 prep.dat0$Wall.Exterior.Insulation.Thickness.1 <- as.numeric(prep.dat0$Wall.Exterior.Insulation.Thickness.1)
 
-# prep.dat0 <- prep.dat0[which(!(prep.dat0$`Furred.Wall.Insulated?` %in% c("Unknown","N/A") &prep.dat0$`Wall.Cavity.Insulated?` %in% c("Unknown","N/A") &prep.dat0$`Wall.Exterior.Insulated?` %in% c("Unknown","N/A"))),]
-# prep.dat0 <- prep.dat0[which(!(is.na(prep.dat0$Furred.Wall.Insulation.Thickness) & is.na(prep.dat0$Wall.Cavity.Insulation.Thickness.1) & is.na(prep.dat0$Wall.Exterior.Insulation.Thickness.1))),]
+prep.dat0 <- prep.dat0[which(!(prep.dat0$`Furred.Wall.Insulated?` %in% c("Unknown","N/A") &prep.dat0$`Wall.Cavity.Insulated?` %in% c("Unknown","N/A") &prep.dat0$`Wall.Exterior.Insulated?` %in% c("Unknown","N/A"))),]
+prep.dat0 <- prep.dat0[which(!(is.na(prep.dat0$Furred.Wall.Insulation.Thickness) & is.na(prep.dat0$Wall.Cavity.Insulation.Thickness.1) & is.na(prep.dat0$Wall.Exterior.Insulation.Thickness.1))),]
 
 
 prep.dat0$`Wall.Exterior.Insulated?`[which(prep.dat0$`Wall.Exterior.Insulated?` != "Yes" & prep.dat0$Wall.Type %notin% c("Masonry", "Masonry (Basement)"))] <- "No" ###treat anything not Yes as No
@@ -570,6 +570,7 @@ item235.table <- data.frame("BuildingType"                  = item235.cast$Build
 # row ordering example code
 unique(item235.table$Wall.Type)
 rowOrder <- c("Frame"
+              ,"Masonry/Concrete"
               ,"Other"
               ,"All Types")
 item235.table <- item235.table %>% mutate(Wall.Type = factor(Wall.Type, levels = rowOrder)) %>% arrange(Wall.Type)

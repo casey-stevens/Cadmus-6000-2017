@@ -13,19 +13,8 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- UsageDataSF_Final7[-which(colnames(UsageDataSF_Final7) %in% c("Conditioned.Area.x"
-#                                                                           ,"EUI"
-#                                                                           ,"EUI_Quartile"
-#                                                                           ,"ElectricInd"
-#                                                                           ,"TotalBulbs"
-#                                                                           ,"EfficientTotal"
-#                                                                           ,"EfficientSaturation"
-#                                                                           ,"ACtotal"
-#                                                                           ,"Has_AC"
-#                                                                           ,"Electric_DWH"
-#                                                                           ,"Conditioned.Area.y"
-#                                                                           ,"Qty.Occupants"
-#                                                                           ,"count"))]
+# itemData <- rbsa.dat
+
 weightedData <- function(itemData){
   
   rundate <-  format(Sys.time(), "%d%b%y")
@@ -427,8 +416,9 @@ popCounts.MF <- summarise(group_by(popCounts.1,
 pse.king.Row <- data.frame(popCounts.MF[which(popCounts.MF$Territory == "PSE - Non-King County"),],stringsAsFactors = F)
 pse.king.Row$Territory <- "PSE - King County"
 popCounts.MF <- rbind.data.frame(popCounts.MF, pse.king.Row)
-popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County")] *22/52,0)
-popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] <- round(popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County")] * 30/52,0)
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County" & popCounts.MF$Region == "E")] <- 1182
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - Non-King County" & popCounts.MF$Region == "PS")] <- 47486
+popCounts.MF$N.h[which(popCounts.MF$Territory == "PSE - King County" & popCounts.MF$Region == "PS")] <- 126906
 
 
 # popCounts.MF <- left_join(popCounts.MF, unit.counts)
@@ -492,14 +482,6 @@ length(unique(cleanRBSA.dat1$CK_Cadmus_ID)) - length(unique(samp.dat.final$CK_Ca
 missing.ind <- cleanRBSA.dat1[which(cleanRBSA.dat1$CK_Cadmus_ID %notin% samp.dat.2$CK_Cadmus_ID),]
 # samp.dat.2[which(samp.dat.2$CK_Cadmus_ID %in% missing.ind),]
 
-
-# samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
-# samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
-# samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
-#            append = T, row.names = F, showNA = F)
 for (ii in 1:nrow(samp.dat.final)){
   if(samp.dat.final$UnitCounts[ii] > 1){
     samp.dat.final$N.h[ii] <- samp.dat.final$N.h[ii] / samp.dat.final$UnitCounts[ii] * samp.dat.final$n.h[ii]
@@ -507,6 +489,15 @@ for (ii in 1:nrow(samp.dat.final)){
     samp.dat.final$N.h[ii] <- samp.dat.final$N.h[ii]
   }
 }
+
+
+# samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
+# # samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
+# samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
+# ##  Write out confidence/precision info
+# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+# write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
+#            append = T, row.names = F, showNA = F)
 
 return(samp.dat.final)
 

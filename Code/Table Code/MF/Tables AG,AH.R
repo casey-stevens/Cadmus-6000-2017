@@ -416,7 +416,7 @@ stopifnot(nrow(tableAH.data) == nrow(tableAH.data))
 # #######################
 # # Weighted Analysis
 # #######################
-# tableAH.data$count <-1
+tableAH.data$count <-1
 # tableAH.final <- mean_one_group(CustomerLevelData = tableAH.data
 #                                ,valueVariable    = 'Wattage.per.bulb'
 #                                ,byVariable       = 'State'

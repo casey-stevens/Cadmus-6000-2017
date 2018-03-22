@@ -517,12 +517,12 @@ item301.game.percent.weighted <- item301.game.percent.weighted[which(names(item3
 ##############################
 # unweighted analysis
 ##############################
-#summarise to calculate average number of televisions per home
-item301.game.sum1 <- summarise(item301.game.sum
-                             ,Category = "Units With Gaming Systems"
-                             ,Mean = sum(game.count) / sum(count)
-                             ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
-                             ,SampleSize = length(unique(CK_Cadmus_ID)))
+# #summarise to calculate average number of televisions per home
+# item301.game.sum1 <- summarise(item301.game.sum
+#                              ,Category = "Units With Gaming Systems"
+#                              ,Mean = sum(game.count) / sum(count)
+#                              ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
+#                              ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 #############################################################
@@ -568,11 +568,11 @@ item301.unit.games.weighted <- item301.unit.games.weighted[which(names(item301.u
 ############################
 # unweighted analysis
 ############################
-item301.unit.game.sum1 <- summarise(item301.unit.game1
-                                     ,Category = "Gaming Systems Per Unit With Gaming Systems"
-                                     ,Mean = mean(game.count)
-                                     ,SE = sd(game.count) / sqrt(length(unique(CK_Cadmus_ID)))
-                                     ,SampleSize = length(unique(CK_Cadmus_ID)))
+# item301.unit.game.sum1 <- summarise(item301.unit.game1
+#                                      ,Category = "Gaming Systems Per Unit With Gaming Systems"
+#                                      ,Mean = mean(game.count)
+#                                      ,SE = sd(game.count) / sqrt(length(unique(CK_Cadmus_ID)))
+#                                      ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 
@@ -624,11 +624,11 @@ item301.computers.weighted <- item301.computers.weighted[which(names(item301.com
 ############################
 # unweighted analysis
 ############################
-item301.comp.per.unit <- summarise(item301.comp.sum
-                                   ,Category = "Computers Per Unit"
-                                   ,Mean = mean(comp.count)
-                                   ,SE = sd(comp.count) / length(unique(CK_Cadmus_ID))
-                                   ,SampleSize = length(unique(CK_Cadmus_ID)))
+# item301.comp.per.unit <- summarise(item301.comp.sum
+#                                    ,Category = "Computers Per Unit"
+#                                    ,Mean = mean(comp.count)
+#                                    ,SE = sd(comp.count) / length(unique(CK_Cadmus_ID))
+#                                    ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 ##################For Units With Computers
@@ -653,12 +653,12 @@ item301.units.with.comps.weighted <- item301.units.with.comps.weighted[which(nam
 ############################
 # unweighted analysis
 ############################
-#summarise to calculate average number of computers per home
-item301.units.comp <- summarise(item301.comp.sum
-                               ,Category = "Units With Computers"
-                               ,Mean = sum(comp.count) / sum(count)
-                               ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
-                               ,SampleSize = length(unique(CK_Cadmus_ID)))
+# #summarise to calculate average number of computers per home
+# item301.units.comp <- summarise(item301.comp.sum
+#                                ,Category = "Units With Computers"
+#                                ,Mean = sum(comp.count) / sum(count)
+#                                ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
+#                                ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 
@@ -706,11 +706,11 @@ item301.audio.systems.weighted <- item301.audio.systems.weighted[which(names(ite
 ############################
 # unweighted analysis
 ############################
-item301.audio.per.unit <- summarise(item301.audio.sum
-                                   ,Category = "Audio Systems Per Unit"
-                                   ,Mean = mean(audio.count)
-                                   ,SE = sd(audio.count) / length(unique(CK_Cadmus_ID))
-                                   ,SampleSize = length(unique(CK_Cadmus_ID)))
+# item301.audio.per.unit <- summarise(item301.audio.sum
+#                                    ,Category = "Audio Systems Per Unit"
+#                                    ,Mean = mean(audio.count)
+#                                    ,SE = sd(audio.count) / length(unique(CK_Cadmus_ID))
+#                                    ,SampleSize = length(unique(CK_Cadmus_ID)))
 
 
 
@@ -824,16 +824,16 @@ exportTable(item301.final, "MF","Table 95",weighted = TRUE)
 #############################################################
 # Combined all summaries
 #############################################################
-item301.final <- rbind.data.frame(item301.tv.sum1
-                                  ,item301.tvHours.sum
-                                  ,item301.stb.sum1
-                                  ,item301.stb.percent.sum
-                                  ,item301.stb.dvr.sum
-                                  ,item301.game.sum1
-                                  ,item301.unit.game.sum1
-                                  ,item301.comp.per.unit
-                                  ,item301.units.comp
-                                  ,item301.passive.subwoofer
-                                  ,item301.powered.subwoofer
-                                  ,item301.total.subwoofer
-                                  )
+# item301.final <- rbind.data.frame(item301.tv.sum1
+#                                   ,item301.tvHours.sum
+#                                   ,item301.stb.sum1
+#                                   ,item301.stb.percent.sum
+#                                   ,item301.stb.dvr.sum
+#                                   ,item301.game.sum1
+#                                   ,item301.unit.game.sum1
+#                                   ,item301.comp.per.unit
+#                                   ,item301.units.comp
+#                                   ,item301.passive.subwoofer
+#                                   ,item301.powered.subwoofer
+#                                   ,item301.total.subwoofer
+#                                   )

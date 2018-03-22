@@ -94,7 +94,7 @@ item301B.table <- data.frame("BuildingType"    = item301B.cast$BuildingType
 item301B.table.MF <- item301B.table[which(item301B.table$BuildingType == "Multifamily")
                                   ,which(colnames(item301B.table) %notin% c("BuildingType"))]
 
-exportTable(item301B.table.MF, "MF", "Table 95B", weighted = TRUE)
+exportTable(item301B.table.MF, "MF", "Table II", weighted = TRUE)
 
 #######################
 # Weighted Analysis
@@ -126,7 +126,7 @@ item301B.table <- data.frame("BuildingType"    = item301B.cast$BuildingType
 item301B.table.MF <- item301B.table[which(item301B.table$BuildingType == "Multifamily")
                                     ,which(colnames(item301B.table) %notin% c("BuildingType"))]
 
-exportTable(item301B.table.MF, "MF", "Table 95B", weighted = FALSE)
+exportTable(item301B.table.MF, "MF", "Table II", weighted = FALSE)
 
 
 
@@ -172,7 +172,7 @@ item301A.table <- proportions_one_group(CustomerLevelData = item301A.data
 item301A.table.MF <- item301A.table[which(item301A.table$BuildingType == "Multifamily")
                                   ,which(colnames(item301A.table) %notin% c("BuildingType"))]
 
-exportTable(item301A.table.MF, "MF", "Table 95A", weighted = TRUE)
+exportTable(item301A.table.MF, "MF", "Table HH", weighted = TRUE)
 
 #######################
 # Weighted Analysis
@@ -186,4 +186,4 @@ item301A.table <- proportions_one_group(CustomerLevelData = item301A.data
 item301A.table.MF <- item301A.table[which(item301A.table$BuildingType == "Multifamily")
                                     ,which(colnames(item301A.table) %notin% c("BuildingType"))]
 
-exportTable(item301A.table.MF, "MF", "Table 95A", weighted = FALSE)
+exportTable(item301A.table.MF, "MF", "Table HH", weighted = FALSE)
