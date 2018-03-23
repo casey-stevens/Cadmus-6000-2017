@@ -196,6 +196,7 @@ item300.sum3.w <- item300.sum3.w[which(colnames(item300.sum3.w) != "Remove")]
 #  to get final table
 #########################################
 item300.final <- rbind.data.frame(item300.sum1.w, item300.sum2.w, item300.sum3.w, stringsAsFactors = F)
+item300.final$EB <- item300.final$SE * qt(1-(1-.9)/2, item300.final$n - 1)
 exportTable(item300.final, "MF", "Table 94", weighted = TRUE)
 
 
@@ -254,6 +255,7 @@ item300.sum3 <- item300.sum3[which(colnames(item300.sum3) != "Remove")]
 #  to get final table
 #########################################
 item300.final <- rbind.data.frame(item300.sum1, item300.sum2, item300.sum3, stringsAsFactors = F)
+item300.final$EB <- item300.final$SE * qt(1-(1-.9)/2, item300.final$n - 1)
 exportTable(item300.final, "MF", "Table 94", weighted = FALSE)
 
 

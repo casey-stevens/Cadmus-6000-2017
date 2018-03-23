@@ -36,7 +36,7 @@ one.line.bldg.dat1 <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c
                                                                                  ,"Central.Building.Heat"))]
 
 one.line.bldg.dat2  <- left_join(rbsa.dat.bldg, one.line.bldg.dat1, by = c("CK_Building_ID" = "PK_BuildingID"))
-one.line.bldg.dat2 <- one.line.bldg.dat2[which(!is.na(one.line.bldg.dat2$Primary.Heating.System)),]
+one.line.bldg.dat2 <- one.line.bldg.dat2[which(one.line.bldg.dat2$Primary.Heating.System %notin% c("N/A","Unknown",NA)),]
 length(unique(one.line.bldg.dat2$CK_Cadmus_ID))
 
 
@@ -61,7 +61,7 @@ item243.dat$Primary.Heating.System[grep("boiler",item243.dat$Primary.Heating.Sys
 
 ii=3
 for (ii in 1:nrow(item243.dat)){
-  if(!is.na(item243.dat$Central.Building.Heat[ii])){
+  if(item243.dat$Central.Building.Heat[ii] != "N/A"){
     item243.dat$Primary.Heating.System[ii] <- paste("Central", item243.dat$Primary.Heating.System[ii])
   }else {
     item243.dat$Primary.Heating.System[ii] <- item243.dat$Primary.Heating.System[ii]
@@ -336,7 +336,7 @@ names(mechanical.dat2)[which(names(mechanical.dat2) == "CK_Cadmus_ID.x")] <- "CK
 #Subset to MF
 mechanical.dat.MF <- mechanical.dat2[grep("Multifamily", mechanical.dat2$BuildingType),]
 
-item245.dat <- mechanical.dat.MF[which(!is.na(mechanical.dat.MF$Heat.Iteration)),]
+item245.dat <- mechanical.dat.MF[which(mechanical.dat.MF$Heat.Iteration %notin% c("N/A","Unknown",NA)),]
 
 #remove datapoint not asked for and repeated header lines
 item245.dat1 <- item245.dat[grep("BLDG",item245.dat$CK_Building_ID),]

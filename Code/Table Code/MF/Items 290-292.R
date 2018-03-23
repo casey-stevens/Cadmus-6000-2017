@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.site <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
-# lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -156,7 +156,7 @@ item292.dat.room <- summarise(group_by(item292.dat2, CK_Cadmus_ID, CK_Building_I
                          ,Total.Wattage = sum(Total.Wattage))
 item292.dat.unit <- summarise(group_by(item292.dat2, CK_Cadmus_ID, CK_Building_ID)
                               ,Clean.Room = "Unit LPD"
-                              ,Total.Wattage = sum(Total.Wattage))
+                              ,Total.Wattage = sum(Total.Wattage,na.rm = T))
 
 item292.dat3 <- rbind.data.frame(item292.dat.room, item292.dat.unit, stringsAsFactors = F)
 item292.dat3 <- item292.dat3[which(!is.na(item292.dat3$Total.Wattage)),]

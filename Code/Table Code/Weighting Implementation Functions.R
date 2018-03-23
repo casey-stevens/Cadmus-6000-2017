@@ -916,7 +916,7 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,p.h = count / total.count), stringsAsFactors = F)
       }
       # If grouping variable is NOT state
-    } else if(groupingVariable %in% c("Clean.Type","Type","HomeType", "HomeYearBuilt_bins_percentage") & valueVariable == "Ind"){
+    } else if(groupingVariable %in% c("Clean.Type","Type","HomeType", "HomeYearBuilt_bins_percentage","Generic") & valueVariable == "Ind"){
       # obtain count and proportion by strata and row grouping variable
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                    , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
@@ -991,7 +991,7 @@ proportions_one_group <- function(CustomerLevelData
     #####################################################################################################x
     # For "Percentage" tables
     #####################################################################################################x
-    if(groupingVariable %in% c("State", "Clean.Type", "Wall.Type", "EUI_Quartile","HomeType", "CK_Building_ID","HomeYearBuilt_bins_percentage")){ # & valueVariable %in% c("Ind", "cond.ind")
+    if(groupingVariable %in% c("State", "Clean.Type", "Wall.Type", "EUI_Quartile","HomeType", "CK_Building_ID","HomeYearBuilt_bins_percentage","Generic")){ # & valueVariable %in% c("Ind", "cond.ind")
       #summarise by column variable
       #summary of both grouping variables
       ColumnProportionsByGroup <- data.frame(ddply(StrataData
@@ -1138,7 +1138,7 @@ proportions_one_group <- function(CustomerLevelData
                                      ,HomeType = "Total"
                                      ,Total.Count = sum(Count)), stringsAsFactors = F)
       item.tmp3 <- rbind.data.frame(item.tmpyy, item.tmpxx, stringsAsFactors = F)
-    }else if(groupingVariable %in% c("State","HomeType","HomeYearBuilt_bins_percentage") & valueVariable == "Ind"){
+    }else if(groupingVariable %in% c("State","HomeType","HomeYearBuilt_bins_percentage","Generic") & valueVariable == "Ind"){
       item.tmpyy <- data.frame(ddply(CustomerLevelData, c("BuildingType", groupingVariable), summarise
                                      ,Total.Count   = sum(Count)), stringsAsFactors = F)
       item.tmpxx <- data.frame(ddply(CustomerLevelData, "BuildingType", summarise

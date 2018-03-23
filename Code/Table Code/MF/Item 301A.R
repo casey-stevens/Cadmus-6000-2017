@@ -68,7 +68,18 @@ item301B.summary <- proportionRowsAndColumns1(CustomerLevelData = item301B.data
                                              ,columnVariable = "HomeType"
                                              ,rowVariable = "Power.Strip.Use"
                                              ,aggregateColumnName = "All Sizes")
-item301B.cast <- dcast(setDT(item301B.summary)
+item301B.summary <- item301B.summary[which(item301B.summary$HomeType != "All Sizes"),]
+
+item301B.all.sizes <- proportions_one_group(CustomerLevelData = item301B.data
+                                             ,valueVariable = "Count"
+                                             ,groupingVariable = "Power.Strip.Use"
+                                             ,total.name = "All Sizes"
+                                             ,columnName = "HomeType"
+                                             ,weighted = TRUE
+                                             ,two.prop.total = TRUE)
+item301B.final <- rbind.data.frame(item301B.summary, item301B.all.sizes, stringsAsFactors = F)
+
+item301B.cast <- dcast(setDT(item301B.final)
                       ,formula = BuildingType + Power.Strip.Use ~ HomeType
                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 
@@ -104,7 +115,18 @@ item301B.summary <- proportions_two_groups_unweighted(CustomerLevelData = item30
                                               ,columnVariable = "HomeType"
                                               ,rowVariable = "Power.Strip.Use"
                                               ,aggregateColumnName = "All Sizes")
-item301B.cast <- dcast(setDT(item301B.summary)
+item301B.summary <- item301B.summary[which(item301B.summary$HomeType != "All Sizes"),]
+
+item301B.all.sizes <- proportions_one_group(CustomerLevelData = item301B.data
+                                            ,valueVariable = "Count"
+                                            ,groupingVariable = "Power.Strip.Use"
+                                            ,total.name = "All Sizes"
+                                            ,columnName = "HomeType"
+                                            ,weighted = FALSE
+                                            ,two.prop.total = TRUE)
+item301B.final <- rbind.data.frame(item301B.summary, item301B.all.sizes, stringsAsFactors = F)
+
+item301B.cast <- dcast(setDT(item301B.final)
                        ,formula = BuildingType + Power.Strip.Use ~ HomeType
                        ,value.var = c("Percent","SE","n"))
 

@@ -37,10 +37,42 @@ mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadm
                                                                         ,"Heating.Fuel"
                                                                         ,"System.Sub-Type"))]
 
-survey.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated"), stringsAsFactors = F)
+
+#Read in data for analysis
+survey.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated"),stringsAsFactors = F)
 #clean cadmus IDs
-# survey.dat <- data.frame(survey.dat, stringsAsFactors = F)
 survey.dat$CK_Cadmus_ID <- trimws(toupper(survey.dat$NEXID))
+survey.dat <- survey.dat[which(names(survey.dat) %in% c("CK_Cadmus_ID"
+                                                        ,"What.is.the.highest.level.of.school.that.someone.in.your.home.has.completed."
+                                                        ,"In.2015..was.your.annual.household.income.before.taxes.above.or.below..50.000."
+                                                        ,"Was.your.annual.household.income.before.taxes.above.or.below..25.000."
+                                                        ,"Was.it....0.to.under..25.000"
+                                                        ,"Was.it....25.000.to.under..50.000"
+                                                        ,"Was.it....50.000.or.more"))]
+names(survey.dat) <- c("Education.Level","Income.Above.or.Below.50000","Income.Above.or.Below.25000","Income.0.to.25000","Income.25000.to.50000","Income.More.Than.50000","CK_Cadmus_ID")
+survey.dat$Income.Level <- survey.dat$Income.More.Than.50000
+
+ii = 2
+for (ii in 1:nrow(survey.dat)){
+  if(survey.dat$Income.More.Than.50000[ii] != "N/A"){
+    survey.dat$Income.Level[ii] <- survey.dat$Income.More.Than.50000[ii]
+  }
+  if(survey.dat$Income.25000.to.50000[ii] != "N/A"){
+    survey.dat$Income.Level[ii] <- survey.dat$Income.25000.to.50000[ii]
+  }
+  if(survey.dat$Income.0.to.25000[ii] != "N/A"){
+    survey.dat$Income.Level[ii] <- survey.dat$Income.0.to.25000[ii]
+  }
+  if(survey.dat$Income.Level[ii] %in% c("N/A","Unknown", "Prefer not to say")){
+    survey.dat$Income.Level[ii] <- survey.dat$Income.Above.or.Below.50000[ii]
+  }
+  if(survey.dat$Income.Level[ii] %in% c("N/A","Unknown", "Prefer not to say")){
+    survey.dat$Income.Level[ii] <- survey.dat$Income.Above.or.Below.25000[ii]
+  }
+}
+unique(survey.dat$Income.Level)
+survey.dat$Income.Level[which(survey.dat$Income.Level == "Exactly $50,000")] <- "$50,000 to under $55,000"
+survey.dat <- survey.dat[which(names(survey.dat) %in% c("CK_Cadmus_ID", "Education.Level", "Income.Level"))]
 
 
 #############################################################################################
@@ -653,23 +685,14 @@ query11.table.MH <- query11.cast[which(query11.cast$BuildingType == "Manufacture
 # query12
 ################################################################################################
 #subset to columns needed for analysis
-query12.dat <- survey.dat[which(colnames(survey.dat) %in% c("CK_Cadmus_ID"
-                                                            ,"Was.it....0.to.under..25.000"
-                                                            ,"Was.it....25.000.to.under..50.000"
-                                                            ,"Was.it....50.000.or.more"))]
-colnames(query12.dat) <- c("2015.Houshold.Income.0.to.under.25000"
-                           , "2015.Houshold.Income.25000.to.under.50000"
-                           , "2015.Houshold.Income.50000.or.more"
-                           , "CK_Cadmus_ID")
-
-query12.melt <- melt(query12.dat, id.vars = "CK_Cadmus_ID")
-query12.melt <- query12.melt[which(query12.melt$value %notin% c("Unknown","N/A", NA, "Don't know", "Prefer not to say")),]
-names(query12.melt) <- c("CK_Cadmus_ID", "Income.Level", "Detailed.Income.Level")
+query12.dat <- left_join(rbsa.dat, survey.dat)
+query12.dat1 <- query12.dat[which(!is.na(query12.dat$Income.Level)),]
+query12.dat2 <- query12.dat1[which(query12.dat1$Income.Level %notin% c("Unknown", "Prefer not to say","N/A","Above $50,000","Below $50,000")),]
 
 query12.mech <- query11.dat6[grep("wood|oil|propane|pellet", query11.dat6$Heating.Fuel, ignore.case = T),]
 query12.mech <- query12.mech[which(query12.mech$Primary_Secondary == "Primary Heating System"),]
 
-query12.merge <- left_join(query12.mech, query12.melt)
+query12.merge <- left_join(query12.mech, query12.dat2)
 query12.merge <- query12.merge[which(!is.na(query12.merge$Income.Level)),]
 
 #merge together analysis data with cleaned RBSA data
@@ -688,7 +711,8 @@ query12.data <- weightedData(query12.dat1[-which(colnames(query12.dat1) %in% c("
                                                                                ,"Detailed.Income.Level"
                                                                                ,"System.Sub-Type"
                                                                                ,"Generic"
-                                                                               ,"Heating_Type"))])
+                                                                               ,"Heating_Type"
+                                                                               ,"Education.Level"))])
 query12.data <- left_join(query12.data, query12.dat1[which(colnames(query12.dat1) %in% c("CK_Cadmus_ID"
                                                                                          ,"count"
                                                                                          ,"Heating_Type"
@@ -698,7 +722,8 @@ query12.data <- left_join(query12.data, query12.dat1[which(colnames(query12.dat1
                                                                                          ,"Detailed.Income.Level"
                                                                                          ,"System.Sub-Type"
                                                                                          ,"Generic"
-                                                                                         ,"Heating_Type"))])
+                                                                                         ,"Heating_Type"
+                                                                                         ,"Education.Level"))])
 query12.data$Count <- 1
 
 
@@ -707,19 +732,48 @@ query12.data$Count <- 1
 ##############################
 query12.table <- proportionRowsAndColumns1(CustomerLevelData = query12.data
                                            ,valueVariable = 'count'
-                                           ,columnVariable = "Heating_Type"
+                                           ,columnVariable = "Heating.Fuel"
                                            ,rowVariable = "Income.Level"
                                            ,aggregateColumnName = "Total")
-query12.table <- query12.table[which(query12.table$Heating_Type != "Total"),]
+query12.table <- query12.table[which(query12.table$Heating.Fuel != "Total"),]
 
 query12.cast <- data.frame(dcast(setDT(query12.table)
-                                 ,formula = BuildingType + Income.Level ~ Heating_Type
+                                 ,formula = BuildingType + Income.Level ~ Heating.Fuel
                                  ,value.var = c("w.percent","w.SE","n","N","EB")),stringsAsFactors = F)
+query12.table <- data.frame(query12.cast,stringsAsFactors = F)
 
-query12.table.SF <- query12.cast[which(query12.cast$BuildingType == "Single Family")
-                                 ,which(colnames(query12.cast) %notin% c("BuildingType"))]
-query12.table.MH <- query12.cast[which(query12.cast$BuildingType == "Manufactured")
-                                 ,which(colnames(query12.cast) %notin% c("BuildingType"))]
+unique(query12.table$Income.Level)
+rowOrder <- c("Under $5,000"
+              ,"$5,000 to under $10,000"
+              ,"$10,000 to under $15,000"
+              ,"$15,000 to under $20,000"
+              ,"$20,000 to under $25,000"
+              ,"$25,000 to under $30,000"
+              ,"$30,000 to under $35,000"
+              ,"$35,000 to under $40,000"
+              ,"$40,000 to under $45,000"
+              ,"$45,000 to under $50,000"
+              ,"$50,000 to under $55,000"
+              ,"$55,000 to under $60,000"
+              ,"$60,000 to under $65,000"
+              ,"$65,000 to under $70,000"
+              ,"$70,000 to under $75,000"
+              ,"$75,000 to under $80,000"
+              ,"$80,000 to under $85,000"
+              ,"$85,000 to under $90,000"
+              ,"$90,000 to under $95,000"
+              ,"$95,000 to under $100,000"
+              ,"$100,000 to under $150,000"
+              ,"$150,000 to under $200,000"
+              ,"$200,000 or more"
+              ,"Total")
+query12.table <- query12.table %>% mutate(Income.Level = factor(Income.Level, levels = rowOrder)) %>% arrange(Income.Level)  
+query12.table <- data.frame(query12.table)
+
+query12.table.SF <- query12.table[which(query12.table$BuildingType == "Single Family")
+                                 ,which(colnames(query12.table) %notin% c("BuildingType"))]
+query12.table.MH <- query12.table[which(query12.table$BuildingType == "Manufactured")
+                                 ,which(colnames(query12.table) %notin% c("BuildingType"))]
 
 # exportTable(query12.table.SF, "SF", "Table ", weighted = TRUE)
 # exportTable(query12.table.MH, "MH", "Table ", weighted = TRUE)
@@ -729,19 +783,49 @@ query12.table.MH <- query12.cast[which(query12.cast$BuildingType == "Manufacture
 ##############################
 query12.table <- proportions_two_groups_unweighted(CustomerLevelData = query12.data
                                            ,valueVariable = 'count'
-                                           ,columnVariable = "Heating_Type"
+                                           ,columnVariable = "Heating.Fuel"
                                            ,rowVariable = "Income.Level"
                                            ,aggregateColumnName = "Total")
-query12.table <- query12.table[which(query12.table$Heating_Type != "Total"),]
+query12.table <- query12.table[which(query12.table$Heating.Fuel != "Total"),]
 
 query12.cast <- data.frame(dcast(setDT(query12.table)
-                                 ,formula = BuildingType + Income.Level ~ Heating_Type
+                                 ,formula = BuildingType + Income.Level ~ Heating.Fuel
                                  ,value.var = c("Percent","SE","n")),stringsAsFactors = F)
 
-query12.table.SF <- query12.cast[which(query12.cast$BuildingType == "Single Family")
-                                 ,which(colnames(query12.cast) %notin% c("BuildingType"))]
-query12.table.MH <- query12.cast[which(query12.cast$BuildingType == "Manufactured")
-                                 ,which(colnames(query12.cast) %notin% c("BuildingType"))]
+query12.table <- data.frame(query12.cast,stringsAsFactors = F)
+
+unique(query12.table$Income.Level)
+rowOrder <- c("Under $5,000"
+              ,"$5,000 to under $10,000"
+              ,"$10,000 to under $15,000"
+              ,"$15,000 to under $20,000"
+              ,"$20,000 to under $25,000"
+              ,"$25,000 to under $30,000"
+              ,"$30,000 to under $35,000"
+              ,"$35,000 to under $40,000"
+              ,"$40,000 to under $45,000"
+              ,"$45,000 to under $50,000"
+              ,"$50,000 to under $55,000"
+              ,"$55,000 to under $60,000"
+              ,"$60,000 to under $65,000"
+              ,"$65,000 to under $70,000"
+              ,"$70,000 to under $75,000"
+              ,"$75,000 to under $80,000"
+              ,"$80,000 to under $85,000"
+              ,"$85,000 to under $90,000"
+              ,"$90,000 to under $95,000"
+              ,"$95,000 to under $100,000"
+              ,"$100,000 to under $150,000"
+              ,"$150,000 to under $200,000"
+              ,"$200,000 or more"
+              ,"Total")
+query12.table <- query12.table %>% mutate(Income.Level = factor(Income.Level, levels = rowOrder)) %>% arrange(Income.Level)  
+query12.table <- data.frame(query12.table)
+
+query12.table.SF <- query12.table[which(query12.table$BuildingType == "Single Family")
+                                  ,which(colnames(query12.table) %notin% c("BuildingType"))]
+query12.table.MH <- query12.table[which(query12.table$BuildingType == "Manufactured")
+                                  ,which(colnames(query12.table) %notin% c("BuildingType"))]
 
 # exportTable(query12.table.SF, "SF", "Table ", weighted = FALSE)
 # exportTable(query12.table.MH, "MH", "Table ", weighted = FALSE)
@@ -882,8 +966,8 @@ query14.final.MH <- query14.final[which(query14.final$BuildingType == "Manufactu
 #############################################################################################
 #query15
 #############################################################################################
-query15.dat <- left_join(query13.dat3,query12.melt)
-query15.dat1 <- query15.dat[which(!is.na(query15.dat$Detailed.Income.Level)),]
+query15.dat <- left_join(query13.dat3,query12.dat2)
+query15.dat1 <- query15.dat[which(!is.na(query15.dat$Income.Level)),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -894,6 +978,7 @@ query15.data <- weightedData(query15.dat1[-which(colnames(query15.dat1) %in% c("
                                                                                ,"DHW.Technology"
                                                                                ,"Detailed.Type"
                                                                                ,"Income.Level"
+                                                                               ,"Education.Level"
                                                                                ,"Detailed.Income.Level"))])
 query15.data <- left_join(query15.data, query15.dat1[which(colnames(query15.dat1) %in% c("CK_Cadmus_ID"
                                                                                          ,"Generic"
@@ -903,7 +988,8 @@ query15.data <- left_join(query15.data, query15.dat1[which(colnames(query15.dat1
                                                                                          ,"DHW.Technology"
                                                                                          ,"Detailed.Type"
                                                                                          ,"Income.Level"
-                                                                                         ,"Detailed.Income.Level"))])
+                                                                                         ,"Detailed.Income.Level"
+                                                                                         ,"Education.Level"))])
 
 #######################
 # Weighted Analysis
@@ -912,6 +998,33 @@ query15.final <- proportions_one_group(CustomerLevelData  = query15.data
                                        , valueVariable    = 'count'
                                        , groupingVariable = 'Income.Level'
                                        , total.name       = "Total")
+unique(query15.final$Income.Level)
+rowOrder <- c("Under $5,000"
+              ,"$5,000 to under $10,000"
+              ,"$10,000 to under $15,000"
+              ,"$15,000 to under $20,000"
+              ,"$20,000 to under $25,000"
+              ,"$25,000 to under $30,000"
+              ,"$30,000 to under $35,000"
+              ,"$35,000 to under $40,000"
+              ,"$40,000 to under $45,000"
+              ,"$45,000 to under $50,000"
+              ,"$50,000 to under $55,000"
+              ,"$55,000 to under $60,000"
+              ,"$60,000 to under $65,000"
+              ,"$65,000 to under $70,000"
+              ,"$70,000 to under $75,000"
+              ,"$75,000 to under $80,000"
+              ,"$80,000 to under $85,000"
+              ,"$85,000 to under $90,000"
+              ,"$90,000 to under $95,000"
+              ,"$95,000 to under $100,000"
+              ,"$100,000 to under $150,000"
+              ,"$150,000 to under $200,000"
+              ,"$200,000 or more"
+              ,"Total")
+query15.final <- query15.final %>% mutate(Income.Level = factor(Income.Level, levels = rowOrder)) %>% arrange(Income.Level)  
+query15.final <- data.frame(query15.final)
 
 # Export table
 query15.final.SF <- query15.final[which(query15.final$BuildingType == "Single Family")
@@ -930,6 +1043,33 @@ query15.final <- proportions_one_group(CustomerLevelData  = query15.data
                                        , groupingVariable = 'Income.Level'
                                        , total.name       = "Total"
                                        , weighted = FALSE)
+unique(query15.final$Income.Level)
+rowOrder <- c("Under $5,000"
+              ,"$5,000 to under $10,000"
+              ,"$10,000 to under $15,000"
+              ,"$15,000 to under $20,000"
+              ,"$20,000 to under $25,000"
+              ,"$25,000 to under $30,000"
+              ,"$30,000 to under $35,000"
+              ,"$35,000 to under $40,000"
+              ,"$40,000 to under $45,000"
+              ,"$45,000 to under $50,000"
+              ,"$50,000 to under $55,000"
+              ,"$55,000 to under $60,000"
+              ,"$60,000 to under $65,000"
+              ,"$65,000 to under $70,000"
+              ,"$70,000 to under $75,000"
+              ,"$75,000 to under $80,000"
+              ,"$80,000 to under $85,000"
+              ,"$85,000 to under $90,000"
+              ,"$90,000 to under $95,000"
+              ,"$95,000 to under $100,000"
+              ,"$100,000 to under $150,000"
+              ,"$150,000 to under $200,000"
+              ,"$200,000 or more"
+              ,"Total")
+query15.final <- query15.final %>% mutate(Income.Level = factor(Income.Level, levels = rowOrder)) %>% arrange(Income.Level)  
+query15.final <- data.frame(query15.final)
 
 # Export table
 query15.final.SF <- query15.final[which(query15.final$BuildingType == "Single Family")
