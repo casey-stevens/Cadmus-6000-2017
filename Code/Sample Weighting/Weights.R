@@ -372,7 +372,8 @@ popCounts.0$Territory <- rep("MISSING", nrow(popCounts.0))
 
 # Assign Territory
 popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU == "BPA")]    <- "BPA"
-popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU %in% c("IOU", "NOT BPA", NA))]    <- "Non-BPA.Non-PSE"
+popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU %in% c("IOU", "NOT BPA", NA) & popCounts.0$State %in% c("ID","OR","MT"))]    <- "Non-BPA"
+popCounts.0$Territory[which(popCounts.0$BPA_vs_IOU %in% c("IOU", "NOT BPA", NA) & popCounts.0$State %notin% c("ID","OR","MT"))] <- "Non-BPA, Non-PSE"
 popCounts.0$Territory[grep("SNOHOMISH",    popCounts.0$Utility)] <- "SnoPUD"
 popCounts.0$Territory[grep("PUGET SOUND",  popCounts.0$Utility)] <- "PSE - Non-King County"
 popCounts.0$Territory[grep("SEATTLE CITY", popCounts.0$Utility)] <- "SCL Not LI or EH"
