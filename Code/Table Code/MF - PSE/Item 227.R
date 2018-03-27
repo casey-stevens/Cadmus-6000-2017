@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
@@ -94,10 +94,12 @@ unique(item227.merge$Age.Category)
 # Adding pop and sample sizes for weights
 ################################################
 item227.data <- weightedData(item227.merge[-which(colnames(item227.merge) %in% c("Age.Category"
-                                                                                 ,"Number.of.Residents"))])
+                                                                                 ,"Number.of.Residents"
+                                                                                 ,"Category"))])
 item227.data <- left_join(item227.data, item227.merge[which(colnames(item227.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Age.Category"
-                                                                                           ,"Number.of.Residents"))])
+                                                                                           ,"Number.of.Residents"
+                                                                                           ,"Category"))])
 
 
 item227.data$Number.of.Residents <- as.numeric(as.character(item227.data$Number.of.Residents))
@@ -107,45 +109,79 @@ item227.data$count[which(item227.data$Number.of.Residents == 0)] <- 0
 #######################
 # weighted analysis
 #######################
+item227.final <- mean_two_groups(CustomerLevelData = item227.data
+                                 ,valueVariable = 'Number.of.Residents'
+                                 ,byVariableRow = "Age.Category"
+                                 ,byVariableColumn = "Category"
+                                 ,columnAggregate = "Remove"
+                                 ,rowAggregate = "Remove")
+item227.final <- item227.final[which(item227.final$Age.Category != "Remove"),]
 
-item227.final <- mean_one_group(CustomerLevelData = item227.data
-                                ,valueVariable = 'Number.of.Residents'
-                                ,byVariable = 'Age.Category'
-                                ,aggregateRow = NA)
-item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
-item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuildingType"))]
+item227.table <- data.frame("Age.Category"              = item227.final$Age.Category
+                            ,"PSE.Mean"                 = item227.final$Mean_PSE
+                            ,"PSE.SE"                   = item227.final$SE_PSE
+                            ,"PSE.n"                    = item227.final$n_PSE
+                            ,"PSE.King.County_Mean"     = item227.final$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County_SE"       = item227.final$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item227.final$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_Mean" = item227.final$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County_SE"   = item227.final$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item227.final$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_Mean"        = item227.final$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS_SE"          = item227.final$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"           = item227.final$`n_2017 RBSA PS`
+                            ,"PSE.EB"                   = item227.final$EB_PSE
+                            ,"PSE.King.County_EB"       = item227.final$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item227.final$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item227.final$`EB_2017 RBSA PS`
+)
+
 
 # If final table have <NA> something was named incorrectly
-levels(item227.final.MF$Age.Category)
+levels(item227.table$Age.Category)
 rowOrder <- c("Age_0_18"
               ,"Age_19_64"
               ,"Age_65_Older"
               ,"AllCategories")
-item227.final.MF <- item227.final.MF %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
-item227.final.MF <- data.frame(item227.final.MF[which(names(item227.final.MF) != "BuildingType")])
+item227.table <- item227.table %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
+item227.table <- data.frame(item227.table[which(names(item227.table) != "BuildingType")])
 
-exportTable(item227.final, "MF", "Table 19", weighted = TRUE)
+exportTable(item227.table, "MF", "Table 19", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # unweighted analysis
 #######################
+item227.final <- mean_two_groups_unweighted(CustomerLevelData = item227.data
+                                 ,valueVariable = 'Number.of.Residents'
+                                 ,byVariableRow = "Age.Category"
+                                 ,byVariableColumn = "Category"
+                                 ,columnAggregate = "Remove"
+                                 ,rowAggregate = "Remove")
+item227.final <- item227.final[which(item227.final$Age.Category != "Remove"),]
 
-item227.final <- mean_one_group_unweighted(CustomerLevelData = item227.data
-                                ,valueVariable = 'Number.of.Residents'
-                                ,byVariable = 'Age.Category'
-                                ,aggregateRow = NA)
-item227.final <- item227.final[which(!is.na(item227.final$Age.Category)),]
+item227.table <- data.frame("Age.Category"              = item227.final$Age.Category
+                            ,"PSE.Mean"                 = item227.final$Mean_PSE
+                            ,"PSE.SE"                   = item227.final$SE_PSE
+                            ,"PSE.n"                    = item227.final$n_PSE
+                            ,"PSE.King.County_Mean"     = item227.final$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County_SE"       = item227.final$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item227.final$n_PSE
+                            ,"PSE.Non.King.County_Mean" = item227.final$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County_SE"   = item227.final$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item227.final$n_PSE
+                            ,"2017.RBSA.PS_Mean"        = item227.final$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS_SE"          = item227.final$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"           = item227.final$`n_2017 RBSA PS`
+)
 
-item227.final.MF <- item227.final[which(colnames(item227.final) %notin% c("BuildingType"))]
 
 # If final table have <NA> something was named incorrectly
-levels(item227.final.MF$Age.Category)
+levels(item227.table$Age.Category)
 rowOrder <- c("Age_0_18"
               ,"Age_19_64"
               ,"Age_65_Older"
               ,"AllCategories")
-item227.final.MF <- item227.final.MF %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
-item227.final.MF <- data.frame(item227.final.MF[which(names(item227.final.MF) != "BuildingType")])
+item227.table <- item227.table %>% mutate(Age.Category = factor(Age.Category, levels = rowOrder)) %>% arrange(Age.Category)  
+item227.table <- data.frame(item227.table[which(names(item227.table) != "BuildingType")])
 
-exportTable(item227.final.MF, "MF", "Table 19", weighted = FALSE)
-
+exportTable(item227.table, "MF", "Table 19", weighted = FALSE,OS = T, osIndicator = "PSE")

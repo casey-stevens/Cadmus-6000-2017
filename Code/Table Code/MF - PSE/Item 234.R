@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.site <- rbsa.dat[grep("SITE", rbsa.dat$CK_Building_ID),]
 rbsa.dat.bldg <- rbsa.dat[grep("BLDG", rbsa.dat$CK_Building_ID),]
@@ -68,10 +68,12 @@ item234.merge <- item234.merge[which(!is.na(item234.merge$WallType)),]
 item234.data <- weightedData(item234.merge[-which(colnames(item234.merge) %in% c("Wall.Type"
                                                                                  ,"Wall.Area"
                                                                                  ,"Wall.Framing.Material"
-                                                                                 ,"WallType"))])
+                                                                                 ,"WallType"
+                                                                                 ,"Category"))])
 item234.data <- left_join(item234.data, item234.merge[which(colnames(item234.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"WallType"
-                                                                                           ,"Wall.Area"))])
+                                                                                           ,"Wall.Area"
+                                                                                           ,"Category"))])
 
 item234.data$count <- 1
 item234.data$Count <- 1
@@ -81,85 +83,78 @@ item234.data$Count <- 1
 #######################
 item234.final <- proportionRowsAndColumns1(CustomerLevelData = item234.data
                                            ,valueVariable    = 'Wall.Area'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'WallType'
                                            ,aggregateColumnName = "Remove")
-item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
-# item234.final <- item234.final[which(item234.final$WallType != "Total"),]
-
-
-item234.all.vintages <- proportions_one_group(CustomerLevelData = item234.data
-                                                 ,valueVariable = 'Wall.Area'
-                                                 ,groupingVariable = 'WallType'
-                                                 ,total.name = "All Sizes"
-                                                 ,columnName = "HomeType"
-                                                 ,weighted = TRUE
-                                                 ,two.prop.total = TRUE)
-
-item234.final <- rbind.data.frame(item234.final, item234.all.vintages, stringsAsFactors = F)
+item234.final <- item234.final[which(item234.final$Category != "Remove"),]
 
 item234.cast <- dcast(setDT(item234.final)
-                      ,formula = HomeType ~ WallType
+                      ,formula = WallType ~ Category
                       ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 names(item234.cast)
-item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
-                             ,"In-fill.Steel"    = NA
-                             ,"In-fill.Steel.SE" = NA
-                             ,"Masonry"          = item234.cast$w.percent_Masonry
-                             ,"Masonry.SE"       = item234.cast$w.SE_Masonry
-                             ,"Steel.Frame"      = NA#item234.cast$w.percent_Steel.Frame
-                             ,"Steel.Frame.SE"   = NA#item234.cast$w.SE_Steel.Frame
-                             ,"Wood"             = item234.cast$`w.percent_Wood Frame`
-                             ,"Wood.SE"          = item234.cast$`w.SE_Wood Frame`
-                             ,"Other"            = item234.cast$w.percent_Other
-                             ,"Other.SE"         = item234.cast$w.SE_Other
-                             ,"n"                = item234.cast$n_Total
-                             ,"In-fill.Steel.EB" = NA
-                             ,"Masonry.EB"       = item234.cast$EB_Masonry
-                             ,"Steel.Frame.EB"   = NA#item234.cast$EB_Steel.Frame
-                             ,"Wood.EB"          = item234.cast$`EB_Wood Frame`
-                             ,"Other.EB"         = item234.cast$EB_Other)
+item234.final <- data.frame( "WallType"                = item234.cast$WallType
+                             ,"PSE.Percent"                 = item234.cast$w.percent_PSE
+                             ,"PSE.SE"                      = item234.cast$w.SE_PSE
+                             ,"PSE.n"                       = item234.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item234.cast$`w.percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item234.cast$`w.SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item234.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item234.cast$`w.percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item234.cast$`w.SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item234.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item234.cast$`w.percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item234.cast$`w.SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"              = item234.cast$`n_2017 RBSA PS`
+                             ,"PSE.EB"                      = item234.cast$EB_PSE
+                             ,"PSE.King.County_EB"          = item234.cast$`EB_PSE KING COUNTY`
+                             ,"PSE.Non.King.County_EB"      = item234.cast$`EB_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS_EB"             = item234.cast$`EB_2017 RBSA PS`
+                             )
+unique(item234.final$WallType)
+rowOrder <- c("Wood Frame"
+              ,"Masonry"
+              ,"Other"
+              ,"Total")
+item234.final <- item234.final %>% mutate(WallType = factor(WallType, levels = rowOrder)) %>% arrange(WallType)  
+item234.final <- data.frame(item234.final[which(names(item234.final) != "BuildingType")])
 
-exportTable(item234.final, "MF", "Table 26", weighted = TRUE)
+
+exportTable(item234.final, "MF", "Table 26", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
 # unweighted Analysis
 #######################
 item234.final <- proportions_two_groups_unweighted(CustomerLevelData = item234.data
-                                           ,valueVariable    = 'count'
-                                           ,columnVariable   = 'HomeType'
+                                           ,valueVariable    = 'Wall.Area'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'WallType'
                                            ,aggregateColumnName = "Remove")
-item234.final <- item234.final[which(item234.final$HomeType != "Remove"),]
-# item234.final <- item234.final[which(item234.final$WallType != "Total"),]
-
-
-item234.all.vintages <- proportions_one_group(CustomerLevelData = item234.data
-                                                 ,valueVariable = 'count'
-                                                 ,groupingVariable = 'WallType'
-                                                 ,total.name = "All Sizes"
-                                                 ,columnName = "HomeType"
-                                                 ,weighted = FALSE
-                                                 ,two.prop.total = TRUE)
-
-item234.final <- rbind.data.frame(item234.final, item234.all.vintages, stringsAsFactors = F)
+item234.final <- item234.final[which(item234.final$Category != "Remove"),]
 
 item234.cast <- dcast(setDT(item234.final)
-                      ,formula = HomeType ~ WallType
+                      ,formula = WallType ~ Category
                       ,value.var = c("Percent","SE", "Count","n"))
 
-item234.final <- data.frame( "Building.Size"     = item234.cast$HomeType
-                             ,"In-fill.Steel"    = NA
-                             ,"In-fill.Steel.SE" = NA
-                             ,"Masonry"          = item234.cast$Percent_Masonry
-                             ,"Masonry.SE"       = item234.cast$SE_Masonry
-                             ,"Steel.Frame"      = NA#item234.cast$Percent_Steel.Frame
-                             ,"Steel.Frame.SE"   = NA#item234.cast$SE_Steel.Frame
-                             ,"Wood"             = item234.cast$`Percent_Wood Frame`
-                             ,"Wood.SE"          = item234.cast$`SE_Wood Frame`
-                             ,"Other"            = item234.cast$Percent_Other
-                             ,"Other.SE"         = item234.cast$SE_Other
-                             ,"n"                = item234.cast$n_Total)
+item234.final <- data.frame( "WallType"     = item234.cast$WallType
+                             ,"PSE.Percent"                 = item234.cast$Percent_PSE
+                             ,"PSE.SE"                      = item234.cast$SE_PSE
+                             ,"PSE.n"                       = item234.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item234.cast$`Percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item234.cast$`SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item234.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item234.cast$`Percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item234.cast$`SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item234.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item234.cast$`Percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item234.cast$`SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"              = item234.cast$`n_2017 RBSA PS`)
+unique(item234.final$WallType)
+rowOrder <- c("Wood Frame"
+              ,"Masonry"
+              ,"Other"
+              ,"Total")
+item234.final <- item234.final %>% mutate(WallType = factor(WallType, levels = rowOrder)) %>% arrange(WallType)  
+item234.final <- data.frame(item234.final[which(names(item234.final) != "BuildingType")])
 
-exportTable(item234.final, "MF", "Table 26", weighted = FALSE)
+exportTable(item234.final, "MF", "Table 26", weighted = FALSE,OS = T, osIndicator = "PSE")

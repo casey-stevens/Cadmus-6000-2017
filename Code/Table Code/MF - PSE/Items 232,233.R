@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 rbsa.dat.MF <- rbsa.dat.MF[grep("BLDG", rbsa.dat.MF$CK_Building_ID),]
@@ -32,7 +32,7 @@ rbsa.dat.MF <- rbsa.dat.MF[grep("BLDG", rbsa.dat.MF$CK_Building_ID),]
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 
 # sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
-buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
+sites.dat$CK_Building_ID <- trimws(toupper(sites.dat$CK_Cadmus_ID))
 
 
 #read in Envelope data for MF table
@@ -135,14 +135,14 @@ item232.envelope <- item232.envelope[which(!is.na(item232.envelope$Wall.Area)),]
 ##########################################
 # Calculate average window size within unit, weighted average by number of windows and area
 ##########################################
-item232.windows.sum <- summarise(group_by(item232.windows, CK_Building_ID)
-                                 , WindowArea = sum(Window.Area, na.rm = T))
+item232.windows.sum <- summarise(group_by(item232.windows, CK_Building_ID, Category)
+                                 , WindowArea = sum(unique(Window.Area), na.rm = T))
 
 ##########################################
 # Calculate total number of windows and wall area per building
 ##########################################
 item232.wall.sum <- summarise(group_by(item232.envelope, CK_SiteID)
-                          ,WallArea   = sum(Wall.Area,  na.rm = T))
+                          ,WallArea   = sum(unique(Wall.Area),  na.rm = T))
 names(item232.wall.sum) <- c("CK_Building_ID", "WallArea")
 
 
@@ -169,26 +169,38 @@ item232.merge <- item232.merge[which(!is.na(item232.merge$WindowToWallArea)),]
 ################################################
 item232.data <- weightedData(item232.merge[-which(colnames(item232.merge) %in% c("WindowArea"
                                                                                  ,"WallArea"
-                                                                                 ,"WindowToWallArea"))])
+                                                                                 ,"WindowToWallArea"
+                                                                                 ,"Category"))])
 item232.data <- left_join(item232.data, item232.merge[which(colnames(item232.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"WindowArea"
                                                                                            ,"WallArea"
-                                                                                           ,"WindowToWallArea"))])
+                                                                                           ,"WindowToWallArea"
+                                                                                           ,"Category"))])
 
 item232.data$WindowToWallArea <- as.numeric(as.character(item232.data$WindowToWallArea))
 item232.data$count <- 1
 
-export.item232 <- item232.data[which(item232.data$WindowToWallArea > .3), which(names(item232.data) %in% c("CK_Cadmus_ID","WindowArea","WallArea","WindowToWallArea"))]
+# export.item232 <- item232.data[which(item232.data$WindowToWallArea > .3), which(names(item232.data) %in% c("CK_Cadmus_ID","WindowArea","WallArea","WindowToWallArea"))]
 #######################
 # Weighted Analysis
 #######################
 item232.final <- mean_one_group(CustomerLevelData = item232.data
                                 ,valueVariable    = 'WindowToWallArea'
-                                ,byVariable       = 'HomeType'
-                                ,aggregateRow     = "All Sizes")
+                                ,byVariable       = 'Category'
+                                ,aggregateRow     = "Remove")
+item232.final <- item232.final[which(item232.final$Category != "Remove"),]
 item232.final.MF <- item232.final[which(item232.final$BuildingType == "Multifamily")
                                   ,which(colnames(item232.final) %notin% c("BuildingType"))]
-exportTable(item232.final.MF, "MF", "Table 24", weighted = TRUE)
+unique(item232.final.MF$Category)
+rowOrder <- c("PSE"
+              ,"PSE KING COUNTY"
+              ,"PSE NON-KING COUNTY"
+              ,"2017 RBSA PS")
+item232.final.MF <- item232.final.MF %>% mutate(Category = factor(Category, levels = rowOrder)) %>% arrange(Category)  
+item232.final.MF <- data.frame(item232.final.MF[which(names(item232.final.MF) != "BuildingType")])
+
+
+exportTable(item232.final.MF, "MF", "Table 24", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
@@ -196,11 +208,22 @@ exportTable(item232.final.MF, "MF", "Table 24", weighted = TRUE)
 #######################
 item232.final <- mean_one_group_unweighted(CustomerLevelData = item232.data
                                            ,valueVariable    = 'WindowToWallArea'
-                                           ,byVariable       = 'HomeType'
-                                           ,aggregateRow     = "All Sizes")
+                                           ,byVariable       = 'Category'
+                                           ,aggregateRow     = "Remove")
+item232.final <- item232.final[which(item232.final$Category != "Remove"),]
 item232.final.MF <- item232.final[which(item232.final$BuildingType == "Multifamily")
                                   ,which(colnames(item232.final) %notin% c("BuildingType"))]
-exportTable(item232.final.MF, "MF", "Table 24", weighted = FALSE)
+
+unique(item232.final.MF$Category)
+rowOrder <- c("PSE"
+              ,"PSE KING COUNTY"
+              ,"PSE NON-KING COUNTY"
+              ,"2017 RBSA PS")
+item232.final.MF <- item232.final.MF %>% mutate(Category = factor(Category, levels = rowOrder)) %>% arrange(Category)  
+item232.final.MF <- data.frame(item232.final.MF[which(names(item232.final.MF) != "BuildingType")])
+
+
+exportTable(item232.final.MF, "MF", "Table 24", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -222,9 +245,9 @@ item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Window.Area))
 item233.envelope <- item233.envelope[which(!is.na(item233.envelope$Window.Count)),]
 
 item233.sum <- summarise(group_by(item233.envelope, CK_Building_ID)
-                         ,FloorArea  = sum(Floor.Area, na.rm = T)
-                         ,WindowArea = sum(Window.Area, na.rm = T)
-                         ,WindowCount = sum(Window.Count, na.rm = T))
+                         ,FloorArea  = sum(unique(Floor.Area), na.rm = T)
+                         ,WindowArea = sum(unique(Window.Area), na.rm = T)
+                         ,WindowCount = sum(unique(Window.Count), na.rm = T))
 
 #Remove any items where walla area and window are are not greater than zero.
 item233.dat1 <- item233.sum[which(item233.sum$FloorArea > 0 & item233.sum$WindowArea > 0),]
@@ -244,12 +267,14 @@ item233.merge <- item233.merge[which(!is.na(item233.merge$WindowToFloorArea)),]
 item233.data <- weightedData(item233.merge[-which(colnames(item233.merge) %in% c("WindowArea"
                                                                                  ,"FloorArea"
                                                                                  ,"WindowCount"
-                                                                                 ,"WindowToFloorArea"))])
+                                                                                 ,"WindowToFloorArea"
+                                                                                 ,"Category"))])
 item233.data <- left_join(item233.data, item233.merge[which(colnames(item233.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"WindowArea"
                                                                                            ,"FloorArea"
                                                                                            ,"WindowCount"
-                                                                                           ,"WindowToFloorArea"))])
+                                                                                           ,"WindowToFloorArea"
+                                                                                           ,"Category"))])
 
 item233.data$WindowToFloorArea <- as.numeric(as.character(item233.data$WindowToFloorArea))
 item233.data$count <- 1
@@ -258,20 +283,36 @@ item233.data$count <- 1
 #######################
 item233.final <- mean_one_group(CustomerLevelData = item233.data
                                 ,valueVariable    = 'WindowToFloorArea'
-                                ,byVariable       = 'HomeType'
-                                ,aggregateRow     = "All Sizes")
+                                ,byVariable       = 'Category'
+                                ,aggregateRow     = "Remove")
+item233.final <- item233.final[which(item233.final$Category != "Remove"),]
 item233.final.MF <- item233.final[which(item233.final$BuildingType == "Multifamily")
                                   ,which(colnames(item233.final) %notin% c("BuildingType"))]
-exportTable(item233.final.MF, "MF", "Table 25", weighted = TRUE)
+unique(item233.final.MF$Category)
+rowOrder <- c("PSE"
+              ,"PSE KING COUNTY"
+              ,"PSE NON-KING COUNTY"
+              ,"2017 RBSA PS")
+item233.final.MF <- item233.final.MF %>% mutate(Category = factor(Category, levels = rowOrder)) %>% arrange(Category)  
+item233.final.MF <- data.frame(item233.final.MF[which(names(item233.final.MF) != "BuildingType")])
+exportTable(item233.final.MF, "MF", "Table 25", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
 # unweighted Analysis
 #######################
 item233.final <- mean_one_group_unweighted(CustomerLevelData = item233.data
-                                           ,valueVariable    = 'WindowToFloorArea'
-                                           ,byVariable       = 'HomeType'
-                                           ,aggregateRow     = "All Sizes")
+                                ,valueVariable    = 'WindowToFloorArea'
+                                ,byVariable       = 'Category'
+                                ,aggregateRow     = "Remove")
+item233.final <- item233.final[which(item233.final$Category != "Remove"),]
 item233.final.MF <- item233.final[which(item233.final$BuildingType == "Multifamily")
                                   ,which(colnames(item233.final) %notin% c("BuildingType"))]
-exportTable(item233.final.MF, "MF", "Table 25", weighted = FALSE)
+unique(item233.final.MF$Category)
+rowOrder <- c("PSE"
+              ,"PSE KING COUNTY"
+              ,"PSE NON-KING COUNTY"
+              ,"2017 RBSA PS")
+item233.final.MF <- item233.final.MF %>% mutate(Category = factor(Category, levels = rowOrder)) %>% arrange(Category)  
+item233.final.MF <- data.frame(item233.final.MF[which(names(item233.final.MF) != "BuildingType")])
+exportTable(item233.final.MF, "MF", "Table 25", weighted = FALSE,OS = T, osIndicator = "PSE")

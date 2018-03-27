@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.MF <- rbsa.dat[grep("Multifamily", rbsa.dat$BuildingType),]
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg",rbsa.dat.MF$CK_Building_ID),]
@@ -104,7 +104,8 @@ FloorMappingTypes <- read.xlsx(xlsxFile = file.path(filepathCleaningDocs, "MF Fl
 #############################################################################################
 
 item236.dat <- unique(envelope.dat.MF[which(colnames(envelope.dat.MF) %in% c("CK_Cadmus_ID",
-                                                                             "CK_SiteID",
+                                                                             "CK_Building_ID",
+                                                                             "Category",
                                                                              "Ceiling.Type",
                                                                              "Ceiling.Area",
                                                                              "BuildingTypeXX",
@@ -123,12 +124,14 @@ item236.merge <- item236.merge[grep("bldg", item236.merge$CK_Building_ID, ignore
 ################################################
 item236.data <- weightedData(item236.merge[-which(colnames(item236.merge) %in% c("Ceiling.Type"
                                                                                  ,"Ceiling.Area"
-                                                                                 ,"CeilingType"))])
+                                                                                 ,"CeilingType"
+                                                                                 ,"Category"))])
 item236.data <- left_join(item236.data, unique(item236.merge[which(colnames(item236.merge) %in% c("CK_Cadmus_ID"
                                                                                                   ,"CK_Building_ID"
-                                                                                           ,"Ceiling.Type"
-                                                                                           ,"Ceiling.Area"
-                                                                                           ,"CeilingType"))]))
+                                                                                                  ,"Ceiling.Type"
+                                                                                                  ,"Ceiling.Area"
+                                                                                                  ,"CeilingType"
+                                                                                                  ,"Category"))]))
 
 item236.data$count <- 1
 item236.data$Ceiling.Area <- as.numeric(as.character(item236.data$Ceiling.Area))
@@ -139,43 +142,44 @@ length(unique(item236.data$CK_Building_ID))
 #######################
 item236.final <- proportionRowsAndColumns1(CustomerLevelData = item236.data
                                            ,valueVariable    = 'Ceiling.Area'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'CeilingType'
                                            ,aggregateColumnName = "Remove")
-item236.final <- item236.final[which(item236.final$HomeType != "Remove"),]
+item236.final <- item236.final[which(item236.final$Category != "Remove"),]
 # item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
 
-
-item236.all.vintages <- proportions_one_group(CustomerLevelData = item236.data
-                                                 ,valueVariable = 'Ceiling.Area'
-                                                 ,groupingVariable = 'CeilingType'
-                                                 ,total.name = "All Sizes"
-                                                 ,columnName = "HomeType"
-                                                 ,weighted = TRUE
-                                                 ,two.prop.total = TRUE)
-
-item236.final <- rbind.data.frame(item236.final, item236.all.vintages, stringsAsFactors = F)
-
 item236.cast <- dcast(setDT(item236.final)
-                      ,formula = HomeType ~ CeilingType
+                      ,formula = CeilingType ~ Category
                       ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 names(item236.cast)
-item236.final <- data.frame( "Building.Size" = item236.cast$HomeType
-                             ,"Attic"        = item236.cast$w.percent_Attic
-                             ,"Attic.SE"     = item236.cast$w.SE_Attic
-                             ,"Roof.Deck"    = item236.cast$`w.percent_Roof Deck`
-                             ,"Roof.Deck.SE" = item236.cast$`w.SE_Roof Deck`
-                             ,"Vaulted"      = item236.cast$w.percent_Vaulted
-                             ,"Vaulted.SE"   = item236.cast$w.SE_Vaulted
-                             ,"Other"        = item236.cast$w.percent_Other
-                             ,"Other.SE"     = item236.cast$w.SE_Other
-                             ,"n"            = item236.cast$n_Total
-                             ,"Attic.EB"     = item236.cast$EB_Attic
-                             ,"Roof.Deck.EB" = item236.cast$`EB_Roof Deck`
-                             ,"Vaulted.EB"   = item236.cast$EB_Vaulted
-                             ,"Other.EB"     = item236.cast$EB_Other)
+item236.table <- data.frame( "Ceiling.Type" = item236.cast$CeilingType
+                             ,"PSE.Percent"                 = item236.cast$w.percent_PSE
+                             ,"PSE.SE"                      = item236.cast$w.SE_PSE
+                             ,"PSE.n"                       = item236.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item236.cast$`w.percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item236.cast$`w.SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item236.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item236.cast$`w.percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item236.cast$`w.SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item236.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item236.cast$`w.percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item236.cast$`w.SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"              = item236.cast$`n_2017 RBSA PS`
+                             ,"PSE.EB"                      = item236.cast$EB_PSE
+                             ,"PSE.King.County_EB"          = item236.cast$`EB_PSE KING COUNTY`
+                             ,"PSE.Non.King.County_EB"      = item236.cast$`EB_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS_EB"             = item236.cast$`EB_2017 RBSA PS`)
+unique(item236.table$Ceiling.Type)
+rowOrder <- c("Attic"
+              ,"Roof Deck"
+              ,"Vaulted"
+              ,"Other"
+              ,"Total")
+item236.table <- item236.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)  
+item236.table <- data.frame(item236.table[which(names(item236.table) != "BuildingType")])
 
-exportTable(item236.final, "MF", "Table 28", weighted = TRUE)
+
+exportTable(item236.table, "MF", "Table 28", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
@@ -183,39 +187,39 @@ exportTable(item236.final, "MF", "Table 28", weighted = TRUE)
 #######################
 item236.final <- proportions_two_groups_unweighted(CustomerLevelData = item236.data
                                            ,valueVariable    = 'Ceiling.Area'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'CeilingType'
                                            ,aggregateColumnName = "Remove")
-item236.final <- item236.final[which(item236.final$HomeType != "Remove"),]
-# item236.final <- item236.final[which(item236.final$CeilingType != "Total"),]
-
-
-item236.all.vintages <- proportions_one_group(CustomerLevelData = item236.data
-                                                 ,valueVariable = 'Ceiling.Area'
-                                                 ,groupingVariable = 'CeilingType'
-                                                 ,total.name = "All Sizes"
-                                                 ,columnName = "HomeType"
-                                                 ,weighted = FALSE
-                                                 ,two.prop.total = TRUE)
-
-item236.final <- rbind.data.frame(item236.final, item236.all.vintages, stringsAsFactors = F)
+item236.final <- item236.final[which(item236.final$Category != "Remove"),]
 
 item236.cast <- dcast(setDT(item236.final)
-                      ,formula = HomeType ~ CeilingType
+                      ,formula = CeilingType ~ Category
                       ,value.var = c("Percent","SE", "Count","n"))
 
-item236.final <- data.frame( "Building.Size" = item236.cast$HomeType
-                             ,"Attic"        = item236.cast$Percent_Attic
-                             ,"Attic.SE"     = item236.cast$SE_Attic
-                             ,"Roof.Deck"    = item236.cast$`Percent_Roof Deck`
-                             ,"Roof.Deck.SE" = item236.cast$`SE_Roof Deck`
-                             ,"Vaulted"      = item236.cast$Percent_Vaulted
-                             ,"Vaulted.SE"   = item236.cast$SE_Vaulted
-                             ,"Other"        = item236.cast$Percent_Other
-                             ,"Other.SE"     = item236.cast$SE_Other
-                             ,"n"            = item236.cast$n_Total)
+item236.table <- data.frame( "Ceiling.Type" = item236.cast$CeilingType
+                             ,"PSE.Percent"                 = item236.cast$Percent_PSE
+                             ,"PSE.SE"                      = item236.cast$SE_PSE
+                             ,"PSE.n"                       = item236.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item236.cast$`Percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item236.cast$`SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item236.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item236.cast$`Percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item236.cast$`SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item236.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item236.cast$`Percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item236.cast$`SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"              = item236.cast$`n_2017 RBSA PS`)
+unique(item236.table$Ceiling.Type)
+rowOrder <- c("Attic"
+              ,"Roof Deck"
+              ,"Vaulted"
+              ,"Other"
+              ,"Total")
+item236.table <- item236.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)  
+item236.table <- data.frame(item236.table[which(names(item236.table) != "BuildingType")])
 
-exportTable(item236.final, "MF", "Table 28", weighted = FALSE)
+
+exportTable(item236.table, "MF", "Table 28", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -244,7 +248,7 @@ item238.dat <- unique(envelope.dat.MF[which(colnames(envelope.dat.MF) %in% c("CK
 item238.dat$Floor.Area <- as.numeric(as.character(item238.dat$Floor.Area))
 
 item238.dat1 <- item238.dat[which(item238.dat$Floor.Area > 0),] 
-item238.dat1 <- item238.dat[which(!is.na(item238.dat$Floor.Area)),] 
+item238.dat1 <- item238.dat[which(item238.dat$Floor.Area %notin% c("N/A",NA)),] 
 
 #floor type mapping
 item238.dat1$FloorType <- NA
@@ -272,14 +276,16 @@ item238.data <- weightedData(item238.merge[-which(colnames(item238.merge) %in% c
                                                                                  "Floor.Area"
                                                                                  ,"Floor.Type"
                                                                                  ,"Type.of.Area.Below"
-                                                                                 ,"Area.Below.Heated?"))])
+                                                                                 ,"Area.Below.Heated?"
+                                                                                 ,"Category"))])
 item238.data <- left_join(item238.data, unique(item238.merge[which(colnames(item238.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"FloorType",
                                                                                            "Floor.Sub-Type",
                                                                                            "Floor.Area"
                                                                                            ,"Floor.Type"
                                                                                            ,"Type.of.Area.Below"
-                                                                                           ,"Area.Below.Heated?"))]))
+                                                                                           ,"Area.Below.Heated?"
+                                                                                           ,"Category"))]))
 
 item238.data$count <- 1
 item238.data$Floor.Area <- as.numeric(as.character(item238.data$Floor.Area))
@@ -289,88 +295,62 @@ item238.data$Floor.Area <- as.numeric(as.character(item238.data$Floor.Area))
 #######################
 item238.final <- proportionRowsAndColumns1(CustomerLevelData = item238.data
                                            ,valueVariable    = 'Floor.Area'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'FloorType'
                                            ,aggregateColumnName = "Remove")
-item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
-# item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
-
-
-item238.all.sizes <- proportions_one_group(CustomerLevelData = item238.data
-                                                 ,valueVariable = 'Floor.Area'
-                                                 ,groupingVariable = 'FloorType'
-                                                 ,total.name = "All Sizes"
-                                                 ,columnName = "HomeType"
-                                                 ,weighted = TRUE
-                                                 ,two.prop.total = TRUE)
-
-item238.final <- rbind.data.frame(item238.final, item238.all.sizes, stringsAsFactors = F)
+item238.final <- item238.final[which(item238.final$Category != "Remove"),]
 
 item238.cast <- dcast(setDT(item238.final)
-                      ,formula = FloorType ~ HomeType
+                      ,formula = FloorType ~ Category
                       ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
 
-
-
-item238.final <- data.frame( "Floor.Type"    = item238.cast$FloorType
-                             ,"Low.Rise.1.3"    = item238.cast$`w.percent_Apartment Building (3 or fewer floors)`
-                             ,"Low.Rise.1.3.SE" = item238.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                             ,"Low.Rise.1.3.n"  = item238.cast$`n_Apartment Building (3 or fewer floors)`
-                             ,"Mid.Rise.4.6"    = item238.cast$`w.percent_Apartment Building (4 to 6 floors)`
-                             ,"Mid.Rise.4.6.SE" = item238.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                             ,"Mid.Rise.4.6.n"  = item238.cast$`n_Apartment Building (4 to 6 floors)`
-                             ,"High.Rise.GT7"   = item238.cast$`w.percent_Apartment Building (More than 6 floors)`
-                             ,"High.Rise.GT7.SE"= item238.cast$`w.SE_Apartment Building (More than 6 floors)`
-                             ,"High.Rise.GT7.n" = item238.cast$`n_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"       = item238.cast$`w.percent_All Sizes`
-                             ,"All.Sizes.SE"    = item238.cast$`w.SE_All Sizes`
-                             ,"All.Sizes.n"     = item238.cast$`n_All Sizes`
-                             ,"Low.Rise.1.3.EB" = item238.cast$`EB_Apartment Building (3 or fewer floors)`
-                             ,"Mid.Rise.4.6.EB" = item238.cast$`EB_Apartment Building (4 to 6 floors)`
-                             ,"High.Rise.GT7.EB"= item238.cast$`EB_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes.EB"    = item238.cast$`EB_All Sizes`
+item238.table <- data.frame( "Floor.Type"    = item238.cast$FloorType
+                             ,"PSE.Percent"                 = item238.cast$w.percent_PSE
+                             ,"PSE.SE"                      = item238.cast$w.SE_PSE
+                             ,"PSE.n"                       = item238.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item238.cast$`w.percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item238.cast$`w.SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item238.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item238.cast$`w.percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item238.cast$`w.SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item238.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item238.cast$`w.percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item238.cast$`w.SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"              = item238.cast$`n_2017 RBSA PS`
+                             ,"PSE.EB"                      = item238.cast$EB_PSE
+                             ,"PSE.King.County_EB"          = item238.cast$`EB_PSE KING COUNTY`
+                             ,"PSE.Non.King.County_EB"      = item238.cast$`EB_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS_EB"             = item238.cast$`EB_2017 RBSA PS`
                              )
 
-exportTable(item238.final, "MF", "Table 30", weighted = TRUE)
+exportTable(item238.table, "MF", "Table 30", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # unweighted Analysis
 #######################
 item238.final <- proportions_two_groups_unweighted(CustomerLevelData = item238.data
                                            ,valueVariable    = 'Floor.Area'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'FloorType'
                                            ,aggregateColumnName = "Remove")
-item238.final <- item238.final[which(item238.final$HomeType != "Remove"),]
-# item238.final <- item238.final[which(item238.final$Floor.Sub.Type != "Total"),]
-
-
-item238.all.sizes <- proportions_one_group(CustomerLevelData = item238.data
-                                              ,valueVariable = 'Floor.Area'
-                                              ,groupingVariable = 'FloorType'
-                                              ,total.name = "All Sizes"
-                                              ,columnName = "HomeType"
-                                              ,weighted = FALSE
-                                              ,two.prop.total = TRUE)
-
-item238.final <- rbind.data.frame(item238.final, item238.all.sizes, stringsAsFactors = F)
+item238.final <- item238.final[which(item238.final$Category != "Remove"),]
 
 item238.cast <- dcast(setDT(item238.final)
-                      ,formula = FloorType ~ HomeType
+                      ,formula = FloorType ~ Category
                       ,value.var = c("Percent","SE", "Count","n"))
 
-item238.final <- data.frame( "Floor.Type"    = item238.cast$FloorType
-                             ,"Low.Rise.1.3"    = item238.cast$`Percent_Apartment Building (3 or fewer floors)`
-                             ,"Low.Rise.1.3.SE" = item238.cast$`SE_Apartment Building (3 or fewer floors)`
-                             ,"Low.Rise.1.3.n"  = item238.cast$`n_Apartment Building (3 or fewer floors)`
-                             ,"Mid.Rise.4.6"    = item238.cast$`Percent_Apartment Building (4 to 6 floors)`
-                             ,"Mid.Rise.4.6.SE" = item238.cast$`SE_Apartment Building (4 to 6 floors)`
-                             ,"Mid.Rise.4.6.n"  = item238.cast$`n_Apartment Building (4 to 6 floors)`
-                             ,"High.Rise.GT7"   = item238.cast$`Percent_Apartment Building (More than 6 floors)`
-                             ,"High.Rise.GT7.SE"= item238.cast$`SE_Apartment Building (More than 6 floors)`
-                             ,"High.Rise.GT7.n" = item238.cast$`n_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"       = item238.cast$`Percent_All Sizes`
-                             ,"All.Sizes.SE"    = item238.cast$`SE_All Sizes`
-                             ,"All.Sizes.n"     = item238.cast$`n_All Sizes`)
+item238.table <- data.frame( "Floor.Type"    = item238.cast$FloorType
+                             ,"PSE.Percent"                 = item238.cast$Percent_PSE
+                             ,"PSE.SE"                      = item238.cast$SE_PSE
+                             ,"PSE.n"                       = item238.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item238.cast$`Percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item238.cast$`SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item238.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item238.cast$`Percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item238.cast$`SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item238.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item238.cast$`Percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item238.cast$`SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"              = item238.cast$`n_2017 RBSA PS`)
 
-exportTable(item238.final, "MF", "Table 30", weighted = FALSE)
+exportTable(item238.table, "MF", "Table 30", weighted = FALSE,OS = T, osIndicator = "PSE")

@@ -49,7 +49,7 @@ one.line.bldg.dat$CK_Building_ID <- trimws(toupper(one.line.bldg.dat$PK_Building
 #subset to columns needed for analysis
 #from buildings interview data:
 item213.interview.dat <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("CK_Building_ID"
-                                                               ,"Total.Units.in.Building"))]
+                                                                                    ,"Total.Units.in.Building"))]
 names(item213.interview.dat) <- c("Number.of.Units", "CK_Building_ID")
 
 # item213.building.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_ID"
@@ -84,31 +84,31 @@ colnames(item213.data)
 # Weighted Analysis
 #######################
 item213.summary <- proportionRowsAndColumns1(CustomerLevelData = item213.data
-                                          ,valueVariable = 'Number.of.Units'
-                                          ,columnVariable = 'HomeYearBuilt_bins_MF'
-                                          ,rowVariable = 'HomeType'
-                                          ,aggregateColumnName = "Remove")
+                                             ,valueVariable = 'Number.of.Units'
+                                             ,columnVariable = 'HomeYearBuilt_bins_MF'
+                                             ,rowVariable = 'HomeType'
+                                             ,aggregateColumnName = "Remove")
 item213.summary <- item213.summary[which(item213.summary$HomeYearBuilt_bins_MF != "Remove"),]
 item213.summary <- item213.summary[which(item213.summary$HomeType != "Total"),]
 
 item213.data$HousingType <- item213.data$HomeType
 item213.all.vintages <- proportions_one_group(CustomerLevelData = item213.data
-                                             ,valueVariable = 'Number.of.Units'
-                                             ,groupingVariable = 'HousingType'
-                                             ,total.name = "All Vintages"
-                                             ,columnName = 'HomeYearBuilt_bins_MF'
-                                             ,weighted = TRUE
-                                             ,two.prop.total = TRUE)
+                                              ,valueVariable = 'Number.of.Units'
+                                              ,groupingVariable = 'HousingType'
+                                              ,total.name = "All Vintages"
+                                              ,columnName = 'HomeYearBuilt_bins_MF'
+                                              ,weighted = TRUE
+                                              ,two.prop.total = TRUE)
 names(item213.all.vintages)[which(names(item213.all.vintages) == "HousingType")] <- "HomeType"
 item213.all.vintages$HomeType[which(item213.all.vintages$HomeType == "Total")] <- "All Sizes"
 
 item213.all.sizes <- proportions_one_group(CustomerLevelData = item213.data
-                                             ,valueVariable = 'Number.of.Units'
-                                             ,groupingVariable = 'HomeYearBuilt_bins_MF'
-                                             ,total.name = "All Sizes"
-                                             ,columnName = 'HomeType'
-                                             ,weighted = TRUE
-                                             ,two.prop.total = TRUE)
+                                           ,valueVariable = 'Number.of.Units'
+                                           ,groupingVariable = 'HomeYearBuilt_bins_MF'
+                                           ,total.name = "All Sizes"
+                                           ,columnName = 'HomeType'
+                                           ,weighted = TRUE
+                                           ,two.prop.total = TRUE)
 item213.all.sizes <- item213.all.sizes[which(item213.all.sizes$HomeYearBuilt_bins_MF != "Total"),]
 
 item213.final <- rbind.data.frame(item213.summary, item213.all.vintages, item213.all.sizes, stringsAsFactors = F)
@@ -132,7 +132,7 @@ item213.table <- data.frame("BuildingType"     = item213.cast$BuildingType
                             ,"Low.Rise.EB"     = item213.cast$`EB_Apartment Building (3 or fewer floors)`
                             ,"Mid.Rise.EB"     = item213.cast$`EB_Apartment Building (4 to 6 floors)`
                             ,"High.Rise.EB"    = item213.cast$`EB_Apartment Building (More than 6 floors)`
-                            )
+)
 # row ordering example code
 levels(item213.table$Housing.Vintage)
 rowOrder <- c("Pre 1955"
@@ -154,10 +154,10 @@ exportTable(item213.table.MF, "MF", "Table 5", weighted = TRUE)
 # Unweighted Analysis
 #######################
 item213.summary <- proportions_two_groups_unweighted(CustomerLevelData = item213.data
-                                             ,valueVariable = 'Number.of.Units'
-                                             ,columnVariable = 'HomeYearBuilt_bins_MF'
-                                             ,rowVariable = 'HomeType'
-                                             ,aggregateColumnName = "Remove")
+                                                     ,valueVariable = 'Number.of.Units'
+                                                     ,columnVariable = 'HomeYearBuilt_bins_MF'
+                                                     ,rowVariable = 'HomeType'
+                                                     ,aggregateColumnName = "Remove")
 item213.summary <- item213.summary[which(item213.summary$HomeYearBuilt_bins_MF != "Remove"),]
 item213.summary <- item213.summary[which(item213.summary$HomeType != "Total"),]
 
@@ -269,19 +269,19 @@ colnames(item217.data)
 # Weighted Analysis
 #######################
 item217.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item217.data
-                                             ,valueVariable = 'Count'
-                                             ,columnVariable = "HomeYearBuilt_bins_MF"
-                                             ,rowVariable = "Number.of.Units"
-                                             ,aggregateColumnName = "Remove")
+                                                        ,valueVariable = 'Count'
+                                                        ,columnVariable = "HomeYearBuilt_bins_MF"
+                                                        ,rowVariable = "Number.of.Units"
+                                                        ,aggregateColumnName = "Remove")
 item217.summary <- item217.summary[which(item217.summary$HomeYearBuilt_bins_MF != "Remove"),]
 
 item217.all.vintages <- proportions_one_group_within_row(CustomerLevelData = item217.data
-                                              ,valueVariable = 'Count'
-                                              ,groupingVariable = 'Number.of.Units'
-                                              ,total.name = "All Vintages"
-                                              ,columnName = "HomeYearBuilt_bins_MF"
-                                              ,weighted = TRUE
-                                              ,two.prop.total = TRUE)
+                                                         ,valueVariable = 'Count'
+                                                         ,groupingVariable = 'Number.of.Units'
+                                                         ,total.name = "All Vintages"
+                                                         ,columnName = "HomeYearBuilt_bins_MF"
+                                                         ,weighted = TRUE
+                                                         ,two.prop.total = TRUE)
 item217.all.vintages <- item217.all.vintages[which(item217.all.vintages$Number.of.Units != "Total"),]
 
 item217.final <- rbind.data.frame(item217.summary, item217.all.vintages, stringsAsFactors = F)
@@ -328,19 +328,19 @@ exportTable(item217.table.MF, "MF", "Table 9", weighted = TRUE)
 # unweighted Analysis
 #######################
 item217.summary <- proportions_two_groups_unweighted(CustomerLevelData = item217.data
-                                                        ,valueVariable = 'Count'
-                                                        ,columnVariable = "HomeYearBuilt_bins_MF"
-                                                        ,rowVariable = "Number.of.Units"
-                                                        ,aggregateColumnName = "Remove")
+                                                     ,valueVariable = 'Count'
+                                                     ,columnVariable = "HomeYearBuilt_bins_MF"
+                                                     ,rowVariable = "Number.of.Units"
+                                                     ,aggregateColumnName = "Remove")
 item217.summary <- item217.summary[which(item217.summary$HomeYearBuilt_bins_MF != "Remove"),]
 
 item217.all.vintages <- proportions_one_group(CustomerLevelData = item217.data
-                                                         ,valueVariable = 'Count'
-                                                         ,groupingVariable = 'Number.of.Units'
-                                                         ,total.name = "All Vintages"
-                                                         ,columnName = "HomeYearBuilt_bins_MF"
-                                                         ,weighted = FALSE
-                                                         ,two.prop.total = TRUE)
+                                              ,valueVariable = 'Count'
+                                              ,groupingVariable = 'Number.of.Units'
+                                              ,total.name = "All Vintages"
+                                              ,columnName = "HomeYearBuilt_bins_MF"
+                                              ,weighted = FALSE
+                                              ,two.prop.total = TRUE)
 item217.all.vintages <- item217.all.vintages[which(item217.all.vintages$Number.of.Units != "Total"),]
 
 item217.final <- rbind.data.frame(item217.summary, item217.all.vintages, stringsAsFactors = F)
@@ -362,7 +362,7 @@ item217.table <- data.frame("BuildingType" = item217.cast$BuildingType
                             ,"Percent.Four.Plus.Bedrooms"  = item217.cast$Percent_Number.of.4.Plus.Bedroom.Units
                             ,"SE.Four.Plus.Bedrooms"       = item217.cast$SE_Number.of.4.Plus.Bedroom.Units
                             ,"n"                           = item217.cast$n_Total
-                            )
+)
 # row ordering example code
 levels(item217.table$Housing.Vintage)
 rowOrder <- c("Pre 1955"
@@ -503,10 +503,10 @@ exportTable(item226.table.MF, "MF", "Table 18", weighted = TRUE)
 # Weighted Analysis
 #######################
 item226.summary <- proportions_two_groups_unweighted(CustomerLevelData = item226.data
-                                             ,valueVariable  = 'Total.Units.in.Building'
-                                             ,columnVariable = "Income.Restriction"
-                                             ,rowVariable = "Tenant.Type"
-                                             ,aggregateColumnName = "Remove")
+                                                     ,valueVariable  = 'Total.Units.in.Building'
+                                                     ,columnVariable = "Income.Restriction"
+                                                     ,rowVariable = "Tenant.Type"
+                                                     ,aggregateColumnName = "Remove")
 item226.summary <- item226.summary[which(item226.summary$Income.Restriction != "Remove"),]
 item226.summary <- item226.summary[which(item226.summary$Tenant.Type != "Total"),]
 

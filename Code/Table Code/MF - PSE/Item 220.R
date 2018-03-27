@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
@@ -80,75 +80,80 @@ rooms.final <- rooms.final[which(rooms.final$BuildingType == "Multifamily"),]
 rooms.final <- rooms.final[which(rooms.final$SiteArea %notin% c("N/A",NA)),]
 names(rooms.final)[which(names(rooms.final) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID" 
 
-
 #############################################################################################
-# Item 220: AVERAGE COMMON AREA ROOM TYPE FLOOR AREA (SQ.FT.) BY BUILDING SIZE (MF table 12)
+# Item 220B: AVERAGE COMMON AREA ROOM TYPE FLOOR AREA (SQ.FT.) BY BUILDING SIZE (MF table 12)
 #############################################################################################
-item220.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
+item220B.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("SITES_MFB_cfg_MFB_CONFIG_ResidentialInteriorCommonFloorArea"
                                                                   ,"CK_Building_ID"))]
-colnames(item220.dat) <- c( "CommonFloorArea","CK_Building_ID")
-item220.dat$CK_Building_ID <- as.character(item220.dat$CK_Building_ID)
+colnames(item220B.dat) <- c( "CommonFloorArea","CK_Building_ID")
+item220B.dat$CK_Building_ID <- as.character(item220B.dat$CK_Building_ID)
 
 # join on rooms and rbsa cleaned data:
-item220.dat1 <- left_join(rooms.final,item220.dat)
+item220B.dat1 <- left_join(rooms.final,item220B.dat)
 
 #make numeric
-item220.dat1$CommonFloorArea <- as.numeric(as.character(item220.dat1$CommonFloorArea))
-item220.dat1$CommonFloorArea[which(is.na(item220.dat1$CommonFloorArea))] <- 0
+item220B.dat1$CommonFloorArea <- as.numeric(as.character(item220B.dat1$CommonFloorArea))
+item220B.dat1$CommonFloorArea[which(is.na(item220B.dat1$CommonFloorArea))] <- 0
 
-item220.dat1$SiteArea <- as.numeric(as.character(item220.dat1$SiteArea))
+item220B.dat1$SiteArea <- as.numeric(as.character(item220B.dat1$SiteArea))
 
 #remove any NAs
-item220.dat2 <- item220.dat1[which(!is.na(item220.dat1$SiteArea)),]
+item220B.dat2 <- item220B.dat1[which(!is.na(item220B.dat1$SiteArea)),]
 
-unique(item220.dat2$Clean.Room)
+unique(item220B.dat2$Clean.Room)
 
 #subset to only relevant columns
-item220.merge <- left_join(rbsa.dat, item220.dat2)
-item220.merge <- item220.merge[which(!is.na(item220.merge$Clean.Room)),]
-item220.merge <- item220.merge[which(item220.merge$Clean.Room != "Parking"),]
-item220.merge <- item220.merge[which(item220.merge$BuildingType == "Multifamily"),]
-# item220.merge$Total.Area[which(is.na(item220.merge$Total.Area))] <- 0
+item220B.merge <- left_join(rbsa.dat, item220B.dat2)
+item220B.merge <- item220B.merge[which(!is.na(item220B.merge$Clean.Room)),]
+item220B.merge <- item220B.merge[which(item220B.merge$Clean.Room != "Parking"),]
+item220B.merge <- item220B.merge[which(item220B.merge$BuildingType == "Multifamily"),]
+# item220B.merge$Total.Area[which(is.na(item220B.merge$Total.Area))] <- 0
 
 
-item220.data <- weightedData(item220.merge[which(colnames(item220.merge) %notin% c("CK_Cadmus_ID.y"
+item220B.data <- weightedData(item220B.merge[which(colnames(item220B.merge) %notin% c("CK_Cadmus_ID.y"
                                                                                    ,"Clean.Room"
                                                                                    ,"SiteArea"
                                                                                    # ,"Total.Area"
-                                                                                   ,"CommonFloorArea"))])
-item220.data <- left_join(item220.data, item220.merge[which(colnames(item220.merge) %in% c("CK_Cadmus_ID"
+                                                                                   ,"CommonFloorArea"
+                                                                                   ,"Category"))])
+item220B.data <- left_join(item220B.data, item220B.merge[which(colnames(item220B.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Clean.Room"
                                                                                            ,"SiteArea"
                                                                                            # ,"Total.Area"
-                                                                                           ,"CommonFloorArea"))])
-item220.data$count <- 1
+                                                                                           ,"CommonFloorArea"
+                                                                                           ,"Category"))])
+stopifnot(nrow(item220B.merge) == nrow(item220B.data))
+item220B.data$count <- 1
 ##################################
 # weighted analysis
 ##################################
-item220.cast <- mean_two_groups(CustomerLevelData = item220.data
-                                  ,valueVariable = 'SiteArea'
-                                  ,byVariableRow = 'Clean.Room'
-                                  ,byVariableColumn = 'HomeType'
-                                  ,rowAggregate = "All Rooms"
-                                  ,columnAggregate = "All Sizes")
-names(item220.cast)
-item220.table <- data.frame("Room_Type"             = item220.cast$Clean.Room
-                            ,"Low_Rise_1.3_Mean"    = item220.cast$`Mean_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_SE"          = item220.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Mean"    = item220.cast$`Mean_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE"          = item220.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Mean" = NA #item220.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE"         = NA #item220.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Mean"       = item220.cast$`Mean_All Sizes`
-                            ,"All_Sizes_SE"         = item220.cast$`SE_All Sizes`
-                            ,"n"                    = item220.cast$`n_All Sizes`
-                            ,"Low_Rise_EB"          = item220.cast$`EB_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_EB"          = item220.cast$`EB_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_EB"         = NA #item220.cast$`EB_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_EB"         = item220.cast$`EB_All Sizes`
-                            )
+item220B.cast <- mean_two_groups(CustomerLevelData = item220B.data
+                                ,valueVariable = 'SiteArea'
+                                ,byVariableRow = 'Clean.Room'
+                                ,byVariableColumn = 'Category'
+                                ,rowAggregate = "All Rooms"
+                                ,columnAggregate = "Remove")
+names(item220B.cast)
+item220B.table <- data.frame("Room_Type"                 = item220B.cast$Clean.Room
+                            ,"PSE.Mean"                 = item220B.cast$Mean_PSE
+                            ,"PSE.SE"                   = item220B.cast$SE_PSE
+                            ,"PSE.n"                    = item220B.cast$n_PSE
+                            ,"PSE.King.County_Mean"     = item220B.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County_SE"       = item220B.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item220B.cast$n_PSE
+                            ,"PSE.Non.King.County_Mean" = item220B.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County_SE"   = item220B.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item220B.cast$n_PSE
+                            ,"2017.RBSA.PS_Mean"        = item220B.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS_SE"          = item220B.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"           = item220B.cast$`n_2017 RBSA PS`
+                            ,"PSE.EB"                   = item220B.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = item220B.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item220B.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item220B.cast$`EB_2017 RBSA PS`
+)
 
-levels(item220.table$Room_Type)
+levels(item220B.table$Room_Type)
 rowOrder <- c("Hall"
               ,"Kitchen"
               ,"Laundry"
@@ -160,33 +165,36 @@ rowOrder <- c("Hall"
               ,"Recreation"
               ,"Store"
               ,"All Rooms")
-item220.table <- item220.table %>% mutate(Room_Type = factor(Room_Type, levels = rowOrder)) %>% arrange(Room_Type)  
-item220.table <- data.frame(item220.table)
+item220B.table <- item220B.table %>% mutate(Room_Type = factor(Room_Type, levels = rowOrder)) %>% arrange(Room_Type)  
+item220B.table <- data.frame(item220B.table)
 
-exportTable(item220.table, "MF", "Table 12", weighted = TRUE)
+exportTable(item220B.table, "MF", "Table 12", weighted = TRUE, OS = T, osIndicator = "PSE")
 
 ##################################
 # unweighted analysis
 ##################################
-item220.cast <- mean_two_groups_unweighted(CustomerLevelData = item220.data
-                                ,valueVariable = 'SiteArea'
-                                ,byVariableRow = 'Clean.Room'
-                                ,byVariableColumn = 'HomeType'
-                                ,rowAggregate = "All Rooms"
-                                ,columnAggregate = "All Sizes")
+item220B.cast <- mean_two_groups_unweighted(CustomerLevelData = item220B.data
+                                            ,valueVariable = 'SiteArea'
+                                            ,byVariableRow = 'Clean.Room'
+                                            ,byVariableColumn = 'Category'
+                                            ,rowAggregate = "All Rooms"
+                                            ,columnAggregate = "Remove")
 
-item220.table <- data.frame("Room_Type"             = item220.cast$Clean.Room
-                            ,"Low_Rise_1.3_Mean"    = item220.cast$`Mean_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_SE"          = item220.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Mean"    = item220.cast$`Mean_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE"          = item220.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Mean" = NA #item220.cast$`Mean_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE"         = NA #item220.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Mean"       = item220.cast$`Mean_All Sizes`
-                            ,"All_Sizes_SE"         = item220.cast$`SE_All Sizes`
-                            ,"SampleSize"           = item220.cast$`n_All Sizes`)
+item220B.table <- data.frame("Room_Type"             = item220B.cast$Clean.Room
+                             ,"PSE.Mean"                 = item220B.cast$Mean_PSE
+                             ,"PSE.SE"                   = item220B.cast$SE_PSE
+                             ,"PSE.n"                    = item220B.cast$n_PSE
+                             ,"PSE.King.County_Mean"     = item220B.cast$`Mean_PSE KING COUNTY`
+                             ,"PSE.King.County_SE"       = item220B.cast$`SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"        = item220B.cast$n_PSE
+                             ,"PSE.Non.King.County_Mean" = item220B.cast$`Mean_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County_SE"   = item220B.cast$`SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"    = item220B.cast$n_PSE
+                             ,"2017.RBSA.PS_Mean"        = item220B.cast$`Mean_2017 RBSA PS`
+                             ,"2017.RBSA.PS_SE"          = item220B.cast$`SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS_n"           = item220B.cast$`n_2017 RBSA PS`)
 
-levels(item220.table$Room_Type)
+levels(item220B.table$Room_Type)
 rowOrder <- c("Hall"
               ,"Kitchen"
               ,"Laundry"
@@ -198,7 +206,7 @@ rowOrder <- c("Hall"
               ,"Recreation"
               ,"Store"
               ,"All Rooms")
-item220.table <- item220.table %>% mutate(Room_Type = factor(Room_Type, levels = rowOrder)) %>% arrange(Room_Type)  
-item220.table <- data.frame(item220.table)
+item220B.table <- item220B.table %>% mutate(Room_Type = factor(Room_Type, levels = rowOrder)) %>% arrange(Room_Type)  
+item220B.table <- data.frame(item220B.table)
 
-exportTable(item220.table, "MF", "Table 12", weighted = FALSE)
+exportTable(item220B.table, "MF", "Table 12", weighted = FALSE, OS = T, osIndicator = "PSE")

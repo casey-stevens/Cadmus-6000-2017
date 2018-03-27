@@ -1,3 +1,120 @@
+
+
+
+itemXXX.table <- data.frame("Room_Type"                 = itemXXX.cast$Clean.Room
+                            ,"PSE.Mean"                 = itemXXX.cast$Mean_PSE
+                            ,"PSE.SE"                   = itemXXX.cast$SE_PSE
+                            ,"PSE.n"                    = itemXXX.cast$n_PSE
+                            ,"PSE.King.County_Mean"     = itemXXX.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County_SE"       = itemXXX.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = itemXXX.final$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_Mean" = itemXXX.final$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County_SE"   = itemXXX.final$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = itemXXX.final$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_Mean"        = itemXXX.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS_SE"          = itemXXX.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"           = itemXXX.cast$`n_2017 RBSA PS`
+                            ,"PSE.EB"                   = itemXXX.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = itemXXX.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = itemXXX.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = itemXXX.cast$`EB_2017 RBSA PS`
+)
+
+itemXXX.table <- data.frame("Room_Type"                    = itemXXX.cast$Clean.Room
+                            ,"PSE.Percent"                 = itemXXX.cast$w.percent_PSE
+                            ,"PSE.SE"                      = itemXXX.cast$w.SE_PSE
+                            ,"PSE.n"                       = itemXXX.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = itemXXX.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = itemXXX.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = itemXXX.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = itemXXX.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = itemXXX.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = itemXXX.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = itemXXX.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = itemXXX.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"              = itemXXX.cast$`n_2017 RBSA PS`
+                            ,"PSE.EB"                      = itemXXX.cast$EB_PSE
+                            ,"PSE.King.County_EB"          = itemXXX.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"      = itemXXX.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"             = itemXXX.cast$`EB_2017 RBSA PS`
+)
+
+itemXXX.table <- data.frame("Room_Type"                    = itemXXX.cast$Clean.Room
+                            ,"PSE.Percent"                 = itemXXX.cast$Percent_PSE
+                            ,"PSE.SE"                      = itemXXX.cast$SE_PSE
+                            ,"PSE.n"                       = itemXXX.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = itemXXX.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = itemXXX.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = itemXXX.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = itemXXX.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = itemXXX.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = itemXXX.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = itemXXX.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = itemXXX.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"              = itemXXX.cast$`n_2017 RBSA PS`
+)
+
+
+# ,OS = T, osIndicator = "PSE"
+
+
+
+unique(itemXXX.table$Category)
+rowOrder <- c("PSE"
+              ,"PSE KING COUNTY"
+              ,"PSE NON-KING COUNTY"
+              ,"2017 RBSA PS")
+itemXXX.table <- itemXXX.table %>% mutate(Category = factor(Category, levels = rowOrder)) %>% arrange(Category)  
+itemXXX.table <- data.frame(itemXXX.table[which(names(itemXXX.table) != "BuildingType")])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #cast the melt example code
 item80.cast <- dcast(setDT(item80.tmp)
                      ,formula = CK_Cadmus_ID ~ Type

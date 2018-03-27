@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
@@ -65,9 +65,11 @@ item225.merge <- item225.merge[which(item225.merge$Ownership != "N/A"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item225.data <- weightedData(item225.merge[-which(colnames(item225.merge) %in% c("Ownership"))])
+item225.data <- weightedData(item225.merge[-which(colnames(item225.merge) %in% c("Ownership"
+                                                                                 ,"Category"))])
 item225.data <- left_join(item225.data, item225.merge[which(colnames(item225.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ownership"))])
+                                                                                           ,"Ownership"
+                                                                                           ,"Category"))])
 
 item225.data$count <- 1
 #######################
@@ -75,87 +77,61 @@ item225.data$count <- 1
 #######################
 item225.final <- proportionRowsAndColumns1(CustomerLevelData = item225.data
                                            ,valueVariable    = 'count'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'Ownership'
                                            ,aggregateColumnName = "Remove")
-item225.final <- item225.final[which(item225.final$HomeType != "Remove"),]
-# item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
-
-
-item225.all.sizes <- proportions_one_group(CustomerLevelData = item225.data
-                                              ,valueVariable = 'count'
-                                              ,groupingVariable = 'Ownership'
-                                              ,total.name = "All Sizes"
-                                              ,columnName = "HomeType"
-                                              ,weighted = TRUE
-                                              ,two.prop.total = TRUE)
-# item225.all.sizes <- item225.all.sizes[which(item225.all.sizes$Ownership != "Total"),]
-
-item225.final <- rbind.data.frame(item225.final, item225.all.sizes, stringsAsFactors = F)
+item225.final <- item225.final[which(item225.final$Category != "Remove"),]
 
 item225.cast <- dcast(setDT(item225.final)
-                      ,formula = Ownership ~ HomeType
+                      ,formula = Ownership ~ Category
                       ,value.var = c("w.percent","w.SE", "count","n","N", "EB"))
 names(item225.cast)
 item225.table <- data.frame("Ownership"                = item225.cast$Ownership
-                            ,"Low_Rise_1.3_Percent"    = item225.cast$`w.percent_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_SE"             = item225.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_n"              = item225.cast$`n_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Percent"    = item225.cast$`w.percent_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE"             = item225.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_n"              = item225.cast$`n_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Percent" = NA#item225.cast$`w.percent_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE"            = NA#item225.cast$`w.SE_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_n"             = NA#item225.cast$
-                            ,"All_Sizes_Percent"       = item225.cast$`w.percent_All Sizes`
-                            ,"All_Sizes_SE"            = item225.cast$`w.SE_All Sizes`
-                            ,"All_Sizes_n"             = item225.cast$`n_All Sizes`
-                            ,"Low_Rise_EB"             = item225.cast$`EB_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_EB"             = item225.cast$`EB_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_EB"            = NA#item225.cast$`EB_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_EB"            = item225.cast$`EB_All Sizes`)
+                            ,"PSE.Percent"                 = item225.cast$w.percent_PSE
+                            ,"PSE.SE"                      = item225.cast$w.SE_PSE
+                            ,"PSE.n"                       = item225.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = item225.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = item225.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = item225.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = item225.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = item225.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = item225.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = item225.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = item225.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"              = item225.cast$`n_2017 RBSA PS`
+                            ,"PSE.EB"                      = item225.cast$EB_PSE
+                            ,"PSE.King.County_EB"          = item225.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"      = item225.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"             = item225.cast$`EB_2017 RBSA PS`)
 
-exportTable(item225.table, "MF", "Table 17", weighted = TRUE)
+exportTable(item225.table, "MF", "Table 17", weighted = TRUE,OS = T, osIndicator = "PSE")
 #######################
 # unweighted Analysis
 #######################
 item225.final <- proportions_two_groups_unweighted(CustomerLevelData = item225.data
                                            ,valueVariable    = 'count'
-                                           ,columnVariable   = 'HomeType'
+                                           ,columnVariable   = 'Category'
                                            ,rowVariable      = 'Ownership'
                                            ,aggregateColumnName = "Remove")
-item225.final <- item225.final[which(item225.final$HomeType != "Remove"),]
-# item225.final <- item225.final[which(item225.final$Ownership != "Total"),]
-
-
-item225.all.sizes <- proportions_one_group(CustomerLevelData = item225.data
-                                              ,valueVariable = 'count'
-                                              ,groupingVariable = 'Ownership'
-                                              ,total.name = "All Sizes"
-                                              ,columnName = "HomeType"
-                                              ,weighted = FALSE
-                                              ,two.prop.total = TRUE)
-# item225.all.sizes <- item225.all.sizes[which(item225.all.sizes$Ownership != "Total"),]
-
-item225.final <- rbind.data.frame(item225.final, item225.all.sizes, stringsAsFactors = F)
+item225.final <- item225.final[which(item225.final$Category != "Remove"),]
 
 item225.cast <- dcast(setDT(item225.final)
-                      ,formula = Ownership ~ HomeType
+                      ,formula = Ownership ~ Category
                       ,value.var = c("Percent","SE", "Count","n"))
 
 item225.table <- data.frame("Ownership"                = item225.cast$Ownership
-                            ,"Low_Rise_1.3_Percent"    = item225.cast$`Percent_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_SE"             = item225.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low_Rise_n"              = item225.cast$`n_Apartment Building (3 or fewer floors)`
-                            ,"Mid_Rise_4.6_Percent"    = item225.cast$`Percent_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_SE"             = item225.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid_Rise_n"              = item225.cast$`n_Apartment Building (4 to 6 floors)`
-                            ,"High_Rise_7Plus_Percent" = NA#item225.cast$`Percent_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_SE"            = NA#item225.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High_Rise_n"             = NA#item225.cast$`n_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Percent"       = item225.cast$`Percent_All Sizes`
-                            ,"All_Sizes_SE"            = item225.cast$`SE_All Sizes`
-                            ,"All_Sizes_n"             = item225.cast$`n_All Sizes`)
+                            ,"PSE.Percent"                 = item225.cast$Percent_PSE
+                            ,"PSE.SE"                      = item225.cast$SE_PSE
+                            ,"PSE.n"                       = item225.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = item225.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = item225.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = item225.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = item225.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = item225.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = item225.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = item225.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = item225.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS_n"              = item225.cast$`n_2017 RBSA PS`)
 
 
-exportTable(item225.table, "MF", "Table 17", weighted = FALSE)
+exportTable(item225.table, "MF", "Table 17", weighted = FALSE,OS = T, osIndicator = "PSE")

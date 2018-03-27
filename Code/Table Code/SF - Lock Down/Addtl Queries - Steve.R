@@ -321,7 +321,8 @@ query7.final.MH <- query7.final[which(query7.final$BuildingType == "Manufactured
 ################################################################################################
 #subset to columns needed for analysis
 query8.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
-                                                                   ,"Provides"))]
+                                                                   ,"Provides"
+                                                                   ,"Generic"))]
 query8.dat1 <- unique(query8.dat[grep("cooling",query8.dat$Provides, ignore.case = T),])
 which(duplicated(query8.dat1$CK_Cadmus_ID))
 query8.dat1.1 <- query8.dat1[-which(duplicated(query8.dat1$CK_Cadmus_ID)),]
@@ -333,14 +334,18 @@ query8.dat2$Ind <- 0
 query8.dat2$Ind[which(!is.na(query8.dat2$Provides))] <- 1
 unique(query8.dat2$Ind)
 
+unique(query8.dat2$Generic)
+query8.dat2 <- query8.dat2[-grep("mini|package|evaporative",query8.dat2$Generic, ignore.case = T),]
 ##########################################
 # add pop and sample sizes by strata
 ##########################################
 query8.data <- weightedData(query8.dat2[-which(colnames(query8.dat2) %in% c("Provides"
-                                                                            ,"Ind"))])
+                                                                            ,"Ind"
+                                                                            ,"Generic"))])
 query8.data <- left_join(query8.data, query8.dat2[which(colnames(query8.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"Provides"
-                                                                                     ,"Ind"))])
+                                                                                     ,"Ind"
+                                                                                     ,"Generic"))])
 query8.data$Count <- 1
 
 
