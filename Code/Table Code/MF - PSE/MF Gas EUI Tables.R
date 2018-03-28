@@ -54,13 +54,13 @@ billing.combined <- merge(x = billing.dat3,
 billing.combined$UnitsFinal <- billing.combined$Total.Units.in.Building
 
 # Merge on the RBSA file 
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 #Manually Fix some CK_Building_IDs
 rbsa.dat$CK_Building_ID[which(rbsa.dat$CK_Cadmus_ID == "BPM53895 OS BPA")] <- "BLDG_New_3"
 rbsa.dat$CK_Building_ID[which(rbsa.dat$CK_Cadmus_ID == "RM1684")] <- "BLDG_958942DC-E293-0A4D-BFE3-9BF9EBA4211B"
 rbsa.dat$CK_Building_ID[which(rbsa.dat$CK_Cadmus_ID == "RS2071")] <- "BLDG_68C13530-9E52-4C34-90F3-7D9EEA375EF9"
 BillingFinal <-left_join(rbsa.dat, billing.combined, by = c("CK_Building_ID" = "PK_BuildingID"))
-BillingFinalClean <- BillingFinal[-which(duplicated(BillingFinal$CK_Building_ID)),]
+BillingFinalClean <- BillingFinal#[-which(duplicated(BillingFinal$CK_Building_ID)),]
 
 ###################################################################################################################
 # ITEM 309: AVERAGE ANNUAL TOTAL RESIDENTIAL GAS THERMS PER RESIDENTIAL UNIT BY BUILDING SIZE FOR BUILDINGS WITH GAS SERVICE  (Table 103)
@@ -80,24 +80,26 @@ keep.cols <-
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
     "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalGasUsage", "GasPerUnit")
 
-item309.data <- weightedData(item309.dat1[which(colnames(item309.dat1) %notin% c(keep.cols))])
+item309.data <- weightedData(item309.dat1[which(colnames(item309.dat1) %notin% c(keep.cols,"Category"))])
 
-item309.data <- left_join(item309.data, item309.dat1[which(colnames(item309.dat1) %in% c("CK_Building_ID",keep.cols))])
+item309.data <- left_join(item309.data, item309.dat1[which(colnames(item309.dat1) %in% c("CK_Building_ID",keep.cols,"Category"))])
 item309.data$count <- 1
 
 item309.final <- mean_one_group(CustomerLevelData = item309.data
                                 ,valueVariable = 'GasPerUnit'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = 'Category'
+                                ,aggregateRow = "Remove")
+item309.final <- item309.final[which(item309.final$Category != "Remove"),]
 
-exportTable(item309.final, "MF", "Table 103", weighted = TRUE)
+exportTable(item309.final, "MF", "Table 103", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 item309.final <- mean_one_group_unweighted(CustomerLevelData = item309.data
                                            ,valueVariable = 'GasPerUnit'
-                                           ,byVariable = 'HomeType'
-                                           ,aggregateRow = "All Sizes")
+                                           ,byVariable = 'Category'
+                                           ,aggregateRow = "Remove")
+item309.final <- item309.final[which(item309.final$Category != "Remove"),]
 
-exportTable(item309.final, "MF", "Table 103", weighted = FALSE)
+exportTable(item309.final, "MF", "Table 103", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 ###################################################################################################################
 # ITEM 310: AVERAGE ANNUAL TOTAL RESIDENTIAL GAS THERMS PER RESIDENTIAL UNIT BY BUILDING SIZE FOR BUILDINGS WITH GAS SERVICE  (Table 104)
@@ -121,21 +123,23 @@ keep.cols <-
     "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalGasUsage", "EUI")
 
 
-item310.data <- weightedData(item310.dat2[which(colnames(item310.dat2) %notin% c(keep.cols))])
+item310.data <- weightedData(item310.dat2[which(colnames(item310.dat2) %notin% c(keep.cols,"Category"))])
 
-item310.data <- left_join(item310.data, item310.dat2[which(colnames(item310.dat2) %in% c("CK_Building_ID",keep.cols))])
+item310.data <- left_join(item310.data, item310.dat2[which(colnames(item310.dat2) %in% c("CK_Building_ID",keep.cols,"Category"))])
 item310.data$count <- 1
 
 item310.final <- mean_one_group(CustomerLevelData = item310.data
                                 ,valueVariable = 'EUI'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = 'Category'
+                                ,aggregateRow = "Remove")
+item310.final <- item310.final[which(item310.final$Category != "Remove"),]
 
-exportTable(item310.final, "MF", "Table 104", weighted = TRUE)
+exportTable(item310.final, "MF", "Table 104", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 item310.final <- mean_one_group_unweighted(CustomerLevelData = item310.data
                                            ,valueVariable = 'EUI'
-                                           ,byVariable = 'HomeType'
-                                           ,aggregateRow = "All Sizes")
+                                           ,byVariable = 'Category'
+                                           ,aggregateRow = "Remove")
+item310.final <- item310.final[which(item310.final$Category != "Remove"),]
 
-exportTable(item310.final, "MF", "Table 104", weighted = FALSE)
+exportTable(item310.final, "MF", "Table 104", weighted = FALSE,OS = T, osIndicator = "PSE")

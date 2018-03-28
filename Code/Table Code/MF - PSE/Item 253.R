@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.MF <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID,ignore.case = T),]
 
 #Read in data for analysis
@@ -32,7 +32,7 @@ mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 
 #############################################################################################
-#Item 253: MF table 42
+#Item 253: MF table 45
 #############################################################################################
 item253.dat <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_SiteID"
                                                                     ,"Generic"
@@ -43,18 +43,20 @@ item253.dat1 <- item253.dat[grep("water heat", item253.dat$Generic,ignore.case =
 item253.dat2 <- left_join(rbsa.dat.MF, item253.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
 
 item253.dat3 <- item253.dat2[which(!is.na(item253.dat2$Generic)),]
-
+item253.dat3 <- item253.dat3[which(item253.dat3$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item253.data <- weightedData(item253.dat3[which(colnames(item253.dat3) %notin% c("Generic"
                                                                                  ,"System.Type"
-                                                                                 ,"DHW.Fuel"))])
+                                                                                 ,"DHW.Fuel"
+                                                                                 ,"Category"))])
 
 item253.data <- left_join(item253.data, item253.dat3[which(colnames(item253.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"Generic"
                                                                                          ,"System.Type"
-                                                                                         ,"DHW.Fuel"))])
+                                                                                         ,"DHW.Fuel"
+                                                                                         ,"Category"))])
 item253.data$count <- 1
 
 
@@ -85,13 +87,13 @@ names(item253.cast)
 item253.table <- data.frame("System.Type"          = item253.cast$System.Type
                             ,"Percent.Electric"    = item253.cast$w.percent_Electric
                             ,"SE.Electric"         = item253.cast$w.SE_Electric
-                            ,"Percent.Natrual.Gas" = item253.cast$`w.percent_Natural Gas`
-                            ,"SE.Natrual.Gas"      = item253.cast$`w.SE_Natural Gas`
+                            ,"Percent.Natrual.Gas" = NA#item253.cast$`w.percent_Natural Gas`
+                            ,"SE.Natrual.Gas"      = NA#item253.cast$`w.SE_Natural Gas`
                             ,"Percent.Unknown"     = item253.cast$w.percent_Unknown
                             ,"SE.Unknown"          = item253.cast$w.SE_Unknown
                             ,"n"                   = item253.cast$n_Total
                             ,"EB.Electric"         = item253.cast$EB_Electric
-                            ,"EB.Natrual.Gas"      = item253.cast$`EB_Natural Gas`
+                            ,"EB.Natrual.Gas"      = NA#item253.cast$`EB_Natural Gas`
                             ,"EB.Unknown"          = item253.cast$EB_Unknown)
 levels(item253.table$System.Type)
 rowOrder <- c("Storage Water Heater"
@@ -99,7 +101,7 @@ rowOrder <- c("Storage Water Heater"
 item253.table <- item253.table %>% mutate(System.Type = factor(System.Type, levels = rowOrder)) %>% arrange(System.Type)  
 item253.table <- data.frame(item253.table)
 
-exportTable(item253.table, "MF", "Table 45", weighted = TRUE)
+exportTable(item253.table, "MF", "Table 45", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #########################
 # weighted analysis
@@ -128,8 +130,8 @@ names(item253.cast)
 item253.table <- data.frame("System.Type" = item253.cast$System.Type
                             ,"Percent.Electric" = item253.cast$Percent_Electric
                             ,"SE.Electric"      = item253.cast$SE_Electric
-                            ,"Percent.Natrual.Gas" = item253.cast$`Percent_Natural Gas`
-                            ,"SE.Natrual.Gas"      = item253.cast$`SE_Natural Gas`
+                            ,"Percent.Natrual.Gas" = NA#item253.cast$`Percent_Natural Gas`
+                            ,"SE.Natrual.Gas"      = NA#item253.cast$`SE_Natural Gas`
                             ,"Percent.Unknown" = item253.cast$Percent_Unknown
                             ,"SE.Unknown"      = item253.cast$SE_Unknown
                             ,"n"                 = item253.cast$n_Total)
@@ -139,5 +141,5 @@ rowOrder <- c("Storage Water Heater"
 item253.table <- item253.table %>% mutate(System.Type = factor(System.Type, levels = rowOrder)) %>% arrange(System.Type)  
 item253.table <- data.frame(item253.table)
 
-exportTable(item253.table, "MF", "Table 45", weighted = FALSE)
+exportTable(item253.table, "MF", "Table 45", weighted = FALSE,OS = T, osIndicator = "PSE")
 

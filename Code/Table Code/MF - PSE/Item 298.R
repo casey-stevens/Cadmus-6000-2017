@@ -22,10 +22,10 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 
 #Read in data for analysis
-# sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
@@ -66,17 +66,19 @@ unique(item298.dat3$Dryer.Loads.per.Washer.Load)
 item298.dat4 <- item298.dat3[which(item298.dat3$Clothes.Washer.Loads.per.Week != "No Washing Machine"),]
 item298.dat4$Clothes.Washer.Loads.per.Week <- as.numeric(as.character(item298.dat4$Clothes.Washer.Loads.per.Week))
 item298.dat4$Dryer.Loads.per.Washer.Load   <- as.numeric(as.character(item298.dat4$Dryer.Loads.per.Washer.Load))
-
+item298.dat4 <- item298.dat4[which(item298.dat4$Category == "PSE"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 item298.data <- weightedData(item298.dat4[-which(colnames(item298.dat4) %in% c("CK_Site_ID"
                                                                               ,"Clothes.Washer.Loads.per.Week"
-                                                                              ,"Dryer.Loads.per.Washer.Load"))])
+                                                                              ,"Dryer.Loads.per.Washer.Load"
+                                                                              ,"Category"))])
 item298.data <- left_join(item298.data, item298.dat4[which(colnames(item298.dat4) %in% c("CK_Cadmus_ID"
                                                                                        ,"CK_Site_ID"
                                                                                        ,"Clothes.Washer.Loads.per.Week"
-                                                                                       ,"Dryer.Loads.per.Washer.Load"))])
+                                                                                       ,"Dryer.Loads.per.Washer.Load"
+                                                                                       ,"Category"))])
 item298.data$count <- 1
 colnames(item298.data)
 
@@ -94,7 +96,7 @@ item298.dryer.loads <- mean_one_group(CustomerLevelData = item298.data
 item298.final <- rbind.data.frame(item298.washer.loads, item298.dryer.loads, stringsAsFactors = F)
 item298.final.MF <- item298.final[which(colnames(item298.final) %notin% c("BuildingType"))]
 
-exportTable(item298.final.MF, "MF", "Table 92", weighted = TRUE)
+exportTable(item298.final.MF, "MF", "Table 92", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # unweighted Analysis
@@ -110,4 +112,4 @@ item298.dryer.loads <- mean_one_group_unweighted(CustomerLevelData = item298.dat
 item298.final <- rbind.data.frame(item298.washer.loads, item298.dryer.loads, stringsAsFactors = F)
 item298.final.MF <- item298.final[which(colnames(item298.final) %notin% c("BuildingType"))]
 
-exportTable(item298.final.MF, "MF", "Table 92", weighted = FALSE)
+exportTable(item298.final.MF, "MF", "Table 92", weighted = FALSE,OS = T, osIndicator = "PSE")

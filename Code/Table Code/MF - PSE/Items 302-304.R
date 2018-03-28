@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 # appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -84,7 +84,8 @@ item302.data <- weightedData(item302.dat4[which(colnames(item302.dat4) %notin% c
                                                                                  ,"TV.Wattage"
                                                                                  ,"Room"
                                                                                  ,"Clean.Room"
-                                                                                 ,"Age.Cat"))])
+                                                                                 ,"Age.Cat"
+                                                                                 ,"Category"))])
 
 item302.data <- left_join(item302.data, item302.dat4[which(colnames(item302.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
@@ -94,18 +95,40 @@ item302.data <- left_join(item302.data, item302.dat4[which(colnames(item302.dat4
                                                                                          ,"TV.Wattage"
                                                                                          ,"Room"
                                                                                          ,"Clean.Room"
-                                                                                         ,"Age.Cat"))])
+                                                                                         ,"Age.Cat"
+                                                                                         ,"Category"))])
 item302.data$count <- 1
 
 
 ######################
 # weighted analysis
 ######################
-item302.final <- mean_one_group(CustomerLevelData = item302.data
-                                ,valueVariable = 'TV.Wattage'
-                                ,byVariable = 'Age.Cat'
-                                ,aggregateRow = "All Vintages")
-item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType"))]
+item302.cast <- mean_two_groups(CustomerLevelData = item302.data
+                                 ,valueVariable = "TV.Wattage"
+                                 ,byVariableRow = "Age.Cat"
+                                 ,byVariableColumn = "Category"
+                                 ,columnAggregate = "Remove"
+                                 ,rowAggregate = "All Vintages")
+
+
+item302.final <- data.frame("Age.Cat"                 = item302.cast$Age.Cat
+                            ,"PSE.Mean"                 = item302.cast$Mean_PSE
+                            ,"PSE.SE"                   = item302.cast$SE_PSE
+                            ,"PSE.n"                    = item302.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item302.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item302.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item302.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item302.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item302.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item302.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item302.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item302.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item302.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                   = item302.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = item302.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item302.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item302.cast$`EB_2017 RBSA PS`
+)
 
 unique(item302.final$Age.Cat)
 rowOrder <- c("Pre 1990"
@@ -120,15 +143,32 @@ item302.final <- item302.final %>% mutate(Age.Cat = factor(Age.Cat, levels = row
 item302.final <- data.frame(item302.final)
 
 
-exportTable(item302.final, "MF", "Table 96", weighted = TRUE)
+exportTable(item302.final, "MF", "Table 96", weighted = TRUE,OS = T, osIndicator = "PSE")
 ######################
 # unweighted analysis
 ######################
-item302.final <- mean_one_group_unweighted(CustomerLevelData = item302.data
-                                ,valueVariable = 'TV.Wattage'
-                                ,byVariable = 'Age.Cat'
-                                ,aggregateRow = "All Vintages")
-item302.final <- item302.final[which(colnames(item302.final) %notin% c("BuildingType"))]
+item302.cast <- mean_two_groups_unweighted(CustomerLevelData = item302.data
+                                ,valueVariable = "TV.Wattage"
+                                ,byVariableRow = "Age.Cat"
+                                ,byVariableColumn = "Category"
+                                ,columnAggregate = "Remove"
+                                ,rowAggregate = "All Vintages")
+
+
+item302.final <- data.frame("Age.Cat"                   = item302.cast$Age.Cat
+                            ,"PSE.Mean"                 = item302.cast$Mean_PSE
+                            ,"PSE.SE"                   = item302.cast$SE_PSE
+                            ,"PSE.n"                    = item302.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item302.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item302.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item302.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item302.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item302.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item302.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item302.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item302.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item302.cast$`n_2017 RBSA PS`
+)
 
 unique(item302.final$Age.Cat)
 rowOrder <- c("Pre 1990"
@@ -142,7 +182,7 @@ rowOrder <- c("Pre 1990"
 item302.final <- item302.final %>% mutate(Age.Cat = factor(Age.Cat, levels = rowOrder)) %>% arrange(Age.Cat)  
 item302.final <- data.frame(item302.final)
 
-exportTable(item302.final, "MF", "Table 96", weighted = FALSE)
+exportTable(item302.final, "MF", "Table 96", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -180,7 +220,7 @@ unique(item303.dat2$TV.Screen.Cat)
 names(item303.dat2)
 
 item303.dat3 <- item303.dat2[which(!is.na(item303.dat2$Age.Cat)),]
-
+item303.dat3 <- item303.dat3[which(item303.dat3$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -192,7 +232,8 @@ item303.data <- weightedData(item303.dat3[which(colnames(item303.dat3) %notin% c
                                                                                  ,"Room"
                                                                                  ,"Clean.Room"
                                                                                  ,"Age.Cat"
-                                                                                 ,"TV.Screen.Cat"))])
+                                                                                 ,"TV.Screen.Cat"
+                                                                                 ,"Category"))])
 
 item303.data <- left_join(item303.data, item303.dat3[which(colnames(item303.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
@@ -203,7 +244,8 @@ item303.data <- left_join(item303.data, item303.dat3[which(colnames(item303.dat3
                                                                                          ,"Room"
                                                                                          ,"Clean.Room"
                                                                                          ,"Age.Cat"
-                                                                                         ,"TV.Screen.Cat"))])
+                                                                                         ,"TV.Screen.Cat"
+                                                                                         ,"Category"))])
 item303.data$count <- 1
 
 
@@ -240,8 +282,8 @@ item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"LED_SE"           = item303.cast$w.SE_LED
                             ,"LCD_Percent"      = item303.cast$w.percent_LCD
                             ,"LCD_SE"           = item303.cast$w.SE_LCD
-                            ,"LED_LCD_Percent"  = item303.cast$`w.percent_LED LCD`
-                            ,"LED_LCD_SE"       = item303.cast$`w.SE_LED LCD`
+                            # ,"LED_LCD_Percent"  = item303.cast$`w.percent_LED LCD`
+                            # ,"LED_LCD_SE"       = item303.cast$`w.SE_LED LCD`
                             ,"Plasma_Percent"   = item303.cast$w.percent_Plasma
                             ,"Plasma_SE"        = item303.cast$w.SE_Plasma
                             ,"Other_Percent"    = item303.cast$w.percent_Other
@@ -250,7 +292,7 @@ item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"CRT_EB"           = item303.cast$EB_CRT
                             ,"LED_EB"           = item303.cast$EB_LED
                             ,"LCD_EB"           = item303.cast$EB_LCD
-                            ,"LED_LCD_EB"       = item303.cast$`EB_LED LCD`
+                            # ,"LED_LCD_EB"       = item303.cast$`EB_LED LCD`
                             ,"Plasma_EB"        = item303.cast$EB_Plasma
                             ,"Other_EB"         = item303.cast$EB_Other
                             )
@@ -265,7 +307,7 @@ rowOrder <- c("Pre 1990"
 item303.table <- item303.table %>% mutate(Equipment_Vintage = factor(Equipment_Vintage, levels = rowOrder)) %>% arrange(Equipment_Vintage)  
 item303.table <- data.frame(item303.table)
 
-exportTable(item303.table, "MF", "Table 97", weighted = TRUE)
+exportTable(item303.table, "MF", "Table 97", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
@@ -302,8 +344,8 @@ item303.table <- data.frame("Equipment_Vintage" = item303.cast$Age.Cat
                             ,"LED_SE"           = item303.cast$SE_LED
                             ,"LCD_Percent"      = item303.cast$Percent_LCD
                             ,"LCD_SE"           = item303.cast$SE_LCD
-                            ,"LED_LCD_Percent"  = item303.cast$`Percent_LED LCD`
-                            ,"LED_LCD_SE"       = item303.cast$`SE_LED LCD`
+                            # ,"LED_LCD_Percent"  = item303.cast$`Percent_LED LCD`
+                            # ,"LED_LCD_SE"       = item303.cast$`SE_LED LCD`
                             ,"Plasma_Percent"   = item303.cast$Percent_Plasma
                             ,"Plasma_SE"        = item303.cast$SE_Plasma
                             ,"Other_Percent"    = item303.cast$Percent_Other
@@ -321,7 +363,7 @@ rowOrder <- c("Pre 1990"
 item303.table <- item303.table %>% mutate(Equipment_Vintage = factor(Equipment_Vintage, levels = rowOrder)) %>% arrange(Equipment_Vintage)  
 item303.table <- data.frame(item303.table)
 
-exportTable(item303.table, "MF", "Table 97", weighted = FALSE)
+exportTable(item303.table, "MF", "Table 97", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -336,7 +378,7 @@ item304.dat <- rbsa.app.MF[which(rbsa.app.MF$Type == "Television"),]
 
 #subset to remove any missing room types
 item304.dat1 <- item304.dat[which(!(is.na(item304.dat$Clean.Room))),]
-
+item304.dat1 <- item304.dat1[which(item304.dat1$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -346,7 +388,8 @@ item304.data <- weightedData(item304.dat1[which(colnames(item304.dat1) %notin% c
                                                                                  ,"TV.Screen.Type"
                                                                                  ,"TV.Wattage"
                                                                                  ,"Room"
-                                                                                 ,"Clean.Room"))])
+                                                                                 ,"Clean.Room"
+                                                                                 ,"Category"))])
 
 item304.data <- left_join(item304.data, item304.dat1[which(colnames(item304.dat1) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
@@ -355,7 +398,8 @@ item304.data <- left_join(item304.data, item304.dat1[which(colnames(item304.dat1
                                                                                          ,"TV.Screen.Type"
                                                                                          ,"TV.Wattage"
                                                                                          ,"Room"
-                                                                                         ,"Clean.Room"))])
+                                                                                         ,"Clean.Room"
+                                                                                         ,"Category"))])
 item304.data$count <- 1
 
 
@@ -367,7 +411,7 @@ item304.final <- proportions_one_group(CustomerLevelData = item304.data
                                           ,groupingVariable = 'Clean.Room'
                                           ,total.name = "All Room Types"
                                           ,weighted = TRUE)
-exportTable(item304.final, "MF", "Table 98", weighted = TRUE)
+exportTable(item304.final, "MF", "Table 98", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # unweighted analysis
@@ -377,4 +421,4 @@ item304.final <- proportions_one_group(CustomerLevelData = item304.data
                                           ,groupingVariable = 'Clean.Room'
                                           ,total.name = "All Room Types"
                                           ,weighted = FALSE)
-exportTable(item304.final, "MF", "Table 98", weighted = FALSE)
+exportTable(item304.final, "MF", "Table 98", weighted = FALSE,OS = T, osIndicator = "PSE")

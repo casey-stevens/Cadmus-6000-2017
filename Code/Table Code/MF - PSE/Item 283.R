@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 
 #Read in data for analysis
 # sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
@@ -77,14 +77,16 @@ item283.data <- weightedData(item283.dat3[which(colnames(item283.dat3) %notin% c
                                                                                  ,"Cooling.Setpoint"
                                                                                  ,"Cooling.at.Night"
                                                                                  ,"Heating.at.Night"
-                                                                                 ,"Heating.Setpoint"))])
+                                                                                 ,"Heating.Setpoint"
+                                                                                 ,"Category"))])
 
 item283.data <- left_join(item283.data, item283.dat3[which(colnames(item283.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
                                                                                          ,"Cooling.Setpoint"
                                                                                          ,"Cooling.at.Night"
                                                                                          ,"Heating.at.Night"
-                                                                                         ,"Heating.Setpoint"))])
+                                                                                         ,"Heating.Setpoint"
+                                                                                         ,"Category"))])
 item283.data$count <- 1
 
 
@@ -94,19 +96,22 @@ item283.data$count <- 1
 
 item283.weighted.heat.setpoint <- mean_one_group(CustomerLevelData = item283.data
                                                  ,valueVariable = 'Heating.Setpoint'
-                                                 ,byVariable = 'BuildingType'
-                                                 ,aggregateRow = "All Types")
-item283.weighted.heat.setpoint$Category <- "Heating.Setpoint"
-item283.weighted.heat.setpoint <- item283.weighted.heat.setpoint[which(colnames(item283.weighted.heat.setpoint) %notin% c("Precision","n_h","N_h","N"))]
+                                                 ,byVariable = 'Category'
+                                                 ,aggregateRow = "Remove")
+item283.weighted.heat.setpoint <- item283.weighted.heat.setpoint[which(item283.weighted.heat.setpoint$Category != "Remove"),]
+item283.weighted.heat.setpoint$Thermostat.Category <- "Heating.Setpoint"
+item283.weighted.heat.setpoint <- item283.weighted.heat.setpoint[which(colnames(item283.weighted.heat.setpoint) %notin% c("Precision","n_h","N_h","N","Count","count"))]
 
 
 
 #### unweighted
-item283.unweighted.heat.setpoint <- summarise(item283.data
-                                              ,Category = "Heating.Setpoint"
-                                              ,Mean = mean(Heating.Setpoint,na.rm = T)
-                                              ,SE = sd(Heating.Setpoint,na.rm = T) / sqrt(length(unique(CK_Cadmus_ID)))
-                                              ,n = length(unique(CK_Cadmus_ID)))
+item283.unw.heat.setpoint <- mean_one_group_unweighted(CustomerLevelData = item283.data
+                                                            ,valueVariable = 'Heating.Setpoint'
+                                                            ,byVariable = 'Category'
+                                                            ,aggregateRow = "Remove")
+item283.unw.heat.setpoint <- item283.unw.heat.setpoint[which(item283.unw.heat.setpoint$Category != "Remove"),]
+item283.unw.heat.setpoint$Thermostat.Category <- "Heating.Setpoint"
+item283.unw.heat.setpoint <- item283.unw.heat.setpoint[which(colnames(item283.unw.heat.setpoint) %notin% c("Precision","n_h","N_h","N","Count","count"))]
 
 
 
@@ -128,7 +133,8 @@ item283.data <- weightedData(item283.dat5[which(colnames(item283.dat5) %notin% c
                                                                                  ,"Heating.at.Night"
                                                                                  ,"Heating.Setpoint"
                                                                                  ,"Ind"
-                                                                                 ,"count"))])
+                                                                                 ,"count"
+                                                                                 ,"Category"))])
 
 item283.data <- left_join(item283.data, item283.dat5[which(colnames(item283.dat5) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
@@ -137,27 +143,34 @@ item283.data <- left_join(item283.data, item283.dat5[which(colnames(item283.dat5
                                                                                          ,"Heating.at.Night"
                                                                                          ,"Heating.Setpoint"
                                                                                          ,"Ind"
-                                                                                         ,"count"))])
+                                                                                         ,"count"
+                                                                                         ,"Category"))])
 item283.data$count <- 1
 
 item283.data$Count <- 1
 ######################
 # weighted analysis
 ######################
+item283.data$State <- item283.data$Category
 item283.weighted.reported.setback <- proportions_one_group(CustomerLevelData = item283.data
                                                               ,valueVariable = 'Ind'
-                                                              ,groupingVariable = 'BuildingType'
-                                                              ,total.name = "All Types")
-item283.weighted.reported.setback$Category <- "Percent Heating Setback"
-item283.weighted.reported.setback <- item283.weighted.reported.setback[which(colnames(item283.weighted.reported.setback) %notin% c("Precision","n_h","N_h","count","N"))]
-names(item283.weighted.reported.setback)[which(names(item283.weighted.reported.setback) %in% c("w.percent","w.SE"))] <- c("Mean","SE")
+                                                              ,groupingVariable = 'State'
+                                                              ,total.name = "Remove")
+item283.weighted.reported.setback <- item283.weighted.reported.setback[which(item283.weighted.reported.setback$State != "Total"),]
+item283.weighted.reported.setback$Thermostat.Category <- "Percent Heating Setback"
+item283.weighted.reported.setback <- item283.weighted.reported.setback[which(colnames(item283.weighted.reported.setback) %notin% c("Precision","n_h","N_h","count","N","Count"))]
+names(item283.weighted.reported.setback)[which(names(item283.weighted.reported.setback) %in% c("State","w.percent","w.SE"))] <- c("Category","Mean","SE")
 
 #please note: Mean here is actually a percent, named Mean for combining purposes
-item283.unweighted.reported.setback <- summarise(item283.data
-                                               ,Category = "Percent.Heating.Setback"
-                                               ,Mean = sum(Ind) / sum(count)
-                                               ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
-                                               ,n = length(unique(CK_Cadmus_ID)))
+item283.unw.reported.setback <- proportions_one_group(CustomerLevelData = item283.data
+                                                      ,valueVariable = 'Ind'
+                                                      ,groupingVariable = 'State'
+                                                      ,total.name = "Remove"
+                                                      ,weighted = FALSE)
+item283.unw.reported.setback <- item283.unw.reported.setback[which(item283.unw.reported.setback$State != "Total"),]
+item283.unw.reported.setback$Thermostat.Category <- "Percent Heating Setback"
+item283.unw.reported.setback <- item283.unw.reported.setback[which(colnames(item283.unw.reported.setback) %notin% c("Precision","n_h","N_h","count","N","Count"))]
+names(item283.unw.reported.setback)[which(names(item283.unw.reported.setback) %in% c("State","Percent","SE"))] <- c("Category","Mean","SE")
 
 
 
@@ -169,16 +182,21 @@ item283.data$Heating.Setback <- item283.data$Heating.Setpoint - item283.data$Hea
 
 item283.weighted.heat.setback <- mean_one_group(CustomerLevelData = item283.data
                                       ,valueVariable = 'Heating.Setback'
-                                      ,byVariable = 'BuildingType'
-                                      ,aggregateRow = "All Types")
-item283.weighted.heat.setback$Category <- "Average Heating Setback"
-item283.weighted.heat.setback<-item283.weighted.heat.setback[which(names(item283.weighted.heat.setback) %notin% c("Precision","n_h","N_h","count","N"))]
+                                      ,byVariable = 'Category'
+                                      ,aggregateRow = "Remove")
+item283.weighted.heat.setback <- item283.weighted.heat.setback[which(item283.weighted.heat.setback$Category != "Remove"),]
+item283.weighted.heat.setback$Thermostat.Category <- "Average Heating Setback"
+item283.weighted.heat.setback<-item283.weighted.heat.setback[which(names(item283.weighted.heat.setback) %notin% c("Precision","n_h","N_h","count","N","Count"))]
 
-item283.unweighted.heat.setback <- summarise(item283.data
-                          ,Category = "Average.Heating.Setback"
-                          ,Mean = mean(Heating.Setback)
-                          ,SE = sd(Heating.Setback) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,n = length(unique(CK_Cadmus_ID)))
+
+
+item283.unw.heat.setback <- mean_one_group_unweighted(CustomerLevelData = item283.data
+                                                ,valueVariable = 'Heating.Setback'
+                                                ,byVariable = 'Category'
+                                                ,aggregateRow = "Remove")
+item283.unw.heat.setback <- item283.unw.heat.setback[which(item283.unw.heat.setback$Category != "Remove"),]
+item283.unw.heat.setback$Thermostat.Category <- "Average Heating Setback"
+item283.unw.heat.setback<-item283.unw.heat.setback[which(names(item283.unw.heat.setback) %notin% c("Precision","n_h","N_h","count","N","Count"))]
 
 
 ############################
@@ -193,14 +211,16 @@ item283.data <- weightedData(item283.dat3[which(colnames(item283.dat3) %notin% c
                                                                                  ,"Cooling.Setpoint"
                                                                                  ,"Cooling.at.Night"
                                                                                  ,"Heating.at.Night"
-                                                                                 ,"Heating.Setpoint"))])
+                                                                                 ,"Heating.Setpoint"
+                                                                                 ,"Category"))])
 
 item283.data <- left_join(item283.data, item283.dat3[which(colnames(item283.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
                                                                                          ,"Cooling.Setpoint"
                                                                                          ,"Cooling.at.Night"
                                                                                          ,"Heating.at.Night"
-                                                                                         ,"Heating.Setpoint"))])
+                                                                                         ,"Heating.Setpoint"
+                                                                                         ,"Category"))])
 item283.data$count <- 1
 
 
@@ -210,16 +230,19 @@ item283.data$count <- 1
 
 item283.weighted.cool.setpoint <- mean_one_group(CustomerLevelData = item283.data
                                       ,valueVariable = 'Cooling.Setpoint'
-                                      ,byVariable = 'BuildingType'
-                                      ,aggregateRow = "All Types")
-item283.weighted.cool.setpoint$Category <- "Cooling Setpoint"
-item283.weighted.cool.setpoint <- item283.weighted.cool.setpoint[which(names(item283.weighted.cool.setpoint) %notin% c("Precision","n_h","N_h","count","N"))]
+                                      ,byVariable = 'Category'
+                                      ,aggregateRow = "Remove")
+item283.weighted.cool.setpoint <- item283.weighted.cool.setpoint[which(item283.weighted.cool.setpoint$Category != "Remove"),]
+item283.weighted.cool.setpoint$Thermostat.Category <- "Cooling Setpoint"
+item283.weighted.cool.setpoint <- item283.weighted.cool.setpoint[which(names(item283.weighted.cool.setpoint) %notin% c("Precision","n_h","N_h","count","N","Count"))]
 #### unweighted
-item283.unweighted.cool.setpoint <- summarise(item283.data
-                          ,Category = "Cooling.Setpoint"
-                          ,Mean = mean(Cooling.Setpoint)
-                          ,SE = sd(Cooling.Setpoint) / sqrt(length(unique(CK_Cadmus_ID)))
-                          ,n = length(unique(CK_Cadmus_ID)))
+item283.unw.cool.setpoint <- mean_one_group_unweighted(CustomerLevelData = item283.data
+                                                 ,valueVariable = 'Cooling.Setpoint'
+                                                 ,byVariable = 'Category'
+                                                 ,aggregateRow = "Remove")
+item283.unw.cool.setpoint <- item283.unw.cool.setpoint[which(item283.unw.cool.setpoint$Category != "Remove"),]
+item283.unw.cool.setpoint$Thermostat.Category <- "Cooling Setpoint"
+item283.unw.cool.setpoint <- item283.unw.cool.setpoint[which(names(item283.unw.cool.setpoint) %notin% c("Precision","n_h","N_h","count","N","Count"))]
 
 
 ############################
@@ -240,7 +263,8 @@ item283.data <- weightedData(item283.dat4[which(colnames(item283.dat4) %notin% c
                                                                                  ,"Heating.at.Night"
                                                                                  ,"Heating.Setpoint"
                                                                                  ,"Ind"
-                                                                                 ,"count"))])
+                                                                                 ,"count"
+                                                                                 ,"Category"))])
 
 item283.data <- left_join(item283.data, item283.dat4[which(colnames(item283.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
@@ -249,26 +273,34 @@ item283.data <- left_join(item283.data, item283.dat4[which(colnames(item283.dat4
                                                                                          ,"Heating.at.Night"
                                                                                          ,"Heating.Setpoint"
                                                                                          ,"Ind"
-                                                                                         ,"count"))])
+                                                                                         ,"count"
+                                                                                         ,"Category"))])
 item283.data$count <- 1
 item283.data$Count <- 1
 
 ######################
 # weighted analysis
 ######################
+item283.data$State <- item283.data$Category
 item283.weighted.reported.setup <- proportions_one_group(CustomerLevelData = item283.data
                                                               ,valueVariable = 'Ind'
-                                                              ,groupingVariable = 'BuildingType'
-                                                              ,total.name = "All Types")
-item283.weighted.reported.setup$Category <- "Percent Cooling Setup"
-item283.weighted.reported.setup<-item283.weighted.reported.setup[which(names(item283.weighted.reported.setup) %notin% c("Precision","n_h","N_h","count","N"))]
-names(item283.weighted.reported.setup)[which(names(item283.weighted.reported.setup) %in% c("w.percent","w.SE"))] <- c("Mean","SE")
+                                                              ,groupingVariable = 'State'
+                                                              ,total.name = "Remove")
+item283.weighted.reported.setup <- item283.weighted.reported.setup[which(item283.weighted.reported.setup$State != "Total"),]
+item283.weighted.reported.setup$Thermostat.Category <- "Percent Cooling Setup"
+item283.weighted.reported.setup<-item283.weighted.reported.setup[which(names(item283.weighted.reported.setup) %notin% c("Precision","n_h","N_h","count","N","Count"))]
+names(item283.weighted.reported.setup)[which(names(item283.weighted.reported.setup) %in% c("State","w.percent","w.SE"))] <- c("Category","Mean","SE")
 # #please note: Mean here is actually a percent, named Mean for combining purposes
-item283.unweighted.reported.setup <- summarise(item283.data
-                          ,Category = "Percent.Cooling.Setup"
-                          ,Mean = sum(Ind) / sum(count)
-                          ,SE = sqrt(Mean * (1 - Mean) / length(unique(CK_Cadmus_ID)))
-                          ,n = length(unique(CK_Cadmus_ID)))
+item283.unw.reported.setup <- proportions_one_group(CustomerLevelData = item283.data
+                                                         ,valueVariable = 'Ind'
+                                                         ,groupingVariable = 'State'
+                                                         ,total.name = "Remove"
+                                                    ,weighted = FALSE)
+item283.unw.reported.setup <- item283.unw.reported.setup[which(item283.unw.reported.setup$State != "Total"),]
+item283.unw.reported.setup$Thermostat.Category <- "Percent Cooling Setup"
+item283.unw.reported.setup<-item283.unw.reported.setup[which(names(item283.unw.reported.setup) %notin% c("Precision","n_h","N_h","count","N","Count"))]
+names(item283.unw.reported.setup)[which(names(item283.unw.reported.setup) %in% c("State","Percent","SE"))] <- c("Category","Mean","SE")
+
 
 
 ############################
@@ -281,16 +313,23 @@ item283.final.weighted <- rbind.data.frame(item283.weighted.heat.setpoint
                                   ,item283.weighted.reported.setup
                                   ,stringsAsFactors = F)
 item283.final.weighted <- item283.final.weighted[which(names(item283.final.weighted) %notin% c("BuildingType"))]
-exportTable(item283.final.weighted, "MF", "Table 75", weighted = TRUE)
+
+item283.cast <- dcast(setDT(item283.final.weighted)
+                      ,formula = Thermostat.Category ~ Category
+                      ,value.var = c("Mean","SE","n","EB"))
+exportTable(item283.cast, "MF", "Table 75", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ############################
 # Combine unweighted results
 ############################
-item283.final.unweighted <- rbind.data.frame(item283.unweighted.heat.setpoint
-                                  ,item283.unweighted.reported.setback
-                                  ,item283.unweighted.heat.setback
-                                  ,item283.unweighted.cool.setpoint
-                                  ,item283.unweighted.reported.setup
+item283.final.unw <- rbind.data.frame(item283.unw.heat.setpoint
+                                  ,item283.unw.reported.setback
+                                  ,item283.unw.heat.setback
+                                  ,item283.unw.cool.setpoint
+                                  ,item283.unw.reported.setup
                                   ,stringsAsFactors = F)
-exportTable(item283.final.unweighted, "MF", "Table 75", weighted = FALSE)
+item283.cast <- dcast(setDT(item283.final.unw)
+                      ,formula = Thermostat.Category ~ Category
+                      ,value.var = c("Mean","SE","n"))
+exportTable(item283.cast, "MF", "Table 75", weighted = FALSE,OS = T, osIndicator = "PSE")

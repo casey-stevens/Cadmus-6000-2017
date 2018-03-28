@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 rbsa.dat.site <- rbsa.dat.MF[grep("site",rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg",rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
@@ -86,15 +86,17 @@ item248.dat1 <- left_join(rbsa.dat.site, item248.dat1)
 
 item248.dat1$CoolingInd[which(is.na(item248.dat1$CoolingInd))] <- 0
 item248.dat1$System.Type[which(item248.dat1$CoolingInd == 0)] <- "No Cooling"
-
+item248.dat1 <- item248.dat1[which(item248.dat1$Category == "PSE"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 item248.data <- weightedData(item248.dat1[-which(colnames(item248.dat1) %in% c("System.Type"
-                                                                               ,"CoolingInd"))])
+                                                                               ,"CoolingInd"
+                                                                               ,"Category"))])
 item248.data <- left_join(item248.data, item248.dat1[which(colnames(item248.dat1) %in% c("CK_Cadmus_ID"
                                                                                          ,"System.Type"
-                                                                                         ,"CoolingInd"))])
+                                                                                         ,"CoolingInd"
+                                                                                         ,"Category"))])
 
 item248.data$count <- 1
 
@@ -108,7 +110,7 @@ item248.final <- proportions_one_group(CustomerLevelData = item248.data
 )
 item248.final.MF <- item248.final[which(colnames(item248.final) %notin% c("BuildingType"))]
 
-exportTable(item248.final.MF, "MF", "Table 40", weighted = TRUE)
+exportTable(item248.final.MF, "MF", "Table 40", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # unweighted Analysis
@@ -121,4 +123,4 @@ item248.final <- proportions_one_group(CustomerLevelData = item248.data
 )
 item248.final.MF <- item248.final[which(colnames(item248.final) %notin% c("BuildingType"))]
 
-exportTable(item248.final.MF, "MF", "Table 40", weighted = FALSE)
+exportTable(item248.final.MF, "MF", "Table 40", weighted = FALSE,OS = T, osIndicator = "PSE")

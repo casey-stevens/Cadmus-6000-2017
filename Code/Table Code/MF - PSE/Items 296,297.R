@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 # appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -85,7 +85,7 @@ unique(item296.dat5$Washer.Type)
 
 item296.dat6 <- item296.dat5[which(item296.dat5$Washer.Type != "Unknown"),]
 item296.dat7 <- item296.dat6[which(!is.na(item296.dat6$Washer.Age)),]
-
+item296.dat7 <- item296.dat7[which(item296.dat7$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -93,14 +93,16 @@ item296.data <- weightedData(item296.dat7[which(colnames(item296.dat7) %notin% c
                                                                                  ,"Type"
                                                                                    ,"Age"
                                                                                    ,"Washer.Type"
-                                                                                   ,"Washer.Age"))])
+                                                                                   ,"Washer.Age"
+                                                                                 ,"Category"))])
 
 item296.data <- left_join(item296.data, item296.dat7[which(colnames(item296.dat7) %in% c("CK_Cadmus_ID"
                                                                                          ,"CK_SiteID"
                                                                                          ,"Type"
                                                                                          ,"Age"
                                                                                          ,"Washer.Type"
-                                                                                         ,"Washer.Age"))])
+                                                                                         ,"Washer.Age"
+                                                                                         ,"Category"))])
 item296.data$count <- 1
 
 
@@ -154,7 +156,7 @@ item296.table <- item296.table %>% mutate(Clothes.Washer.Age = factor(Clothes.Wa
 item296.table <- data.frame(item296.table)
 item296.table$All.Types.SE <- sqrt(item296.table$All.Types * (1-item296.table$All.Types) / item296.table$n)
 item296.table$All.Types.EB <- item296.table$All.Types.SE * 1.645
-exportTable(item296.table, "MF", "Table 90", weighted = TRUE)
+exportTable(item296.table, "MF", "Table 90", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # unweighted analysis
@@ -199,7 +201,7 @@ rowOrder <- c("Pre 1980"
 item296.table <- item296.table %>% mutate(Clothes.Washer.Age = factor(Clothes.Washer.Age, levels = rowOrder)) %>% arrange(Clothes.Washer.Age)  
 item296.table <- data.frame(item296.table)
 
-exportTable(item296.table, "MF", "Table 90", weighted = FALSE)
+exportTable(item296.table, "MF", "Table 90", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -251,7 +253,7 @@ item297.dat5$Dryer.Age[which(item297.dat5$Age == "Unknown")] <- "Unknown"
 item297.dat5 <- item297.dat5[which(item297.dat5$Dryer.Age != "Unknown"),]
 # item297.dat5$Dryer.Age[which(is.na(item297.dat5$Dryer.Age))] <- "Unknown"
 
-
+item297.dat5 <- item297.dat5[which(item297.dat5$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -259,11 +261,13 @@ item297.data <- weightedData(item297.dat5[which(colnames(item297.dat5) %notin% c
                                                                                  ,"Type"
                                                                                  ,"Age"
                                                                                  ,"Dryer.Age"
+                                                                                 ,"Category"
                                                                                  ,""))])
 
 item297.data <- left_join(item297.data, item297.dat5[which(colnames(item297.dat5) %in% c("CK_Cadmus_ID"
                                                                                          ,"Type"
-                                                                                         ,"Dryer.Age"))])
+                                                                                         ,"Dryer.Age"
+                                                                                         ,"Category"))])
 item297.data <- unique(item297.data)
 item297.data$count <- 1
 
@@ -277,7 +281,7 @@ item297.final <- proportions_one_group(CustomerLevelData = item297.data
                                           ,total.name = 'Remove')
 # item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
 
-exportTable(item297.final, "MF", "Table 91", weighted = TRUE)
+exportTable(item297.final, "MF", "Table 91", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # unweighted analysis
@@ -289,4 +293,4 @@ item297.final <- proportions_one_group(CustomerLevelData = item297.data
                                           ,weighted = FALSE)
 # item297.final <- item297.final[which(item297.final$Dryer.Age != "Total"),]
 
-exportTable(item297.final, "MF", "Table 91", weighted = FALSE)
+exportTable(item297.final, "MF", "Table 91", weighted = FALSE,OS = T, osIndicator = "PSE")

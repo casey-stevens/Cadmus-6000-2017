@@ -23,7 +23,8 @@ source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- rbsa.dat[which(rbsa.dat$Category == "PSE"),]
 billing.dat <-read.xlsx(xlsxFile = file.path(filepathBillingData,paste("Final Compiled MF Building Data.xlsx")),sheet = "Building Data Final")
 billing.keep <- c("PK_BuildingID", "Average.Common.Area.kWh.Usage", "Average.Unit.kWh.Usage","Unit.Decision", "Common.Decision")
 billing.dat2 <- billing.dat[,billing.keep]
@@ -305,7 +306,8 @@ UsageDataSF_data <- weightedData(UsageDataSF_Final7[-which(colnames(UsageDataSF_
                                                                                                ,"Electric_DWH"
                                                                                                ,"Conditioned.Area.y"
                                                                                                ,"Qty.Occupants"
-                                                                                               ,"count"))])
+                                                                                               ,"count"
+                                                                                               ,"Category"))])
 
 UsageDataSF_data <- left_join(UsageDataSF_data, UsageDataSF_Final7[which(colnames(UsageDataSF_Final7) %in% c("CK_Cadmus_ID"
                                                                                                              ,"AverageUnitSF"
@@ -320,7 +322,8 @@ UsageDataSF_data <- left_join(UsageDataSF_data, UsageDataSF_Final7[which(colname
                                                                                                              ,"Electric_DWH"
                                                                                                              ,"Conditioned.Area.y"
                                                                                                              ,"Qty.Occupants"
-                                                                                                             ,"count"))])
+                                                                                                             ,"count"
+                                                                                                             ,"Category"))])
 
 UsageDataSF_data$count <- 1
 UsageDataSF_data$Count <- 1
@@ -382,7 +385,7 @@ UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDat
 
 # exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
-exportTable(UsageDataSF_table, "MF", "Table AL", weighted = TRUE)
+exportTable(UsageDataSF_table, "MF", "Table AL", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 # FinalSummary <- summarize(group_by(UsageDataSF_Final7,UsageDataSF_Final7$EUI_Quartile),

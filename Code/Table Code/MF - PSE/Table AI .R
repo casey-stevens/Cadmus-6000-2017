@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
@@ -62,53 +62,87 @@ tableAI.data <- weightedData(tableAI.dat3[-which(colnames(tableAI.dat3) %in% c("
                                                                             ,"count"
                                                                             ,"DHW.Type"
                                                                             ,"DHW.Technology"
-                                                                            ,"Detailed.Type"))])
+                                                                            ,"Detailed.Type"
+                                                                            ,"Category"))])
 tableAI.data <- left_join(tableAI.data, tableAI.dat3[which(colnames(tableAI.dat3) %in% c("CK_Cadmus_ID"
                                                                                      ,"Generic"
                                                                                      ,"DHW.Fuel"
                                                                                      ,"count"
                                                                                      ,"DHW.Type"
                                                                                      ,"DHW.Technology"
-                                                                                     ,"Detailed.Type"))])
+                                                                                     ,"Detailed.Type"
+                                                                                     ,"Category"))])
 
 #######################
 # Weighted Analysis
 #######################
-tableAI.final <- proportions_one_group(CustomerLevelData  = tableAI.data
-                                      , valueVariable    = 'count'
-                                      , groupingVariable = 'Detailed.Type'
-                                      , total.name       = "Total")
+tableAI.final <- proportionRowsAndColumns1(CustomerLevelData = tableAI.data
+                                           ,valueVariable = "count"
+                                           ,columnVariable = "Category"
+                                           ,rowVariable = "Detailed.Type"
+                                           ,aggregateColumnName = "Remove")
+tableAI.final <- tableAI.final[which(tableAI.final$Category != "Remove"),]
 
-# Export table
-tableAI.final.SF <- tableAI.final[which(tableAI.final$BuildingType == "Single Family")
-                                ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
-tableAI.final.MH <- tableAI.final[which(tableAI.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
-tableAI.final.MF <- tableAI.final[which(tableAI.final$BuildingType == "Multifamily")
-                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+tableAI.cast <- dcast(setDT(tableAI.final)
+                      ,formula = BuildingType + Detailed.Type ~ Category
+                      ,value.var = c("w.percent","w.SE","n","EB"))
 
-# exportTable(tableAI.final.SF, "SF", "Table AI", weighted = TRUE)
-# exportTable(tableAI.final.MH, "MH", "Table AI", weighted = TRUE)
-exportTable(tableAI.final.MF, "MF", "Table AI", weighted = TRUE)
+tableAI.table <- data.frame("BuildingType" = tableAI.cast$BuildingType
+                            ,"Water.Heater.Type" = tableAI.cast$Detailed.Type
+                            ,"PSE.Percent"                 = tableAI.cast$w.percent_PSE
+                            ,"PSE.SE"                      = tableAI.cast$w.SE_PSE
+                            ,"PSE.n"                       = tableAI.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = tableAI.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = tableAI.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = tableAI.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = tableAI.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = tableAI.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = tableAI.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = tableAI.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = tableAI.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = tableAI.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                      = tableAI.cast$EB_PSE
+                            ,"PSE.King.County_EB"          = tableAI.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"      = tableAI.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"             = tableAI.cast$`EB_2017 RBSA PS`
+                            )
+
+tableAI.final.MF <- tableAI.table[which(tableAI.table$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAI.table) %in% c("BuildingType"))]
+
+exportTable(tableAI.final.MF, "MF", "Table AI", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # Unweighted Analysis
 #######################
-tableAI.final <- proportions_one_group(CustomerLevelData  = tableAI.data
-                                      , valueVariable    = 'count'
-                                      , groupingVariable = 'Detailed.Type'
-                                      , total.name       = "Total"
-                                      , weighted = FALSE)
+tableAI.final <- proportions_two_groups_unweighted(CustomerLevelData = tableAI.data
+                                           ,valueVariable = "count"
+                                           ,columnVariable = "Category"
+                                           ,rowVariable = "Detailed.Type"
+                                           ,aggregateColumnName = "Remove")
+tableAI.final <- tableAI.final[which(tableAI.final$Category != "Remove"),]
 
-# Export table
-tableAI.final.SF <- tableAI.final[which(tableAI.final$BuildingType == "Single Family")
-                                ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
-tableAI.final.MH <- tableAI.final[which(tableAI.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
-tableAI.final.MF <- tableAI.final[which(tableAI.final$BuildingType == "Multifamily")
-                                  ,-which(colnames(tableAI.final) %in% c("BuildingType"))]
+tableAI.cast <- dcast(setDT(tableAI.final)
+                      ,formula = BuildingType + Detailed.Type ~ Category
+                      ,value.var = c("Percent","SE","n"))
 
-# exportTable(tableAI.final.SF, "SF", "Table AI", weighted = FALSE)
-# exportTable(tableAI.final.MH, "MH", "Table AI", weighted = FALSE)
-exportTable(tableAI.final.MF, "MF", "Table AI", weighted = FALSE)
+tableAI.table <- data.frame("BuildingType" = tableAI.cast$BuildingType
+                            ,"Water.Heater.Type" = tableAI.cast$Detailed.Type
+                            ,"PSE.Percent"                 = tableAI.cast$Percent_PSE
+                            ,"PSE.SE"                      = tableAI.cast$SE_PSE
+                            ,"PSE.n"                       = tableAI.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = tableAI.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = tableAI.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = tableAI.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = tableAI.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = tableAI.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = tableAI.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = tableAI.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = tableAI.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = tableAI.cast$`n_2017 RBSA PS`
+)
+
+tableAI.final.MF <- tableAI.table[which(tableAI.table$BuildingType == "Multifamily")
+                                  ,-which(colnames(tableAI.table) %in% c("BuildingType"))]
+exportTable(tableAI.final.MF, "MF", "Table AI", weighted = FALSE,OS = T, osIndicator = "PSE")
 

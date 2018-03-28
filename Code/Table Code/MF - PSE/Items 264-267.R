@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 # lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
@@ -93,27 +93,29 @@ item264.dat4$Switch.Type[grep("Always", item264.dat4$Switch.Type, ignore.case = 
 item264.dat5 <- item264.dat4[grep("Multifamily", item264.dat4$BuildingType),]
 
 #summarise up to the site level
-item264.dat6 <- summarise(group_by(item264.dat5, CK_Cadmus_ID, CK_Building_ID, Clean.Room, Lamp.Category)
+item264.dat6 <- summarise(group_by(item264.dat5, CK_Cadmus_ID, CK_Building_ID, Category, Clean.Room, Lamp.Category)
                           ,SiteLampCount = sum(Lamps)
                           ,SiteWattage = sum(Total.Wattage))
 
 item264.merge <- left_join(rbsa.dat.bldg, item264.dat6)
 item264.merge <- item264.merge[grep("3 or fewer floors", item264.merge$BuildingTypeXX, ignore.case = T),]
 item264.merge <- item264.merge[which(!is.na(item264.merge$SiteWattage)),]
-
+item264.merge1 <- item264.merge[which(item264.merge$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
-item264.data <- weightedData(item264.merge[which(colnames(item264.merge) %notin% c("SiteWattage"
+item264.data <- weightedData(item264.merge1[which(colnames(item264.merge1) %notin% c("SiteWattage"
                                                                                    ,"Clean.Room"
                                                                                    ,"Lamp.Category"
-                                                                                   ,'SiteLampCount'))])
+                                                                                   ,'SiteLampCount'
+                                                                                   ,"Category"))])
 
-item264.data <- left_join(item264.data, item264.merge[which(colnames(item264.merge) %in% c("CK_Cadmus_ID"
+item264.data <- left_join(item264.data, item264.merge1[which(colnames(item264.merge1) %in% c("CK_Cadmus_ID"
                                                                                            ,"SiteWattage"
                                                                                            ,"Clean.Room"
                                                                                            ,"Lamp.Category"
-                                                                                           ,'SiteLampCount'))])
+                                                                                           ,'SiteLampCount'
+                                                                                           ,"Category"))])
 item264.data$count <- 1
 
 
@@ -142,7 +144,7 @@ item264.final <- rbind.data.frame(item264.summary, item264.all.categories, strin
 item264.cast <- dcast(setDT(item264.final)
                       ,formula = Clean.Room ~ Lamp.Category
                       ,value.var = c("w.percent", "w.SE", "count", "n","N","EB"))
-
+names(item264.cast)
 item264.table <- data.frame("Exterior.Category"      = item264.cast$Clean.Room
                             ,"CFL"                   = item264.cast$`w.percent_Compact Fluorescent`
                             ,"CFL.SE"                = item264.cast$`w.SE_Compact Fluorescent`
@@ -156,8 +158,8 @@ item264.table <- data.frame("Exterior.Category"      = item264.cast$Clean.Room
                             ,"LED.SE"                = item264.cast$`w.SE_Light Emitting Diode`
                             ,"Other"                 = item264.cast$w.percent_Other
                             ,"Other.SE"              = item264.cast$w.SE_Other
-                            ,"Unknown"               = item264.cast$w.percent_Unknown
-                            ,"Unknown.SE"            = item264.cast$w.SE_Unknown
+                            # ,"Unknown"               = item264.cast$w.percent_Unknown
+                            # ,"Unknown.SE"            = item264.cast$w.SE_Unknown
                             ,"n"                     = item264.cast$n_Total
                             ,"CFL.EB"                = item264.cast$`EB_Compact Fluorescent`
                             ,"Halogen.EB"            = item264.cast$EB_Halogen
@@ -165,9 +167,10 @@ item264.table <- data.frame("Exterior.Category"      = item264.cast$Clean.Room
                             ,"Linear.Fluorescent.EB" = item264.cast$`EB_Linear Fluorescent`
                             ,"LED.EB"                = item264.cast$`EB_Light Emitting Diode`
                             ,"Other.EB"              = item264.cast$EB_Other
-                            ,"Unknown.EB"            = item264.cast$EB_Unknown)
+                            # ,"Unknown.EB"            = item264.cast$EB_Unknown
+                            )
 
-exportTable(item264.table, "MF", "Table 56", weighted = TRUE)
+exportTable(item264.table, "MF", "Table 56", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -209,11 +212,11 @@ item264.table <- data.frame("Exterior.Category"      = item264.cast$Clean.Room
                             ,"LED.SE"                = item264.cast$`SE_Light Emitting Diode`
                             ,"Other"                 = item264.cast$Percent_Other
                             ,"Other.SE"              = item264.cast$SE_Other
-                            ,"Unknown"               = item264.cast$Percent_Unknown
-                            ,"Unknown.SE"            = item264.cast$SE_Unknown
+                            # ,"Unknown"               = item264.cast$Percent_Unknown
+                            # ,"Unknown.SE"            = item264.cast$SE_Unknown
                             ,"n"                     = item264.cast$n_Total)
 
-exportTable(item264.table, "MF", "Table 56", weighted = FALSE)
+exportTable(item264.table, "MF", "Table 56", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -262,8 +265,8 @@ item265.table <- data.frame("Exterior.Category"      = item265.cast$Clean.Room
                             ,"LED.SE"                = item265.cast$`w.SE_Light Emitting Diode`
                             ,"Other"                 = item265.cast$w.percent_Other
                             ,"Other.SE"              = item265.cast$w.SE_Other
-                            ,"Unknown"               = item265.cast$w.percent_Unknown
-                            ,"Unknown.SE"            = item265.cast$w.SE_Unknown
+                            # ,"Unknown"               = item265.cast$w.percent_Unknown
+                            # ,"Unknown.SE"            = item265.cast$w.SE_Unknown
                             ,"n"                     = item265.cast$n_Total
                             ,"CFL.EB"                = item265.cast$`EB_Compact Fluorescent`
                             ,"Halogen.EB"            = item265.cast$EB_Halogen
@@ -271,9 +274,10 @@ item265.table <- data.frame("Exterior.Category"      = item265.cast$Clean.Room
                             ,"Linear.Fluorescent.EB" = item265.cast$`EB_Linear Fluorescent`
                             ,"LED.EB"                = item265.cast$`EB_Light Emitting Diode`
                             ,"Other.EB"              = item265.cast$EB_Other
-                            ,"Unknown.EB"            = item265.cast$EB_Unknown)
+                            # ,"Unknown.EB"            = item265.cast$EB_Unknown
+                            )
 
-exportTable(item265.table, "MF", "Table 57", weighted = TRUE)
+exportTable(item265.table, "MF", "Table 57", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -315,11 +319,11 @@ item265.table <- data.frame("Exterior.Category"      = item265.cast$Clean.Room
                             ,"LED.SE"                = item265.cast$`SE_Light Emitting Diode`
                             ,"Other"                 = item265.cast$Percent_Other
                             ,"Other.SE"              = item265.cast$SE_Other
-                            ,"Unknown"               = item265.cast$Percent_Unknown
-                            ,"Unknown.SE"            = item265.cast$SE_Unknown
+                            # ,"Unknown"               = item265.cast$Percent_Unknown
+                            # ,"Unknown.SE"            = item265.cast$SE_Unknown
                             ,"n"                     = item265.cast$n_Total)
 
-exportTable(item265.table, "MF", "Table 57", weighted = FALSE)
+exportTable(item265.table, "MF", "Table 57", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -329,7 +333,24 @@ exportTable(item265.table, "MF", "Table 57", weighted = FALSE)
 #############################################################################################
 #Item 266: AVERAGE EXTERIOR LIGHTING POWER (WATTS) BY EXTERIOR CATEGORY AND BUILDING SIZE (MF Table 58)
 #############################################################################################
-item266.data <- item264.data
+item266.merge <- item264.merge
+
+######################################
+#Pop and Sample Sizes for weights
+######################################
+item266.data <- weightedData(item266.merge[which(colnames(item266.merge) %notin% c("SiteWattage"
+                                                                                     ,"Clean.Room"
+                                                                                     ,"Lamp.Category"
+                                                                                     ,'SiteLampCount'
+                                                                                     ,"Category"))])
+
+item266.data <- left_join(item266.data, item266.merge[which(colnames(item266.merge) %in% c("CK_Cadmus_ID"
+                                                                                             ,"SiteWattage"
+                                                                                             ,"Clean.Room"
+                                                                                             ,"Lamp.Category"
+                                                                                             ,'SiteLampCount'
+                                                                                             ,"Category"))])
+item266.data$count <- 1
 
 ######################
 # weighted analysis
@@ -337,32 +358,32 @@ item266.data <- item264.data
 item266.cast <- mean_two_groups(CustomerLevelData = item266.data
                                    ,valueVariable = 'SiteWattage'
                                    ,byVariableRow = 'Clean.Room'
-                                   ,byVariableColumn = 'HomeType'
-                                   ,columnAggregate = "All Sizes"
+                                   ,byVariableColumn = 'Category'
+                                   ,columnAggregate = "Remove"
                                    ,rowAggregate = "All Categories")
 item266.cast <- data.frame(item266.cast, stringsAsFactors = F)
 names(item266.cast)
 item266.table <- data.frame("Exterior.Category"        = item266.cast$Clean.Room
-                            ,"Low_Rise_1.3_Mean"       = item266.cast$Mean_Apartment.Building..3.or.fewer.floors.
-                            ,"Low_Rise_SE"             = item266.cast$SE_Apartment.Building..3.or.fewer.floors.
-                            ,"Low_Rise_n"              = item266.cast$n_Apartment.Building..3.or.fewer.floors.
-                            # ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
-                            # ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
-                            # ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
-                            # ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
-                            # ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
-                            # ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Mean"          = item266.cast$Mean_All.Sizes
-                            ,"All_Sizes_SE"            = item266.cast$SE_All.Sizes
-                            ,"All_Sizes_n"             = item266.cast$n_All.Sizes
-                            ,"Low_Rise_EB"             = item266.cast$EB_Apartment.Building..3.or.fewer.floors.
-                            # ,"Mid_Rise_EB"             = item266.cast$EB_Apartment.Building..4.to.6.floors.
-                            # ,"High_Rise_EB"            = NA#item266.cast$`EB_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_EB"            = item266.cast$EB_All.Sizes
+                            ,"PSE.Mean"                 = item266.cast$Mean_PSE
+                            ,"PSE.SE"                   = item266.cast$SE_PSE
+                            ,"PSE.n"                    = item266.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item266.cast$`Mean_PSE.KING.COUNTY`
+                            ,"PSE.King.County.SE"       = item266.cast$`SE_PSE.KING.COUNTY`
+                            ,"PSE.King.County.n"        = item266.cast$`n_PSE.KING.COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item266.cast$`Mean_PSE.NON.KING.COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item266.cast$`SE_PSE.NON.KING.COUNTY`
+                            ,"PSE.Non.King.County.n"    = item266.cast$`n_PSE.NON.KING.COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item266.cast$`Mean_2017.RBSA.PS`
+                            ,"2017.RBSA.PS.SE"          = item266.cast$`SE_2017.RBSA.PS`
+                            ,"2017.RBSA.PS.n"           = item266.cast$`n_2017.RBSA.PS`
+                            ,"PSE_EB"                   = item266.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = item266.cast$`EB_PSE.KING.COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item266.cast$`EB_PSE.NON.KING.COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item266.cast$`EB_2017.RBSA.PS`
                             
 )
 
-exportTable(item266.table, "MF", "Table 58", weighted = TRUE)
+exportTable(item266.table, "MF", "Table 58", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -371,27 +392,27 @@ exportTable(item266.table, "MF", "Table 58", weighted = TRUE)
 item266.cast <- mean_two_groups_unweighted(CustomerLevelData = item266.data
                                 ,valueVariable = 'SiteWattage'
                                 ,byVariableRow = 'Clean.Room'
-                                ,byVariableColumn = 'HomeType'
-                                ,columnAggregate = "All Sizes"
+                                ,byVariableColumn = 'Category'
+                                ,columnAggregate = "Remove"
                                 ,rowAggregate = "All Categories")
 item266.cast <- data.frame(item266.cast, stringsAsFactors = F)
 
-item266.table <- data.frame("Exterior.Category"        = item266.cast$Clean.Room
-                            ,"Low_Rise_1.3_Mean"       = item266.cast$Mean_Apartment.Building..3.or.fewer.floors.
-                            ,"Low_Rise_SE"             = item266.cast$SE_Apartment.Building..3.or.fewer.floors.
-                            ,"Low_Rise_n"              = item266.cast$n_Apartment.Building..3.or.fewer.floors.
-                            # ,"Mid_Rise_4.6_Mean"       = item266.cast$Mean_Apartment.Building..4.to.6.floors.
-                            # ,"Mid_Rise_SE"             = item266.cast$SE_Apartment.Building..4.to.6.floors.
-                            # ,"Mid_Rise_n"              = item266.cast$n_Apartment.Building..4.to.6.floors.
-                            # ,"High_Rise_7Plus_Mean"    = NA#item266.cast$`Mean_Apartment Building (More than 6 floors)`
-                            # ,"High_Rise_SE"            = NA#item266.cast$`SE_Apartment Building (More than 6 floors)`
-                            # ,"Hight_Rise_n"            = NA#item266.cast$`n_Apartment Building (More than 6 floors)`
-                            ,"All_Sizes_Mean"          = item266.cast$Mean_All.Sizes
-                            ,"All_Sizes_SE"            = item266.cast$SE_All.Sizes
-                            ,"All_Sizes_n"             = item266.cast$n_All.Sizes
+item266.table <- data.frame("Exterior.Category"         = item266.cast$Clean.Room
+                            ,"PSE.Mean"                 = item266.cast$Mean_PSE
+                            ,"PSE.SE"                   = item266.cast$SE_PSE
+                            ,"PSE.n"                    = item266.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item266.cast$`Mean_PSE.KING.COUNTY`
+                            ,"PSE.King.County.SE"       = item266.cast$`SE_PSE.KING.COUNTY`
+                            ,"PSE.King.County.n"        = item266.cast$`n_PSE.KING.COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item266.cast$`Mean_PSE.NON.KING.COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item266.cast$`SE_PSE.NON.KING.COUNTY`
+                            ,"PSE.Non.King.County.n"    = item266.cast$`n_PSE.NON.KING.COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item266.cast$`Mean_2017.RBSA.PS`
+                            ,"2017.RBSA.PS.SE"          = item266.cast$`SE_2017.RBSA.PS`
+                            ,"2017.RBSA.PS.n"           = item266.cast$`n_2017.RBSA.PS`
 )
 
-exportTable(item266.table, "MF", "Table 58", weighted = FALSE)
+exportTable(item266.table, "MF", "Table 58", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -413,7 +434,7 @@ item267.dat6 <- summarise(group_by(item267.dat5, CK_Cadmus_ID, CK_Building_ID, C
 item267.merge <- left_join(rbsa.dat, item267.dat6)
 item267.merge <- item267.merge[grep("3 or fewer floors", item267.merge$BuildingTypeXX, ignore.case = T),]
 item267.merge <- item267.merge[which(!is.na(item267.merge$SiteWattage)),]
-
+item267.merge <- item267.merge[which(item267.merge$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -421,14 +442,16 @@ item267.data <- weightedData(item267.merge[which(colnames(item267.merge) %notin%
                                                                                    ,"Switch.Type"
                                                                                    ,"Lamp.Category"
                                                                                    ,"SiteLampCount"
-                                                                                   ,"SiteWattage"))])
+                                                                                   ,"SiteWattage"
+                                                                                   ,"Category"))])
 
 item267.data <- left_join(item267.data, item267.merge[which(colnames(item267.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Clean.Room"
                                                                                            ,"Switch.Type"
                                                                                            ,"Lamp.Category"
                                                                                            ,"SiteLampCount"
-                                                                                           ,"SiteWattage"))])
+                                                                                           ,"SiteWattage"
+                                                                                           ,"Category"))])
 item267.data$count <- 1
 
 
@@ -463,30 +486,30 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"24.Hour.Operation.SE"       = item267.cast$`w.SE_24 Hour Operation`
                             ,"Manual.Switch"              = item267.cast$`w.percent_Manual Switch`
                             ,"Manual.Switch.SE"           = item267.cast$`w.SE_Manual Switch`
-                            ,"Motion.Sensor"              = item267.cast$`w.percent_Motion Sensor`
-                            ,"Motion.Sensor.SE"           = item267.cast$`w.SE_Motion Sensor`
+                            # ,"Motion.Sensor"              = item267.cast$`w.percent_Motion Sensor`
+                            # ,"Motion.Sensor.SE"           = item267.cast$`w.SE_Motion Sensor`
                             ,"Photo.Sensor"               = item267.cast$`w.percent_Light Sensor`
                             ,"Photo.Sensor.SE"            = item267.cast$`w.SE_Light Sensor`
                             ,"Photo.and.Motion.Sensor"    = item267.cast$`w.percent_Motion & Light Sensor`
                             ,"Photo.and.Motion.Sensor.SE" = item267.cast$`w.SE_Motion & Light Sensor`
                             ,"Timer Control"              = item267.cast$`w.percent_Timer Control`
                             ,"Timer Control.SE"           = item267.cast$`w.SE_Timer Control`
-                            ,"Other"                      = NA#item267.cast$w.percent
-                            ,"Other.SE"                   = NA#item267.cast$w.SE_Other
-                            ,"Unknown"                    = item267.cast$w.percent_Unknown
-                            ,"Unknown.SE"                 = item267.cast$w.SE_Unknown
+                            # ,"Other"                      = NA#item267.cast$w.percent
+                            # ,"Other.SE"                   = NA#item267.cast$w.SE_Other
+                            ,"Unknown"                    = item267.cast$`w.percent_Unknown Switch`
+                            ,"Unknown.SE"                 = item267.cast$`w.SE_Unknown Switch`
                             ,"n"                          = item267.cast$n_Total
                             ,"24.Hour.Operation.EB"       = item267.cast$`EB_24 Hour Operation`
                             ,"Manual.Switch.EB"           = item267.cast$`EB_Manual Switch`
-                            ,"Motion.Sensor.EB"           = item267.cast$`EB_Motion Sensor`
+                            # ,"Motion.Sensor.EB"           = item267.cast$`EB_Motion Sensor`
                             ,"Photo.Sensor.EB"            = item267.cast$`EB_Light Sensor`
                             ,"Photo.and.Motion.Sensor.EB" = item267.cast$`EB_Motion & Light Sensor`
                             ,"Timer Control.EB"           = item267.cast$`EB_Timer Control`
-                            ,"Other.EB"                   = NA#item267.cast$EB_Other
-                            ,"Unknown.EB"                 = item267.cast$EB_Unknown
+                            # ,"Other.EB"                   = NA#item267.cast$EB_Other
+                            ,"Unknown.EB"                 = item267.cast$`EB_Unknown Switch`
                             )
 
-exportTable(item267.table, "MF", "Table 59", weighted = TRUE)
+exportTable(item267.table, "MF", "Table 59", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # weighted analysis
@@ -519,19 +542,19 @@ item267.table <- data.frame("Exterior.Category"           = item267.cast$Clean.R
                             ,"24.Hour.Operation.SE"       = item267.cast$`SE_24 Hour Operation`
                             ,"Manual.Switch"              = item267.cast$`Percent_Manual Switch`
                             ,"Manual.Switch.SE"           = item267.cast$`SE_Manual Switch`
-                            ,"Motion.Sensor"              = item267.cast$`Percent_Motion Sensor`
-                            ,"Motion.Sensor.SE"           = item267.cast$`SE_Motion Sensor`
+                            # ,"Motion.Sensor"              = item267.cast$`Percent_Motion Sensor`
+                            # ,"Motion.Sensor.SE"           = item267.cast$`SE_Motion Sensor`
                             ,"Photo.Sensor"               = item267.cast$`Percent_Light Sensor`
                             ,"Photo.Sensor.SE"            = item267.cast$`SE_Light Sensor`
                             ,"Photo.and.Motion.Sensor"    = item267.cast$`Percent_Motion & Light Sensor`
                             ,"Photo.and.Motion.Sensor.SE" = item267.cast$`SE_Motion & Light Sensor`
                             ,"Timer Control"              = item267.cast$`Percent_Timer Control`
                             ,"Timer Control.SE"           = item267.cast$`SE_Timer Control`
-                            ,"Other"                      = NA#item267.cast$Percent
-                            ,"Other.SE"                   = NA#item267.cast$SE_Other
-                            ,"Unknown"                    = item267.cast$Percent_Unknown
-                            ,"Unknown.SE"                 = item267.cast$SE_Unknown
+                            # ,"Other"                      = NA#item267.cast$Percent
+                            # ,"Other.SE"                   = NA#item267.cast$SE_Other
+                            ,"Unknown"                    = item267.cast$`Percent_Unknown Switch`
+                            ,"Unknown.SE"                 = item267.cast$`SE_Unknown Switch`
                             ,"n"                          = item267.cast$n_Total)
 
-exportTable(item267.table, "MF", "Table 59", weighted = FALSE)
+exportTable(item267.table, "MF", "Table 59", weighted = FALSE,OS = T, osIndicator = "PSE")
 

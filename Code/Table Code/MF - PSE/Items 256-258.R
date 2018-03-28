@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
@@ -97,12 +97,14 @@ item256.merge <- item256.merge[which(!is.na(item256.merge$LampsPerUnit)),]
 ######################################
 item256.data <- weightedData(item256.merge[which(colnames(item256.merge) %notin% c("SiteCount"
                                                                                    ,"Total.Units.in.Building"
-                                                                                   ,"LampsPerUnit"))])
+                                                                                   ,"LampsPerUnit"
+                                                                                   ,"Category"))])
 
 item256.data <- left_join(item256.data, item256.merge[which(colnames(item256.merge) %in% c("CK_Cadmus_ID"
-                                                                                              ,"SiteCount"
-                                                                                              ,"Total.Units.in.Building"
-                                                                                              ,"LampsPerUnit"))])
+                                                                                           ,"SiteCount"
+                                                                                           ,"Total.Units.in.Building"
+                                                                                           ,"LampsPerUnit"
+                                                                                           ,"Category"))])
 item256.data$count <- 1
 
 
@@ -111,24 +113,26 @@ item256.data$count <- 1
 ######################
 item256.final <- mean_one_group(CustomerLevelData = item256.data
                                 ,valueVariable = 'LampsPerUnit'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = 'Category'
+                                ,aggregateRow = "Remove")
+item256.final <- item256.final[which(item256.final$Category != "Remove"),]
 
-item256.final.MF <- item256.final[which(colnames(item256.final) %notin% c("BuildingType","n"))]
+item256.final.MF <- item256.final[which(colnames(item256.final) %notin% c("BuildingType"))]
 
-exportTable(item256.final.MF, "MF", "Table 48", weighted = TRUE)
+exportTable(item256.final.MF, "MF", "Table 48", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # unweighted analysis
 ######################
 item256.final <- mean_one_group_unweighted(CustomerLevelData = item256.data
                                 ,valueVariable = 'LampsPerUnit'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = 'Category'
+                                ,aggregateRow = "Remove")
+item256.final <- item256.final[which(item256.final$Category != "Remove"),]
 
 item256.final.MF <- item256.final[which(colnames(item256.final) %notin% c("BuildingType","n"))]
 
-exportTable(item256.final.MF, "MF", "Table 48", weighted = FALSE)
+exportTable(item256.final.MF, "MF", "Table 48", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -191,12 +195,14 @@ length(unique(item257.merge$CK_Cadmus_ID))
 ######################################
 item257.data <- weightedData(item257.merge[which(colnames(item257.merge) %notin% c("Lamp.Category"
                                                                                    ,"SiteCount"
-                                                                                   ,"Area.of.Conditioned.Common.Space"))])
+                                                                                   ,"Area.of.Conditioned.Common.Space"
+                                                                                   ,"Category"))])
 
 item257.data <- left_join(item257.data, item257.merge[which(colnames(item257.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Lamp.Category"
                                                                                            ,"SiteCount"
-                                                                                           ,"Area.of.Conditioned.Common.Space"))])
+                                                                                           ,"Area.of.Conditioned.Common.Space"
+                                                                                           ,"Category"))])
 item257.data$count <- 1
 length(unique(item257.data$CK_Cadmus_ID))
 ##############################
@@ -204,118 +210,68 @@ length(unique(item257.data$CK_Cadmus_ID))
 ##############################
 item257.final <- proportionRowsAndColumns1(CustomerLevelData = item257.data
                                            ,valueVariable = 'SiteCount'
-                                           ,columnVariable = 'HomeType'
+                                           ,columnVariable = 'Category'
                                            ,rowVariable = 'Lamp.Category'
                                            ,aggregateColumnName = "Remove")
-item257.final <- item257.final[which(item257.final$HomeType != "Remove"),]
-# item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
-
-item257.all.sizes <- proportions_one_group(CustomerLevelData = item257.data
-                                              ,valueVariable = 'SiteCount'
-                                              ,groupingVariable = 'Lamp.Category'
-                                              ,total.name = 'All Sizes'
-                                              ,columnName = "HomeType"
-                                              ,weighted = TRUE
-                                              ,two.prop.total = TRUE)
-# item257.all.sizes <- item257.all.sizes[which(item257.all.sizes$Lamp.Category != "Total"),]
-
-
-item257.final <- rbind.data.frame(item257.final, item257.all.sizes, stringsAsFactors = F)
+item257.final <- item257.final[which(item257.final$Category != "Remove"),]
 
 item257.cast <- dcast(setDT(item257.final)
-                      ,formula = HomeType ~ Lamp.Category
+                      ,formula = Lamp.Category ~ Category 
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
 
-item257.table <- data.frame("Building.Size"            = item257.cast$HomeType
-                            ,"Compact.Fluorescent"     = item257.cast$`w.percent_Compact Fluorescent`
-                            ,"Compact.Fluorescent.SE"  = item257.cast$`w.SE_Compact Fluorescent`
-                            ,"Halogen"                 = item257.cast$w.percent_Halogen
-                            ,"Halogen.SE"              = item257.cast$w.SE_Halogen
-                            ,"Incandescent"            = item257.cast$w.percent_Incandescent
-                            ,"Incandescent.SE"         = item257.cast$w.SE_Incandescent
-                            ,"Incandescent.Halogen"    = item257.cast$`w.percent_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.SE" = item257.cast$`w.SE_Incandescent / Halogen`
-                            ,"Linear.Fluorescent"      = item257.cast$`w.percent_Linear Fluorescent`
-                            ,"Linear.Fluorescent.SE"   = item257.cast$`w.SE_Linear Fluorescent`
-                            ,"LED"                     = item257.cast$`w.percent_Light Emitting Diode`
-                            ,"LED.SE"                  = item257.cast$`w.SE_Light Emitting Diode`
-                            ,"Other"                   = item257.cast$w.percent_Other
-                            ,"Other.SE"                = item257.cast$w.SE_Other
-                            ,"n"                       = item257.cast$n_Total
-                            ,"Compact.Fluorescent.EB"  = item257.cast$`EB_Compact Fluorescent`
-                            ,"Halogen.EB"              = item257.cast$EB_Halogen
-                            ,"Incandescent.EB"         = item257.cast$EB_Incandescent
-                            ,"Incandescent.Halogen.EB" = item257.cast$`EB_Incandescent / Halogen`
-                            ,"Linear.Fluorescent.EB"   = item257.cast$`EB_Linear Fluorescent`
-                            ,"LED.EB"                  = item257.cast$`EB_Light Emitting Diode`
-                            ,"Other.EB"                = item257.cast$EB_Other
+item257.table <- data.frame("Lamp.Category"            = item257.cast$Lamp.Category
+                            ,"PSE.Percent"                 = item257.cast$w.percent_PSE
+                            ,"PSE.SE"                      = item257.cast$w.SE_PSE
+                            ,"PSE.n"                       = item257.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = item257.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = item257.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = item257.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = item257.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = item257.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = item257.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = item257.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = item257.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = item257.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                      = item257.cast$EB_PSE
+                            ,"PSE.King.County_EB"          = item257.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"      = item257.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"             = item257.cast$`EB_2017 RBSA PS`
                             )
 
-levels(item257.table$Building.Size)
-rowOrder <- c("Apartment Building (3 or fewer floors)"
-              ,"Apartment Building (4 to 6 floors)"
-              ,"Apartment Building (More than 6 floors)"
-              ,"All Sizes")
-item257.table <- item257.table %>% mutate(Building.Size = factor(Building.Size, levels = rowOrder)) %>% arrange(Building.Size)  
-item257.table <- data.frame(item257.table)
-
-exportTable(item257.table, "MF", "Table 49", weighted = TRUE)
+exportTable(item257.table, "MF", "Table 49", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ##############################
 # unweighted analysis
 ##############################
 item257.final <- proportions_two_groups_unweighted(CustomerLevelData = item257.data
-                                           ,valueVariable = 'SiteCount'
-                                           ,columnVariable = 'HomeType'
-                                           ,rowVariable = 'Lamp.Category'
-                                           ,aggregateColumnName = "Remove")
-item257.final <- item257.final[which(item257.final$HomeType != "Remove"),]
-# item257.final <- item257.final[which(item257.final$Lamp.Category != "Total"),]
-
-item257.all.sizes <- proportions_one_group(CustomerLevelData = item257.data
-                                              ,valueVariable = 'SiteCount'
-                                              ,groupingVariable = 'Lamp.Category'
-                                              ,total.name = 'All Sizes'
-                                              ,columnName = "HomeType"
-                                              ,weighted = FALSE
-                                              ,two.prop.total = TRUE)
-# item257.all.sizes <- item257.all.sizes[which(item257.all.sizes$Lamp.Category != "Total"),]
-
-
-item257.final <- rbind.data.frame(item257.final, item257.all.sizes, stringsAsFactors = F)
+                                                   ,valueVariable = 'SiteCount'
+                                                   ,columnVariable = 'Category'
+                                                   ,rowVariable = 'Lamp.Category'
+                                                   ,aggregateColumnName = "Remove")
+item257.final <- item257.final[which(item257.final$Category != "Remove"),]
 
 item257.cast <- dcast(setDT(item257.final)
-                      ,formula = HomeType ~ Lamp.Category
+                      ,formula = Lamp.Category ~ Category
                       ,value.var = c("Percent", "SE", "Count", "n"))
 
 
-item257.table <- data.frame("Building.Size"            = item257.cast$HomeType
-                            ,"Compact.Fluorescent"     = item257.cast$`Percent_Compact Fluorescent`
-                            ,"Compact.Fluorescent.SE"  = item257.cast$`SE_Compact Fluorescent`
-                            ,"Halogen"                 = item257.cast$Percent_Halogen
-                            ,"Halogen.SE"              = item257.cast$SE_Halogen
-                            ,"Incandescent"            = item257.cast$Percent_Incandescent
-                            ,"Incandescent.SE"         = item257.cast$SE_Incandescent
-                            ,"Incandescent.Halogen"    = item257.cast$`Percent_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.SE" = item257.cast$`SE_Incandescent / Halogen`
-                            ,"Linear.Fluorescent"      = item257.cast$`Percent_Linear Fluorescent`
-                            ,"Linear.Fluorescent.SE"   = item257.cast$`SE_Linear Fluorescent`
-                            ,"LED"                     = item257.cast$`Percent_Light Emitting Diode`
-                            ,"LED.SE"                  = item257.cast$`SE_Light Emitting Diode`
-                            ,"Other"                   = item257.cast$Percent_Other
-                            ,"Other.SE"                = item257.cast$SE_Other
-                            ,"n"                       = item257.cast$n_Total)
-levels(item257.table$Building.Size)
-rowOrder <- c("Apartment Building (3 or fewer floors)"
-              ,"Apartment Building (4 to 6 floors)"
-              ,"Apartment Building (More than 6 floors)"
-              ,"All Sizes")
-item257.table <- item257.table %>% mutate(Building.Size = factor(Building.Size, levels = rowOrder)) %>% arrange(Building.Size)  
-item257.table <- data.frame(item257.table)
+item257.table <- data.frame("Lamp.Category"            = item257.cast$Lamp.Category
+                            ,"PSE.Percent"                 = item257.cast$Percent_PSE
+                            ,"PSE.SE"                      = item257.cast$SE_PSE
+                            ,"PSE.n"                       = item257.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = item257.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = item257.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = item257.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = item257.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = item257.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = item257.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = item257.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = item257.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = item257.cast$`n_2017 RBSA PS`)
 
-exportTable(item257.table, "MF", "Table 49", weighted = FALSE)
+exportTable(item257.table, "MF", "Table 49", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -366,20 +322,22 @@ item258.dat6 <- item258.dat5[which(item258.dat5$Lamp.Category != "Unknown"),]
 item258.merge <- left_join(rbsa.merge, item258.dat6)
 item258.merge <- item258.merge[grep("3 or fewer floors", item258.merge$BuildingTypeXX, ignore.case = T),]
 item258.merge <- item258.merge[which(!is.na(item258.merge$SiteCount)),]
-
+item258.merge <- item258.merge[which(item258.merge$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item258.data <- weightedData(item258.merge[which(colnames(item258.merge) %notin% c("Lamp.Category"
                                                                                    ,"SiteCount"
                                                                                    ,"Clean.Room"
-                                                                                   ,"Area.of.Conditioned.Common.Space"))])
+                                                                                   ,"Area.of.Conditioned.Common.Space"
+                                                                                   ,"Category"))])
 
 item258.data <- left_join(item258.data, item258.merge[which(colnames(item258.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Lamp.Category"
                                                                                            ,"SiteCount"
                                                                                            ,"Clean.Room"
-                                                                                           ,"Area.of.Conditioned.Common.Space"))])
+                                                                                           ,"Area.of.Conditioned.Common.Space"
+                                                                                           ,"Category"))])
 item258.data$count <- 1
 
 ##############################
@@ -417,8 +375,8 @@ item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Halogen.SE"              = item258.cast$w.SE_Halogen
                             ,"Incandescent"            = item258.cast$w.percent_Incandescent
                             ,"Incandescent.SE"         = item258.cast$w.SE_Incandescent
-                            ,"Incandescent.Halogen"    = item258.cast$`w.percent_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.SE" = item258.cast$`w.SE_Incandescent / Halogen`
+                            # ,"Incandescent.Halogen"    = item258.cast$`w.percent_Incandescent / Halogen`
+                            # ,"Incandescent.Halogen.SE" = item258.cast$`w.SE_Incandescent / Halogen`
                             ,"Linear.Fluorescent"      = item258.cast$`w.percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE"   = item258.cast$`w.SE_Linear Fluorescent`
                             ,"LED"                     = item258.cast$`w.percent_Light Emitting Diode`
@@ -429,13 +387,13 @@ item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Compact.Fluorescent.EB"  = item258.cast$`EB_Compact Fluorescent`
                             ,"Halogen.EB"              = item258.cast$EB_Halogen
                             ,"Incandescent.EB"         = item258.cast$EB_Incandescent
-                            ,"Incandescent.Halogen.EB" = item258.cast$`EB_Incandescent / Halogen`
+                            # ,"Incandescent.Halogen.EB" = item258.cast$`EB_Incandescent / Halogen`
                             ,"Linear.Fluorescent.EB"   = item258.cast$`EB_Linear Fluorescent`
                             ,"LED.EB"                  = item258.cast$`EB_Light Emitting Diode`
                             ,"Other.EB"                = item258.cast$EB_Other
                             )
 
-exportTable(item258.table, "MF", "Table 50", weighted = TRUE)
+exportTable(item258.table, "MF", "Table 50", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ##############################
@@ -473,8 +431,8 @@ item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Halogen.SE"              = item258.cast$SE_Halogen
                             ,"Incandescent"            = item258.cast$Percent_Incandescent
                             ,"Incandescent.SE"         = item258.cast$SE_Incandescent
-                            ,"Incandescent.Halogen"    = item258.cast$`Percent_Incandescent / Halogen`
-                            ,"Incandescent.Halogen.SE" = item258.cast$`SE_Incandescent / Halogen`
+                            # ,"Incandescent.Halogen"    = item258.cast$`Percent_Incandescent / Halogen`
+                            # ,"Incandescent.Halogen.SE" = item258.cast$`SE_Incandescent / Halogen`
                             ,"Linear.Fluorescent"      = item258.cast$`Percent_Linear Fluorescent`
                             ,"Linear.Fluorescent.SE"   = item258.cast$`SE_Linear Fluorescent`
                             ,"LED"                     = item258.cast$`Percent_Light Emitting Diode`
@@ -483,5 +441,5 @@ item258.table <- data.frame("Room.Type"                = item258.cast$Clean.Room
                             ,"Other.SE"                = item258.cast$SE_Other
                             ,"n"                       = item258.cast$n_Total)
 
-exportTable(item258.table, "MF", "Table 50", weighted = FALSE)
+exportTable(item258.table, "MF", "Table 50", weighted = FALSE,OS = T, osIndicator = "PSE")
 

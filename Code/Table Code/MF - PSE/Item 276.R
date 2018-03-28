@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = TRUE),]
 #Read in data for analysis
 # rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
@@ -59,11 +59,13 @@ item276.dat2$Ind[which(item276.dat2$Clean.Type == "Kitchen")] <- 1
 ######################################
 item276.data <- weightedData(item276.dat2[which(colnames(item276.dat2) %notin% c("CK_Cadmus_ID.y"
                                                                                  ,"Clean.Type"
-                                                                                 ,"Ind"))])
+                                                                                 ,"Ind"
+                                                                                 ,"Category"))])
 
 item276.data <- left_join(item276.data, item276.dat2[which(colnames(item276.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Clean.Type"
-                                                                                         ,"Ind"))])
+                                                                                         ,"Ind"
+                                                                                         ,"Category"))])
 item276.data$count <- 1
 
 
@@ -72,10 +74,11 @@ item276.data$count <- 1
 ######################
 item276.final <- mean_one_group(CustomerLevelData = item276.data
                                 ,valueVariable = 'Ind'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = 'All Sizes')
+                                ,byVariable = 'Category'
+                                ,aggregateRow = 'Remove')
+item276.final <- item276.final[which(item276.final$Category != "Remove"),]
 item276.final <- item276.final[which(names(item276.final) != "BuildingType")]
-exportTable(item276.final, "MF", "Table 68", weighted = TRUE)
+exportTable(item276.final, "MF", "Table 68", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -83,8 +86,9 @@ exportTable(item276.final, "MF", "Table 68", weighted = TRUE)
 ######################
 item276.final <- mean_one_group_unweighted(CustomerLevelData = item276.data
                                 ,valueVariable = 'Ind'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = 'All Sizes')
+                                ,byVariable = 'Category'
+                                ,aggregateRow = 'Remove')
+item276.final <- item276.final[which(item276.final$Category != "Remove"),]
 item276.final <- item276.final[which(names(item276.final) != "BuildingType")]
 
-exportTable(item276.final, "MF", "Table 68", weighted = FALSE)
+exportTable(item276.final, "MF", "Table 68", weighted = FALSE,OS = T, osIndicator = "PSE")

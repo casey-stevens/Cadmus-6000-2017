@@ -24,12 +24,12 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# sites.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, sites.export)),stringsAsFactors = FALSE)
+sites.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, sites.export)),stringsAsFactors = FALSE)
 sites.dat <- data.frame(sites.dat, stringsAsFactors = F)
 #clean cadmus IDs
 sites.dat$CK_Cadmus_ID <- trimws(toupper(sites.dat$CK_Cadmus_ID))
@@ -54,10 +54,12 @@ tableRR.dat2$Ind[grep("lighting controls",tableRR.dat2$SITE_GENL_INFO_SmartHome_
 # Adding pop and sample sizes for weights
 ################################################
 tableRR.data <- weightedData(tableRR.dat2[-which(colnames(tableRR.dat2) %in% c("Ind"
-                                                                                 ,"SITE_GENL_INFO_SmartHome_DevicesList"))])
+                                                                                 ,"SITE_GENL_INFO_SmartHome_DevicesList"
+                                                                               ,"Category"))])
 tableRR.data <- left_join(tableRR.data, tableRR.dat2[which(colnames(tableRR.dat2) %in% c("CK_Cadmus_ID"
                                                                                            ,"Ind"
-                                                                                           ,"SITE_GENL_INFO_SmartHome_DevicesList"))])
+                                                                                           ,"SITE_GENL_INFO_SmartHome_DevicesList"
+                                                                                         ,"Category"))])
 tableRR.data$count <- 1
 tableRR.data$Count <- 1
 
@@ -80,14 +82,16 @@ tableRR.data$Count <- 1
 #######################
 # MULTIFAMILY
 #######################
+tableRR.data$State <- tableRR.data$Category
 tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
                                        ,valueVariable = "Ind"
-                                       ,groupingVariable = "HomeType"
-                                       ,total.name = "All Types"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Remove"
                                        ,weighted = TRUE)
+tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$State != "Total"),]
 tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Multifamily")
                                   ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
-exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE)
+exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
@@ -112,141 +116,13 @@ exportTable(tableRR.table.MF, "MF", "Table RR", weighted = TRUE)
 #######################
 tableRR.table.MF <- proportions_one_group(CustomerLevelData = tableRR.data
                                           ,valueVariable = "Ind"
-                                          ,groupingVariable = "HomeType"
-                                          ,total.name = "All Types"
+                                          ,groupingVariable = "State"
+                                          ,total.name = "Remove"
                                           ,weighted = FALSE)
+tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$State != "Total"),]
 tableRR.table.MF <- tableRR.table.MF[which(tableRR.table.MF$BuildingType == "Multifamily")
                                      ,which(colnames(tableRR.table.MF) %notin% c("BuildingType"))]
-exportTable(tableRR.table.MF, "MF", "Table RR", weighted = FALSE)
-
-
-
-
-
-
-
-# #############################################################################################
-# # Table TT: Percentage of homes reporting having an electric vehicle by state
-# #############################################################################################
-# tableTT.dat <- sites.dat[which(colnames(sites.dat) %in% c("CK_Cadmus_ID"
-#                                                           ,"SITE_GENL_INFO_Plug_InElectricVehiclePresent"))]
-# tableTT.dat1 <- tableTT.dat[grep("yes|no",tableTT.dat$SITE_GENL_INFO_Plug_InElectricVehiclePresent,ignore.case = T),]
-# unique(tableTT.dat$SITE_GENL_INFO_Plug_InElectricVehiclePresent)
-# 
-# tableTT.dat2 <- left_join(rbsa.dat, tableTT.dat1)
-# 
-# tableTT.dat2$Ind <- 0
-# tableTT.dat2$Ind[grep("yes",tableTT.dat2$SITE_GENL_INFO_Plug_InElectricVehiclePresent,ignore.case = T)] <- 1
-# 
-# ################################################
-# # Adding pop and sample sizes for weights
-# ################################################
-# tableTT.data <- weightedData(tableTT.dat2[-which(colnames(tableTT.dat2) %in% c("Ind"
-#                                                                                ,"SITE_GENL_INFO_Plug_InElectricVehiclePresent"))])
-# tableTT.data <- left_join(tableTT.data, tableTT.dat2[which(colnames(tableTT.dat2) %in% c("CK_Cadmus_ID"
-#                                                                                          ,"Ind"
-#                                                                                          ,"SITE_GENL_INFO_Plug_InElectricVehiclePresent"))])
-# tableTT.data$count <- 1
-# tableTT.data$Count <- 1
-# 
-# #######################
-# # Weighted Analysis
-# #######################
-# tableTT.table <- proportions_one_group(CustomerLevelData = tableTT.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = TRUE)
-# tableTT.table.SF <- tableTT.table[which(tableTT.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tableTT.table) %notin% c("BuildingType"))]
-# tableTT.table.MH <- tableTT.table[which(tableTT.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(tableTT.table) %notin% c("BuildingType"))]
-# 
-# exportTable(tableTT.table.SF, "SF", "Table TT", weighted = TRUE)
-# # exportTable(tableTT.table.MH, "MH", "Table TT", weighted = TRUE)
-# 
-# 
-# #######################
-# # unweighted Analysis
-# #######################
-# tableTT.table <- proportions_one_group(CustomerLevelData = tableTT.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = FALSE)
-# tableTT.table.SF <- tableTT.table[which(tableTT.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tableTT.table) %notin% c("BuildingType"))]
-# tableTT.table.MH <- tableTT.table[which(tableTT.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(tableTT.table) %notin% c("BuildingType"))]
-# 
-# exportTable(tableTT.table.SF, "SF", "Table TT", weighted = FALSE)
-# # exportTable(tableTT.table.MH, "MH", "Table TT", weighted = FALSE)
-
-
-
-
-
-
-
-
-# #############################################################################################
-# # Table UU: Percentage of homes reporting having solar panels by state
-# #############################################################################################
-# TableUU.dat <- sites.dat[which(colnames(sites.dat) %in% c("CK_Cadmus_ID"
-#                                                           ,"SITE_GENL_INFO_SolarPanelsPresent_Y_N"))]
-# TableUU.dat1 <- TableUU.dat[grep("yes|no",TableUU.dat$SITE_GENL_INFO_SolarPanelsPresent_Y_N,ignore.case = T),]
-# unique(TableUU.dat$SITE_GENL_INFO_SolarPanelsPresent_Y_N)
-# 
-# TableUU.dat2 <- left_join(rbsa.dat, TableUU.dat1)
-# 
-# TableUU.dat2$Ind <- 0
-# TableUU.dat2$Ind[grep("yes",TableUU.dat2$SITE_GENL_INFO_SolarPanelsPresent_Y_N,ignore.case = T)] <- 1
-# 
-# ################################################
-# # Adding pop and sample sizes for weights
-# ################################################
-# TableUU.data <- weightedData(TableUU.dat2[-which(colnames(TableUU.dat2) %in% c("Ind"
-#                                                                                ,"SITE_GENL_INFO_SolarPanelsPresent_Y_N"))])
-# TableUU.data <- left_join(TableUU.data, TableUU.dat2[which(colnames(TableUU.dat2) %in% c("CK_Cadmus_ID"
-#                                                                                          ,"Ind"
-#                                                                                          ,"SITE_GENL_INFO_SolarPanelsPresent_Y_N"))])
-# TableUU.data$count <- 1
-# TableUU.data$Count <- 1
-# 
-# #######################
-# # Weighted Analysis
-# #######################
-# TableUU.table <- proportions_one_group(CustomerLevelData = TableUU.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = TRUE)
-# TableUU.table.SF <- TableUU.table[which(TableUU.table$BuildingType == "Single Family")
-#                                   ,which(colnames(TableUU.table) %notin% c("BuildingType"))]
-# TableUU.table.MH <- TableUU.table[which(TableUU.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(TableUU.table) %notin% c("BuildingType"))]
-# 
-# exportTable(TableUU.table.SF, "SF", "Table UU", weighted = TRUE)
-# # exportTable(TableUU.table.MH, "MH", "Table UU", weighted = TRUE)
-# 
-# 
-# #######################
-# # unweighted Analysis
-# #######################
-# TableUU.table <- proportions_one_group(CustomerLevelData = TableUU.data
-#                                        ,valueVariable = "Ind"
-#                                        ,groupingVariable = "State"
-#                                        ,total.name = "Region"
-#                                        ,weighted = FALSE)
-# TableUU.table.SF <- TableUU.table[which(TableUU.table$BuildingType == "Single Family")
-#                                   ,which(colnames(TableUU.table) %notin% c("BuildingType"))]
-# TableUU.table.MH <- TableUU.table[which(TableUU.table$BuildingType == "Manufactured")
-#                                   ,which(colnames(TableUU.table) %notin% c("BuildingType"))]
-# 
-# exportTable(TableUU.table.SF, "SF", "Table UU", weighted = FALSE)
-# # exportTable(TableUU.table.MH, "MH", "Table UU", weighted = FALSE)
-
-
+exportTable(tableRR.table.MF, "MF", "Table RR", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -271,10 +147,12 @@ TableVV.dat2$Ind[grep("yes",TableVV.dat2$SITES_General_GENL_INFO_SmartHome_Devic
 # Adding pop and sample sizes for weights
 ################################################
 TableVV.data <- weightedData(TableVV.dat2[-which(colnames(TableVV.dat2) %in% c("Ind"
-                                                                               ,"SITES_General_GENL_INFO_SmartHome_Devices_Y_N"))])
+                                                                               ,"SITES_General_GENL_INFO_SmartHome_Devices_Y_N"
+                                                                               ,"Category"))])
 TableVV.data <- left_join(TableVV.data, TableVV.dat2[which(colnames(TableVV.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Ind"
-                                                                                         ,"SITES_General_GENL_INFO_SmartHome_Devices_Y_N"))])
+                                                                                         ,"SITES_General_GENL_INFO_SmartHome_Devices_Y_N"
+                                                                                         ,"Category"))])
 TableVV.data$count <- 1
 TableVV.data$Count <- 1
 
@@ -297,14 +175,16 @@ TableVV.data$Count <- 1
 #######################
 # MULTIFAMILY
 #######################
+TableVV.data$State <- TableVV.data$Category
 TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
                                        ,valueVariable = "Ind"
-                                       ,groupingVariable = "HomeType"
-                                       ,total.name = "All Types"
+                                       ,groupingVariable = "State"
+                                       ,total.name = "Remove"
                                        ,weighted = TRUE)
+TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$State != "Total"),]
 TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Multifamily")
                                   ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
-exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE)
+exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
@@ -330,10 +210,11 @@ exportTable(TableVV.table.MF,"MF","Table VV",weighted = TRUE)
 #######################
 TableVV.table.MF <- proportions_one_group(CustomerLevelData = TableVV.data
                                           ,valueVariable = "Ind"
-                                          ,groupingVariable = "HomeType"
-                                          ,total.name = "All Types"
+                                          ,groupingVariable = "State"
+                                          ,total.name = "Remove"
                                           ,weighted = FALSE)
+TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$State != "Total"),]
 TableVV.table.MF <- TableVV.table.MF[which(TableVV.table.MF$BuildingType == "Multifamily")
                                      ,which(colnames(TableVV.table.MF) %notin% c("BuildingType"))]
-exportTable(TableVV.table.MF,"MF","Table VV",weighted = FALSE)
+exportTable(TableVV.table.MF,"MF","Table VV",weighted = FALSE,OS = T, osIndicator = "PSE")
 

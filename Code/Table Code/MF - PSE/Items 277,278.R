@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
@@ -83,13 +83,15 @@ item277.data <- weightedData(item277.dat2[which(colnames(item277.dat2) %notin% c
                                                                                  ,"Iteration"
                                                                                  ,"Type"
                                                                                  ,"Ind"
-                                                                                 ,"Area.of.Conditioned.Common.Space"))])
+                                                                                 ,"Area.of.Conditioned.Common.Space"
+                                                                                 ,"Category"))])
 
 item277.data <- left_join(item277.data, item277.dat2[which(colnames(item277.dat2) %in% c("CK_Cadmus_ID"
                                                                                          ,"Iteration"
                                                                                          ,"Type"
                                                                                          ,"Ind"
-                                                                                         ,"Area.of.Conditioned.Common.Space"))])
+                                                                                         ,"Area.of.Conditioned.Common.Space"
+                                                                                         ,"Category"))])
 item277.data$count <- 1
 
 
@@ -98,10 +100,11 @@ item277.data$count <- 1
 ######################
 item277.final <- mean_one_group(CustomerLevelData = item277.data
                                 ,valueVariable = 'Ind'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = 'All Sizes')
+                                ,byVariable = 'Category'
+                                ,aggregateRow = 'Remove')
+item277.final <- item277.final[which(item277.final$Category != "Remove"),]
 item277.final <- item277.final[which(names(item277.final) != "BuildingType")]
-exportTable(item277.final, "MF", "Table 69", weighted = TRUE)
+exportTable(item277.final, "MF", "Table 69", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -109,11 +112,12 @@ exportTable(item277.final, "MF", "Table 69", weighted = TRUE)
 ######################
 item277.final <- mean_one_group_unweighted(CustomerLevelData = item277.data
                                            ,valueVariable = 'Ind'
-                                           ,byVariable = 'HomeType'
-                                           ,aggregateRow = 'All Sizes')
+                                           ,byVariable = 'Category'
+                                           ,aggregateRow = 'Remove')
 
+item277.final <- item277.final[which(item277.final$Category != "Remove"),]
 item277.final <- item277.final[which(names(item277.final) != "BuildingType")]
-exportTable(item277.final, "MF", "Table 69", weighted = FALSE)
+exportTable(item277.final, "MF", "Table 69", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -174,12 +178,14 @@ unique(item278.merge$Ind)
 item278.data <- weightedData(item278.merge[which(colnames(item278.merge) %notin% c("CK_Cadmus_ID.y"
                                                                                  ,"Type"
                                                                                  ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership"
-                                                                                 ,"Ind"))])
+                                                                                 ,"Ind"
+                                                                                 ,"Category"))])
 
 item278.data <- left_join(item278.data, item278.merge[which(colnames(item278.merge) %in% c("CK_Cadmus_ID"
                                                                                          ,"Type"
                                                                                          ,"INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership"
-                                                                                         ,"Ind"))])
+                                                                                         ,"Ind"
+                                                                                         ,"Category"))])
 item278.data$count <- 1
 
 
@@ -188,11 +194,12 @@ item278.data$count <- 1
 ######################
 item278.final <- mean_one_group(CustomerLevelData = item278.data
                                 ,valueVariable = 'Ind'
-                                ,byVariable = "INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership"
-                                ,aggregateRow = 'All Types')
+                                ,byVariable = 'Category'
+                                ,aggregateRow = 'Remove')
+item278.final <- item278.final[which(item278.final$Category != "Remove"),]
 item278.final <- item278.final[which(names(item278.final) != "BuildingType")]
 
-exportTable(item278.final, "MF", "Table 70", weighted = TRUE)
+exportTable(item278.final, "MF", "Table 70", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -200,10 +207,11 @@ exportTable(item278.final, "MF", "Table 70", weighted = TRUE)
 ######################
 item278.final <- mean_one_group_unweighted(CustomerLevelData = item278.data
                                            ,valueVariable = 'Ind'
-                                           ,byVariable = 'INTRVW_MFB_MGR_BasicCustomerandBuildingDataOwnership'
-                                           ,aggregateRow = 'All Types')
+                                           ,byVariable = 'Category'
+                                           ,aggregateRow = 'Remove')
+item278.final <- item278.final[which(item278.final$Category != "Remove"),]
 item278.final <- item278.final[which(names(item278.final) != "BuildingType")]
 
-exportTable(item278.final, "MF", "Table 70", weighted = FALSE)
+exportTable(item278.final, "MF", "Table 70", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 

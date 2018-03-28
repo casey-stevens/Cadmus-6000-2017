@@ -23,7 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 rbsa.dat.site <- rbsa.dat.MF[grep("site", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg", rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
@@ -83,6 +83,7 @@ item259.merge <- left_join(rbsa.merge, item259.dat4)
 item259.merge <- item259.merge[grep("3 or fewer floors", item259.merge$BuildingTypeXX, ignore.case = T),]
 item259.merge <- item259.merge[which(!is.na(item259.merge$Lamps)),]
 length(unique(item259.merge$CK_Cadmus_ID))
+item259.merge <- item259.merge[which(item259.merge$Category == "PSE"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -93,7 +94,8 @@ item259.data <- weightedData(item259.merge[-which(colnames(item259.merge) %in% c
                                                                                  ,"Lamps"
                                                                                  ,"count"
                                                                                  ,"Area.of.Conditioned.Common.Space"
-                                                                                 ,"Status"))])
+                                                                                 ,"Status"
+                                                                                 ,"Category"))])
 item259.data <- left_join(item259.data, item259.merge[which(colnames(item259.merge) %in% c("CK_Cadmus_ID"               
                                                                                            ,"Fixture.Qty"
                                                                                            ,"LIGHTING_BulbsPerFixture"
@@ -101,7 +103,8 @@ item259.data <- left_join(item259.data, item259.merge[which(colnames(item259.mer
                                                                                            ,"Lamps"
                                                                                            ,"count"
                                                                                            ,"Area.of.Conditioned.Common.Space"
-                                                                                           ,"Status"))])
+                                                                                           ,"Status"
+                                                                                           ,"Category"))])
 item259.data$count <- 1
 #######################
 # Weighted Analysis
@@ -116,7 +119,7 @@ item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
                                      ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
 
-exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE)
+exportTable(item259.final.MF, "MF", "Table 51", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
@@ -131,7 +134,7 @@ item259.table.MF <- item259.table.MF[which(item259.table.MF$Status != "Total"),]
 
 item259.final.MF <- item259.table.MF[which(item259.table.MF$BuildingType == "Multifamily")
                                      ,-which(colnames(item259.table.MF) %in% c("BuildingType"))]
-exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE)
+exportTable(item259.final.MF, "MF", "Table 51", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 

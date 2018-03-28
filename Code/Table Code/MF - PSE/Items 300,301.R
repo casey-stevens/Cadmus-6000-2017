@@ -22,12 +22,12 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 rbsa.dat.MF <- rbsa.dat.MF[grep("SITE",rbsa.dat.MF$CK_Building_ID,ignore.case = T),]
 
 #Read in data for analysis
-# appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -87,10 +87,13 @@ unique(item300.sites1$INTRVW_CUST_RES_HomeandEnergyUseHome_DishwasherLoadsPerWee
 # Adding pop and sample sizes for weights
 ################################################
 item300.sites.data <- weightedData(item300.sites1[-which(colnames(item300.sites1) %in% c("INTRVW_CUST_RES_HomeandEnergyUseHome_DishwasherLoadsPerWeek"               
-                                                                                         ,"INTRVW_CUST_RES_HomeandEnergyUseHomeUse_HowManyHoursPerDayIsThePrimaryTVOn"))])
+                                                                                         ,"INTRVW_CUST_RES_HomeandEnergyUseHomeUse_HowManyHoursPerDayIsThePrimaryTVOn"
+                                                                                         ,"Category"
+                                                                                         ))])
 item300.sites.data <- left_join(item300.sites.data, item300.sites1[which(colnames(item300.sites1) %in% c("CK_Cadmus_ID"
                                                                                                        ,"INTRVW_CUST_RES_HomeandEnergyUseHome_DishwasherLoadsPerWeek"               
-                                                                                                       ,"INTRVW_CUST_RES_HomeandEnergyUseHomeUse_HowManyHoursPerDayIsThePrimaryTVOn"))])
+                                                                                                       ,"INTRVW_CUST_RES_HomeandEnergyUseHomeUse_HowManyHoursPerDayIsThePrimaryTVOn"
+                                                                                                       ,"Category"))])
 names(item300.sites.data)[which(names(item300.sites.data) == "INTRVW_CUST_RES_HomeandEnergyUseHome_DishwasherLoadsPerWeek")] <- "Dishwasher.Loads.per.Week"
 
 
@@ -117,12 +120,14 @@ item300.stove.data <- weightedData(item300.appliances.stove[-which(colnames(item
                                                                                                              ,"TV.Set.Top.Box"
                                                                                                              ,"STB.Records?"
                                                                                                              ,"Contains.Suboofer"
-                                                                                                             ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"))])
+                                                                                                             ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"
+                                                                                                             ,"Category"))])
 item300.stove.data <- left_join(item300.stove.data, item300.appliances.stove[which(colnames(item300.appliances.stove) %in% c("CK_Cadmus_ID"
                                                                                                                              ,"CK_SiteID"
                                                                                                                              ,"Type"
                                                                                                                              ,"Stove.Fuel"
-                                                                                                                             ,"Oven.Fuel"))])
+                                                                                                                             ,"Oven.Fuel"
+                                                                                                                             ,"Category"))])
 item300.stove.data$count <- 1
 
 item300.oven.data <- weightedData(item300.appliances.oven[-which(colnames(item300.appliances.oven) %in% c("CK_SiteID"
@@ -132,12 +137,14 @@ item300.oven.data <- weightedData(item300.appliances.oven[-which(colnames(item30
                                                                                                              ,"TV.Set.Top.Box"
                                                                                                              ,"STB.Records?"
                                                                                                              ,"Contains.Suboofer"
-                                                                                                             ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"))])
+                                                                                                             ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"
+                                                                                                          ,"Category"))])
 item300.oven.data <- left_join(item300.oven.data, item300.appliances.oven[which(colnames(item300.appliances.oven) %in% c("CK_Cadmus_ID"
                                                                                                                              ,"CK_SiteID"
                                                                                                                              ,"Type"
                                                                                                                              ,"Stove.Fuel"
-                                                                                                                             ,"Oven.Fuel"))])
+                                                                                                                             ,"Oven.Fuel"
+                                                                                                                         ,"Category"))])
 item300.oven.data$count <- 1
 
 ################################################################################################################
@@ -148,13 +155,15 @@ item300.oven.data$count <- 1
 # Calculate the average 
 #  across all MF units
 #########################################
+item300.sites.data$count <- 1
 item300.sum1.w <- mean_one_group(CustomerLevelData = item300.sites.data
                                ,valueVariable      = 'Dishwasher.Loads.per.Week'
-                               ,byVariable         = "BuildingType"
+                               ,byVariable         = "Category"
                                ,aggregateRow       = "Remove")
-names(item300.sum1.w) <- c("Category", "BuildingType", "Mean", "SE", "Remove", "n", "N")
+names(item300.sum1.w) <- c("BuildingType", "Category", "Mean", "SE", "n","Remove", "N","EB","Remove")
+item300.sum1.w$Group <- "Dishwasher.Loads.per.Week"
 item300.sum1.w <- item300.sum1.w[which(colnames(item300.sum1.w) != "Remove")]
-
+item300.sum1.w <- item300.sum1.w[which(item300.sum1.w$Category != "Remove"),]
 
 
 #########################################
@@ -164,13 +173,15 @@ item300.sum1.w <- item300.sum1.w[which(colnames(item300.sum1.w) != "Remove")]
 #  across all MF units
 #   Note: in this table, Mean is Percent
 #########################################
-item300.sum2.w <- proportions_one_group(CustomerLevelData = item300.stove.data
+item300.sum2.w <- proportionRowsAndColumns1(CustomerLevelData = item300.stove.data
                                         ,valueVariable = 'count'
-                                        ,groupingVariable = "Stove.Fuel"
-                                        ,total.name = "Remove")
+                                        ,rowVariable = "Stove.Fuel"
+                                        ,columnVariable = "Category"
+                                        ,aggregateColumnName = "Remove")
+item300.sum2.w <- item300.sum2.w[which(item300.sum2.w$Category != "Remove"),]
 item300.sum2.w <- item300.sum2.w[which(item300.sum2.w$Stove.Fuel != "Total"),]
 item300.sum2.w$Stove.Fuel <- paste("Cook Top Fuel: ", item300.sum2.w$Stove.Fuel, sep = "")
-names(item300.sum2.w) <- c("BuildingType", "Category", "Mean", "SE", "Remove", "N", "n")
+names(item300.sum2.w) <- c("BuildingType", "Category", "Group", "Mean", "SE", "Remove", "N", "n", "EB")
 item300.sum2.w <- item300.sum2.w[which(colnames(item300.sum2.w) != "Remove")]
 
 
@@ -181,10 +192,12 @@ item300.sum2.w <- item300.sum2.w[which(colnames(item300.sum2.w) != "Remove")]
 #  across all MF units
 #   Note: in this table, Mean is Percent
 #########################################
-item300.sum3.w <- proportions_one_group(CustomerLevelData = item300.oven.data
-                                        ,valueVariable = 'count'
-                                        ,groupingVariable = "Oven.Fuel"
-                                        ,total.name = "Remove")
+item300.sum3.w <- proportionRowsAndColumns1(CustomerLevelData = item300.stove.data
+                                            ,valueVariable = 'count'
+                                            ,rowVariable = "Oven.Fuel"
+                                            ,columnVariable = "Category"
+                                            ,aggregateColumnName = "Remove")
+item300.sum3.w <- item300.sum3.w[which(item300.sum3.w$Category != "Remove"),]
 item300.sum3.w <- item300.sum3.w[which(item300.sum3.w$Oven.Fuel != "Total"),]
 item300.sum3.w$Oven.Fuel <- paste("Oven Fuel: ", item300.sum3.w$Oven.Fuel, sep = "")
 names(item300.sum3.w) <- c("BuildingType", "Category", "Mean", "SE", "Remove", "N", "n")
@@ -197,7 +210,7 @@ item300.sum3.w <- item300.sum3.w[which(colnames(item300.sum3.w) != "Remove")]
 #########################################
 item300.final <- rbind.data.frame(item300.sum1.w, item300.sum2.w, item300.sum3.w, stringsAsFactors = F)
 item300.final$EB <- item300.final$SE * qt(1-(1-.9)/2, item300.final$n - 1)
-exportTable(item300.final, "MF", "Table 94", weighted = TRUE)
+exportTable(item300.final, "MF", "Table 94", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
@@ -256,7 +269,7 @@ item300.sum3 <- item300.sum3[which(colnames(item300.sum3) != "Remove")]
 #########################################
 item300.final <- rbind.data.frame(item300.sum1, item300.sum2, item300.sum3, stringsAsFactors = F)
 item300.final$EB <- item300.final$SE * qt(1-(1-.9)/2, item300.final$n - 1)
-exportTable(item300.final, "MF", "Table 94", weighted = FALSE)
+exportTable(item300.final, "MF", "Table 94", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -304,9 +317,11 @@ names(item301.sites1)[which(names(item301.sites1) == "INTRVW_CUST_RES_HomeandEne
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item301.sites.data <- weightedData(item301.sites1[-which(colnames(item301.sites1) %in% c("TV.On.Hours"))])
+item301.sites.data <- weightedData(item301.sites1[-which(colnames(item301.sites1) %in% c("TV.On.Hours"
+                                                                                         ,"Category"))])
 item301.sites.data <- left_join(item301.sites.data, item301.sites1[which(colnames(item301.sites1) %in% c("CK_Cadmus_ID"
-                                                                                                         ,"TV.On.Hours"))])
+                                                                                                         ,"TV.On.Hours"
+                                                                                                         ,"Category"))])
 
 
 ################################################
@@ -325,7 +340,8 @@ item301.appliances.data <- weightedData(item301.appliances1[-which(colnames(item
                                                                                                         ,"TV.Set.Top.Box"
                                                                                                         ,"STB.Records?"
                                                                                                         ,"Contains.Suboofer"
-                                                                                                        ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"))])
+                                                                                                        ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"
+                                                                                                        ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.appliances1[which(colnames(item301.appliances1) %in% c("CK_Cadmus_ID"
                                                                                                                              ,"CK_SiteID"
                                                                                                                              ,"Type"
@@ -334,7 +350,8 @@ item301.appliances.data <- left_join(item301.appliances.data, item301.appliances
                                                                                                                              ,"TV.Set.Top.Box"
                                                                                                                              ,"STB.Records?"
                                                                                                                              ,"Contains.Suboofer"
-                                                                                                                             ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"))])
+                                                                                                                             ,"Does.Subwoofer.have.indicator.light.or.warm.to.touch"
+                                                                                                                             ,"Category"))])
 item301.appliances.data$count <- 1
 
 
@@ -361,9 +378,11 @@ item301.merge <- item301.merge[which(!is.na(item301.merge$Televisions.per.Unit))
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("Televisions.per.Unit"))])
+item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("Televisions.per.Unit"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
-                                                                                                                 ,"Televisions.per.Unit"))])
+                                                                                                                 ,"Televisions.per.Unit"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$count <- 1
 
 ################################################
@@ -409,9 +428,11 @@ item301.merge <- item301.merge[which(!is.na(item301.merge$stb.Count)),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("stb.Count"))])
+item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("stb.Count"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
-                                                                                                                 ,"stb.Count"))])
+                                                                                                                 ,"stb.Count"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$count <- 1
 
 ################################################
@@ -452,10 +473,12 @@ item301.stb.dvr <- item301.stb.dvr[which(!is.na(item301.stb.dvr$TV.Set.Top.Box))
 # Adding pop and sample sizes for weights
 ################################################
 item301.appliances.data <- weightedData(item301.stb.dvr[-which(colnames(item301.stb.dvr) %in% c("TV.Set.Top.Box"
-                                                                                                ,"STB.Records?"))])
+                                                                                                ,"STB.Records?"
+                                                                                                ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.appliances1[which(colnames(item301.appliances1) %in% c("CK_Cadmus_ID"
                                                                                                                              ,"TV.Set.Top.Box"
-                                                                                                                             ,"STB.Records?"))])
+                                                                                                                             ,"STB.Records?"
+                                                                                                                             ,"Category"))])
 # add count
 item301.appliances.data$count <- 1
 item301.appliances.data$Ind <- 0
@@ -497,11 +520,13 @@ item301.merge <- item301.merge[which(!is.na(item301.merge$Ind)),]
 ################################################
 item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("Ind"
                                                                                             ,"count"
-                                                                                            ,"Game.Systems"))])
+                                                                                            ,"Game.Systems"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
                                                                                                                  ,"Ind"
                                                                                                                  ,"count"
-                                                                                                                 ,"Game.Systems"))])
+                                                                                                                 ,"Game.Systems"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$Count <- 1
 
 
@@ -549,11 +574,13 @@ item301.merge <- left_join(item301.unit.game, item301.unit.game1)
 ################################################
 item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("Ind"
                                                                                             ,"count"
-                                                                                            ,"Game.Systems"))])
+                                                                                            ,"Game.Systems"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
                                                                                                                  ,"Ind"
                                                                                                                  ,"count"
-                                                                                                                 ,"Game.Systems"))])
+                                                                                                                 ,"Game.Systems"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$count <- 1
 
 
@@ -606,9 +633,11 @@ item301.merge <- left_join(rbsa.dat.MF, item301.comp.sum)
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("comp.count"))])
+item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("comp.count"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
-                                                                                                                 ,"comp.count"))])
+                                                                                                                 ,"comp.count"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$count <- 1
 
 
@@ -688,9 +717,11 @@ item301.merge <- left_join(rbsa.dat.MF, item301.audio.sum)
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("audio.count"))])
+item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("audio.count"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
-                                                                                                                 ,"audio.count"))])
+                                                                                                                 ,"audio.count"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$count <- 1
 
 
@@ -749,10 +780,12 @@ item301.merge <- left_join(rbsa.dat.MF, item301.melt)
 # Adding pop and sample sizes for weights
 ################################################
 item301.appliances.data <- weightedData(item301.merge[-which(colnames(item301.merge) %in% c("Category"
-                                                                                            ,"Subwoofer.Count"))])
+                                                                                            ,"Subwoofer.Count"
+                                                                                            ,"Category"))])
 item301.appliances.data <- left_join(item301.appliances.data, item301.merge[which(colnames(item301.merge) %in% c("CK_Cadmus_ID"
                                                                                                                  ,"Category"
-                                                                                                                 ,"Subwoofer.Count"))])
+                                                                                                                 ,"Subwoofer.Count"
+                                                                                                                 ,"Category"))])
 item301.appliances.data$count <- 1
 
 
@@ -815,7 +848,7 @@ item301.final <- rbind.data.frame(item301.tv.weighted
                                   ,item301.audio.systems.weighted
                                   ,item301.subwoofers.weighted)
 
-exportTable(item301.final, "MF","Table 95",weighted = TRUE)
+exportTable(item301.final, "MF","Table 95",weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 

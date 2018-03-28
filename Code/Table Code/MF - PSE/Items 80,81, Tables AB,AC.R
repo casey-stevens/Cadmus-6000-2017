@@ -24,12 +24,12 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 appliances.dat <- data.frame(appliances.dat, stringsAsFactors = FALSE)                                                         
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
@@ -204,17 +204,19 @@ tableAB.merge <- tableAB.merge[which(tableAB.merge$Type %in% c("Dishwasher"
                                                             ,"Refrigerator"
                                                             ,"Washer")),]
 
-
+tableAB.merge <- tableAB.merge[which(tableAB.merge$Category == "PSE"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 tableAB.data <- weightedData(tableAB.merge[-which(colnames(tableAB.merge) %in% c("count"
                                                                               ,"Type"
-                                                                              ,"Age"))])
+                                                                              ,"Age"
+                                                                              ,"Category"))])
 tableAB.data <- left_join(tableAB.data, tableAB.merge[which(colnames(tableAB.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"count"
                                                                                        ,"Type"
-                                                                                       ,"Age"))])
+                                                                                       ,"Age"
+                                                                                       ,"Category"))])
 tableAB.data$count <- 1
 
 #######################
@@ -227,16 +229,10 @@ tableAB.final <- mean_one_group(CustomerLevelData = tableAB.data
 tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
 tableAB.final$Mean <- round(tableAB.final$Mean,0)
 
-tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
-                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
-tableAB.final.MH <- tableAB.final[which(tableAB.final$BuildingType == "Manufactured")
-                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 tableAB.final.MF <- tableAB.final[which(tableAB.final$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 
-# exportTable(tableAB.final.SF, "SF", "Table AB", weighted = TRUE)
-# exportTable(tableAB.final.MH, "MH", "Table AB", weighted = TRUE)
-exportTable(tableAB.final.MF, "MF", "Table AB", weighted = TRUE)
+exportTable(tableAB.final.MF, "MF", "Table AB", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
@@ -248,16 +244,10 @@ tableAB.final <- mean_one_group_unweighted(CustomerLevelData = tableAB.data
                                           ,aggregateRow = "Total")
 tableAB.final <- tableAB.final[which(tableAB.final$Type != "Total"),]
 
-tableAB.final.SF <- tableAB.final[which(tableAB.final$BuildingType == "Single Family")
-                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
-tableAB.final.MH <- tableAB.final[which(tableAB.final$BuildingType == "Manufactured")
-                                ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 tableAB.final.MF <- tableAB.final[which(tableAB.final$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAB.final) %in% c("BuildingType"))]
 
-# exportTable(tableAB.final.SF, "SF", "Table AB", weighted = FALSE)
-# exportTable(tableAB.final.MH, "MH", "Table AB", weighted = FALSE)
-exportTable(tableAB.final.MF, "MF", "Table AB", weighted = FALSE)
+exportTable(tableAB.final.MF, "MF", "Table AB", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -326,7 +316,7 @@ tableAC.merge$Above.Measure.Life[which(tableAC.merge$Age.Diff > tableAC.merge$Me
 
 tableAC.merge$Ind <- 0
 tableAC.merge$Ind[which(tableAC.merge$Age.Diff > tableAC.merge$MeasureMap)] <- 1
-
+tableAC.merge <- tableAC.merge[which(tableAC.merge$Category == "PSE")]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -336,7 +326,8 @@ tableAC.data <- weightedData(tableAC.merge[-which(colnames(tableAC.merge) %in% c
                                                                                  ,"MeasureMap"
                                                                                  ,"Above.Measure.Life"
                                                                                  ,"Age.Diff"
-                                                                                 ,"Ind"))])
+                                                                                 ,"Ind"
+                                                                                 ,"Category"))])
 tableAC.data <- left_join(tableAC.data, tableAC.merge[which(colnames(tableAC.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Type"
                                                                                            ,"Age"
@@ -344,7 +335,8 @@ tableAC.data <- left_join(tableAC.data, tableAC.merge[which(colnames(tableAC.mer
                                                                                            ,"MeasureMap"
                                                                                            ,"Above.Measure.Life"
                                                                                            ,"Age.Diff"
-                                                                                           ,"Ind"))])
+                                                                                           ,"Ind"
+                                                                                           ,"Category"))])
 tableAC.data$count <- 1
 tableAC.data$Count <- 1
 
@@ -357,16 +349,10 @@ tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,total.name = "Total")
 tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
-tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
-                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
-tableAC.final.MH <- tableAC.final[which(tableAC.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 tableAC.final.MF <- tableAC.final[which(tableAC.final$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 
-# exportTable(tableAC.final.SF, "SF", "Table AC", weighted = TRUE)
-# exportTable(tableAC.final.MH, "MH", "Table AC", weighted = TRUE)
-exportTable(tableAC.final.MF, "MF", "Table AC", weighted = TRUE)
+exportTable(tableAC.final.MF, "MF", "Table AC", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
@@ -379,16 +365,10 @@ tableAC.final <- proportions_one_group(CustomerLevelData = tableAC.data
                                        ,weighted = FALSE)
 tableAC.final <- tableAC.final[which(tableAC.final$Type != "Total"),]
 
-tableAC.final.SF <- tableAC.final[which(tableAC.final$BuildingType == "Single Family")
-                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
-tableAC.final.MH <- tableAC.final[which(tableAC.final$BuildingType == "Manufactured")
-                                  ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 tableAC.final.MF <- tableAC.final[which(tableAC.final$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAC.final) %in% c("BuildingType"))]
 
-# exportTable(tableAC.final.SF, "SF", "Table AC", weighted = FALSE)
-# exportTable(tableAC.final.MH, "MH", "Table AC", weighted = FALSE)
-exportTable(tableAC.final.MF, "MF", "Table AC", weighted = FALSE)
+exportTable(tableAC.final.MF, "MF", "Table AC", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -436,21 +416,48 @@ item81.merge <- item81.merge[which(!is.na(item81.merge$EquipVintage_bins)),]
 item81.data <- weightedData(item81.merge[-which(colnames(item81.merge) %in% c("count"
                                                                           ,"Type"
                                                                           ,"Age"
-                                                                          ,"EquipVintage_bins"))])
+                                                                          ,"EquipVintage_bins"
+                                                                          ,"Category"))])
 item81.data <- left_join(item81.data, item81.merge[which(colnames(item81.merge) %in% c("CK_Cadmus_ID"
                                                                                    ,"count"
                                                                                    ,"Type"
                                                                                    ,"Age"
-                                                                                   ,"EquipVintage_bins"))])
+                                                                                   ,"EquipVintage_bins"
+                                                                                   ,"Category"))])
 item81.data$count <- 1
 
 #######################
 # Weighted Analysis
 #######################
-item81.final <- proportions_one_group(CustomerLevelData = item81.data
-                                      ,valueVariable    = 'count'
-                                      ,groupingVariable = 'EquipVintage_bins'
-                                      ,total.name       = 'All Vintages')
+item81.summary <- proportionRowsAndColumns1(CustomerLevelData = item81.data
+                                            ,valueVariable = "count"
+                                            ,columnVariable = "Category"
+                                            ,rowVariable = "EquipVintage_bins"
+                                            ,aggregateColumnName = "Remove")
+item81.summary <- item81.summary[which(item81.summary$Category != "Remove"),]
+
+item81.cast <- dcast(setDT(item81.summary)
+                     ,formula = BuildingType + EquipVintage_bins ~ Category
+                     ,value.var = c("w.percent","w.SE","n","EB"))
+
+item81.final <- data.frame("BuildingType" = item81.cast$BuildingType
+                           ,"EquipVintage_bins" = item81.cast$EquipVintage_bins
+                           ,"PSE.Percent"                 = item81.cast$w.percent_PSE
+                           ,"PSE.SE"                      = item81.cast$w.SE_PSE
+                           ,"PSE.n"                       = item81.cast$n_PSE
+                           ,"PSE.King.County.Percent"     = item81.cast$`w.percent_PSE KING COUNTY`
+                           ,"PSE.King.County.SE"          = item81.cast$`w.SE_PSE KING COUNTY`
+                           ,"PSE.King.County.n"           = item81.cast$`n_PSE KING COUNTY`
+                           ,"PSE.Non.King.County.Percent" = item81.cast$`w.percent_PSE NON-KING COUNTY`
+                           ,"PSE.Non.King.County.SE"      = item81.cast$`w.SE_PSE NON-KING COUNTY`
+                           ,"PSE.Non.King.County.n"       = item81.cast$`n_PSE NON-KING COUNTY`
+                           ,"2017.RBSA.PS.Percent"        = item81.cast$`w.percent_2017 RBSA PS`
+                           ,"2017.RBSA.PS.SE"             = item81.cast$`w.SE_2017 RBSA PS`
+                           ,"2017.RBSA.PS.n"              = item81.cast$`n_2017 RBSA PS`
+                           ,"PSE_EB"                      = item81.cast$EB_PSE
+                           ,"PSE.King.County_EB"          = item81.cast$`EB_PSE KING COUNTY`
+                           ,"PSE.Non.King.County_EB"      = item81.cast$`EB_PSE NON-KING COUNTY`
+                           ,"2017.RBSA.PS_EB"             = item81.cast$`EB_2017 RBSA PS`)
 
 unique(item81.final$EquipVintage_bins)
 rowOrder <- c("Pre 1980"
@@ -465,27 +472,40 @@ rowOrder <- c("Pre 1980"
 item81.final <- item81.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
 item81.final <- data.frame(item81.final)
 
-item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
-item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily")
                                 ,-which(colnames(item81.final) %in% c("BuildingType"))]
 
-# exportTable(item81.final.SF, "SF", "Table 88", weighted = TRUE)
-# exportTable(item81.final.MH, "MH", "Table 69", weighted = TRUE)
-exportTable(item81.final.MF, "MF", "Table 87", weighted = TRUE)
+exportTable(item81.final.MF, "MF", "Table 87", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
 # Unweighted Analysis
 #######################
-item81.final <- proportions_one_group(CustomerLevelData = item81.data
-                                      ,valueVariable    = 'count'
-                                      ,groupingVariable = 'EquipVintage_bins'
-                                      ,total.name       = 'All Vintages'
-                                      ,weighted         = FALSE)
+item81.summary <- proportions_two_groups_unweighted(CustomerLevelData = item81.data
+                                            ,valueVariable = "count"
+                                            ,columnVariable = "Category"
+                                            ,rowVariable = "EquipVintage_bins"
+                                            ,aggregateColumnName = "Remove")
+item81.summary <- item81.summary[which(item81.summary$Category != "Remove"),]
 
+item81.cast <- dcast(setDT(item81.summary)
+                     ,formula = BuildingType + EquipVintage_bins ~ Category
+                     ,value.var = c("Percent","SE","n"))
+
+item81.final <- data.frame("BuildingType" = item81.cast$BuildingType
+                           ,"EquipVintage_bins" = item81.cast$EquipVintage_bins
+                           ,"PSE.Percent"                 = item81.cast$Percent_PSE
+                           ,"PSE.SE"                      = item81.cast$SE_PSE
+                           ,"PSE.n"                       = item81.cast$n_PSE
+                           ,"PSE.King.County.Percent"     = item81.cast$`Percent_PSE KING COUNTY`
+                           ,"PSE.King.County.SE"          = item81.cast$`SE_PSE KING COUNTY`
+                           ,"PSE.King.County.n"           = item81.cast$`n_PSE KING COUNTY`
+                           ,"PSE.Non.King.County.Percent" = item81.cast$`Percent_PSE NON-KING COUNTY`
+                           ,"PSE.Non.King.County.SE"      = item81.cast$`SE_PSE NON-KING COUNTY`
+                           ,"PSE.Non.King.County.n"       = item81.cast$`n_PSE NON-KING COUNTY`
+                           ,"2017.RBSA.PS.Percent"        = item81.cast$`Percent_2017 RBSA PS`
+                           ,"2017.RBSA.PS.SE"             = item81.cast$`SE_2017 RBSA PS`
+                           ,"2017.RBSA.PS.n"              = item81.cast$`n_2017 RBSA PS`)
 unique(item81.final$EquipVintage_bins)
 rowOrder <- c("Pre 1980"
               ,"1980-1989"
@@ -499,15 +519,9 @@ rowOrder <- c("Pre 1980"
 item81.final <- item81.final %>% mutate(EquipVintage_bins = factor(EquipVintage_bins, levels = rowOrder)) %>% arrange(EquipVintage_bins)  
 item81.final <- data.frame(item81.final)
 
-item81.final.SF <- item81.final[which(item81.final$BuildingType == "Single Family")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
-item81.final.MH <- item81.final[which(item81.final$BuildingType == "Manufactured")
-                                ,-which(colnames(item81.final) %in% c("BuildingType"))]
 item81.final.MF <- item81.final[which(item81.final$BuildingType == "Multifamily")
                                 ,-which(colnames(item81.final) %in% c("BuildingType"))]
 
-# exportTable(item81.final.SF, "SF", "Table 88", weighted = FALSE)
-# exportTable(item81.final.MH, "MH", "Table 69", weighted = FALSE)
-exportTable(item81.final.MF, "MF", "Table 87", weighted = FALSE)
+exportTable(item81.final.MF, "MF", "Table 87", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 

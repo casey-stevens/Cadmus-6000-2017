@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 
 #Read in data for analysis
 # appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
@@ -95,7 +95,7 @@ item299.dat6 <- item299.dat5
 
 #add counter
 item299.dat6$count <- 1
-
+item299.dat6 <- item299.dat6[which(item299.dat6$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -103,13 +103,15 @@ item299.data <- weightedData(item299.dat6[which(colnames(item299.dat6) %notin% c
                                                                                  ,"Age.Num"
                                                                                  ,"Dishwasher.Cat"
                                                                                  ,"count"
+                                                                                 ,"Category"
                                                                                  ,""))])
 
 item299.data <- left_join(item299.data, item299.dat6[which(colnames(item299.dat6) %in% c("CK_Cadmus_ID"
                                                                                          ,"Dishwasher.Age"
                                                                                          ,"Age.Num"
                                                                                          ,"Dishwasher.Cat"
-                                                                                         ,"count"))])
+                                                                                         ,"count"
+                                                                                         ,"Category"))])
 item299.data$count <- 1
 
 
@@ -139,7 +141,7 @@ item299.final <- item299.final %>% mutate(Dishwasher.Cat = factor(Dishwasher.Cat
 item299.final <- data.frame(item299.final)
 
 
-exportTable(item299.final, "MF", "Table 93", weighted = TRUE)
+exportTable(item299.final, "MF", "Table 93", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # unweighted analysis
@@ -166,4 +168,4 @@ rowOrder <- c("Pre 1980"
 item299.final <- item299.final %>% mutate(Dishwasher.Cat = factor(Dishwasher.Cat, levels = rowOrder)) %>% arrange(Dishwasher.Cat)  
 item299.final <- data.frame(item299.final)
 
-exportTable(item299.final, "MF", "Table 93", weighted = FALSE)
+exportTable(item299.final, "MF", "Table 93", weighted = FALSE,OS = T, osIndicator = "PSE")

@@ -7,10 +7,10 @@ itemXXX.table <- data.frame("Room_Type"                 = itemXXX.cast$Clean.Roo
                             ,"PSE.n"                    = itemXXX.cast$n_PSE
                             ,"PSE.King.County.Mean"     = itemXXX.cast$`Mean_PSE KING COUNTY`
                             ,"PSE.King.County.SE"       = itemXXX.cast$`SE_PSE KING COUNTY`
-                            ,"PSE.King.County.n"        = itemXXX.final$`n_PSE KING COUNTY`
-                            ,"PSE.Non.King.County.Mean" = itemXXX.final$`Mean_PSE NON-KING COUNTY`
-                            ,"PSE.Non.King.County.SE"   = itemXXX.final$`SE_PSE NON-KING COUNTY`
-                            ,"PSE.Non.King.County.n"    = itemXXX.final$`n_PSE NON-KING COUNTY`
+                            ,"PSE.King.County.n"        = itemXXX.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = itemXXX.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = itemXXX.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = itemXXX.cast$`n_PSE NON-KING COUNTY`
                             ,"2017.RBSA.PS.Mean"        = itemXXX.cast$`Mean_2017 RBSA PS`
                             ,"2017.RBSA.PS.SE"          = itemXXX.cast$`SE_2017 RBSA PS`
                             ,"2017.RBSA.PS.n"           = itemXXX.cast$`n_2017 RBSA PS`
@@ -51,7 +51,7 @@ itemXXX.table <- data.frame("Room_Type"                    = itemXXX.cast$Clean.
                             ,"PSE.Non.King.County.n"       = itemXXX.cast$`n_PSE NON-KING COUNTY`
                             ,"2017.RBSA.PS.Percent"        = itemXXX.cast$`Percent_2017 RBSA PS`
                             ,"2017.RBSA.PS.SE"             = itemXXX.cast$`SE_2017 RBSA PS`
-                            ,"2017.RBSA.PS_n"              = itemXXX.cast$`n_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = itemXXX.cast$`n_2017 RBSA PS`
 )
 
 

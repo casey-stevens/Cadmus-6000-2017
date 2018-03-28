@@ -22,8 +22,9 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
+length(unique(rbsa.dat.bldg$CK_Cadmus_ID))
 #Read in data for analysis
 # buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
@@ -53,7 +54,7 @@ unique(item272.dat2$Ind)
 item272.dat3 <- item272.dat2[which(!(is.na(item272.dat2$Ind))),]
 item272.dat3$count <- 1
 
-item272.dat4 <- item272.dat3[which(!(duplicated(item272.dat3$CK_Cadmus_ID))),]
+item272.dat4 <- item272.dat3#[which(!(duplicated(item272.dat3$CK_Cadmus_ID))),]
 names(item272.dat4)
 
 ######################################
@@ -61,26 +62,30 @@ names(item272.dat4)
 ######################################
 item272.data <- weightedData(item272.dat4[which(colnames(item272.dat4) %notin% c("SITES_MFB_MFB_MISC_NumberOfElevators"
                                                                                  ,"Ind"
-                                                                                 ,"count"))])
+                                                                                 ,"count"
+                                                                                 ,"Category"))])
 
 item272.data <- left_join(item272.data, item272.dat4[which(colnames(item272.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"SITES_MFB_MFB_MISC_NumberOfElevators"
                                                                                          ,"Ind"
-                                                                                         ,"count"))])
+                                                                                         ,"count"
+                                                                                         ,"Category"))])
 item272.data$Count <- 1
 
 
 ######################
 # weighted analysis
 ######################
+item272.data$State <- item272.data$Category
 item272.final <- proportions_one_group(CustomerLevelData = item272.data
                                           ,valueVariable = 'Ind'
-                                          ,groupingVariable = 'HomeType'
-                                          ,total.name = "All Sizes"
+                                          ,groupingVariable = 'State'
+                                          ,total.name = "Remove"
                                           ,weighted = TRUE)
+item272.final <- item272.final[which(item272.final$State != "Total"),]
 item272.final <- item272.final[which(names(item272.final) != "BuildingType")]
 
-exportTable(item272.final, "MF", "Table 64", weighted = TRUE)
+exportTable(item272.final, "MF", "Table 64", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ######################
@@ -88,11 +93,13 @@ exportTable(item272.final, "MF", "Table 64", weighted = TRUE)
 ######################
 item272.final <- proportions_one_group(CustomerLevelData = item272.data
                                           ,valueVariable = 'Ind'
-                                          ,groupingVariable = 'HomeType'
-                                          ,total.name = "All Sizes"
+                                          ,groupingVariable = 'State'
+                                          ,total.name = "Remove"
                                           ,weighted = FALSE)
+item272.final <- item272.final[which(item272.final$State != "Total"),]
 item272.final <- item272.final[which(names(item272.final) != "BuildingType")]
-exportTable(item272.final, "MF", "Table 64", weighted = FALSE)
+
+exportTable(item272.final, "MF", "Table 64", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -109,10 +116,12 @@ names(item272.data)
 ######################
 item273.final <- mean_one_group(CustomerLevelData = item273.data
                                 ,valueVariable = 'SITES_MFB_MFB_MISC_NumberOfElevators'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = 'Category'
+                                ,aggregateRow = "Remove")
+item273.final <- item273.final[which(item273.final$Category != "Remove"),]
 item273.final <- item273.final[which(colnames(item273.final) %notin% c("BuildingType"))]
-exportTable(item273.final, "MF","Table 65", weighted = TRUE)
+
+exportTable(item273.final, "MF","Table 65", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
@@ -121,10 +130,12 @@ exportTable(item273.final, "MF","Table 65", weighted = TRUE)
 ######################
 item273.final <- mean_one_group_unweighted(CustomerLevelData = item273.data
                                 ,valueVariable = 'SITES_MFB_MFB_MISC_NumberOfElevators'
-                                ,byVariable = 'HomeType'
-                                ,aggregateRow = "All Sizes")
+                                ,byVariable = 'Category'
+                                ,aggregateRow = "Remove")
+item273.final <- item273.final[which(item273.final$Category != "Remove"),]
 item273.final <- item273.final[which(colnames(item273.final) %notin% c("BuildingType"))]
-exportTable(item273.final, "MF","Table 65", weighted = FALSE)
+
+exportTable(item273.final, "MF","Table 65", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -167,13 +178,15 @@ item274.dat4$Ind[which(is.na(item274.dat4$Ind))] <- 0
 item274.data <- weightedData(item274.dat4[which(colnames(item274.dat4) %notin% c("SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                                                                  ,"SITES_Pool_POOL_HOT_TUB_PoolType"
                                                                                  ,"Ind"
-                                                                                 ,"count"))])
+                                                                                 ,"count"
+                                                                                 ,"Category"))])
 
 item274.data <- left_join(item274.data, item274.dat4[which(colnames(item274.dat4) %in% c("CK_Cadmus_ID"
                                                                                          ,"SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                                                                          ,"SITES_Pool_POOL_HOT_TUB_PoolType"
                                                                                          ,"Ind"
-                                                                                         ,"count"))])
+                                                                                         ,"count"
+                                                                                         ,"Category"))])
 item274.data$Count <- 1
 names(item274.data)
 length(unique(item274.data$CK_Cadmus_ID))
@@ -182,37 +195,28 @@ length(unique(item274.data$CK_Cadmus_ID))
 ######################
 item274.summary <- proportionRowsAndColumns1(CustomerLevelData = item274.data
                                              ,valueVariable = 'Count'
-                                             ,columnVariable = 'HomeType'
+                                             ,columnVariable = 'Category'
                                              ,rowVariable = 'SITES_Pool_POOL_HOT_TUB_PoolLocation'
                                              ,aggregateColumnName = "Remove")
-item274.summary <- item274.summary[which(item274.summary$HomeType != "Remove"),]
+item274.summary <- item274.summary[which(item274.summary$Category != "Remove"),]
 item274.summary <- item274.summary[which(item274.summary$SITES_Pool_POOL_HOT_TUB_PoolLocation %notin% c("Total",NA)),]
-
-item274.all.sizes <- proportions_one_group(CustomerLevelData = item274.data
-                                              ,valueVariable = 'Count'
-                                              ,groupingVariable = "SITES_Pool_POOL_HOT_TUB_PoolLocation"
-                                              ,total.name = "All Sizes"
-                                              ,columnName = "HomeType"
-                                              ,weighted = TRUE
-                                              ,two.prop.total = TRUE)
-item274.all.sizes <- item274.all.sizes[which(item274.all.sizes$SITES_Pool_POOL_HOT_TUB_PoolLocation %notin% c("Total",NA)),]
 
 item274.all.pools <- proportions_one_group(CustomerLevelData = item274.data
                                               ,valueVariable = 'Ind'
-                                              ,groupingVariable = "HomeType"
+                                              ,groupingVariable = "Category"
                                               ,total.name = "All Pools"
                                               ,columnName = "SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item274.all.pools$HomeType[which(item274.all.pools$HomeType == "Total")] <- "All Sizes"
+item274.all.pools <- item274.all.pools[which(item274.all.pools$Category != "Total"),]
 
-item274.final <- rbind.data.frame(item274.summary, item274.all.sizes, item274.all.pools, stringsAsFactors = F)
+item274.final <- rbind.data.frame(item274.summary, item274.all.pools, stringsAsFactors = F)
 
 item274.cast <- dcast(setDT(item274.final)
-                      ,formula = HomeType ~ SITES_Pool_POOL_HOT_TUB_PoolLocation
+                      ,formula = Category ~ SITES_Pool_POOL_HOT_TUB_PoolLocation
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
 
-item274.table <- data.frame("Building.Size"      = item274.cast$HomeType
+item274.table <- data.frame("Building.Size"      = item274.cast$Category
                             ,"Exterior.Pools"    = item274.cast$w.percent_Outdoor
                             ,"Exterior.Pools.SE" = item274.cast$w.SE_Outdoor
                             ,"Interior.Pools"    = item274.cast$w.percent_Indoor
@@ -224,44 +228,35 @@ item274.table <- data.frame("Building.Size"      = item274.cast$HomeType
                             ,"Interior.Pools.EB" = item274.cast$EB_Indoor
                             ,"All.Pools.EB"      = item274.cast$`EB_All Pools`) 
 
-exportTable(item274.table, "MF", "Table 66", weighted = TRUE)
+exportTable(item274.table, "MF", "Table 66", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 ######################
 # unweighted analysis
 ######################
 item274.summary <- proportions_two_groups_unweighted(CustomerLevelData = item274.data
                                              ,valueVariable = 'Count'
-                                             ,columnVariable = 'HomeType'
+                                             ,columnVariable = 'Category'
                                              ,rowVariable = 'SITES_Pool_POOL_HOT_TUB_PoolLocation'
                                              ,aggregateColumnName = "Remove")
-item274.summary <- item274.summary[which(item274.summary$HomeType != "Remove"),]
+item274.summary <- item274.summary[which(item274.summary$Category != "Remove"),]
 item274.summary <- item274.summary[which(item274.summary$SITES_Pool_POOL_HOT_TUB_PoolLocation != "Total"),]
-
-item274.all.sizes <- proportions_one_group(CustomerLevelData = item274.data
-                                              ,valueVariable = 'Count'
-                                              ,groupingVariable = "SITES_Pool_POOL_HOT_TUB_PoolLocation"
-                                              ,total.name = "All Sizes"
-                                              ,columnName = "HomeType"
-                                              ,weighted = FALSE
-                                              ,two.prop.total = TRUE)
-item274.all.sizes <- item274.all.sizes[which(item274.all.sizes$SITES_Pool_POOL_HOT_TUB_PoolLocation != "Total"),]
 
 item274.all.pools <- proportions_one_group(CustomerLevelData = item274.data
                                               ,valueVariable = 'Ind'
-                                              ,groupingVariable = "HomeType"
+                                              ,groupingVariable = "Category"
                                               ,total.name = "All Pools"
                                               ,columnName = "SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item274.all.pools <- item274.all.pools[which(item274.all.pools$HomeType != "Total"),]
+item274.all.pools <- item274.all.pools[which(item274.all.pools$Category != "Total"),]
 
-item274.final <- rbind.data.frame(item274.summary, item274.all.sizes, item274.all.pools, stringsAsFactors = F)
+item274.final <- rbind.data.frame(item274.summary, item274.all.pools, stringsAsFactors = F)
 
 item274.cast <- dcast(setDT(item274.final)
-                      ,formula = HomeType ~ SITES_Pool_POOL_HOT_TUB_PoolLocation
+                      ,formula = Category ~ SITES_Pool_POOL_HOT_TUB_PoolLocation
                       ,value.var = c("Percent", "SE", "Count", "n"))
 
-item274.table <- data.frame("Building.Size"      = item274.cast$HomeType
+item274.table <- data.frame("Building.Size"      = item274.cast$Category
                             ,"Exterior.Pools"    = item274.cast$Percent_Outdoor
                             ,"Exterior.Pools.SE" = item274.cast$SE_Outdoor
                             ,"Interior.Pools"    = item274.cast$Percent_Indoor
@@ -270,7 +265,7 @@ item274.table <- data.frame("Building.Size"      = item274.cast$HomeType
                             ,"All.Pools.SE"      = item274.cast$`SE_All Pools`
                             ,"n"                 = item274.cast$`n_All Pools`) 
 
-exportTable(item274.table, "MF", "Table 66", weighted = FALSE)
+exportTable(item274.table, "MF", "Table 66", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -318,12 +313,12 @@ exportTable(item274.table, "MF", "Table 66", weighted = FALSE)
 # #summarise across building size
 # #by pool location
 # item275.sum3 <- summarise(group_by(item275.dat3, SITES_Pool_POOL_HOT_TUB_PoolLocation)
-#                           ,BuildingTypeXX = "All Sizes"
+#                           ,BuildingTypeXX = "Remove"
 #                           ,Percent = sum(PoolCount) / length(unique(item275.dat2$CK_Cadmus_ID))
 #                           ,SE = sqrt(Percent * (1 - Percent) / (length(unique(item275.dat2$CK_Cadmus_ID)))))
 # #across pool location
 # item275.sum4 <- summarise(group_by(item275.dat3)
-#                           ,BuildingTypeXX = "All Sizes"
+#                           ,BuildingTypeXX = "Remove"
 #                           ,SITES_Pool_POOL_HOT_TUB_PoolLocation = "All Pools"
 #                           ,Percent = sum(PoolCount) / length(unique(item275.dat2$CK_Cadmus_ID))
 #                           ,SE = sqrt(Percent * (1 - Percent) / (length(unique(item275.dat2$CK_Cadmus_ID)))))
@@ -336,7 +331,7 @@ exportTable(item274.table, "MF", "Table 66", weighted = FALSE)
 #                                 ,n = length(unique(CK_Cadmus_ID)))
 # 
 # item275.final <- left_join(item275.merge, item275.n, by = "BuildingTypeXX")
-# item275.final$n[which(is.na(item275.final$n))] <- sum(unique(item275.final$n[which(item275.final$BuildingTypeXX != "All Sizes")]))
+# item275.final$n[which(is.na(item275.final$n))] <- sum(unique(item275.final$n[which(item275.final$BuildingTypeXX != "Remove")]))
 # 
 # item275.cast <- dcast(setDT(item275.final)
 #                       ,formula = BuildingTypeXX + n ~ SITES_Pool_POOL_HOT_TUB_PoolLocation

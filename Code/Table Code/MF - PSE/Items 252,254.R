@@ -23,7 +23,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
 
@@ -59,10 +59,12 @@ unique(item252.dat3$DHW.Location)
 # Adding pop and sample sizes for weights
 ################################################
 item252.data <- weightedData(item252.dat3[-which(colnames(item252.dat3) %in% c("Water.Heater.In.Unit"
-                                                                               ,"DHW.Location"))])
+                                                                               ,"DHW.Location"
+                                                                               ,"Category"))])
 item252.data <- left_join(item252.data, item252.dat3[which(colnames(item252.dat3) %in% c("CK_Cadmus_ID"
                                                                                          ,"Water.Heater.In.Unit"
-                                                                                         ,"DHW.Location"))])
+                                                                                         ,"DHW.Location"
+                                                                                         ,"Category"))])
 item252.data$count <- 1
 colnames(item252.data)
 
@@ -71,86 +73,64 @@ colnames(item252.data)
 #######################
 item252.summary <- proportionRowsAndColumns1(CustomerLevelData = item252.data
                                              ,valueVariable = 'count'
-                                             ,columnVariable = 'HomeType'
+                                             ,columnVariable = 'Category'
                                              ,rowVariable = 'DHW.Location'
                                              ,aggregateColumnName = "Remove")
-item252.summary <- item252.summary[which(item252.summary$HomeType != "Remove"),]
-item252.summary <- item252.summary[which(item252.summary$DHW.Location != "Total"),]
+item252.summary <- item252.summary[which(item252.summary$Category != "Remove"),]
 
-item252.all.sizes <- proportions_one_group(CustomerLevelData = item252.data
-                                           ,valueVariable = 'count'
-                                           ,groupingVariable = 'DHW.Location'
-                                           ,total.name = 'All Sizes'
-                                           ,columnName = 'HomeType'
-                                           ,weighted = TRUE
-                                           ,two.prop.total = TRUE)
-item252.all.sizes <- item252.all.sizes[which(item252.all.sizes$DHW.Location != "Total"),]
-
-item252.final <- rbind.data.frame(item252.summary, item252.all.sizes, stringsAsFactors = F)
-
-item252.cast <- dcast(setDT(item252.final)
-                      ,formula = DHW.Location ~ HomeType
+item252.cast <- dcast(setDT(item252.summary)
+                      ,formula = DHW.Location ~ Category
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-item252.table <- data.frame("DHW.Location" = item252.cast$DHW.Location
-                            ,"Low.Rise.1.3" = item252.cast$`w.percent_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.SE"  = item252.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.n"   = item252.cast$`n_Apartment Building (3 or fewer floors)`
-                            ,"Mid.Rise.4.6" = item252.cast$`w.percent_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.SE"  = item252.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.n"   = item252.cast$`n_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.plus" = item252.cast$`w.percent_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.SE"     = item252.cast$`w.SE_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.n"      = item252.cast$`n_Apartment Building (More than 6 floors)`
-                            ,"All.Sizes"        = item252.cast$`w.percent_All Sizes`
-                            ,"All.Sizes.SE"     = item252.cast$`w.SE_All Sizes`
-                            ,"All.Sizes.n"      = item252.cast$`n_All Sizes`
-                            ,"Low.Rise.EB"  = item252.cast$`EB_Apartment Building (3 or fewer floors)`
-                            ,"Mid.Rise.EB"  = item252.cast$`EB_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.EB"     = item252.cast$`EB_Apartment Building (More than 6 floors)`
-                            ,"All.Sizes.EB"     = item252.cast$`EB_All Sizes`)
 
-exportTable(item252.table, "MF", "Table 44", weighted = TRUE)
+item252.table <- data.frame("DHW.Location" = item252.cast$DHW.Location
+                            ,"PSE.Percent"                 = item252.cast$w.percent_PSE
+                            ,"PSE.SE"                      = item252.cast$w.SE_PSE
+                            ,"PSE.n"                       = item252.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = item252.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = item252.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = item252.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = item252.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = item252.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = item252.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = item252.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = item252.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = item252.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                      = item252.cast$EB_PSE
+                            ,"PSE.King.County_EB"          = item252.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"      = item252.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"             = item252.cast$`EB_2017 RBSA PS`)
+
+exportTable(item252.table, "MF", "Table 44", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # unweighted Analysis
 #######################
 item252.summary <- proportions_two_groups_unweighted(CustomerLevelData = item252.data
                                              ,valueVariable = 'count'
-                                             ,columnVariable = 'HomeType'
+                                             ,columnVariable = 'Category'
                                              ,rowVariable = 'DHW.Location'
                                              ,aggregateColumnName = "Remove")
-item252.summary <- item252.summary[which(item252.summary$HomeType != "Remove"),]
-item252.summary <- item252.summary[which(item252.summary$DHW.Location != "Total"),]
+item252.summary <- item252.summary[which(item252.summary$Category != "Remove"),]
 
-item252.all.sizes <- proportions_one_group(CustomerLevelData = item252.data
-                                           ,valueVariable = 'count'
-                                           ,groupingVariable = 'DHW.Location'
-                                           ,total.name = 'All Sizes'
-                                           ,columnName = 'HomeType'
-                                           ,weighted = FALSE
-                                           ,two.prop.total = TRUE)
-item252.all.sizes <- item252.all.sizes[which(item252.all.sizes$DHW.Location != "Total"),]
-
-item252.final <- rbind.data.frame(item252.summary, item252.all.sizes, stringsAsFactors = F)
-
-item252.cast <- dcast(setDT(item252.final)
-                      ,formula = DHW.Location ~ HomeType
+item252.cast <- dcast(setDT(item252.summary)
+                      ,formula = DHW.Location ~ Category
                       ,value.var = c("Percent", "SE", "Count", "n"))
-item252.table <- data.frame("DHW.Location" = item252.cast$DHW.Location
-                            ,"Low.Rise.1.3" = item252.cast$`Percent_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.SE"  = item252.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Low.Rise.n"   = item252.cast$`n_Apartment Building (3 or fewer floors)`
-                            ,"Mid.Rise.4.6" = item252.cast$`Percent_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.SE"  = item252.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"Mid.Rise.n"   = item252.cast$`n_Apartment Building (4 to 6 floors)`
-                            ,"High.Rise.7.plus" = item252.cast$`Percent_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.SE"     = item252.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"High.Rise.n"      = item252.cast$`n_Apartment Building (More than 6 floors)`
-                            ,"All.Sizes"        = item252.cast$`Percent_All Sizes`
-                            ,"All.Sizes.SE"     = item252.cast$`SE_All Sizes`
-                            ,"All.Sizes.n"      = item252.cast$`n_All Sizes`)
 
-exportTable(item252.table, "MF", "Table 44", weighted = FALSE)
+item252.table <- data.frame("DHW.Location" = item252.cast$DHW.Location
+                            ,"PSE.Percent"                 = item252.cast$Percent_PSE
+                            ,"PSE.SE"                      = item252.cast$SE_PSE
+                            ,"PSE.n"                       = item252.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = item252.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = item252.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = item252.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = item252.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = item252.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = item252.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = item252.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = item252.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = item252.cast$`n_2017 RBSA PS`)
+
+exportTable(item252.table, "MF", "Table 44", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -181,7 +161,7 @@ colnames(item254.dat3)[which(colnames(item254.dat3) == "CK_Cadmus_ID.x")] <- "CK
 #Subset to Multifamily
 item254.dat4 <- item254.dat3[grep("Multifamily", item254.dat3$BuildingType),]
 item254.dat5 <- item254.dat4[which(item254.dat4$DHW.Fuel %notin% c("N/A",NA)),]
-
+item254.dat5 <- item254.dat5[which(item254.dat5$Category == "PSE"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -189,12 +169,14 @@ item254.data <- weightedData(item254.dat5[-which(colnames(item254.dat5) %in% c("
                                                                                ,"System.Type"
                                                                                ,"DHW.Fuel"
                                                                                ,"DHW.Location"
-                                                                               ,"DHW.Serves.Whole.House?"))])
+                                                                               ,"DHW.Serves.Whole.House?"
+                                                                               ,"Category"))])
 item254.data <- left_join(item254.data, item254.dat5[which(colnames(item254.dat5) %in% c("CK_Cadmus_ID"
                                                                                          ,"System.Type"
                                                                                          ,"DHW.Fuel"
                                                                                          ,"DHW.Location"
-                                                                                         ,"DHW.Serves.Whole.House?"))])
+                                                                                         ,"DHW.Serves.Whole.House?"
+                                                                                         ,"Category"))])
 item254.data$count <- 1
 colnames(item254.data)
 
@@ -209,21 +191,21 @@ item254.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item
 item254.summary <- item254.summary[which(item254.summary$DHW.Fuel != "Total"),]
 
 item254.cast <- dcast(setDT(item254.summary)
-                      ,formula = System.Type + n + N ~ DHW.Fuel
+                      ,formula = System.Type ~ DHW.Fuel
                       ,value.var = c("w.percent", "w.SE", "count","n","N","EB"))
 names(item254.cast)
 item254.table <- data.frame("System.Type" = item254.cast$System.Type
                             ,"Electric"   = item254.cast$w.percent_Electric
                             ,"Electric.SE" = item254.cast$w.SE_Electric
-                            ,"Gas"         = item254.cast$`w.percent_Natural Gas`
-                            ,"Gas.SE"      = item254.cast$`w.SE_Natural Gas`
+                            ,"Gas"         = NA#item254.cast$`w.percent_Natural Gas`
+                            ,"Gas.SE"      = NA#item254.cast$`w.SE_Natural Gas`
                             ,"Gas.Electric" = NA#
                             ,"Gas.Electric.SE" = NA#
                             ,"Purchased.Steam" = NA#
                             ,"Purchased.Steam.SE" = NA#
                             ,"n" = item254.cast$n
                             ,"Electric.EB" = item254.cast$EB_Electric
-                            ,"Gas.EB"      = item254.cast$`EB_Natural Gas`
+                            ,"Gas.EB"      = NA#item254.cast$`EB_Natural Gas`
                             ,"Gas.Electric.EB" = NA#
                             ,"Purchased.Steam.EB" = NA#
                             )
@@ -235,7 +217,7 @@ rowOrder <- c("Storage Water Heater"
 item254.table <- item254.table %>% mutate(System.Type = factor(System.Type, levels = rowOrder)) %>% arrange(System.Type)  
 item254.table <- data.frame(item254.table)
 
-exportTable(item254.table, "MF", "Table 46", weighted = TRUE)
+exportTable(item254.table, "MF", "Table 46", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 #######################
 # unweighted Analysis
@@ -254,13 +236,13 @@ item254.cast <- dcast(setDT(item254.summary)
 item254.table <- data.frame("System.Type" = item254.cast$System.Type
                             ,"Electric"   = item254.cast$Percent_Electric
                             ,"Electric.SE" = item254.cast$SE_Electric
-                            ,"Gas"         = item254.cast$`Percent_Natural Gas`
-                            ,"Gas.SE"      = item254.cast$`SE_Natural Gas`
+                            ,"Gas"         = NA#item254.cast$`Percent_Natural Gas`
+                            ,"Gas.SE"      = NA#item254.cast$`SE_Natural Gas`
                             ,"Gas.Electric" = NA#
                             ,"Gas.Electric.SE" = NA#
                             ,"Purchased.Steam" = NA#
                             ,"Purchased.Steam.SE" = NA#
-                            ,"n" = item254.cast$n_Electric + item254.cast$`n_Natural Gas`)
+                            ,"n" = item254.cast$n_Electric)
 
 # row ordering example code
 levels(item254.table$System.Type)
@@ -269,4 +251,4 @@ rowOrder <- c("Storage Water Heater"
 item254.table <- item254.table %>% mutate(System.Type = factor(System.Type, levels = rowOrder)) %>% arrange(System.Type)  
 item254.table <- data.frame(item254.table)
 
-exportTable(item254.table, "MF", "Table 46", weighted = FALSE)
+exportTable(item254.table, "MF", "Table 46", weighted = FALSE,OS = T, osIndicator = "PSE")

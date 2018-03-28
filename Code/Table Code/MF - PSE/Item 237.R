@@ -284,7 +284,7 @@ ceiling.merge <- ceiling.merge[which(!is.na(ceiling.merge$uvalue)),]
 
 
 #############################################################################################
-#Item 237: DISTRIBUTION OF CEILING INSULATION BY CEILING TYPE (MF TABLE 29)
+#Item 237A: DISTRIBUTION OF CEILING INSULATION BY CEILING TYPE (MF TABLE 29A)
 #############################################################################################
 #weight the u factor per home -- where weights are the wall area within home
 weightedU <- summarise(group_by(prep.dat5, CK_SiteID, Ceiling.Type)
@@ -307,61 +307,65 @@ Ceiling.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_SiteID",
 prep.dat6 <- left_join(weightedU, Ceiling.unique, by = "CK_SiteID")
 
 #merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat.MF, by = c("CK_SiteID" = "CK_Building_ID"))
+prep.dat7 <- left_join(prep.dat6, rbsa.dat, by = c("CK_SiteID" = "CK_Building_ID"))
 prep.dat7 <- prep.dat7[grep("3 or fewer floors", prep.dat7$BuildingTypeXX),]
-item237.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
+item237A.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
 
-unique(item237.dat$Ceiling.Type)
+unique(item237A.dat$Ceiling.Type)
 
 #Bin R values -- MF only
-item237.dat$rvalue.bins <- "Unknown"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >=  0  & item237.dat$aveRval < 11)]  <- "R0.R10"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 11  & item237.dat$aveRval < 16)]  <- "R11.R15"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 16  & item237.dat$aveRval < 21)]  <- "R16.R20"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 21  & item237.dat$aveRval < 26)]  <- "R21.R25"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 26  & item237.dat$aveRval < 31)]  <- "R26.R30"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 31  & item237.dat$aveRval < 41)]  <- "R31.R40"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 41  & item237.dat$aveRval < 51)]  <- "R41.R50"
-item237.dat$rvalue.bins[which(item237.dat$aveRval >= 51)] <- "RGT50"
-unique(item237.dat$rvalue.bins)
+item237A.dat$rvalue.bins <- "Unknown"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >=  0  & item237A.dat$aveRval < 11)]  <- "R0.R10"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 11  & item237A.dat$aveRval < 16)]  <- "R11.R15"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 16  & item237A.dat$aveRval < 21)]  <- "R16.R20"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 21  & item237A.dat$aveRval < 26)]  <- "R21.R25"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 26  & item237A.dat$aveRval < 31)]  <- "R26.R30"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 31  & item237A.dat$aveRval < 41)]  <- "R31.R40"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 41  & item237A.dat$aveRval < 51)]  <- "R41.R50"
+item237A.dat$rvalue.bins[which(item237A.dat$aveRval >= 51)] <- "RGT50"
+unique(item237A.dat$rvalue.bins)
 
-item237.dat$count <- 1
+item237A.dat$count <- 1
 
-item237.dat1 <- item237.dat[which(item237.dat$rvalue.bins != "Unknown"),]
-colnames(item237.dat1)
+item237A.dat1 <- item237A.dat[which(item237A.dat$rvalue.bins != "Unknown"),]
+colnames(item237A.dat1)
 
-item237.merge <- left_join(rbsa.dat.MF, item237.dat1)
-item237.merge <- item237.merge[which(!is.na(item237.merge$count)),]
+item237A.merge <- left_join(rbsa.dat, item237A.dat1)
+item237A.merge <- item237A.merge[which(!is.na(item237A.merge$count)),]
+item237A.merge <- item237A.merge[which(item237A.merge$Category == "PSE"),]
 
-item237.data <- weightedData(unique(item237.merge[-which(colnames(item237.merge) %in% c("CK_SiteID"
+
+item237A.data <- weightedData(unique(item237A.merge[-which(colnames(item237A.merge) %in% c("CK_SiteID"
                                                                                         ,"Ceiling.Type"
                                                                                         ,"aveUval"
                                                                                         ,"aveRval"
                                                                                         ,"rvalue.bins"
-                                                                                        ,"count"))]))
-item237.data <- left_join(item237.data, item237.merge[which(colnames(item237.merge) %in% c("CK_Cadmus_ID"
+                                                                                        ,"count"
+                                                                                        ,"Category"))]))
+item237A.data <- left_join(item237A.data, item237A.merge[which(colnames(item237A.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"CK_SiteID"
                                                                                            ,"Ceiling.Type"
                                                                                            ,"aveUval"
                                                                                            ,"aveRval"
                                                                                            ,"rvalue.bins"
-                                                                                           ,"count"))])
+                                                                                           ,"count"
+                                                                                           ,"Category"))])
 
 
 
 ################################
 # Weighted Analysis
 ################################
-item237.summary <- proportionRowsAndColumns1(CustomerLevelData     = item237.data
+item237A.summary <- proportionRowsAndColumns1(CustomerLevelData     = item237A.data
                                              , valueVariable       = 'count'
                                              , columnVariable      = 'Ceiling.Type'
                                              , rowVariable         = 'rvalue.bins'
                                              , aggregateColumnName = "All Types"
 )
-item237.summary <- item237.summary[which(item237.summary$Ceiling.Type != "All Types"),]
+item237A.summary <- item237A.summary[which(item237A.summary$Ceiling.Type != "All Types"),]
 
 ## Summary only for "All Frame Types"
-item237.all.frame.types <- proportions_one_group(CustomerLevelData = item237.data
+item237A.all.frame.types <- proportions_one_group(CustomerLevelData = item237A.data
                                                  ,valueVariable    = "count"
                                                  ,groupingVariable = "rvalue.bins"
                                                  ,total.name       = "All Types"
@@ -371,77 +375,77 @@ item237.all.frame.types <- proportions_one_group(CustomerLevelData = item237.dat
 )
 
 #merge together!
-item237.final <- rbind.data.frame(item237.summary
-                                  , item237.all.frame.types, stringsAsFactors = F)
+item237A.final <- rbind.data.frame(item237A.summary
+                                  , item237A.all.frame.types, stringsAsFactors = F)
 
 
 ##cast data
-item237.cast <- dcast(setDT(item237.final),
+item237A.cast <- dcast(setDT(item237A.final),
                       formula   = BuildingType + Ceiling.Type ~ rvalue.bins,
                       value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
-
+names(item237A.cast)
 #join all insulation levels onto rvalue summary
-item237.table <- data.frame("BuildingType"                   = item237.cast$BuildingType
-                            ,"Ceiling.Type"                  = item237.cast$Ceiling.Type
-                            ,"Percent.R0.R10"                = item237.cast$w.percent_R0.R10
-                            ,"SE.R0.R10"                     = item237.cast$w.SE_R0.R10
-                            ,"Percent.R11.R15"               = item237.cast$w.percent_R11.R15
-                            ,"SE.R11.R15"                    = item237.cast$w.SE_R11.R15
-                            ,"Percent.R16.R20"               = item237.cast$w.percent_R16.R20
-                            ,"SE.R16.R20"                    = item237.cast$w.SE_R16.R20
-                            ,"Percent.R21.R25"               = item237.cast$w.percent_R21.R25
-                            ,"SE.R21.R25"                    = item237.cast$w.SE_R21.R25
-                            ,"Percent.R26.R30"               = item237.cast$w.percent_R26.R30
-                            ,"SE.R26.R30"                    = item237.cast$w.SE_R26.R30
-                            ,"Percent.R31.R40"               = item237.cast$w.percent_R31.R40
-                            ,"SE.R31.R40"                    = item237.cast$w.SE_R31.R40
-                            ,"Percent.R41.R50"               = item237.cast$w.percent_R41.R50
-                            ,"SE.R41.R50"                    = item237.cast$w.SE_R41.R50
-                            ,"Percent.RGT50"                 = item237.cast$w.percent_RGT50
-                            ,"SE.RGT50"                      = item237.cast$w.SE_RGT50
-                            ,"n"                             = item237.cast$n_Total
-                            ,"EB.R0.R10"                     = item237.cast$EB_R0.R10
-                            ,"EB.R11.R15"                    = item237.cast$EB_R11.R15
-                            ,"EB.R16.R20"                    = item237.cast$EB_R16.R20
-                            ,"EB.R21.R25"                    = item237.cast$EB_R21.R25
-                            ,"EB.R26.R30"                    = item237.cast$EB_R26.R30
-                            ,"EB.R31.R40"                    = item237.cast$EB_R31.R40
-                            ,"EB.R41.R50"                    = item237.cast$EB_R41.R50
-                            ,"EB.RGT50"                      = item237.cast$EB_RGT50
+item237A.table <- data.frame("BuildingType"                   = item237A.cast$BuildingType
+                            ,"Ceiling.Type"                  = item237A.cast$Ceiling.Type
+                            ,"Percent.R0.R10"                = item237A.cast$w.percent_R0.R10
+                            ,"SE.R0.R10"                     = item237A.cast$w.SE_R0.R10
+                            ,"Percent.R11.R15"               = item237A.cast$w.percent_R11.R15
+                            ,"SE.R11.R15"                    = item237A.cast$w.SE_R11.R15
+                            ,"Percent.R16.R20"               = item237A.cast$w.percent_R16.R20
+                            ,"SE.R16.R20"                    = item237A.cast$w.SE_R16.R20
+                            ,"Percent.R21.R25"               = item237A.cast$w.percent_R21.R25
+                            ,"SE.R21.R25"                    = item237A.cast$w.SE_R21.R25
+                            # ,"Percent.R26.R30"               = item237A.cast$w.percent_R26.R30
+                            # ,"SE.R26.R30"                    = item237A.cast$w.SE_R26.R30
+                            ,"Percent.R31.R40"               = item237A.cast$w.percent_R31.R40
+                            ,"SE.R31.R40"                    = item237A.cast$w.SE_R31.R40
+                            ,"Percent.R41.R50"               = item237A.cast$w.percent_R41.R50
+                            ,"SE.R41.R50"                    = item237A.cast$w.SE_R41.R50
+                            # ,"Percent.RGT50"                 = item237A.cast$w.percent_RGT50
+                            # ,"SE.RGT50"                      = item237A.cast$w.SE_RGT50
+                            ,"n"                             = item237A.cast$n_Total
+                            ,"EB.R0.R10"                     = item237A.cast$EB_R0.R10
+                            ,"EB.R11.R15"                    = item237A.cast$EB_R11.R15
+                            ,"EB.R16.R20"                    = item237A.cast$EB_R16.R20
+                            ,"EB.R21.R25"                    = item237A.cast$EB_R21.R25
+                            # ,"EB.R26.R30"                    = item237A.cast$EB_R26.R30
+                            ,"EB.R31.R40"                    = item237A.cast$EB_R31.R40
+                            ,"EB.R41.R50"                    = item237A.cast$EB_R41.R50
+                            # ,"EB.RGT50"                      = item237A.cast$EB_RGT50
 )
 
 # row ordering example code
-unique(item237.table$Ceiling.Type)
+unique(item237A.table$Ceiling.Type)
 rowOrder <- c("Attic"
               ,"Roof Deck"
               ,"Sloped / Vaulted (no attic)"
               ,"Other"
               ,"All Types")
-item237.table <- item237.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)
-item237.table <- data.frame(item237.table)
+item237A.table <- item237A.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)
+item237A.table <- data.frame(item237A.table)
 
 
-item237.table.MF <- item237.table[which(item237.table$BuildingType == "Multifamily"),-1]
+item237A.table.MF <- item237A.table[which(item237A.table$BuildingType == "Multifamily"),-1]
 
 
 #export table to correct workbook using exporting function
-exportTable(item237.table.MF, "MF", "Table 29", weighted = TRUE)
+exportTable(item237A.table.MF, "MF", "Table 29A", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
 ################################
 # Unweighted Analysis
 ################################
-item237.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item237.data
+item237A.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item237A.data
                                                      , valueVariable       = 'count'
                                                      , columnVariable      = 'Ceiling.Type'
                                                      , rowVariable         = 'rvalue.bins'
                                                      , aggregateColumnName = "All Types"
 )
-item237.summary <- item237.summary[which(item237.summary$Ceiling.Type != "All Types"),]
+item237A.summary <- item237A.summary[which(item237A.summary$Ceiling.Type != "All Types"),]
 
 ## Summary only for "All Frame Types"
-item237.all.frame.types <- proportions_one_group(CustomerLevelData = item237.data
+item237A.all.frame.types <- proportions_one_group(CustomerLevelData = item237A.data
                                                  ,valueVariable    = "count"
                                                  ,groupingVariable = "rvalue.bins"
                                                  ,total.name       = "All Types"
@@ -451,52 +455,234 @@ item237.all.frame.types <- proportions_one_group(CustomerLevelData = item237.dat
 )
 
 #merge together!
-item237.final <- rbind.data.frame(item237.summary
-                                  , item237.all.frame.types, stringsAsFactors = F)
+item237A.final <- rbind.data.frame(item237A.summary
+                                  , item237A.all.frame.types, stringsAsFactors = F)
 
 
 ##cast data
-item237.cast <- dcast(setDT(item237.final),
+item237A.cast <- dcast(setDT(item237A.final),
                       formula   = BuildingType + Ceiling.Type ~ rvalue.bins,
                       value.var = c("Percent", "SE", "Count", "n"))
 
 #join all insulation levels onto rvalue summary
-item237.table <- data.frame("BuildingType"                   = item237.cast$BuildingType
-                            ,"Ceiling.Type"                  = item237.cast$Ceiling.Type
-                            ,"Percent.R0.R10"                = item237.cast$Percent_R0.R10
-                            ,"SE.R0.R10"                     = item237.cast$SE_R0.R10
-                            ,"Percent.R11.R15"               = item237.cast$Percent_R11.R15
-                            ,"SE.R11.R15"                    = item237.cast$SE_R11.R15
-                            ,"Percent.R16.R20"               = item237.cast$Percent_R16.R20
-                            ,"SE.R16.R20"                    = item237.cast$SE_R16.R20
-                            ,"Percent.R21.R25"               = item237.cast$Percent_R21.R25
-                            ,"SE.R21.R25"                    = item237.cast$SE_R21.R25
-                            ,"Percent.R26.R30"               = item237.cast$Percent_R26.R30
-                            ,"SE.R26.R30"                    = item237.cast$SE_R26.R30
-                            ,"Percent.R31.R40"               = item237.cast$Percent_R31.R40
-                            ,"SE.R31.R40"                    = item237.cast$SE_R31.R40
-                            ,"Percent.R41.R50"               = item237.cast$Percent_R41.R50
-                            ,"SE.R41.R50"                    = item237.cast$SE_R41.R50
-                            ,"Percent.RGT50"                 = item237.cast$Percent_RGT50
-                            ,"SE.RGT50"                      = item237.cast$SE_RGT50
-                            ,"n"                             = item237.cast$n_Total
+item237A.table <- data.frame("BuildingType"                   = item237A.cast$BuildingType
+                            ,"Ceiling.Type"                  = item237A.cast$Ceiling.Type
+                            ,"Percent.R0.R10"                = item237A.cast$Percent_R0.R10
+                            ,"SE.R0.R10"                     = item237A.cast$SE_R0.R10
+                            ,"Percent.R11.R15"               = item237A.cast$Percent_R11.R15
+                            ,"SE.R11.R15"                    = item237A.cast$SE_R11.R15
+                            # ,"Percent.R16.R20"               = item237A.cast$Percent_R16.R20
+                            # ,"SE.R16.R20"                    = item237A.cast$SE_R16.R20
+                            ,"Percent.R21.R25"               = item237A.cast$Percent_R21.R25
+                            ,"SE.R21.R25"                    = item237A.cast$SE_R21.R25
+                            ,"Percent.R26.R30"               = item237A.cast$Percent_R26.R30
+                            ,"SE.R26.R30"                    = item237A.cast$SE_R26.R30
+                            ,"Percent.R31.R40"               = item237A.cast$Percent_R31.R40
+                            ,"SE.R31.R40"                    = item237A.cast$SE_R31.R40
+                            ,"Percent.R41.R50"               = item237A.cast$Percent_R41.R50
+                            ,"SE.R41.R50"                    = item237A.cast$SE_R41.R50
+                            # ,"Percent.RGT50"                 = item237A.cast$Percent_RGT50
+                            # ,"SE.RGT50"                      = item237A.cast$SE_RGT50
+                            ,"n"                             = item237A.cast$n_Total
 )
 
 # row ordering example code
-unique(item237.table$Ceiling.Type)
+unique(item237A.table$Ceiling.Type)
 rowOrder <- c("Attic"
               ,"Roof Deck"
               ,"Sloped / Vaulted (no attic)"
               ,"Other"
               ,"All Types")
-item237.table <- item237.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)
-item237.table <- data.frame(item237.table)
+item237A.table <- item237A.table %>% mutate(Ceiling.Type = factor(Ceiling.Type, levels = rowOrder)) %>% arrange(Ceiling.Type)
+item237A.table <- data.frame(item237A.table)
 
 
-item237.table.MF <- item237.table[which(item237.table$BuildingType == "Multifamily"),-1]
+item237A.table.MF <- item237A.table[which(item237A.table$BuildingType == "Multifamily"),-1]
 
 
 #export table to correct workbook using exporting function
-exportTable(item237.table.MF, "MF", "Table 29", weighted = FALSE)
+exportTable(item237A.table.MF, "MF", "Table 29A", weighted = FALSE,OS = T, osIndicator = "PSE")
+
+
+
+
+
+
+#############################################################################################
+#Item 237B: DISTRIBUTION OF CEILING INSULATION BY CEILING TYPE (MF TABLE 29B)
+#############################################################################################
+#weight the u factor per home -- where weights are the wall area within home
+weightedU <- summarise(group_by(prep.dat5, CK_SiteID, Ceiling.Type)
+                       ,aveUval = sum(Ceiling.Area * Ceiling.Insulation.Condition.1 * uvalue) / sum(Ceiling.Area * Ceiling.Insulation.Condition.1)
+)
+unique(weightedU$aveUval)
+
+
+#back-calculate the weight r values
+weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
+unique(weightedU$aveRval)
+unique(weightedU$aveUval)
+
+# get unique cadmus IDs and building types for this subset of data
+Ceiling.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_SiteID","BuildingType"))])
+
+# merge on ID and building types to weighted uFactor and rValue data
+prep.dat6 <- left_join(weightedU, Ceiling.unique, by = "CK_SiteID")
+
+#merge weighted u values onto cleaned RBSA data
+prep.dat7 <- left_join(prep.dat6, rbsa.dat, by = c("CK_SiteID" = "CK_Building_ID"))
+prep.dat7 <- prep.dat7[grep("3 or fewer floors", prep.dat7$BuildingTypeXX),]
+item237B.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
+
+unique(item237B.dat$Ceiling.Type)
+
+#Bin R values -- MF only
+item237B.dat$rvalue.bins <- "Unknown"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >=  0  & item237B.dat$aveRval < 11)]  <- "R0.R10"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 11  & item237B.dat$aveRval < 16)]  <- "R11.R15"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 16  & item237B.dat$aveRval < 21)]  <- "R16.R20"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 21  & item237B.dat$aveRval < 26)]  <- "R21.R25"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 26  & item237B.dat$aveRval < 31)]  <- "R26.R30"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 31  & item237B.dat$aveRval < 41)]  <- "R31.R40"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 41  & item237B.dat$aveRval < 51)]  <- "R41.R50"
+item237B.dat$rvalue.bins[which(item237B.dat$aveRval >= 51)] <- "RGT50"
+unique(item237B.dat$rvalue.bins)
+
+item237B.dat$count <- 1
+
+item237B.dat1 <- item237B.dat[which(item237B.dat$rvalue.bins != "Unknown"),]
+colnames(item237B.dat1)
+
+item237B.merge <- left_join(rbsa.dat, item237B.dat1)
+item237B.merge <- item237B.merge[which(!is.na(item237B.merge$count)),]
+
+item237B.data <- weightedData(unique(item237B.merge[-which(colnames(item237B.merge) %in% c("CK_SiteID"
+                                                                                        ,"Ceiling.Type"
+                                                                                        ,"aveUval"
+                                                                                        ,"aveRval"
+                                                                                        ,"rvalue.bins"
+                                                                                        ,"count"
+                                                                                        ,"Category"))]))
+item237B.data <- left_join(item237B.data, item237B.merge[which(colnames(item237B.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"CK_SiteID"
+                                                                                           ,"Ceiling.Type"
+                                                                                           ,"aveUval"
+                                                                                           ,"aveRval"
+                                                                                           ,"rvalue.bins"
+                                                                                           ,"count"
+                                                                                           ,"Category"))])
+
+
+
+################################
+# Weighted Analysis
+################################
+item237B.summary <- proportionRowsAndColumns1(CustomerLevelData     = item237B.data
+                                             , valueVariable       = 'count'
+                                             , columnVariable      = 'Category'
+                                             , rowVariable         = 'rvalue.bins'
+                                             , aggregateColumnName = "Remove"
+)
+item237B.summary <- item237B.summary[which(item237B.summary$Category != "Remove"),]
+
+## Summary only for "All Frame Types"
+item237B.all.frame.types <- proportions_one_group(CustomerLevelData = item237B.data
+                                                 ,valueVariable    = "count"
+                                                 ,groupingVariable = "rvalue.bins"
+                                                 ,total.name       = "Remove"
+                                                 ,columnName       = "Category"
+                                                 ,weighted = TRUE
+                                                 ,two.prop.total = TRUE
+)
+
+#merge together!
+item237B.final <- rbind.data.frame(item237B.summary
+                                  , item237B.all.frame.types, stringsAsFactors = F)
+
+
+##cast data
+item237B.cast <- dcast(setDT(item237B.final),
+                      formula   = BuildingType + rvalue.bins ~ Category,
+                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+#join all insulation levels onto rvalue summary
+item237B.table <- data.frame("Insulation.Level"                   = item237B.cast$rvalue.bins
+                             ,"PSE.Percent"                 = item237B.cast$w.percent_PSE
+                             ,"PSE.SE"                      = item237B.cast$w.SE_PSE
+                             ,"PSE.n"                       = item237B.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item237B.cast$`w.percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item237B.cast$`w.SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item237B.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item237B.cast$`w.percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item237B.cast$`w.SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item237B.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item237B.cast$`w.percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item237B.cast$`w.SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS.n"              = item237B.cast$`n_2017 RBSA PS`
+                             ,"PSE_EB"                      = item237B.cast$EB_PSE
+                             ,"PSE.King.County_EB"          = item237B.cast$`EB_PSE KING COUNTY`
+                             ,"PSE.Non.King.County_EB"      = item237B.cast$`EB_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS_EB"             = item237B.cast$`EB_2017 RBSA PS`
+)
+
+# item237B.table.MF <- item237B.table[which(item237B.table$BuildingType == "Multifamily")]
+
+
+#export table to correct workbook using exporting function
+exportTable(item237B.table, "MF", "Table 29B", weighted = TRUE,OS = T, osIndicator = "PSE")
+
+
+
+################################
+# Unweighted Analysis
+################################
+item237B.summary <- proportions_two_groups_unweighted(CustomerLevelData     = item237B.data
+                                                      , valueVariable       = 'count'
+                                                      , columnVariable      = 'Category'
+                                                      , rowVariable         = 'rvalue.bins'
+                                                      , aggregateColumnName = "Remove"
+)
+item237B.summary <- item237B.summary[which(item237B.summary$Category != "Remove"),]
+
+## Summary only for "All Frame Types"
+item237B.all.frame.types <- proportions_one_group(CustomerLevelData = item237B.data
+                                                  ,valueVariable    = "count"
+                                                  ,groupingVariable = "rvalue.bins"
+                                                  ,total.name       = "Remove"
+                                                  ,columnName       = "Category"
+                                                  ,weighted = FALSE
+                                                  ,two.prop.total = TRUE
+)
+
+#merge together!
+item237B.final <- rbind.data.frame(item237B.summary
+                                   , item237B.all.frame.types, stringsAsFactors = F)
+
+
+##cast data
+item237B.cast <- dcast(setDT(item237B.final),
+                       formula   = BuildingType + rvalue.bins ~ Category,
+                      value.var = c("Percent", "SE", "Count", "n"))
+
+#join all insulation levels onto rvalue summary
+item237B.table <- data.frame("Insulation.Levels"                   = item237B.cast$rvalue.bins
+                             ,"PSE.Percent"                 = item237B.cast$Percent_PSE
+                             ,"PSE.SE"                      = item237B.cast$SE_PSE
+                             ,"PSE.n"                       = item237B.cast$n_PSE
+                             ,"PSE.King.County.Percent"     = item237B.cast$`Percent_PSE KING COUNTY`
+                             ,"PSE.King.County.SE"          = item237B.cast$`SE_PSE KING COUNTY`
+                             ,"PSE.King.County.n"           = item237B.cast$`n_PSE KING COUNTY`
+                             ,"PSE.Non.King.County.Percent" = item237B.cast$`Percent_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.SE"      = item237B.cast$`SE_PSE NON-KING COUNTY`
+                             ,"PSE.Non.King.County.n"       = item237B.cast$`n_PSE NON-KING COUNTY`
+                             ,"2017.RBSA.PS.Percent"        = item237B.cast$`Percent_2017 RBSA PS`
+                             ,"2017.RBSA.PS.SE"             = item237B.cast$`SE_2017 RBSA PS`
+                             ,"2017.RBSA.PS.n"              = item237B.cast$`n_2017 RBSA PS`
+)
+
+#export table to correct workbook using exporting function
+exportTable(item237B.table, "MF", "Table 29B", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 

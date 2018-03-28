@@ -24,7 +24,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
@@ -106,135 +106,16 @@ tableAG.merge$StorageBulbs[which(is.na(tableAG.merge$StorageBulbs))] <- 0
 ################################################
 tableAG.data <- weightedData(tableAG.merge[-which(colnames(tableAG.merge) %in% c("StorageBulbs"
                                                                                  ,"TotalBulbs"
-                                                                                 ,"Lamp.Category"))])
+                                                                                 ,"Lamp.Category"
+                                                                                 ,"Category"))])
 tableAG.data <- left_join(tableAG.data, tableAG.merge[which(colnames(tableAG.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"StorageBulbs"
                                                                                            ,"TotalBulbs"
-                                                                                           ,"Lamp.Category"))])
+                                                                                           ,"Lamp.Category"
+                                                                                           ,"Category"))])
 tableAG.data$count <- 1
 stopifnot(nrow(tableAG.data) == nrow(tableAG.merge))
-# #######################
-# # Weighted Analysis
-# #######################
-# tableAG.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.data
-#                                              ,valueVariable = "StorageBulbs"
-#                                              ,columnVariable = "State"
-#                                              ,rowVariable = "Lamp.Category"
-#                                              ,aggregateColumnName = "Region")
-# # tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
-# 
-# 
-# 
-# tableAG.cast <- dcast(setDT(tableAG.summary)
-#                       ,formula = BuildingType + Lamp.Category ~ State
-#                       ,value.var = c("w.percent","w.SE","count","n","N","EB"))
-# 
-# tableAG.final <- data.frame("BuildingType"   = tableAG.cast$BuildingType
-#                             ,"Lamp.Category" = tableAG.cast$Lamp.Category
-#                             ,"ID"             = tableAG.cast$w.percent_ID
-#                             ,"ID.SE"          = tableAG.cast$w.SE_ID
-#                             ,"ID.n"           = tableAG.cast$n_ID
-#                             ,"MT"             = tableAG.cast$w.percent_MT
-#                             ,"MT.SE"          = tableAG.cast$w.SE_MT
-#                             ,"MT.n"           = tableAG.cast$n_MT
-#                             ,"OR"             = tableAG.cast$w.percent_OR
-#                             ,"OR.SE"          = tableAG.cast$w.SE_OR
-#                             ,"OR.n"           = tableAG.cast$n_OR
-#                             ,"WA"             = tableAG.cast$w.percent_WA
-#                             ,"WA.SE"          = tableAG.cast$w.SE_WA
-#                             ,"WA.n"           = tableAG.cast$n_WA
-#                             ,"Region"         = tableAG.cast$w.percent_Region
-#                             ,"Region.SE"      = tableAG.cast$w.SE_Region
-#                             ,"Region.n"       = tableAG.cast$n_Region
-#                             ,"ID.EB"          = tableAG.cast$EB_ID
-#                             ,"MT.EB"          = tableAG.cast$EB_MT
-#                             ,"OR.EB"          = tableAG.cast$EB_OR
-#                             ,"WA.EB"          = tableAG.cast$EB_WA
-#                             ,"Region.EB"      = tableAG.cast$EB_Region
-# )
-# 
-# unique(tableAG.final$Lamp.Category)
-# rowOrder <- c("Compact Fluorescent"
-#               ,"Halogen"
-#               ,"Incandescent"
-#               ,"Incandescent / Halogen"
-#               ,"Light Emitting Diode"
-#               ,"Linear Fluorescent"
-#               ,"Other"
-#               ,"Unknown"
-#               ,"Total")
-# tableAG.final <- tableAG.final %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
-# tableAG.final <- data.frame(tableAG.final)
-# 
-# 
-# tableAG.final.SF <- tableAG.final[which(tableAG.final$BuildingType == "Single Family")
-#                                   ,-which(colnames(tableAG.final) %in% c("BuildingType"))]
-# tableAG.final.MH <- tableAG.final[which(tableAG.final$BuildingType == "Manufactured")
-#                                   ,-which(colnames(tableAG.final) %in% c("BuildingType"))]
-# 
-# exportTable(tableAG.final.SF, "SF", "Table AG", weighted = TRUE)
-# # exportTable(tableAG.final.MH, "MH", "Table AG", weighted = TRUE)
-# 
-# 
-# #######################
-# # Unweighted Analysis
-# #######################
-# tableAG.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAG.data
-#                                              ,valueVariable = "StorageBulbs"
-#                                              ,columnVariable = "State"
-#                                              ,rowVariable = "Lamp.Category"
-#                                              ,aggregateColumnName = "Region")
-# # tableAG.summary <- tableAG.summary[which(tableAG.summary$Lamp.Category != "Total"),]
-# 
-# tableAG.cast <- dcast(setDT(tableAG.summary)
-#                       ,formula = BuildingType + Lamp.Category ~ State
-#                       ,value.var = c("Percent","SE","Count","n"))
-# 
-# tableAG.table <- data.frame("BuildingType"    = tableAG.cast$BuildingType
-#                             ,"Lamp.Category"  = tableAG.cast$Lamp.Category
-#                             ,"ID"             = tableAG.cast$Percent_ID
-#                             ,"ID.SE"          = tableAG.cast$SE_ID
-#                             ,"ID.n"           = tableAG.cast$n_ID
-#                             ,"MT"             = tableAG.cast$Percent_MT
-#                             ,"MT.SE"          = tableAG.cast$SE_MT
-#                             ,"MT.n"           = tableAG.cast$n_MT
-#                             ,"OR"             = tableAG.cast$Percent_OR
-#                             ,"OR.SE"          = tableAG.cast$SE_OR
-#                             ,"OR.n"           = tableAG.cast$n_OR
-#                             ,"WA"             = tableAG.cast$Percent_WA
-#                             ,"WA.SE"          = tableAG.cast$SE_WA
-#                             ,"WA.n"           = tableAG.cast$n_WA
-#                             ,"Region"         = tableAG.cast$Percent_Region
-#                             ,"Region.SE"      = tableAG.cast$SE_Region
-#                             ,"Region.n"       = tableAG.cast$n_Region
-# )
-# 
-# unique(tableAG.final$Lamp.Category)
-# rowOrder <- c("Compact Fluorescent"
-#               ,"Halogen"
-#               ,"Incandescent"
-#               ,"Incandescent / Halogen"
-#               ,"Light Emitting Diode"
-#               ,"Linear Fluorescent"
-#               ,"Other"
-#               ,"Unknown"
-#               ,"Total")
-# tableAG.final <- tableAG.final %>% mutate(Lamp.Category = factor(Lamp.Category, levels = rowOrder)) %>% arrange(Lamp.Category)  
-# tableAG.final <- data.frame(tableAG.final)
-# 
-# tableAG.final.SF <- tableAG.table[which(tableAG.table$BuildingType == "Single Family")
-#                                   ,which(colnames(tableAG.table) %notin% c("BuildingType"))]
-# tableAG.final.MH <- tableAG.table[which(tableAG.table$BuildingType == "Manufactured")
-#                                   ,-which(colnames(tableAG.table) %in% c("BuildingType"))]
-# 
-# exportTable(tableAG.final.SF, "SF", "Table AG", weighted = FALSE)
-# # exportTable(tableAG.final.MH, "MH", "Table AG", weighted = FALSE)
 
-
-
-#######################################################
-# AG Multifamily
-#######################################################
 #######################
 # Weighted Analysis
 #######################
@@ -244,44 +125,44 @@ tableAG.MF.data$Count <- 1
 
 tableAG.MF.summary <- proportionRowsAndColumns1(CustomerLevelData = tableAG.MF.data
                                              ,valueVariable = "StorageBulbs"
-                                             ,columnVariable = "HomeType"
+                                             ,columnVariable = "Category"
                                              ,rowVariable = "Lamp.Category"
                                              ,aggregateColumnName = "All Sizes")
-tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$HomeType != "All Sizes"),]
+tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$Category != "All Sizes"),]
 
 tableAG.all.sizes <- proportions_one_group(CustomerLevelData = tableAG.MF.data
                                            ,valueVariable = "StorageBulbs"
                                            ,groupingVariable = "Lamp.Category"
                                            ,total.name = "All Sizes"
-                                           ,columnName = "HomeType"
+                                           ,columnName = "Category"
                                            ,weighted = TRUE
                                            ,two.prop.total = TRUE
 )
 
 tableAG.MF.merge <- rbind.data.frame(tableAG.MF.summary, tableAG.all.sizes, stringsAsFactors = F)
 
-tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.merge)
-                                    ,formula = BuildingType + Lamp.Category ~ HomeType
-                                    ,value.var = c("w.percent","w.SE","count","n","N","EB")))
+tableAG.MF.cast <- dcast(setDT(tableAG.MF.merge)
+                                    ,formula = BuildingType + Lamp.Category ~ Category
+                                    ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 names(tableAG.MF.cast)
 tableAG.MF.final <- data.frame("BuildingType"       = tableAG.MF.cast$BuildingType
                                ,"Lamp.Category"     = tableAG.MF.cast$Lamp.Category
-                               ,"Percent.Low.Rise"  = tableAG.MF.cast$w.percent_Apartment.Building..3.or.fewer.floors.
-                               ,"SE.Low.Rise"       = tableAG.MF.cast$w.SE_Apartment.Building..3.or.fewer.floors.
-                               ,"n.Low.Rise"        = tableAG.MF.cast$n_Apartment.Building..3.or.fewer.floors.
-                               ,"Percent.Mid.Rise"  = tableAG.MF.cast$w.percent_Apartment.Building..4.to.6.floors.
-                               ,"SE.Mid.Rise"       = tableAG.MF.cast$w.SE_Apartment.Building..4.to.6.floors.
-                               ,"n.Mid.Rise"        = tableAG.MF.cast$n_Apartment.Building..4.to.6.floors.
-                               ,"Percent.High.Rise" = tableAG.MF.cast$w.percent_Apartment.Building..More.than.6.floors.
-                               ,"SE.High.Rise"      = tableAG.MF.cast$w.SE_Apartment.Building..More.than.6.floors.
-                               ,"n.High.Rise"       = tableAG.MF.cast$n_Apartment.Building..More.than.6.floors.
-                               ,"Percent.All.Sizes" = tableAG.MF.cast$w.percent_All.Sizes
-                               ,"SE.All.Sizes"      = tableAG.MF.cast$w.SE_All.Sizes
-                               ,"n.All.Sizes"       = tableAG.MF.cast$n_All.Sizes
-                               ,"EB.Low.Rise"       = tableAG.MF.cast$EB_Apartment.Building..3.or.fewer.floors.
-                               ,"EB.Mid.Rise"       = tableAG.MF.cast$EB_Apartment.Building..4.to.6.floors.
-                               ,"EB.High.Rise"      = tableAG.MF.cast$EB_Apartment.Building..More.than.6.floors.
-                               ,"EB.All.Sizes"      = tableAG.MF.cast$EB_All.Sizes
+                               ,"PSE.Percent"                 = tableAG.MF.cast$w.percent_PSE
+                               ,"PSE.SE"                      = tableAG.MF.cast$w.SE_PSE
+                               ,"PSE.n"                       = tableAG.MF.cast$n_PSE
+                               ,"PSE.King.County.Percent"     = tableAG.MF.cast$`w.percent_PSE KING COUNTY`
+                               ,"PSE.King.County.SE"          = tableAG.MF.cast$`w.SE_PSE KING COUNTY`
+                               ,"PSE.King.County.n"           = tableAG.MF.cast$`n_PSE KING COUNTY`
+                               ,"PSE.Non.King.County.Percent" = tableAG.MF.cast$`w.percent_PSE NON-KING COUNTY`
+                               ,"PSE.Non.King.County.SE"      = tableAG.MF.cast$`w.SE_PSE NON-KING COUNTY`
+                               ,"PSE.Non.King.County.n"       = tableAG.MF.cast$`n_PSE NON-KING COUNTY`
+                               ,"2017.RBSA.PS.Percent"        = tableAG.MF.cast$`w.percent_2017 RBSA PS`
+                               ,"2017.RBSA.PS.SE"             = tableAG.MF.cast$`w.SE_2017 RBSA PS`
+                               ,"2017.RBSA.PS.n"              = tableAG.MF.cast$`n_2017 RBSA PS`
+                               ,"PSE_EB"                      = tableAG.MF.cast$EB_PSE
+                               ,"PSE.King.County_EB"          = tableAG.MF.cast$`EB_PSE KING COUNTY`
+                               ,"PSE.Non.King.County_EB"      = tableAG.MF.cast$`EB_PSE NON-KING COUNTY`
+                               ,"2017.RBSA.PS_EB"             = tableAG.MF.cast$`EB_2017 RBSA PS`
 )
 
 unique(tableAG.MF.final$Lamp.Category)
@@ -299,12 +180,12 @@ tableAG.MF.final <- data.frame(tableAG.MF.final)
 
 tableAG.MF.final.MF <- tableAG.MF.final[which(tableAG.MF.final$BuildingType == "Multifamily")
                                   ,-which(colnames(tableAG.MF.final) %in% c("BuildingType"))]
-tableAG.MF.final.MF$n.Low.Rise <- min(tableAG.MF.final.MF$n.Low.Rise)
-tableAG.MF.final.MF$n.Mid.Rise <- min(tableAG.MF.final.MF$n.Mid.Rise)
-tableAG.MF.final.MF$n.High.Rise <- min(tableAG.MF.final.MF$n.High.Rise)
-tableAG.MF.final.MF$n.All.Sizes <- min(tableAG.MF.final.MF$n.All.Sizes)
+tableAG.MF.final.MF$PSE.n <- min(tableAG.MF.final.MF$PSE.n)
+tableAG.MF.final.MF$PSE.King.County.n <- min(tableAG.MF.final.MF$PSE.King.County.n)
+tableAG.MF.final.MF$PSE.Non.King.County.n <- min(tableAG.MF.final.MF$PSE.Non.King.County.n)
+tableAG.MF.final.MF$X2017.RBSA.PS.n <- min(tableAG.MF.final.MF$X2017.RBSA.PS.n)
 
-exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = TRUE)
+exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #######################
@@ -312,29 +193,29 @@ exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = TRUE)
 #######################
 tableAG.MF.summary <- proportions_two_groups_unweighted(CustomerLevelData = tableAG.MF.data
                                                      ,valueVariable = "StorageBulbs"
-                                                     ,columnVariable = "HomeType"
+                                                     ,columnVariable = "Category"
                                                      ,rowVariable = "Lamp.Category"
                                                      ,aggregateColumnName = "All Sizes")
 # tableAG.MF.summary <- tableAG.MF.summary[which(tableAG.MF.summary$Lamp.Category != "Total"),]
 
 tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.summary)
-                                    ,formula = BuildingType + Lamp.Category ~ HomeType
+                                    ,formula = BuildingType + Lamp.Category ~ Category
                                     ,value.var = c("Percent","SE","Count","n")))
 
 tableAG.MF.final <- data.frame("BuildingType"       = tableAG.MF.cast$BuildingType
                                ,"Lamp.Category"     = tableAG.MF.cast$Lamp.Category
-                               ,"Percent.Low.Rise"  = tableAG.MF.cast$Percent_Apartment.Building..3.or.fewer.floors.
-                               ,"SE.Low.Rise"       = tableAG.MF.cast$SE_Apartment.Building..3.or.fewer.floors.
-                               ,"n.Low.Rise"        = tableAG.MF.cast$n_Apartment.Building..3.or.fewer.floors.
-                               ,"Percent.Mid.Rise"  = tableAG.MF.cast$Percent_Apartment.Building..4.to.6.floors.
-                               ,"SE.Mid.Rise"       = tableAG.MF.cast$SE_Apartment.Building..4.to.6.floors.
-                               ,"n.Mid.Rise"        = tableAG.MF.cast$n_Apartment.Building..4.to.6.floors.
-                               ,"Percent.High.Rise" = tableAG.MF.cast$Percent_Apartment.Building..More.than.6.floors.
-                               ,"SE.High.Rise"      = tableAG.MF.cast$SE_Apartment.Building..More.than.6.floors.
-                               ,"n.High.Rise"       = tableAG.MF.cast$n_Apartment.Building..More.than.6.floors.
-                               ,"Percent.All.Sizes" = tableAG.MF.cast$Percent_All.Sizes
-                               ,"SE.All.Sizes"      = tableAG.MF.cast$SE_All.Sizes
-                               ,"n.All.Sizes"       = tableAG.MF.cast$n_All.Sizes
+                               ,"PSE.Percent"                 = tavbleAG.MF.cast$Percent_PSE
+                               ,"PSE.SE"                      = tavbleAG.MF.cast$SE_PSE
+                               ,"PSE.n"                       = tavbleAG.MF.cast$n_PSE
+                               ,"PSE.King.County.Percent"     = tavbleAG.MF.cast$`Percent_PSE KING COUNTY`
+                               ,"PSE.King.County.SE"          = tavbleAG.MF.cast$`SE_PSE KING COUNTY`
+                               ,"PSE.King.County.n"           = tavbleAG.MF.cast$`n_PSE KING COUNTY`
+                               ,"PSE.Non.King.County.Percent" = tavbleAG.MF.cast$`Percent_PSE NON-KING COUNTY`
+                               ,"PSE.Non.King.County.SE"      = tavbleAG.MF.cast$`SE_PSE NON-KING COUNTY`
+                               ,"PSE.Non.King.County.n"       = tavbleAG.MF.cast$`n_PSE NON-KING COUNTY`
+                               ,"2017.RBSA.PS.Percent"        = tavbleAG.MF.cast$`Percent_2017 RBSA PS`
+                               ,"2017.RBSA.PS.SE"             = tavbleAG.MF.cast$`SE_2017 RBSA PS`
+                               ,"2017.RBSA.PS.n"              = tavbleAG.MF.cast$`n_2017 RBSA PS`
 )
 
 unique(tableAG.MF.final$Lamp.Category)
@@ -353,7 +234,7 @@ tableAG.MF.final <- data.frame(tableAG.MF.final)
 tableAG.MF.final.MF <- tableAG.MF.final[which(tableAG.MF.final$BuildingType == "Multifamily")
                                         ,-which(colnames(tableAG.MF.final) %in% c("BuildingType"))]
 
-exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = FALSE)
+exportTable(tableAG.MF.final.MF, "MF", "Table AG", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -409,9 +290,11 @@ tableAH.prep1 <- tableAH.prep1[which(tableAH.prep1$Wattage.per.bulb != "Inf"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
-tableAH.data <- weightedData(tableAH.prep1[-which(colnames(tableAH.prep1) %in% c("Wattage.per.bulb"))])
+tableAH.data <- weightedData(tableAH.prep1[-which(colnames(tableAH.prep1) %in% c("Wattage.per.bulb"
+                                                                                 ,"Category"))])
 tableAH.data <- left_join(tableAH.data, tableAH.prep1[which(colnames(tableAH.prep1) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Wattage.per.bulb"))])
+                                                                                       ,"Wattage.per.bulb"
+                                                                                       ,"Category"))])
 stopifnot(nrow(tableAH.data) == nrow(tableAH.data))
 # #######################
 # # Weighted Analysis
@@ -434,12 +317,12 @@ tableAH.data$count <-1
 #######################
 tableAH.final.MF <- mean_one_group(CustomerLevelData = tableAH.data
                                 ,valueVariable    = 'Wattage.per.bulb'
-                                ,byVariable       = 'HomeType'
-                                ,aggregateRow     = 'All Types')
+                                ,byVariable       = 'Category'
+                                ,aggregateRow     = 'Remove')
 
 # Export table
 tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Multifamily"),-1]
-exportTable(tableAH.final.MF, "MF", "Table AH", weighted = TRUE)
+exportTable(tableAH.final.MF, "MF", "Table AH", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 
@@ -465,9 +348,9 @@ exportTable(tableAH.final.MF, "MF", "Table AH", weighted = TRUE)
 #######################
 tableAH.final.MF <- mean_one_group_unweighted(CustomerLevelData = tableAH.data
                                    ,valueVariable    = 'Wattage.per.bulb'
-                                   ,byVariable       = 'HomeType'
-                                   ,aggregateRow     = 'All Types')
+                                   ,byVariable       = 'Category'
+                                   ,aggregateRow     = 'Remove')
 
 # Export table
 tableAH.final.MF <- tableAH.final.MF[which(tableAH.final.MF$BuildingType == "Multifamily"),-1]
-exportTable(tableAH.final.MF, "MF", "Table AH", weighted = FALSE)
+exportTable(tableAH.final.MF, "MF", "Table AH", weighted = FALSE,OS = T, osIndicator = "PSE")

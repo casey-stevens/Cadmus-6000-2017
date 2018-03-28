@@ -22,7 +22,7 @@ source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
+rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.site <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
@@ -30,7 +30,7 @@ lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export)
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
 #Read in data for analysis -- Item 292
-# rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 #clean cadmus IDs
 rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 
@@ -62,17 +62,17 @@ item290.dat5 <- item290.dat4[grep("Multifamily", item290.dat4$BuildingType),]
 item290.dat5$Lamp.Category[which(item290.dat5$Lamp.Category %in% c("Unknown", "Incandescent / Halogen"))] <- "Other"
 item290.dat5 <- item290.dat5[which(item290.dat5$Clean.Room != "Storage"),]# <- item290.dat5$Clean.Room[which(item290.dat5$Clean.Room == "Storage")]
   
-item290.site <- summarise(group_by(item290.dat5, CK_Cadmus_ID, CK_Building_ID)
+item290.site <- summarise(group_by(item290.dat5, CK_Cadmus_ID, CK_Building_ID, Category)
                           ,Total.Unit.Fixtures = sum(Fixture.Qty)
                           ,Total.Unit.Lamps = sum(Total.Lamps))
 
 item290.cast <- dcast(setDT(item290.dat5)
-                      ,formula = CK_Cadmus_ID + CK_Building_ID ~ Lamp.Category, sum
+                      ,formula = CK_Cadmus_ID + CK_Building_ID + Category ~ Lamp.Category, sum
                       ,value.var = "Total.Lamps")
 item290.join <- left_join(item290.site, item290.cast)
 
-item290.melt <- melt(item290.join, id = c("CK_Cadmus_ID", "CK_Building_ID"))
-names(item290.melt) <- c("CK_Cadmus_ID", "CK_Building_ID", "Lamp.Category", "Lamp.Count")
+item290.melt <- melt(item290.join, id = c("CK_Cadmus_ID", "CK_Building_ID", "Category"))
+names(item290.melt) <- c("CK_Cadmus_ID", "CK_Building_ID", "Category", "Lamp.Category", "Lamp.Count")
 
 
 item290.merge <- left_join(rbsa.dat.site, item290.melt)
@@ -82,37 +82,78 @@ item290.merge <- item290.merge[which(!is.na(item290.merge$Lamp.Count)),]
 #Pop and Sample Sizes for weights
 ######################################
 item290.data <- weightedData(item290.merge[which(colnames(item290.merge) %notin% c("Lamp.Category"
-                                                                                   ,"Lamp.Count"))])
+                                                                                   ,"Lamp.Count"
+                                                                                   ,"Category"))])
 
 item290.data <- left_join(item290.data, unique(item290.merge[which(colnames(item290.merge) %in% c("CK_Cadmus_ID"
                                                                                                   ,"CK_Building_ID"
                                                                                                   ,"Lamp.Category"
-                                                                                                  ,"Lamp.Count"))]))
+                                                                                                  ,"Lamp.Count"
+                                                                                                  ,"Category"))]))
 item290.data$count <- 1
 item290.data <- item290.data[grep("site", item290.data$CK_Building_ID, ignore.case = T),]
 
 #########################
 # weighted analysis
 #########################
-item290.final <- mean_one_group(CustomerLevelData = item290.data
-                                ,valueVariable = 'Lamp.Count'
-                                ,byVariable = 'Lamp.Category'
-                                ,aggregateRow = "Remove")
-item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),which(names(item290.final) != "BuildingType")]
+item290.cast <- mean_two_groups(CustomerLevelData = item290.data
+                                 ,valueVariable = "Lamp.Count"
+                                 ,byVariableRow = "Lamp.Category"
+                                 ,byVariableColumn = "Category"
+                                 ,columnAggregate = "Remove"
+                                 ,rowAggregate = "Remove")
+item290.cast <- item290.cast[which(item290.cast$Lamp.Category != "Remove")]
 
-exportTable(item290.final, "MF", "Table 82", weighted = TRUE)
+
+item290.final <- data.frame("Lamp.Category"                 = item290.cast$Lamp.Category
+                            ,"PSE.Mean"                 = item290.cast$Mean_PSE
+                            ,"PSE.SE"                   = item290.cast$SE_PSE
+                            ,"PSE.n"                    = item290.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item290.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item290.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item290.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item290.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item290.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item290.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item290.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item290.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item290.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                   = item290.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = item290.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item290.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item290.cast$`EB_2017 RBSA PS`
+)
+
+exportTable(item290.final, "MF", "Table 82", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 #########################
 # weighted analysis
 #########################
-item290.final <- mean_one_group_unweighted(CustomerLevelData = item290.data
-                                ,valueVariable = 'Lamp.Count'
-                                ,byVariable = 'Lamp.Category'
-                                ,aggregateRow = "Remove")
-item290.final <- item290.final[which(item290.final$Lamp.Category != "Remove"),which(names(item290.final) != "BuildingType")]
+item290.cast <- mean_two_groups_unweighted(CustomerLevelData = item290.data
+                                ,valueVariable = "Lamp.Count"
+                                ,byVariableRow = "Lamp.Category"
+                                ,byVariableColumn = "Category"
+                                ,columnAggregate = "Remove"
+                                ,rowAggregate = "Remove")
+item290.cast <- item290.cast[which(item290.cast$Lamp.Category != "Remove")]
 
-exportTable(item290.final, "MF", "Table 82", weighted = FALSE)
+
+item290.final <- data.frame("Lamp.Category"                 = item290.cast$Lamp.Category
+                            ,"PSE.Mean"                 = item290.cast$Mean_PSE
+                            ,"PSE.SE"                   = item290.cast$SE_PSE
+                            ,"PSE.n"                    = item290.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item290.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item290.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item290.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item290.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item290.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item290.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item290.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item290.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item290.cast$`n_2017 RBSA PS`
+)
+exportTable(item290.final, "MF", "Table 82", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -152,63 +193,104 @@ item292.dat1$Total.Wattage <- item292.dat1$Total.Lamps * as.numeric(as.character
 
 item292.dat2 <- item292.dat1[which(!(is.na(item292.dat1$Total.Wattage))),]
 
-item292.dat.room <- summarise(group_by(item292.dat2, CK_Cadmus_ID, CK_Building_ID, Clean.Room)
+item292.dat.room <- summarise(group_by(item292.dat2, CK_Cadmus_ID, CK_Building_ID, Category, Clean.Room)
                          ,Total.Wattage = sum(Total.Wattage))
-item292.dat.unit <- summarise(group_by(item292.dat2, CK_Cadmus_ID, CK_Building_ID)
+item292.dat.unit <- summarise(group_by(item292.dat2, CK_Cadmus_ID, CK_Building_ID, Category)
                               ,Clean.Room = "Unit LPD"
                               ,Total.Wattage = sum(Total.Wattage,na.rm = T))
 
 item292.dat3 <- rbind.data.frame(item292.dat.room, item292.dat.unit, stringsAsFactors = F)
 item292.dat3 <- item292.dat3[which(!is.na(item292.dat3$Total.Wattage)),]
 
-item292.dat4 <- left_join(item292.area1, item292.dat3, by = c("CK_Cadmus_ID", "CK_Building_ID", "Clean.Room"))
+item292.dat4 <- left_join(item292.area1, item292.dat3)#, by = c("CK_Cadmus_ID", "CK_Building_ID","Category", "Clean.Room"))
 
 item292.dat4$LPD <- item292.dat4$Total.Wattage / item292.dat4$SiteArea
 
 item292.merge <- left_join(rbsa.dat.site, item292.dat4)
 item292.merge <- item292.merge[which(!(is.na(item292.merge$LPD))),]
 unique(item292.merge$Clean.Room)
-
+summary(item292.merge$LPD)
+# item292.merge <- item292.merge[which(item292.merge$Category == "PSE"),]
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
 item292.data <- weightedData(item292.merge[which(colnames(item292.merge) %notin% c("Clean.Room"
                                                                                    ,"Total.Wattage"
                                                                                    ,"SiteArea"
-                                                                                   ,"LPD"))])
+                                                                                   ,"LPD"
+                                                                                   ,"Category"))])
 
 item292.data <- left_join(item292.data, item292.merge[which(colnames(item292.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"CK_Building_ID"
                                                                                            ,"Clean.Room"
                                                                                            ,"Total.Wattage"
                                                                                            ,"SiteArea"
-                                                                                           ,"LPD"))])
+                                                                                           ,"LPD"
+                                                                                           ,"Category"))])
 item292.data$count <- 1
 stopifnot(nrow(item292.data) == nrow(item292.merge))
 
-######################
+
+#########################
 # weighted analysis
-######################
-item292.final <- mean_one_group(CustomerLevelData = item292.data
+#########################
+item292.cast <- mean_two_groups(CustomerLevelData = item292.data
                                 ,valueVariable = "LPD"
-                                ,byVariable = 'Clean.Room'
-                                ,aggregateRow = "Remove")
+                                ,byVariableRow = "Clean.Room"
+                                ,byVariableColumn = "Category"
+                                ,columnAggregate = "Remove"
+                                ,rowAggregate = "All Rooms")
 
-item292.final <- item292.final[which(colnames(item292.final) %notin% c("BuildingType"))]
-  
-exportTable(item292.final, "MF", "Table 85", weighted = TRUE)
 
-######################
-# unweighted analysis
-######################
-item292.final <- mean_one_group_unweighted(CustomerLevelData = item292.data
-                                ,valueVariable = "LPD"
-                                ,byVariable = 'Clean.Room'
-                                ,aggregateRow = "Remove")
-item292.final <- item292.final[which(colnames(item292.final) %notin% c("BuildingType"))]
+item292.final <- data.frame("Room.Type"                 = item292.cast$Clean.Room
+                            ,"PSE.Mean"                 = item292.cast$Mean_PSE
+                            ,"PSE.SE"                   = item292.cast$SE_PSE
+                            ,"PSE.n"                    = item292.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item292.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item292.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item292.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item292.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item292.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item292.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item292.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item292.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item292.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                   = item292.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = item292.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item292.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item292.cast$`EB_2017 RBSA PS`
+)
 
-exportTable(item292.final, "MF", "Table 85", weighted = FALSE)
+exportTable(item292.final, "MF", "Table 85", weighted = TRUE,OS = T, osIndicator = "PSE")
 
+
+#########################
+# weighted analysis
+#########################
+item292.cast <- mean_two_groups_unweighted(CustomerLevelData = item292.data
+                                           ,valueVariable = "LPD"
+                                           ,byVariableRow = "Clean.Room"
+                                           ,byVariableColumn = "Category"
+                                           ,columnAggregate = "Remove"
+                                           ,rowAggregate = "Remove")
+item292.cast <- item292.cast[which(item292.cast$Lamp.Category != "Remove")]
+
+
+item292.final <- data.frame("Room.Type"                 = item292.cast$Clean.Room
+                            ,"PSE.Mean"                 = item292.cast$Mean_PSE
+                            ,"PSE.SE"                   = item292.cast$SE_PSE
+                            ,"PSE.n"                    = item292.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item292.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item292.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item292.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item292.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item292.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item292.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item292.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item292.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item292.cast$`n_2017 RBSA PS`
+)
+exportTable(item292.final, "MF", "Table 85", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
