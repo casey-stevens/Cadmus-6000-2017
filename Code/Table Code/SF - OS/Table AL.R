@@ -206,6 +206,7 @@ item122.dat0 <- item122.dat[which(item122.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
 item122.dat1 <- left_join(os.dat, item122.dat0, by = "CK_Cadmus_ID")
+item122.dat1 <- item122.dat1[which(item122.dat1$CK_Building_ID == "SCL GenPop"),]
 
 item122.dat2 <- item122.dat1[which(!is.na(item122.dat1$Qty.Occupants)), ]
 
@@ -249,9 +250,9 @@ summary(UsageDataSF_Final7$EUI)
 if(os.ind == "scl"){
   #for single family
   UsageDataSF_Final7$EUI_Quartile <- 4
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 4.178798)] <- 1
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 4.178798 & UsageDataSF_Final7$EUI < 6.744123)] <- 2
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.744123 & UsageDataSF_Final7$EUI < 10.473736)] <- 3
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.891558)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.891558 & UsageDataSF_Final7$EUI < 6.334265)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.334265 & UsageDataSF_Final7$EUI < 9.484466)] <- 3
   
 }else if(os.ind == "snopud"){
   #for single family
