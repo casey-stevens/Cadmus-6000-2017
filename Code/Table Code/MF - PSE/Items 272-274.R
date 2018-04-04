@@ -26,7 +26,7 @@ rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.d
 rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat.bldg$CK_Cadmus_ID))
 #Read in data for analysis
-# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 
@@ -171,7 +171,7 @@ item274.dat3 <- item274.dat2[grep("bldg", item274.dat2$CK_Building_ID, ignore.ca
 item274.dat4 <- item274.dat3[grep("Multifamily",item274.dat3$BuildingType),]
 
 item274.dat4$Ind[which(is.na(item274.dat4$Ind))] <- 0
-
+# item274.dat4$SITES_Pool_POOL_HOT_TUB_PoolLocation[which(is.na(item274.dat4$SITES_Pool_POOL_HOT_TUB_PoolLocation))] <- "No Pool"
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
@@ -200,16 +200,16 @@ item274.summary <- proportionRowsAndColumns1(CustomerLevelData = item274.data
                                              ,aggregateColumnName = "Remove")
 item274.summary <- item274.summary[which(item274.summary$Category != "Remove"),]
 item274.summary <- item274.summary[which(item274.summary$SITES_Pool_POOL_HOT_TUB_PoolLocation %notin% c("Total",NA)),]
-
+item274.data$State  <- item274.data$Category
 item274.all.pools <- proportions_one_group(CustomerLevelData = item274.data
                                               ,valueVariable = 'Ind'
-                                              ,groupingVariable = "Category"
+                                              ,groupingVariable = "State"
                                               ,total.name = "All Pools"
                                               ,columnName = "SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                               ,weighted = TRUE
                                               ,two.prop.total = TRUE)
-item274.all.pools <- item274.all.pools[which(item274.all.pools$Category != "Total"),]
-
+item274.all.pools <- item274.all.pools[which(item274.all.pools$State != "Total"),]
+names(item274.all.pools)[which(names(item274.all.pools) == "State")] <- "Category"
 item274.final <- rbind.data.frame(item274.summary, item274.all.pools, stringsAsFactors = F)
 
 item274.cast <- dcast(setDT(item274.final)
@@ -243,12 +243,13 @@ item274.summary <- item274.summary[which(item274.summary$SITES_Pool_POOL_HOT_TUB
 
 item274.all.pools <- proportions_one_group(CustomerLevelData = item274.data
                                               ,valueVariable = 'Ind'
-                                              ,groupingVariable = "Category"
+                                              ,groupingVariable = "State"
                                               ,total.name = "All Pools"
                                               ,columnName = "SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                               ,weighted = FALSE
                                               ,two.prop.total = TRUE)
-item274.all.pools <- item274.all.pools[which(item274.all.pools$Category != "Total"),]
+item274.all.pools <- item274.all.pools[which(item274.all.pools$State != "Total"),]
+names(item274.all.pools)[which(names(item274.all.pools) == "State")] <- "Category"
 
 item274.final <- rbind.data.frame(item274.summary, item274.all.pools, stringsAsFactors = F)
 

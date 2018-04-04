@@ -100,16 +100,16 @@ item213.cast <- dcast(setDT(item213.summary)
 colnames(item213.cast)
 item213.table <- data.frame("BuildingType"            = item213.cast$BuildingType
                             ,"Housing.Vintage"        = item213.cast$HomeYearBuilt_bins_MF
-                            ,"PSE"                    = item213.cast$w.percent_PSE
+                            ,"PSE.Percent"                    = item213.cast$w.percent_PSE
                             ,"PSE.SE"                 = item213.cast$w.SE_PSE
                             ,"PSE.n"                  = item213.cast$n_PSE
-                            ,"PSE.King.County"        = item213.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.Percent"        = item213.cast$`w.percent_PSE KING COUNTY`
                             ,"PSE.King.County.SE"     = item213.cast$`w.SE_PSE KING COUNTY`
                             ,"PSE.King.County.n"      = item213.cast$`n_PSE KING COUNTY`
-                            ,"PSE.Non.King.County"    = item213.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.Percent"    = item213.cast$`w.percent_PSE NON-KING COUNTY`
                             ,"PSE.Non.King.County.SE" = item213.cast$`w.SE_PSE NON-KING COUNTY`
                             ,"PSE.Non.King.County.n"  = item213.cast$`n_PSE NON-KING COUNTY`
-                            ,"2017.RBSA.PS"           = item213.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.Percent"           = item213.cast$`w.percent_2017 RBSA PS`
                             ,"2017.RBSA.PS.SE"        = item213.cast$`w.SE_2017 RBSA PS`
                             ,"2017.RBSA.PS.n"         = item213.cast$`n_2017 RBSA PS`
                             ,"PSE.EB"                 = item213.cast$EB_PSE
@@ -150,16 +150,16 @@ item213.cast <- dcast(setDT(item213.summary)
 colnames(item213.cast)
 item213.table <- data.frame("BuildingType" = item213.cast$BuildingType
                             ,"Housing.Vintage" = item213.cast$HomeYearBuilt_bins_MF
-                            ,"PSE"                    = item213.cast$Percent_PSE
+                            ,"PSE.Percent"                    = item213.cast$Percent_PSE
                             ,"PSE.SE"                 = item213.cast$SE_PSE
                             ,"PSE.n"                  = item213.cast$n_PSE
-                            ,"PSE.King.County"        = item213.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.Percent"        = item213.cast$`Percent_PSE KING COUNTY`
                             ,"PSE.King.County.SE"     = item213.cast$`SE_PSE KING COUNTY`
                             ,"PSE.King.County.n"      = item213.cast$`n_PSE KING COUNTY`
-                            ,"PSE.Non.King.County"    = item213.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.Percent"    = item213.cast$`Percent_PSE NON-KING COUNTY`
                             ,"PSE.Non.King.County.SE" = item213.cast$`SE_PSE NON-KING COUNTY`
                             ,"PSE.Non.King.County.n"  = item213.cast$`n_PSE NON-KING COUNTY`
-                            ,"2017.RBSA.PS"           = item213.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.Percent"           = item213.cast$`Percent_2017 RBSA PS`
                             ,"2017.RBSA.PS.SE"        = item213.cast$`SE_2017 RBSA PS`
                             ,"2017.RBSA.PS.n"         = item213.cast$`n_2017 RBSA PS`
 )
@@ -179,6 +179,105 @@ item213.table <- data.frame(item213.table)
 item213.table.MF <- item213.table[which(item213.table$BuildingType == "Multifamily")
                                   ,which(colnames(item213.table) %notin% c("BuildingType"))]
 exportTable(item213.table.MF, "MF", "Table 5", weighted = FALSE, OS = T, osIndicator = "PSE")
+
+
+
+#######################
+# Weighted Analysis
+#######################
+item212E.summary <- proportionRowsAndColumns1(CustomerLevelData = item213.data
+                                             ,valueVariable = 'count'
+                                             ,columnVariable = 'Category'
+                                             ,rowVariable = 'HomeYearBuilt_bins_MF'
+                                             ,aggregateColumnName = "Remove")
+item212E.summary <- item212E.summary[which(item212E.summary$Category != "Remove"),]
+item212E.summary$HomeYearBuilt_bins_MF[which(item212E.summary$HomeYearBuilt_bins_MF == "Total")] <- "All Vintages"
+
+item212E.cast <- dcast(setDT(item212E.summary)
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF~ Category
+                      ,value.var = c("w.percent", "w.SE", "count", "n", "N", "EB"))
+colnames(item212E.cast)
+item212E.table <- data.frame("BuildingType"            = item212E.cast$BuildingType
+                            ,"Housing.Vintage"        = item212E.cast$HomeYearBuilt_bins_MF
+                            ,"PSE.Percent"                    = item212E.cast$w.percent_PSE
+                            ,"PSE.SE"                 = item212E.cast$w.SE_PSE
+                            ,"PSE.n"                  = item212E.cast$n_PSE
+                            ,"PSE.King.County.Percent"        = item212E.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"     = item212E.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"      = item212E.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent"    = item212E.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE" = item212E.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"  = item212E.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"           = item212E.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"        = item212E.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"         = item212E.cast$`n_2017 RBSA PS`
+                            ,"PSE.EB"                 = item212E.cast$EB_PSE
+                            ,"PSE.King.County.EB"     = item212E.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.EB" = item212E.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.EB"        = item212E.cast$`EB_2017 RBSA PS`)
+# row ordering example code
+levels(item212E.table$Housing.Vintage)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item212E.table <- item212E.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item212E.table <- data.frame(item212E.table)
+
+item212E.table.MF <- item212E.table[which(item212E.table$BuildingType == "Multifamily")
+                                  ,which(colnames(item212E.table) %notin% c("BuildingType"))]
+exportTable(item212E.table.MF, "MF", "Table 4E", weighted = TRUE, OS = T, osIndicator = "PSE")
+
+#######################
+# Unweighted Analysis
+#######################
+item212E.summary <- proportions_two_groups_unweighted(CustomerLevelData = item213.data
+                                                     ,valueVariable = 'count'
+                                                     ,columnVariable = 'Category'
+                                                     ,rowVariable = 'HomeYearBuilt_bins_MF'
+                                                     ,aggregateColumnName = "Remove")
+item212E.summary <- item212E.summary[which(item212E.summary$Category != "Remove"),]
+item212E.summary$HomeYearBuilt_bins_MF[which(item212E.summary$HomeYearBuilt_bins_MF == "Total")] <- "All Vintages"
+
+item212E.cast <- dcast(setDT(item212E.summary)
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF~ Category
+                      ,value.var = c("Percent", "SE", "n"))
+colnames(item212E.cast)
+item212E.table <- data.frame("BuildingType" = item212E.cast$BuildingType
+                            ,"Housing.Vintage" = item212E.cast$HomeYearBuilt_bins_MF
+                            ,"PSE.Percent"                    = item212E.cast$Percent_PSE
+                            ,"PSE.SE"                 = item212E.cast$SE_PSE
+                            ,"PSE.n"                  = item212E.cast$n_PSE
+                            ,"PSE.King.County.Percent"        = item212E.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"     = item212E.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"      = item212E.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent"    = item212E.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE" = item212E.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"  = item212E.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"           = item212E.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"        = item212E.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"         = item212E.cast$`n_2017 RBSA PS`
+)
+# row ordering example code
+levels(item212E.table$Housing.Vintage)
+rowOrder <- c("Pre 1955"
+              ,"1955-1970"
+              ,"1971-1980"
+              ,"1981-1990"
+              ,"1991-2000"
+              ,"2001-2010"
+              ,"Post 2010"
+              ,"All Vintages")
+item212E.table <- item212E.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
+item212E.table <- data.frame(item212E.table)
+
+item212E.table.MF <- item212E.table[which(item212E.table$BuildingType == "Multifamily")
+                                  ,which(colnames(item212E.table) %notin% c("BuildingType"))]
+exportTable(item212E.table.MF, "MF", "Table 4E", weighted = FALSE, OS = T, osIndicator = "PSE")
 
 
 
@@ -234,14 +333,14 @@ colnames(item217.data)
 #######################
 # Weighted Analysis
 #######################
-item217.summary <- proportionRowsAndColumns1_within_row(CustomerLevelData = item217.data
+item217.summary <- proportionRowsAndColumns1(CustomerLevelData = item217.data
                                                         ,valueVariable = 'Count'
                                                         ,columnVariable = "HomeYearBuilt_bins_MF"
                                                         ,rowVariable = "Number.of.Units"
                                                         ,aggregateColumnName = "Remove")
 item217.summary <- item217.summary[which(item217.summary$HomeYearBuilt_bins_MF != "Remove"),]
 
-item217.all.vintages <- proportions_one_group_within_row(CustomerLevelData = item217.data
+item217.all.vintages <- proportions_one_group(CustomerLevelData = item217.data
                                                          ,valueVariable = 'Count'
                                                          ,groupingVariable = 'Number.of.Units'
                                                          ,total.name = "All Vintages"
@@ -250,11 +349,12 @@ item217.all.vintages <- proportions_one_group_within_row(CustomerLevelData = ite
                                                          ,two.prop.total = TRUE)
 item217.all.vintages <- item217.all.vintages[which(item217.all.vintages$Number.of.Units != "Total"),]
 
+
 item217.final <- rbind.data.frame(item217.summary, item217.all.vintages, stringsAsFactors = F)
 
 item217.cast <- dcast(setDT(item217.final)
-                      ,formula = BuildingType + HomeYearBuilt_bins_MF + n + N ~ Number.of.Units
-                      ,value.var = c("w.percent","w.SE","count","EB"))
+                      ,formula = BuildingType + HomeYearBuilt_bins_MF~ Number.of.Units
+                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 item217.table <- data.frame("BuildingType"                 = item217.cast$BuildingType
                             ,"Housing.Vintage"             = item217.cast$HomeYearBuilt_bins_MF
                             ,"Percent.Studio"              = item217.cast$w.percent_Number.of.Studio.Units
@@ -267,7 +367,7 @@ item217.table <- data.frame("BuildingType"                 = item217.cast$Buildi
                             ,"SE.Three.Bedroom"            = item217.cast$w.SE_Number.of.3.Bedroom.Units
                             ,"Percent.Four.Plus.Bedrooms"  = item217.cast$w.percent_Number.of.4.Plus.Bedroom.Units
                             ,"SE.Four.Plus.Bedrooms"       = item217.cast$w.SE_Number.of.4.Plus.Bedroom.Units
-                            ,"n"                           = item217.cast$n
+                            ,"n"                           = item217.cast$n_Total
                             ,"EB.Studio"                   = item217.cast$EB_Number.of.Studio.Units
                             ,"EB.One.Bedroom"              = item217.cast$EB_Number.of.1.Bedroom.Units
                             ,"EB.Two.Bedroom"              = item217.cast$EB_Number.of.2.Bedroom.Units

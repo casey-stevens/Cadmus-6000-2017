@@ -28,14 +28,14 @@ rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 length(unique(buildings.dat$CK_Building_ID))
 buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building_ID)),]
 
 #Read in data for analysis
-# buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.interview.export))
+buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.interview.export))
 #clean cadmus IDs
 buildings.interview.dat$CK_Building_ID <- trimws(toupper(buildings.interview.dat$CK_BuildingID))
 

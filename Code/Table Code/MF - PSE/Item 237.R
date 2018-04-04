@@ -115,21 +115,21 @@ for(i in grep("inches|rvalues", colnames(prep.dat4))){
 }
 
 #fix names that are not in R value table
-prep.dat4$ceiling.rvalues1[grep("extruded", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Extruded polystyrene foam board"
-prep.dat4$ceiling.rvalues1[grep("Expanded", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Expanded polystyrene foam board"
-prep.dat4$ceiling.rvalues1[grep("other|unknown", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Unknown"
-prep.dat4$ceiling.rvalues1[grep("wood", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Wood shavings"
-prep.dat4$ceiling.rvalues1[grep("rock", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "Rock wool"
+prep.dat4$ceiling.rvalues1[grep("extruded", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "extruded polystyrene foam board"
+prep.dat4$ceiling.rvalues1[grep("Expanded", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "expanded polystyrene foam board"
+prep.dat4$ceiling.rvalues1[grep("other|unknown", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "unknown"
+prep.dat4$ceiling.rvalues1[grep("wood", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "wood shavings"
+prep.dat4$ceiling.rvalues1[grep("rock", prep.dat4$ceiling.rvalues1, ignore.case = T)] <- "rock wool"
 unique(prep.dat4$ceiling.rvalues1)
-prep.dat4$ceiling.rvalues2[grep("extruded", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Extruded polystyrene foam board"
-prep.dat4$ceiling.rvalues2[grep("Expanded", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Expanded polystyrene foam board"
-prep.dat4$ceiling.rvalues2[grep("other|unknown", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Unknown"
-prep.dat4$ceiling.rvalues2[grep("wood", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Wood shavings"
-prep.dat4$ceiling.rvalues2[grep("rock|wool", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "Rock Wool"
+prep.dat4$ceiling.rvalues2[grep("extruded", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "extruded polystyrene foam board"
+prep.dat4$ceiling.rvalues2[grep("Expanded", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "expanded polystyrene foam board"
+prep.dat4$ceiling.rvalues2[grep("other|unknown", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "unknown"
+prep.dat4$ceiling.rvalues2[grep("wood", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "wood shavings"
+prep.dat4$ceiling.rvalues2[grep("rock|wool", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "rock wool"
 prep.dat4$ceiling.rvalues2[grep("None", prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "0"
-prep.dat4$ceiling.rvalues2[which(prep.dat4$ceiling.rvalues2 %in% c("Foil-faced polyiscyanurate foam board", "Foil-faced fiberglass insulation"))] <- "Foil-faced polyisocyanurate foam board"
+prep.dat4$ceiling.rvalues2[grep("Foil-faced polyiscyanurate foam board|Foil-faced fiberglass insulation",prep.dat4$ceiling.rvalues2, ignore.case = T)] <- "foil-faced polyisocyanurate foam board"
 unique(prep.dat4$ceiling.rvalues2)
-prep.dat4$ceiling.rvalues3[which(prep.dat4$ceiling.rvalues3 %in% c("Foil-faced polyiscyanurate foam board", "Foil-faced fiberglass insulation"))] <- "Foil-faced polyisocyanurate foam board"
+prep.dat4$ceiling.rvalues3[grep("Foil-faced polyiscyanurate foam board|Foil-faced fiberglass insulation",prep.dat4$ceiling.rvalues3, ignore.case = T)] <- "foil-faced polyisocyanurate foam board"
 
 ###########################
 # End cleaning step
@@ -215,17 +215,17 @@ prep.dat5$total.r.val[na.ind] <- (prep.dat5$ceiling.rvalues1[na.ind] * prep.dat5
   (prep.dat5$ceiling.rvalues3[na.ind] * prep.dat5$ceiling.inches3[na.ind]) 
 
 #check -- NOTE -- NONE SHOULD BE NA
-unique(prep.dat5$total.r.val)
+sort(unique(prep.dat5$total.r.val))
 
 #caluclate u factors = inverse of Rvalue
 prep.dat5$uvalue <- 1 / (prep.dat5$total.r.val)
 prep.dat5$uvalue[which(prep.dat5$uvalue == "Inf")] <- 1
-unique(prep.dat5$uvalue)
+sort(unique(prep.dat5$uvalue))
 
 #make area numeric
 prep.dat5$uvalue       <- as.numeric(as.character(prep.dat5$uvalue))
 prep.dat5$Ceiling.Area <- as.numeric(as.character(prep.dat5$Ceiling.Area))
-names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
+# names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
 #weight the u factor per home -- where weights are the wall area within home
 weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Ceiling.Type)
                        ,aveUval = sum(Ceiling.Area * Ceiling.Insulation.Condition.1 * uvalue) / sum(Ceiling.Area * Ceiling.Insulation.Condition.1)
@@ -287,27 +287,29 @@ ceiling.merge <- ceiling.merge[which(!is.na(ceiling.merge$uvalue)),]
 #Item 237A: DISTRIBUTION OF CEILING INSULATION BY CEILING TYPE (MF TABLE 29A)
 #############################################################################################
 #weight the u factor per home -- where weights are the wall area within home
+prep.dat5 <- prep.dat5[grep("BLDG",prep.dat5$CK_SiteID),]
 weightedU <- summarise(group_by(prep.dat5, CK_SiteID, Ceiling.Type)
                        ,aveUval = sum(Ceiling.Area * Ceiling.Insulation.Condition.1 * uvalue) / sum(Ceiling.Area * Ceiling.Insulation.Condition.1)
 )
-unique(weightedU$aveUval)
+sort(unique(weightedU$aveUval))
 
 
 #back-calculate the weight r values
 weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
 weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
 weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
-unique(weightedU$aveRval)
+sort(unique(weightedU$aveRval))
 unique(weightedU$aveUval)
 
-# get unique cadmus IDs and building types for this subset of data
-Ceiling.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_SiteID","BuildingType"))])
-
-# merge on ID and building types to weighted uFactor and rValue data
-prep.dat6 <- left_join(weightedU, Ceiling.unique, by = "CK_SiteID")
+# # get unique cadmus IDs and building types for this subset of data
+# Ceiling.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_SiteID"))])
+# names(Ceiling.unique)
+# names(weightedU)
+# # merge on ID and building types to weighted uFactor and rValue data
+# prep.dat6 <- left_join(weightedU, Ceiling.unique, by = "CK_SiteID")
 
 #merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat, by = c("CK_SiteID" = "CK_Building_ID"))
+prep.dat7 <- left_join(weightedU, rbsa.dat, by = c("CK_SiteID" = "CK_Building_ID"))
 prep.dat7 <- prep.dat7[grep("3 or fewer floors", prep.dat7$BuildingTypeXX),]
 item237A.dat <- prep.dat7[which(!is.na(prep.dat7$CK_Cadmus_ID)),]
 
@@ -395,23 +397,23 @@ item237A.table <- data.frame("BuildingType"                   = item237A.cast$Bu
                             ,"SE.R16.R20"                    = item237A.cast$w.SE_R16.R20
                             ,"Percent.R21.R25"               = item237A.cast$w.percent_R21.R25
                             ,"SE.R21.R25"                    = item237A.cast$w.SE_R21.R25
-                            # ,"Percent.R26.R30"               = item237A.cast$w.percent_R26.R30
-                            # ,"SE.R26.R30"                    = item237A.cast$w.SE_R26.R30
+                            ,"Percent.R26.R30"               = NA#item237A.cast$w.percent_R26.R30
+                            ,"SE.R26.R30"                    = NA#item237A.cast$w.SE_R26.R30
                             ,"Percent.R31.R40"               = item237A.cast$w.percent_R31.R40
                             ,"SE.R31.R40"                    = item237A.cast$w.SE_R31.R40
                             ,"Percent.R41.R50"               = item237A.cast$w.percent_R41.R50
                             ,"SE.R41.R50"                    = item237A.cast$w.SE_R41.R50
-                            # ,"Percent.RGT50"                 = item237A.cast$w.percent_RGT50
-                            # ,"SE.RGT50"                      = item237A.cast$w.SE_RGT50
+                            ,"Percent.RGT50"                 = NA#item237A.cast$w.percent_RGT50
+                            ,"SE.RGT50"                      = NA#item237A.cast$w.SE_RGT50
                             ,"n"                             = item237A.cast$n_Total
                             ,"EB.R0.R10"                     = item237A.cast$EB_R0.R10
                             ,"EB.R11.R15"                    = item237A.cast$EB_R11.R15
                             ,"EB.R16.R20"                    = item237A.cast$EB_R16.R20
                             ,"EB.R21.R25"                    = item237A.cast$EB_R21.R25
-                            # ,"EB.R26.R30"                    = item237A.cast$EB_R26.R30
+                            ,"EB.R26.R30"                    = NA#item237A.cast$EB_R26.R30
                             ,"EB.R31.R40"                    = item237A.cast$EB_R31.R40
                             ,"EB.R41.R50"                    = item237A.cast$EB_R41.R50
-                            # ,"EB.RGT50"                      = item237A.cast$EB_RGT50
+                            ,"EB.RGT50"                      = NA#item237A.cast$EB_RGT50
 )
 
 # row ordering example code
@@ -471,18 +473,18 @@ item237A.table <- data.frame("BuildingType"                   = item237A.cast$Bu
                             ,"SE.R0.R10"                     = item237A.cast$SE_R0.R10
                             ,"Percent.R11.R15"               = item237A.cast$Percent_R11.R15
                             ,"SE.R11.R15"                    = item237A.cast$SE_R11.R15
-                            # ,"Percent.R16.R20"               = item237A.cast$Percent_R16.R20
-                            # ,"SE.R16.R20"                    = item237A.cast$SE_R16.R20
+                            ,"Percent.R16.R20"               = item237A.cast$Percent_R16.R20
+                            ,"SE.R16.R20"                    = item237A.cast$SE_R16.R20
                             ,"Percent.R21.R25"               = item237A.cast$Percent_R21.R25
                             ,"SE.R21.R25"                    = item237A.cast$SE_R21.R25
-                            ,"Percent.R26.R30"               = item237A.cast$Percent_R26.R30
-                            ,"SE.R26.R30"                    = item237A.cast$SE_R26.R30
+                            ,"Percent.R26.R30"               = NA#item237A.cast$Percent_R26.R30
+                            ,"SE.R26.R30"                    = NA#item237A.cast$SE_R26.R30
                             ,"Percent.R31.R40"               = item237A.cast$Percent_R31.R40
                             ,"SE.R31.R40"                    = item237A.cast$SE_R31.R40
                             ,"Percent.R41.R50"               = item237A.cast$Percent_R41.R50
                             ,"SE.R41.R50"                    = item237A.cast$SE_R41.R50
-                            # ,"Percent.RGT50"                 = item237A.cast$Percent_RGT50
-                            # ,"SE.RGT50"                      = item237A.cast$SE_RGT50
+                            ,"Percent.RGT50"                 = NA#item237A.cast$Percent_RGT50
+                            ,"SE.RGT50"                      = NA#item237A.cast$SE_RGT50
                             ,"n"                             = item237A.cast$n_Total
 )
 

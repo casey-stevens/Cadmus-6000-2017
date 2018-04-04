@@ -27,7 +27,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID,ignore.case = T),]
 
 #Read in data for analysis
-# water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
+water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
 #clean cadmus IDs
 water.dat$CK_Cadmus_ID <- trimws(toupper(water.dat$CK_Cadmus_ID))
 
@@ -52,7 +52,7 @@ unique(item106.dat2$GPM_Measured)
 
 item106.dat3 <- item106.dat2[grep("shower|Shower",item106.dat2$Fixture.Type),]
 
-item106.dat4 <- summarise(group_by(item106.dat3, CK_Cadmus_ID, BuildingType, State, count)
+item106.dat4 <- summarise(group_by(item106.dat3, CK_Cadmus_ID, Category, BuildingType, State, count)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 item106.dat4$GPM_bins <- item106.dat4$GPM.Measured.Site
@@ -131,12 +131,12 @@ exportTable(item106.table, "MF", "Table 80", weighted = TRUE,OS = T, osIndicator
 #######################
 item106.final <- proportions_two_groups_unweighted(CustomerLevelData = item106.data
                                                   ,valueVariable    = 'count'
-                                                  ,columnVariable   = 'State'
+                                                  ,columnVariable   = 'Category'
                                                   ,rowVariable      = 'GPM_bins'
                                                   ,aggregateColumnName = "Region")
 
 item106.cast <- dcast(setDT(item106.final)
-                     , formula = BuildingType + GPM_bins ~ State
+                     , formula = BuildingType + GPM_bins ~ Category
                      , value.var = c("Percent", "SE", "Count", "n"))
 
 
@@ -154,8 +154,6 @@ item106.table <- data.frame("Flow.Rate.GPM"   = item106.cast$GPM_bins
                             ,"2017.RBSA.PS.SE"             = item106.cast$`SE_2017 RBSA PS`
                             ,"2017.RBSA.PS.n"              = item106.cast$`n_2017 RBSA PS`
 )
-stopifnot(sum(item106.table[which(item106.table$BuildingType == "Single Family")
-                           ,grep("Percent",colnames(item106.table))], na.rm = T) == 10)
 
 levels(item106.table$Flow.Rate.GPM)
 rowOrder <- c("< 1.5"
@@ -167,7 +165,7 @@ rowOrder <- c("< 1.5"
 item106.table <- item106.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)
 item106.table <- data.frame(item106.table)
 
-exportTable(item106.table, "MF", "Table 73", weighted = FALSE,OS = T, osIndicator = "PSE")
+exportTable(item106.table, "MF", "Table 80", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -275,14 +273,14 @@ tableAM.dat3$Count <- 1
 
 #cast the melt example code
 tableAM.cast <- dcast(setDT(tableAM.dat3)
-                      ,formula = CK_Cadmus_ID ~ Fixture.Type,sum
+                      ,formula = CK_Cadmus_ID + Category ~ Fixture.Type,sum
                       ,value.var = c("Count"))
 tableAM.cast[is.na(tableAM.cast),] <- 0
 
-tableAM.melt <- melt(tableAM.cast, id.vars = "CK_Cadmus_ID")
-names(tableAM.melt) <- c("CK_Cadmus_ID", "Fixture.Type", "Count")
+tableAM.melt <- melt(tableAM.cast, id = c("CK_Cadmus_ID", "Category"))
+names(tableAM.melt) <- c("CK_Cadmus_ID", "Category", "Fixture.Type", "Count")
 
-tableAM.dat4 <- summarise(group_by(tableAM.melt, CK_Cadmus_ID, Fixture.Type)
+tableAM.dat4 <- summarise(group_by(tableAM.melt, CK_Cadmus_ID, Category, Fixture.Type)
                           ,Site.Count = sum(Count))
 
 tableAM.merge <- left_join(rbsa.dat, tableAM.dat4)
@@ -396,7 +394,7 @@ unique(tableAS.dat2$GPM_Measured)
 
 tableAS.dat3 <- tableAS.dat2[grep("bathroom",tableAS.dat2$Fixture.Type, ignore.case = T),]
 
-tableAS.dat4 <- summarise(group_by(tableAS.dat3, CK_Cadmus_ID)
+tableAS.dat4 <- summarise(group_by(tableAS.dat3, CK_Cadmus_ID, Category)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAS.dat4$GPM_bins <- tableAS.dat4$GPM.Measured.Site
@@ -475,15 +473,15 @@ exportTable(tableAS.final.MF, "MF", "Table AS", weighted = TRUE,OS = T, osIndica
 #######################
 tableAS.final <- proportions_two_groups_unweighted(CustomerLevelData = tableAS.data
                                                    ,valueVariable    = 'count'
-                                                   ,columnVariable   = 'State'
+                                                   ,columnVariable   = 'Category'
                                                    ,rowVariable      = 'GPM_bins'
                                                    ,aggregateColumnName = "Region")
 
 tableAS.cast <- dcast(setDT(tableAS.final)
-                      , formula = BuildingType + GPM_bins ~ State
+                      , formula = BuildingType + GPM_bins ~ Category
                       , value.var = c("Percent", "SE", "Count", "n"))
 
-
+names(tableAS.cast)
 tableAS.table <- data.frame("BuildingType"   = tableAS.cast$BuildingType
                             ,"Flow.Rate.GPM"  = tableAS.cast$GPM_bins
                             ,"PSE.Percent"                 = tableAS.cast$Percent_PSE
@@ -534,7 +532,7 @@ unique(tableAT.dat2$GPM_Measured)
 
 tableAT.dat3 <- tableAT.dat2[grep("kitchen",tableAT.dat2$Fixture.Type, ignore.case = T),]
 
-tableAT.dat4 <- summarise(group_by(tableAT.dat3, CK_Cadmus_ID)
+tableAT.dat4 <- summarise(group_by(tableAT.dat3, CK_Cadmus_ID, Category)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAT.dat4$GPM_bins <- tableAT.dat4$GPM.Measured.Site

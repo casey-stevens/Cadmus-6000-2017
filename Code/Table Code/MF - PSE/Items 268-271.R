@@ -98,18 +98,23 @@ item268.merge <- item268.merge[grep("3 or fewer floors", item268.merge$BuildingT
 item268.merge$Laundry.Location[which(is.na(item268.merge$Laundry.Location))] <- "None"
 item268.merge$count <- 1
 
+item268.unique <- unique(item268.merge[which(names(item268.merge) %in% c("CK_Cadmus_ID", "Laundry.Location"))])
+item268.unique <- item268.unique[which(!is.na(item268.unique$Laundry.Location)),]
+
+item268.merge1 <- left_join(rbsa.dat.site, item268.unique)
+item268.merge1$Laundry.Location[which(is.na(item268.merge1$Laundry.Location))] <- "None"
 ######################################
 #Pop and Sample Sizes for weights
 ######################################
-item268.data <- weightedData(item268.merge[which(colnames(item268.merge) %notin% c("Laundry.Location"
+item268.data <- weightedData(item268.merge1[which(colnames(item268.merge1) %notin% c("Laundry.Location"
                                                                                    ,"count"
                                                                                    ,"Category"))])
 
-item268.data <- left_join(item268.data, item268.merge[which(colnames(item268.merge) %in% c("CK_Cadmus_ID"
+item268.data <- left_join(item268.data, unique(item268.merge1[which(colnames(item268.merge1) %in% c("CK_Cadmus_ID"
                                                                                            ,"CK_Building_ID"
                                                                                            ,"Laundry.Location"
                                                                                            ,"count"
-                                                                                           ,"Category"))])
+                                                                                           ,"Category"))]))
 
 names(item268.data)
 length(unique(item268.data$CK_Cadmus_ID))
@@ -121,9 +126,17 @@ length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF
 length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "2001-2010")]))
 length(unique(item268.data$CK_Cadmus_ID[which(item268.data$HomeYearBuilt_bins_MF == "Post 2010")]))
 
+
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$Category == "PSE" & item268.data$Laundry.Location == "Common")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$Category == "1991-2000")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$Category == "2001-2010")]))
+length(unique(item268.data$CK_Cadmus_ID[which(item268.data$Category == "Post 2010")]))
+
 ######################
 # weighted analysis
 ######################
+item268.data$count <- 1
+item268.data$Count <- 1
 item268.summary <- proportionRowsAndColumns1(CustomerLevelData = item268.data
                                              ,valueVariable = 'count'
                                              ,columnVariable = "Category"

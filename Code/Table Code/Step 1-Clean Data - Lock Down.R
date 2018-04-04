@@ -372,32 +372,32 @@ write.xlsx(rbsa.dat10, paste(filepathCleanData, paste("clean.rbsa.data", rundate
 
 
 
-# #############################################################################################
-# #
-# # SCL
-# #
-# #############################################################################################
-# scl.dat <- rbsa.dat10[grep("SCL",rbsa.dat10$Territory, ignore.case = T),]
-# scl.dat$Category <- "SCL GenPop"
-# scl.li.dat <- rbsa.dat10[grep("SCL LI",rbsa.dat10$Territory, ignore.case = T),]
-# scl.li.dat$Category <- "SCL LI"
-# scl.eh.dat <- rbsa.dat10[grep("SCL EH|SCL LI and EH",rbsa.dat10$Territory, ignore.case = T),]
-# scl.eh.dat$Category <- "SCL EH"
-# scl.ps.dat <- rbsa.dat10[grep("puget",rbsa.dat10$Detailed.Region, ignore.case = T),]
-# scl.ps.dat$Category <- "2017 RBSA PS"
-# 
-# scl.data <- rbind.data.frame(scl.dat
-#                              ,scl.li.dat
-#                              ,scl.eh.dat
-#                              ,scl.ps.dat)
-# scl.data$CK_Building_ID <- NA
-# scl.data <- unique(scl.data[which(scl.data$BuildingType == "Single Family"),])
-# names(scl.data)
-# 
-# ##  Write out confidence/precision info
-# Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
-# write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = ""), sep="/"),
-#            append = T, row.names = F, showNA = F)
+#############################################################################################
+#
+# SCL
+#
+#############################################################################################
+scl.dat <- rbsa.dat10[grep("SCL",rbsa.dat10$Territory, ignore.case = T),]
+scl.dat$Category <- "SCL GenPop"
+scl.li.dat <- rbsa.dat10[grep("SCL LI",rbsa.dat10$Territory, ignore.case = T),]
+scl.li.dat$Category <- "SCL LI"
+scl.eh.dat <- rbsa.dat10[grep("SCL EH|SCL LI and EH",rbsa.dat10$Territory, ignore.case = T),]
+scl.eh.dat$Category <- "SCL EH"
+scl.ps.dat <- rbsa.dat10[grep("puget",rbsa.dat10$Detailed.Region, ignore.case = T),]
+scl.ps.dat$Category <- "2017 RBSA PS"
+
+scl.data <- rbind.data.frame(scl.dat
+                             ,scl.li.dat
+                             ,scl.eh.dat
+                             ,scl.ps.dat)
+scl.data$CK_Building_ID <- NA
+scl.data <- unique(scl.data[which(scl.data$BuildingType == "Single Family"),])
+names(scl.data)
+
+##  Write out confidence/precision info
+Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
+write.xlsx(scl.data, paste(filepathCleanData, paste("clean.scl.data", rundate, ".xlsx", sep = ""), sep="/"),
+           append = T, row.names = F, showNA = F)
 # 
 # 
 # 
@@ -446,10 +446,12 @@ rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "KM21296 OS PSE")] <- "PSE
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "KM24679 OS PSE")] <- "PSE - King County"
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "SL2263 OS SCL")] <- "PSE - King County"
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "WM0053")] <- "PSE - King County"
+rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "KM20291 OS PSE")] <- "PSE - King County"
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "PNM20557 OS PSE")] <- "PSE - Non-King County"
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "PNM23871 OS PSE")] <- "PSE - Non-King County"
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "PNM23904 OS PSE")] <- "PSE - Non-King County"
 rbsa.dat11$Territory[which(rbsa.dat11$CK_Cadmus_ID == "WM10552")] <- "PSE - Non-King County"
+
 pse.dat <- rbsa.dat11[grep("king county",rbsa.dat11$Territory, ignore.case = T),]
 pse.dat$Category <- "PSE"
 pse.king.dat <- rbsa.dat11[which(rbsa.dat11$Territory == "PSE - King County"),]

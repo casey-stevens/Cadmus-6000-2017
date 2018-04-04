@@ -237,3 +237,140 @@ run <- try(source("Code/Table Code/MF - Lock Down/MF Gas EUI Tables.R")) #EUI Ta
 run <- try(source("Code/Table Code/MF - Lock Down/Table AI .R"))
 run <- try(source("Code/Table Code/MF - Lock Down/Tables AG,AH.R")) #Error in `$<-.data.frame`(`*tmp*`, "tally", value = 1) : replacement has 1 row, data has 0
 run <- try(source("Code/Table Code/MF - Lock Down/Table AD.R"))
+
+
+
+
+
+
+#############################################################################################
+# Source all MF-PSE scripts
+#############################################################################################
+run <- try(source("Code/Table Code/MF - PSE/Items 212,216.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 213,217,226.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 214,215,222,231,240,241,242.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 218,219,223.R"))#check in excel
+run <- try(source("Code/Table Code/MF - PSE/Item 220.R")) #16 tables
+run <- try(source("Code/Table Code/MF - PSE/Item 224.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 225.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 227.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 228.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 232,233.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 234.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 235.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 236,238.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 237.R"))#check in excel
+run <- try(source("Code/Table Code/MF - PSE/Item 239.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 243-246,249.R"))#check in excel
+run <- try(source("Code/Table Code/MF - PSE/Item 247.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 248.R")) #16 + 19 = 35 tables
+#250,251 don't exist
+run <- try(source("Code/Table Code/MF - PSE/Items 252,254.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 253.R"))
+#255 doesn't exist
+run <- try(source("Code/Table Code/MF - PSE/Items 256-258.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 259.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 260-263.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 264-267.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 268-271.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 272-274.R")) 
+#275 - doesn't exist
+run <- try(source("Code/Table Code/MF - PSE/Item 276.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 277,278.R")) #35 + 25 = 60 tables
+#end BLDG tables
+
+run <- try(source("Code/Table Code/MF - PSE/Items 68-70, Table AE.R")) #check in excel
+run <- try(source("Code/Table Code/MF - PSE/Items 80,81, Tables AB,AC.R")) #check in excel
+run <- try(source("Code/Table Code/MF - PSE/Item 106, Tables FF,AM,AR,AS,AT.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 89,91,93, Table AJ.R"))
+run <- try(source("Code/Table Code/MF - PSE/Table AL - MF.R"))
+run <- try(source("Code/Table Code/MF - PSE/Table AJ.R"))
+run <- try(source("Code/Table Code/MF - PSE/Table AF.R"))
+run <- try(source("Code/Table Code/MF - PSE/Tables CC,NN,OO,WW.R"))
+run <- try(source("Code/Table Code/MF - PSE/Tables DD,EE,GG,HH,II,KK,LL,MM.R"))
+run <- try(source("Code/Table Code/MF - PSE/Tables RR,TT,UU,VV.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 283.R"))
+#284 - doesn't exist
+run <- try(source("Code/Table Code/MF - PSE/Items 285-287.R"))
+#288, 289 are completed in a previous code
+run <- try(source("Code/Table Code/MF - PSE/Items 290-292.R")) #Error in `$<-.data.frame`(`*tmp*`, "tally", value = 1) : replacement has 1 row, data has 0
+run <- try(source("Code/Table Code/MF - PSE/Items 293-295.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 296,297.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 298.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 299.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 300,301.R"))
+run <- try(source("Code/Table Code/MF - PSE/Items 302-304.R"))
+run <- try(source("Code/Table Code/MF - PSE/MF EUI Tables.R")) #EUI Tables are BLDG tables
+run <- try(source("Code/Table Code/MF - PSE/MF Gas EUI Tables.R")) #EUI Tables are BLDG tables
+run <- try(source("Code/Table Code/MF - PSE/Table AI .R"))
+run <- try(source("Code/Table Code/MF - PSE/Tables AG,AH.R")) #check in excel
+run <- try(source("Code/Table Code/MF - PSE/Table AD.R"))
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+# Source all SF OVERSAMPLE scripts
+#############################################################################################
+run <- try(source("Code/Table Code/SF - OS/Items 1,2,6.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 3-5.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 7-9.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 10-18,175,235,Table AP.R")) #insulation
+run <- try(source("Code/Table Code/SF - OS/Items 19-22.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 23,176,239.R")) #insulaion
+run <- try(source("Code/Table Code/SF - OS/Items 24,25,28,29.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 26,30,31,177,178,237.R")) #insulaion
+run <- try(source("Code/Table Code/SF - OS/Items 32-34.R"))
+run <- try(source("Code/Table Code/SF - OS/Item 35.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 36,37,182.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 38-42.R")) #Error in nrow(item.group.rowFinal) : object 'item.group.rowFinal' not found
+run <- try(source("Code/Table Code/SF - OS/Items 43-46.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 47-49.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 50-53.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 54,55,190.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 56-58.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 59,60.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 66-67.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 68-70, Table AE.R")) #Error : Sheet 'Table AE' does not exist.
+run <- try(source("Code/Table Code/SF - OS/Items 71-76,Tables XX,YY,AF.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 77-79, Tables ZZ,AG,AH.R")) #Error in eval(expr, envir, enclos) : object 'tableAH.os.cast' not found
+run <- try(source("Code/Table Code/SF - OS/Items 80,81, Tables AB,AC.R"))
+appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+run <- try(source("Code/Table Code/SF - OS/Items 82-85.R")) #Error in eval(expr, envir, enclos) : object 'item.os.cast' not found
+run <- try(source("Code/Table Code/SF - OS/Items 86-88.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 89,91,93, Table AJ.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 90,92.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 94,95.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 96-98, Tables SS,AI.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 99-101.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 102-105.R"))
+run <- try(source("Code/Table Code/SF - OS/Item 106, Tables FF,AM,AR,AS,AT.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 107-110.R"))
+run <- try(source("Code/Table Code/SF - OS/Item 111.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 112-114.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 115-120.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 121-123.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 124-127, Table AD.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 128-131.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 132-134, Table AU.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 135-138.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 139-142.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 143, 144, 146, 147, 148, 150.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 145 and 149.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 151-153.R"))
+run <- try(source("Code/Table Code/SF - OS/Items 154, 155.R"))
+run <- try(source("Code/Table Code/SF - OS/Table AA, Table BB.R"))
+run <- try(source("Code/Table Code/SF - OS/Table AK.R"))
+# run <- try(source("Code/Table Code/SF - OS/Table AL.R"))
+run <- try(source("Code/Table Code/SF - OS/Table AV.R"))
+run <- try(source("Code/Table Code/SF - OS/Tables CC,NN,OO,WW.R"))
+run <- try(source("Code/Table Code/SF - OS/Tables DD,EE,GG,HH,II,KK,LL,MM.R"))
+run <- try(source("Code/Table Code/SF - OS/Tables RR,TT,UU,VV.R"))

@@ -898,10 +898,18 @@ proportions_one_group <- function(CustomerLevelData
                                                      ,count       = sum(get(valueVariable))
                                                      ,total.count = sum(TotalBulbs)
                                                      ,p.h = count / total.count), stringsAsFactors = F)
-      }else if(valueVariable %in% c("ElectricInd", "Has_AC", "Electric_DWH")){
+      }else if(valueVariable %in% c("Has_AC", "Electric_DWH")){
         # obtain count and proportion by strata and row grouping variable
         StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                      , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
+                                                     ,n_hj        = length(unique(CK_Cadmus_ID))
+                                                     ,count       = sum(get(valueVariable))
+                                                     ,total.count = sum(Count)
+                                                     ,p.h = count / total.count), stringsAsFactors = F)
+      }else if(valueVariable %in% c("ElectricInd")){
+        # obtain count and proportion by strata and row grouping variable
+        StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                     , c("BuildingType", "State", "Region", groupingVariable), summarise
                                                      ,n_hj        = length(unique(CK_Cadmus_ID))
                                                      ,count       = sum(get(valueVariable))
                                                      ,total.count = sum(Count)
@@ -965,8 +973,14 @@ proportions_one_group <- function(CustomerLevelData
     # For "Percentage" tables
     #####################################################################################################x
     #join strata counts with summary of grouping variable within strata
-    StrataData <- left_join(StrataPopCounts , StrataGroupedProportions,
-                            by = c("BuildingType", "State", "Region","Territory"))
+    if(valueVariable == "ElectricInd"){
+      StrataData <- left_join(StrataPopCounts , StrataGroupedProportions,
+                              by = c("BuildingType", "State", "Region"))
+    }else{
+      StrataData <- left_join(StrataPopCounts , StrataGroupedProportions,
+                              by = c("BuildingType", "State", "Region","Territory"))
+    }
+
     
     
     #####################################################################################################x
@@ -1434,7 +1448,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     
     
     # Analysis for any column variable that is not state should include columnVariable as a grouping variable
-  }else if(columnVariable %in% c("Cooling.Zone", "CK_Building_ID") & valueVariable == "Ind"){
+  }else if(columnVariable %in% c("Cooling.Zone", "CK_Building_ID", "Category") & valueVariable == "Ind"){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
                                                  , summarise
@@ -1513,7 +1527,32 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  ,p.h   = count / total.count), stringsAsFactors = F)
     StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
     
-  }else{
+  }else if(rowVariable %in% c("SITES_Pool_POOL_HOT_TUB_PoolLocation")){
+    #Summarise
+    StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                 ,summarise
+                                                 ,count = sum(get(valueVariable))), stringsAsFactors = F)
+    #Summarise
+    StrataProportion         <- data.frame(ddply(StrataGroupedProportions
+                                                 , c("BuildingType", "State", "Region", "Territory", columnVariable)
+                                                 ,summarise
+                                                 ,n_hj = sum(count)
+                                                 ,total.count = sum(count)), stringsAsFactors = F)
+    
+    #Join Data
+    StrataGroupedProportions <- left_join(StrataGroupedProportions, StrataProportion)
+    
+    #Summarise
+    StrataGroupedProportions <- data.frame(ddply(StrataGroupedProportions
+                                                 , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
+                                                 ,summarise
+                                                 ,count = count
+                                                 ,n_hj  = n_hj
+                                                 ,p.h   = count / total.count), stringsAsFactors = F)
+    StrataGroupedProportions$p.h[which(StrataGroupedProportions$p.h == "NaN")] <- 0
+    
+  } else{
     #Summarise
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)

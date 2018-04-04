@@ -273,7 +273,7 @@ item292.cast <- mean_two_groups_unweighted(CustomerLevelData = item292.data
                                            ,byVariableColumn = "Category"
                                            ,columnAggregate = "Remove"
                                            ,rowAggregate = "Remove")
-item292.cast <- item292.cast[which(item292.cast$Lamp.Category != "Remove")]
+item292.cast <- item292.cast[which(item292.cast$Clean.Room != "Remove")]
 
 
 item292.final <- data.frame("Room.Type"                 = item292.cast$Clean.Room

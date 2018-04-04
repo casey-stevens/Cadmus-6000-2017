@@ -358,11 +358,10 @@ item295.cast <- mean_two_groups(CustomerLevelData = item295.data
                                 ,byVariableRow = "APPLIANCE_FRIDGE_FREEZER_Type"
                                 ,byVariableColumn = "Category"
                                 ,columnAggregate = "Remove"
-                                ,rowAggregate = "Remove")
-item295.cast <- item295.cast[which(item295.cast$APPLIANCE_FRIDGE_FREEZER_Type != "Remove")]
+                                ,rowAggregate = "All Types")
 
 
-item295.final <- data.frame("Lamp.Category"                 = item295.cast$Lamp.Category
+item295.final <- data.frame("Type"                 = item295.cast$APPLIANCE_FRIDGE_FREEZER_Type
                             ,"PSE.Mean"                 = item295.cast$Mean_PSE
                             ,"PSE.SE"                   = item295.cast$SE_PSE
                             ,"PSE.n"                    = item295.cast$n_PSE
@@ -391,11 +390,10 @@ item295.cast <- mean_two_groups_unweighted(CustomerLevelData = item295.data
                                            ,byVariableRow = "APPLIANCE_FRIDGE_FREEZER_Type"
                                            ,byVariableColumn = "Category"
                                            ,columnAggregate = "Remove"
-                                           ,rowAggregate = "Remove")
-item295.cast <- item295.cast[which(item295.cast$APPLIANCE_FRIDGE_FREEZER_Type != "Remove")]
+                                           ,rowAggregate = "All Types")
 
 
-item295.final <- data.frame("Lamp.Category"                 = item295.cast$Lamp.Category
+item295.final <- data.frame("Type"                 = item295.cast$APPLIANCE_FRIDGE_FREEZER_Type
                             ,"PSE.Mean"                 = item295.cast$Mean_PSE
                             ,"PSE.SE"                   = item295.cast$SE_PSE
                             ,"PSE.n"                    = item295.cast$n_PSE

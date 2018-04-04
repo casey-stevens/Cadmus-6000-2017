@@ -29,9 +29,9 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
-#                              ,stringsAsFactors = FALSE)
-applliances.dat <- data.frame(appliances.dat, stringsAsFactors = F)
+appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+                             ,stringsAsFactors = FALSE)
+# applliances.dat <- data.frame(appliances.dat, stringsAsFactors = F)
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 

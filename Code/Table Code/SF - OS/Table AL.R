@@ -9,7 +9,7 @@
 ### EUI Table For Steve
 
 ##  Clear variables
-# rm(list = ls())
+rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -22,22 +22,23 @@ source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
-# Read in clean RBSA data
-rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
-length(unique(rbsa.dat$CK_Cadmus_ID))
+# Read in clean os data
+os.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.",os.ind,".data", rundate, ".xlsx", sep = "")))
+length(unique(os.dat$CK_Cadmus_ID))
+os.dat$CK_Building_ID <- os.dat$Category
+os.dat <- os.dat[which(names(os.dat) != "Category")]
 
 # Bring in Usages
 billing.dat <- read.xlsx(xlsxFile = file.path(filepathBillingData, billing.data)
                          ,startRow = 1, sheet = 1)
 
-results.dat <- left_join(rbsa.dat, billing.dat, by = "CK_Cadmus_ID")
+results.dat <- left_join(os.dat, billing.dat, by = "CK_Cadmus_ID")
 
-results.dat2 <- results.dat[-grep("bldg",results.dat$CK_Building_ID, ignore.case = T),]
-# results.dat2 <- results.dat
+results.dat2 <- results.dat[which(results.dat$CK_Building_ID == subset.ind),]
 
 ### Bring in primary system fuel types
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-# mechanical.dat <- read.xlsx(mechanical.export)
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -78,7 +79,7 @@ mechanical.dat3 <- unique(data.frame("CK_Cadmus_ID" = mechanical.dat2$CK_Cadmus_
                                      ,"Primary_Secondary" = mechanical.dat2$Heating.System.Ind,
                                      stringsAsFactors = F))
 
-mechanical.dat4 <- left_join(rbsa.dat, mechanical.dat3, by = "CK_Cadmus_ID")
+mechanical.dat4 <- left_join(os.dat, mechanical.dat3, by = "CK_Cadmus_ID")
 
 mechanical.dat5 <- mechanical.dat4[which(mechanical.dat4$Primary_Secondary == "Primary Heating System"),]
 length(unique(mechanical.dat5$CK_Cadmus_ID))
@@ -182,7 +183,7 @@ dhw.dat2 <- dhw.dat1[-which(dhw.dat1$DHW.Fuel %in% c("Unknown", "N/A")),]
 dhw.dat2$ElectricDHW <- 0
 dhw.dat2$ElectricDHW[which(dhw.dat2$DHW.Fuel == "Electric")] <- 1
 dhw.dat3 <- summarize(group_by(dhw.dat2,CK_Cadmus_ID),
-                             Electric_DWH = sum(ElectricDHW))
+                      Electric_DWH = sum(ElectricDHW))
 dhw.dat3$Electric_DWH[which(dhw.dat3$Electric_DWH > 0)] <- 1
 dhw.final <- dhw.dat3
 
@@ -204,7 +205,7 @@ item122.dat$count <- 1
 item122.dat0 <- item122.dat[which(item122.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
 
 #merge together analysis data with cleaned RBSA data
-item122.dat1 <- left_join(rbsa.dat, item122.dat0, by = "CK_Cadmus_ID")
+item122.dat1 <- left_join(os.dat, item122.dat0, by = "CK_Cadmus_ID")
 
 item122.dat2 <- item122.dat1[which(!is.na(item122.dat1$Qty.Occupants)), ]
 
@@ -236,7 +237,7 @@ for (ii in colnames(UsageDataSF_Final6)){
 }
 
 
-UsageDataSF_Final7 <- left_join(rbsa.dat, UsageDataSF_Final6)
+UsageDataSF_Final7 <- left_join(os.dat, UsageDataSF_Final6)
 UsageDataSF_Final7 <- UsageDataSF_Final7[which(!is.na(UsageDataSF_Final7$count)),]
 which(duplicated(UsageDataSF_Final7$CK_Cadmus_ID))
 # View(UsageDataSF_Final7)
@@ -245,18 +246,21 @@ unique(UsageDataSF_Final7$EUI)
 quantile(UsageDataSF_Final7$EUI)
 summary(UsageDataSF_Final7$EUI)
 
-#for single family
-UsageDataSF_Final7$EUI_Quartile <- 4
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.5344431)] <- 1
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.5344431 & UsageDataSF_Final7$EUI < 5.9624753)] <- 2
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.9624753 & UsageDataSF_Final7$EUI < 9.2508641)] <- 3
-table(UsageDataSF_Final7$EUI_Quartile)
-#for manufactured
-# UsageDataSF_Final7$EUI_Quartile <- 4
-# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 6.333907)] <- 1
-# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.333907 & UsageDataSF_Final7$EUI < 10.069864)] <- 2
-# UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 10.069864 & UsageDataSF_Final7$EUI < 13.727086)] <- 3
-
+if(os.ind == "scl"){
+  #for single family
+  UsageDataSF_Final7$EUI_Quartile <- 4
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 4.178798)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 4.178798 & UsageDataSF_Final7$EUI < 6.744123)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.744123 & UsageDataSF_Final7$EUI < 10.473736)] <- 3
+  
+}else if(os.ind == "snopud"){
+  #for single family
+  UsageDataSF_Final7$EUI_Quartile <- 4
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.472681)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.472681 & UsageDataSF_Final7$EUI < 5.552383)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.552383 & UsageDataSF_Final7$EUI < 7.055740)] <- 3
+  
+}
 ###########################
 #Pull in weights
 ###########################
@@ -274,7 +278,7 @@ UsageDataSF_data <- weightedData(UsageDataSF_Final7[-which(colnames(UsageDataSF_
                                                                                                ,"Qty.Occupants"
                                                                                                ,"count"))])
 
-UsageDataSF_data <- left_join(UsageDataSF_data, UsageDataSF_Final7[which(colnames(UsageDataSF_Final7) %in% c("CK_Cadmus_ID"
+UsageDataSF_data <- left_join(UsageDataSF_data, unique(UsageDataSF_Final7[which(colnames(UsageDataSF_Final7) %in% c("CK_Cadmus_ID"
                                                                                                              ,"Conditioned.Area.x"
                                                                                                              ,"EUI"
                                                                                                              ,"EUI_Quartile"
@@ -287,7 +291,7 @@ UsageDataSF_data <- left_join(UsageDataSF_data, UsageDataSF_Final7[which(colname
                                                                                                              ,"Electric_DWH"
                                                                                                              ,"Conditioned.Area.y"
                                                                                                              ,"Qty.Occupants"
-                                                                                                             ,"count"))])
+                                                                                                             ,"count"))]))
 
 UsageDataSF_data$count <- 1
 UsageDataSF_data$Count <- 1
@@ -345,35 +349,14 @@ names(UsageDataSF_sum5)[which(names(UsageDataSF_sum5) %in% c("w.percent"))] <- c
 #######################
 # Combine into table format
 #######################
-UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1,UsageDataSF_sum2,UsageDataSF_sum3,UsageDataSF_sum4,UsageDataSF_sum5)
-
-exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
-# exportTable(UsageDataSF_table, "MH", "Table AL", weighted = TRUE)
-
-
-
+UsageDataSF_table <- cbind.data.frame(UsageDataSF_sum1
+                                      ,UsageDataSF_sum2
+                                      ,UsageDataSF_sum3
+                                      ,UsageDataSF_sum4
+                                      ,UsageDataSF_sum5)
 
 
-
-
-# FinalSummary <- summarize(group_by(UsageDataSF_Final7,UsageDataSF_Final7$EUI_Quartile),
-#                           count = length(unique(CK_Cadmus_ID)),
-#                           Avg_Area = mean(Conditioned.Area.x, na.rm =T),
-#                           Total_Electric_Heat = sum(ElectricInd, na.rm = T),
-#                           NonMissing_Elec_Heat = sum(!is.na(ElectricInd)),
-#                           Avg_Eff_Lighting = sum(EfficientTotal, na.rm =T)/sum(TotalBulbs, na.rm =T) ,
-#                           NonMissing_Lighting = sum(is.na(EfficientSaturation)),
-#                           Total_AC = sum(Has_AC, na.rm = T),
-#                           NonMissing_AC = sum(!is.na(Has_AC)),
-#                           Electric_DHW = sum(Electric_DWH, na.rm = T),
-#                           NonMissing_DHW = sum(!is.na(Electric_DWH)),
-#                           Average_Number_Occupants = mean(Qty.Occupants, na.rm = T),
-#                           NonMissing_People = sum(!is.na(Qty.Occupants)))
-# # exportTable(FinalSummary, "SF", "Table AL", weighted = FALSE)
-# exportTable(FinalSummary, "MH", "Table AL", weighted = FALSE)
-
-
-
+exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 
 
@@ -477,7 +460,7 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # unique(mechanical.dat5$Heating_Fuel)
 # mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
 # mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
-# mecahnical.dat.final <- 
+# mecahnical.dat.final <-
 #   mechanical.dat5[which(colnames(mechanical.dat5) %in% c("CK_Cadmus_ID", "Heating_Fuel"))]
 # 
 # mechanical.dat5 <- mechanical.dat5 %>%
@@ -507,27 +490,27 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # lighting.clean <- lighting[,keep.cols.ind]
 # lighting.clean2 <- lighting.clean[-which(lighting.clean$Clean.Room == "Storage"),]
 # unique(lighting.clean2$Lamp.Category)
-# lighting.clean2$Efficient <- 0 
-# lighting.clean2$Efficient[which(lighting.clean2$Lamp.Category %in% c("Light Emitting Diode", 
+# lighting.clean2$Efficient <- 0
+# lighting.clean2$Efficient[which(lighting.clean2$Lamp.Category %in% c("Light Emitting Diode",
 #                                                                      "Compact Fluorescent"))] <- 1
 # table(lighting.clean2$Lamp.Category)
 # sum(lighting.clean2$Efficient) # Good
 # 
-# lighting.clean3 <- 
+# lighting.clean3 <-
 #   lighting.clean2[-which(lighting.clean2$LIGHTING_BulbsPerFixture == "Unknown"),]
 # 
-# lighting.clean3$AllBulbs <- 
-#   as.numeric(lighting.clean3$Fixture.Qty) * 
+# lighting.clean3$AllBulbs <-
+#   as.numeric(lighting.clean3$Fixture.Qty) *
 #   as.numeric(lighting.clean3$LIGHTING_BulbsPerFixture)
-# lighting.clean3$EfficientBulbs <- 
-#   as.numeric(lighting.clean3$Fixture.Qty) * 
+# lighting.clean3$EfficientBulbs <-
+#   as.numeric(lighting.clean3$Fixture.Qty) *
 #   as.numeric(lighting.clean3$LIGHTING_BulbsPerFixture) * lighting.clean3$Efficient
-# View(lighting.clean3)
+# # View(lighting.clean3)
 # lighting.clean4 <- summarize(group_by(lighting.clean3,CK_Cadmus_ID),
 #                              TotalBulbs = sum(AllBulbs),
 #                              EfficientTotal = sum(EfficientBulbs))
 # 
-# lighting.clean4$EfficientSaturation <- 
+# lighting.clean4$EfficientSaturation <-
 #   lighting.clean4$EfficientTotal/lighting.clean4$TotalBulbs
 # 
 # lighting.final <- lighting.clean4
@@ -538,18 +521,23 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # 
 # central_Ac.dat1$AC <- 0
 # central_Ac.dat1$AC[which(central_Ac.dat1$System.Type %in% c("Air Source Heat Pump",
-#                                                             "Central Ac", 
-#                                                             "Central AC", 
+#                                                             "Central Ac",
+#                                                             "Central AC",
 #                                                             "Packaged Ac",
+#                                                             "Packaged AC",
 #                                                             "Evaporative Cooling",
 #                                                             "GeoThermal Heat Pump",
-#                                                             "Mini-Split Ac", 
-#                                                             "Water Source Heat Pump", 
-#                                                             "Mini-Split Hp", 
+#                                                             "Geothermal Heat Pump",
+#                                                             "Mini-Split Ac",
+#                                                             "Mini-Split AC",
+#                                                             "Water Source Heat Pump",
+#                                                             "Mini-Split Hp",
 #                                                             "Packaged Hp",
-#                                                             "Air Handler"
-#                                                             ,"Package Terminal Heat Pump"
-#                                                             ,"Packaged Unit"))] <- 1
+#                                                             "Mini-Split HP",
+#                                                             "Packaged HP",
+#                                                             "Package Terminal Heat Pump"
+#                                                             ,"Packaged Unit"
+#                                                             ,"Air Handler"))] <- 1
 # 
 # central_Ac.dat2 <- summarize(group_by(central_Ac.dat1,CK_Cadmus_ID),
 #                              ACtotal = sum(AC))
@@ -598,21 +586,21 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # 
 # ##### Now start doing the various summaries
 # UsageDataSF <- results.dat2[which(results.dat2$BuildingType == "Single Family"),]
-# UsageDataSF_2 <- UsageDataSF[-which(is.na(UsageDataSF$UsageNAC_kWh)),]
+# UsageDataSF_2 <- UsageDataSF[which(!is.na(UsageDataSF$UsageNAC_kWh)),]
 # UsageDataSF_3 <- UsageDataSF_2[which(UsageDataSF_2$Conditioned.Area > 0),]
 # UsageDataSF_3$EUI <- UsageDataSF_3$UsageNAC_kWh/UsageDataSF_3$Conditioned.Area
 # UsageDataSF_3 <- unique(UsageDataSF_3)
 # 
 # keep.cols <- c("CK_Cadmus_ID","EUI", "Conditioned.Area")
 # 
-# UsageDataSF_Final <- UsageDataSF_3[,which(colnames(UsageDataSF_3) %in% keep.cols)]
-# View(UsageDataSF_Final)
+# UsageDataSF_Final <- UsageDataSF_3[which(colnames(UsageDataSF_3) %in% keep.cols)]
+# # View(UsageDataSF_Final)
 # UsageDataSF_Final2 <- merge(UsageDataSF_Final,  heating.final   , by = "CK_Cadmus_ID",all.x = T)
 # UsageDataSF_Final3 <- merge(UsageDataSF_Final2, lighting.final  , by = "CK_Cadmus_ID",all.x = T)
 # UsageDataSF_Final4 <- merge(UsageDataSF_Final3, central_Ac.final, by = "CK_Cadmus_ID",all.x = T)
 # UsageDataSF_Final5 <- merge(UsageDataSF_Final4, dhw.final       , by = "CK_Cadmus_ID",all.x = T)
 # UsageDataSF_Final6 <- merge(UsageDataSF_Final5, survey.final    , by = "CK_Cadmus_ID",all.x = T)
-# View(UsageDataSF_Final6)
+# # View(UsageDataSF_Final6)
 # 
 # ii=2
 # for (ii in 1:ncol(UsageDataSF_Final6)){
@@ -625,7 +613,7 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # UsageDataSF_Final7 <- left_join(results.dat2, UsageDataSF_Final6)
 # UsageDataSF_Final7 <- UsageDataSF_Final7[which(!is.na(UsageDataSF_Final7$count)),]
 # which(duplicated(UsageDataSF_Final7$CK_Cadmus_ID))
-# View(UsageDataSF_Final7)
+# # View(UsageDataSF_Final7)
 # 
 # unique(UsageDataSF_Final7$EUI)
 # quantile(UsageDataSF_Final7$EUI)
@@ -634,17 +622,17 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # if(os.ind == "scl"){
 #   #for single family
 #   UsageDataSF_Final7$EUI_Quartile <- 4
-#   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.901750)] <- 1
-#   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.901750 & UsageDataSF_Final7$EUI < 6.382588)] <- 2
-#   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.382588 & UsageDataSF_Final7$EUI < 9.690480)] <- 3
-#   
+#   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 2.916559)] <- 1
+#   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 2.916559 & UsageDataSF_Final7$EUI < 6.085711)] <- 2
+#   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 6.085711 & UsageDataSF_Final7$EUI < 8.930349)] <- 3
+# 
 # }else if(os.ind == "snopud"){
 #   #for single family
 #   UsageDataSF_Final7$EUI_Quartile <- 4
 #   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.472681)] <- 1
 #   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.472681 & UsageDataSF_Final7$EUI < 5.552383)] <- 2
 #   UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.552383 & UsageDataSF_Final7$EUI < 7.055740)] <- 3
-#   
+# 
 # }
 # 
 # ###########################
@@ -693,6 +681,7 @@ exportTable(UsageDataSF_table, "SF", "Table AL", weighted = TRUE)
 # 
 # UsageDataSF_data$count <- 1
 # UsageDataSF_data$Count <- 1
+# UsageDataSF_data <- UsageDataSF_data[which(UsageDataSF_data$CK_Building_ID == subset.ind),]
 # #######################
 # # Weighted Analysis - Average Area
 # #######################

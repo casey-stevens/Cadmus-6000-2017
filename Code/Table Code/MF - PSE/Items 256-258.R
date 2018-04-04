@@ -181,7 +181,7 @@ item257.dat3 <- item257.dat2[which(!(is.na(item257.dat2$Lamps))),]
 item257.dat4 <- item257.dat3[grep("Multifamily", item257.dat3$BuildingType),]
 
 #summarise up to the site level
-item257.dat5 <- summarise(group_by(item257.dat4, CK_Cadmus_ID, CK_Building_ID, Lamp.Category)
+item257.dat5 <- summarise(group_by(item257.dat4, CK_Building_ID, Category, Lamp.Category)
                           ,SiteCount = sum(Lamps))
 unique(item257.dat5$Lamp.Category)
 
@@ -199,6 +199,7 @@ item257.data <- weightedData(item257.merge[which(colnames(item257.merge) %notin%
                                                                                    ,"Category"))])
 
 item257.data <- left_join(item257.data, item257.merge[which(colnames(item257.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"CK_Building_ID"
                                                                                            ,"Lamp.Category"
                                                                                            ,"SiteCount"
                                                                                            ,"Area.of.Conditioned.Common.Space"
@@ -312,7 +313,7 @@ item258.dat3 <- item258.dat2[which(!(is.na(item258.dat2$Lamps))),]
 item258.dat4 <- item258.dat3[grep("Multifamily", item258.dat3$BuildingType),]
 
 #summarise up to the site level
-item258.dat5 <- summarise(group_by(item258.dat4, CK_Cadmus_ID, Clean.Room, Lamp.Category)
+item258.dat5 <- summarise(group_by(item258.dat4, CK_Cadmus_ID, Category, Clean.Room, Lamp.Category)
                           ,SiteCount = sum(Lamps))
 unique(item258.dat5$Lamp.Category)
 

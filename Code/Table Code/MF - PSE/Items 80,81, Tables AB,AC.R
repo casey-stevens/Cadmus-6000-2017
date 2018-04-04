@@ -316,7 +316,7 @@ tableAC.merge$Above.Measure.Life[which(tableAC.merge$Age.Diff > tableAC.merge$Me
 
 tableAC.merge$Ind <- 0
 tableAC.merge$Ind[which(tableAC.merge$Age.Diff > tableAC.merge$MeasureMap)] <- 1
-tableAC.merge <- tableAC.merge[which(tableAC.merge$Category == "PSE")]
+tableAC.merge <- tableAC.merge[which(tableAC.merge$Category == "PSE"),]
 ################################################
 # Adding pop and sample sizes for weights
 ################################################

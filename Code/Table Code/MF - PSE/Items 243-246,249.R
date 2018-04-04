@@ -27,13 +27,14 @@ rbsa.dat.MF <- rbsa.dat[which(rbsa.dat$BuildingType == "Multifamily"),]
 rbsa.dat.site <- rbsa.dat.MF[grep("site",rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 rbsa.dat.bldg <- rbsa.dat.MF[grep("bldg",rbsa.dat.MF$CK_Building_ID, ignore.case = T),]
 
-# one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
+one.line.bldg.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), startRow = 2)
 
 one.line.bldg.dat1 <- one.line.bldg.dat[which(colnames(one.line.bldg.dat) %in% c("PK_BuildingID"
                                                                                  ,"Primary.Heating.System"
                                                                                  ,"Primary.Heating.Fuel"
                                                                                  ,"Primary.Cooling.System"
                                                                                  ,"Central.Building.Heat"))]
+one.line.bldg.dat1$Primary.Heating.System[which(one.line.bldg.dat1$PK_BuildingID == "BLDG_22D7D876-28C1-3E49-9062-D1F79C8B98BB")] <- "Other Zonal Heat"
 
 one.line.bldg.dat2  <- left_join(rbsa.dat.bldg, one.line.bldg.dat1, by = c("CK_Building_ID" = "PK_BuildingID"))
 one.line.bldg.dat2 <- one.line.bldg.dat2[which(one.line.bldg.dat2$Primary.Heating.System %notin% c("N/A","Unknown",NA)),]
@@ -57,8 +58,7 @@ item243.dat$Primary.Heating.System[grep("zonal heat",item243.dat$Primary.Heating
 item243.dat$Primary.Heating.System[grep("ductless",item243.dat$Primary.Heating.System,ignore.case = T)] <- "Mini-split HP"
 item243.dat$Primary.Heating.System[grep("furnace",item243.dat$Primary.Heating.System,ignore.case = T)] <- "Furnace"
 item243.dat$Primary.Heating.System[grep("boiler",item243.dat$Primary.Heating.System,ignore.case = T)] <- "Boiler"
-
-
+# BLDG_22D7D876-28C1-3E49-9062-D1F79C8B98BB
 ii=3
 for (ii in 1:nrow(item243.dat)){
   if(item243.dat$Central.Building.Heat[ii] != "N/A"){
@@ -67,7 +67,6 @@ for (ii in 1:nrow(item243.dat)){
     item243.dat$Primary.Heating.System[ii] <- item243.dat$Primary.Heating.System[ii]
   }
 }
-item243.dat$Primary.Heating.System[grep("Boiler", item243.dat$Primary.Heating.System)] <- "Central Boiler"
 #clean heating fuels
 item243.dat$Primary.Heating.Fuel[grep("Wood (cord)",item243.dat$Primary.Heating.Fuel,ignore.case = T)] <- "Wood"
 unique(item243.dat$Primary.Heating.Fuel)
@@ -196,6 +195,142 @@ item243.table <- data.frame(item243.table)
 
 exportTable(item243.table, "MF", "Table 35", weighted = FALSE,OS = T, osIndicator = "PSE")
 
+
+
+
+
+
+#############################################################################################
+#Item 243D
+#############################################################################################
+item243D.dat <- item243.merge[which(item243.merge$Category == "PSE"),]
+
+one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary", startRow = 2)
+one.line.dat1 <- one.line.dat[which(names(one.line.dat) %in% c("Cadmus.ID","Gas.Utility"))]
+names(one.line.dat1) <- c("CK_Cadmus_ID","Gas.Utility")
+
+item243D.dat1 <- left_join(item243D.dat, one.line.dat1)
+unique(item243D.dat1$Gas.Utility)
+item243D.dat2 <- item243D.dat1[which(item243D.dat1$Gas.Utility %notin% c("N/A",NA)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+item243D.data <- weightedData(item243D.dat2[-which(colnames(item243D.dat2) %in% c("Primary.Heating.System"
+                                                                                 ,"Primary.Heating.Fuel"
+                                                                                 ,"Primary.Cooling.System"
+                                                                                 ,"Central.Building.Heat"
+                                                                                 ,"Category"
+                                                                                 ,"Gas.Utility"))])
+item243D.data <- left_join(item243D.data, item243D.dat2[which(colnames(item243D.dat2) %in% c("CK_Cadmus_ID"
+                                                                                           ,"Primary.Heating.System"
+                                                                                           ,"Primary.Heating.Fuel"
+                                                                                           ,"Primary.Cooling.System"
+                                                                                           ,"Central.Building.Heat"
+                                                                                           ,"Category"
+                                                                                           ,"Gas.Utility"))])
+
+item243D.data$count <- 1
+length(unique(item243D.data$CK_Cadmus_ID[grep("central",item243D.data$Primary.Heating.System, ignore.case = T)]))
+#######################
+# Weighted Analysis
+#######################
+item243D.final <- proportionRowsAndColumns1(CustomerLevelData = item243D.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'Primary.Heating.System'
+                                           ,rowVariable      = 'Primary.Heating.Fuel'
+                                           ,aggregateColumnName = "All Systems")
+item243D.final$Primary.Heating.Fuel[which(item243D.final$Primary.Heating.Fuel == "Total")] <- "All Fuels"
+
+item243D.cast <- dcast(setDT(item243D.final)
+                      ,formula = Primary.Heating.System ~ Primary.Heating.Fuel
+                      ,value.var = c("w.percent","w.SE", "count","n","N","EB"))
+
+names(item243D.cast)
+item243D.table <- data.frame("Primary.Heating.System" = item243D.cast$Primary.Heating.System
+                            ,"Electric"              = item243D.cast$w.percent_Electric
+                            ,"Electric.SE"           = item243D.cast$w.SE_Electric
+                            ,"Natural.Gas"           = item243D.cast$`w.percent_Natural Gas`
+                            ,"Natural.Gas.SE"        = item243D.cast$`w.SE_Natural Gas`
+                            ,"Oil"                   = NA
+                            ,"Oil.SE"                = NA
+                            ,"Wood"                  = NA#item243D.cast$`w.percent_Wood (cord)`
+                            ,"Wood.SE"               = NA#item243D.cast$`w.SE_Wood (cord)`
+                            ,"All.Types"             = item243D.cast$`w.percent_All Fuels`
+                            ,"All.Types.SE"          = item243D.cast$`w.SE_All Fuels`
+                            ,"n"                     = item243D.cast$`n_All Fuels`
+                            ,"Electric.EB"           = item243D.cast$EB_Electric
+                            ,"Natural.Gas.EB"        = item243D.cast$`EB_Natural Gas`
+                            ,"Oil.EB"                = NA
+                            ,"Wood.EB"               = NA#item243D.cast$`EB_Wood (cord)`
+                            ,"All.Types.EB"          = item243D.cast$`EB_All Fuels`
+)
+
+levels(item243D.table$Primary.Heating.System)
+rowOrder <- c("Central Boiler"
+              ,"Central Furnace"
+              ,"Air Handler"
+              ,"Air Source Heat Pump"
+              ,"Boiler"
+              ,"Electric Baseboard"
+              ,"Furnace"
+              ,"Mini-split HP"
+              ,"Other Zonal Heat"
+              ,"Package Terminal Heat Pump"
+              ,"Stove/Fireplace"
+              ,"All Systems")
+item243D.table <- item243D.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
+item243D.table <- data.frame(item243D.table)
+
+
+exportTable(item243D.table, "MF", "Table 36D", weighted = TRUE,OS = T, osIndicator = "PSE")
+
+#######################
+# unweighted Analysis
+#######################
+item243D.final <- proportions_two_groups_unweighted(CustomerLevelData = item243D.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'Primary.Heating.System'
+                                                   ,rowVariable      = 'Primary.Heating.Fuel'
+                                                   ,aggregateColumnName = "All Systems")
+item243D.final$Primary.Heating.Fuel[which(item243D.final$Primary.Heating.Fuel == "Total")] <- "All Fuels"
+
+item243D.cast <- dcast(setDT(item243D.final)
+                      ,formula = Primary.Heating.System ~ Primary.Heating.Fuel
+                      ,value.var = c("Percent","SE", "Count","n"))
+names(item243D.cast)
+
+item243D.table <- data.frame("Primary.Heating.System" = item243D.cast$Primary.Heating.System
+                            ,"Electric"              = item243D.cast$Percent_Electric
+                            ,"Electric.SE"           = item243D.cast$SE_Electric
+                            ,"Natural.Gas"           = item243D.cast$`Percent_Natural Gas`
+                            ,"Natural.Gas.SE"        = item243D.cast$`SE_Natural Gas`
+                            ,"Oil"                   = NA
+                            ,"Oil.SE"                = NA
+                            ,"Wood"                  = NA#item243D.cast$`Percent_Wood (cord)`
+                            ,"Wood.SE"               = NA#item243D.cast$`SE_Wood (cord)`
+                            ,"All.Types"             = item243D.cast$`Percent_All Fuels`
+                            ,"All.Types.SE"          = item243D.cast$`SE_All Fuels`
+                            ,"n"                     = item243D.cast$`n_All Fuels`
+)
+
+levels(item243D.table$Primary.Heating.System)
+rowOrder <- c("Central Boiler"
+              ,"Central Furnace"
+              ,"Air Handler"
+              ,"Air Source Heat Pump"
+              ,"Boiler"
+              ,"Electric Baseboard"
+              ,"Furnace"
+              ,"Mini-split HP"
+              ,"Other Zonal Heat"
+              ,"Package Terminal Heat Pump"
+              ,"Stove/Fireplace"
+              ,"All Systems")
+item243D.table <- item243D.table %>% mutate(Primary.Heating.System = factor(Primary.Heating.System, levels = rowOrder)) %>% arrange(Primary.Heating.System)  
+item243D.table <- data.frame(item243D.table)
+
+exportTable(item243D.table, "MF", "Table 36D", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -485,28 +620,28 @@ exportTable(item244C.table, "MF", "Table 36C", weighted = FALSE,OS = T, osIndica
 # #############################################################################################
 # #Item 245: DISTRIBUTION OF SECONDARY HEATING SYSTEMS BY FUEL/ Table 37
 # #############################################################################################
-# #Read in data for analysis
-# # Mechanical
-# mechanical.dat <- read.xlsx(mechanical.export)
-# mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
-# 
-# mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
-#                                                                         ,"CK_SiteID"
-#                                                                         ,"System.Type"
-#                                                                         ,"Heating.Fuel",
-#                                                                         "Heat.Iteration",
-#                                                                         "Cool.Iteration",
-#                                                                         "Primary.Heating.System",
-#                                                                         "Primary.Cooling.System"
-#                                                                         ,"Serves.Common.Areas?"
-#                                                                         ,"Central.for.Building"))]
-# 
-# mechanical.dat2  <- left_join(rbsa.dat.bldg, mechanical.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
-# length(unique(mechanical.dat2$CK_Cadmus_ID))
-# names(mechanical.dat2)[which(names(mechanical.dat2) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
-# 
-# #Subset to MF
-# mechanical.dat.MF <- mechanical.dat2[grep("Multifamily", mechanical.dat2$BuildingType),]
+#Read in data for analysis
+# Mechanical
+mechanical.dat <- read.xlsx(mechanical.export)
+mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
+
+mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
+                                                                        ,"CK_SiteID"
+                                                                        ,"System.Type"
+                                                                        ,"Heating.Fuel",
+                                                                        "Heat.Iteration",
+                                                                        "Cool.Iteration",
+                                                                        "Primary.Heating.System",
+                                                                        "Primary.Cooling.System"
+                                                                        ,"Serves.Common.Areas?"
+                                                                        ,"Central.for.Building"))]
+
+mechanical.dat2  <- left_join(rbsa.dat.bldg, mechanical.dat1, by = c("CK_Building_ID" = "CK_SiteID"))
+length(unique(mechanical.dat2$CK_Cadmus_ID))
+names(mechanical.dat2)[which(names(mechanical.dat2) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
+
+#Subset to MF
+mechanical.dat.MF <- mechanical.dat2[grep("Multifamily", mechanical.dat2$BuildingType),]
 # 
 # item245.dat <- mechanical.dat.MF[which(mechanical.dat.MF$Heat.Iteration %notin% c("N/A","Unknown",NA)),]
 # 

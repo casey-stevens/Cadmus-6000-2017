@@ -204,18 +204,18 @@ tableAG.MF.cast <- data.frame(dcast(setDT(tableAG.MF.summary)
 
 tableAG.MF.final <- data.frame("BuildingType"       = tableAG.MF.cast$BuildingType
                                ,"Lamp.Category"     = tableAG.MF.cast$Lamp.Category
-                               ,"PSE.Percent"                 = tavbleAG.MF.cast$Percent_PSE
-                               ,"PSE.SE"                      = tavbleAG.MF.cast$SE_PSE
-                               ,"PSE.n"                       = tavbleAG.MF.cast$n_PSE
-                               ,"PSE.King.County.Percent"     = tavbleAG.MF.cast$`Percent_PSE KING COUNTY`
-                               ,"PSE.King.County.SE"          = tavbleAG.MF.cast$`SE_PSE KING COUNTY`
-                               ,"PSE.King.County.n"           = tavbleAG.MF.cast$`n_PSE KING COUNTY`
-                               ,"PSE.Non.King.County.Percent" = tavbleAG.MF.cast$`Percent_PSE NON-KING COUNTY`
-                               ,"PSE.Non.King.County.SE"      = tavbleAG.MF.cast$`SE_PSE NON-KING COUNTY`
-                               ,"PSE.Non.King.County.n"       = tavbleAG.MF.cast$`n_PSE NON-KING COUNTY`
-                               ,"2017.RBSA.PS.Percent"        = tavbleAG.MF.cast$`Percent_2017 RBSA PS`
-                               ,"2017.RBSA.PS.SE"             = tavbleAG.MF.cast$`SE_2017 RBSA PS`
-                               ,"2017.RBSA.PS.n"              = tavbleAG.MF.cast$`n_2017 RBSA PS`
+                               ,"PSE.Percent"                 = tableAG.MF.cast$Percent_PSE
+                               ,"PSE.SE"                      = tableAG.MF.cast$SE_PSE
+                               ,"PSE.n"                       = tableAG.MF.cast$n_PSE
+                               ,"PSE.King.County.Percent"     = tableAG.MF.cast$`Percent_PSE KING COUNTY`
+                               ,"PSE.King.County.SE"          = tableAG.MF.cast$`SE_PSE KING COUNTY`
+                               ,"PSE.King.County.n"           = tableAG.MF.cast$`n_PSE KING COUNTY`
+                               ,"PSE.Non.King.County.Percent" = tableAG.MF.cast$`Percent_PSE NON-KING COUNTY`
+                               ,"PSE.Non.King.County.SE"      = tableAG.MF.cast$`SE_PSE NON-KING COUNTY`
+                               ,"PSE.Non.King.County.n"       = tableAG.MF.cast$`n_PSE NON-KING COUNTY`
+                               ,"2017.RBSA.PS.Percent"        = tableAG.MF.cast$`Percent_2017 RBSA PS`
+                               ,"2017.RBSA.PS.SE"             = tableAG.MF.cast$`SE_2017 RBSA PS`
+                               ,"2017.RBSA.PS.n"              = tableAG.MF.cast$`n_2017 RBSA PS`
 )
 
 unique(tableAG.MF.final$Lamp.Category)

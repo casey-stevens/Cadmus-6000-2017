@@ -58,7 +58,7 @@ results.dat2 <- results.dat
 
 ### Bring in primary system fuel types
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-# mechanical.dat <- read.xlsx(mechanical.export)
+mechanical.dat <- read.xlsx(mechanical.export)
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
 mechanical.dat1 <- mechanical.dat[which(colnames(mechanical.dat) %in% c("CK_Cadmus_ID"
@@ -137,7 +137,7 @@ heating.final$ElectricInd[which(heating.final$ElectricInd > 0)] <- 1
 # There are four people with multiple heating systems wil run with this for now
 
 ##### Bring in lighting information
-# lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export),startRow = 2)
 keep.cols <- c("CK_Cadmus_ID","Clean.Room", "Lamp.Category", "LIGHTING_BulbsPerFixture", "Fixture.Qty")
 keep.cols.ind <- which(colnames(lighting.dat) %in% keep.cols)
 lighting.clean <- lighting.dat[,keep.cols.ind]
@@ -215,7 +215,7 @@ dhw.final <- dhw.dat3
 
 ###### Now bring in Average number of occupants
 #Read in data for analysis
-# sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
@@ -287,9 +287,9 @@ summary(UsageDataSF_Final7$EUI)
 
 #for Multi Fmaily
 UsageDataSF_Final7$EUI_Quartile <- 4
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 7.145)] <- 1
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 7.145 & UsageDataSF_Final7$EUI < 9.166111)] <- 2
-UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 9.166111 & UsageDataSF_Final7$EUI < 11.582829)] <- 3
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 7.416407)] <- 1
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 7.416407 & UsageDataSF_Final7$EUI < 9.136736)] <- 2
+UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 9.136736 & UsageDataSF_Final7$EUI < 11.666858)] <- 3
 
 ###########################
 #Pull in weights

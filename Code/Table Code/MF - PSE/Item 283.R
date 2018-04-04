@@ -25,7 +25,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.pse.data", rundate, ".xlsx", sep = "")))
 
 #Read in data for analysis
-# sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 #clean cadmus IDs
 sites.interview.dat$CK_Cadmus_ID <- trimws(toupper(sites.interview.dat$CK_Cadmus_ID))
 
@@ -317,7 +317,26 @@ item283.final.weighted <- item283.final.weighted[which(names(item283.final.weigh
 item283.cast <- dcast(setDT(item283.final.weighted)
                       ,formula = Thermostat.Category ~ Category
                       ,value.var = c("Mean","SE","n","EB"))
-exportTable(item283.cast, "MF", "Table 75", weighted = TRUE,OS = T, osIndicator = "PSE")
+names(item283.cast)
+item283.table <- data.frame("Thermostat.Category"      = item283.cast$Thermostat.Category
+                            ,"PSE.Mean"                 = item283.cast$Mean_PSE
+                            ,"PSE.SE"                   = item283.cast$SE_PSE
+                            ,"PSE.n"                    = item283.cast$n_PSE
+                            ,"PSE.King.County.Mean"     = item283.cast$`Mean_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"       = item283.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"        = item283.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Mean" = item283.cast$`Mean_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"   = item283.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"    = item283.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Mean"        = item283.cast$`Mean_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"          = item283.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"           = item283.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                   = item283.cast$EB_PSE
+                            ,"PSE.King.County_EB"       = item283.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"   = item283.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"          = item283.cast$`EB_2017 RBSA PS`)
+
+exportTable(item283.table, "MF", "Table 75", weighted = TRUE,OS = T, osIndicator = "PSE")
 
 
 ############################

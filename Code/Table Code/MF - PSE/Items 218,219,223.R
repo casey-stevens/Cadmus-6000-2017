@@ -53,7 +53,7 @@ item218A.dat <- rooms.dat[which(colnames(rooms.dat) %in% c("CK_Cadmus_ID"
 unique(item218A.dat$Survey.Bedrooms)
 item218A.dat1 <- item218A.dat[which(item218A.dat$Clean.Type == "Bedroom"),]
 item218A.dat1$count <- 1
-item218A.dat1$Clean.Type[grep("Studio|studio",item218A.dat1$Description)] <- "Studio"
+item218A.dat1$Clean.Type[grep("Studio apartment",item218A.dat1$Description,ignore.case = T)] <- "Studio"
 item218A.dat1$Survey.Bedrooms <- as.numeric(as.character(item218A.dat1$Survey.Bedrooms))
 item218A.sum <- summarise(group_by(item218A.dat1, CK_Cadmus_ID, Clean.Type)
                           ,Count = sum(count)
@@ -70,7 +70,8 @@ for(ii in 1:nrow(item218A.sum)){
 
 item218A.sum$Final.Bedrooms[which(item218A.sum$Survey.Bedrooms == 0)] <- 0
 
-item218A.sum$Unit.Type <- "Studio"
+item218A.sum$Unit.Type <- NA
+item218A.sum$Unit.Type[which(item218A.sum$Final.Bedrooms == 0 & item218A.sum$Clean.Type == "Bedroom")]  <- "Studio"
 item218A.sum$Unit.Type[which(item218A.sum$Final.Bedrooms == 1 & item218A.sum$Clean.Type == "Bedroom")]  <- "One Bedroom"
 item218A.sum$Unit.Type[which(item218A.sum$Final.Bedrooms == 2 & item218A.sum$Clean.Type == "Bedroom")]  <- "Two Bedroom"
 item218A.sum$Unit.Type[which(item218A.sum$Final.Bedrooms >= 3 & item218A.sum$Clean.Type == "Bedroom")]  <- "Three or More Bedrooms"
@@ -79,26 +80,23 @@ unique(item218A.sum$Unit.Type)
 item218A.sum1 <- item218A.sum[which(colnames(item218A.sum) %in% c("CK_Cadmus_ID", "Unit.Type"))]
 
 item218A.dat2 <- left_join(item218A.dat, item218A.sum1)
+item218A.dat2 <- item218A.dat2[which(item218A.dat2$Area > 0),]
 
-item218A.dat3 <- left_join(rbsa.dat.bldg, item218A.dat2)
+item218A.dat2$Area <- as.numeric(as.character(item218A.dat2$Area))
+
+#summarise up to the site level
+item218A.SITE <- summarise(group_by(item218A.dat2, CK_Cadmus_ID, Unit.Type)
+                               ,SiteArea = sum(Area, na.rm = T))
+
+item218A.dat3 <- left_join(rbsa.dat.bldg, item218A.SITE)
 item218A.dat3 <- item218A.dat3[which(!(is.na(item218A.dat3$HomeYearBuilt_MF))),]
 item218A.dat3 <- item218A.dat3[which(!(is.na(item218A.dat3$Unit.Type))),]
 #subset to only MF sites
 item218A.dat4 <- item218A.dat3[grep("Multifamily", item218A.dat3$BuildingType),]
 
-item218A.dat4 <- item218A.dat4[which(item218A.dat4$Area > 0),]
-
-item218A.dat4$Area <- as.numeric(as.character(item218A.dat4$Area))
-
-#summarise up to the site level
-item218A.SITE <- summarise(group_by(item218A.dat4, CK_Cadmus_ID, Category, HomeYearBuilt_MF, Unit.Type)
-                               ,SiteArea = sum(Area, na.rm = T))
-which(duplicated(item218A.SITE$CK_Cadmus_ID))
-summary(item218A.SITE$SiteArea)
-item218A.merge <- left_join(rbsa.dat.bldg, item218A.SITE)
-item218A.merge <- item218A.merge[which(!is.na(item218A.merge$SiteArea)),]
+item218A.merge <- item218A.dat4[which(!is.na(item218A.dat4$SiteArea)),]
 item218A.merge <- item218A.merge[which(item218A.merge$Category == "PSE"),]
-
+unique(item218A.merge$Unit.Type)
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
@@ -121,7 +119,7 @@ item218A.cast <- mean_two_groups(CustomerLevelData = item218A.data
                                    ,byVariableColumn = "Unit.Type"
                                    ,columnAggregate = "All.Types"
                                    ,rowAggregate = "All Vintages")
-
+names(item218A.cast)
 
 item218A.table <- data.frame("Housing.Vintage"             = item218A.cast$HomeYearBuilt_bins_MF
                             ,"Studio.Mean"                = NA#item218A.cast$Mean_Studio
@@ -201,7 +199,7 @@ rowOrder <- c("Pre 1955"
 item218A.table <- item218A.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 item218A.table <- data.frame(item218A.table)
 
-exportTable(item218.table, "MF", "Table 10A", weighted = FALSE,OS = T,osIndicator = "PSE")
+exportTable(item218A.table, "MF", "Table 10A", weighted = FALSE,OS = T,osIndicator = "PSE")
 
 
 #############################################################################################

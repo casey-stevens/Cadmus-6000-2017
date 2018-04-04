@@ -29,7 +29,7 @@ rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-# lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
 lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
 
@@ -62,13 +62,13 @@ unique(tableAF.dat2$Lamps)
 
 tableAF.dat3 <- tableAF.dat2[which(!(is.na(tableAF.dat2$Lamps))),]
 
-tableAF.led.sum <- summarise(group_by(tableAF.dat3, CK_Cadmus_ID, Lamp.Category)
+tableAF.led.sum <- summarise(group_by(tableAF.dat3, CK_Cadmus_ID,Category, Lamp.Category)
                              ,TotalBulbs = sum(Lamps))
 
 ## subset to only storage bulbs
 tableAF.storage <- tableAF.dat3[which(tableAF.dat3$Clean.Room == "Storage"),]
 #summarise within site
-tableAF.storage.sum <- summarise(group_by(tableAF.storage, CK_Cadmus_ID, Lamp.Category)
+tableAF.storage.sum <- summarise(group_by(tableAF.storage, CK_Cadmus_ID,Category, Lamp.Category)
                                  ,StorageBulbs = sum(Lamps))
 length(unique(tableAF.storage.sum$CK_Cadmus_ID))
 
@@ -76,12 +76,12 @@ length(unique(tableAF.storage.sum$CK_Cadmus_ID))
 tableAF.merge1 <- left_join(tableAF.led.sum, tableAF.storage.sum)
 
 tableAF.cast <- dcast(setDT(tableAF.merge1)
-                     ,formula = CK_Cadmus_ID ~ Lamp.Category
+                     ,formula = CK_Cadmus_ID + Category ~ Lamp.Category
                      ,value.var = c("StorageBulbs"))
 tableAF.cast[is.na(tableAF.cast),] <- 0
 
-tableAF.melt <- melt(tableAF.cast, id.vars = "CK_Cadmus_ID")
-names(tableAF.melt) <- c("CK_Cadmus_ID", "Lamp.Category", "StorageBulbs")
+tableAF.melt <- melt(tableAF.cast, id = c("CK_Cadmus_ID", "Category"))
+names(tableAF.melt) <- c("CK_Cadmus_ID", "Category", "Lamp.Category", "StorageBulbs")
 
 
 tableAF.merge  <- left_join(rbsa.dat, tableAF.melt)
@@ -173,7 +173,7 @@ tableAF.MF.final <- mean_two_groups_unweighted(CustomerLevelData = tableAF.data.
                                             ,byVariableColumn = "Category"
                                             ,columnAggregate = "Remove"
                                             ,rowAggregate = "All Categories")
-tableAF.MF.cast <- data.frame(tableAF.MF.final, stringsAMFactors = F)
+tableAF.MF.cast <- tableAF.MF.final
 
 tableAF.MF.table <- data.frame("BuildingType"    = tableAF.MF.cast$BuildingType
                                ,"Lamp.Category"  = tableAF.MF.cast$Lamp.Category
@@ -189,10 +189,6 @@ tableAF.MF.table <- data.frame("BuildingType"    = tableAF.MF.cast$BuildingType
                                ,"2017.RBSA.PS.Mean"        = tableAF.MF.cast$`Mean_2017 RBSA PS`
                                ,"2017.RBSA.PS.SE"          = tableAF.MF.cast$`SE_2017 RBSA PS`
                                ,"2017.RBSA.PS.n"           = tableAF.MF.cast$`n_2017 RBSA PS`
-                               ,"PSE_EB"                   = tableAF.MF.cast$EB_PSE
-                               ,"PSE.King.County_EB"       = tableAF.MF.cast$`EB_PSE KING COUNTY`
-                               ,"PSE.Non.King.County_EB"   = tableAF.MF.cast$`EB_PSE NON-KING COUNTY`
-                               ,"2017.RBSA.PS_EB"          = tableAF.MF.cast$`EB_2017 RBSA PS`
 )
 
 levels(tableAF.MF.table$Lamp.Category)

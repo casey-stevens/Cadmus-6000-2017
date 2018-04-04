@@ -96,13 +96,13 @@ item212A.cast <- dcast(setDT(item212A.final)
                       ,value.var = c("w.percent", "w.SE", "count", "n", "N", 'EB'))
 
 item212A.table <- data.frame("Housing.Vintage" = item212A.cast$HomeYearBuilt_bins_MF
-                            ,"Low-Rise.(1-3)" = item212A.cast$`w.percent_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.(1-3)Percent" = item212A.cast$`w.percent_Apartment Building (3 or fewer floors)`
                             ,"Low-Rise.SE"    = item212A.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid-Rise.(4-6)" = item212A.cast$`w.percent_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.(4-6)Percent" = item212A.cast$`w.percent_Apartment Building (4 to 6 floors)`
                             ,"Mid-Rise.SE"    = item212A.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                            ,"High-Rise.(7+)" = NA#item212A.cast$`w.percent_Apartment Building (More than 6 floors)`
+                            ,"High-Rise.(7+)Percent" = NA#item212A.cast$`w.percent_Apartment Building (More than 6 floors)`
                             ,"High-Rise.SE"   = NA#item212A.cast$`w.SE_Apartment Building (More than 6 floors)`
-                            ,"All.Sizes"      = item212A.cast$`w.percent_Remove`
+                            ,"All.Sizes.Percent"      = item212A.cast$`w.percent_Remove`
                             ,"All.Sizes.SE"   = item212A.cast$`w.SE_Remove`
                             ,"n"              = item212A.cast$`n_Remove`
                             ,"Low-Rise.EB"    = item212A.cast$`EB_Apartment Building (3 or fewer floors)`
@@ -165,13 +165,13 @@ item212A.cast <- dcast(setDT(item212A.final)
                       ,value.var = c("Percent", "SE", "Count", "n"))
 
 item212A.table <- data.frame("Housing.Vintage" = item212A.cast$HomeYearBuilt_bins_MF
-                            ,"Low-Rise.(1-3)" = item212A.cast$`Percent_Apartment Building (3 or fewer floors)`
+                            ,"Low-Rise.(1-3)Percent" = item212A.cast$`Percent_Apartment Building (3 or fewer floors)`
                             ,"Low-Rise.SE"    = item212A.cast$`SE_Apartment Building (3 or fewer floors)`
-                            ,"Mid-Rise.(4-6)" = item212A.cast$`Percent_Apartment Building (4 to 6 floors)`
+                            ,"Mid-Rise.(4-6)Percent" = item212A.cast$`Percent_Apartment Building (4 to 6 floors)`
                             ,"Mid-Rise.SE"    = item212A.cast$`SE_Apartment Building (4 to 6 floors)`
-                            ,"High-Rise.(7+)" = NA#item212A.cast$`Percent_Apartment Building (More than 6 floors)`
+                            ,"High-Rise.(7+)Percent" = NA#item212A.cast$`Percent_Apartment Building (More than 6 floors)`
                             ,"High-Rise.SE"   = NA#item212A.cast$`SE_Apartment Building (More than 6 floors)`
-                            ,"All.Sizes"      = item212A.cast$`Percent_Remove`
+                            ,"All.Sizes.Percent"      = item212A.cast$`Percent_Remove`
                             ,"All.Sizes.SE"   = item212A.cast$`SE_Remove`
                             ,"n"              = item212A.cast$`n_Remove`)
 # row ordering example code
@@ -249,13 +249,13 @@ item212B.cast <- dcast(setDT(item212B.final)
                        ,value.var = c("w.percent", "w.SE", "count", "n", "N", 'EB'))
 
 item212B.table <- data.frame("Housing.Vintage" = item212B.cast$HomeYearBuilt_bins_MF
-                             ,"Low-Rise.(1-3)" = item212B.cast$`w.percent_Apartment Building (3 or fewer floors)`
+                             ,"Low-Rise.(1-3)Percent" = item212B.cast$`w.percent_Apartment Building (3 or fewer floors)`
                              ,"Low-Rise.SE"    = item212B.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                             ,"Mid-Rise.(4-6)" = item212B.cast$`w.percent_Apartment Building (4 to 6 floors)`
+                             ,"Mid-Rise.(4-6)Percent" = item212B.cast$`w.percent_Apartment Building (4 to 6 floors)`
                              ,"Mid-Rise.SE"    = item212B.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.(7+)" = NA#item212B.cast$`w.percent_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.(7+)Percent" = NA#item212B.cast$`w.percent_Apartment Building (More than 6 floors)`
                              ,"High-Rise.SE"   = NA#item212B.cast$`w.SE_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"      = item212B.cast$`w.percent_Remove`
+                             ,"All.Sizes.Percent"      = item212B.cast$`w.percent_Remove`
                              ,"All.Sizes.SE"   = item212B.cast$`w.SE_Remove`
                              ,"n"              = item212B.cast$`n_Remove`
                              ,"Low-Rise.EB"    = item212B.cast$`EB_Apartment Building (3 or fewer floors)`
@@ -318,13 +318,13 @@ item212B.cast <- dcast(setDT(item212B.final)
                        ,value.var = c("Percent", "SE", "Count", "n"))
 
 item212B.table <- data.frame("Housing.Vintage" = item212B.cast$HomeYearBuilt_bins_MF
-                             ,"Low-Rise.(1-3)" = item212B.cast$`Percent_Apartment Building (3 or fewer floors)`
+                             ,"Low-Rise.(1-3)Percent" = item212B.cast$`Percent_Apartment Building (3 or fewer floors)`
                              ,"Low-Rise.SE"    = item212B.cast$`SE_Apartment Building (3 or fewer floors)`
-                             ,"Mid-Rise.(4-6)" = item212B.cast$`Percent_Apartment Building (4 to 6 floors)`
+                             ,"Mid-Rise.(4-6)Percent" = item212B.cast$`Percent_Apartment Building (4 to 6 floors)`
                              ,"Mid-Rise.SE"    = item212B.cast$`SE_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.(7+)" = NA#item212B.cast$`Percent_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.(7+)Percent" = NA#item212B.cast$`Percent_Apartment Building (More than 6 floors)`
                              ,"High-Rise.SE"   = NA#item212B.cast$`SE_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"      = item212B.cast$`Percent_Remove`
+                             ,"All.Sizes.Percent"      = item212B.cast$`Percent_Remove`
                              ,"All.Sizes.SE"   = item212B.cast$`SE_Remove`
                              ,"n"              = item212B.cast$`n_Remove`)
 # row ordering example code
@@ -402,13 +402,13 @@ item212C.cast <- dcast(setDT(item212C.final)
                        ,value.var = c("w.percent", "w.SE", "count", "n", "N", 'EB'))
 
 item212C.table <- data.frame("Housing.Vintage" = item212C.cast$HomeYearBuilt_bins_MF
-                             ,"Low-Rise.(1-3)" = item212C.cast$`w.percent_Apartment Building (3 or fewer floors)`
+                             ,"Low-Rise.(1-3)Percent" = item212C.cast$`w.percent_Apartment Building (3 or fewer floors)`
                              ,"Low-Rise.SE"    = item212C.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                             ,"Mid-Rise.(4-6)" = item212C.cast$`w.percent_Apartment Building (4 to 6 floors)`
+                             ,"Mid-Rise.(4-6)Percent" = item212C.cast$`w.percent_Apartment Building (4 to 6 floors)`
                              ,"Mid-Rise.SE"    = item212C.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.(7+)" = NA#item212C.cast$`w.percent_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.(7+)Percent" = NA#item212C.cast$`w.percent_Apartment Building (More than 6 floors)`
                              ,"High-Rise.SE"   = NA#item212C.cast$`w.SE_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"      = item212C.cast$`w.percent_Remove`
+                             ,"All.Sizes.Percent"      = item212C.cast$`w.percent_Remove`
                              ,"All.Sizes.SE"   = item212C.cast$`w.SE_Remove`
                              ,"n"              = item212C.cast$`n_Remove`
                              ,"Low-Rise.EB"    = item212C.cast$`EB_Apartment Building (3 or fewer floors)`
@@ -471,13 +471,13 @@ item212C.cast <- dcast(setDT(item212C.final)
                        ,value.var = c("Percent", "SE", "Count", "n"))
 
 item212C.table <- data.frame("Housing.Vintage" = item212C.cast$HomeYearBuilt_bins_MF
-                             ,"Low-Rise.(1-3)" = item212C.cast$`Percent_Apartment Building (3 or fewer floors)`
+                             ,"Low-Rise.(1-3)Percent" = item212C.cast$`Percent_Apartment Building (3 or fewer floors)`
                              ,"Low-Rise.SE"    = item212C.cast$`SE_Apartment Building (3 or fewer floors)`
-                             ,"Mid-Rise.(4-6)" = item212C.cast$`Percent_Apartment Building (4 to 6 floors)`
+                             ,"Mid-Rise.(4-6)Percent" = item212C.cast$`Percent_Apartment Building (4 to 6 floors)`
                              ,"Mid-Rise.SE"    = item212C.cast$`SE_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.(7+)" = NA#item212C.cast$`Percent_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.(7+)Percent" = NA#item212C.cast$`Percent_Apartment Building (More than 6 floors)`
                              ,"High-Rise.SE"   = NA#item212C.cast$`SE_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"      = item212C.cast$`Percent_Remove`
+                             ,"All.Sizes.Percent"      = item212C.cast$`Percent_Remove`
                              ,"All.Sizes.SE"   = item212C.cast$`SE_Remove`
                              ,"n"              = item212C.cast$`n_Remove`)
 # row ordering example code
@@ -494,6 +494,8 @@ item212C.table <- item212C.table %>% mutate(Housing.Vintage = factor(Housing.Vin
 item212C.table <- data.frame(item212C.table)
 
 exportTable(item212C.table, "MF", "Table 4C", weighted = FALSE, OS = T, osIndicator = "PSE")
+
+
 #############################################################################################
 # Item 212: DISTRIBUTION OF BUILDINGS BY BUILDING SIZE AND VINTAGE (MF table 4)
 #############################################################################################
@@ -553,20 +555,20 @@ item212D.final <- rbind.data.frame(item212D.summary, item212D.all.vintages, item
 item212D.cast <- dcast(setDT(item212D.final)
                        ,formula = HomeYearBuilt_bins_MF ~ HomeType
                        ,value.var = c("w.percent", "w.SE", "count", "n", "N", 'EB'))
-
+names(item212D.cast)
 item212D.table <- data.frame("Housing.Vintage" = item212D.cast$HomeYearBuilt_bins_MF
-                             ,"Low-Rise.(1-3)" = item212D.cast$`w.percent_Apartment Building (3 or fewer floors)`
+                             ,"Low-Rise.(1-3)Percent" = item212D.cast$`w.percent_Apartment Building (3 or fewer floors)`
                              ,"Low-Rise.SE"    = item212D.cast$`w.SE_Apartment Building (3 or fewer floors)`
-                             ,"Mid-Rise.(4-6)" = item212D.cast$`w.percent_Apartment Building (4 to 6 floors)`
+                             ,"Mid-Rise.(4-6)Percent" = item212D.cast$`w.percent_Apartment Building (4 to 6 floors)`
                              ,"Mid-Rise.SE"    = item212D.cast$`w.SE_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.(7+)" = NA#item212D.cast$`w.percent_Apartment Building (More than 6 floors)`
-                             ,"High-Rise.SE"   = NA#item212D.cast$`w.SE_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"      = item212D.cast$`w.percent_Remove`
+                             ,"High-Rise.(7+)Percent" = item212D.cast$`w.percent_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.SE"   = item212D.cast$`w.SE_Apartment Building (More than 6 floors)`
+                             ,"All.Sizes.Percent"      = item212D.cast$`w.percent_Remove`
                              ,"All.Sizes.SE"   = item212D.cast$`w.SE_Remove`
                              ,"n"              = item212D.cast$`n_Remove`
                              ,"Low-Rise.EB"    = item212D.cast$`EB_Apartment Building (3 or fewer floors)`
                              ,"Mid-Rise.EB"    = item212D.cast$`EB_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.EB"   = NA#item212D.cast$`EB_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.EB"   = item212D.cast$`EB_Apartment Building (More than 6 floors)`
                              ,"All.Sizes.EB"   = item212D.cast$`EB_Remove`
 )
 
@@ -624,13 +626,13 @@ item212D.cast <- dcast(setDT(item212D.final)
                        ,value.var = c("Percent", "SE", "Count", "n"))
 
 item212D.table <- data.frame("Housing.Vintage" = item212D.cast$HomeYearBuilt_bins_MF
-                             ,"Low-Rise.(1-3)" = item212D.cast$`Percent_Apartment Building (3 or fewer floors)`
+                             ,"Low-Rise.(1-3)Percent" = item212D.cast$`Percent_Apartment Building (3 or fewer floors)`
                              ,"Low-Rise.SE"    = item212D.cast$`SE_Apartment Building (3 or fewer floors)`
-                             ,"Mid-Rise.(4-6)" = item212D.cast$`Percent_Apartment Building (4 to 6 floors)`
+                             ,"Mid-Rise.(4-6)Percent" = item212D.cast$`Percent_Apartment Building (4 to 6 floors)`
                              ,"Mid-Rise.SE"    = item212D.cast$`SE_Apartment Building (4 to 6 floors)`
-                             ,"High-Rise.(7+)" = NA#item212D.cast$`Percent_Apartment Building (More than 6 floors)`
-                             ,"High-Rise.SE"   = NA#item212D.cast$`SE_Apartment Building (More than 6 floors)`
-                             ,"All.Sizes"      = item212D.cast$`Percent_Remove`
+                             ,"High-Rise.(7+)Percent" = item212D.cast$`Percent_Apartment Building (More than 6 floors)`
+                             ,"High-Rise.SE"   = item212D.cast$`SE_Apartment Building (More than 6 floors)`
+                             ,"All.Sizes.Percent"      = item212D.cast$`Percent_Remove`
                              ,"All.Sizes.SE"   = item212D.cast$`SE_Remove`
                              ,"n"              = item212D.cast$`n_Remove`)
 # row ordering example code
@@ -796,7 +798,7 @@ item216.sample.sizes <- proportions_one_group(CustomerLevelData = item216.merge
 item216.sample.sizes$HomeType[which(item216.sample.sizes$HomeType == "Total")] <- "All Sizes"
 
 
-item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, item216.sample.sizes, stringsAsFactors = F)
+item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsFactors = F)
 
 
 item216.cast <- dcast(setDT(item216.final)
@@ -809,9 +811,9 @@ item216.table <- data.frame("BuildingType"                  = item216.cast$Build
                             ,"SE_Common.Area"               = item216.cast$w.SE_Common.Area
                             ,"Percent_Non-Residential.Area" = item216.cast$w.percent_Total.Nonres.Floor.Area
                             ,"SE_Non-Residential.Area"      = item216.cast$w.SE_Total.Nonres.Floor.Area
-                            ,"Percent_Residential.Area"     = item216.cast$w.percent_Total.Residential.Floor.Area
-                            ,"SE_Residential.Area"          = item216.cast$w.SE_Total.Residential.Floor.Area
-                            ,"n"                            = item216.cast$n_Total
+                            ,"Percent_Residential.Area."     = item216.cast$w.percent_Total.Residential.Floor.Area
+                            ,"SE_Residential.Area."          = item216.cast$w.SE_Total.Residential.Floor.Area
+                            ,"n"                            = item216.cast$n_Total.Residential.Floor.Area
                             ,"EB_Common.Area"               = item216.cast$EB_Common.Area
                             ,"EB_Non-Residential.Area"      = item216.cast$EB_Total.Nonres.Floor.Area
                             ,"EB_Residential.Area"          = item216.cast$EB_Total.Residential.Floor.Area
@@ -853,17 +855,17 @@ item216.all.sizes <- proportions_one_group(CustomerLevelData = item216.merge
 item216.all.sizes <- item216.all.sizes[which(item216.all.sizes$Area.Type != "Total"),]
 
 
-item216.sample.sizes <- proportions_one_group(CustomerLevelData = item216.merge
-                                              ,valueVariable = 'Floor.Area'
-                                              ,groupingVariable = 'HomeType'
-                                              ,total.name = 'Total'
-                                              ,columnName = "Area.Type"
-                                              ,weighted = FALSE
-                                              ,two.prop.total = TRUE)
-item216.sample.sizes$HomeType[which(item216.sample.sizes$HomeType == "Total")] <- "All Sizes"
+# item216.sample.sizes <- proportions_one_group(CustomerLevelData = item216.merge
+#                                               ,valueVariable = 'Floor.Area'
+#                                               ,groupingVariable = 'HomeType'
+#                                               ,total.name = 'Total'
+#                                               ,columnName = "Area.Type"
+#                                               ,weighted = FALSE
+#                                               ,two.prop.total = TRUE)
+# item216.sample.sizes$HomeType[which(item216.sample.sizes$HomeType == "Total")] <- "All Sizes"
 
 
-item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, item216.sample.sizes, stringsAsFactors = F)
+item216.final <- rbind.data.frame(item216.summary, item216.all.sizes, stringsAsFactors = F)
 
 
 item216.cast <- dcast(setDT(item216.final)
@@ -881,7 +883,7 @@ item216.table <- data.frame("BuildingType" = item216.cast$BuildingType
                             ,"Percent_Residential.Area"     = item216.cast$Percent_Total.Residential.Floor.Area
                             ,"SE_Residential.Area"          = item216.cast$SE_Total.Residential.Floor.Area
                             # ,"n_Residential.Area"           = item216.cast$n_Total.Residential.Floor.Area
-                            ,"n" = item216.cast$n_Total
+                            ,"n" = item216.cast$n_Total.Residential.Floor.Area
 )
 
 # row ordering example code
@@ -1047,8 +1049,8 @@ item216.table <- data.frame("BuildingType"                  = item216.cast$Build
                             ,"Percent_Common.Area"          = item216.cast$w.percent_Common.Area
                             ,"SE_Common.Area"               = item216.cast$w.SE_Common.Area
                             ,"Percent_Non-Residential.Area" = item216.cast$w.percent_Total.Nonres.Floor.Area
-                            ,"SE_Non-Residential.Area"      = item216.cast$w.SE_Total.Nonres.Floor.Area
-                            ,"Percent_Residential.Area"     = item216.cast$w.percent_Total.Residential.Floor.Area
+                            ,"SE_Non-Residential.Area."      = item216.cast$w.SE_Total.Nonres.Floor.Area
+                            ,"Percent_Residential.Area."     = item216.cast$w.percent_Total.Residential.Floor.Area
                             ,"SE_Residential.Area"          = item216.cast$w.SE_Total.Residential.Floor.Area
                             ,"n"                            = item216.cast$n_Total
                             ,"EB_Common.Area"               = item216.cast$EB_Common.Area
