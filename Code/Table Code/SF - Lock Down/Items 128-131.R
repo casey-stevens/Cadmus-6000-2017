@@ -55,6 +55,7 @@ item128.dat2 <- item128.dat1[which(!(is.na(item128.dat1$Percent.Assistance))),]
 item128.dat3 <- item128.dat2[which(item128.dat2$Percent.Assistance %notin% c("Don't know"
                                                                              ,"Prefer not to say"
                                                                              ,"N/A"
+                                                                             ,"Unknown"
                                                                              ,NA)),]
 ################################################
 # Adding pop and sample sizes for weights

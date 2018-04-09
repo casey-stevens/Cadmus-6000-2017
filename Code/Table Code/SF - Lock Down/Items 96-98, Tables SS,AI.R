@@ -202,6 +202,7 @@ item97.data <- left_join(item97.data, item97.dat3[which(colnames(item97.dat3) %i
 #######################
 # Weighted Analysis
 #######################
+item97.data$Count <- 1
 item97.final <- proportions_one_group(CustomerLevelData  = item97.data
                                       , valueVariable    = 'count'
                                       , groupingVariable = 'Generic'

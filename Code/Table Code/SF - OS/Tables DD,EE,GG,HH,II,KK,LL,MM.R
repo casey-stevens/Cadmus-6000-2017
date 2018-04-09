@@ -1339,9 +1339,10 @@ length(unique(tableII.os.merge$CK_Cadmus_ID[which(tableII.os.merge$BuildingType 
 ################################################
 tableII.os.data <- weightedData(tableII.os.merge[-which(colnames(tableII.os.merge) %in% c("Type"
                                                                                  ,"Power.Strip.Use"))])
-tableII.os.data <- left_join(tableII.os.data, unique(tableII.os.merge[which(colnames(tableII.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Type"
-                                                                                           ,"Power.Strip.Use"))]))
+tableII.os.data <- left_join(tableII.os.data, tableII.os.merge[which(colnames(tableII.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Type"
+                                                                                                       ,"Power.Strip.Use"))])
 tableII.os.data$Count <- 1
 #######################
 # Weighted Analysis
