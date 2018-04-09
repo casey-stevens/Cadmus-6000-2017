@@ -319,19 +319,23 @@ run <- try(source("Code/Table Code/MF - PSE/Table AD.R"))
 
 #############################################################################################
 # Source all SF OVERSAMPLE scripts
+# Note: Need to update insulation scripts when running SCL vs. SnoPUD since they have different
+#       missing insulation levels in the tables. 
+# Note: Run Table AE to get combined proportion for living/dining/family rooms, 
+#       this table should not be exported
 #############################################################################################
 run <- try(source("Code/Table Code/SF - OS/Items 1,2,6.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 3-5.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 7-9.R"))
-run <- try(source("Code/Table Code/SF - OS/Items 10-18,175,235,Table AP.R")) #insulation Error in data.frame(BuildingType = item10.os.cast$BuildingType, Wall.Type = item10.os.cast$Wall.Type,  : arguments imply differing number of rows: 3, 0
+run <- try(source("Code/Table Code/SF - OS/Items 10-18,175,235,Table AP.R")) #insulation
 run <- try(source("Code/Table Code/SF - OS/Items 19-22.R"))
-run <- try(source("Code/Table Code/SF - OS/Items 23,176,239.R")) #insulaion Error in data.frame(Housing.Vintage = item23.os.cast$HomeYearBuilt_bins3,  : arguments imply differing number of rows: 6, 0
+run <- try(source("Code/Table Code/SF - OS/Items 23,176,239.R")) #insulaion
 run <- try(source("Code/Table Code/SF - OS/Items 24,25,28,29.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 26,30,31,177,178,237.R")) #insulaion
 run <- try(source("Code/Table Code/SF - OS/Items 32-34.R"))
 run <- try(source("Code/Table Code/SF - OS/Item 35.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 36,37,182.R"))
-run <- try(source("Code/Table Code/SF - OS/Items 38-42.R")) #Error in nrow(item.group.rowFinal) : object 'item.group.rowFinal' not found
+run <- try(source("Code/Table Code/SF - OS/Items 38-42.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 43-46.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 47-49.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 50-53.R"))
@@ -339,12 +343,12 @@ run <- try(source("Code/Table Code/SF - OS/Items 54,55,190.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 56-58.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 59,60.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 66-67.R"))
-run <- try(source("Code/Table Code/SF - OS/Items 68-70, Table AE.R")) #Error : Sheet 'Table AE' does not exist.
+run <- try(source("Code/Table Code/SF - OS/Items 68-70, Table AE.R")) 
 run <- try(source("Code/Table Code/SF - OS/Items 71-76,Tables XX,YY,AF.R"))
-run <- try(source("Code/Table Code/SF - OS/Items 77-79, Tables ZZ,AG,AH.R")) #Error : all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData,  .... 
+run <- try(source("Code/Table Code/SF - OS/Items 77-79, Tables ZZ,AG,AH.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 80,81, Tables AB,AC.R"))
 appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
-run <- try(source("Code/Table Code/SF - OS/Items 82-85.R")) #Error in eval(expr, envir, enclos) : object 'item.os.cast' not found
+run <- try(source("Code/Table Code/SF - OS/Items 82-85.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 86-88.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 89,91,93, Table AJ.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 90,92.R"))
@@ -369,7 +373,7 @@ run <- try(source("Code/Table Code/SF - OS/Items 151-153.R"))
 run <- try(source("Code/Table Code/SF - OS/Items 154, 155.R"))
 run <- try(source("Code/Table Code/SF - OS/Table AA, Table BB.R"))
 run <- try(source("Code/Table Code/SF - OS/Table AK.R"))
-# run <- try(source("Code/Table Code/SF - OS/Table AL.R"))
+# run <- try(source("Code/Table Code/SF - OS/Table AL.R")) #always do table AL by hand in case the EUI Quartiles need to be updated
 run <- try(source("Code/Table Code/SF - OS/Table AV.R"))
 run <- try(source("Code/Table Code/SF - OS/Tables CC,NN,OO,WW.R"))
 run <- try(source("Code/Table Code/SF - OS/Tables DD,EE,GG,HH,II,KK,LL,MM.R"))

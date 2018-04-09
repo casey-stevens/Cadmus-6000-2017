@@ -9,7 +9,7 @@
 ### EUI Table For Steve
 
 ##  Clear variables
-rm(list = ls())
+# rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
@@ -257,9 +257,9 @@ if(os.ind == "scl"){
 }else if(os.ind == "snopud"){
   #for single family
   UsageDataSF_Final7$EUI_Quartile <- 4
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.472681)] <- 1
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.472681 & UsageDataSF_Final7$EUI < 5.552383)] <- 2
-  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.552383 & UsageDataSF_Final7$EUI < 7.055740)] <- 3
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 0 & UsageDataSF_Final7$EUI < 3.436260)] <- 1
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 3.436260 & UsageDataSF_Final7$EUI < 5.482189)] <- 2
+  UsageDataSF_Final7$EUI_Quartile[which(UsageDataSF_Final7$EUI >= 5.482189 & UsageDataSF_Final7$EUI < 7.094700)] <- 3
   
 }
 ###########################

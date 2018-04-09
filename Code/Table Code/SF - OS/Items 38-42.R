@@ -865,10 +865,10 @@ item40.os.summary <- mean_two_groups(CustomerLevelData = item40.os.data
                                   ,valueVariable = 'ACH50'
                                   ,byVariableRow = "HomeYearBuilt_bins4"
                                   ,byVariableColumn = "CK_Building_ID"
-                                  # ,columnAggregate = "Remove"
-                                  # ,rowAggregate = "Remove"
+                                  ,columnAggregate = "Remove"
+                                  ,rowAggregate = "Remove"
                                   )
-item40.os.summary <- item40.os.summary[which(item40.os.summary$HomeYearBuilt_bins4 != "All Vintages"),]
+item40.os.summary <- item40.os.summary[which(item40.os.summary$HomeYearBuilt_bins4 != "Remove"),]
 
 item40.os.all.vintages <- mean_one_group(CustomerLevelData = item40.os.data
                                          ,valueVariable = 'ACH50'
@@ -947,10 +947,10 @@ item40.os.summary <- mean_two_groups_unweighted(CustomerLevelData = item40.os.da
                                      ,valueVariable = 'ACH50'
                                      ,byVariableRow = "HomeYearBuilt_bins4"
                                      ,byVariableColumn = "CK_Building_ID"
-                                     # ,columnAggregate = "Remove"
-                                     # ,rowAggregate = "Remove"
+                                     ,columnAggregate = "Remove"
+                                     ,rowAggregate = "Remove"
 )
-item40.os.summary <- item40.os.summary[which(item40.os.summary$HomeYearBuilt_bins4 != "All Vintages"),]
+item40.os.summary <- item40.os.summary[which(item40.os.summary$HomeYearBuilt_bins4 != "Remove"),]
 
 item40.os.all.vintages <- mean_one_group_unweighted(CustomerLevelData = item40.os.data
                                          ,valueVariable = 'ACH50'

@@ -2995,8 +2995,8 @@ item10.os.table <- data.frame("BuildingType"                   = item10.os.cast$
                               ,"SE.R11.R16"                    = item10.os.cast$w.SE_R11.R16
                               ,"Percent.R17.R22"               = item10.os.cast$w.percent_R17.R22
                               ,"SE.R17.R22"                    = item10.os.cast$w.SE_R17.R22
-                              ,"Percent.RGT22"                 = item10.os.cast$w.percent_RGT22
-                              ,"SE.RGT22"                      = item10.os.cast$w.SE_RGT22
+                              ,"Percent.RGT22"                 = NA#item10.os.cast$w.percent_RGT22 #comment out for SnoPUD
+                              ,"SE.RGT22"                      = NA#item10.os.cast$w.SE_RGT22 #comment out for SnoPUD
                               ,"Percent_All Insulation Levels" = item10.os.cast$`w.percent_All Insulation Levels`
                               ,"SE.All Insulation Levels"      = item10.os.cast$`w.SE_All Insulation Levels`
                               ,"n"                             = item10.os.cast$`n_All Insulation Levels`
@@ -3004,7 +3004,7 @@ item10.os.table <- data.frame("BuildingType"                   = item10.os.cast$
                               ,"EB.R1.R10"                     = item10.os.cast$EB_R1.R10
                               ,"EB.R11.R16"                    = item10.os.cast$EB_R11.R16
                               ,"EB.R17.R22"                    = item10.os.cast$EB_R17.R22
-                              ,"EB.RGT22"                      = item10.os.cast$EB_RGT22
+                              ,"EB.RGT22"                      = NA#item10.os.cast$EB_RGT22 #comment out for SnoPUD
                               ,"EB.All Insulation Levels"      = item10.os.cast$`EB_All Insulation Levels`
 )
 
@@ -3081,10 +3081,10 @@ item10.os.table <- data.frame("BuildingType"                   = item10.os.cast$
                               ,"SE.R1.R10"                     = item10.os.cast$SE_R1.R10
                               ,"Percent.R11.R16"               = item10.os.cast$Percent_R11.R16
                               ,"SE.R11.R16"                    = item10.os.cast$SE_R11.R16
-                              ,"Percent.R17.R22"               = item10.os.cast$Percent_R17.R22
+                              ,"Percent.R17.R22"               = item10.os.cast$Percent_R17.R22 
                               ,"SE.R17.R22"                    = item10.os.cast$SE_R17.R22
-                              ,"Percent.RGT22"                 = item10.os.cast$Percent_RGT22
-                              ,"SE.RGT22"                      = item10.os.cast$SE_RGT22
+                              ,"Percent.RGT22"                 = NA#item10.os.cast$Percent_RGT22 #comment out for SnoPUD
+                              ,"SE.RGT22"                      = NA#item10.os.cast$SE_RGT22 #comment out for SnoPUD
                               ,"Percent_All Insulation Levels" = item10.os.cast$`Percent_All Insulation Levels`
                               ,"SE.All Insulation Levels"      = item10.os.cast$`SE_All Insulation Levels`
                               ,"n"                             = item10.os.cast$`n_All Insulation Levels`
@@ -3187,16 +3187,16 @@ item11.os.table <- data.frame("BuildingType"  = item11.os.cast$BuildingType
                            ,"SE_2x6"          = item11.os.cast$`w.SE_Framed 2x6`
                            # ,"Percent_2x8"     = item11.os.cast$`w.percent_Framed 2x8`
                            # ,"SE_2x8"          = item11.os.cast$`w.SE_Framed 2x8`
-                           ,"Percent_ALT"     = item11.os.cast$w.percent_Alternative
-                           ,"SE_ALT"          = item11.os.cast$w.SE_Alternative
-                           ,"Percent_Unknown" = item11.os.cast$`w.percent_Framed (Unknown)`
-                           ,"SE_Unknown"      = item11.os.cast$`w.SE_Framed (Unknown)`
+                           # ,"Percent_ALT"     = item11.os.cast$w.percent_Alternative
+                           # ,"SE_ALT"          = item11.os.cast$w.SE_Alternative
+                           # ,"Percent_Unknown" = item11.os.cast$`w.percent_Framed (Unknown)`
+                           # ,"SE_Unknown"      = item11.os.cast$`w.SE_Framed (Unknown)`
                            ,"n"               = item11.os.cast$n_Total
                            ,"EB_2x4"          = item11.os.cast$`EB_Framed 2x4`
                            ,"EB_2x6"          = item11.os.cast$`EB_Framed 2x6`
                            # ,"EB_2x6"          = item11.os.cast$`EB_Framed 2x8`
-                           ,"EB_ALT"          = item11.os.cast$EB_Alternative
-                           ,"EB_Unknown"      = item11.os.cast$`EB_Framed (Unknown)`
+                           # ,"EB_ALT"          = item11.os.cast$EB_Alternative
+                           # ,"EB_Unknown"      = item11.os.cast$`EB_Framed (Unknown)`
 )
 
 # row ordering example code
@@ -3257,10 +3257,10 @@ item11.os.table <- data.frame("BuildingType"  = item11.os.cast$BuildingType
                            ,"SE_2x6"          = item11.os.cast$`SE_Framed 2x6`
                            # ,"Percent_2x8"     = item11.os.cast$`Percent_Framed 2x8`
                            # ,"SE_2x8"          = item11.os.cast$`SE_Framed 2x8`
-                           ,"Percent_ALT"     = item11.os.cast$Percent_Alternative
-                           ,"SE_ALT"          = item11.os.cast$SE_Alternative
-                           ,"Percent_Unknown" = item11.os.cast$`Percent_Framed (Unknown)`
-                           ,"SE_Unknown"      = item11.os.cast$`SE_Framed (Unknown)`
+                           # ,"Percent_ALT"     = item11.os.cast$Percent_Alternative
+                           # ,"SE_ALT"          = item11.os.cast$SE_Alternative
+                           # ,"Percent_Unknown" = item11.os.cast$`Percent_Framed (Unknown)`
+                           # ,"SE_Unknown"      = item11.os.cast$`SE_Framed (Unknown)`
                            ,"n"               = item11.os.cast$n_Total
 )
 
@@ -3764,14 +3764,14 @@ item12.os.table <- data.frame("BuildingType"     = item12.os.cast$BuildingType
                            ,"SE.R11.R16"      = item12.os.cast$w.SE_R11.R16
                            ,"Percent.R17.R22" = item12.os.cast$w.percent_R17.R22
                            ,"SE.R17.R22"      = item12.os.cast$w.SE_R17.R22
-                           ,"Percent.RGT22"   = item12.os.cast$w.percent_RGT22
-                           ,"SE.RGT22"        = item12.os.cast$w.SE_RGT22
+                           ,"Percent.RGT22"   = NA#item12.os.cast$w.percent_RGT22
+                           ,"SE.RGT22"        = NA#item12.os.cast$w.SE_RGT22
                            ,"n"               = item12.os.cast$`n_All Walls`
                            ,"EB.R0"           = item12.os.cast$EB_R0
                            ,"EB.R1.R10"       = item12.os.cast$EB_R1.R10
                            ,"EB.R11.R16"      = item12.os.cast$EB_R11.R16
                            ,"EB.R17.R22"      = item12.os.cast$EB_R17.R22
-                           ,"EB.RGT22"        = item12.os.cast$EB_RGT22
+                           ,"EB.RGT22"        = NA#item12.os.cast$EB_RGT22
 )
 
 # row ordering example code
@@ -3849,8 +3849,8 @@ item12.os.table <- data.frame("BuildingType"     = item12.os.cast$BuildingType
                               ,"SE.R11.R16"      = item12.os.cast$SE_R11.R16
                               ,"Percent.R17.R22" = item12.os.cast$Percent_R17.R22
                               ,"SE.R17.R22"      = item12.os.cast$SE_R17.R22
-                              ,"Percent.RGT22"   = item12.os.cast$Percent_RGT22
-                              ,"SE.RGT22"        = item12.os.cast$SE_RGT22
+                              ,"Percent.RGT22"   = NA#item12.os.cast$Percent_RGT22
+                              ,"SE.RGT22"        = NA#item12.os.cast$SE_RGT22
                               ,"n"               = item12.os.cast$`n_All Housing Vintages`
 )
 
@@ -3937,14 +3937,14 @@ item14.os.table <- data.frame("BuildingType"     = item14.os.cast$BuildingType
                               ,"SE.R11.R16"      = item14.os.cast$w.SE_R11.R16
                               ,"Percent.R17.R22" = item14.os.cast$w.percent_R17.R22
                               ,"SE.R17.R22"      = item14.os.cast$w.SE_R17.R22
-                              ,"Percent.RGT22"   = NA#item14.os.cast$w.percent_RGT22
-                              ,"SE.RGT22"        = NA#item14.os.cast$w.SE_RGT22
+                              ,"Percent.RGT22"   = item14.os.cast$w.percent_RGT22
+                              ,"SE.RGT22"        = item14.os.cast$w.SE_RGT22
                               ,"n"               = item14.os.cast$`n_All Housing Vintages`
                               ,"EB.R0"           = item14.os.cast$EB_R0
                               ,"EB.R1.R10"       = item14.os.cast$EB_R1.R10
                               ,"EB.R11.R16"      = item14.os.cast$EB_R11.R16
                               ,"EB.R17.R22"      = item14.os.cast$EB_R17.R22
-                              ,"EB.RGT22"        = NA#item14.os.cast$EB_RGT22
+                              ,"EB.RGT22"        = item14.os.cast$EB_RGT22
 )
 
 # row ordering example code
@@ -4022,8 +4022,8 @@ item14.os.table <- data.frame("BuildingType"     = item14.os.cast$BuildingType
                               ,"SE.R11.R16"      = item14.os.cast$SE_R11.R16
                               ,"Percent.R17.R22" = item14.os.cast$Percent_R17.R22
                               ,"SE.R17.R22"      = item14.os.cast$SE_R17.R22
-                              ,"Percent.RGT22"   = NA#item14.os.cast$Percent_RGT22
-                              ,"SE.RGT22"        = NA#item14.os.cast$SE_RGT22
+                              ,"Percent.RGT22"   = item14.os.cast$Percent_RGT22
+                              ,"SE.RGT22"        = item14.os.cast$SE_RGT22
                               ,"n"               = item14.os.cast$`n_All Housing Vintages`
 )
 
@@ -4115,14 +4115,14 @@ item15.os.table <- data.frame("BuildingType"     = item15.os.cast$BuildingType
                               ,"SE.R11.R16"      = item15.os.cast$w.SE_R11.R16
                               ,"Percent.R17.R22" = item15.os.cast$w.percent_R17.R22
                               ,"SE.R17.R22"      = item15.os.cast$w.SE_R17.R22
-                              ,"Percent.RGT22"   = NA#item15.os.cast$w.percent_RGT22
-                              ,"SE.RGT22"        = NA#item15.os.cast$w.SE_RGT22
+                              ,"Percent.RGT22"   = item15.os.cast$w.percent_RGT22
+                              ,"SE.RGT22"        = item15.os.cast$w.SE_RGT22
                               ,"n"               = item15.os.cast$`n_All Housing Vintages`
                               ,"EB.R0"           = item15.os.cast$EB_R0
                               ,"EB.R1.R10"       = item15.os.cast$EB_R1.R10
                               ,"EB.R11.R16"      = item15.os.cast$EB_R11.R16
                               ,"EB.R17.R22"      = item15.os.cast$EB_R17.R22
-                              ,"EB.RGT22"        = NA#item15.os.cast$EB_RGT22
+                              ,"EB.RGT22"        = item15.os.cast$EB_RGT22
 )
 
 # row ordering example code
@@ -4200,8 +4200,8 @@ item15.os.table <- data.frame("BuildingType"     = item15.os.cast$BuildingType
                               ,"SE.R11.R16"      = item15.os.cast$SE_R11.R16
                               ,"Percent.R17.R22" = item15.os.cast$Percent_R17.R22
                               ,"SE.R17.R22"      = item15.os.cast$SE_R17.R22
-                              ,"Percent.RGT22"   = NA#item15.os.cast$Percent_RGT22
-                              ,"SE.RGT22"        = NA#item15.os.cast$SE_RGT22
+                              ,"Percent.RGT22"   = item15.os.cast$Percent_RGT22
+                              ,"SE.RGT22"        = item15.os.cast$SE_RGT22
                               ,"n"               = item15.os.cast$`n_All Housing Vintages`
 )
 
@@ -4690,14 +4690,14 @@ item17.os.table <- data.frame("BuildingType"     = item17.os.cast$BuildingType
                               ,"SE.R10.R15"      = item17.os.cast$w.SE_R10.R15
                               ,"Percent.R16.R20" = item17.os.cast$w.percent_R16.R20
                               ,"SE.R16.R20"      = item17.os.cast$w.SE_R16.R20
-                              ,"Percent.RGT21"   = item17.os.cast$w.percent_RGT21
-                              ,"SE.RGT21"        = item17.os.cast$w.SE_RGT21
+                              ,"Percent.RGT21"   = NA#item17.os.cast$w.percent_RGT21
+                              ,"SE.RGT21"        = NA#item17.os.cast$w.SE_RGT21
                               ,"n"               = item17.os.cast$`n_All Housing Vintages`
                               ,'EB.None'         = item17.os.cast$EB_None
                               ,"EB.R1.R9"        = item17.os.cast$EB_R1.R9
                               ,"EB.R10.R15"      = item17.os.cast$EB_R10.R15
                               ,"EB.R16.R20"      = item17.os.cast$EB_R16.R20
-                              ,"EB.RGT21"          = item17.os.cast$EB_RGT21
+                              ,"EB.RGT21"        = NA#item17.os.cast$EB_RGT21
 )
 
 # row ordering example code
@@ -4773,8 +4773,8 @@ item17.os.table <- data.frame("BuildingType"     = item17.os.cast$BuildingType
                               ,"SE.R10.R15"      = item17.os.cast$SE_R10.R15
                               ,"Percent.R16.R20" = item17.os.cast$Percent_R16.R20
                               ,"SE.R16.R20"      = item17.os.cast$SE_R16.R20
-                              ,"Percent.RGT21"   = item17.os.cast$Percent_RGT21
-                              ,"SE.RGT21"        = item17.os.cast$SE_RGT21
+                              ,"Percent.RGT21"   = NA#item17.os.cast$Percent_RGT21
+                              ,"SE.RGT21"        = NA#item17.os.cast$SE_RGT21
                               ,"n"               = item17.os.cast$`n_All Housing Vintages`
 )
 

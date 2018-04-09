@@ -1772,7 +1772,7 @@ tableAH.os.final <- mean_one_group_unweighted(CustomerLevelData = tableAH.os.dat
                                            ,aggregateRow     = 'Remove')
 tableAH.os.final <- tableAH.os.final[which(tableAH.os.final$CK_Building_ID != "Remove"),]
 
-names(tableAH.os.cast)
+names(tableAH.os.final)
 levels(tableAH.os.final$CK_Building_ID)
 if(os.ind == "scl"){
   rowOrder <- c("SCL GenPop"

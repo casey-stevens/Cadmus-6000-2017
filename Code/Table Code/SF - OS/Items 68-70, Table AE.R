@@ -1652,7 +1652,7 @@ tableAE.os.table <- data.frame(tableAE.os.table)
 tableAE.os.final.SF <- tableAE.os.table[which(tableAE.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(tableAE.os.table) %in% c("BuildingType"))]
 
-exportTable(tableAE.os.final.SF, "SF", "Table AE", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
+# exportTable(tableAE.os.final.SF, "SF", "Table AE", weighted = TRUE, osIndicator = export.ind, OS = TRUE)
 
 
 #######################
@@ -1740,4 +1740,4 @@ tableAE.os.table <- data.frame(tableAE.os.table)
 tableAE.os.final.SF <- tableAE.os.table[which(tableAE.os.table$BuildingType == "Single Family")
                                   ,-which(colnames(tableAE.os.table) %in% c("BuildingType"))]
 
-exportTable(tableAE.os.final.SF, "SF", "Table AE", weighted = FALSE, osIndicator = export.ind, OS = TRUE)
+# exportTable(tableAE.os.final.SF, "SF", "Table AE", weighted = FALSE, osIndicator = export.ind, OS = TRUE)
