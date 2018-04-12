@@ -259,26 +259,26 @@ prep.dat5$Floor.Insulation.Condition.1[which(is.na(prep.dat5$Floor.Insulation.Co
 
 #weight the u factor per home -- where weights are the wall area within home
 names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
-weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
-                       ,aveUval = sum(Floor.Area * Floor.Insulation.Condition.1 * uvalue) / sum(Floor.Area * Floor.Insulation.Condition.1)
-)
-
-#back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
-weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
-weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
-unique(weightedU$aveRval)
-
-# get unique cadmus IDs and building types for this subset of data
-Floor.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
-
-# merge on ID and building types to weighted uFactor and rValue data
-prep.dat6 <- left_join(weightedU, Floor.unique, by = "CK_Cadmus_ID")
-
-#merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat)
-prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
-prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
+# weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID)
+#                        ,aveUval = sum(Floor.Area * Floor.Insulation.Condition.1 * uvalue) / sum(Floor.Area * Floor.Insulation.Condition.1)
+# )
+# 
+# #back-calculate the weight r values
+# weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+# weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+# weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
+# unique(weightedU$aveRval)
+# 
+# # get unique cadmus IDs and building types for this subset of data
+# Floor.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
+# 
+# # merge on ID and building types to weighted uFactor and rValue data
+# prep.dat6 <- left_join(weightedU, Floor.unique, by = "CK_Cadmus_ID")
+# 
+# #merge weighted u values onto cleaned RBSA data
+# prep.dat7 <- left_join(prep.dat6, rbsa.dat)
+# prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
+# prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 
 ###################################################################################################################
 #
@@ -313,61 +313,137 @@ floor.merge <- floor.merge[which(!is.na(floor.merge$uvalue)),]
 ############################################################################################################
 # ITEM 23: DISTRIBUTION OF FLOOR INSULATION BY HOME VINTAGE (SF Table 30, MH Table 18)
 ############################################################################################################
-item23.dat <- prep.dat7[grep("site", prep.dat7$CK_Building_ID, ignore.case = T),]
+# item23.dat <- prep.dat7[grep("site", prep.dat7$CK_Building_ID, ignore.case = T),]
+item23.merge <- left_join(rbsa.dat, prep.dat5)
+item23.merge <- item23.merge[which(!(is.na(item23.merge$HomeYearBuilt_bins3))),]
+item23.merge <- item23.merge[which(!is.na(item23.merge$total.r.val)),]
 
-item23.dat1 <- item23.dat[which(!(is.na(item23.dat$HomeYearBuilt_bins3))),]
+item23.merge$total.r.val <- item23.merge$total.r.val #* item23.merge$Floor.Insulation.Condition.1
 
 #Bin R values -- SF only
-item23.dat1$rvalue.bins.SF <- "Unknown"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval == 0)] <- "None"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >  0  & item23.dat1$aveRval  < 4)]   <- "R1.R3"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >= 4  & item23.dat1$aveRval  < 11)]  <- "R4.R10"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >= 11 & item23.dat1$aveRval  < 16)]  <- "R11.R15"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >= 16 & item23.dat1$aveRval  < 23)]  <- "R16.R22"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >= 23 & item23.dat1$aveRval  < 28)]  <- "R23.R27"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >= 28 & item23.dat1$aveRval  < 36)]  <- "R28.R35"
-item23.dat1$rvalue.bins.SF[which(item23.dat1$aveRval >= 36)] <- "RGT36"
-unique(item23.dat1$rvalue.bins.SF)
+item23.merge$rvalue.bins.SF <- "Unknown"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val == 0)] <- "None"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >  0  & item23.merge$total.r.val  < 4)]   <- "R1.R3"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >= 4  & item23.merge$total.r.val  < 11)]  <- "R4.R10"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >= 11 & item23.merge$total.r.val  < 16)]  <- "R11.R15"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >= 16 & item23.merge$total.r.val  < 23)]  <- "R16.R22"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >= 23 & item23.merge$total.r.val  < 28)]  <- "R23.R27"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >= 28 & item23.merge$total.r.val  < 36)]  <- "R28.R35"
+item23.merge$rvalue.bins.SF[which(item23.merge$total.r.val >= 36)] <- "RGT36"
+unique(item23.merge$rvalue.bins.SF)
 
 #Bin R values -- MH only
-item23.dat1$rvalue.bins.MH <- "Unknown"
-item23.dat1$rvalue.bins.MH[which(item23.dat1$aveRval >= 0  & item23.dat1$aveRval < 9)]    <- "R0.R8"
-item23.dat1$rvalue.bins.MH[which(item23.dat1$aveRval >= 9 & item23.dat1$aveRval < 15)]   <- "R9.R14"
-item23.dat1$rvalue.bins.MH[which(item23.dat1$aveRval >= 15 & item23.dat1$aveRval < 22)]  <- "R15.R21"
-item23.dat1$rvalue.bins.MH[which(item23.dat1$aveRval >= 22 & item23.dat1$aveRval < 31)]  <- "R22.R30"
-item23.dat1$rvalue.bins.MH[which(item23.dat1$aveRval >= 31)]  <- "R31.R40"
-unique(item23.dat1$rvalue.bins.MH)
+item23.merge$rvalue.bins.MH <- "Unknown"
+item23.merge$rvalue.bins.MH[which(item23.merge$total.r.val >= 0  & item23.merge$total.r.val < 9)]    <- "R0.R8"
+item23.merge$rvalue.bins.MH[which(item23.merge$total.r.val >= 9 & item23.merge$total.r.val < 15)]   <- "R9.R14"
+item23.merge$rvalue.bins.MH[which(item23.merge$total.r.val >= 15 & item23.merge$total.r.val < 22)]  <- "R15.R21"
+item23.merge$rvalue.bins.MH[which(item23.merge$total.r.val >= 22 & item23.merge$total.r.val < 31)]  <- "R22.R30"
+item23.merge$rvalue.bins.MH[which(item23.merge$total.r.val >= 31)]  <- "R31.R40"
+unique(item23.merge$rvalue.bins.MH)
 
 
 ######################
 # Apply weights
 ######################
-item23.dat1$count <- 1
-colnames(item23.dat1)
+item23.merge$count <- 1
+colnames(item23.merge)
+# 
+# item23.merge <- left_join(rbsa.dat, item23.dat1)
+# item23.merge <- item23.merge[which(!is.na(item23.merge$count)),]
 
-item23.merge <- left_join(rbsa.dat, item23.dat1)
-item23.merge <- item23.merge[which(!is.na(item23.merge$count)),]
-
-item23.data <- weightedData(unique(item23.merge[which(colnames(item23.merge) %notin% c("Wall.Type"
-                                                                                       ,"aveUval"
-                                                                                       ,"aveRval"
+item23.data <- weightedData(unique(item23.merge[which(colnames(item23.merge) %notin% c("CK_SiteID"
+                                                                                       ,"PK_Envelope_ID"
+                                                                                       ,"Category"
+                                                                                       ,"Floor.Type"
+                                                                                       ,"Floor.Sub-Type"
+                                                                                       ,"Floor.Area"
+                                                                                       ,"Slab.Insulated?"
+                                                                                       ,"Slab.Insulation.Type.1"
+                                                                                       ,"Slab.Insulation.Thickness.1"
+                                                                                       ,"Slab.Insulation.Condition.1"
+                                                                                       ,"Slab.Insulation.Type.2"
+                                                                                       ,"Slab.Insulation.Thickness.2"
+                                                                                       ,"Slab.Insulation.Condition.2"
+                                                                                       ,"Slab.Insulation.Type.3"
+                                                                                       ,"Slab.Insulation.Thickness.3"
+                                                                                       ,"Slab.Insulation.Condition.3"
+                                                                                       ,"Floor.Insulated?"
+                                                                                       ,"Floor.Insulation.Type.1"
+                                                                                       ,"Floor.Insulation.Thickness.1"
+                                                                                       ,"Floor.Insulation.Condition.1"
+                                                                                       ,"Floor.Insulation.Type.2"
+                                                                                       ,"Floor.Insulation.Thickness.2"
+                                                                                       ,"Floor.Insulation.Condition.2"
+                                                                                       ,"Floor.Insulation.Type.3"
+                                                                                       ,"Floor.Insulation.Thickness.3"
+                                                                                       ,"Floor.Insulation.Condition.3"
+                                                                                       ,"floor.inches1"
+                                                                                       ,"floor.inches2"
+                                                                                       ,"floor.inches3"
+                                                                                       ,"slab.inches1"
+                                                                                       ,"slab.inches2"
+                                                                                       ,"slab.inches3"
+                                                                                       ,"floor.rvalues1"
+                                                                                       ,"floor.rvalues2"
+                                                                                       ,"floor.rvalues3"
+                                                                                       ,"slab.rvalues1"
+                                                                                       ,"slab.rvalues2"
+                                                                                       ,"slab.rvalues3"
+                                                                                       ,"total.r.val"
+                                                                                       ,"uvalue"
                                                                                        ,"rvalue.bins.SF"
                                                                                        ,"rvalue.bins.MH"
-                                                                                       ,"count"
-                                                                                       ,"Floor.Type"))]))
+                                                                                       ,"count"))]))
 item23.data <- left_join(item23.data, item23.merge[which(colnames(item23.merge) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Wall.Type"
-                                                                                       ,"aveUval"
-                                                                                       ,"aveRval"
+                                                                                       ,"CK_Building_ID"
+                                                                                       ,"CK_SiteID"
+                                                                                       ,"PK_Envelope_ID"
+                                                                                       ,"Category"
+                                                                                       ,"Floor.Type"
+                                                                                       ,"Floor.Sub-Type"
+                                                                                       ,"Floor.Area"
+                                                                                       ,"Slab.Insulated?"
+                                                                                       ,"Slab.Insulation.Type.1"
+                                                                                       ,"Slab.Insulation.Thickness.1"
+                                                                                       ,"Slab.Insulation.Condition.1"
+                                                                                       ,"Slab.Insulation.Type.2"
+                                                                                       ,"Slab.Insulation.Thickness.2"
+                                                                                       ,"Slab.Insulation.Condition.2"
+                                                                                       ,"Slab.Insulation.Type.3"
+                                                                                       ,"Slab.Insulation.Thickness.3"
+                                                                                       ,"Slab.Insulation.Condition.3"
+                                                                                       ,"Floor.Insulated?"
+                                                                                       ,"Floor.Insulation.Type.1"
+                                                                                       ,"Floor.Insulation.Thickness.1"
+                                                                                       ,"Floor.Insulation.Condition.1"
+                                                                                       ,"Floor.Insulation.Type.2"
+                                                                                       ,"Floor.Insulation.Thickness.2"
+                                                                                       ,"Floor.Insulation.Condition.2"
+                                                                                       ,"Floor.Insulation.Type.3"
+                                                                                       ,"Floor.Insulation.Thickness.3"
+                                                                                       ,"Floor.Insulation.Condition.3"
+                                                                                       ,"floor.inches1"
+                                                                                       ,"floor.inches2"
+                                                                                       ,"floor.inches3"
+                                                                                       ,"slab.inches1"
+                                                                                       ,"slab.inches2"
+                                                                                       ,"slab.inches3"
+                                                                                       ,"floor.rvalues1"
+                                                                                       ,"floor.rvalues2"
+                                                                                       ,"floor.rvalues3"
+                                                                                       ,"slab.rvalues1"
+                                                                                       ,"slab.rvalues2"
+                                                                                       ,"slab.rvalues3"
+                                                                                       ,"total.r.val"
+                                                                                       ,"uvalue"
                                                                                        ,"rvalue.bins.SF"
                                                                                        ,"rvalue.bins.MH"
-                                                                                       ,"count"
-                                                                                       ,"Floor.Type"))])
+                                                                                       ,"count"))])
 ######################
 # Weighted - Single Family
 ######################
 item23.summary <- proportionRowsAndColumns1(CustomerLevelData     = item23.data
-                                            , valueVariable       = 'count'
+                                            , valueVariable       = 'Floor.Area'
                                             , columnVariable      = 'HomeYearBuilt_bins3'
                                             , rowVariable         = 'rvalue.bins.SF'
                                             , aggregateColumnName = "All Housing Vintages"
@@ -376,7 +452,7 @@ item23.summary <- item23.summary[which(item23.summary$HomeYearBuilt_bins3 != "Al
 
 ## Summary only for "All Frame Types"
 item23.all.frame.types <- proportions_one_group(item23.data
-                                                ,valueVariable    = "count"
+                                                ,valueVariable    = "Floor.Area"
                                                 ,groupingVariable = "rvalue.bins.SF"
                                                 ,total.name       = "All Housing Vintages"
                                                 ,columnName       = "HomeYearBuilt_bins3"
@@ -386,7 +462,7 @@ item23.all.frame.types <- proportions_one_group(item23.data
 
 ## Summary for only "All Insulation Levels"
 item23.all.insul.levels <-  proportions_one_group(item23.data
-                                                  ,valueVariable    = "count"
+                                                  ,valueVariable    = "Floor.Area"
                                                   ,groupingVariable = "HomeYearBuilt_bins3"
                                                   ,total.name       = "All Housing Vintages"
                                                   ,columnName       = "rvalue.bins.SF"
@@ -452,7 +528,7 @@ item23.table <- data.frame(item23.table)
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.SF, "SF", "Table 30", weighted = TRUE)
+# exportTable(item23.table.SF, "SF", "Table 30", weighted = TRUE)
 
 ######################
 # Unweighted - Single Family
@@ -535,7 +611,7 @@ item23.table <- data.frame(item23.table)
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.SF, "SF", "Table 30", weighted = FALSE)
+# exportTable(item23.table.SF, "SF", "Table 30", weighted = FALSE)
 
 
 

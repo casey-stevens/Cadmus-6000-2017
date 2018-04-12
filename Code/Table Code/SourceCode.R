@@ -60,13 +60,13 @@ stopifnot(all(file.exists(file.path(filepathRawData, mechanical.export))))
 
 
 
-# os.ind <- "scl"
-# export.ind <- "SCL"
-# subset.ind <- "SCL GenPop"
+os.ind <- "scl"
+export.ind <- "SCL"
+subset.ind <- "SCL GenPop"
 
-os.ind <- "snopud"
-export.ind <- "SnoPUD"
-subset.ind <- "SnoPUD"
+# os.ind <- "snopud"
+# export.ind <- "SnoPUD"
+# subset.ind <- "SnoPUD"
 
 # # Read in clean RBSA data
 # os.ind <- "rbsa"

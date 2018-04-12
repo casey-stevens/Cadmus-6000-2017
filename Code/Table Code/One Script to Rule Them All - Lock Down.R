@@ -18,21 +18,21 @@ source("Code/Table Code/Export Function.R")
 #############################################################################################
 # Read in all datasets
 #############################################################################################
-one.line.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary", startRow = 2)
-one.line.bldg.dat  <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
-mechanical.dat <- read.xlsx(mechanical.export)
-envelope.dat <- read.xlsx(envelope.export)
-room.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
-rooms.dat <- room.dat
-windows.doors.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
-lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
-appliances.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
-sites.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
-water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
-survey.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated")
-sites.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
-windows.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
-buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+one.line.dat            <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary", startRow = 2)
+one.line.bldg.dat       <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+mechanical.dat          <- read.xlsx(mechanical.export)
+envelope.dat            <- read.xlsx(envelope.export)
+room.dat                <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+rooms.dat               <- room.dat
+windows.doors.dat       <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
+lighting.dat            <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+appliances.dat          <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+sites.interview.dat     <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
+water.dat               <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
+survey.dat              <- read.xlsx(xlsxFile = file.path(filepathRawData, survey.export), sheet = "Labeled and Translated")
+sites.dat               <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.export))
+windows.dat             <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
+buildings.dat           <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 buildings.interview.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.interview.export))
 
 

@@ -422,7 +422,7 @@ os.dat <- os.dat[which(names(os.dat) != "Category")]
 results.dat <- merge(os.dat, billing.dat,
                      by = "CK_Cadmus_ID")
 
-results.dat2 <- results.dat[which(results.dat$heating_therms %notin% c("N/A", NA, "Unknown")),]
+results.dat2 <- results.dat#[which(results.dat$heating_kWh %notin% c("N/A", NA, "Unknown")),]
 
 usage.columns <- c("UsageNAC_kWh", "UsageRaw_kWh", "heating_kWh",
                    "UsageNAC_therms", "UsageRaw_therms", "heating_therms")
@@ -483,6 +483,8 @@ mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas"
 # Item 143: AVERAGE ANNUAL KWH PER HOME BY CK_Building_ID - TABLE 150
 #############################################################################################
 item143.os.data <- results.dat2[which(results.dat2$UsageRaw_kWh > 0),]
+item143.os.data$UsageRaw_kWh <- as.numeric(as.character(item143.os.data$UsageRaw_kWh))
+
 drop.for.weighting <- c(usage.columns)
 
 item143.os.weighted <- weightedData(item143.os.data[-c(which(colnames(item143.os.data) %in%

@@ -551,7 +551,7 @@ item76.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 item76.dat$count <- 1
 
 item76.dat0 <- item76.dat[which(item76.dat$Clean.Room == "Storage"),]
-item76.dat0.1 <- item76.dat0[which(item76.dat$Lamp.Category == "Compact Fluorescent"),]
+item76.dat0.1 <- item76.dat0[which(item76.dat0$Lamp.Category == "Compact Fluorescent"),]
 
 item76.dat1 <- left_join(item76.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 
@@ -635,7 +635,7 @@ tableYY.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
 tableYY.dat$count <- 1
 
 tableYY.dat0 <- tableYY.dat[which(tableYY.dat$Clean.Room == "Storage"),]
-tableYY.dat0.1 <- tableYY.dat0[which(tableYY.dat$Lamp.Category == "Light Emitting Diode"),]
+tableYY.dat0.1 <- tableYY.dat0[which(tableYY.dat0$Lamp.Category == "Light Emitting Diode"),]
 
 tableYY.dat1 <- left_join(tableYY.dat0.1, rbsa.dat, by = "CK_Cadmus_ID")
 

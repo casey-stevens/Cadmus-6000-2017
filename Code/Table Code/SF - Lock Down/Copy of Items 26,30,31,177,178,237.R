@@ -226,27 +226,27 @@ unique(prep.dat5$uvalue)
 prep.dat5$uvalue       <- as.numeric(as.character(prep.dat5$uvalue))
 prep.dat5$Ceiling.Area <- as.numeric(as.character(prep.dat5$Ceiling.Area))
 names(prep.dat5)[which(names(prep.dat5) == "CK_Cadmus_ID.x")] <- "CK_Cadmus_ID"
-#weight the u factor per home -- where weights are the wall area within home
-weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Ceiling.Type)
-                       ,aveUval = sum(Ceiling.Area * Ceiling.Insulation.Condition.1 * uvalue) / sum(Ceiling.Area * Ceiling.Insulation.Condition.1)
-)
-
-#back-calculate the weight r values
-weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
-weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
-weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
-unique(weightedU$aveRval)
-
-# get unique cadmus IDs and building types for this subset of data
-wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
-
-# merge on ID and building types to weighted uFactor and rValue data
-prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
-
-#merge weighted u values onto cleaned RBSA data
-prep.dat7 <- left_join(prep.dat6, rbsa.dat)
-prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
-prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
+# #weight the u factor per home -- where weights are the wall area within home
+# weightedU <- summarise(group_by(prep.dat5, CK_Cadmus_ID, Ceiling.Type)
+#                        ,aveUval = sum(Ceiling.Area * Ceiling.Insulation.Condition.1 * uvalue) / sum(Ceiling.Area * Ceiling.Insulation.Condition.1)
+# )
+# 
+# #back-calculate the weight r values
+# weightedU$aveRval <- (1 / as.numeric(as.character(weightedU$aveUval)))
+# weightedU$aveRval[which(weightedU$aveRval %in% c("NaN",1))] <- 0
+# weightedU$aveUval[which(weightedU$aveUval == "NaN")] <- 1
+# unique(weightedU$aveRval)
+# 
+# # get unique cadmus IDs and building types for this subset of data
+# wall.unique <- unique(prep.dat5[which(colnames(prep.dat5) %in% c("CK_Cadmus_ID","BuildingType"))])
+# 
+# # merge on ID and building types to weighted uFactor and rValue data
+# prep.dat6 <- left_join(weightedU, wall.unique, by = "CK_Cadmus_ID")
+# 
+# #merge weighted u values onto cleaned RBSA data
+# prep.dat7 <- left_join(prep.dat6, rbsa.dat)
+# prep.dat7$aveUval[which(is.na(prep.dat7$aveUval))] <- 0
+# prep.dat7$aveRval[which(is.na(prep.dat7$aveRval))] <- 0
 ###################################################################################################################
 #
 #
@@ -285,39 +285,93 @@ ceiling.merge <- ceiling.merge[which(!is.na(ceiling.merge$uvalue)),]
 ############################################################################################################
 ## Item 26
 ############################################################################################################
-item26.dat <- prep.dat7[which(prep.dat7$Ceiling.Type == "Attic"),]
+item26.dat <- prep.dat5[which(prep.dat5$Ceiling.Type == "Attic"),]
 
-item26.data <- weightedData(item26.dat[-which(colnames(item26.dat) %in% c("Ceiling.Type"
-                                                                          ,"aveUval"
-                                                                          ,"aveRval"))])
-item26.data <- left_join(item26.data, item26.dat[which(colnames(item26.dat) %in% c("CK_Cadmus_ID"
-                                                                                   ,"Ceiling.Type"
-                                                                                   ,"aveUval"
-                                                                                   ,"aveRval"))])
+item26.merge <- left_join(rbsa.dat, item26.dat)
+item26.merge <- item26.merge[which(!is.na(item26.merge$total.r.val)),]
 
-
+item26.merge$total.r.val <- item26.merge$total.r.val #* item26.merge$Ceiling.Insulation.Condition.1
 
 
 #Bin R values -- SF only
-item26.data$rvalue.bins <- "Unknown"
-item26.data$rvalue.bins[which(item26.data$aveRval == 0)] <- "R0"
-item26.data$rvalue.bins[which(item26.data$aveRval >  0  & item26.data$aveRval < 11)]  <- "R1.R10"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 11 & item26.data$aveRval < 16)]  <- "R11.R15"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 16 & item26.data$aveRval < 21)]  <- "R16.R20"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 21 & item26.data$aveRval < 26)]  <- "R21.R25"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 26 & item26.data$aveRval < 31)]  <- "R26.R30"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 31 & item26.data$aveRval < 41)]  <- "R31.R40"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 41 & item26.data$aveRval < 51)]  <- "R41.R50"
-item26.data$rvalue.bins[which(item26.data$aveRval >= 51)] <- "RGT50"
-unique(item26.data$rvalue.bins)
+item26.merge$rvalue.bins <- "Unknown"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val == 0)] <- "R0"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >  0  & item26.merge$total.r.val < 11)]  <- "R1.R10"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 11 & item26.merge$total.r.val < 16)]  <- "R11.R15"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 16 & item26.merge$total.r.val < 21)]  <- "R16.R20"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 21 & item26.merge$total.r.val < 26)]  <- "R21.R25"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 26 & item26.merge$total.r.val < 31)]  <- "R26.R30"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 31 & item26.merge$total.r.val < 41)]  <- "R31.R40"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 41 & item26.merge$total.r.val < 51)]  <- "R41.R50"
+item26.merge$rvalue.bins[which(item26.merge$total.r.val >= 51)] <- "RGT50"
+unique(item26.merge$rvalue.bins)
 
-item26.data$count <- 1
+item26.merge$count <- 1
+
+
+item26.data <- weightedData(item26.merge[-which(colnames(item26.merge) %in% c("CK_SiteID"
+                                                                              ,"PK_Envelope_ID"
+                                                                              ,"Category"
+                                                                              ,"Ceiling.Type"
+                                                                              ,"Ceiling.Area"
+                                                                              ,"Ceiling.Insulated?"
+                                                                              ,"Ceiling.Insulation.Type.1"
+                                                                              ,"Ceiling.Insulation.Thickness.1"
+                                                                              ,"Ceiling.Insulation.Condition.1"
+                                                                              ,"Ceiling.Insulation.Type.2"
+                                                                              ,"Ceiling.Insulation.Thickness.2"
+                                                                              ,"Ceiling.Insulation.Condition.2"
+                                                                              ,"Ceiling.Insulation.Type.3"
+                                                                              ,"Ceiling.Insulation.Thickness.3"
+                                                                              ,"Ceiling.Insulation.Condition.3"
+                                                                              ,"ceiling.inches1"
+                                                                              ,"ceiling.inches2"
+                                                                              ,"ceiling.inches3"
+                                                                              ,"ceiling.rvalues1"
+                                                                              ,"ceiling.rvalues2"
+                                                                              ,"ceiling.rvalues3"
+                                                                              ,"total.r.val"
+                                                                              ,"uvalue"
+                                                                              ,"rvalue.bins"
+                                                                              ,"count"))])
+item26.data <- left_join(item26.data, item26.merge[which(colnames(item26.merge) %in% c("CK_Cadmus_ID"
+                                                                                       ,"CK_Building_ID"
+                                                                                       ,"CK_SiteID"
+                                                                                       ,"PK_Envelope_ID"
+                                                                                       ,"Category"
+                                                                                       ,"Ceiling.Type"
+                                                                                       ,"Ceiling.Area"
+                                                                                       ,"Ceiling.Insulated?"
+                                                                                       ,"Ceiling.Insulation.Type.1"
+                                                                                       ,"Ceiling.Insulation.Thickness.1"
+                                                                                       ,"Ceiling.Insulation.Condition.1"
+                                                                                       ,"Ceiling.Insulation.Type.2"
+                                                                                       ,"Ceiling.Insulation.Thickness.2"
+                                                                                       ,"Ceiling.Insulation.Condition.2"
+                                                                                       ,"Ceiling.Insulation.Type.3"
+                                                                                       ,"Ceiling.Insulation.Thickness.3"
+                                                                                       ,"Ceiling.Insulation.Condition.3"
+                                                                                       ,"ceiling.inches1"
+                                                                                       ,"ceiling.inches2"
+                                                                                       ,"ceiling.inches3"
+                                                                                       ,"ceiling.rvalues1"
+                                                                                       ,"ceiling.rvalues2"
+                                                                                       ,"ceiling.rvalues3"
+                                                                                       ,"total.r.val"
+                                                                                       ,"uvalue"
+                                                                                       ,"rvalue.bins"
+                                                                                       ,"count"))])
+
+
+
+
+
 
 ##############################
 # Weighted Analysis
 ##############################
 item26.final <- proportions_one_group(CustomerLevelData = item26.data
-                                      ,valueVariable    = 'count'
+                                      ,valueVariable    = 'Ceiling.Area'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,weighted         = TRUE)
@@ -329,7 +383,7 @@ exportTable(item26.final.SF, "SF", "Table 33", weighted = TRUE)
 # Unweighted Analysis
 ##############################
 item26.final <- proportions_one_group(CustomerLevelData = item26.data
-                                      ,valueVariable    = 'count'
+                                      ,valueVariable    = 'Ceiling.Area'
                                       ,groupingVariable = 'rvalue.bins'
                                       ,total.name       = "Total"
                                       ,weighted         = FALSE)

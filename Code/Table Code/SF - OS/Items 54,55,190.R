@@ -689,13 +689,18 @@ if(os.ind == "scl"){
 # row ordering example code
 levels(item55.os.table$Cooling.System.Type)
 rowOrder <- c("Packaged Ac"
+              ,"Packaged AC"
               ,"Packaged Hp"
+              ,"Packaged HP"
               ,"Central Ac"
+              ,"Central AC"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
               ,"Mini-Split Hp"
+              ,"Mini-Split HP"
               ,"Mini-Split Ac"
+              ,"Mini-Split AC"
               ,"Furnace"
               ,"Geothermal Heat Pump"
               ,"Total")
@@ -757,13 +762,18 @@ if(os.ind == "scl"){
 # row ordering example code
 levels(item55.os.table$Cooling.System.Type)
 rowOrder <- c("Packaged Ac"
+              ,"Packaged AC"
               ,"Packaged Hp"
+              ,"Packaged HP"
               ,"Central Ac"
+              ,"Central AC"
               ,"Evaporative Cooling"
               ,"Water Source Heat Pump"
               ,"Air Source Heat Pump"
               ,"Mini-Split Hp"
+              ,"Mini-Split HP"
               ,"Mini-Split Ac"
+              ,"Mini-Split AC"
               ,"Furnace"
               ,"Geothermal Heat Pump"
               ,"Total")
