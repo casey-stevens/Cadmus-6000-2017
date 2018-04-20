@@ -656,6 +656,9 @@ for (ii in 1:nrow(item43.os.dat2)){
   if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
     item43.os.dat2$Generic[ii] <- "Plug-In Heaters"
   }
+  # if (item43.os.dat2$`System.Sub-Type`[ii] %in% c("Unit Heater") & item43.os.dat2$){
+  #   item43.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  # }
 }
 
 item43.os.dat2$Generic[grep("Baseboard",item43.os.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
@@ -667,9 +670,10 @@ item43.os.dat2$Generic[grep("Stove/Fireplace",item43.os.dat2$Generic,ignore.case
 
 unique(item43.os.dat2$Generic)
 
-item43.os.dat3 <- unique(data.frame("CK_Cadmus_ID" = item43.os.dat2$CK_Cadmus_ID
-                                 ,"Heating_Type"       = item43.os.dat2$Generic
-                                 ,"Primary_Secondary"  = item43.os.dat2$Heating.System.Ind))
+item43.os.dat3 <- unique(data.frame("CK_Cadmus_ID"        = item43.os.dat2$CK_Cadmus_ID
+                                    ,"Heating_Type"       = item43.os.dat2$Generic
+                                    ,"Sub_Type"           = item43.os.dat2$`System.Sub-Type`
+                                    ,"Primary_Secondary"  = item43.os.dat2$Heating.System.Ind))
 ### Clean heating type
 unique(item43.os.dat3$Heating_Type)
 # item43.os.dat3$Heating_Type[grep("geo", item43.os.dat3$Heating_Type, ignore.case = T)] <- "Geothermal Heat Pump"
@@ -690,13 +694,29 @@ item43.os.duplicates <- item43.os.dat5[which(item43.os.dat5$CK_Cadmus_ID %in% du
 item43.os.dat6 <- item43.os.dat5[which(item43.os.dat5$Heating_Type %notin% c("N/A",NA)),]
 unique(item43.os.dat6$Heating_Type)
 
+update.ind <- unique(item43.os.dat6$CK_Cadmus_ID[which(item43.os.dat6$CK_Building_ID == "SnoPUD")])
+names(item43.os.dat6)
+unique(item43.os.dat6$Sub_Type)
+
+for(ii in 1:nrow(item43.os.dat6)){
+  if(item43.os.dat6$CK_Cadmus_ID[ii] %in% update.ind & item43.os.dat6$Sub_Type[ii] == "Unit Heater"){
+    item43.os.dat6$Heating_Type[ii] <- "Electric Baseboard and Wall Heaters"
+  }else{
+    item43.os.dat6$Heating_Type[ii] <- item43.os.dat6$Heating_Type[ii]
+  }
+}
+
+
+
 item43.os.data <- weightedData(item43.os.dat6[-which(colnames(item43.os.dat6) %in% c("Heating_Type"
-                                                                            ,"Primary_Secondary"
-                                                                            ,"count"))])
-item43.os.data <- left_join(item43.os.data, unique(item43.os.dat6[which(colnames(item43.os.dat6) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Heating_Type"
                                                                                      ,"Primary_Secondary"
-                                                                                     ,"count"))]))
+                                                                                     ,"Sub_Type"
+                                                                                     ,"count"))])
+item43.os.data <- left_join(item43.os.data, unique(item43.os.dat6[which(colnames(item43.os.dat6) %in% c("CK_Cadmus_ID"
+                                                                                                        ,"Heating_Type"
+                                                                                                        ,"Primary_Secondary"
+                                                                                                        ,"Sub_Type"
+                                                                                                        ,"count"))]))
 
 #########################
 # Weighted Analysis
@@ -866,6 +886,14 @@ item44.os.dat7 <- item44.os.dat6 %>%
                                 , "Hydronic Gas-Water Fan Heater"
                                 , "Hot Water from Water Heater"
                                 , "Other"))
+
+for(ii in 1:nrow(item44.os.dat7)){
+  if(item44.os.dat7$CK_Cadmus_ID[ii] %in% update.ind & item44.os.dat7$Sub_Type[ii] == "Unit Heater"){
+    item44.os.dat7$Heating_Type[ii] <- "Electric Baseboard and Wall Heaters"
+  }else{
+    item44.os.dat7$Heating_Type[ii] <- item44.os.dat7$Heating_Type[ii]
+  }
+}
 
 
 item44.os.data <- weightedData(item44.os.dat7[-which(colnames(item44.os.dat7) %in% c("Heating_Type"

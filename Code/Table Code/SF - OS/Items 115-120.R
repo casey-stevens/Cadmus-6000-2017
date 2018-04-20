@@ -1048,3 +1048,141 @@ item120.os.final.SF <- item120.os.final[which(item120.os.final$BuildingType == "
 
 exportTable(item120.os.final.SF, "SF", "Table 127", weighted = FALSE, osIndicator = export.ind, OS = T)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+#Item 117: AVERAGE NUMBER OF COMPUTERS PER HOME WITH COMPUTERS (SF table 124, MH table 99)
+#############################################################################################
+# NOTE: for this table, this is FOR THE HOMES WITH COMPUTERS, what is the average number of computers
+#############################################################################################
+#subset to columns needed for analysis
+itemSnoPUD.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
+                                                                       ,"Type"
+                                                                       ,"Computer.Type"))]
+itemSnoPUD.os.dat$count <- 1
+
+#remove any repeat header rows from exporting
+itemSnoPUD.os.dat0 <- itemSnoPUD.os.dat[which(itemSnoPUD.os.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+#merge together analysis data with cleaned scl data
+itemSnoPUD.os.dat1 <- left_join(itemSnoPUD.os.dat0, os.dat, by = "CK_Cadmus_ID")
+
+itemSnoPUD.os.dat2 <- itemSnoPUD.os.dat1[which(itemSnoPUD.os.dat1$Type %in% c("Laptop", "Desktop")),]
+itemSnoPUD.os.dat2$Ind <- 1
+
+for(ii in 1:nrow(itemSnoPUD.os.dat2)){
+  if(itemSnoPUD.os.dat2$Computer.Type[ii] == "Integrated"){
+    itemSnoPUD.os.dat2$Type[ii] <- paste(itemSnoPUD.os.dat2$Type[ii], itemSnoPUD.os.dat2$Computer.Type[ii], sep = " - ")
+  }else{
+    itemSnoPUD.os.dat2$Type[ii] <- itemSnoPUD.os.dat2$Type[ii]
+  }
+}
+
+
+table(itemSnoPUD.os.dat2$Type)
+
+itemSnoPUD.os.sum <- summarise(group_by(itemSnoPUD.os.dat2, CK_Cadmus_ID, CK_Building_ID, Type)
+                            ,Site.Count = sum(Ind, na.rm = T))
+
+itemSnoPUD.os.merge <- left_join(os.dat, itemSnoPUD.os.sum)
+itemSnoPUD.os.merge <- itemSnoPUD.os.merge[which(!is.na(itemSnoPUD.os.merge$Site.Count)),]
+# itemSnoPUD.os.merge$Site.Count[which(is.na(itemSnoPUD.os.merge$Site.Count))] <- 1
+# itemSnoPUD.os.merge$Type[which(is.na(itemSnoPUD.os.merge$Type))] <- "No Computer"
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+itemSnoPUD.os.data <- weightedData(itemSnoPUD.os.merge[-which(colnames(itemSnoPUD.os.merge) %in% c("Type"
+                                                                                                   ,"Site.Count"))])
+itemSnoPUD.os.data <- left_join(itemSnoPUD.os.data, unique(itemSnoPUD.os.merge[which(colnames(itemSnoPUD.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                                          ,"CK_Building_ID"
+                                                                                                                          ,"Type"
+                                                                                                                          ,"Site.Count"))]))
+
+itemSnoPUD.os.data$count <- 1
+#######################
+# Weighted Analysis
+#######################
+itemSnoPUD.os.final <- proportionRowsAndColumns1(CustomerLevelData = itemSnoPUD.os.data
+                                                 ,valueVariable = "Site.Count"
+                                                 ,columnVariable = "CK_Building_ID"
+                                                 ,rowVariable = "Type"
+                                                 ,aggregateColumnName = "Remove")
+itemSnoPUD.os.final <- itemSnoPUD.os.final[which(itemSnoPUD.os.final$CK_Building_ID != "Remove"),]
+
+itemSnoPUD.os.cast <- dcast(setDT(itemSnoPUD.os.final)
+                            ,formula = BuildingType + Type ~ CK_Building_ID
+                            ,value.var = c("w.percent","w.SE","n","EB"))
+
+itemSnoPUD.os.table <- data.frame("BuildingType"             = itemSnoPUD.os.cast$BuildingType
+                                  ,"Computer.Type"           = itemSnoPUD.os.cast$Type
+                                  ,"Percent_SnoPUD"          = itemSnoPUD.os.cast$`w.percent_SnoPUD`
+                                  ,"SE_SnoPUD"               = itemSnoPUD.os.cast$`w.SE_SnoPUD`
+                                  ,"n_SnoPUD"                = itemSnoPUD.os.cast$`n_SnoPUD`
+                                  ,"Percent_2017.RBSA.PS"    = itemSnoPUD.os.cast$`w.percent_2017 RBSA PS`
+                                  ,"SE_2017.RBSA.PS"         = itemSnoPUD.os.cast$`w.SE_2017 RBSA PS`
+                                  ,"n_2017.RBSA.PS"          = itemSnoPUD.os.cast$`n_2017 RBSA PS`
+                                  ,"Percent_RBSA.NW"         = itemSnoPUD.os.cast$`w.percent_2017 RBSA NW`
+                                  ,"SE_RBSA.NW"              = itemSnoPUD.os.cast$`w.SE_2017 RBSA NW`
+                                  ,"n_RBSA.NW"               = itemSnoPUD.os.cast$`n_2017 RBSA NW`
+                                  ,"EB_SnoPUD"               = itemSnoPUD.os.cast$`EB_SnoPUD`
+                                  ,"EB_2017.RBSA.PS"         = itemSnoPUD.os.cast$`EB_2017 RBSA PS`
+                                  ,"EB_RBSA.NW"              = itemSnoPUD.os.cast$`EB_2017 RBSA NW`)
+
+itemSnoPUD.os.final.SF <- itemSnoPUD.os.table[which(itemSnoPUD.os.table$BuildingType == "Single Family")
+                                        ,-which(colnames(itemSnoPUD.os.table) %in% c("BuildingType"))]
+
+exportTable(itemSnoPUD.os.final.SF, "SF", "Table AW", weighted = TRUE, osIndicator = export.ind, OS = T)
+
+#######################
+# Unweighted Analysis
+#######################
+itemSnoPUD.os.final <- proportions_two_groups_unweighted(CustomerLevelData = itemSnoPUD.os.data
+                                                         ,valueVariable = "Site.Count"
+                                                         ,columnVariable = "CK_Building_ID"
+                                                         ,rowVariable = "Type"
+                                                         ,aggregateColumnName = "Remove")
+itemSnoPUD.os.final <- itemSnoPUD.os.final[which(itemSnoPUD.os.final$CK_Building_ID != "Remove"),]
+
+itemSnoPUD.os.cast <- dcast(setDT(itemSnoPUD.os.final)
+                            ,formula = BuildingType + Type ~ CK_Building_ID
+                            ,value.var = c("Percent","SE","n"))
+
+itemSnoPUD.os.table <- data.frame("BuildingType"             = itemSnoPUD.os.cast$BuildingType
+                                  ,"Computer.Type"           = itemSnoPUD.os.cast$Type
+                                  ,"Percent_SnoPUD"          = itemSnoPUD.os.cast$`Percent_SnoPUD`
+                                  ,"SE_SnoPUD"               = itemSnoPUD.os.cast$`SE_SnoPUD`
+                                  ,"n_SnoPUD"                = itemSnoPUD.os.cast$`n_SnoPUD`
+                                  ,"Percent_2017.RBSA.PS"    = itemSnoPUD.os.cast$`Percent_2017 RBSA PS`
+                                  ,"SE_2017.RBSA.PS"         = itemSnoPUD.os.cast$`SE_2017 RBSA PS`
+                                  ,"n_2017.RBSA.PS"          = itemSnoPUD.os.cast$`n_2017 RBSA PS`
+                                  ,"Percent_RBSA.NW"         = itemSnoPUD.os.cast$`Percent_2017 RBSA NW`
+                                  ,"SE_RBSA.NW"              = itemSnoPUD.os.cast$`SE_2017 RBSA NW`
+                                  ,"n_RBSA.NW"               = itemSnoPUD.os.cast$`n_2017 RBSA NW`)
+
+itemSnoPUD.os.final.SF <- itemSnoPUD.os.table[which(itemSnoPUD.os.table$BuildingType == "Single Family")
+                                              ,-which(colnames(itemSnoPUD.os.table) %in% c("BuildingType"))]
+
+exportTable(itemSnoPUD.os.final.SF, "SF", "Table AW", weighted = FALSE, osIndicator = export.ind, OS = T)
+
