@@ -734,8 +734,8 @@ tableAS.dat4 <- summarise(group_by(tableAS.dat3, CK_Cadmus_ID)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAS.dat4$GPM_bins <- tableAS.dat4$GPM.Measured.Site
-tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
-tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site <  2.2)] <- "< 2.2"
+tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site >= 2.2)] <- ">= 2.2"
 unique(tableAS.dat4$GPM_bins)
 
 tableAS.merge <- left_join(rbsa.dat, tableAS.dat4)
@@ -797,8 +797,8 @@ stopifnot(sum(tableAS.table[which(tableAS.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(tableAS.table))], na.rm = T) == 10)
 
 levels(tableAS.table$Flow.Rate.GPM)
-rowOrder <- c("<= 2.2"
-              ,"> 2.2"
+rowOrder <- c("< 2.2"
+              ,">= 2.2"
               ,"Total")
 tableAS.table <- tableAS.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
 tableAS.table <- data.frame(tableAS.table)
@@ -863,8 +863,8 @@ stopifnot(sum(tableAS.table[which(tableAS.table$BuildingType == "Single Family")
                             ,grep("Percent",colnames(tableAS.table))], na.rm = T) == 10)
 
 levels(tableAS.table$Flow.Rate.GPM)
-rowOrder <- c("<= 2.2"
-              ,"> 2.2"
+rowOrder <- c("< 2.2"
+              ,">= 2.2"
               ,"Total")
 tableAS.table <- tableAS.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)  
 tableAS.table <- data.frame(tableAS.table)
@@ -918,8 +918,8 @@ tableAT.dat4 <- summarise(group_by(tableAT.dat3, CK_Cadmus_ID)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAT.dat4$GPM_bins <- tableAT.dat4$GPM.Measured.Site
-tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
-tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site <  2.2)] <- "< 2.2"
+tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site >= 2.2)] <- ">= 2.2"
 unique(tableAT.dat4$GPM_bins)
 
 tableAT.merge <- left_join(rbsa.dat, tableAT.dat4)

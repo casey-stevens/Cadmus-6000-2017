@@ -3473,7 +3473,7 @@ exportTable(item11A.os.table.SF, "SF", "Table 18A", weighted = FALSE, osIndicato
 prep.tableAP.dat <- prep.dat5[-grep("basement",prep.dat5$Wall.Type, ignore.case = T),]
 which(duplicated(prep.tableAP.dat$CK_Cadmus_ID))
 #weight the u factor per home -- where weights are the wall area within home
-prep.tableAP.weightedU <- summarise(group_by(prep.tableAP.dat, CK_Cadmus_ID)
+prep.tableAP.weightedU <- summarise(group_by(prep.tableAP.dat, CK_Cadmus_ID,Wall.Type)
                                     ,aveUval = sum(Wall.Area * Wall.Cavity.Insulation.Condition.1 * uvalue) / sum(Wall.Area * Wall.Cavity.Insulation.Condition.1)
 )
 

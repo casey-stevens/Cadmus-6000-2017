@@ -788,7 +788,7 @@ item118.os.sum <- summarise(group_by(item118.os.dat2, CK_Cadmus_ID, CK_Building_
 
 item118.os.sum$Ind <- 1
 
-item118.os.merge <- unique(left_join(os.dat, item118.os.sum))
+item118.os.merge <- left_join(os.dat, item118.os.sum)
 item118.os.merge$Ind[which(is.na(item118.os.merge$Ind))] <- 0
 
 ################################################
