@@ -1001,7 +1001,7 @@ os.dat <- os.dat[which(names(os.dat) != "Category")]
 ############################################################################################################
 # ITEM 26: DISTRIBUTION OF CEILING INSULATION BY HOME VINTAGE
 ############################################################################################################
-item26.os.dat1 <- prep.dat7
+item26.os.dat1 <- prep.dat7[which(prep.dat7$Ceiling.Type == "Attic"),]
 
 #Bin R values -- SF only
 item26.os.dat1$rvalue.bins.SF <- "Unknown"

@@ -70,6 +70,7 @@ tableDD.data <- left_join(tableDD.data, tableDD.merge[which(colnames(tableDD.mer
                                                                                        ,"Category"))])
 tableDD.data$count <- 1
 tableDD.data$Thermostat.Count <- 1
+stopifnot(nrow(tableDD.data) == nrow(tableDD.merge))
 #######################
 # Weighted Analysis
 #######################

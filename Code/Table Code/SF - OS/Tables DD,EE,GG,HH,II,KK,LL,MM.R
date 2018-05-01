@@ -31,7 +31,7 @@ rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
 # appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 #                              ,stringsAsFactors = FALSE)
-applliances.dat <- data.frame(appliances.dat, stringsAsFactors = F)
+appliances.dat <- data.frame(appliances.dat, stringsAsFactors = F)
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
 
@@ -1046,12 +1046,13 @@ tableDD.os.merge$Thermostat.Type[which(tableDD.os.merge$Thermostat.Type == "Manu
 # Adding pop and sample sizes for weights
 ################################################
 tableDD.os.data <- weightedData(tableDD.os.merge[-which(colnames(tableDD.os.merge) %in% c("Count"
-                                                                                 ,"Type"
-                                                                                 ,"Thermostat.Type"))])
-tableDD.os.data <- left_join(tableDD.os.data, unique(tableDD.os.merge[which(colnames(tableDD.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Count"
-                                                                                           ,"Type"
-                                                                                           ,"Thermostat.Type"))]))
+                                                                                          ,"Type"
+                                                                                          ,"Thermostat.Type"))])
+tableDD.os.data <- left_join(tableDD.os.data, tableDD.os.merge[which(colnames(tableDD.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Count"
+                                                                                                       ,"Type"
+                                                                                                       ,"Thermostat.Type"))])
 tableDD.os.data$count <- 1
 tableDD.os.data$Thermostat.Count <- 1
 #######################
@@ -1209,13 +1210,15 @@ tableEE.os.merge$Ind[which(!is.na(tableEE.os.merge$Thermostat.Type))] <- 1
 # AEEing pop and sample sizes for weights
 ################################################
 tableEE.os.data <- weightedData(tableEE.os.merge[-which(colnames(tableEE.os.merge) %in% c("Count"
-                                                                                 ,"Type"
-                                                                                 ,"Thermostat.Type","Ind"))])
-tableEE.os.data <- left_join(tableEE.os.data, unique(tableEE.os.merge[which(colnames(tableEE.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Count"
-                                                                                           ,"Type"
-                                                                                           ,"Thermostat.Type","Ind"))]))
+                                                                                          ,"Type"
+                                                                                          ,"Thermostat.Type","Ind"))])
+tableEE.os.data <- left_join(tableEE.os.data, tableEE.os.merge[which(colnames(tableEE.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Count"
+                                                                                                       ,"Type"
+                                                                                                       ,"Thermostat.Type","Ind"))])
 tableEE.os.data$Count <- 1
+stopifnot(nrow(tableEE.os.data) == nrow(tableEE.os.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -1277,8 +1280,9 @@ tableHH.os.merge$Ind[which(is.na(tableHH.os.merge$Ind))] <- 0
 # Adding pop and sample sizes for weights
 ################################################
 tableHH.os.data <- weightedData(tableHH.os.merge[-which(colnames(tableHH.os.merge) %in% c("Ind"))])
-tableHH.os.data <- left_join(tableHH.os.data, unique(tableHH.os.merge[which(colnames(tableHH.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))]))
+tableHH.os.data <- left_join(tableHH.os.data, tableHH.os.merge[which(colnames(tableHH.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Ind"))])
 tableHH.os.data$Count <- 1
 #######################
 # Weighted Analysis
@@ -1344,6 +1348,7 @@ tableII.os.data <- left_join(tableII.os.data, tableII.os.merge[which(colnames(ta
                                                                                                        ,"Type"
                                                                                                        ,"Power.Strip.Use"))])
 tableII.os.data$Count <- 1
+stopifnot(nrow(tableII.os.data) == nrow(tableII.os.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -1477,8 +1482,9 @@ tableKK.os.merge <- tableKK.os.merge[which(!is.na(tableKK.os.merge$Ind)),]
 # Adding pop and sample sizes for weights
 ################################################
 tableKK.os.data <- weightedData(tableKK.os.merge[-which(colnames(tableKK.os.merge) %in% c("Ind"))])
-tableKK.os.data <- left_join(tableKK.os.data, unique(tableKK.os.merge[which(colnames(tableKK.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Ind"))]))
+tableKK.os.data <- left_join(tableKK.os.data, tableKK.os.merge[which(colnames(tableKK.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Ind"))])
 tableKK.os.data$Count <- 1
 #######################
 # Weighted Analysis
@@ -1530,10 +1536,11 @@ tableMM.os.merge$Dryer.Fuel <- trimws(tableMM.os.merge$Dryer.Fuel)
 # Adding pop and sample sizes for weights
 ################################################
 tableMM.os.data <- weightedData(tableMM.os.merge[-which(colnames(tableMM.os.merge) %in% c("Type"
-                                                                                 ,"Dryer.Fuel"))])
-tableMM.os.data <- left_join(tableMM.os.data, unique(tableMM.os.merge[which(colnames(tableMM.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Type"
-                                                                                           ,"Dryer.Fuel"))]))
+                                                                                          ,"Dryer.Fuel"))])
+tableMM.os.data <- left_join(tableMM.os.data, tableMM.os.merge[which(colnames(tableMM.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Type"
+                                                                                                       ,"Dryer.Fuel"))])
 tableMM.os.data$Count <- 1
 #######################
 # Weighted Analysis
@@ -1674,13 +1681,14 @@ tableLL.os.merge <- tableLL.os.merge[which(!is.na(tableLL.os.merge$Type)),]
 # Adding pop and sample sizes for weights
 ################################################
 tableLL.os.data <- weightedData(tableLL.os.merge[-which(colnames(tableLL.os.merge) %in% c("Type"
-                                                                                 ,"Site.Count"))])
-tableLL.os.data <- left_join(tableLL.os.data, unique(tableLL.os.merge[which(colnames(tableLL.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"Type"
-                                                                                           ,"Site.Count"))]))
+                                                                                          ,"Site.Count"))])
+tableLL.os.data <- left_join(tableLL.os.data, tableLL.os.merge[which(colnames(tableLL.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"Type"
+                                                                                                       ,"Site.Count"))])
 tableLL.os.data$Count <- 1
 tableLL.os.data$Ind <- tableLL.os.data$Site.Count
-
+stopifnot(nrow(tableLL.os.data) == nrow(tableLL.os.merge))
 #######################
 # Weighted Analysis
 #######################
@@ -1817,8 +1825,9 @@ tableGG.os.merge <- tableGG.os.merge[which(!is.na(tableGG.os.merge$TV.Size)),]
 # Adding pop and sample sizes for weights
 ################################################
 tableGG.os.data <- weightedData(tableGG.os.merge[-which(colnames(tableGG.os.merge) %in% c("TV.Size"))])
-tableGG.os.data <- left_join(tableGG.os.data, unique(tableGG.os.merge[which(colnames(tableGG.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"TV.Size"))]))
+tableGG.os.data <- left_join(tableGG.os.data, tableGG.os.merge[which(colnames(tableGG.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"TV.Size"))])
 tableGG.os.data$Count <- 1
 tableGG.os.data$count <- 1
 #######################
