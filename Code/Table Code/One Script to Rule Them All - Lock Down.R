@@ -257,11 +257,11 @@ run <- try(source("Code/Table Code/MF - PSE/Item 227.R"))
 run <- try(source("Code/Table Code/MF - PSE/Item 228.R"))
 run <- try(source("Code/Table Code/MF - PSE/Items 232,233.R"))
 run <- try(source("Code/Table Code/MF - PSE/Item 234.R"))
-run <- try(source("Code/Table Code/MF - PSE/Item 235.R"))
+run <- try(source("Code/Table Code/MF - PSE/Item 235.R")) #insulation
 run <- try(source("Code/Table Code/MF - PSE/Item 236,238.R"))
-run <- try(source("Code/Table Code/MF - PSE/Item 237.R"))#check in excel
+run <- try(source("Code/Table Code/MF - PSE/Item 237.R"))#check in excel #insulation
 run <- try(source("Code/Table Code/MF - PSE/Item 239.R"))
-run <- try(source("Code/Table Code/MF - PSE/Items 243-246,249.R"))#check in excel
+run <- try(source("Code/Table Code/MF - PSE/Items 243-246,249.R"))#check in excel #insulation
 run <- try(source("Code/Table Code/MF - PSE/Item 247.R"))
 run <- try(source("Code/Table Code/MF - PSE/Item 248.R")) #16 + 19 = 35 tables
 #250,251 don't exist

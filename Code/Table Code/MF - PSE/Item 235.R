@@ -483,6 +483,7 @@ item235A.final <- rbind.data.frame(item235A.summary
 item235A.cast <- dcast(setDT(item235A.final),
                      formula   = BuildingType + Wall.Type ~ rvalue.bins,
                      value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+names(item235A.cast)
 
 #join all insulation levels onto rvalue summary
 item235A.table <- data.frame("BuildingType"                  = item235A.cast$BuildingType

@@ -29,7 +29,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
-# envelope.dat <- read.xlsx(envelope.export)
+envelope.dat <- read.xlsx(envelope.export)
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 
 #Bring in R-value table
@@ -145,8 +145,9 @@ for(i in grep("inches|rvalues", colnames(prep.dat4))){
 }
 
 #fix names that are not in R value table
-prep.dat4$floor.rvalues1[which(prep.dat4$floor.rvalues1 == "Polyurethane foam board (black)")]  <- "Polyurethane foam board"
-prep.dat4$floor.rvalues2[which(prep.dat4$floor.rvalues2 == "N/A")]                              <- NA
+prep.dat4$floor.rvalues1[which(prep.dat4$floor.rvalues1 == "polyurethane foam board (black)")]          <- "polyurethane foam board"
+prep.dat4$floor.rvalues1[which(prep.dat4$floor.rvalues1 == "expanded polystyrene foam board (white)")]  <- "expanded polystyrene foam board"
+prep.dat4$floor.rvalues2[which(prep.dat4$floor.rvalues2 == "n/a")]                                      <- NA
 
 ###########################
 # End cleaning step
@@ -315,6 +316,10 @@ floor.merge <- floor.merge[which(!is.na(floor.merge$uvalue)),]
 # ITEM 239A: DISTRIBUTION OF FLOOR INSULATION LEVELS BY FLOOR TYPE (MF Table 31A)
 ############################################################################################################
 #weight the u factor per home -- where weights are the wall area within home
+unique(prep.dat5$Floor.Area)
+unique(prep.dat5$Floor.Insulation.Condition.1)
+unique(prep.dat5$uvalue)
+
 weightedU <- summarise(group_by(prep.dat5, CK_SiteID, Floor.Type)
                        ,aveUval = sum(Floor.Area * Floor.Insulation.Condition.1 * uvalue) / sum(Floor.Area * Floor.Insulation.Condition.1)
 )
@@ -348,7 +353,7 @@ item239A.dat$rvalue.bins[which(item239A.dat$aveRval >= 4   & item239A.dat$aveRva
 item239A.dat$rvalue.bins[which(item239A.dat$aveRval >= 11  & item239A.dat$aveRval < 16)]  <- "R11.R15"
 item239A.dat$rvalue.bins[which(item239A.dat$aveRval >= 16  & item239A.dat$aveRval < 23)]  <- "R16.R22"
 item239A.dat$rvalue.bins[which(item239A.dat$aveRval >= 23  & item239A.dat$aveRval < 28)]  <- "R23.R27"
-item239A.dat$rvalue.bins[which(item239A.dat$aveRval >= 28  & item239A.dat$aveRval < 35)]  <- "R28.R35"
+item239A.dat$rvalue.bins[which(item239A.dat$aveRval >= 28  )]  <- "R28.R35"
 unique(item239A.dat$rvalue.bins)
 
 item239A.dat$count <- 1
@@ -359,6 +364,8 @@ colnames(item239A.dat1)
 item239A.merge <- left_join(rbsa.dat, item239A.dat1)
 item239A.merge <- item239A.merge[which(!is.na(item239A.merge$count)),]
 item239A.merge <- item239A.merge[which(item239A.merge$Category =="PSE"),]
+
+
 item239A.data <- weightedData(unique(item239A.merge[-which(colnames(item239A.merge) %in% c("CK_SiteID"
                                                                                         ,"Floor.Type"
                                                                                         ,"aveUval"
@@ -560,7 +567,7 @@ item239B.dat$rvalue.bins[which(item239B.dat$aveRval >= 4   & item239B.dat$aveRva
 item239B.dat$rvalue.bins[which(item239B.dat$aveRval >= 11  & item239B.dat$aveRval < 16)]  <- "R11.R15"
 item239B.dat$rvalue.bins[which(item239B.dat$aveRval >= 16  & item239B.dat$aveRval < 23)]  <- "R16.R22"
 item239B.dat$rvalue.bins[which(item239B.dat$aveRval >= 23  & item239B.dat$aveRval < 28)]  <- "R23.R27"
-item239B.dat$rvalue.bins[which(item239B.dat$aveRval >= 28  & item239B.dat$aveRval < 35)]  <- "R28.R35"
+item239B.dat$rvalue.bins[which(item239B.dat$aveRval >= 28  )]  <- "R28.R35"
 unique(item239B.dat$rvalue.bins)
 
 item239B.dat$count <- 1
