@@ -53,11 +53,11 @@ unique(item106.dat2$GPM_Measured)
 item106.dat3 <- item106.dat2[grep("shower|Shower",item106.dat2$Fixture.Type),]
 
 item106.dat4 <- summarise(group_by(item106.dat3, CK_Cadmus_ID, Category, BuildingType, State, count)
-                          ,GPM.Measured.Site = mean(GPM_Measured))
+                          ,GPM.Measured.Site = round(mean(GPM_Measured),1))
 
 item106.dat4$GPM_bins <- item106.dat4$GPM.Measured.Site
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site <= 1.5)] <- "< 1.5"
-item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >  1.5 & item106.dat4$GPM.Measured.Site < 2.1)] <- "1.6-2.0"
+item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site > 1.5 & item106.dat4$GPM.Measured.Site < 2.1)] <- "1.6-2.0"
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 2.1 & item106.dat4$GPM.Measured.Site < 2.6)] <- "2.1-2.5"
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 2.6 & item106.dat4$GPM.Measured.Site < 3.6)] <- "2.6-3.5"
 item106.dat4$GPM_bins[which(item106.dat4$GPM.Measured.Site >= 3.6)] <- "> 3.6"
@@ -370,6 +370,137 @@ tableAM.final.MF <- tableAM.table[which(tableAM.table$BuildingType == "Multifami
 exportTable(tableAM.final.MF, "MF", "Table AM", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
+#############################################################################################
+# Table AR: DISTRIBUTION OF SHOWERHEAD FLOW RATE BY STATE (new bins)
+#############################################################################################
+#subset to columns needed for analysis
+tableAR.dat <- water.dat[which(colnames(water.dat) %in% c("CK_Cadmus_ID"
+                                                          ,"GPM_Measured"
+                                                          ,"Fixture.Type"))]
+tableAR.dat$count <- 1
+
+tableAR.dat0 <- tableAR.dat[which(tableAR.dat$CK_Cadmus_ID != "CK_CADMUS_ID"),]
+
+tableAR.dat1 <- left_join(tableAR.dat0, rbsa.dat, by = "CK_Cadmus_ID")
+
+tableAR.dat1$GPM_Measured <- as.numeric(as.character(tableAR.dat1$GPM_Measured))
+tableAR.dat2 <- tableAR.dat1[which(!(is.na(tableAR.dat1$GPM_Measured))),]
+unique(tableAR.dat2$GPM_Measured)
+
+tableAR.dat3 <- tableAR.dat2[grep("shower|Shower",tableAR.dat2$Fixture.Type),]
+
+tableAR.dat4 <- summarise(group_by(tableAR.dat3, CK_Cadmus_ID)
+                          ,GPM.Measured.Site = mean(GPM_Measured))
+
+tableAR.dat4$GPM_bins <- tableAR.dat4$GPM.Measured.Site
+tableAR.dat4$GPM_bins[which(tableAR.dat4$GPM.Measured.Site <=  2.5)] <- "<= 2.5"
+tableAR.dat4$GPM_bins[which(tableAR.dat4$GPM.Measured.Site > 2.5)] <- "> 2.5"
+unique(tableAR.dat4$GPM_bins)
+
+tableAR.merge <- left_join(rbsa.dat, tableAR.dat4)
+tableAR.merge <- tableAR.merge[which(!is.na(tableAR.merge$GPM_bins)),]
+
+################################################
+# Adding pop and sample sizes for weights
+################################################
+tableAR.data <- weightedData(tableAR.merge[-which(colnames(tableAR.merge) %in% c("GPM.Measured.Site"               
+                                                                                 ,"GPM_bins"
+                                                                                 ,"count"
+                                                                                 ,"Category"))])
+tableAR.data <- left_join(tableAR.data, tableAR.merge[which(colnames(tableAR.merge) %in% c("CK_Cadmus_ID"
+                                                                                           ,"GPM.Measured.Site"               
+                                                                                           ,"GPM_bins"
+                                                                                           ,"count"
+                                                                                 ,"Category"))])
+
+tableAR.data$count <- 1
+
+#######################
+# Weighted Analysis
+#######################
+tableAR.final <- proportionRowsAndColumns1(CustomerLevelData = tableAR.data
+                                           ,valueVariable    = 'count'
+                                           ,columnVariable   = 'Category'
+                                           ,rowVariable      = 'GPM_bins'
+                                           ,aggregateColumnName = "Remove")
+
+tableAR.cast <- dcast(setDT(tableAR.final)
+                      , formula = BuildingType + GPM_bins ~ Category
+                      , value.var = c("w.percent", "w.SE", "count", "n", "N","EB"))
+
+tableAR.table <- data.frame("BuildingType"   = tableAR.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = tableAR.cast$GPM_bins
+                            ,"PSE.Percent"                 = tableAR.cast$w.percent_PSE
+                            ,"PSE.SE"                      = tableAR.cast$w.SE_PSE
+                            ,"PSE.n"                       = tableAR.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = tableAR.cast$`w.percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = tableAR.cast$`w.SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = tableAR.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = tableAR.cast$`w.percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = tableAR.cast$`w.SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = tableAR.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = tableAR.cast$`w.percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = tableAR.cast$`w.SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = tableAR.cast$`n_2017 RBSA PS`
+                            ,"PSE_EB"                      = tableAR.cast$EB_PSE
+                            ,"PSE.King.County_EB"          = tableAR.cast$`EB_PSE KING COUNTY`
+                            ,"PSE.Non.King.County_EB"      = tableAR.cast$`EB_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS_EB"             = tableAR.cast$`EB_2017 RBSA PS`
+)
+
+levels(tableAR.table$Flow.Rate.GPM)
+rowOrder <- c("<= 2.5"
+              ,"> 2.5"
+              ,"Total")
+tableAR.table <- tableAR.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)
+tableAR.table <- data.frame(tableAR.table)
+
+tableAR.final.MF <- tableAR.table[which(tableAR.table$BuildingType == "Multifamily")
+                                     ,-which(colnames(tableAR.table) %in% c("BuildingType"))]
+exportTable(tableAR.final.MF, "MF", "Table AR", weighted = TRUE,OS = T, osIndicator = "PSE")
+
+
+
+#######################
+# Unweighted Analysis
+#######################
+tableAR.final <- proportions_two_groups_unweighted(CustomerLevelData = tableAR.data
+                                                   ,valueVariable    = 'count'
+                                                   ,columnVariable   = 'Category'
+                                                   ,rowVariable      = 'GPM_bins'
+                                                   ,aggregateColumnName = "Region")
+
+tableAR.cast <- dcast(setDT(tableAR.final)
+                      , formula = BuildingType + GPM_bins ~ Category
+                      , value.var = c("Percent", "SE", "Count", "n"))
+
+names(tableAR.cast)
+tableAR.table <- data.frame("BuildingType"   = tableAR.cast$BuildingType
+                            ,"Flow.Rate.GPM"  = tableAR.cast$GPM_bins
+                            ,"PSE.Percent"                 = tableAR.cast$Percent_PSE
+                            ,"PSE.SE"                      = tableAR.cast$SE_PSE
+                            ,"PSE.n"                       = tableAR.cast$n_PSE
+                            ,"PSE.King.County.Percent"     = tableAR.cast$`Percent_PSE KING COUNTY`
+                            ,"PSE.King.County.SE"          = tableAR.cast$`SE_PSE KING COUNTY`
+                            ,"PSE.King.County.n"           = tableAR.cast$`n_PSE KING COUNTY`
+                            ,"PSE.Non.King.County.Percent" = tableAR.cast$`Percent_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.SE"      = tableAR.cast$`SE_PSE NON-KING COUNTY`
+                            ,"PSE.Non.King.County.n"       = tableAR.cast$`n_PSE NON-KING COUNTY`
+                            ,"2017.RBSA.PS.Percent"        = tableAR.cast$`Percent_2017 RBSA PS`
+                            ,"2017.RBSA.PS.SE"             = tableAR.cast$`SE_2017 RBSA PS`
+                            ,"2017.RBSA.PS.n"              = tableAR.cast$`n_2017 RBSA PS`
+)
+
+levels(tableAR.table$Flow.Rate.GPM)
+rowOrder <- c("<= 2.5"
+              ,"> 2.5"
+              ,"Total")
+tableAR.table <- tableAR.table %>% mutate(Flow.Rate.GPM = factor(Flow.Rate.GPM, levels = rowOrder)) %>% arrange(Flow.Rate.GPM)
+tableAR.table <- data.frame(tableAR.table)
+
+tableAR.final.MF <- tableAR.table[which(tableAR.table$BuildingType == "Multifamily")
+                                     ,-which(colnames(tableAR.table) %in% c("BuildingType"))]
+exportTable(tableAR.final.MF, "MF", "Table AR", weighted = FALSE,OS = T, osIndicator = "PSE")
 
 
 
@@ -395,11 +526,11 @@ unique(tableAS.dat2$GPM_Measured)
 tableAS.dat3 <- tableAS.dat2[grep("bathroom",tableAS.dat2$Fixture.Type, ignore.case = T),]
 
 tableAS.dat4 <- summarise(group_by(tableAS.dat3, CK_Cadmus_ID, Category)
-                          ,GPM.Measured.Site = mean(GPM_Measured))
+                          ,GPM.Measured.Site = round(mean(GPM_Measured),1))
 
 tableAS.dat4$GPM_bins <- tableAS.dat4$GPM.Measured.Site
-tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
-tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site <=  2.2)] <- "<= 2.2"
+tableAS.dat4$GPM_bins[which(tableAS.dat4$GPM.Measured.Site > 2.2)]   <- "> 2.2"
 unique(tableAS.dat4$GPM_bins)
 
 tableAS.merge <- left_join(rbsa.dat, tableAS.dat4)
@@ -536,8 +667,8 @@ tableAT.dat4 <- summarise(group_by(tableAT.dat3, CK_Cadmus_ID, Category)
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAT.dat4$GPM_bins <- tableAT.dat4$GPM.Measured.Site
-tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site <  2.2)] <- "<= 2.2"
-tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site >= 2.2)] <- "> 2.2"
+tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site <=  2.2)] <- "<= 2.2"
+tableAT.dat4$GPM_bins[which(tableAT.dat4$GPM.Measured.Site > 2.2)] <- "> 2.2"
 unique(tableAT.dat4$GPM_bins)
 
 tableAT.merge <- left_join(rbsa.dat, tableAT.dat4)

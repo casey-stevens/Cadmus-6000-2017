@@ -29,7 +29,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# sites.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, sites.export)),stringsAsFactors = FALSE)
+sites.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, sites.export)),stringsAsFactors = FALSE)
 sites.dat <- data.frame(sites.dat, stringsAsFactors = F)
 #clean cadmus IDs
 sites.dat$CK_Cadmus_ID <- trimws(toupper(sites.dat$CK_Cadmus_ID))
@@ -519,8 +519,9 @@ tableUU.os.dat2$Ind[grep("yes",tableUU.os.dat2$SITE_GENL_INFO_SolarPanelsPresent
 tableUU.os.data <- weightedData(tableUU.os.dat2[-which(colnames(tableUU.os.dat2) %in% c("Ind"
                                                                                ,"SITE_GENL_INFO_SolarPanelsPresent_Y_N"))])
 tableUU.os.data <- left_join(tableUU.os.data, unique(tableUU.os.dat2[which(colnames(tableUU.os.dat2) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Ind"
-                                                                                         ,"SITE_GENL_INFO_SolarPanelsPresent_Y_N"))]))
+                                                                                                            ,"CK_Building_ID"
+                                                                                                            ,"Ind"
+                                                                                                            ,"SITE_GENL_INFO_SolarPanelsPresent_Y_N"))]))
 tableUU.os.data$count <- 1
 tableUU.os.data$Count <- 1
 

@@ -31,7 +31,7 @@ rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK_Cadmus_ID)))
 
-# one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
+one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
 one.line.dat$CK_Cadmus_ID <- trimws(toupper(one.line.dat$Cadmus.ID))
 
 # Bring in clean ground contact types
@@ -44,7 +44,6 @@ GroundContactTypes <- GroundContactTypes[which(colnames(GroundContactTypes) %in%
 #############################################################################################
 # Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE 
 #############################################################################################
-
 env.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
                                                             , "Foundation.Type"))]
 colnames(env.dat) <- c("FoundationType","CK_Cadmus_ID")
@@ -92,6 +91,7 @@ item3.data <- left_join(item3.data, item3.merge[which(colnames(item3.merge) %in%
 
 item3.data$count <- 1
 colnames(item3.data)
+
 
 
 

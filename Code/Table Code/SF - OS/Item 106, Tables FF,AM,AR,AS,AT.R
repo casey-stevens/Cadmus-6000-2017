@@ -27,7 +27,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID,ignore.case = T),]
 
 #Read in data for analysis
-# water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
+water.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
 #clean cadmus IDs
 water.dat$CK_Cadmus_ID <- trimws(toupper(water.dat$CK_Cadmus_ID))
 
@@ -1539,8 +1539,8 @@ tableAR.os.dat4 <- summarise(group_by(tableAR.os.dat3, CK_Cadmus_ID, CK_Building
                           ,GPM.Measured.Site = mean(GPM_Measured))
 
 tableAR.os.dat4$GPM_bins <- tableAR.os.dat4$GPM.Measured.Site
-tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site <=  2.5)] <- "<= 2.5"
-tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site > 2.5)] <- "> 2.5"
+tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site <=  2.55)] <- "<= 2.5"
+tableAR.os.dat4$GPM_bins[which(tableAR.os.dat4$GPM.Measured.Site > 2.55)] <- "> 2.5"
 unique(tableAR.os.dat4$GPM_bins)
 
 tableAR.os.merge <- left_join(os.dat, tableAR.os.dat4)

@@ -26,12 +26,12 @@ source("Code/Table Code/Export Function.R")
 
 
 #Read in data for analysis
-# envelope.dat <- read.xlsx(envelope.export)
+envelope.dat <- read.xlsx(envelope.export)
 #clean cadmus IDs
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
-stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK_Cadmus_ID)))
+# stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK_Cadmus_ID)))
 
-# one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
+one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
 one.line.dat$CK_Cadmus_ID <- trimws(toupper(one.line.dat$Cadmus.ID))
 
 # Bring in clean ground contact types
@@ -447,10 +447,9 @@ os.dat <- os.dat[which(names(os.dat) != "Category")]
 #############################################################################################
 # Item 3: DISTRIBUTION OF HOMES BY GROUND CONTACT TYPE AND STATE
 #############################################################################################
-env.dat <- envelope.dat[which(colnames(envelope.dat) %in% c("CK_Cadmus_ID"
-                                                            , "ENV_Construction_BLDG_STRUCTURE_FoundationType"))]
-colnames(env.dat) <- c("CK_Cadmus_ID"
-                       , "FoundationType")
+env.dat <- one.line.dat[which(colnames(one.line.dat) %in% c("CK_Cadmus_ID"
+                                                            , "Foundation.Type"))]
+colnames(env.dat) <- c("FoundationType","CK_Cadmus_ID")
 env.dat1 <- env.dat[which(!(is.na(env.dat$FoundationType))),]
 env.dat1$FoundationType <- trimws(env.dat1$FoundationType)
 
@@ -459,8 +458,9 @@ item3.os.dat <- unique(left_join(os.dat, env.dat1, by = "CK_Cadmus_ID"))
 
 # Clean Ground Contact types
 item3.os.dat$GroundContact <- item3.os.dat$FoundationType
-item3.os.dat$GroundContact <- gsub("&gt; ",">", item3.os.dat$GroundContact)
+# item3.os.dat$GroundContact <- gsub("&gt; ",">", item3.os.dat$GroundContact)
 item3.os.dat$GroundContact[grep("90% crawl", item3.os.dat$GroundContact, ignore.case = T)] <- ">90% Crawlspace"
+# item3.os.dat$GroundContact[grep("90% Conditioned", item3.os.dat$GroundContact, ignore.case = T)] <- ">90% Conditioned Basement"
 
 # Remove unwanted ground contact types
 item3.os.dat1 <- item3.os.dat[which(item3.os.dat$GroundContact %notin% c("Remove", NA, 0)),]

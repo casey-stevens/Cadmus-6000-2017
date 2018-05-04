@@ -2929,6 +2929,7 @@ item10.os.data <- weightedData(unique(item10.os.merge[-which(colnames(item10.os.
                                                                                      ,"rvalue.bins"
                                                                                      ,"count"))]))
 item10.os.data <- left_join(item10.os.data, item10.os.merge[which(colnames(item10.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
                                                                                        ,"Wall.Type"
                                                                                        ,"aveUval"
                                                                                        ,"aveRval"
@@ -3301,19 +3302,21 @@ item11A.os.dat3$Wall.Type[grep("alternative",item11A.os.dat3$Wall.Type, ignore.c
 length(unique(item11A.os.dat3$CK_Cadmus_ID))
 unique(item11A.os.dat3$Wall.Type)
 
-
+# item11A.os.dat3 <- item11A.os.dat3[-grep("unknown",item11A.os.dat3$Wall.Type,ignore.case = T),]
 #cast out by wall frame types
 item11A.os.dat3$count <- 1
 item11A.os.customer <- summarise(group_by(item11A.os.dat3, CK_Cadmus_ID, CK_Building_ID, HomeYearBuilt_bins3, Wall.Type)
                                 ,count = sum(count))
 
 item11A.os.merge <- left_join(os.dat, item11A.os.customer)
+item11A.os.merge <- item11A.os.merge[which(!is.na(item11A.os.merge$HomeYearBuilt_bins3)),]
 item11A.os.merge <- item11A.os.merge[which(!is.na(item11A.os.merge$Wall.Type)),]
 
 item11A.os.data <- weightedData(unique(item11A.os.merge[-which(colnames(item11A.os.merge) %in% c("Category"
                                                                                               ,"Wall.Type"
                                                                                               ,"count"))]))
 item11A.os.data <- left_join(item11A.os.data, item11A.os.merge[which(colnames(item11A.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
                                                                                                    ,"Category"
                                                                                                    ,"Wall.Type"
                                                                                                    ,"count"))])
@@ -3495,7 +3498,7 @@ prep.tableAP.dat2$aveUval[which(is.na(prep.tableAP.dat2$aveUval))] <- 0
 prep.tableAP.dat2$aveRval[which(is.na(prep.tableAP.dat2$aveRval))] <- 0
 
 
-tableAP.dat <- prep.tableAP.dat2
+tableAP.dat <- prep.tableAP.dat2[which(!is.na(prep.tableAP.dat2$HomeYearBuilt)),]
 
 tableAP.dat1 <- tableAP.dat
 
@@ -3523,6 +3526,7 @@ tableAP.data <- weightedData(unique(tableAP.merge[-which(colnames(tableAP.merge)
                                                                                         ,"rvalue.bins.SF"
                                                                                         ,"count"))]))
 tableAP.data <- left_join(tableAP.data, unique(tableAP.merge[which(colnames(tableAP.merge) %in% c("CK_Cadmus_ID"
+                                                                                                  ,"CK_Building_ID"
                                                                                            ,"Wall.Type"
                                                                                            ,"aveUval"
                                                                                            ,"aveRval"
@@ -4603,7 +4607,7 @@ item17.os.dat1 <- left_join(item17.os.weightedU, item17.os.wall.unique, by = "CK
 item17.os.dat2 <- left_join(item17.os.dat1, os.dat)
 item17.os.dat2$aveUval[which(is.na(item17.os.dat2$aveUval))] <- 0
 item17.os.dat2$aveRval[which(is.na(item17.os.dat2$aveRval))] <- 0
-item17.os.dat2 <- item17.os.dat2[which(item17.os.dat2$CK_Building_ID == subset.ind),]
+# item17.os.dat2 <- item17.os.dat2[which(item17.os.dat2$CK_Building_ID == subset.ind),]
 
 #Bin R values -- SF only
 item17.os.dat2$rvalue.bins <- "Unknown"
@@ -4629,6 +4633,7 @@ item17.os.data <- weightedData(unique(item17.os.merge[-which(colnames(item17.os.
                                                                                      ,"rvalue.bins"
                                                                                      ,"count"))]))
 item17.os.data <- left_join(item17.os.data, item17.os.merge[which(colnames(item17.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
                                                                                        ,"Wall.Type"
                                                                                        ,"aveUval"
                                                                                        ,"aveRval"

@@ -558,6 +558,7 @@ item9.os.data <- weightedData(item9.os.merge[-which(colnames(item9.os.merge) %in
                                                                            ,"Site_Sum"))])
 #merge back on measured variable
 item9.os.data <- left_join(item9.os.data, item9.os.merge[which(colnames(item9.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                               ,"CK_Building_ID"
                                                                                    ,"y_bar_ilk"
                                                                                    ,"Clean.Type"
                                                                                    ,"Area"
@@ -576,7 +577,7 @@ item9.os.data$count <- 1
 # Weighted Analysis
 ################################
 item9.os.cast <- mean_two_groups(CustomerLevelData = item9.os.data
-                                  , valueVariable = 'y_bar_ilk'
+                                  , valueVariable = 'y_ilk'
                                   , byVariableRow = 'Clean.Type'
                                   , byVariableColumn    = 'CK_Building_ID'
                                   , rowAggregate  = "All Room Types"

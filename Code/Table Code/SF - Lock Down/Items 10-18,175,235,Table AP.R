@@ -644,7 +644,7 @@ unique(item11.dat3$Wall.Type)
                                                                
 #cast out by wall frame types
 item11.dat3$count <- 1
-item11.customer <- summarise(group_by(item11.dat3, CK_Cadmus_ID, BuildingType, State, HomeYearBuilt_bins3, Wall.Type)
+item11.customer <- summarise(group_by(item11.dat3, CK_Cadmus_ID, HomeYearBuilt_bins3, Wall.Type)
                              ,count = sum(count))
 
 item11.merge <- left_join(rbsa.dat, item11.customer)
@@ -671,9 +671,10 @@ item11.by.vinage <- proportionRowsAndColumns1(CustomerLevelData = item11.data
                                           , aggregateColumnName = "Remove"
 )
 # summarise for all housing vintages
+item11.data$Wall.Type1 <- item11.data$Wall.Type
 item11.across.vintages <- proportions_one_group(CustomerLevelData = item11.data
                                                 , valueVariable    = 'Ind'
-                                                , groupingVariable = 'Wall.Type'
+                                                , groupingVariable = 'Wall.Type1'
                                                 , total.name       = 'All Housing Vintages'
                                                 , columnName       = 'HomeYearBuilt_bins3'
                                                 , weighted = TRUE
