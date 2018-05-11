@@ -47,7 +47,7 @@ length(unique(item24.dat2$CK_Cadmus_ID))
 item24.dat2$count <- 1
 item24.dat2$crawl.ins.ind <- 0
 item24.dat2$crawl.ins.ind[which(item24.dat2$`Crawlspace.Walls.Insulated?` == "Yes")] <- 1
-
+length(unique(item24.dat2$CK_Cadmus_ID))
 item24.data <- weightedData(item24.dat2[-which(colnames(item24.dat2) %in% c("Crawlspace.Vents.Present"
                                                                             ,"Crawlspace.Vents.Blocked"
                                                                             ,"Crawlspace.Walls.Insulated?"
@@ -69,6 +69,7 @@ item24.data <- weightedData(item24.dat2[-which(colnames(item24.dat2) %in% c("Cra
 
 # Should see 'Joining, by = "CK_Cadmus_ID"'
 item24.data <- left_join(item24.data, item24.dat2[which(colnames(item24.dat2) %in% c("CK_Cadmus_ID"
+                                                                                            ,"CK_Building_ID"
                                                                                       ,"Crawlspace.Vents.Present"
                                                                                       ,"Crawlspace.Vents.Blocked"
                                                                                       ,"Crawlspace.Walls.Insulated?"
@@ -96,7 +97,6 @@ item24.final <- proportions_one_group(CustomerLevelData  = item24.data
                                       , valueVariable    = 'Ind'
                                       , groupingVariable = 'State'
                                       , total.name       = "Region"
-                                      , columnName       = "Insulated Crawlspace Walls"
                                       , weighted = TRUE)
 
 item24.final.SF <- item24.final[which(item24.final$BuildingType == "Single Family"),-1]

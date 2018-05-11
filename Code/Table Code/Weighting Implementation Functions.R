@@ -951,6 +951,14 @@ proportions_one_group <- function(CustomerLevelData
                                                    ,total.count = n_hj
                                                    ,p.h = count / total.count), stringsAsFactors = F)
       
+    }else  if(groupingVariable %in% c("CK_Building_ID") & valueVariable %in% c("stb_Ind")){
+      # obtain count and proportion by strata and row grouping variable
+      StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
+                                                   , c("BuildingType", "State", "Region", "Territory", groupingVariable), summarise
+                                                   ,n_hj        = length(unique(CK_Cadmus_ID))
+                                                   ,count       = sum(get(valueVariable))
+                                                   ,total.count = sum(Count)
+                                                   ,p.h = count / total.count), stringsAsFactors = F)
     }else if(groupingVariable %in% c("CK_Building_ID") & valueVariable %in% c("StorageBulbs")){
       # obtain count and proportion by strata and row grouping variable
       StrataGroupedProportions <- data.frame(ddply(CustomerLevelData

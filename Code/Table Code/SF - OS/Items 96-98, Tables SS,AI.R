@@ -652,12 +652,13 @@ item96.os.dat2 <- item96.os.dat1[which(item96.os.dat1$DHW.Fuel %in% c("Electric"
 # Adding pop and sample sizes for weights
 ################################################
 item96.os.data <- weightedData(item96.os.dat2[-which(colnames(item96.os.dat2) %in% c("Generic"
-                                                                            ,"DHW.Fuel"
-                                                                            ,"count"))])
-item96.os.data <- left_join(item96.os.data, unique(item96.os.dat2[which(colnames(item96.os.dat2) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Generic"
                                                                                      ,"DHW.Fuel"
-                                                                                     ,"count"))]))
+                                                                                     ,"count"))])
+item96.os.data <- left_join(item96.os.data, item96.os.dat2[which(colnames(item96.os.dat2) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Generic"
+                                                                                                 ,"DHW.Fuel"
+                                                                                                 ,"count"))])
 #######################
 # Weighted Analysis
 #######################
@@ -801,13 +802,14 @@ item97.os.data <- weightedData(item97.os.dat3[-which(colnames(item97.os.dat3) %i
                                                                             ,"DHW.Type"
                                                                             ,"DHW.Technology"
                                                                             ,"Detailed.Type"))])
-item97.os.data <- left_join(item97.os.data, unique(item97.os.dat3[which(colnames(item97.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Generic"
-                                                                                     ,"DHW.Fuel"
-                                                                                     ,"count"
-                                                                                     ,"DHW.Type"
-                                                                                     ,"DHW.Technology"
-                                                                                     ,"Detailed.Type"))]))
+item97.os.data <- left_join(item97.os.data, item97.os.dat3[which(colnames(item97.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Generic"
+                                                                                                 ,"DHW.Fuel"
+                                                                                                 ,"count"
+                                                                                                 ,"DHW.Type"
+                                                                                                 ,"DHW.Technology"
+                                                                                                 ,"Detailed.Type"))])
 
 #######################
 # Weighted Analysis
@@ -952,13 +954,14 @@ tableAI.os.data <- weightedData(tableAI.os.dat3[-which(colnames(tableAI.os.dat3)
                                                                                ,"DHW.Type"
                                                                                ,"DHW.Technology"
                                                                                ,"Detailed.Type"))])
-tableAI.os.data <- left_join(tableAI.os.data, unique(tableAI.os.dat3[which(colnames(tableAI.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Generic"
-                                                                                         ,"DHW.Fuel"
-                                                                                         ,"count"
-                                                                                         ,"DHW.Type"
-                                                                                         ,"DHW.Technology"
-                                                                                         ,"Detailed.Type"))]))
+tableAI.os.data <- left_join(tableAI.os.data, tableAI.os.dat3[which(colnames(tableAI.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                     ,"CK_Building_ID"
+                                                                                                     ,"Generic"
+                                                                                                     ,"DHW.Fuel"
+                                                                                                     ,"count"
+                                                                                                     ,"DHW.Type"
+                                                                                                     ,"DHW.Technology"
+                                                                                                     ,"Detailed.Type"))])
 
 #######################
 # Weighted Analysis
@@ -1089,15 +1092,15 @@ item98.os.dat1 <- left_join(os.dat, item98.os.dat0, by = "CK_Cadmus_ID")
 
 item98.os.dat2 <- item98.os.dat1[grep("Water Heater",item98.os.dat1$Generic),]
 
-item98.os.dat3 <- item98.os.dat2[which(item98.os.dat2$DHW.Location != "Unknown"),]
+item98.os.dat3 <- item98.os.dat2#[which(item98.os.dat2$DHW.Location != "Unknown"),]
 
 item98.os.dat3$DHW.Location[grep("Crawl",item98.os.dat3$DHW.Location)] <- "Crawlspace"
-item98.os.dat3$DHW.Location[grep("In building",item98.os.dat3$DHW.Location)] <- "Main House"
+item98.os.dat3$DHW.Location[grep("In building|in unit|kitchen|bedroom|bathroom|closet|laundry",item98.os.dat3$DHW.Location, ignore.case = T)] <- "Main House"
 
 item98.os.dat3$DHW.Location[which(item98.os.dat3$DHW.Location %notin% c("Crawlspace"
-                                                                  ,"Basement"
-                                                                  ,"Garage"
-                                                                  ,"Main House"))] <- "Other"
+                                                                        ,"Basement"
+                                                                        ,"Garage"
+                                                                        ,"Main House"))] <- "Other"
 
 unique(item98.os.dat3$DHW.Location)
 
@@ -1109,11 +1112,12 @@ item98.os.data <- weightedData(item98.os.dat3[-which(colnames(item98.os.dat3) %i
                                                                             ,"DHW.Fuel"
                                                                             ,"DHW.Location"
                                                                             ,"count"))])
-item98.os.data <- left_join(item98.os.data, unique(item98.os.dat3[which(colnames(item98.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Generic"
-                                                                                     ,"DHW.Fuel"
-                                                                                     ,"DHW.Location"
-                                                                                     ,"count"))]))
+item98.os.data <- left_join(item98.os.data, item98.os.dat3[which(colnames(item98.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Generic"
+                                                                                                 ,"DHW.Fuel"
+                                                                                                 ,"DHW.Location"
+                                                                                                 ,"count"))])
 #######################
 # Weighted Analysis
 #######################

@@ -1222,10 +1222,11 @@ item78.os.prep1 <- item78.os.prep1[which(item78.os.prep1$LPD != "Inf"),]
 item78.os.data <- weightedData(item78.os.prep1[-which(colnames(item78.os.prep1) %in% c("Total.Wattage"
                                                                               ,"SiteArea"
                                                                               ,"LPD"))])
-item78.os.data <- left_join(item78.os.data, unique(item78.os.prep1[which(colnames(item78.os.prep1) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Total.Wattage"
-                                                                                       ,"SiteArea"
-                                                                                       ,"LPD"))]))
+item78.os.data <- left_join(item78.os.data, item78.os.prep1[which(colnames(item78.os.prep1) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
+                                                                                                   ,"Total.Wattage"
+                                                                                                   ,"SiteArea"
+                                                                                                   ,"LPD"))])
 
 #######################
 # Weighted Analysis

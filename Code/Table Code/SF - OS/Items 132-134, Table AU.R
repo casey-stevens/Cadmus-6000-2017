@@ -488,6 +488,8 @@ item133.os.dat0 <- item133.os.dat[which(item133.os.dat$CK_Cadmus_ID != "CK_CADMU
 
 #merge together analysis data with cleaned scl data
 item133.os.dat1 <- left_join(item133.os.dat0, os.dat, by = "CK_Cadmus_ID")
+item133.os.dat1$Thermostat_Setpoint <- as.numeric(as.character(item133.os.dat1$Thermostat_Setpoint))
+item133.os.dat1$Nighttime_Cooling <- as.numeric(as.character(item133.os.dat1$Nighttime_Cooling))
 
 item133.os.dat2.0 <- item133.os.dat1[which(!(is.na(item133.os.dat1$Thermostat_Setpoint))),]
 item133.os.dat2 <- item133.os.dat2.0[which(item133.os.dat2.0$Thermostat_Setpoint != 0),]
@@ -501,7 +503,7 @@ item133.os.dat3$Cooling.Setup <- 0
 item133.os.dat3$Cooling.Setup[which(item133.os.dat3$Nighttime_Cooling > item133.os.dat3$Thermostat_Setpoint)] <- 1
 
 item133.os.sum <- summarise(group_by(item133.os.dat3, CK_Cadmus_ID, CK_Building_ID)
-                         ,Ind = sum(Cooling.Setup))
+                         ,Ind = sum(unique(Cooling.Setup)))
 
 item133.os.merge <- left_join(os.dat, item133.os.sum)
 item133.os.merge <- item133.os.merge[which(!is.na(item133.os.merge$Ind)),]
@@ -511,6 +513,7 @@ item133.os.merge <- item133.os.merge[which(!is.na(item133.os.merge$Ind)),]
 ################################################
 item133.os.data <- weightedData(item133.os.merge[-which(colnames(item133.os.merge) %in% c("Ind"))])
 item133.os.data <- left_join(item133.os.data, unique(item133.os.merge[which(colnames(item133.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                              ,"CK_Building_ID"
                                                                                                   ,"Ind"))]))
 item133.os.data$count <- 1
 item133.os.data$Count <- 1

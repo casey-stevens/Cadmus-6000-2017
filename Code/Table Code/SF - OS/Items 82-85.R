@@ -433,10 +433,11 @@ item82.os.data <- weightedData(item82.os.dat3[which(colnames(item82.os.dat3) %no
                                                                               ,"Type"
                                                                               ,"Refrigerator/Freezer.Size"))])
 
-item82.os.data <- left_join(item82.os.data, unique(item82.os.dat3[which(colnames(item82.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"APPLIANCE_FRIDGE_FREEZER_Type"
-                                                                                     ,"Type"
-                                                                                     ,"Refrigerator/Freezer.Size"))]))
+item82.os.data <- left_join(item82.os.data, item82.os.dat3[which(colnames(item82.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"APPLIANCE_FRIDGE_FREEZER_Type"
+                                                                                                 ,"Type"
+                                                                                                 ,"Refrigerator/Freezer.Size"))])
 item82.os.data$count <- 1
 
 
@@ -751,10 +752,11 @@ item84.os.data <- weightedData(item84.os.dat[which(colnames(item84.os.dat) %noti
                                                                             ,"Type"
                                                                             ,"Refrigerator/Freezer.Size"))])
 
-item84.os.data <- left_join(item84.os.data, unique(item84.os.dat[which(colnames(item84.os.dat) %in% c("CK_Cadmus_ID"
-                                                                                   ,"APPLIANCE_FRIDGE_FREEZER_Type"
-                                                                                   ,"Type"
-                                                                                   ,"Refrigerator/Freezer.Size"))]))
+item84.os.data <- left_join(item84.os.data, item84.os.dat[which(colnames(item84.os.dat) %in% c("CK_Cadmus_ID"
+                                                                                               ,"CK_Building_ID"
+                                                                                               ,"APPLIANCE_FRIDGE_FREEZER_Type"
+                                                                                               ,"Type"
+                                                                                               ,"Refrigerator/Freezer.Size"))])
 item84.os.data$count <- 1
 
 

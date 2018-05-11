@@ -113,7 +113,8 @@ exportTable(item112.final.SF, "SF", "Table 119", weighted = FALSE)
 #subset to columns needed for analysis
 item113.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
                                                                     ,"TV.Set.Top.Box"
-                                                                    ,"STB.Records?"))]
+                                                                    # ,"STB.Records?"
+                                                                    ))]
 item113.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -134,12 +135,12 @@ unique(item113.merge$Ind)
 # Adding pop and sample sizes for weights
 ################################################
 item113.data <- weightedData(item113.merge[-which(colnames(item113.merge) %in% c("TV.Set.Top.Box"
-                                                                                 ,"STB.Records?"
+                                                                                 # ,"STB.Records?"
                                                                                  ,"count"
                                                                                  ,"Ind"))])
 item113.data <- left_join(item113.data, item113.merge[which(colnames(item113.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"TV.Set.Top.Box"
-                                                                                           ,"STB.Records?"
+                                                                                           # ,"STB.Records?"
                                                                                            ,"count"
                                                                                            ,"Ind"))])
 item113.data$count <- 1

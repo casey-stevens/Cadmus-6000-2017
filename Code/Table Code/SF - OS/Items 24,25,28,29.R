@@ -344,7 +344,7 @@ length(unique(item24.os.dat2$CK_Cadmus_ID))
 item24.os.dat2$count <- 1
 item24.os.dat2$crawl.ins.ind <- 0
 item24.os.dat2$crawl.ins.ind[which(item24.os.dat2$`Crawlspace.Walls.Insulated?` == "Yes")] <- 1
-
+length(unique(item24.os.dat2$CK_Cadmus_ID))
 item24.os.data <- weightedData(item24.os.dat2[-which(colnames(item24.os.dat2) %in% c("Crawlspace.Vents.Present"
                                                                             ,"Crawlspace.Vents.Blocked"
                                                                             ,"Crawlspace.Walls.Insulated?"
@@ -365,25 +365,26 @@ item24.os.data <- weightedData(item24.os.dat2[-which(colnames(item24.os.dat2) %i
                                                                             ,"crawl.ins.ind"))])
 
 # Should see 'Joining, by = "CK_Cadmus_ID"'
-item24.os.data <- left_join(item24.os.data, unique(item24.os.dat2[which(colnames(item24.os.dat2) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Crawlspace.Vents.Present"
-                                                                                     ,"Crawlspace.Vents.Blocked"
-                                                                                     ,"Crawlspace.Walls.Insulated?"
-                                                                                     ,"Crawlspace.Wall.Insulation.Type.1"
-                                                                                     ,"Crawlspace.Wall.Insulation.Thickness.1"
-                                                                                     ,"Crawlspace.Wall.Insulation.Condition.1"
-                                                                                     ,"Crawlspace.Wall.Insulation.Type.2"
-                                                                                     ,"Crawlspace.Wall.Insulation.Thickness.2"
-                                                                                     ,"Crawlspace.Wall.Insulation.Condition.2"
-                                                                                     ,"Crawlspace.Wall.Exteriors.Insulated?"
-                                                                                     ,"Crawlspace.Wall.Exterior.Insulation.Type.1"
-                                                                                     ,"Crawlspace.Wall.Exterior.Insulation.Thickness.1"
-                                                                                     ,"Crawlspace.Wall.Exterior.Insulation.Condition.1"
-                                                                                     ,"Crawlspace.Wall.Exterior.Insulation.Type.2"
-                                                                                     ,"Crawlspace.Wall.Exterior.Insulation.Thickness.2"
-                                                                                     ,"Crawlspace.Wall.Exterior.Insulation.Condition.2"
-                                                                                     ,"count"
-                                                                                     ,"crawl.ins.ind"))]))
+item24.os.data <- left_join(item24.os.data, item24.os.dat2[which(colnames(item24.os.dat2) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Crawlspace.Vents.Present"
+                                                                                                 ,"Crawlspace.Vents.Blocked"
+                                                                                                 ,"Crawlspace.Walls.Insulated?"
+                                                                                                 ,"Crawlspace.Wall.Insulation.Type.1"
+                                                                                                 ,"Crawlspace.Wall.Insulation.Thickness.1"
+                                                                                                 ,"Crawlspace.Wall.Insulation.Condition.1"
+                                                                                                 ,"Crawlspace.Wall.Insulation.Type.2"
+                                                                                                 ,"Crawlspace.Wall.Insulation.Thickness.2"
+                                                                                                 ,"Crawlspace.Wall.Insulation.Condition.2"
+                                                                                                 ,"Crawlspace.Wall.Exteriors.Insulated?"
+                                                                                                 ,"Crawlspace.Wall.Exterior.Insulation.Type.1"
+                                                                                                 ,"Crawlspace.Wall.Exterior.Insulation.Thickness.1"
+                                                                                                 ,"Crawlspace.Wall.Exterior.Insulation.Condition.1"
+                                                                                                 ,"Crawlspace.Wall.Exterior.Insulation.Type.2"
+                                                                                                 ,"Crawlspace.Wall.Exterior.Insulation.Thickness.2"
+                                                                                                 ,"Crawlspace.Wall.Exterior.Insulation.Condition.2"
+                                                                                                 ,"count"
+                                                                                                 ,"crawl.ins.ind"))])
 item24.os.data$Ind <- item24.os.data$crawl.ins.ind
 item24.os.data$Count <- 1
 ##################################

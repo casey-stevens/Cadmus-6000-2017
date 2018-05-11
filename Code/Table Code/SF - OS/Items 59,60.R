@@ -355,8 +355,9 @@ item59.os.merge <- left_join(os.dat, item59.os.customer)
 
 # Weighting function
 item59.os.data <- weightedData(item59.os.merge[-which(colnames(item59.os.merge) %in% c("Ind"))])
-item59.os.data <- left_join(item59.os.data, unique(item59.os.merge[which(colnames(item59.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                                          ,"Ind"))]))
+item59.os.data <- left_join(item59.os.data, item59.os.merge[which(colnames(item59.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
+                                                                                                   ,"Ind"))])
 item59.os.data$Count <- 1
 item59.os.data$count <- 1
 
@@ -470,13 +471,14 @@ item60.os.data <- weightedData(item60.os.dat4[-which(colnames(item60.os.dat4) %i
                                                                                      ,"UnconditionedBins"
                                                                                      ,"count"))])
 
-item60.os.data <- left_join(item60.os.data, unique(item60.os.dat4[which(colnames(item60.os.dat4) %in% c("CK_Cadmus_ID"
+item60.os.data <- left_join(item60.os.data, item60.os.dat4[which(colnames(item60.os.dat4) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
                                                                                                  ,"Generic"
                                                                                                  ,"System.Type"
                                                                                                  ,"Percentage.of.Supply.Ducts.in.Conditioned.Space"
                                                                                                  ,"PercentDuctsUnconditionedSpace"
                                                                                                  ,"UnconditionedBins"
-                                                                                                 ,"count"))]))
+                                                                                                 ,"count"))])
 ################################
 # Weighted Analysis
 ################################

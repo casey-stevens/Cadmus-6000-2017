@@ -341,15 +341,15 @@ item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System == "Yes"
 item45.dat2$Heating.System.Ind[which(item45.dat2$Primary.Heating.System ==  "No")] <- "Secondary Heating System"
 
 
-for (ii in 1:nrow(item43.dat2)){
+for (ii in 1:nrow(item45.dat2)){
   # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
   #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
   # }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
-    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+    item45.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
-    item43.dat2$Generic[ii] <- "Plug-In Heaters"
+  if (item45.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+    item45.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
 unique(item45.dat2$Generic)
@@ -444,15 +444,15 @@ item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural gas")]      
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Natural Gas")]       <- "Gas"
 item46.dat2$Heating.Fuel[which(item46.dat2$Heating.Fuel == "Fuel oil/kerosene")] <- "Oil"
 
-for (ii in 1:nrow(item43.dat2)){
+for (ii in 1:nrow(item46.dat2)){
   # if (item43.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
   #   item43.dat2$Generic[ii] <- item43.dat2$`System.Sub-Type`[ii]
   # }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
-    item43.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+  if (item46.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+    item46.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
-  if (item43.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
-    item43.dat2$Generic[ii] <- "Plug-In Heaters"
+  if (item46.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+    item46.dat2$Generic[ii] <- "Plug-In Heaters"
   }
 }
 item46.dat2$Generic[grep("Electric Baseboard",item46.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"

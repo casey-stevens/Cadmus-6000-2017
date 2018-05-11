@@ -257,12 +257,13 @@ item94.os.dat3$Stove.Fuel[which(item94.os.dat3$Stove.Fuel %notin% c("Electric", 
 # Adding pop and sample sizes for weights
 ################################################
 item94.os.data <- weightedData(item94.os.dat3[-which(colnames(item94.os.dat3) %in% c("count"
-                                                                            ,"Type"
-                                                                            ,"Stove.Fuel"))])
-item94.os.data <- left_join(item94.os.data, unique(item94.os.dat3[which(colnames(item94.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"count"
                                                                                      ,"Type"
-                                                                                     ,"Stove.Fuel"))]))
+                                                                                     ,"Stove.Fuel"))])
+item94.os.data <- left_join(item94.os.data, item94.os.dat3[which(colnames(item94.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"count"
+                                                                                                 ,"Type"
+                                                                                                 ,"Stove.Fuel"))])
 item94.os.data$count <- 1
 
 #######################
@@ -410,7 +411,8 @@ item95.os.dat0 <- item95.os.dat[which(item95.os.dat$CK_Cadmus_ID != "CK_CADMUS_I
 item95.os.dat1 <- left_join(os.dat, item95.os.dat0, by = "CK_Cadmus_ID")
 item95.os.dat2 <- item95.os.dat1[which(item95.os.dat1$Type == "Stove/Oven"),]
 unique(item95.os.dat2$Oven.Fuel)
-item95.os.dat3 <- item95.os.dat2[which(item95.os.dat2$Oven.Fuel %notin% c("No Oven", "No Cooktop", "No Stove", NA)),]
+item95.os.dat2$Oven.Fuel[which(item95.os.dat2$Oven.Fuel %in% c("Gas", "gas", "natural gas", "Natural Gas"))] <- "Gas"
+item95.os.dat3 <- item95.os.dat2[which(item95.os.dat2$Oven.Fuel %notin% c("No oven ", "No oven", "No Oven", "No Cooktop", "No Stove", NA)),]
 
 item95.os.dat3$Oven.Fuel[which(item95.os.dat3$Oven.Fuel %notin% c("Electric", "Gas", "Propane"))] <- "Other"
 
@@ -419,12 +421,13 @@ item95.os.dat3$Oven.Fuel[which(item95.os.dat3$Oven.Fuel %notin% c("Electric", "G
 # Adding pop and sample sizes for weights
 ################################################
 item95.os.data <- weightedData(item95.os.dat3[-which(colnames(item95.os.dat3) %in% c("count"
-                                                                            ,"Type"
-                                                                            ,"Oven.Fuel"))])
-item95.os.data <- left_join(item95.os.data, unique(item95.os.dat3[which(colnames(item95.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"count"
                                                                                      ,"Type"
-                                                                                     ,"Oven.Fuel"))]))
+                                                                                     ,"Oven.Fuel"))])
+item95.os.data <- left_join(item95.os.data, item95.os.dat3[which(colnames(item95.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"count"
+                                                                                                 ,"Type"
+                                                                                                 ,"Oven.Fuel"))])
 item95.os.data$count <- 1
 
 #######################

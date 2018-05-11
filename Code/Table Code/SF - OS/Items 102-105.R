@@ -1218,14 +1218,15 @@ item105.os.data <- weightedData(item105.os.dat4[-which(colnames(item105.os.dat4)
                                                                                ,"DHW.Location"
                                                                                ,"count"
                                                                                ,"EquipVintage_bins"))])
-item105.os.data <- left_join(item105.os.data, unique(item105.os.dat4[which(colnames(item105.os.dat4) %in% c("CK_Cadmus_ID"
-                                                                                         ,"Generic"
-                                                                                         ,"DHW.Size.(Gallons)"
-                                                                                         ,"DHW.Year.Manufactured"
-                                                                                         ,"DHW.Fuel"
-                                                                                         ,"DHW.Location"
-                                                                                         ,"count"
-                                                                                         ,"EquipVintage_bins"))]))
+item105.os.data <- left_join(item105.os.data, item105.os.dat4[which(colnames(item105.os.dat4) %in% c("CK_Cadmus_ID"
+                                                                                                     ,"CK_Building_ID"
+                                                                                                     ,"Generic"
+                                                                                                     ,"DHW.Size.(Gallons)"
+                                                                                                     ,"DHW.Year.Manufactured"
+                                                                                                     ,"DHW.Fuel"
+                                                                                                     ,"DHW.Location"
+                                                                                                     ,"count"
+                                                                                                     ,"EquipVintage_bins"))])
 item105.os.data$m_ilk <- 1
 
 #######################

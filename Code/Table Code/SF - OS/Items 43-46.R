@@ -699,7 +699,7 @@ names(item43.os.dat6)
 unique(item43.os.dat6$Sub_Type)
 
 for(ii in 1:nrow(item43.os.dat6)){
-  if(item43.os.dat6$CK_Cadmus_ID[ii] %in% update.ind & item43.os.dat6$Sub_Type[ii] == "Unit Heater"){
+  if(item43.os.dat6$CK_Cadmus_ID[ii] %in% update.ind  & item43.os.dat6$Sub_Type[ii] == "Unit Heater"){ #& item43.os.dat6$CK_Building_ID[ii] == "SnoPUD"
     item43.os.dat6$Heating_Type[ii] <- "Electric Baseboard and Wall Heaters"
   }else{
     item43.os.dat6$Heating_Type[ii] <- item43.os.dat6$Heating_Type[ii]
@@ -1021,17 +1021,17 @@ item45.os.dat2$Heating.System.Ind[which(item45.os.dat2$Primary.Heating.System ==
 item45.os.dat2$Heating.System.Ind[which(item45.os.dat2$Primary.Heating.System ==  "No")] <- "Secondary Heating System"
 
 
-for (ii in 1:nrow(item45.os.dat2)){
-  # if (item45.os.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-  #   item45.os.dat2$Generic[ii] <- item45.os.dat2$`System.Sub-Type`[ii]
-  # }
-  if (item45.os.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
-    item45.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
-  }
-  if (item45.os.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
-    item45.os.dat2$Generic[ii] <- "Plug-In Heaters"
-  }
-}
+# for (ii in 1:nrow(item45.os.dat2)){
+#   # if (item45.os.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+#   #   item45.os.dat2$Generic[ii] <- item45.os.dat2$`System.Sub-Type`[ii]
+#   # }
+#   if (item45.os.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater", "Vertical Wall Heater")){
+#     item45.os.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
+#   }
+#   if (item45.os.dat2$`System.Sub-Type`[ii] %in% c("Electric plug-in heater", "Electric Plug In Heater", "Electric Plug-In Heater", "Plug In Heater")){
+#     item45.os.dat2$Generic[ii] <- "Plug-In Heaters"
+#   }
+# }
 unique(item45.os.dat2$Generic)
 item45.os.dat2$Generic[grep("baseboard",item45.os.dat2$Generic,ignore.case = T)] <- "Electric Baseboard and Wall Heaters"
 item45.os.dat2$Generic[grep("zonal heat",item45.os.dat2$Generic,ignore.case = T)] <- "Other Zonal Heat"
@@ -1241,11 +1241,12 @@ item46.os.data <- weightedData(item46.os.dat7[-which(colnames(item46.os.dat7) %i
                                                                             ,"Primary_Secondary"
                                                                             ,"count"))])
 
-item46.os.data <- left_join(item46.os.data, unique(item46.os.dat7[which(colnames(item46.os.dat7) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Heating_Type"
-                                                                                     ,"Heating_Fuel"
-                                                                                     ,"Primary_Secondary"
-                                                                                     ,"count"))]))
+item46.os.data <- left_join(item46.os.data, item46.os.dat7[which(colnames(item46.os.dat7) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Heating_Type"
+                                                                                                 ,"Heating_Fuel"
+                                                                                                 ,"Primary_Secondary"
+                                                                                                 ,"count"))])
 
 ################################
 # weighted Analysis

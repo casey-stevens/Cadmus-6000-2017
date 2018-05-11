@@ -389,8 +389,7 @@ exportTable(item112.os.final.SF, "SF", "Table 119", weighted = FALSE, osIndicato
 #############################################################################################
 #subset to columns needed for analysis
 item113.os.dat <- appliances.dat[which(colnames(appliances.dat) %in% c("CK_Cadmus_ID"
-                                                                    ,"TV.Set.Top.Box"
-                                                                    ,"STB.Records."))]
+                                                                    ,"TV.Set.Top.Box"))]
 item113.os.dat$count <- 1
 
 #remove any repeat header rows from exporting
@@ -411,21 +410,21 @@ unique(item113.os.merge$Ind)
 # Adding pop and sample sizes for weights
 ################################################
 item113.os.data <- weightedData(item113.os.merge[-which(colnames(item113.os.merge) %in% c("TV.Set.Top.Box"
-                                                                                 ,"STB.Records."
-                                                                                 ,"count"
-                                                                                 ,"Ind"))])
-item113.os.data <- left_join(item113.os.data, unique(item113.os.merge[which(colnames(item113.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"TV.Set.Top.Box"
-                                                                                           ,"STB.Records."
-                                                                                           ,"count"
-                                                                                           ,"Ind"))]))
+                                                                                          ,"count"
+                                                                                          ,"Ind"))])
+item113.os.data <- left_join(item113.os.data, item113.os.merge[which(colnames(item113.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"TV.Set.Top.Box"
+                                                                                                       ,"count"
+                                                                                                       ,"Ind"))])
 item113.os.data$count <- 1
 item113.os.data$Count <- 1
 #######################
 # Weighted Analysis
 #######################
+item113.os.data$stb_Ind <- item113.os.data$Ind
 item113.os.final <- proportions_one_group(CustomerLevelData = item113.os.data
-                                       ,valueVariable = 'Ind'
+                                       ,valueVariable = 'stb_Ind'
                                        ,groupingVariable = "CK_Building_ID"
                                        ,total.name = "Remove"
                                        ,weighted = TRUE)
@@ -440,7 +439,7 @@ exportTable(item113.os.final.SF, "SF", "Table 120", weighted = TRUE, osIndicator
 # Weighted Analysis
 #######################
 item113.os.final <- proportions_one_group(CustomerLevelData = item113.os.data
-                                       ,valueVariable = 'Ind'
+                                       ,valueVariable = 'stb_Ind'
                                        ,groupingVariable = "CK_Building_ID"
                                        ,total.name = "Remove"
                                        ,weighted = FALSE)
@@ -489,22 +488,24 @@ item114.os.merge$Ind[which(item114.os.merge$`STB.Records?` == "No")]   <- 0
 # Adding pop and sample sizes for weights
 ################################################
 item114.os.data <- weightedData(item114.os.merge[-which(colnames(item114.os.merge) %in% c("TV.Set.Top.Box"
-                                                                                 ,"STB.Records?"
-                                                                                 ,"count"
-                                                                                 ,"Ind"))])
-item114.os.data <- left_join(item114.os.data, unique(item114.os.merge[which(colnames(item114.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"TV.Set.Top.Box"
-                                                                                           ,"STB.Records?"
-                                                                                           ,"count"
-                                                                                           ,"Ind"))]))
+                                                                                          ,"STB.Records?"
+                                                                                          ,"count"
+                                                                                          ,"Ind"))])
+item114.os.data <- left_join(item114.os.data, item114.os.merge[which(colnames(item114.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                       ,"CK_Building_ID"
+                                                                                                       ,"TV.Set.Top.Box"
+                                                                                                       ,"STB.Records?"
+                                                                                                       ,"count"
+                                                                                                       ,"Ind"))])
 item114.os.data$count <- 1
 item114.os.data$Count <- 1
 item114.os.data$Ind <- as.numeric(as.character(item114.os.data$Ind))
 #######################
 # Weighted Analysis
 #######################
+item114.os.data$stb_Ind <- item114.os.data$Ind
 item114.os.final <- proportions_one_group(CustomerLevelData = item114.os.data
-                                       ,valueVariable = 'Ind'
+                                       ,valueVariable = 'stb_Ind'
                                        ,groupingVariable = "CK_Building_ID"
                                        ,total.name = "Remove"
                                        ,weighted = TRUE)
@@ -519,7 +520,7 @@ exportTable(item114.os.final.SF, "SF", "Table 121", weighted = TRUE, osIndicator
 # unweighted Analysis
 #######################
 item114.os.final <- proportions_one_group(CustomerLevelData = item114.os.data
-                                       ,valueVariable = 'Ind'
+                                       ,valueVariable = 'stb_Ind'
                                        ,groupingVariable = "CK_Building_ID"
                                        ,total.name = "Remove"
                                        ,weighted = FALSE)

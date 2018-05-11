@@ -456,12 +456,12 @@ os.dat <- os.dat[which(names(os.dat) != "Category")]
 #Item 32: DISTRIBUTION OF DOOR TYPES
 #############################################################################################
 item32.os.dat <- windows.doors.dat[which(colnames(windows.doors.dat) %in% c("CK_Cadmus_ID"
-                                                                         ,"Type"
-                                                                         ,"Sub-Type"
-                                                                         ,"Area"
-                                                                         ,"Quantity"
-                                                                         ,"Frame./.Body.Type"
-                                                                         ,"Glazing.Type"))]
+                                                                            ,"Type"
+                                                                            ,"Sub-Type"
+                                                                            ,"Area"
+                                                                            ,"Quantity"
+                                                                            ,"Frame./.Body.Type"
+                                                                            ,"Glazing.Type"))]
 item32.os.dat1 <- left_join(os.dat, item32.os.dat, by = "CK_Cadmus_ID")
 length(unique(item32.os.dat1$CK_Cadmus_ID))
 
@@ -503,17 +503,18 @@ item32.os.data <- weightedData(item32.os.dat3[-which(colnames(item32.os.dat3) %i
                                                                             ,"Glazing"
                                                                             ,"Framing.Categories"
                                                                             ,"count"))])
-item32.os.data <- left_join(item32.os.data, unique(item32.os.dat3[which(colnames(item32.os.dat3) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Type"
-                                                                                     ,"Sub-Type"
-                                                                                     ,"Area"
-                                                                                     ,"Quantity"
-                                                                                     ,"Frame./.Body.Type"
-                                                                                     ,"Glazing.Type"
-                                                                                     ,"Frame.Type"
-                                                                                     ,"Glazing"
-                                                                                     ,"Framing.Categories"
-                                                                                     ,"count"))]))
+item32.os.data <- left_join(item32.os.data,item32.os.dat3[which(colnames(item32.os.dat3) %in% c("CK_Cadmus_ID"
+                                                                                                        ,"CK_Building_ID"
+                                                                                                        ,"Type"
+                                                                                                        ,"Sub-Type"
+                                                                                                        ,"Area"
+                                                                                                        ,"Quantity"
+                                                                                                        ,"Frame./.Body.Type"
+                                                                                                        ,"Glazing.Type"
+                                                                                                        ,"Frame.Type"
+                                                                                                        ,"Glazing"
+                                                                                                        ,"Framing.Categories"
+                                                                                                        ,"count"))])
 
 item32.os.data$Quantity <- as.numeric(as.character(item32.os.data$Quantity))
 

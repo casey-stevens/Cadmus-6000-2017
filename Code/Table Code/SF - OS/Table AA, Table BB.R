@@ -299,15 +299,16 @@ tableAA.os.data <- weightedData(tableAA.os.merge[-which(colnames(tableAA.os.merg
                                                                                  ,"System.Type"
                                                                                  ,"Flow"
                                                                                  ,"Primary.Heating.System"))])
-tableAA.os.data <- left_join(tableAA.os.data, unique(tableAA.os.merge[which(colnames(tableAA.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                           ,"MECH_TrueFLow_NSOP"
-                                                                                           ,"MECH_TrueFLow_Plate14_PressureDifference"
-                                                                                           ,"MECH_TrueFLow_Plate20_PressureDifference"
-                                                                                           ,"MECH_TrueFLow_SOP_NoFilter"
-                                                                                           ,"MECH_TrueFLow_TFSOP"
-                                                                                           ,"System.Type"
-                                                                                           ,"Flow"
-                                                                                           ,"Primary.Heating.System"))]))
+tableAA.os.data <- left_join(tableAA.os.data, tableAA.os.merge[which(colnames(tableAA.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                              ,"CK_Building_ID"
+                                                                                                              ,"MECH_TrueFLow_NSOP"
+                                                                                                              ,"MECH_TrueFLow_Plate14_PressureDifference"
+                                                                                                              ,"MECH_TrueFLow_Plate20_PressureDifference"
+                                                                                                              ,"MECH_TrueFLow_SOP_NoFilter"
+                                                                                                              ,"MECH_TrueFLow_TFSOP"
+                                                                                                              ,"System.Type"
+                                                                                                              ,"Flow"
+                                                                                                              ,"Primary.Heating.System"))])
 tableAA.os.data$count <- 1
 colnames(tableAA.os.data)
 #######################

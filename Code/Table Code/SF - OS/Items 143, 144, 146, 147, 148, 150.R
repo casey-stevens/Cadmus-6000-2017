@@ -452,9 +452,9 @@ mechanical.dat2$Heating.Fuel[which(mechanical.dat2$Heating.Fuel == "Wood (cord)"
 unique(mechanical.dat2$Heating.Fuel)
 
 for (ii in 1:nrow(mechanical.dat2)){
-  # if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
-  #   mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
-  # }
+  if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Dual Fuel Primary", "Dual Fuel Secondary")){
+    mechanical.dat2$Generic[ii] <- mechanical.dat2$`System.Sub-Type`[ii]
+  }
   if (mechanical.dat2$`System.Sub-Type`[ii] %in% c("Vertical wall heater")){
     mechanical.dat2$Generic[ii] <- "Electric Baseboard and Wall Heaters"
   }
@@ -476,7 +476,6 @@ length(unique(mechanical.dat5$CK_Cadmus_ID))
 mechanical.dat5$count <- 1
 
 unique(mechanical.dat5$Heating_Fuel)
-mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Kerosene")] <- "Oil"
 mechanical.dat5$Heating_Fuel[which(mechanical.dat5$Heating_Fuel == "Natural Gas")] <- "Gas"
 
 #############################################################################################
@@ -490,9 +489,8 @@ drop.for.weighting <- c(usage.columns)
 item143.os.weighted <- weightedData(item143.os.data[-c(which(colnames(item143.os.data) %in%
                                                          drop.for.weighting))])
 item143.os.weighted <-
-  left_join(item143.os.weighted, unique(item143.os.data[c(1,
-                                             c(which(colnames(item143.os.data) %in%
-                                                       drop.for.weighting)))]))
+  left_join(item143.os.weighted, item143.os.data[which(colnames(item143.os.data) %in%
+                                                       c("CK_Cadmus_ID","CK_Building_ID",drop.for.weighting))])
 
 ################################
 # Weighted Analysis1
@@ -536,9 +534,8 @@ drop.for.weighting <- c(usage.columns)
 item144.os.weighted <- weightedData(item144.os.data[-c(which(colnames(item144.os.data) %in%
                                                          drop.for.weighting))])
 item144.os.weighted <-
-  left_join(item144.os.weighted, unique(item144.os.data[c(1,
-                                             c(which(colnames(item144.os.data) %in%
-                                                       drop.for.weighting)))]))
+  left_join(item144.os.weighted, item144.os.data[which(colnames(item144.os.data) %in%
+                                                         c("CK_Cadmus_ID","CK_Building_ID",drop.for.weighting))])
 item144.os.weighted$count <- 1
 
 ################################

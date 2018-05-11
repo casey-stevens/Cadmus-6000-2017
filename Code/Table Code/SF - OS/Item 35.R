@@ -233,15 +233,15 @@ os.dat <- os.dat[which(names(os.dat) != "Category")]
 # Fist average within homes, then average across homes within building type and floor area? I think so...
 
 #windows
-item35.os.windows  <- left_join(os.dat, unique(windows.dat2), by = "CK_Cadmus_ID")
+item35.os.windows  <- left_join(os.dat, windows.dat2, by = "CK_Cadmus_ID")
 length(unique(item35.os.windows$CK_Cadmus_ID))
 
 #floor area (SF ONLY)
-item35.os.ENV <- left_join(os.dat, unique(envelope.dat1), by = "CK_Cadmus_ID")
+item35.os.ENV <- left_join(os.dat, envelope.dat1, by = "CK_Cadmus_ID")
 length(unique(item35.os.ENV$CK_Cadmus_ID))
 
 #room area (MH only)
-item35.os.rooms    <- left_join(os.dat, unique(rooms.dat2), by = "CK_Cadmus_ID")
+item35.os.rooms    <- left_join(os.dat, rooms.dat2, by = "CK_Cadmus_ID")
 length(unique(item35.os.rooms$CK_Cadmus_ID))
 
 
@@ -253,7 +253,7 @@ item35.os.windows$Window_Area <- as.numeric(as.character(item35.os.windows$Windo
 
 # remove zeros (don't make sense)
 item35.os.windows0 <- item35.os.windows[which(!(is.na(item35.os.windows$Window_Area))),]
-item35.os.windows1 <- unique(item35.os.windows0[which(item35.os.windows0$Window_Area > 0),])
+item35.os.windows1 <- item35.os.windows0[which(item35.os.windows0$Window_Area > 0),]
 
 
 item35.os.windows2 <- summarise(group_by(item35.os.windows1, CK_Cadmus_ID, CK_Building_ID)
@@ -284,8 +284,8 @@ item35.os.dat4$Ind[which(is.na(item35.os.dat4$Ind))] <- 0
 # merge window and room averages
 item35.os.dat <- left_join(item35.os.dat4, item35.os.windows2)
 # item35.os.dat <- item35.os.dat[grep("site", item35.os.dat$CK_Building_ID, ignore.case = T),]
-item35.os.dat1 <- item35.os.dat#[-which(duplicated(item35.os.dat$CK_Cadmus_ID)),]
-item35.os.dat1 <- item35.os.dat1[which(item35.os.dat1$Conditioned.Area > 0),]
+# item35.os.dat1 <- item35.os.dat[-which(duplicated(paste(item35.os.dat$CK_Cadmus_ID, item35.os.dat$CK_Building_ID))),]
+item35.os.dat1 <- item35.os.dat[which(item35.os.dat$Conditioned.Area > 0),]
 
 #calculate the window to floor ratio
 item35.os.dat1$WindowToFloorArea <- item35.os.dat1$WindowArea / item35.os.dat1$Conditioned.Area
@@ -306,20 +306,21 @@ item35.os.merge <- item35.os.merge[which(!is.na(item35.os.merge$Basement)),]
 # Adding pop and sample sizes for weights
 ################################################
 item35.os.data <- weightedData(item35.os.merge[-which(colnames(item35.os.merge) %in% c("Floor.Type"
-                                                                              ,"Floor.Sub-Type"
-                                                                              ,"count"
-                                                                              ,"WindowArea"
-                                                                              ,"Ind"
-                                                                              ,"WindowToFloorArea"
-                                                                              ,"Basement"))])
-item35.os.data <- left_join(item35.os.data, unique(item35.os.merge[which(colnames(item35.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Floor.Type"
                                                                                        ,"Floor.Sub-Type"
                                                                                        ,"count"
                                                                                        ,"WindowArea"
                                                                                        ,"Ind"
                                                                                        ,"WindowToFloorArea"
-                                                                                       ,"Basement"))]))
+                                                                                       ,"Basement"))])
+item35.os.data <- left_join(item35.os.data, item35.os.merge[which(colnames(item35.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
+                                                                                                   ,"Floor.Type"
+                                                                                                   ,"Floor.Sub-Type"
+                                                                                                   ,"count"
+                                                                                                   ,"WindowArea"
+                                                                                                   ,"Ind"
+                                                                                                   ,"WindowToFloorArea"
+                                                                                                   ,"Basement"))])
 item35.os.data$count <- 1
 #######################
 # Weighted Analysis

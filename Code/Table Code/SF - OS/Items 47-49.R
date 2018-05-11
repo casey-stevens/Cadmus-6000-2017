@@ -426,7 +426,7 @@ item48.os.dat2 <- left_join(item48.os.dat1, os.dat, by = "CK_Cadmus_ID")
 item48.os.dat2$count <- 1
 
 item48.os.dat3 <- item48.os.dat2[which(item48.os.dat2$BuildingType == "Single Family"),]
-item48.os.dat4 <- item48.os.dat3[which(item48.os.dat3$Heating.Fuel %notin% c("N/A",NA,"Unknown","Can't Determine")),]
+item48.os.dat4 <- item48.os.dat3[which(item48.os.dat3$Heating.Fuel %notin% c("N/A",NA)),]
 
 # Weighting function
 item48.os.data <- weightedData(item48.os.dat4[-which(colnames(item48.os.dat4) %in% c("Generic"
@@ -563,11 +563,12 @@ item49.os.data <- weightedData(item49.os.dat4[-which(colnames(item49.os.dat4) %i
                                                                             ,"System.Sub-Type"
                                                                             ,"Heating.Fuel"
                                                                             ,"count"))])
-item49.os.data <- left_join(item49.os.data, unique(item49.os.dat4[which(colnames(item49.os.dat4) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Generic"
-                                                                                     ,"System.Sub-Type"
-                                                                                     ,"Heating.Fuel"
-                                                                                     ,"count"))]))
+item49.os.data <- left_join(item49.os.data, item49.os.dat4[which(colnames(item49.os.dat4) %in% c("CK_Cadmus_ID"
+                                                                                                 ,'CK_Building_ID'
+                                                                                                 ,"Generic"
+                                                                                                 ,"System.Sub-Type"
+                                                                                                 ,"Heating.Fuel"
+                                                                                                 ,"count"))])
 
 ################################
 # Weighted Analysis

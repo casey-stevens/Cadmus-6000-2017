@@ -1209,7 +1209,8 @@ item52.os.data <- weightedData(item52.os.dat5[-which(colnames(item52.os.dat5) %i
                                                                             ,"y_ilk"
                                                                             ,"m_ilk"))])
 
-item52.os.data <- left_join(item52.os.data, unique(item52.os.dat5[which(colnames(item52.os.dat5) %in% c("CK_Cadmus_ID"
+item52.os.data <- left_join(item52.os.data, item52.os.dat5[which(colnames(item52.os.dat5) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
                                                                                      ,"Generic"
                                                                                      ,"Heating.Fuel"
                                                                                      ,"Component.1.Year.of.Manufacture"
@@ -1219,7 +1220,7 @@ item52.os.data <- left_join(item52.os.data, unique(item52.os.dat5[which(colnames
                                                                                      ,"Primary.Heating.System"
                                                                                      ,"y_bar_ilk"
                                                                                      ,"y_ilk"
-                                                                                     ,"m_ilk"))]))
+                                                                                     ,"m_ilk"))])
 item52.os.data$count <- 1
 ###############################
 # Weighted Analysis - single family
@@ -1391,17 +1392,18 @@ item53.os.data <- weightedData(item53.os.dat4[-which(colnames(item53.os.dat4) %i
                                                                                      ,"HSPF_bins"
                                                                                      ,"count"
                                                                                      ,"Primary.Heating.System" ))])
-item53.os.data <- left_join(item53.os.data, unique(item53.os.dat4[which(colnames(item53.os.dat4) %in% c("CK_Cadmus_ID"
-                                                                                                        ,"Generic"
-                                                                                                        ,"Heating.Fuel"
-                                                                                                        ,"Component.1.Year.of.Manufacture"
-                                                                                                        ,"Heating.Efficiency.-.High"
-                                                                                                        ,"HSPF"
-                                                                                                        ,"EquipVintage_bins"
-                                                                                                        ,"EquipVintage_bins_MH"
-                                                                                                        ,"HSPF_bins"
-                                                                                                        ,"count"
-                                                                                                        ,"Primary.Heating.System"))]))
+item53.os.data <- left_join(item53.os.data, item53.os.dat4[which(colnames(item53.os.dat4) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Generic"
+                                                                                                 ,"Heating.Fuel"
+                                                                                                 ,"Component.1.Year.of.Manufacture"
+                                                                                                 ,"Heating.Efficiency.-.High"
+                                                                                                 ,"HSPF"
+                                                                                                 ,"EquipVintage_bins"
+                                                                                                 ,"EquipVintage_bins_MH"
+                                                                                                 ,"HSPF_bins"
+                                                                                                 ,"count"
+                                                                                                 ,"Primary.Heating.System"))])
 item53.os.data$count <- 1
 ########################
 # Weighted Analysis

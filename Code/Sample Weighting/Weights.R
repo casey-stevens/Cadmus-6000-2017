@@ -449,6 +449,11 @@ total.counts.MF <- full_join(popCounts.MF, sampCounts.MF, by = c("BuildingType"
                                                                  ,"Territory"
                                                                  ))
 
+# total.counts.check <- rbind.data.frame(total.counts.SF, total.counts.MH, total.counts.MF, stringsAsFactors = F)
+# state.sum <- summarise(group_by(total.counts.check, State)
+#                        ,Popuation_Counts = sum(N.h))
+# region.sum <- sum(state.sum$Popuation_Counts)
+
 ## check that there are no NA's in final sample sizes
 ## Put zero as a placeholder until final comes in
 total.counts.SF$n.h[which(is.na(total.counts.SF$n.h))] <- 0
@@ -469,8 +474,8 @@ samp.dat.MF <- left_join(samp.dat.7[which(samp.dat.7$BuildingType == "Multifamil
 
 
 
-samp.dat.final <- unique(rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F))
-samp.dat.final <- samp.dat.final[which(!is.na(samp.dat.final$N.h)),]
+samp.dat.final0 <- unique(rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F))
+samp.dat.final <- samp.dat.final0[which(!is.na(samp.dat.final0$N.h)),]
 samp.dat.final <- samp.dat.final[which(names(samp.dat.final) != "Territory.y")]
 names(samp.dat.final)[which(names(samp.dat.final) == "Territory.x")] <- "Territory"
 samp.dat.final <- unique(samp.dat.final)

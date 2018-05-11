@@ -980,13 +980,14 @@ item68.os.data <- weightedData(item68.os.dat4[-which(colnames(item68.os.dat4) %i
                                                                             ,"Lamps"
                                                                             ,"count"
                                                                             ,"Status"))])
-item68.os.data <- left_join(item68.os.data, unique(item68.os.dat4[which(colnames(item68.os.dat4) %in% c("CK_Cadmus_ID"
-                                                                                     ,"Fixture.Qty"
-                                                                                     ,"LIGHTING_BulbsPerFixture"
-                                                                                     ,"Lamp.Category"
-                                                                                     ,"Lamps"
-                                                                                     ,"count"
-                                                                                     ,"Status"))]))
+item68.os.data <- left_join(item68.os.data, item68.os.dat4[which(colnames(item68.os.dat4) %in% c("CK_Cadmus_ID"
+                                                                                                 ,"CK_Building_ID"
+                                                                                                 ,"Fixture.Qty"
+                                                                                                 ,"LIGHTING_BulbsPerFixture"
+                                                                                                 ,"Lamp.Category"
+                                                                                                 ,"Lamps"
+                                                                                                 ,"count"
+                                                                                                 ,"Status"))])
 item68.os.data$count <- 1
 #######################
 # Weighted Analysis
@@ -1159,14 +1160,15 @@ item69.os.data <- weightedData(item69.os.merge[-which(colnames(item69.os.merge) 
                                                                               ,"count"
                                                                               ,"Lamps"
                                                                               ,"Clean.Room"))])
-item69.os.data <- left_join(item69.os.data, unique(item69.os.merge[which(colnames(item69.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                       ,"CK_SiteID"
-                                                                                       ,"Fixture.Qty"
-                                                                                       ,"LIGHTING_BulbsPerFixture"
-                                                                                       ,"Lamp.Category"
-                                                                                       ,"count"
-                                                                                       ,"Lamps"
-                                                                                       ,"Clean.Room"))]))
+item69.os.data <- left_join(item69.os.data, item69.os.merge[which(colnames(item69.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
+                                                                                                   ,"CK_SiteID"
+                                                                                                   ,"Fixture.Qty"
+                                                                                                   ,"LIGHTING_BulbsPerFixture"
+                                                                                                   ,"Lamp.Category"
+                                                                                                   ,"count"
+                                                                                                   ,"Lamps"
+                                                                                                   ,"Clean.Room"))])
 item69.os.data$count <- 1
 #######################
 # Weighted Analysis
@@ -1345,14 +1347,15 @@ item70.os.data <- weightedData(item70.os.merge[-which(colnames(item70.os.merge) 
                                                                               ,"count"
                                                                               ,"Lamps"
                                                                               ,"Clean.Room"))])
-item70.os.data <- left_join(item70.os.data, unique(item70.os.merge[which(colnames(item70.os.merge) %in% c("CK_Cadmus_ID"
-                                                                                       ,"CK_SiteID"
-                                                                                       ,"Fixture.Qty"
-                                                                                       ,"LIGHTING_BulbsPerFixture"
-                                                                                       ,"Lamp.Category"
-                                                                                       ,"count"
-                                                                                       ,"Lamps"
-                                                                                       ,"Clean.Room"))]))
+item70.os.data <- left_join(item70.os.data, item70.os.merge[which(colnames(item70.os.merge) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
+                                                                                                   ,"CK_SiteID"
+                                                                                                   ,"Fixture.Qty"
+                                                                                                   ,"LIGHTING_BulbsPerFixture"
+                                                                                                   ,"Lamp.Category"
+                                                                                                   ,"count"
+                                                                                                   ,"Lamps"
+                                                                                                   ,"Clean.Room"))])
 
 
 #######################

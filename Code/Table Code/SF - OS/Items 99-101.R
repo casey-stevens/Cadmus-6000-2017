@@ -895,14 +895,15 @@ colnames(item99.os.merge2) <- c("CK_Cadmus_ID", "CK_Building_ID", "Heating.Fuel"
 
 item99.os.join <- left_join(os.dat, item99.os.merge2)
 item99.os.join <- item99.os.join[which(!is.na(item99.os.join$Heating.Fuel)),]
-item99.os.join1 <- item99.os.join[which(item99.os.join$DHW.Location != "Unknown"),]
+item99.os.join1 <- item99.os.join#[which(item99.os.join$DHW.Location != "Unknown"),]
 
 item99.os.join1$DHW.Location[grep("crawl",item99.os.join1$DHW.Location, ignore.case = T)] <- "Crawlspace"
+item99.os.join1$DHW.Location[grep("In building|in unit|kitchen|bedroom|bathroom|closet|laundry",item99.os.join1$DHW.Location, ignore.case = T)] <- "Main House"
 
 item99.os.join1$DHW.Location[which(item99.os.join1$DHW.Location %notin% c("Crawlspace"
-                                                                    ,"Basement"
-                                                                    ,"Garage"
-                                                                    ,"Main House"))] <- "Other"
+                                                                          ,"Basement"
+                                                                          ,"Garage"
+                                                                          ,"Main House"))] <- "Other"
 
 
 
@@ -913,11 +914,12 @@ item99.os.data <- weightedData(item99.os.join1[-which(colnames(item99.os.join1) 
                                                                               ,"DHW.Count"
                                                                               ,"DHW.Location"
                                                                               ,"Heat.Count"))])
-item99.os.data <- left_join(item99.os.data, unique(item99.os.join1[which(colnames(item99.os.join1) %in% c("CK_Cadmus_ID"
-                                                                                       ,"Heating.Fuel"
-                                                                                       ,"DHW.Count"
-                                                                                       ,"DHW.Location"
-                                                                                       ,"Heat.Count"))]))
+item99.os.data <- left_join(item99.os.data, item99.os.join1[which(colnames(item99.os.join1) %in% c("CK_Cadmus_ID"
+                                                                                                   ,"CK_Building_ID"
+                                                                                                   ,"Heating.Fuel"
+                                                                                                   ,"DHW.Count"
+                                                                                                   ,"DHW.Location"
+                                                                                                   ,"Heat.Count"))])
 item99.os.data <- item99.os.data[which(item99.os.data$CK_Building_ID == subset.ind),]
 #######################
 # Weighted Analysis

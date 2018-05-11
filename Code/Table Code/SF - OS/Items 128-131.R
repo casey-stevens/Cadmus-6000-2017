@@ -695,6 +695,8 @@ item130.os.dat0 <- item130.os.dat[which(item130.os.dat$CK_Cadmus_ID != "CK_CADMU
 
 #merge together analysis data with cleaned scl data
 item130.os.dat1 <- left_join(item130.os.dat0, os.dat, by = "CK_Cadmus_ID")
+item130.os.dat1$Thermostat_Setpoint <- as.numeric(as.character(item130.os.dat1$Thermostat_Setpoint))
+item130.os.dat1$Nighttime_Heating <- as.numeric(as.character(item130.os.dat1$Nighttime_Heating))
 
 item130.os.dat2.0 <- item130.os.dat1[which(!(is.na(item130.os.dat1$Thermostat_Setpoint))),]
 item130.os.dat2 <- item130.os.dat2.0[which(item130.os.dat2.0$Thermostat_Setpoint > 0),]
@@ -708,7 +710,7 @@ item130.os.dat3$Heating.Setback <- 0
 item130.os.dat3$Heating.Setback[which(item130.os.dat3$Nighttime_Heating < item130.os.dat3$Thermostat_Setpoint)] <- 1
 
 item130.os.sum <- summarise(group_by(item130.os.dat3, CK_Cadmus_ID, CK_Building_ID)
-                         ,Ind = sum(Heating.Setback))
+                         ,Ind = sum(unique(Heating.Setback)))
 item130.os.sum$Ind[which(item130.os.sum$Ind > 0)] <- 1
 
 item130.os.merge <- left_join(os.dat, item130.os.sum)
@@ -718,7 +720,7 @@ item130.os.merge <- item130.os.merge[which(!is.na(item130.os.merge$Ind)),]
 # Adding pop and sample sizes for weights
 ################################################
 item130.os.data <- weightedData(item130.os.merge[-which(colnames(item130.os.merge) %in% c("Ind"))])
-item130.os.data <- left_join(item130.os.data, unique(item130.os.merge[which(colnames(item130.os.merge) %in% c("CK_Cadmus_ID","Ind"))]))
+item130.os.data <- left_join(item130.os.data, item130.os.merge[which(colnames(item130.os.merge) %in% c("CK_Cadmus_ID","CK_Building_ID","Ind"))])
 item130.os.data$count <- 1
 item130.os.data$Count <- 1
 #######################
