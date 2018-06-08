@@ -15,6 +15,7 @@ options(scipen = 999)
 "%notin%" <- Negate("%in%")
 
 # Source codes
+source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
@@ -25,7 +26,7 @@ source("Code/Table Code/Export Function.R")
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat.bldg <- rbsa.dat[grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
 #Read in data for analysis
-# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 
@@ -140,6 +141,7 @@ item274.dat <- buildings.dat[which(colnames(buildings.dat) %in% c("CK_Building_I
                                                                   ,"SITES_Pool_POOL_HOT_TUB_PoolLocation"))]
 
 unique(item274.dat$SITES_Pool_POOL_HOT_TUB_PoolType)
+unique(item274.dat$SITES_Pool_POOL_HOT_TUB_PoolLocation)
 
 item274.dat$Ind <- 0
 item274.dat$Ind[grep("pool|unkn",item274.dat$SITES_Pool_POOL_HOT_TUB_PoolType, ignore.case = T)] <- 1
@@ -152,7 +154,6 @@ item274.dat1 <- item274.dat0[which(item274.dat0$SITES_Pool_POOL_HOT_TUB_PoolLoca
 
 #merge on buildings data with rbsa cleaned data
 item274.dat2 <- left_join(rbsa.dat.bldg, item274.dat1)
-# item274.dat2 <- item274.dat2[which(!is.na(item274.dat2$SITES_Pool_POOL_HOT_TUB_PoolLocation)),]
 
 #subset to only multifamily units
 item274.dat3 <- item274.dat2[grep("bldg", item274.dat2$CK_Building_ID, ignore.case = T),]

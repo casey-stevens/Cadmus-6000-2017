@@ -29,16 +29,20 @@ rbsa.dat.site <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T)
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-# lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+lighting.dat0 <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
-lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
-lighting.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
-                                                               ,"Fixture.Qty"
-                                                               ,"LIGHTING_BulbsPerFixture"
-                                                               ,"CK_SiteID"
-                                                               ,"Lamp.Category"
-                                                               ,"Clean.Room"
-                                                               ,"Switch.Type"))]
+lighting.dat0$CK_Cadmus_ID <- trimws(toupper(lighting.dat0$CK_Cadmus_ID))
+lighting.dat0$LIGHTING_BulbsPerFixture <- as.numeric(as.character(lighting.dat0$LIGHTING_BulbsPerFixture))
+lighting.dat0 <- lighting.dat0[which(!is.na(lighting.dat0$LIGHTING_BulbsPerFixture)),]
+lighting.dat <- lighting.dat0[which(colnames(lighting.dat0) %in% c("CK_Cadmus_ID"
+                                                                   ,"Fixture.Qty"
+                                                                   ,"LIGHTING_BulbsPerFixture"
+                                                                   ,"CK_SiteID"
+                                                                   ,"Lamp.Category"
+                                                                   ,"Clean.Room"
+                                                                   ,"Switch.Type"))]
+unique(lighting.dat$Clean.Room)
+lighting.dat <- lighting.dat[which(lighting.dat$Clean.Room %notin% c("Storage", "Store", "Parking", "")),]
 lighting.dat.LED <- lighting.dat[which(lighting.dat$Lamp.Category == "Light Emitting Diode"),]
 lighting.dat.CFL <- lighting.dat[which(lighting.dat$Lamp.Category == "Compact Fluorescent"),]
 
@@ -549,7 +553,7 @@ unique(tableCC.os.sum$Ind)
 tableCC.os.merge <- left_join(merge.dat2, tableCC.os.sum)
 unique(tableCC.os.merge$Ind)
 
-tableCC.os.merge <- tableCC.os.merge[which(tableCC.os.merge$Ownership.Type != "Prefer not to say"),]
+tableCC.os.merge <- tableCC.os.merge[which(tableCC.os.merge$Ownership.Type %notin% c("Prefer not to say", "Unknown")),]
 
 ################################################
 # Adding pop and sample sizes for weights
@@ -570,20 +574,20 @@ tableCC.os.summary <- proportionRowsAndColumns1(CustomerLevelData = tableCC.os.d
                                              ,columnVariable = "CK_Building_ID"
                                              ,rowVariable = "Ownership.Type"
                                              ,aggregateColumnName = "Remove")
-tableCC.os.summary <- tableCC.os.summary[which(tableCC.os.summary$Ownership.Type != "Total"),]
+# tableCC.os.summary <- tableCC.os.summary[which(tableCC.os.summary$Ownership.Type != "Total"),]
 tableCC.os.summary <- tableCC.os.summary[which(tableCC.os.summary$CK_Building_ID != "Remove"),]
 
-tableCC.os.all.types <- proportions_one_group(CustomerLevelData = tableCC.os.data
-                                           ,valueVariable = "Ind"
-                                           ,groupingVariable = "CK_Building_ID"
-                                           ,total.name = "All Types"
-                                           ,columnName = "Ownership.Type"
-                                           ,weighted = TRUE
-                                           ,two.prop.total = TRUE)
-tableCC.os.all.types <- tableCC.os.all.types[which(tableCC.os.all.types$CK_Building_ID != "Total"),]
+# tableCC.os.all.types <- proportions_one_group(CustomerLevelData = tableCC.os.data
+#                                            ,valueVariable = "Ind"
+#                                            ,groupingVariable = "CK_Building_ID"
+#                                            ,total.name = "All Types"
+#                                            ,columnName = "Ownership.Type"
+#                                            ,weighted = TRUE
+#                                            ,two.prop.total = TRUE)
+# tableCC.os.all.types <- tableCC.os.all.types[which(tableCC.os.all.types$CK_Building_ID != "Total"),]
 
-tableCC.os.final <- rbind.data.frame(tableCC.os.summary, tableCC.os.all.types, stringsAsFactors = F)
-
+# tableCC.os.final <- rbind.data.frame(tableCC.os.summary, tableCC.os.all.types, stringsAsFactors = F)
+tableCC.os.final <- tableCC.os.summary
 tableCC.os.cast <- dcast(setDT(tableCC.os.final)
                       ,formula = BuildingType + Ownership.Type ~ CK_Building_ID
                       ,value.var = c("w.percent","w.SE","count","n", "N", "EB"))
@@ -638,7 +642,7 @@ tableCC.os.table <- data.frame(tableCC.os.table)
 
 tableCC.os.table.SF <- tableCC.os.table[which(tableCC.os.table$BuildingType == "Single Family")
                                   ,which(colnames(tableCC.os.table) %notin% c("BuildingType"))]
-
+View(tableCC.os.table.SF)
 exportTable(tableCC.os.table.SF, "SF", "Table CC", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################

@@ -29,8 +29,8 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 rbsa.dat <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
-#                              ,stringsAsFactors = FALSE)
+appliances.dat <- data.frame(read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
+                             ,stringsAsFactors = FALSE)
 appliances.dat <- data.frame(appliances.dat, stringsAsFactors = F)
 #clean cadmus IDs
 appliances.dat$CK_Cadmus_ID <- trimws(toupper(appliances.dat$CK_Cadmus_ID))
@@ -786,16 +786,10 @@ tableLL.data <- weightedData(tableLL.merge[-which(colnames(tableLL.merge) %in% c
 tableLL.data <- left_join(tableLL.data, tableLL.merge[which(colnames(tableLL.merge) %in% c("CK_Cadmus_ID"
                                                                                            ,"Type"
                                                                                            ,"Site.Count"))])
-tableLL.data$Count <- 1
-# tableLL.data$Type.Wifi <- gsub(".Wifi","",tableLL.data$Type.Wifi)
-# tableLL.data$Type.Wifi <- gsub("Wifi.","",tableLL.data$Type.Wifi)
-# tableLL.data$Type.Wifi <- gsub(".Enabled","",tableLL.data$Type.Wifi)
-# tableLL.data$Type.Wifi[which(tableLL.data$Type.Wifi == "Enabled")] <- tableLL.data$Type[which(tableLL.data$Type.Wifi == "Enabled")]
-# tableLL.data$Type.Wifi <- gsub("Desktop","Computer",tableLL.data$Type.Wifi)
-# unique(tableLL.data$Type.Wifi)
 
 tableLL.data$Ind <- tableLL.data$Site.Count
 tableLL.data$count <- 1
+tableLL.data$Count <- 1
 
 #######################
 # Weighted Analysis

@@ -1465,8 +1465,10 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
     }
     
     
-    
-    # Analysis for any column variable that is not state should include columnVariable as a grouping variable
+  ################x
+  # NOT STATE
+  ################x
+  # Analysis for any column variable that is not state should include columnVariable as a grouping variable
   }else if(columnVariable %in% c("Cooling.Zone", "CK_Building_ID", "Category") & valueVariable == "Ind"){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
                                                  , c("BuildingType", "State", "Region", "Territory", rowVariable, columnVariable)
@@ -1475,6 +1477,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                                  , n_hj = length(unique(CK_Cadmus_ID))
                                                  , total.count = sum(Count)
                                                  , p.h = count / total.count), stringsAsFactors = F)
+    
     
   }else if(columnVariable %in% c("HomeType","Lamp.Category") & valueVariable %in% c("Ind")){
     StrataGroupedProportions <- data.frame(ddply(CustomerLevelData
@@ -1633,6 +1636,7 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                          ,columnVar.n.h = sum(n.h)), stringsAsFactors = F)
     #join strata data with weights by column grouping variable 
     StrataDataWeights <- left_join(StrataData, columnVarWeights, by = c("BuildingType",columnVariable))
+    StrataDataWeights$N.h <- StrataDataWeights$N.h * StrataDataWeights$n_hj / StrataDataWeights$n.h
     
   }
   
@@ -1642,14 +1646,14 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
   #calculate weighted percent and weighted standard errors grouping by both column and row variables
   ####################################################################################################
   
-  if (columnVariable %in% c("Cooling.Zone","State","System.Type") & valueVariable == "Ind"){
+  if (columnVariable %in% c("Cooling.Zone","State","System.Type", "CK_Building_ID") & valueVariable == "Ind"){
     ColumnProportionsByGroup <- data.frame(ddply(StrataDataWeights
                                                  , c("BuildingType", columnVariable, rowVariable)
                                                  , summarise
-                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / sum(unique(N.h))
+                                                 ,w.percent = sum(N.h * p.h, na.rm = T) / sum((N.h))
                                                  ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                                          (N.h^2 / n.h) * 
-                                                                         (p.h * (1 - p.h)), na.rm = T)) / sum(unique(N.h))
+                                                                         (p.h * (1 - p.h)), na.rm = T)) / sum((N.h))
                                                  ,count     = sum(count)
                                                  ,N         = sum(unique(N.h))
                                                  ,n         = sum(n_hj)
@@ -1661,10 +1665,10 @@ proportionRowsAndColumns1 <- function(CustomerLevelData
                                      , c("BuildingType", columnVariable)
                                      ,summarise
                                      ,rowTotal       = "Total"
-                                     ,w.percent = sum(N.h * p.h) / unique(columnVar.N.h)
+                                     ,w.percent = sum(N.h * p.h) / sum((N.h))
                                      ,w.SE      = sqrt(sum((1 - n.h / N.h) * 
                                                              (N.h^2 / n.h) * 
-                                                             (p.h * (1 - p.h)), na.rm = T)) / unique(columnVar.N.h)
+                                                             (p.h * (1 - p.h)), na.rm = T)) / sum(N.h)
                                      ,count     = sum(count)
                                      ,N         = unique(columnVar.N.h)
                                      ,n         = sum(n_hj)

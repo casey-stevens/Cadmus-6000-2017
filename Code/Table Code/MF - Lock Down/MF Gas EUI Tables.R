@@ -118,7 +118,7 @@ keep.cols <-
   c("Unit.Only.Flag","Average.Common.Area.Therms.Usage", "Average.Unit.Therms.Usage", "Master.Meter.Therms.Usage",
     "Total.Units.in.Building", "Total.Residential.Floor.Area",
     "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area", 
-    "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalGasUsage", "EUI")
+    "BuildingFlag", "UnitsFinal", "TotalUnitUsage", "TotalGasUsage", "EUI","GasPerUnit")
 
 
 item310.data <- weightedData(item310.dat2[which(colnames(item310.dat2) %notin% c(keep.cols))])

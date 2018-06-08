@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- rbsa.dat
+# itemData <- item310.dat2[which(colnames(item310.dat2) %notin% c(keep.cols))]
 
 weightedData <- function(itemData){
   
@@ -475,8 +475,8 @@ samp.dat.MF <- left_join(samp.dat.7[which(samp.dat.7$BuildingType == "Multifamil
 
 
 samp.dat.final0 <- unique(rbind.data.frame(samp.dat.SF, samp.dat.MH, samp.dat.MF, stringsAsFactors = F))
-samp.dat.final <- samp.dat.final0[which(!is.na(samp.dat.final0$N.h)),]
-samp.dat.final <- samp.dat.final[which(names(samp.dat.final) != "Territory.y")]
+# samp.dat.final <- samp.dat.final0[which(!is.na(samp.dat.final0$N.h)),]
+samp.dat.final <- samp.dat.final0[which(names(samp.dat.final0) != "Territory.y")]
 names(samp.dat.final)[which(names(samp.dat.final) == "Territory.x")] <- "Territory"
 samp.dat.final <- unique(samp.dat.final)
 unique(samp.dat.final$n.h)
@@ -497,10 +497,10 @@ for (ii in 1:nrow(samp.dat.final)){
 }
 
 
-# samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
-# # samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
-# samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
-# ##  Write out confidence/precision info
+samp.dat.export <- data.frame(samp.dat.final[,-ncol(samp.dat.final)],stringsAsFactors = F)
+# samp.dat.export <- samp.dat.export[grep("site",samp.dat.export$CK_Building_ID, ignore.case = T),]
+samp.dat.export <- samp.dat.export[which(!is.na(samp.dat.export$Territory)),]
+##  Write out confidence/precision info
 # Sys.setenv("R_ZIPCMD" = "C:/Rtools/bin/zip")
 # write.xlsx(samp.dat.export, paste(filepathCleaningDocs, "Population_Estimates.xlsx", sep="/"),
 #            append = T, row.names = F, showNA = F)

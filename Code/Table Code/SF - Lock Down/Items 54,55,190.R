@@ -6,6 +6,7 @@
 ##  Billing Code(s):  
 #############################################################################################
 
+source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 ##  Clear variables
 # rm(list = ls())
 rundate <-  format(Sys.time(), "%d%b%y")
@@ -27,7 +28,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 #Read in data for analysis
 # Mechanical
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-# mechanical.dat <- read.xlsx(mechanical.export)
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -47,6 +48,7 @@ item54.dat1.1 <- item54.dat1[-which(duplicated(item54.dat1$CK_Cadmus_ID)),]
 
 item54.dat2 <- left_join(rbsa.dat, item54.dat1.1)
 
+unique(item54.dat2$Provides)
 item54.dat2$Ind <- 0
 item54.dat2$Ind[which(!is.na(item54.dat2$Provides))] <- 1
 unique(item54.dat2$Ind)
@@ -56,9 +58,9 @@ unique(item54.dat2$Ind)
 ##########################################
 item54.data <- weightedData(item54.dat2[-which(colnames(item54.dat2) %in% c("Provides"
                                                                             ,"Ind"))])
-item54.data <- left_join(item54.data, item54.dat2[which(colnames(item54.dat2) %in% c("CK_Cadmus_ID"
+item54.data <- left_join(item54.data, unique(item54.dat2[which(colnames(item54.dat2) %in% c("CK_Cadmus_ID"
                                                                                      ,"Provides"
-                                                                                     ,"Ind"))])
+                                                                                     ,"Ind"))]))
 item54.data$Count <- 1
 
 
@@ -73,6 +75,7 @@ item54.summary <- proportionRowsAndColumns1(CustomerLevelData = item54.data
 item54.summary$State[which(item54.summary$State == "Total")] <- "Region"
 item54.summary <- item54.summary[which(item54.summary$Cooling.Zone != "Remove"),]
 
+item54.data$ElectricInd <- item54.data$Ind
 item54.all.cooling.zones <- proportions_one_group(CustomerLevelData = item54.data
                                                   ,valueVariable = 'Ind'
                                                   ,groupingVariable = 'State'

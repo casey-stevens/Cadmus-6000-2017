@@ -5,7 +5,7 @@
 ##  Updated:                                            
 ##  Billing Code(s):  
 #############################################################################################
-# source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
+source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Envelope.xlsx', envelope.export, mode = 'wb')
 

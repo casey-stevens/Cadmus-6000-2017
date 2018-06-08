@@ -29,16 +29,20 @@ rbsa.dat.site <- rbsa.dat[grep("site", rbsa.dat$CK_Building_ID, ignore.case = T)
 length(unique(rbsa.dat$CK_Cadmus_ID))
 
 #Read in data for analysis
-# lighting.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+lighting.dat0 <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
 #clean cadmus IDs
-lighting.dat$CK_Cadmus_ID <- trimws(toupper(lighting.dat$CK_Cadmus_ID))
-lighting.dat <- lighting.dat[which(colnames(lighting.dat) %in% c("CK_Cadmus_ID"
-                                                               ,"Fixture.Qty"
-                                                               ,"LIGHTING_BulbsPerFixture"
-                                                               ,"CK_SiteID"
-                                                               ,"Lamp.Category"
-                                                               ,"Clean.Room"
-                                                               ,"Switch.Type"))]
+lighting.dat0$CK_Cadmus_ID <- trimws(toupper(lighting.dat0$CK_Cadmus_ID))
+lighting.dat0$LIGHTING_BulbsPerFixture <- as.numeric(as.character(lighting.dat0$LIGHTING_BulbsPerFixture))
+lighting.dat0 <- lighting.dat0[which(!is.na(lighting.dat0$LIGHTING_BulbsPerFixture)),]
+lighting.dat <- lighting.dat0[which(colnames(lighting.dat0) %in% c("CK_Cadmus_ID"
+                                                                   ,"Fixture.Qty"
+                                                                   ,"LIGHTING_BulbsPerFixture"
+                                                                   ,"CK_SiteID"
+                                                                   ,"Lamp.Category"
+                                                                   ,"Clean.Room"
+                                                                   ,"Switch.Type"))]
+unique(lighting.dat$Clean.Room)
+lighting.dat <- lighting.dat[which(lighting.dat$Clean.Room %notin% c("Storage", "Store", "Parking", "")),]
 lighting.dat.LED <- lighting.dat[which(lighting.dat$Lamp.Category == "Light Emitting Diode"),]
 lighting.dat.CFL <- lighting.dat[which(lighting.dat$Lamp.Category == "Compact Fluorescent"),]
 
@@ -71,16 +75,16 @@ unique(tableCC.sum$Ind)
 tableCC.merge <- left_join(merge.dat2, tableCC.sum)
 unique(tableCC.merge$Ind)
 
-tableCC.merge <- tableCC.merge[which(tableCC.merge$Ownership.Type != "Prefer not to say"),]
+tableCC.merge <- tableCC.merge[which(tableCC.merge$Ownership.Type %notin% c("Prefer not to say", "Unknown")),]
 
 ################################################
 # Adding pop and sample sizes for weights
 ################################################
 tableCC.data <- weightedData(tableCC.merge[-which(colnames(tableCC.merge) %in% c("Ownership.Type"
                                                                                  ,"Ind"))])
-tableCC.data <- left_join(tableCC.data, tableCC.merge[which(colnames(tableCC.merge) %in% c("CK_Cadmus_ID"
+tableCC.data <- left_join(tableCC.data, unique(tableCC.merge[which(colnames(tableCC.merge) %in% c("CK_Cadmus_ID"
                                                                                        ,"Ownership.Type"
-                                                                                       ,"Ind"))])
+                                                                                       ,"Ind"))]))
 tableCC.data$count <- 1
 tableCC.data$Count <- 1
 
@@ -145,7 +149,7 @@ tableCC.table.SF <- tableCC.table[which(tableCC.table$BuildingType == "Single Fa
                                   ,which(colnames(tableCC.table) %notin% c("BuildingType"))]
 tableCC.table.MH <- tableCC.table[which(tableCC.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableCC.table) %notin% c("BuildingType"))]
-
+View(tableCC.table.SF)
 exportTable(tableCC.table.SF, "SF", "Table CC", weighted = TRUE)
 # exportTable(tableCC.table.MH, "MH", "Table CC", weighted = TRUE)
 
