@@ -171,6 +171,7 @@ item274.data <- weightedData(item274.dat4[which(colnames(item274.dat4) %notin% c
                                                                                  ,"count"))])
 
 item274.data <- left_join(item274.data, item274.dat4[which(colnames(item274.dat4) %in% c("CK_Cadmus_ID"
+                                                                                         ,"CK_Building_ID"
                                                                                          ,"SITES_Pool_POOL_HOT_TUB_PoolLocation"
                                                                                          ,"SITES_Pool_POOL_HOT_TUB_PoolType"
                                                                                          ,"Ind"

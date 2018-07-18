@@ -14,6 +14,7 @@ options(scipen = 999)
 "%notin%" <- Negate("%in%")
 
 # Source codes
+source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
@@ -27,7 +28,7 @@ length(unique(rbsa.dat$CK_Cadmus_ID))
 #Read in data for analysis
 # Mechanical
 # download.file('https://projects.cadmusgroup.com/sites/6000-P14/Shared Documents/Analysis/FileMaker Data/$Clean Data/2017.10.30/Mechanical.xlsx', mechanical.export, mode = 'wb')
-# mechanical.dat <- read.xlsx(mechanical.export)
+mechanical.dat <- read.xlsx(mechanical.export)
 #clean cadmus IDs
 mechanical.dat$CK_Cadmus_ID <- trimws(toupper(mechanical.dat$CK_Cadmus_ID))
 
@@ -115,7 +116,7 @@ item54.table.SF <- item54.table[which(item54.table$BuildingType == "Single Famil
                                 ,which(colnames(item54.table) %notin% c("BuildingType"))]
 item54.table.MH <- item54.table[which(item54.table$BuildingType == "Manufactured")
                                 ,which(colnames(item54.table) %notin% c("BuildingType"))]
-
+View(item54.table.MH)
 # exportTable(item54.table.SF, "SF", "Table 61", weighted = TRUE)
 exportTable(item54.table.MH, "MH", "Table 41", weighted = TRUE)
 

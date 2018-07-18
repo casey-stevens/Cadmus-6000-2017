@@ -15,6 +15,7 @@ options(scipen = 999)
 "%notin%" <- Negate("%in%")
 
 # Source codes
+source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation - MF-BLDG.R")
 source("Code/Sample Weighting/Weights.R")
@@ -28,7 +29,7 @@ rbsa.dat.site <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),
 rbsa.dat.bldg <- rbsa.dat[grep("bldg",rbsa.dat$CK_Building_ID, ignore.case = T),]
 
 #Read in data for analysis
-# buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
+buildings.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, buildings.export))
 #clean cadmus IDs
 buildings.dat$CK_Building_ID <- trimws(toupper(buildings.dat$PK_BuildingID))
 length(unique(buildings.dat$CK_Building_ID))
@@ -36,7 +37,7 @@ buildings.dat.clean <- buildings.dat[which(!duplicated(buildings.dat$CK_Building
 
 
 #Read in data for analysis
-# rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
+rooms.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 #clean cadmus IDs
 rooms.dat$CK_Cadmus_ID <- trimws(toupper(rooms.dat$CK_Cadmus_ID))
 
