@@ -14,13 +14,6 @@ options(scipen = 999)
 ##  Create "Not In" operator
 "%notin%" <- Negate("%in%")
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
-
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
@@ -106,8 +99,8 @@ item36.table.SF <- item36.table[which(item36.table$BuildingType == "Single Famil
 item36.table.MH <- item36.table[which(item36.table$BuildingType == "Manufactured"),
                                 -which(colnames(item36.table) == "BuildingType")]
 
-exportTable(item36.table.SF, "SF","Table 43",weighted = TRUE)
-# exportTable(item36.table.MH, "MH","Table 24",weighted = TRUE)
+# exportTable(item36.table.SF, "SF","Table 43",weighted = TRUE)
+# # exportTable(item36.table.MH, "MH","Table 24",weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -153,8 +146,8 @@ item36.table.SF <- item36.table[which(item36.table$BuildingType == "Single Famil
 item36.table.MH <- item36.table[which(item36.table$BuildingType == "Manufactured"),
                                 -which(colnames(item36.table) == "BuildingType")]
 
-exportTable(item36.table.SF, "SF","Table 43",weighted = FALSE)
-# exportTable(item36.table.MH, "MH","Table 24",weighted = FALSE)
+# exportTable(item36.table.SF, "SF","Table 43",weighted = FALSE)
+# # exportTable(item36.table.MH, "MH","Table 24",weighted = FALSE)
 
 
 
@@ -230,8 +223,8 @@ item37.table.SF <- item37.table[which(item37.table$BuildingType == "Single Famil
 item37.table.MH <- item37.table[which(item37.table$BuildingType == "Manufactured"),
                                 -which(colnames(item37.table) == "BuildingType")]
 
-exportTable(item37.table.SF, "SF","Table 44",weighted = TRUE)
-# exportTable(item37.table.MH, "MH","Table 26",weighted = TRUE)
+# exportTable(item37.table.SF, "SF","Table 44",weighted = TRUE)
+# # exportTable(item37.table.MH, "MH","Table 26",weighted = TRUE)
 
 #######################
 # Unweighted Analysis
@@ -277,8 +270,8 @@ item37.table.SF <- item37.table[which(item37.table$BuildingType == "Single Famil
 item37.table.MH <- item37.table[which(item37.table$BuildingType == "Manufactured"),
                                 -which(colnames(item37.table) == "BuildingType")]
 
-exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
-# exportTable(item37.table.MH, "MH","Table 26",weighted = FALSE)
+# exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
+# # exportTable(item37.table.MH, "MH","Table 26",weighted = FALSE)
 
 
 
@@ -374,7 +367,7 @@ exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 # item182.table.MH <- item182.table[which(item182.table$BuildingType == "Manufactured"),
 #                                 -which(colnames(item182.table) == "BuildingType")]
 # 
-# exportTable(item182.table.MH, "MH","Table 25",weighted = TRUE)
+# # exportTable(item182.table.MH, "MH","Table 25",weighted = TRUE)
 # 
 # #######################
 # # Unweighted Analysis
@@ -409,7 +402,7 @@ exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 # item182.table.MH <- item182.table[which(item182.table$BuildingType == "Manufactured"),
 #                                 -which(colnames(item182.table) == "BuildingType")]
 # 
-# exportTable(item182.table.MH, "MH","Table 25",weighted = FALSE)
+# # exportTable(item182.table.MH, "MH","Table 25",weighted = FALSE)
 # 
 # 
 # 
@@ -529,7 +522,7 @@ exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 # item36.os.table <- item36.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 # item36.os.table <- data.frame(item36.os.table)
 # 
-# exportTable(item36.os.table, "SF","Table 43",weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item36.os.table, "SF","Table 43",weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # #######################
 # # Unweighted Analysis
@@ -580,7 +573,7 @@ exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 # item36.os.table <- item36.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 # item36.os.table <- data.frame(item36.os.table)
 # 
-# exportTable(item36.os.table, "SF","Table 43",weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item36.os.table, "SF","Table 43",weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -663,7 +656,7 @@ exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 # item37.os.table <- item37.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 # item37.os.table <- data.frame(item37.os.table)
 # 
-# exportTable(item37.os.table, "SF","Table 44",weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item37.os.table, "SF","Table 44",weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # #######################
 # # Unweighted Analysis
@@ -716,4 +709,4 @@ exportTable(item37.table.SF, "SF","Table 44",weighted = FALSE)
 # item37.os.table <- item37.os.table %>% mutate(Housing.Vintage = factor(Housing.Vintage, levels = rowOrder)) %>% arrange(Housing.Vintage)  
 # item37.os.table <- data.frame(item37.os.table)
 # 
-# exportTable(item37.os.table, "SF","Table 44",weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item37.os.table, "SF","Table 44",weighted = FALSE, osIndicator = export.ind, OS = T)

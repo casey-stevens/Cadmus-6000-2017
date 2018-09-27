@@ -13,7 +13,7 @@
 # - ZIP Code data (with pop counts from ACS)
 # - output data
 ################################################################################
-# itemData <- item310.dat2[which(colnames(item310.dat2) %notin% c(keep.cols))]
+# itemData <- item212.dat2
 
 weightedData <- function(itemData){
   

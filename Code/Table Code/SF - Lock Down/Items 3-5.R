@@ -11,11 +11,11 @@
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen=999)
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
+# # Source codes
+# source("Code/Table Code/SourceCode.R")
+# source("Code/Table Code/Weighting Implementation Functions.R")
+# source("Code/Sample Weighting/Weights.R")
+# source("Code/Table Code/Export Function.R")
 
 ##  Create "Not In" operator
 "%notin%" <- Negate("%in%")
@@ -31,7 +31,7 @@ rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),]
 envelope.dat$CK_Cadmus_ID <- trimws(toupper(envelope.dat$CK_Cadmus_ID))
 stopifnot(length(unique(envelope.dat$CK_Cadmus_ID)) <= length(unique(rbsa.dat$CK_Cadmus_ID)))
 
-one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
+# one.line.dat <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), startRow = 2, sheet = "Site One Line Summary")
 one.line.dat$CK_Cadmus_ID <- trimws(toupper(one.line.dat$Cadmus.ID))
 
 # Bring in clean ground contact types
@@ -133,7 +133,7 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
-exportTable(item3.table.SF, "SF", "Table 10", weighted = TRUE)
+# exportTable(item3.table.SF, "SF", "Table 10", weighted = TRUE)
 
 
 
@@ -170,7 +170,7 @@ item3.table <- data.frame("BuildingType"    = item3.cast$BuildingType
 
 item3.table.SF <- item3.table[which(item3.table$BuildingType == "Single Family"),-1]
 
-exportTable(item3.table.SF, "SF", "Table 10", weighted = FALSE)
+# exportTable(item3.table.SF, "SF", "Table 10", weighted = FALSE)
 
 
 
@@ -233,7 +233,7 @@ item4.final <- mean_one_group(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
+# exportTable(item4.table.SF, "SF", "Table 11", weighted = TRUE)
 # exportTable(item4.table.MH, "MH", "Table 10", weighted = TRUE)
 
 
@@ -250,7 +250,7 @@ item4.final <- mean_one_group_unweighted(CustomerLevelData = item4.data
 item4.table.SF <- item4.final[which(item4.final$BuildingType %in% c("Single Family")),-1]
 item4.table.MH <- item4.final[which(item4.final$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item4.table.SF, "SF", "Table 11", weighted = FALSE)
+# exportTable(item4.table.SF, "SF", "Table 11", weighted = FALSE)
 # exportTable(item4.table.MH, "MH", "Table 10", weighted = FALSE)
 
 
@@ -358,7 +358,7 @@ item5.table <- data.frame(item5.table)
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item5.table.SF, "SF", "Table 12", weighted = TRUE)
+# exportTable(item5.table.SF, "SF", "Table 12", weighted = TRUE)
 # exportTable(item5.table.MH, "MH", "Table 11", weighted = TRUE)
 
 
@@ -408,7 +408,7 @@ item5.table <- data.frame(item5.table)
 item5.table.SF <- item5.table[which(item5.table$BuildingType %in% c("Single Family")),-1]
 item5.table.MH <- item5.table[which(item5.table$BuildingType %in% c("Manufactured")),-1]
 
-exportTable(item5.table.SF, "SF", "Table 12", weighted = FALSE)
+# exportTable(item5.table.SF, "SF", "Table 12", weighted = FALSE)
 # exportTable(item5.table.MH, "MH", "Table 11", weighted = FALSE)
 
 

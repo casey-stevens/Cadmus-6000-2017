@@ -15,14 +15,6 @@ options(scipen=999)
 ##  Create "Not In" operator
 "%notin%" <- Negate("%in%")
 
-
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
-
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[-grep("bldg", rbsa.dat$CK_Building_ID, ignore.case = T),]
@@ -90,8 +82,8 @@ item66.final.SF <- item66.final[which(item66.final$BuildingType == "Single Famil
 item66.final.MH <- item66.final[which(item66.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item66.final) %in% c("BuildingType"))]
 
-exportTable(item66.final.SF, "SF", "Table 73", weighted = TRUE)
-# exportTable(item66.final.MH, "MH", "Table 52", weighted = TRUE)
+# exportTable(item66.final.SF, "SF", "Table 73", weighted = TRUE)
+# # exportTable(item66.final.MH, "MH", "Table 52", weighted = TRUE)
 
 
 #######################
@@ -107,8 +99,8 @@ item66.final.SF <- item66.final[which(item66.final$BuildingType == "Single Famil
 item66.final.MH <- item66.final[which(item66.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item66.final) %in% c("BuildingType"))]
 
-exportTable(item66.final.SF, "SF", "Table 73", weighted = FALSE)
-# exportTable(item66.final.MH, "MH", "Table 52", weighted = FALSE)
+# exportTable(item66.final.SF, "SF", "Table 73", weighted = FALSE)
+# # exportTable(item66.final.MH, "MH", "Table 52", weighted = FALSE)
 
 
 
@@ -173,8 +165,8 @@ item67.final.SF <- item67.final[which(item67.final$BuildingType == "Single Famil
 item67.final.MH <- item67.final[which(item67.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item67.final) %in% c("BuildingType"))]
 
-exportTable(item67.final.SF, "SF", "Table 74", weighted = TRUE)
-# exportTable(item67.final.MH, "MH", "Table 53", weighted = TRUE)
+# exportTable(item67.final.SF, "SF", "Table 74", weighted = TRUE)
+# # exportTable(item67.final.MH, "MH", "Table 53", weighted = TRUE)
 
 
 #######################
@@ -190,8 +182,8 @@ item67.final.SF <- item67.final[which(item67.final$BuildingType == "Single Famil
 item67.final.MH <- item67.final[which(item67.final$BuildingType == "Manufactured")
                                 ,-which(colnames(item67.final) %in% c("BuildingType"))]
 
-exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
-# exportTable(item67.final.MH, "MH", "Table 53", weighted = FALSE)
+# exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
+# # exportTable(item67.final.MH, "MH", "Table 53", weighted = FALSE)
 
 
 
@@ -296,7 +288,7 @@ exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
 # item66.os.final.SF <- item66.os.final[which(item66.os.final$BuildingType == "Single Family")
 #                                 ,-which(colnames(item66.os.final) %in% c("BuildingType"))]
 # 
-# exportTable(item66.os.final.SF, "SF", "Table 73", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item66.os.final.SF, "SF", "Table 73", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # #######################
@@ -326,7 +318,7 @@ exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
 # item66.os.final.SF <- item66.os.final[which(item66.os.final$BuildingType == "Single Family")
 #                                 ,-which(colnames(item66.os.final) %in% c("BuildingType"))]
 # 
-# exportTable(item66.os.final.SF, "SF", "Table 73", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item66.os.final.SF, "SF", "Table 73", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -402,7 +394,7 @@ exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
 # item67.os.final.SF <- item67.os.final[which(item67.os.final$BuildingType == "Single Family")
 #                                 ,-which(colnames(item67.os.final) %in% c("BuildingType"))]
 # 
-# exportTable(item67.os.final.SF, "SF", "Table 74", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item67.os.final.SF, "SF", "Table 74", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # #######################
@@ -432,4 +424,4 @@ exportTable(item67.final.SF, "SF", "Table 74", weighted = FALSE)
 # item67.os.final.SF <- item67.os.final[which(item67.os.final$BuildingType == "Single Family")
 #                                 ,-which(colnames(item67.os.final) %in% c("BuildingType"))]
 # 
-# exportTable(item67.os.final.SF, "SF", "Table 74", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item67.os.final.SF, "SF", "Table 74", weighted = FALSE, osIndicator = export.ind, OS = T)

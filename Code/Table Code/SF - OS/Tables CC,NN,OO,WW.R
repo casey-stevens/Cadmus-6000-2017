@@ -17,6 +17,7 @@ options(scipen=999)
 
 
 # Source codes
+source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 source("Code/Table Code/SourceCode.R")
 source("Code/Table Code/Weighting Implementation Functions.R")
 source("Code/Sample Weighting/Weights.R")
@@ -752,6 +753,7 @@ tableNN.os.table <- tableNN.os.table[which(tableNN.os.table$CK_Building_ID %noti
 tableNN.os.table.SF <- tableNN.os.table[which(tableNN.os.table$BuildingType == "Single Family")
                                   ,which(colnames(tableNN.os.table) %notin% c("BuildingType"))]
 
+View(tableNN.os.table.SF)
 exportTable(tableNN.os.table.SF, "SF", "Table NN", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 #######################
@@ -804,6 +806,7 @@ tableOO.os.table <- tableOO.os.table[which(tableOO.os.table$CK_Building_ID %noti
 tableOO.os.table.SF <- tableOO.os.table[which(tableOO.os.table$BuildingType == "Single Family")
                                   ,which(colnames(tableOO.os.table) %notin% c("BuildingType"))]
 
+View(tableOO.os.table.SF)
 exportTable(tableOO.os.table.SF, "SF", "Table OO", weighted = TRUE, osIndicator = export.ind, OS = T)
 
 

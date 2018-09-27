@@ -11,12 +11,6 @@
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
-
 "%notin%" <- Negate("%in%")
 
 # Read in clean RBSA data
@@ -98,7 +92,7 @@ item59.final <- proportions_one_group(CustomerLevelData  = item59.data
 # Export table
 item59.final.SF <- item59.final[which(item59.final$BuildingType == "Single Family"),-1]
 
-exportTable(item59.final.SF, "SF", "Table 66", weighted = TRUE)
+# exportTable(item59.final.SF, "SF", "Table 66", weighted = TRUE)
 
 
 
@@ -116,7 +110,7 @@ item59.final <- proportions_one_group(CustomerLevelData  = item59.data
 item59.final.SF <- item59.final[which(item59.final$BuildingType == "Single Family")
                                 ,-which(colnames(item59.final) %in% c("BuildingType"))]
 
-exportTable(item59.final.SF, "SF", "Table 66", weighted = FALSE)
+# exportTable(item59.final.SF, "SF", "Table 66", weighted = FALSE)
 
 
 
@@ -226,7 +220,7 @@ item60.table <- data.frame(item60.table)
 item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
                                 ,-which(colnames(item60.table) %in% c("BuildingType"))]
 
-exportTable(item60.final.SF, "SF", "Table 67", weighted = TRUE)
+# exportTable(item60.final.SF, "SF", "Table 67", weighted = TRUE)
 
 
 
@@ -277,7 +271,7 @@ item60.table <- data.frame(item60.table)
 item60.final.SF <- item60.table[which(item60.table$BuildingType == "Single Family")
                                 ,-which(colnames(item60.table) %in% c("BuildingType"))]
 
-exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
+# exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
 
 
 
@@ -386,7 +380,7 @@ exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
 # 
 # item59.os.final.SF <- item59.os.final[which(item59.os.final$CK_Building_ID != "Total"),-1]
 # 
-# exportTable(item59.os.final.SF, "SF", "Table 66", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item59.os.final.SF, "SF", "Table 66", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -416,7 +410,7 @@ exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
 # item59.os.final.SF <- item59.os.final[which(item59.os.final$CK_Building_ID != "Total")
 #                                 ,-which(colnames(item59.os.final) %in% c("BuildingType"))]
 # 
-# exportTable(item59.os.final.SF, "SF", "Table 66", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item59.os.final.SF, "SF", "Table 66", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -542,7 +536,7 @@ exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
 # item60.os.final.SF <- item60.os.table[which(item60.os.table$BuildingType == "Single Family")
 #                                 ,-which(colnames(item60.os.table) %in% c("BuildingType"))]
 # 
-# exportTable(item60.os.final.SF, "SF", "Table 67", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item60.os.final.SF, "SF", "Table 67", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # #############################
 # # Unweighted Analysis
@@ -603,4 +597,4 @@ exportTable(item60.final.SF, "SF", "Table 67", weighted = FALSE)
 # item60.os.final.SF <- item60.os.table[which(item60.os.table$BuildingType == "Single Family")
 #                                 ,-which(colnames(item60.os.table) %in% c("BuildingType"))]
 # 
-# exportTable(item60.os.final.SF, "SF", "Table 67", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item60.os.final.SF, "SF", "Table 67", weighted = FALSE, osIndicator = export.ind, OS = T)

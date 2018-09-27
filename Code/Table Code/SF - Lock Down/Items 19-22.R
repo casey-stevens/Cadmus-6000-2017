@@ -16,11 +16,11 @@ options(scipen=999)
 "%notin%" <- Negate("%in%")
 
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
+# # Source codes
+# source("Code/Table Code/SourceCode.R")
+# source("Code/Table Code/Weighting Implementation Functions.R")
+# source("Code/Sample Weighting/Weights.R")
+# source("Code/Table Code/Export Function.R")
 
 
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
@@ -92,7 +92,7 @@ item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item19.final.SF, "SF", "Table 26", weighted = TRUE)
+# exportTable(item19.final.SF, "SF", "Table 26", weighted = TRUE)
 
 
 #####################################
@@ -111,7 +111,7 @@ item19.final.SF <- item19.final[which(item19.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item19.final.SF, "SF", "Table 26", weighted = FALSE)
+# exportTable(item19.final.SF, "SF", "Table 26", weighted = FALSE)
 
 
 
@@ -157,7 +157,7 @@ item20.final.SF <- item20.final[which(item20.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item20.final.SF, "SF", "Table 27", weighted = TRUE)
+# exportTable(item20.final.SF, "SF", "Table 27", weighted = TRUE)
 
 #####################################
 # Unweighted Analysis
@@ -174,7 +174,7 @@ item20.final.SF <- item20.final[which(item20.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item20.final.SF, "SF", "Table 27", weighted = FALSE)
+# exportTable(item20.final.SF, "SF", "Table 27", weighted = FALSE)
 
 
 
@@ -226,7 +226,7 @@ item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item21.final.SF, "SF", "Table 28", weighted = TRUE)
+# exportTable(item21.final.SF, "SF", "Table 28", weighted = TRUE)
 
 #####################################
 # Unweighted Analysis
@@ -244,7 +244,7 @@ item21.final.SF <- item21.final[which(item21.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item21.final.SF, "SF", "Table 28", weighted = FALSE)
+# exportTable(item21.final.SF, "SF", "Table 28", weighted = FALSE)
 
 
 
@@ -298,7 +298,7 @@ item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item22.final.SF, "SF", "Table 29", weighted = TRUE)
+# exportTable(item22.final.SF, "SF", "Table 29", weighted = TRUE)
 
 #####################################
 # Unweighted Analysis
@@ -315,7 +315,7 @@ item22.final.SF <- item22.final[which(item22.final$BuildingType == "Single Famil
 
 
 #export data
-exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
+# exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 
 
 
@@ -445,7 +445,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 # 
 # 
 # #export data
-# exportTable(item19.os.final.SF, "SF", "Table 26", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item19.os.final.SF, "SF", "Table 26", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # #####################################
@@ -478,7 +478,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 # 
 # 
 # #export data
-# exportTable(item19.os.final.SF, "SF", "Table 26", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item19.os.final.SF, "SF", "Table 26", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -541,7 +541,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 # 
 # 
 # #export data
-# exportTable(item20.os.final.SF, "SF", "Table 27", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item20.os.final.SF, "SF", "Table 27", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -575,7 +575,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 # 
 # 
 # #export data
-# exportTable(item20.os.final.SF, "SF", "Table 27", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item20.os.final.SF, "SF", "Table 27", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -641,7 +641,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 #                      ,value.var = c("w.percent","w.SE","count","n","N","EB"))
 # 
 # #export data
-# exportTable(item21.cast, "SF", "Table 28", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item21.cast, "SF", "Table 28", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # #####################################
 # # Unweighted Analysis
@@ -672,7 +672,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 #                      ,value.var = c("Percent","SE","Count","n"))
 # 
 # #export data
-# exportTable(item21.cast, "SF", "Table 28", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item21.cast, "SF", "Table 28", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -741,7 +741,7 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 #                                 ,-which(colnames(item22.os.final) %in% c("BuildingType"))]
 # 
 # #export data
-# exportTable(item22.os.final.SF, "SF", "Table 29", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item22.os.final.SF, "SF", "Table 29", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # #####################################
 # # Unweighted Analysis
@@ -772,4 +772,4 @@ exportTable(item22.final.SF, "SF", "Table 29", weighted = FALSE)
 #                                 ,which(colnames(item22.os.final) %notin% c("BuildingType"))]
 # 
 # #export data
-# exportTable(item22.os.final.SF, "SF", "Table 29", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item22.os.final.SF, "SF", "Table 29", weighted = FALSE, osIndicator = export.ind, OS = T)

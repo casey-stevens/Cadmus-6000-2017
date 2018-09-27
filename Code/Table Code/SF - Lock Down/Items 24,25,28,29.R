@@ -11,11 +11,11 @@
 rundate <-  format(Sys.time(), "%d%b%y")
 options(scipen = 999)
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
+# # Source codes
+# source("Code/Table Code/SourceCode.R")
+# source("Code/Table Code/Weighting Implementation Functions.R")
+# source("Code/Sample Weighting/Weights.R")
+# source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
@@ -101,7 +101,7 @@ item24.final <- proportions_one_group(CustomerLevelData  = item24.data
 
 item24.final.SF <- item24.final[which(item24.final$BuildingType == "Single Family"),-1]
 
-exportTable(item24.final.SF, "SF", "Table 31", weighted = TRUE)
+# exportTable(item24.final.SF, "SF", "Table 31", weighted = TRUE)
 
 
 ##################################
@@ -116,7 +116,7 @@ item24.final <- proportions_one_group(CustomerLevelData  = item24.data
 
 item24.final.SF <- item24.final[which(item24.final$BuildingType == "Single Family"),-1]
 
-exportTable(item24.final.SF, "SF", "Table 31", weighted = FALSE)
+# exportTable(item24.final.SF, "SF", "Table 31", weighted = FALSE)
 
 
 
@@ -161,7 +161,7 @@ item25.final <- proportions_one_group(CustomerLevelData  = item25.data
 
 item25.final.SF <- item25.final[which(item25.final$BuildingType == "Single Family"),-1]
 
-exportTable(item25.final.SF, "SF", "Table 32", weighted = TRUE)
+# exportTable(item25.final.SF, "SF", "Table 32", weighted = TRUE)
 
 ##################################
 # Unweighted
@@ -176,7 +176,7 @@ item25.final <- proportions_one_group(CustomerLevelData  = item25.data
 item25.final.SF <- item25.final[which(item25.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
 
-exportTable(item25.final.SF, "SF", "Table 32", weighted = FALSE)
+# exportTable(item25.final.SF, "SF", "Table 32", weighted = FALSE)
 
 
 
@@ -218,7 +218,7 @@ item28.final <- proportions_one_group(CustomerLevelData  = item28.data
 
 item28.final.SF <- item28.final[which(item28.final$BuildingType == "Single Family"),-1]
 
-exportTable(item28.final.SF, "SF", "Table 35", weighted = TRUE)
+# exportTable(item28.final.SF, "SF", "Table 35", weighted = TRUE)
 
 ##################################
 # Unweighted
@@ -232,7 +232,7 @@ item28.final <- proportions_one_group(CustomerLevelData  = item28.data
 item28.final.SF <- item28.final[which(item28.final$BuildingType == "Single Family")
                                 ,-which(colnames(item25.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
 
-exportTable(item28.final.SF, "SF", "Table 35", weighted = FALSE)
+# exportTable(item28.final.SF, "SF", "Table 35", weighted = FALSE)
 
 
 
@@ -275,7 +275,7 @@ item29.final <- proportions_one_group(CustomerLevelData  = item29.data
 
 item29.final.SF <- item29.final[which(item29.final$BuildingType == "Single Family"),-1]
 
-exportTable(item29.final.SF, "SF", "Table 36", weighted = TRUE)
+# exportTable(item29.final.SF, "SF", "Table 36", weighted = TRUE)
 
 
 ##################################
@@ -291,7 +291,7 @@ item29.final.SF <- item29.final[which(item29.final$BuildingType == "Single Famil
                                 ,-which(colnames(item25.final) %in% c("BuildingType"))]
 
 
-exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
+# exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 
 
 
@@ -412,7 +412,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # 
 # item24.os.final.SF <- item24.os.final[which(item24.os.final$BuildingType == "Single Family"),-1]
 # 
-# exportTable(item24.os.final.SF, "SF", "Table 31", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item24.os.final.SF, "SF", "Table 31", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # ##################################
@@ -440,7 +440,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # 
 # item24.os.final.SF <- item24.os.final[which(item24.os.final$BuildingType == "Single Family"),-1]
 # 
-# exportTable(item24.os.final.SF, "SF", "Table 31", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item24.os.final.SF, "SF", "Table 31", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -499,7 +499,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # 
 # item25.os.final.SF <- item25.os.final[which(item25.os.final$BuildingType == "Single Family"),-1]
 # 
-# exportTable(item25.os.final.SF, "SF", "Table 32", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item25.os.final.SF, "SF", "Table 32", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ##################################
 # # Unweighted
@@ -528,7 +528,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # item25.os.final.SF <- item25.os.final[which(item25.os.final$BuildingType == "Single Family")
 #                                 ,-which(colnames(item25.os.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
 # 
-# exportTable(item25.os.final.SF, "SF", "Table 32", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item25.os.final.SF, "SF", "Table 32", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -585,7 +585,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # 
 # item28.os.final.SF <- item28.os.final[which(item28.os.final$BuildingType == "Single Family"),-1]
 # 
-# exportTable(item28.os.final.SF, "SF", "Table 35", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item28.os.final.SF, "SF", "Table 35", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ##################################
 # # Unweighted
@@ -615,7 +615,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # item28.os.final.SF <- item28.os.final[which(item28.os.final$BuildingType == "Single Family")
 #                                 ,-which(colnames(item25.os.final) %in% c("BuildingType", "Homes.with.Attics", "Total.Count"))]
 # 
-# exportTable(item28.os.final.SF, "SF", "Table 35", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item28.os.final.SF, "SF", "Table 35", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -673,7 +673,7 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 # 
 # item29.os.final.SF <- item29.os.final[which(item29.os.final$BuildingType == "Single Family"),-1]
 # 
-# exportTable(item29.os.final.SF, "SF", "Table 36", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item29.os.final.SF, "SF", "Table 36", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # 
 # ##################################
@@ -704,4 +704,4 @@ exportTable(item29.final.SF, "SF", "Table 36", weighted = FALSE)
 #                                 ,-which(colnames(item25.os.final) %in% c("BuildingType"))]
 # 
 # 
-# exportTable(item29.os.final.SF, "SF", "Table 36", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item29.os.final.SF, "SF", "Table 36", weighted = FALSE, osIndicator = export.ind, OS = T)

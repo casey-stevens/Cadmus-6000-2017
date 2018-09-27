@@ -14,13 +14,6 @@ options(scipen = 999)
 ##  Create "Not In" operator
 "%notin%" <- Negate("%in%")
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
-
-
 # Read in clean RBSA data
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 length(unique(rbsa.dat$CK_Cadmus_ID)) 
@@ -175,7 +168,7 @@ item35.final <- mean_one_group(item35.data
 item35.final.SF <- item35.final[which(item35.final$BuildingType == "Single Family")
                                   ,-which(colnames(item35.final) %in% c("BuildingType"))]
 
-exportTable(item35.final.SF, "SF", "Table 42", weighted = TRUE)
+# exportTable(item35.final.SF, "SF", "Table 42", weighted = TRUE)
 
 
 
@@ -190,7 +183,7 @@ item35.final <- mean_one_group_unweighted(item35.data
 item35.final.SF <- item35.final[which(item35.final$BuildingType == "Single Family")
                                   ,-which(colnames(item35.final) %in% c("BuildingType"))]
 
-exportTable(item35.final.SF, "SF", "Table 42", weighted = FALSE)
+# exportTable(item35.final.SF, "SF", "Table 42", weighted = FALSE)
 
 
 

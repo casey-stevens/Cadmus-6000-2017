@@ -11,21 +11,21 @@ source("Code/Table Code/Step 1-Clean Data - Lock Down.R")
 
 # Source codes
 source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
+source("Code/Table Code/Weighting Implementation Functions - Lock Down.R")
 source("Code/Sample Weighting/Weights.R")
 source("Code/Table Code/Export Function.R")
 
 #############################################################################################
 # Read in all datasets
 #############################################################################################
-one.line.dat            <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary", startRow = 2)
-one.line.bldg.dat       <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary", startRow = 3)
+one.line.dat            <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.export), sheet = "Site One Line Summary")
+one.line.bldg.dat       <- read.xlsx(xlsxFile = file.path(filepathRawData, one.line.bldg.export), sheet = "Building One Line Summary")
 mechanical.dat          <- read.xlsx(mechanical.export)
 envelope.dat            <- read.xlsx(envelope.export)
 room.dat                <- read.xlsx(xlsxFile = file.path(filepathRawData, rooms.export))
 rooms.dat               <- room.dat
 windows.doors.dat       <- read.xlsx(xlsxFile = file.path(filepathRawData, windows.export))
-lighting.dat            <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export), startRow = 2)
+lighting.dat            <- read.xlsx(xlsxFile = file.path(filepathRawData, lighting.export))
 appliances.dat          <- read.xlsx(xlsxFile = file.path(filepathRawData, appliances.export))
 sites.interview.dat     <- read.xlsx(xlsxFile = file.path(filepathRawData, sites.interview.export))
 water.dat               <- read.xlsx(xlsxFile = file.path(filepathRawData, water.export))
@@ -60,6 +60,7 @@ run <- try(source("Code/Table Code/SF - Lock Down/Items 56-58.R"))
 run <- try(source("Code/Table Code/SF - Lock Down/Items 59,60.R"))
 run <- try(source("Code/Table Code/SF - Lock Down/Items 66-67.R"))
 run <- try(source("Code/Table Code/SF - Lock Down/Items 68-70, Table AE.R"))
+#ran up until here
 run <- try(source("Code/Table Code/SF - Lock Down/Items 71-76,Tables XX,YY,AF.R"))
 run <- try(source("Code/Table Code/SF - Lock Down/Items 77-79, Tables ZZ,AG,AH.R"))
 run <- try(source("Code/Table Code/SF - Lock Down/Items 80,81, Tables AB,AC.R"))

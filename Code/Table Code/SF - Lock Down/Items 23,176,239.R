@@ -16,11 +16,11 @@ options(scipen=999)
 "%notin%" <- Negate("%in%")
 
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
+# # Source codes
+# source("Code/Table Code/SourceCode.R")
+# source("Code/Table Code/Weighting Implementation Functions.R")
+# source("Code/Sample Weighting/Weights.R")
+# source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
@@ -452,7 +452,7 @@ item23.table <- data.frame(item23.table)
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.SF, "SF", "Table 30", weighted = TRUE)
+# exportTable(item23.table.SF, "SF", "Table 30", weighted = TRUE)
 
 ######################
 # Unweighted - Single Family
@@ -535,7 +535,7 @@ item23.table <- data.frame(item23.table)
 item23.table.SF <- item23.table[which(item23.table$BuildingType == "Single Family"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.SF, "SF", "Table 30", weighted = FALSE)
+# exportTable(item23.table.SF, "SF", "Table 30", weighted = FALSE)
 
 
 
@@ -625,7 +625,7 @@ item23.table <- data.frame(item23.table)
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
+# exportTable(item23.table.MH, "MH", "Table 18", weighted = TRUE)
 
 
 ######################
@@ -707,7 +707,7 @@ item23.table <- data.frame(item23.table)
 item23.table.MH <- item23.table[which(item23.table$BuildingType == "Manufactured"),-1]
 
 #export table to correct workbook using exporting function
-exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
+# exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 
 
 
@@ -756,7 +756,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # item176.table.MH <- item176.final[which(item176.final$BuildingType == "Manufactured"),-1]
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item176.table.MH, "MH", "Table 19", weighted = TRUE)
+# # exportTable(item176.table.MH, "MH", "Table 19", weighted = TRUE)
 # 
 # 
 # ######################
@@ -770,7 +770,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # item176.table.MH <- item176.final[which(item176.final$BuildingType == "Manufactured"),-1]
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item176.table.MH, "MH", "Table 19", weighted = FALSE)
+# # exportTable(item176.table.MH, "MH", "Table 19", weighted = FALSE)
 # 
 # 
 # 
@@ -913,7 +913,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # 
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item239.table.MF, "MF", "Table 31", weighted = TRUE)
+# # exportTable(item239.table.MF, "MF", "Table 31", weighted = TRUE)
 # 
 # 
 # 
@@ -982,7 +982,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # 
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item239.table.MF, "MF", "Table 31", weighted = FALSE)
+# # exportTable(item239.table.MF, "MF", "Table 31", weighted = FALSE)
 # 
 # 
 # 
@@ -1140,7 +1140,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # item23.os.table <- data.frame(item23.os.table)
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item23.os.table, "SF", "Table 30", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item23.os.table, "SF", "Table 30", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ######################
 # # Unweighted - Single Family
@@ -1219,7 +1219,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # item23.os.table <- data.frame(item23.os.table)
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item23.os.table, "SF", "Table 30", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item23.os.table, "SF", "Table 30", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -1347,7 +1347,7 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # item23A.os.table <- data.frame(item23A.os.table)
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item23A.os.table, "SF", "Table 30A", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item23A.os.table, "SF", "Table 30A", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ######################
 # # Unweighted - Single Family
@@ -1427,5 +1427,5 @@ exportTable(item23.table.MH, "MH", "Table 18", weighted = FALSE)
 # item23A.os.table <- item23A.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 # item23A.os.table <- data.frame(item23A.os.table)
 # #export table to correct workbook using exporting function
-# exportTable(item23A.os.table, "SF", "Table 30A", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item23A.os.table, "SF", "Table 30A", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 

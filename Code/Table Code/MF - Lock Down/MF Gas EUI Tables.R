@@ -40,7 +40,7 @@ billing.dat3 <- summarise(group_by(billing.dat2, PK_BuildingID, Unit.Only.Flag),
 # Read in Building Data and Clean
 building.summary <-
   read.xlsx(xlsxFile = file.path(filepathRawData, 
-                                 one.line.bldg.export), startRow = 2)
+                                 one.line.bldg.export))
 building.keep <- c("PK_BuildingID", "Total.Units.in.Building", "Total.Residential.Floor.Area",
                    "Area.of.Conditioned.Common.Space", "Total.Non-Residential.Floor.Area")
 building.summary2 <- building.summary[,building.keep]

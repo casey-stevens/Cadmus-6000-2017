@@ -20,11 +20,11 @@ options(scipen=999)
 ##  Create "Not In" operator
 "%notin%" <- Negate("%in%")
 
-# Source
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
+# # Source
+# source("Code/Table Code/SourceCode.R")
+# source("Code/Table Code/Weighting Implementation Functions - Lock Down.R")
+# source("Code/Sample Weighting/Weights.R")
+# source("Code/Table Code/Export Function.R")
 
 rbsa.dat <- read.xlsx(xlsxFile = file.path(filepathCleanData, paste("clean.rbsa.data", rundate, ".xlsx", sep = "")))
 rbsa.dat <- rbsa.dat[grep("site",rbsa.dat$CK_Building_ID, ignore.case = T),] 
@@ -100,7 +100,7 @@ item1.table.SF <- data.frame(item1.table[which(item1.table$BuildingType %in% c("
 item1.table.MH <- item1.table[which(item1.table$BuildingType %in% c("Manufactured")),-1]
 
 #exporting function
-exportTable(item1.table.SF, "SF", "Table 8", weighted = TRUE)
+# exportTable(item1.table.SF, "SF", "Table 8", weighted = TRUE)
 # exportTable(item1.table.MH, "MH", "Table 7", weighted = TRUE)
 
 
@@ -160,7 +160,7 @@ item1.table.SF.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c(
 item1.table.MH.unw <- item1.table.unw[which(item1.table.unw$BuildingType %in% c("Manufactured")),-1]
 
 #exporting function
-exportTable(item1.table.SF.unw, "SF", "Table 8", weighted = FALSE)
+# exportTable(item1.table.SF.unw, "SF", "Table 8", weighted = FALSE)
 # exportTable(item1.table.MH.unw, "MH", "Table 7", weighted = FALSE)
 
 
@@ -175,7 +175,7 @@ item2.dat$count <- 1
 ############################
 # weighted Analysis
 ############################
-item2.final <- proportionRowsAndColumns1(item2.dat
+item2.final <- proportionRowsAndColumns1(CustomerLevelData = item2.dat
                           , valueVariable = 'count'
                           , columnVariable = 'State'
                           , rowVariable = 'HomeYearBuilt_bins2'
@@ -228,7 +228,7 @@ item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family")
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 #exporting function
-exportTable(item2.table.SF, "SF", "Table 9", weighted = TRUE)
+# exportTable(item2.table.SF, "SF", "Table 9", weighted = TRUE)
 # exportTable(item2.table.MH, "MH", "Table 8", weighted = TRUE)
 
 
@@ -281,7 +281,7 @@ item2.table.SF <- item2.table[which(item2.table$BuildingType == "Single Family")
 item2.table.MH <- item2.table[which(item2.table$BuildingType == "Manufactured"),-1]
 
 #exporting function
-exportTable(item2.table.SF, "SF", "Table 9", weighted = FALSE)
+# exportTable(item2.table.SF, "SF", "Table 9", weighted = FALSE)
 # exportTable(item2.table.MH, "MH", "Table 8", weighted = FALSE)
 
 
@@ -344,7 +344,7 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
 
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 
-exportTable(item6.table.SF, "SF", "Table 13", weighted = TRUE)
+# exportTable(item6.table.SF, "SF", "Table 13", weighted = TRUE)
 
 
 
@@ -392,7 +392,7 @@ item6.table <- data.frame("BuildingType"    = item6.cast$BuildingType
 
 item6.table.SF <- item6.table[which(item6.table$BuildingType == "Single Family"),-1]
 
-exportTable(item6.table.SF, "SF", "Table 13", weighted = FALSE)
+# exportTable(item6.table.SF, "SF", "Table 13", weighted = FALSE)
 
 
 

@@ -249,6 +249,9 @@ tableNN.table.SF <- tableNN.table[which(tableNN.table$BuildingType == "Single Fa
 tableNN.table.MH <- tableNN.table[which(tableNN.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableNN.table) %notin% c("BuildingType"))]
 
+View(tableNN.table.SF)
+View(tableNN.table.MH)
+
 exportTable(tableNN.table.SF, "SF", "Table NN", weighted = TRUE)
 # exportTable(tableNN.table.MH, "MH", "Table NN", weighted = TRUE)
 
@@ -353,6 +356,9 @@ tableOO.table.SF <- tableOO.table[which(tableOO.table$BuildingType == "Single Fa
                                   ,which(colnames(tableOO.table) %notin% c("BuildingType"))]
 tableOO.table.MH <- tableOO.table[which(tableOO.table$BuildingType == "Manufactured")
                                   ,which(colnames(tableOO.table) %notin% c("BuildingType"))]
+
+View(tableOO.table.SF)
+View(tableOO.table.MH)
 
 exportTable(tableOO.table.SF, "SF", "Table OO", weighted = TRUE)
 # exportTable(tableOO.table.MH, "MH", "Table OO", weighted = TRUE)

@@ -27,19 +27,16 @@ library(data.table)
 ################################################################################
 rootpath              <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/FileMaker Data"
 billingRootpath       <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Analysis/Billing analysis"
-analysisFolder        <- file.path(rootpath, "$Clean Data", "2017.10.30")
-# rootpath              <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Management/Data to NEEA/Delivery Data"
-# billingRootpath       <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Management/2018 NEEA Followup/Data to NEEA/Delivery Data"
-# analysisFolder        <- "//projects.cadmusgroup.com@SSL/DavWWWRoot/sites/6000-P14/Shared Documents/Management/2018 NEEA Followup/Data to NEEA/Delivery Data"
+analysisFolder        <- rootpath
 # filepathRawData       <- file.path(analysisFolder,"Data for PSE")
-filepathRawData       <- file.path(analysisFolder)
-filepathCleanData     <- file.path(rootpath, "Analysis Documents", "Clean Data")
-filepathCleaningDocs  <- file.path(rootpath, "Analysis Documents")
-filepathWeightingDocs <- file.path(rootpath, "Analysis Documents", "Weight Source")
-outputFolder          <- file.path(rootpath, "Tables from Previous RBSA Report")
-filepathBillingData   <- file.path(billingRootpath)
+filepathRawData       <- file.path(analysisFolder,"$Clean Data", "2017.10.30")
+filepathCleanData     <- file.path(analysisFolder, "Analysis Documents", "Clean Data")
+filepathCleaningDocs  <- file.path(analysisFolder, "Analysis Documents")
+filepathWeightingDocs <- file.path(analysisFolder, "Analysis Documents", "Weight Source")
+outputFolder          <- file.path(analysisFolder, "Tables from Previous RBSA Report")
+filepathBillingData   <- file.path(billingRootpath, "Preliminary Results")
 
-file.exists(rootpath)
+file.exists(analysisFolder)
 
 stopifnot(all(file.exists(rootpath, analysisFolder, filepathRawData, filepathCleanData, filepathCleaningDocs, outputFolder, filepathBillingData)))
 
@@ -63,9 +60,9 @@ stopifnot(all(file.exists(file.path(filepathRawData, water.export))))
 
 
 
-# os.ind <- "scl"
-# export.ind <- "SCL"
-# subset.ind <- "SCL GenPop"
+os.ind <- "scl"
+export.ind <- "SCL"
+subset.ind <- "SCL GenPop"
 
 # os.ind <- "snopud"
 # export.ind <- "SnoPUD"

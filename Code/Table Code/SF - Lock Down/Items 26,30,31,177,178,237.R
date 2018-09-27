@@ -15,11 +15,11 @@ options(scipen=999)
 "%notin%" <- Negate("%in%")
 
 
-# Source codes
-source("Code/Table Code/SourceCode.R")
-source("Code/Table Code/Weighting Implementation Functions.R")
-source("Code/Sample Weighting/Weights.R")
-source("Code/Table Code/Export Function.R")
+# # Source codes
+# source("Code/Table Code/SourceCode.R")
+# source("Code/Table Code/Weighting Implementation Functions.R")
+# source("Code/Sample Weighting/Weights.R")
+# source("Code/Table Code/Export Function.R")
 
 
 # Read in clean RBSA data
@@ -323,7 +323,7 @@ item26.final <- proportions_one_group(CustomerLevelData = item26.data
                                       ,weighted         = TRUE)
 item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family")
                                 ,-which(colnames(item26.final) %in% c("BuildingType"))]
-exportTable(item26.final.SF, "SF", "Table 33", weighted = TRUE)
+# exportTable(item26.final.SF, "SF", "Table 33", weighted = TRUE)
 
 ##############################
 # Unweighted Analysis
@@ -335,7 +335,7 @@ item26.final <- proportions_one_group(CustomerLevelData = item26.data
                                       ,weighted         = FALSE)
 item26.final.SF <- item26.final[which(item26.final$BuildingType == "Single Family")
                                 ,-which(colnames(item26.final) %in% c("BuildingType"))]
-exportTable(item26.final.SF, "SF", "Table 33", weighted = FALSE)
+# exportTable(item26.final.SF, "SF", "Table 33", weighted = FALSE)
 
 
 
@@ -383,7 +383,7 @@ item30.final <- proportions_one_group(CustomerLevelData = item30.data
                                       ,weighted         = TRUE)
 item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
                                 ,-which(colnames(item30.final) %in% c("BuildingType"))]
-exportTable(item30.final.SF, "SF", "Table 37", weighted = TRUE)
+# exportTable(item30.final.SF, "SF", "Table 37", weighted = TRUE)
 
 ##############################
 # Unweighted Analysis
@@ -397,7 +397,7 @@ item30.final <- proportions_one_group(CustomerLevelData = item30.data
 
 item30.final.SF <- item30.final[which(item30.final$BuildingType == "Single Family")
                                 ,-which(colnames(item30.final) %in% c("BuildingType"))]
-exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
+# exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 
 
 
@@ -405,58 +405,58 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 
 
 
-# ############################################################################################################
-# ## Item 31
-# ############################################################################################################
-# item31.dat <- prep.dat5[which(prep.dat5$Ceiling.Type == "Roof Deck"),]
-# item31.dat$count <- 1
-# 
-# item31.dat0 <- item31.dat[which(item31.dat$Ceiling.Insulation.Thickness.1 != "N/A N/A"),]
-# 
-# item31.dat1 <- left_join(rbsa.dat, item31.dat0)
-# item31.dat2 <- item31.dat1[which(!is.na(item31.dat1$uvalue)),]
-# 
-# item31.data <- weightedData(item31.dat2[-c(grep("Ceiling", colnames(item31.dat2),ignore.case = T)
-#                                            ,which(colnames(item31.dat2) %in% c("Category"
-#                                                                                ,"CK_SiteID"
-#                                                                                ,"count"
-#                                                                                ,"uvalue"
-#                                                                                ,"total.r.val"
-#                                                                                ,"TMP_ID"
-#                                                                                ,"PK_Envelope_ID"
-#                                                                                ,"")))])
-# item31.data <- left_join(item31.data,item31.dat2[c(grep("Ceiling|ceiling", colnames(item31.dat2))
-#                                                    ,which(colnames(item31.dat2) %in% c("CK_Cadmus_ID"
-#                                                                                        ,"CK_Site_ID"
-#                                                                                        ,"Category"
-#                                                                                        ,"count"
-#                                                                                        ,"uvalue"
-#                                                                                        ,"total.r.val"
-#                                                                                        ,"TMP_ID"
-#                                                                                        ,"PK_Envelope_ID")))] )
-# 
-# ##############################
-# # Weighted Analysis
-# ##############################
-# item31.final <- proportions_one_group(CustomerLevelData = item31.data
-#                                       ,valueVariable    = 'count'
-#                                       ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
-#                                       ,total.name       = "Total"
-#                                       ,weighted         = TRUE)
-# item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
-#                                 , -which(colnames(item31.final) %in% c("BuildingType"))]
+############################################################################################################
+## Item 31
+############################################################################################################
+item31.dat <- prep.dat5[which(prep.dat5$Ceiling.Type == "Roof Deck"),]
+item31.dat$count <- 1
+
+item31.dat0 <- item31.dat[which(item31.dat$Ceiling.Insulation.Thickness.1 != "N/A N/A"),]
+
+item31.dat1 <- left_join(rbsa.dat, item31.dat0)
+item31.dat2 <- item31.dat1[which(!is.na(item31.dat1$uvalue)),]
+
+item31.data <- weightedData(item31.dat2[-c(grep("Ceiling", colnames(item31.dat2),ignore.case = T)
+                                           ,which(colnames(item31.dat2) %in% c("Category"
+                                                                               ,"CK_SiteID"
+                                                                               ,"count"
+                                                                               ,"uvalue"
+                                                                               ,"total.r.val"
+                                                                               ,"TMP_ID"
+                                                                               ,"PK_Envelope_ID"
+                                                                               ,"")))])
+item31.data <- left_join(item31.data,item31.dat2[c(grep("Ceiling|ceiling", colnames(item31.dat2))
+                                                   ,which(colnames(item31.dat2) %in% c("CK_Cadmus_ID"
+                                                                                       ,"CK_Site_ID"
+                                                                                       ,"Category"
+                                                                                       ,"count"
+                                                                                       ,"uvalue"
+                                                                                       ,"total.r.val"
+                                                                                       ,"TMP_ID"
+                                                                                       ,"PK_Envelope_ID")))] )
+
+##############################
+# Weighted Analysis
+##############################
+item31.final <- proportions_one_group(CustomerLevelData = item31.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
+                                      ,total.name       = "Total"
+                                      ,weighted         = TRUE)
+item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
+                                , -which(colnames(item31.final) %in% c("BuildingType"))]
 # exportTable(item31.final.SF, "SF", "Table 38", weighted = TRUE)
-# 
-# ##############################
-# # Unweighted Analysis
-# ##############################
-# item31.final <- proportions_one_group(CustomerLevelData = item31.data
-#                                       ,valueVariable    = 'count'
-#                                       ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
-#                                       ,total.name       = "Total"
-#                                       ,weighted         = FALSE)
-# item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
-#                                 , -which(colnames(item31.final) %in% c("BuildingType"))]
+
+##############################
+# Unweighted Analysis
+##############################
+item31.final <- proportions_one_group(CustomerLevelData = item31.data
+                                      ,valueVariable    = 'count'
+                                      ,groupingVariable = 'Ceiling.Insulation.Thickness.1'
+                                      ,total.name       = "Total"
+                                      ,weighted         = FALSE)
+item31.final.SF <- item31.final[which(item31.final$BuildingType == "Single Family")
+                                , -which(colnames(item31.final) %in% c("BuildingType"))]
 # exportTable(item31.final.SF, "SF", "Table 38", weighted = FALSE)
 
 
@@ -588,7 +588,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item177.table.MH <- item177.table[which(item177.table$BuildingType == "Manufactured"),-1]
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item177.table.MH, "MH", "Table 20", weighted = TRUE)
+# # exportTable(item177.table.MH, "MH", "Table 20", weighted = TRUE)
 # 
 # ############################################################################################################
 # # Unweighted - Manufactured
@@ -666,7 +666,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item177.table.MH <- item177.table[which(item177.table$BuildingType == "Manufactured"),-1]
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item177.table.MH, "MH", "Table 20", weighted = FALSE)
+# # exportTable(item177.table.MH, "MH", "Table 20", weighted = FALSE)
 # 
 # 
 # 
@@ -713,7 +713,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item178.final.MH <- item178.final[which(item178.final$BuildingType == "Manufactured")
 #                                   ,-which(colnames(item178.final) %in% c("BuildingType"))]
 # 
-# exportTable(item178.final.MH, "MH", "Table 21", weighted = TRUE)
+# # exportTable(item178.final.MH, "MH", "Table 21", weighted = TRUE)
 # 
 # 
 # 
@@ -728,7 +728,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item178.final.MH <- item178.final[which(item178.final$BuildingType == "Manufactured")
 #                                   ,-which(colnames(item178.final) %in% c("BuildingType"))]
 # 
-# exportTable(item178.final.MH, "MH", "Table 21", weighted = FALSE)
+# # exportTable(item178.final.MH, "MH", "Table 21", weighted = FALSE)
 # 
 # 
 # 
@@ -889,7 +889,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # 
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item237.table.MF, "MF", "Table 29", weighted = TRUE)
+# # exportTable(item237.table.MF, "MF", "Table 29", weighted = TRUE)
 # 
 # 
 # 
@@ -961,7 +961,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # 
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item237.table.MF, "MF", "Table 29", weighted = FALSE)
+# # exportTable(item237.table.MF, "MF", "Table 29", weighted = FALSE)
 # 
 # 
 # 
@@ -1127,7 +1127,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item26.os.table <- data.frame(item26.os.table)
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item26.os.table, "SF", "Table 33", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item26.os.table, "SF", "Table 33", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ######################
 # # Unweighted - Single Family
@@ -1208,7 +1208,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item26.os.table <- data.frame(item26.os.table)
 # 
 # #export table to correct workbook using exporting function
-# exportTable(item26.os.table, "SF", "Table 33", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item26.os.table, "SF", "Table 33", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # ############################################################################################################
@@ -1333,7 +1333,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item30.os.table <- item30.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 # item30.os.table <- data.frame(item30.os.table)
 # 
-# exportTable(item30.os.table, "SF", "Table 37", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item30.os.table, "SF", "Table 37", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ##############################
 # # Unweighted Analysis
@@ -1412,7 +1412,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # item30.os.table <- item30.os.table %>% mutate(Insulation.Level = factor(Insulation.Level, levels = rowOrder)) %>% arrange(Insulation.Level)  
 # item30.os.table <- data.frame(item30.os.table)
 # 
-# exportTable(item30.os.table, "SF", "Table 37", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item30.os.table, "SF", "Table 37", weighted = FALSE, osIndicator = export.ind, OS = T)
 # 
 # 
 # 
@@ -1497,7 +1497,7 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # }
 # item31.os.table
 # 
-# exportTable(item31.os.table, "SF", "Table 38", weighted = TRUE, osIndicator = export.ind, OS = T)
+# # exportTable(item31.os.table, "SF", "Table 38", weighted = TRUE, osIndicator = export.ind, OS = T)
 # 
 # ##############################
 # # Unweighted Analysis
@@ -1545,4 +1545,4 @@ exportTable(item30.final.SF, "SF", "Table 37", weighted = FALSE)
 # 
 # item31.os.table
 # 
-# exportTable(item31.os.table, "SF", "Table 38", weighted = FALSE, osIndicator = export.ind, OS = T)
+# # exportTable(item31.os.table, "SF", "Table 38", weighted = FALSE, osIndicator = export.ind, OS = T)
